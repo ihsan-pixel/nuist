@@ -178,6 +178,7 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin,pengurus'])->prefix('mobi
         Route::get('/dashboard', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'dashboard'])->name('dashboard');
         Route::get('/sekolah', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'index'])->name('sekolah');
         Route::get('/sekolah/{id}', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'show'])->name('sekolah.show');
+        Route::get('/sekolah/{id}/monthly-attendance-data', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'getMonthlyAttendanceData'])->name('sekolah.monthly-attendance-data');
         Route::get('/data-presensi-mengajar', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'dataPresensiMengajar'])->name('data-presensi-mengajar');
         Route::get('/presensi-kehadiran', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'presensiKehadiran'])->name('presensi-kehadiran');
         Route::get('/uppm', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'uppm'])->name('uppm');

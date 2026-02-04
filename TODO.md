@@ -1,22 +1,28 @@
-# TODO: Mobile Interface for Pengurus Role
+# TODO: Implement Monthly Teacher Attendance Summary in School Detail Mobile View
 
 ## Completed Tasks
-- [x] Update mobile routes to include 'pengurus' role in middleware
-- [x] Modify DashboardController to handle pengurus role
-- [x] Create separate dashboard view for pengurus (dashboard-pengurus.blade.php)
-- [x] Update mobile layout to show appropriate navigation for pengurus role
-- [x] Add pengurus-specific menu items in mobile dashboard
-- [x] Implement automatic redirect to mobile dashboard for pengurus users after login
-
-## Remaining Tasks
-- [ ] Test the mobile interface for pengurus role
-- [ ] Ensure all menu links work correctly
-- [ ] Verify responsive design on mobile devices
-- [ ] Add any missing menu icons or adjust existing ones
+- [x] Analyze existing code structure and attendance models
+- [x] Add necessary imports (Carbon, Presensi, Holiday) to SekolahController
+- [x] Create getMonthlyAttendanceSummary() method with hari_kbm logic (5/6 days)
+- [x] Update show() method to handle month parameter and pass monthly data
+- [x] Replace placeholder presensi section with monthly summary display
+- [x] Implement month selector for attendance history
+- [x] Add AJAX API endpoint for dynamic month switching
+- [x] Implement AJAX-powered month change functionality with loading states
+- [x] Add error handling and URL state management
+- [x] Implement mobile-friendly UI with summary cards and daily breakdown
+- [x] Test route functionality and verify no syntax errors
 
 ## Summary
-The mobile interface for users with 'pengurus' role has been implemented with:
-- Access to all current menu items available to pengurus
-- Mobile-optimized dashboard with statistics
-- Role-specific bottom navigation
-- Consistent styling with tenaga_pendidik mobile interface
+Successfully implemented monthly teacher attendance summary in the school detail mobile view with:
+- Monthly summary respecting school's hari_kbm (5 days Mon-Fri or 6 days Mon-Sat)
+- Excludes holidays from working day calculations
+- Month selector dropdown for viewing attendance history
+- AJAX-powered dynamic updates without page refresh
+- Loading indicators and error handling
+- URL state management for bookmarking/sharing
+- Mobile-optimized UI with color-coded status badges (Hadir=Green, Izin=Yellow, Alpha=Red)
+- Summary cards showing total counts and attendance percentage
+- Daily breakdown with individual day statistics showing working days vs non-working days
+- Scrollable monthly view for better mobile experience
+- Responsive design suitable for mobile devices

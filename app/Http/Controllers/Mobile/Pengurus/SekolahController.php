@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Mobile\Pengurus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use App\Models\Madrasah;
 use App\Models\DataSekolah;
 use App\Models\User;
 use App\Models\PPDBSetting;
 use App\Models\StatusKepegawaian;
+use App\Models\Presensi;
+use App\Models\Holiday;
 
 class SekolahController extends \App\Http\Controllers\Controller
 {
@@ -264,7 +267,7 @@ class SekolahController extends \App\Http\Controllers\Controller
     /**
      * Menampilkan detail sekolah
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $user = Auth::user();
 
@@ -291,12 +294,155 @@ class SekolahController extends \App\Http\Controllers\Controller
         $website = $this->getWebsite($id);
         $tenagaPendidik = $this->getTenagaPendidik($id);
 
+        // Get selected month or default to current month
+        $selectedMonth = $request->input('month', Carbon::now()->format('Y-m'));
+        $monthlyAttendance = $this->getMonthlyAttendanceSummary($id, $selectedMonth);
+
         return view('mobile.pengurus.sekolah-detail', compact(
             'madrasah', 'dataSekolah', 'jumlahGuru', 'jumlahSiswa',
             'jumlahJurusan', 'jumlahSarana', 'fasilitasList', 'ppdbSetting',
             'tahunBerdiri', 'akreditasi', 'telepon', 'email', 'website',
-            'tenagaPendidik'
+            'tenagaPendidik', 'monthlyAttendance', 'selectedMonth'
         ));
+    }
+
+    /**
+     * API endpoint to get monthly attendance data for AJAX requests
+     */
+    public function getMonthlyAttendanceData(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'pengurus') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $madrasah = Madrasah::findOrFail($id);
+
+        // Get selected month or default to current month
+        $selectedMonth = $request->input('month', Carbon::now()->format('Y-m'));
+        $monthlyAttendance = $this->getMonthlyAttendanceSummary($id, $selectedMonth);
+
+        return response()->json($monthlyAttendance);
+    }
+
+    /**
+     * Get monthly attendance summary for teachers in a specific school
+     */
+    private function getMonthlyAttendanceSummary($madrasahId, $month = null, $year = null)
+    {
+        // Get selected month or current month
+        $selectedMonth = $month ? Carbon::createFromFormat('Y-m', $month) : Carbon::now();
+        $year = $year ?: $selectedMonth->year;
+        $month = $selectedMonth->month;
+
+        // Get madrasah to determine hari_kbm
+        $madrasah = Madrasah::find($madrasahId);
+        $hariKbm = $madrasah ? $madrasah->hari_kbm : 5; // Default to 5 if not set
+
+        $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $madrasahId)
+            ->get();
+
+        $monthlyData = [];
+        $totalHadir = 0;
+        $totalIzin = 0;
+        $totalAlpha = 0;
+        $totalWorkingDays = 0;
+
+        $startOfMonth = Carbon::create($year, $month, 1);
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+        $currentDate = $startOfMonth->copy();
+
+        while ($currentDate <= $endOfMonth) {
+            $dayOfWeek = $currentDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
+            $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
+
+            // Check if it's a working day based on hari_kbm
+            $isWorkingDay = false;
+            if ($hariKbm == 5) {
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5); // Monday to Friday
+            } elseif ($hariKbm == 6) {
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6); // Monday to Saturday
+            }
+
+            $dayName = $currentDate->locale('id')->isoFormat('dddd');
+
+            $dayData = [
+                'date' => $currentDate->toDateString(),
+                'day_name' => $dayName,
+                'is_holiday' => $isHoliday,
+                'is_working_day' => $isWorkingDay && !$isHoliday,
+                'hadir' => 0,
+                'izin' => 0,
+                'alpha' => 0
+            ];
+
+            if ($isWorkingDay && !$isHoliday) {
+                $totalWorkingDays++;
+                foreach ($tenagaPendidik as $guru) {
+                    $presensi = Presensi::where('user_id', $guru->id)
+                        ->whereDate('tanggal', $currentDate)
+                        ->first();
+
+                    if ($presensi) {
+                        if ($presensi->status === 'hadir') {
+                            $dayData['hadir']++;
+                            $totalHadir++;
+                        } elseif ($presensi->status === 'izin') {
+                            $dayData['izin']++;
+                            $totalIzin++;
+                        } else {
+                            $dayData['alpha']++;
+                            $totalAlpha++;
+                        }
+                    } else {
+                        $dayData['alpha']++;
+                        $totalAlpha++;
+                    }
+                }
+            }
+
+            $monthlyData[] = $dayData;
+            $currentDate->addDay();
+        }
+
+        $totalPresensi = $totalHadir + $totalIzin + $totalAlpha;
+        $persentaseKehadiran = $totalPresensi > 0 ? round(($totalHadir / $totalPresensi) * 100, 1) : 0;
+
+        // Get available months for history
+        $availableMonths = DB::table('presensis')
+            ->join('users', 'presensis.user_id', '=', 'users.id')
+            ->selectRaw("DISTINCT DATE_FORMAT(presensis.tanggal, '%Y-%m') as month_year, DATE_FORMAT(presensis.tanggal, '%M %Y') as month_name")
+            ->where(function ($q) use ($madrasahId) {
+                $q->where('presensis.madrasah_id', $madrasahId)
+                  ->orWhere(function ($subQ) use ($madrasahId) {
+                      $subQ->whereNull('presensis.madrasah_id')
+                           ->where('users.madrasah_id', $madrasahId)
+                           ->where('users.role', 'tenaga_pendidik');
+                  });
+            })
+            ->orderBy('month_year', 'desc')
+            ->get();
+
+        return [
+            'monthly_data' => $monthlyData,
+            'summary' => [
+                'total_guru' => $tenagaPendidik->count(),
+                'total_hadir' => $totalHadir,
+                'total_izin' => $totalIzin,
+                'total_alpha' => $totalAlpha,
+                'total_working_days' => $totalWorkingDays,
+                'persentase_kehadiran' => $persentaseKehadiran,
+                'hari_kbm' => $hariKbm
+            ],
+            'month_info' => [
+                'current_month' => $selectedMonth->format('Y-m'),
+                'month_name' => $selectedMonth->locale('id')->isoFormat('MMMM YYYY'),
+                'available_months' => $availableMonths
+            ]
+        ];
     }
 }
 
