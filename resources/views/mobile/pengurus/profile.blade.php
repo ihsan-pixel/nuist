@@ -266,7 +266,7 @@
             <span class="info-label">Email</span>
             <span class="info-value">{{ Auth::user()->email }}</span>
         </div>
-        <div class="info-item">
+        /* <div class="info-item">
             <span class="info-label">Role</span>
             <span class="info-value">{{ ucfirst(Auth::user()->role) }}</span>
         </div>
@@ -279,7 +279,7 @@
                 <span style="color: #ffc107;">Default</span>
                 @endif
             </span>
-        </div>
+        </div> */
     </div>
 
     <!-- Pengaturan -->
