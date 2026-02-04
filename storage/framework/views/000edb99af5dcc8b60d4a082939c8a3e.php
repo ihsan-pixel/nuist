@@ -393,5 +393,4 @@ function logoutConfirm() {
 </script>
 <?php $__env->stopSection(); ?>
 
-
 <?php echo $__env->make('layouts.mobile-pengurus', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/pengurus/profile.blade.php ENDPATH**/ ?>

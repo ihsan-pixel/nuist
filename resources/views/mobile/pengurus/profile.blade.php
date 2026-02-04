@@ -266,20 +266,6 @@
             <span class="info-label">Email</span>
             <span class="info-value">{{ Auth::user()->email }}</span>
         </div>
-        /* <div class="info-item">
-            <span class="info-label">Role</span>
-            <span class="info-value">{{ ucfirst(Auth::user()->role) }}</span>
-        </div>
-        <div class="info-item">
-            <span class="info-label">Status Password</span>
-            <span class="info-value">
-                @if(Auth::user()->password_changed)
-                <span style="color: #28a745;">Sudah diubah</span>
-                @else
-                <span style="color: #ffc107;">Default</span>
-                @endif
-            </span>
-        </div> */
     </div>
 
     <!-- Pengaturan -->
