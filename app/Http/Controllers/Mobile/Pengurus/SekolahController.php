@@ -793,8 +793,7 @@ class SekolahController extends \App\Http\Controllers\Controller
             }
 
             // Ambil data dari database laporan_akhir_tahun_kepala_sekolah berdasarkan madrasah_id
-            $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
-                ->where('madrasah_id', $madrasah->id)
+            $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('madrasah_id', $madrasah->id)
                 ->latest()
                 ->first();
 
@@ -935,14 +934,6 @@ class SekolahController extends \App\Http\Controllers\Controller
             $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
                 ->where('madrasah_id', $m->id)
                 ->first();
-
-            if ($laporan && $laporan->status === 'published') {
-                $lap = 100;
-            } elseif ($laporan && $laporan->status === 'draft') {
-                $lap = 50;
-            } else {
-                $lap = 0;
-            }
 
             // Hitung ppdb
             $ppdb = PPDBSetting::where('sekolah_id', $m->id)->where('tahun', now()->year)->first();
