@@ -680,8 +680,9 @@ class SekolahController extends \App\Http\Controllers\Controller
             if ($tenagaPendidik->count() > 0) {
                 $currentMonth = now()->month;
                 $currentYear = now()->year;
+                $today = now()->day;
                 $startOfMonth = Carbon::create($currentYear, $currentMonth, 1);
-                $endOfMonth = $startOfMonth->copy()->endOfMonth();
+                $endOfMonth = now(); // Samapai hari ini
 
                 $hariKbm = $madrasah->hari_kbm ?? 5;
                 $workingDays = 0;
@@ -713,7 +714,8 @@ class SekolahController extends \App\Http\Controllers\Controller
                     'total_guru' => $tenagaPendidik->count(),
                     'working_days' => $workingDays,
                     'total_presensi' => $totalActualPresensi,
-                    'expected_presensi' => $totalExpectedPresensi
+                    'expected_presensi' => $totalExpectedPresensi,
+                    'tanggal_sampai' => now()->format('d M Y')
                 ];
             } else {
                 $madrasah->presensi_kehadiran_percentage = 0;
@@ -721,7 +723,8 @@ class SekolahController extends \App\Http\Controllers\Controller
                     'total_guru' => 0,
                     'working_days' => 0,
                     'total_presensi' => 0,
-                    'expected_presensi' => 0
+                    'expected_presensi' => 0,
+                    'tanggal_sampai' => now()->format('d M Y')
                 ];
             }
 
@@ -729,15 +732,28 @@ class SekolahController extends \App\Http\Controllers\Controller
             $teachingSchedules = TeachingSchedule::where('school_id', $madrasah->id)->count();
             if ($teachingSchedules > 0) {
                 $startOfMonth = Carbon::create($currentYear, $currentMonth, 1)->startOfDay();
-                $endOfMonth = Carbon::create($currentYear, $currentMonth, 1)->endOfMonth()->endOfDay();
+                $endOfMonth = now()->endOfDay(); // Samapai hari ini
 
                 $totalTeachingAttendances = TeachingAttendance::whereHas('teachingSchedule', function($q) use ($madrasah) {
                     $q->where('school_id', $madrasah->id);
                 })->whereBetween('tanggal', [$startOfMonth, $endOfMonth])->count();
 
-                // Estimasi: jumlah jadwal x rata-rata pertemuan per bulan (4 minggu x hari KBM)
+                // Estimasi: jumlah jadwal x rata-rata pertemuan per hari KBM x hari aktif
                 $hariKbm = $madrasah->hari_kbm ?? 5;
-                $estimatedMeetings = $teachingSchedules * 4 * $hariKbm;
+                $workingDays = 0;
+                $tempDate = Carbon::create($currentYear, $currentMonth, 1)->copy();
+                $todayDate = now();
+
+                while ($tempDate <= $todayDate) {
+                    $dayOfWeek = $tempDate->dayOfWeek;
+                    $isWorkingDay = ($hariKbm == 5 && $dayOfWeek >= 1 && $dayOfWeek <= 5) || ($hariKbm == 6 && $dayOfWeek >= 1 && $dayOfWeek <= 6);
+                    if ($isWorkingDay && !Holiday::where('date', $tempDate->toDateString())->exists()) {
+                        $workingDays++;
+                    }
+                    $tempDate->addDay();
+                }
+
+                $estimatedMeetings = $teachingSchedules * $workingDays;
 
                 $madrasah->presensi_mengajar_percentage = $estimatedMeetings > 0
                     ? round(($totalTeachingAttendances / $estimatedMeetings) * 100, 1)
@@ -745,14 +761,18 @@ class SekolahController extends \App\Http\Controllers\Controller
                 $madrasah->presensi_mengajar_details = [
                     'total_jadwal' => $teachingSchedules,
                     'total_presensi_mengajar' => $totalTeachingAttendances,
-                    'estimated_meetings' => $estimatedMeetings
+                    'estimated_meetings' => $estimatedMeetings,
+                    'working_days' => $workingDays,
+                    'tanggal_sampai' => now()->format('d M Y')
                 ];
             } else {
                 $madrasah->presensi_mengajar_percentage = 0;
                 $madrasah->presensi_mengajar_details = [
                     'total_jadwal' => 0,
                     'total_presensi_mengajar' => 0,
-                    'estimated_meetings' => 0
+                    'estimated_meetings' => 0,
+                    'working_days' => 0,
+                    'tanggal_sampai' => now()->format('d M Y')
                 ];
             }
 
@@ -832,7 +852,7 @@ class SekolahController extends \App\Http\Controllers\Controller
         $avgPPDB = 0;
 
         $sekolahLengkap = $allMadrasah->filter(function($m) use (&$avgPresensiKehadiran, &$avgPresensiMengajar, &$avgLaporan, &$avgPPDB) {
-            // Hitung presensi kehadiran
+            // Hitung presensi kehadiran sampai hari ini
             $tp = User::where('madrasah_id', $m->id)->where('role', 'tenaga_pendidik')->pluck('id');
             $ph = 0;
             if ($tp->count() > 0) {
@@ -841,27 +861,36 @@ class SekolahController extends \App\Http\Controllers\Controller
                 $hariKbm = $m->hari_kbm ?? 5;
                 $workingDays = 0;
                 $tempDate = Carbon::create($currentYear, $currentMonth, 1);
-                $endOfMonth = $tempDate->copy()->endOfMonth();
-                while ($tempDate <= $endOfMonth) {
+                $todayDate = now();
+                while ($tempDate <= $todayDate) {
                     $dayOfWeek = $tempDate->dayOfWeek;
                     $isWorkingDay = ($hariKbm == 5 && $dayOfWeek >= 1 && $dayOfWeek <= 5) || ($hariKbm == 6 && $dayOfWeek >= 1 && $dayOfWeek <= 6);
                     if ($isWorkingDay && !Holiday::where('date', $tempDate->toDateString())->exists()) $workingDays++;
                     $tempDate->addDay();
                 }
                 $expected = $tp->count() * $workingDays;
-                $actual = Presensi::whereIn('user_id', $tp)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->count();
+                $actual = Presensi::whereIn('user_id', $tp)->whereBetween('tanggal', [Carbon::create($currentYear, $currentMonth, 1), now()])->count();
                 $ph = $expected > 0 ? round(($actual / $expected) * 100, 1) : 0;
             }
 
-            // Hitung presensi mengajar
+            // Hitung presensi mengajar sampai hari ini
             $ts = TeachingSchedule::where('school_id', $m->id)->count();
             $pm = 0;
             if ($ts > 0) {
+                $hariKbm = $m->hari_kbm ?? 5;
+                $workingDays = 0;
+                $tempDate = Carbon::create(now()->year, now()->month, 1)->copy();
+                $todayDate = now();
+                while ($tempDate <= $todayDate) {
+                    $dayOfWeek = $tempDate->dayOfWeek;
+                    $isWorkingDay = ($hariKbm == 5 && $dayOfWeek >= 1 && $dayOfWeek <= 5) || ($hariKbm == 6 && $dayOfWeek >= 1 && $dayOfWeek <= 6);
+                    if ($isWorkingDay && !Holiday::where('date', $tempDate->toDateString())->exists()) $workingDays++;
+                    $tempDate->addDay();
+                }
                 $totalAttendance = TeachingAttendance::whereHas('teachingSchedule', function($q) use ($m) {
                     $q->where('school_id', $m->id);
-                })->whereMonth('tanggal', now()->month)->whereYear('tanggal', now()->year)->count();
-                $hariKbm = $m->hari_kbm ?? 5;
-                $estimated = $ts * 4 * $hariKbm;
+                })->whereBetween('tanggal', [Carbon::create(now()->year, now()->month, 1)->startOfDay(), now()->endOfDay()])->count();
+                $estimated = $ts * $workingDays;
                 $pm = $estimated > 0 ? round(($totalAttendance / $estimated) * 100, 1) : 0;
             }
 
