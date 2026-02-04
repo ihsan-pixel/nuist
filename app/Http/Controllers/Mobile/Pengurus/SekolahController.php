@@ -777,18 +777,51 @@ class SekolahController extends \App\Http\Controllers\Controller
             }
 
             // ========== 4. Persentase Pengisian Laporan Akhir Tahun ==========
-            $laporanFields = ['deskripsi_singkat', 'sejarah', 'visi', 'misi', 'keunggulan', 'fasilitas', 'program_unggulan', 'ekstrakurikuler', 'prestasi'];
-            $laporanFilled = 0;
-            foreach ($laporanFields as $field) {
-                if (!is_null($madrasah->$field) && !empty($madrasah->$field)) {
-                    $laporanFilled++;
-                }
-            }
-            $madrasah->laporan_akhir_tahun_percentage = round(($laporanFilled / count($laporanFields)) * 100);
-            $madrasah->laporan_akhir_tahun_details = [
-                'filled' => $laporanFilled,
-                'total' => count($laporanFields)
+            $laporanFields = [
+                'nama_satpen', 'alamat', 'nama_kepala_sekolah_madrasah', 'gelar',
+                'tmt_ks_kamad_pertama', 'tmt_ks_kamad_terakhir', 'tahun_pelaporan',
+                'jumlah_siswa_2023', 'jumlah_siswa_2024', 'jumlah_siswa_2025',
+                'model_layanan_pendidikan', 'capaian_layanan_menonjol', 'masalah_layanan_utama',
+                'pns_sertifikasi', 'pns_non_sertifikasi', 'gty_sertifikasi_inpassing',
+                'gty_sertifikasi', 'gty_non_sertifikasi', 'gtt', 'pty', 'ptt',
+                'sumber_dana_utama', 'kondisi_keuangan_akhir_tahun', 'catatan_pengelolaan_keuangan',
+                'metode_ppdb', 'hasil_ppdb_tahun_berjalan', 'masalah_utama_ppdb',
+                'nama_program_unggulan', 'alasan_pemilihan_program', 'target_unggulan',
+                'kontribusi_unggulan', 'sumber_biaya_program', 'tim_program_unggulan',
+                'keberhasilan_terbesar_tahun_ini', 'masalah_paling_berat_dihadapi',
+                'risiko_terbesar_satpen_tahun_depan', 'fokus_perbaikan_tahun_depan'
             ];
+
+            // Cek dari tabel laporan_akhir_tahun_kepala_sekolah
+            $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
+                ->whereHas('user', function($q) use ($madrasah) {
+                    $q->where('madrasah_id', $madrasah->id);
+                })
+                ->first();
+
+            if ($laporan) {
+                $laporanFilled = 0;
+                foreach ($laporanFields as $field) {
+                    if (!is_null($laporan->$field) && $laporan->$field !== '' && $laporan->$field !== 0) {
+                        $laporanFilled++;
+                    }
+                }
+                $madrasah->laporan_akhir_tahun_percentage = round(($laporanFilled / count($laporanFields)) * 100);
+                $madrasah->laporan_akhir_tahun_details = [
+                    'filled' => $laporanFilled,
+                    'total' => count($laporanFields),
+                    'status' => $laporan->status ?? 'draft',
+                    'tahun' => $laporan->tahun_pelaporan
+                ];
+            } else {
+                $madrasah->laporan_akhir_tahun_percentage = 0;
+                $madrasah->laporan_akhir_tahun_details = [
+                    'filled' => 0,
+                    'total' => count($laporanFields),
+                    'status' => 'belum_isi',
+                    'tahun' => now()->year
+                ];
+            }
 
             // ========== 5. Kelengkapan Data PPDB Settings ==========
             $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
@@ -894,11 +927,39 @@ class SekolahController extends \App\Http\Controllers\Controller
                 $pm = $estimated > 0 ? round(($totalAttendance / $estimated) * 100, 1) : 0;
             }
 
-            // Hitung laporan
-            $lapFields = ['deskripsi_singkat', 'sejarah', 'visi', 'misi', 'keunggulan', 'fasilitas', 'program_unggulan', 'ekstrakurikuler', 'prestasi'];
-            $lapFilled = 0;
-            foreach ($lapFields as $f) { if (!empty($m->$f)) $lapFilled++; }
-            $lap = round(($lapFilled / count($lapFields)) * 100);
+            // Hitung laporan dari tabel laporan_akhir_tahun_kepala_sekolah
+            $laporanFields = [
+                'nama_satpen', 'alamat', 'nama_kepala_sekolah_madrasah', 'gelar',
+                'tmt_ks_kamad_pertama', 'tmt_ks_kamad_terakhir', 'tahun_pelaporan',
+                'jumlah_siswa_2023', 'jumlah_siswa_2024', 'jumlah_siswa_2025',
+                'model_layanan_pendidikan', 'capaian_layanan_menonjol', 'masalah_layanan_utama',
+                'pns_sertifikasi', 'pns_non_sertifikasi', 'gty_sertifikasi_inpassing',
+                'gty_sertifikasi', 'gty_non_sertifikasi', 'gtt', 'pty', 'ptt',
+                'sumber_dana_utama', 'kondisi_keuangan_akhir_tahun', 'catatan_pengelolaan_keuangan',
+                'metode_ppdb', 'hasil_ppdb_tahun_berjalan', 'masalah_utama_ppdb',
+                'nama_program_unggulan', 'alasan_pemilihan_program', 'target_unggulan',
+                'kontribusi_unggulan', 'sumber_biaya_program', 'tim_program_unggulan',
+                'keberhasilan_terbesar_tahun_ini', 'masalah_paling_berat_dihadapi',
+                'risiko_terbesar_satpen_tahun_depan', 'fokus_perbaikan_tahun_depan'
+            ];
+
+            $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
+                ->whereHas('user', function($q) use ($m) {
+                    $q->where('madrasah_id', $m->id);
+                })
+                ->first();
+
+            if ($laporan) {
+                $lapFilled = 0;
+                foreach ($laporanFields as $f) {
+                    if (!is_null($laporan->$f) && $laporan->$f !== '' && $laporan->$f !== 0) {
+                        $lapFilled++;
+                    }
+                }
+                $lap = round(($lapFilled / count($laporanFields)) * 100);
+            } else {
+                $lap = 0;
+            }
 
             // Hitung ppdb
             $ppdb = PPDBSetting::where('sekolah_id', $m->id)->where('tahun', now()->year)->first();
