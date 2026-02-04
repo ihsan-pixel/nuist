@@ -332,8 +332,8 @@
         }
 
         .qr-image {
-            width: 240px;
-            height: 240px;
+            width: 160px;
+            height: 160px;
         }
 
         .qr-container {
