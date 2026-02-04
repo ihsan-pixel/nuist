@@ -176,6 +176,7 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin,pengurus'])->prefix('mobi
     // Pengurus routes
     Route::prefix('pengurus')->name('pengurus.')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'dashboard'])->name('dashboard');
+        Route::get('/kelengkapan-data', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'kelengkapanData'])->name('kelengkapan-data');
         Route::get('/sekolah', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'index'])->name('sekolah');
         Route::get('/sekolah/{id}', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'show'])->name('sekolah.show');
         Route::get('/sekolah/{id}/monthly-attendance-data', [App\Http\Controllers\Mobile\Pengurus\SekolahController::class, 'getMonthlyAttendanceData'])->name('sekolah.monthly-attendance-data');

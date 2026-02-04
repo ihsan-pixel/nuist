@@ -383,9 +383,9 @@
                 <i class="bx bx-building"></i>
                 <span>Madrasah</span>
             </a>
-            <a>
-                <i></i>
-                <span style="color: #ffffff !important;">|---------|</span>
+            <a href="{{ route('mobile.pengurus.kelengkapan-data') }}" class="nav-link {{ request()->routeIs('mobile.pengurus.kelengkapan-data') ? 'active' : '' }}">
+                <i class="bx bx-data"></i>
+                <span>Kelengkapan</span>
             </a>
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
@@ -394,9 +394,9 @@
                 </a>
             </div>
 
-            <a href="{{ route('dashboard') }}" class="nav-link">
-                <i class="bx bx-desktop"></i>
-                <span>Desktop</span>
+            <a href="{{ route('mobile.pengurus.kelengkapan-data') }}" class="nav-link">
+                <i class="bx bx-checklist"></i>
+                <span>Kelengkapan</span>
             </a>
             <a href="{{ route('mobile.pengurus.profile') }}" class="nav-link {{ request()->routeIs('mobile.pengurus.profile') ? 'active' : '' }}">
                 <i class="bx bx-user"></i>

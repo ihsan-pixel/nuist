@@ -628,5 +628,274 @@ class SekolahController extends \App\Http\Controllers\Controller
             })->toArray()
         ];
     }
+
+    /**
+     * Menampilkan halaman kelengkapan data sekolah
+     */
+    public function kelengkapanData(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'pengurus') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $search = $request->get('search', '');
+        $kabupaten = $request->get('kabupaten', '');
+
+        $query = Madrasah::query();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('kabupaten', 'like', '%' . $search . '%')
+                  ->orWhere('alamat', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($kabupaten) {
+            $query->where('kabupaten', $kabupaten);
+        }
+
+        $madrasahs = $query->orderBy('scod', 'asc')
+                          ->paginate(10);
+
+        // Hitung kelengkapan data untuk setiap sekolah
+        $madrasahs->getCollection()->transform(function ($madrasah) {
+            // ========== 1. Kelengkapan Data Madrasah ==========
+            $madrasahFields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm', 'scod'];
+            $madrasahFilled = 0;
+            foreach ($madrasahFields as $field) {
+                if (!is_null($madrasah->$field)) {
+                    $madrasahFilled++;
+                }
+            }
+            $madrasah->completeness_percentage = round(($madrasahFilled / count($madrasahFields)) * 100);
+
+            // ========== 2. Persentase Presensi Kehadiran ==========
+            $tenagaPendidik = User::where('madrasah_id', $madrasah->id)
+                ->where('role', 'tenaga_pendidik')
+                ->pluck('id');
+
+            if ($tenagaPendidik->count() > 0) {
+                $currentMonth = now()->month;
+                $currentYear = now()->year;
+                $startOfMonth = Carbon::create($currentYear, $currentMonth, 1);
+                $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+                $hariKbm = $madrasah->hari_kbm ?? 5;
+                $workingDays = 0;
+                $tempDate = $startOfMonth->copy();
+
+                while ($tempDate <= $endOfMonth) {
+                    $dayOfWeek = $tempDate->dayOfWeek;
+                    $isWorkingDay = false;
+                    if ($hariKbm == 5) {
+                        $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
+                    } elseif ($hariKbm == 6) {
+                        $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6);
+                    }
+                    if ($isWorkingDay && !Holiday::where('date', $tempDate->toDateString())->exists()) {
+                        $workingDays++;
+                    }
+                    $tempDate->addDay();
+                }
+
+                $totalExpectedPresensi = $tenagaPendidik->count() * $workingDays;
+                $totalActualPresensi = Presensi::whereIn('user_id', $tenagaPendidik)
+                    ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+                    ->count();
+
+                $madrasah->presensi_kehadiran_percentage = $totalExpectedPresensi > 0
+                    ? round(($totalActualPresensi / $totalExpectedPresensi) * 100, 1)
+                    : 0;
+                $madrasah->presensi_kehadiran_details = [
+                    'total_guru' => $tenagaPendidik->count(),
+                    'working_days' => $workingDays,
+                    'total_presensi' => $totalActualPresensi,
+                    'expected_presensi' => $totalExpectedPresensi
+                ];
+            } else {
+                $madrasah->presensi_kehadiran_percentage = 0;
+                $madrasah->presensi_kehadiran_details = [
+                    'total_guru' => 0,
+                    'working_days' => 0,
+                    'total_presensi' => 0,
+                    'expected_presensi' => 0
+                ];
+            }
+
+            // ========== 3. Persentase Presensi Mengajar ==========
+            $teachingSchedules = TeachingSchedule::where('school_id', $madrasah->id)->count();
+            if ($teachingSchedules > 0) {
+                $startOfMonth = Carbon::create($currentYear, $currentMonth, 1)->startOfDay();
+                $endOfMonth = Carbon::create($currentYear, $currentMonth, 1)->endOfMonth()->endOfDay();
+
+                $totalTeachingAttendances = TeachingAttendance::whereHas('teachingSchedule', function($q) use ($madrasah) {
+                    $q->where('school_id', $madrasah->id);
+                })->whereBetween('tanggal', [$startOfMonth, $endOfMonth])->count();
+
+                // Estimasi: jumlah jadwal x rata-rata pertemuan per bulan (4 minggu x hari KBM)
+                $hariKbm = $madrasah->hari_kbm ?? 5;
+                $estimatedMeetings = $teachingSchedules * 4 * $hariKbm;
+
+                $madrasah->presensi_mengajar_percentage = $estimatedMeetings > 0
+                    ? round(($totalTeachingAttendances / $estimatedMeetings) * 100, 1)
+                    : 0;
+                $madrasah->presensi_mengajar_details = [
+                    'total_jadwal' => $teachingSchedules,
+                    'total_presensi_mengajar' => $totalTeachingAttendances,
+                    'estimated_meetings' => $estimatedMeetings
+                ];
+            } else {
+                $madrasah->presensi_mengajar_percentage = 0;
+                $madrasah->presensi_mengajar_details = [
+                    'total_jadwal' => 0,
+                    'total_presensi_mengajar' => 0,
+                    'estimated_meetings' => 0
+                ];
+            }
+
+            // ========== 4. Persentase Pengisian Laporan Akhir Tahun ==========
+            $laporanFields = ['deskripsi_singkat', 'sejarah', 'visi', 'misi', 'keunggulan', 'fasilitas', 'program_unggulan', 'ekstrakurikuler', 'prestasi'];
+            $laporanFilled = 0;
+            foreach ($laporanFields as $field) {
+                if (!is_null($madrasah->$field) && !empty($madrasah->$field)) {
+                    $laporanFilled++;
+                }
+            }
+            $madrasah->laporan_akhir_tahun_percentage = round(($laporanFilled / count($laporanFields)) * 100);
+            $madrasah->laporan_akhir_tahun_details = [
+                'filled' => $laporanFilled,
+                'total' => count($laporanFields)
+            ];
+
+            // ========== 5. Kelengkapan Data PPDB Settings ==========
+            $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
+                ->where('tahun', now()->year)
+                ->first();
+
+            $ppdbFields = ['tagline', 'deskripsi_singkat', 'tahun_berdiri', 'akreditasi', 'visi', 'misi', 'keunggulan', 'fasilitas', 'jurusan', 'ekstrakurikuler', 'telepon', 'email', 'website', 'video_profile'];
+
+            if ($ppdbSetting) {
+                $ppdbFilled = 0;
+                foreach ($ppdbFields as $field) {
+                    if (!is_null($ppdbSetting->$field) && !empty($ppdbSetting->$field)) {
+                        $ppdbFilled++;
+                    }
+                }
+                $madrasah->ppdb_percentage = round(($ppdbFilled / count($ppdbFields)) * 100);
+                $madrasah->ppdb_details = [
+                    'filled' => $ppdbFilled,
+                    'total' => count($ppdbFields),
+                    'ppdb_status' => $ppdbSetting->status ?? 'belum_atur'
+                ];
+            } else {
+                $madrasah->ppdb_percentage = 0;
+                $madrasah->ppdb_details = [
+                    'filled' => 0,
+                    'total' => count($ppdbFields),
+                    'ppdb_status' => 'belum_atur'
+                ];
+            }
+
+            // ========== Status Guru ==========
+            $hasTeacher = $tenagaPendidik->count() > 0;
+            $madrasah->has_teacher = $hasTeacher;
+
+            return $madrasah;
+        });
+
+        // Get kabupaten list for filter
+        $kabupatenList = Madrasah::select('kabupaten')
+            ->distinct()
+            ->orderBy('kabupaten')
+            ->pluck('kabupaten');
+
+        // Calculate overall statistics
+        $totalSekolah = Madrasah::count();
+        $allMadrasah = Madrasah::all();
+
+        // Average percentages for all schools
+        $avgMadrasahCompleteness = $allMadrasah->avg(function($m) {
+            $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'polygon_koordinat_2', 'enable_dual_polygon', 'hari_kbm', 'scod'];
+            $filled = 0;
+            foreach ($fields as $field) {
+                if (!is_null($m->$field)) $filled++;
+            }
+            return round(($filled / count($fields)) * 100);
+        });
+
+        $avgPresensiKehadiran = 0;
+        $avgPresensiMengajar = 0;
+        $avgLaporan = 0;
+        $avgPPDB = 0;
+
+        $sekolahLengkap = $allMadrasah->filter(function($m) use (&$avgPresensiKehadiran, &$avgPresensiMengajar, &$avgLaporan, &$avgPPDB) {
+            // Hitung presensi kehadiran
+            $tp = User::where('madrasah_id', $m->id)->where('role', 'tenaga_pendidik')->pluck('id');
+            $ph = 0;
+            if ($tp->count() > 0) {
+                $currentMonth = now()->month;
+                $currentYear = now()->year;
+                $hariKbm = $m->hari_kbm ?? 5;
+                $workingDays = 0;
+                $tempDate = Carbon::create($currentYear, $currentMonth, 1);
+                $endOfMonth = $tempDate->copy()->endOfMonth();
+                while ($tempDate <= $endOfMonth) {
+                    $dayOfWeek = $tempDate->dayOfWeek;
+                    $isWorkingDay = ($hariKbm == 5 && $dayOfWeek >= 1 && $dayOfWeek <= 5) || ($hariKbm == 6 && $dayOfWeek >= 1 && $dayOfWeek <= 6);
+                    if ($isWorkingDay && !Holiday::where('date', $tempDate->toDateString())->exists()) $workingDays++;
+                    $tempDate->addDay();
+                }
+                $expected = $tp->count() * $workingDays;
+                $actual = Presensi::whereIn('user_id', $tp)->whereMonth('tanggal', $currentMonth)->whereYear('tanggal', $currentYear)->count();
+                $ph = $expected > 0 ? round(($actual / $expected) * 100, 1) : 0;
+            }
+
+            // Hitung presensi mengajar
+            $ts = TeachingSchedule::where('school_id', $m->id)->count();
+            $pm = 0;
+            if ($ts > 0) {
+                $totalAttendance = TeachingAttendance::whereHas('teachingSchedule', function($q) use ($m) {
+                    $q->where('school_id', $m->id);
+                })->whereMonth('tanggal', now()->month)->whereYear('tanggal', now()->year)->count();
+                $hariKbm = $m->hari_kbm ?? 5;
+                $estimated = $ts * 4 * $hariKbm;
+                $pm = $estimated > 0 ? round(($totalAttendance / $estimated) * 100, 1) : 0;
+            }
+
+            // Hitung laporan
+            $lapFields = ['deskripsi_singkat', 'sejarah', 'visi', 'misi', 'keunggulan', 'fasilitas', 'program_unggulan', 'ekstrakurikuler', 'prestasi'];
+            $lapFilled = 0;
+            foreach ($lapFields as $f) { if (!empty($m->$f)) $lapFilled++; }
+            $lap = round(($lapFilled / count($lapFields)) * 100);
+
+            // Hitung ppdb
+            $ppdb = PPDBSetting::where('sekolah_id', $m->id)->where('tahun', now()->year)->first();
+            $ppdbFields = ['tagline', 'deskripsi_singkat', 'tahun_berdiri', 'akreditasi', 'visi', 'misi', 'keunggulan', 'fasilitas', 'jurusan', 'ekstrakurikuler', 'telepon', 'email', 'website', 'video_profile'];
+            $ppdbFilled = 0;
+            if ($ppdb) {
+                foreach ($ppdbFields as $f) { if (!empty($ppdb->$f)) $ppdbFilled++; }
+            }
+            $ppdbPct = round(($ppdbFilled / count($ppdbFields)) * 100);
+
+            $avgPresensiKehadiran += $ph;
+            $avgPresensiMengajar += $pm;
+            $avgLaporan += $lap;
+            $avgPPDB += $ppdbPct;
+
+            return $ph >= 80 && $pm >= 80 && $lap >= 80 && $ppdbPct >= 80;
+        })->count();
+
+        $sekolahBelumLengkap = $totalSekolah - $sekolahLengkap;
+
+        return view('mobile.pengurus.kelengkapan-data', compact(
+            'madrasahs', 'search', 'kabupaten', 'kabupatenList',
+            'totalSekolah', 'sekolahLengkap', 'sekolahBelumLengkap',
+            'avgMadrasahCompleteness', 'avgPresensiKehadiran', 'avgPresensiMengajar',
+            'avgLaporan', 'avgPPDB'
+        ));
+    }
 }
 
