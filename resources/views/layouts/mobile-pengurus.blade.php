@@ -389,7 +389,7 @@
             </a>
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
-                <a href="{{ route('tenaga-pendidik.index') }}" class="center-action">
+                <a href="{{ route('mobile.pengurus.barcode') }}" class="center-action">
                     <i class="bx bx-user-voice"></i>
                 </a>
             </div>
