@@ -660,8 +660,24 @@ class SekolahController extends \App\Http\Controllers\Controller
         $madrasahs = $query->orderBy('scod', 'asc')
                           ->paginate(10);
 
+        // Define laporan fields for completeness calculation
+        $laporanFields = [
+            'nama_satpen', 'alamat', 'nama_kepala_sekolah_madrasah', 'gelar',
+            'tmt_ks_kamad_pertama', 'tmt_ks_kamad_terakhir', 'tahun_pelaporan',
+            'jumlah_siswa_2023', 'jumlah_siswa_2024', 'jumlah_siswa_2025',
+            'model_layanan_pendidikan', 'capaian_layanan_menonjol', 'masalah_layanan_utama',
+            'pns_sertifikasi', 'pns_non_sertifikasi', 'gty_sertifikasi_inpassing',
+            'gty_sertifikasi', 'gty_non_sertifikasi', 'gtt', 'pty', 'ptt',
+            'sumber_dana_utama', 'kondisi_keuangan_akhir_tahun', 'catatan_pengelolaan_keuangan',
+            'metode_ppdb', 'hasil_ppdb_tahun_berjalan', 'masalah_utama_ppdb',
+            'nama_program_unggulan', 'alasan_pemilihan_program', 'target_unggulan',
+            'kontribusi_unggulan', 'sumber_biaya_program', 'tim_program_unggulan',
+            'keberhasilan_terbesar_tahun_ini', 'masalah_paling_berat_dihadapi',
+            'risiko_terbesar_satpen_tahun_depan', 'fokus_perbaikan_tahun_depan'
+        ];
+
         // Hitung kelengkapan data untuk setiap sekolah
-        $madrasahs->getCollection()->transform(function ($madrasah) {
+        $madrasahs->getCollection()->transform(function ($madrasah) use ($laporanFields) {
             // ========== 1. Kelengkapan Data Madrasah ==========
             $madrasahFields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm', 'scod'];
             $madrasahFilled = 0;
@@ -776,19 +792,6 @@ class SekolahController extends \App\Http\Controllers\Controller
                 ];
             }
 
-
-                'jumlah_siswa_2023', 'jumlah_siswa_2024', 'jumlah_siswa_2025',
-                'model_layanan_pendidikan', 'capaian_layanan_menonjol', 'masalah_layanan_utama',
-                'pns_sertifikasi', 'pns_non_sertifikasi', 'gty_sertifikasi_inpassing',
-                'gty_sertifikasi', 'gty_non_sertifikasi', 'gtt', 'pty', 'ptt',
-                'sumber_dana_utama', 'kondisi_keuangan_akhir_tahun', 'catatan_pengelolaan_keuangan',
-                'metode_ppdb', 'hasil_ppdb_tahun_berjalan', 'masalah_utama_ppdb',
-                'nama_program_unggulan', 'alasan_pemilihan_program', 'target_unggulan',
-                'kontribusi_unggulan', 'sumber_biaya_program', 'tim_program_unggulan',
-                'keberhasilan_terbesar_tahun_ini', 'masalah_paling_berat_dihadapi',
-                'risiko_terbesar_satpen_tahun_depan', 'fokus_perbaikan_tahun_depan'
-            ];
-
             // Cek dari tabel laporan_akhir_tahun_kepala_sekolah
             $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
                 ->whereHas('user', function($q) use ($madrasah) {
@@ -881,7 +884,7 @@ class SekolahController extends \App\Http\Controllers\Controller
         $avgLaporan = 0;
         $avgPPDB = 0;
 
-        $sekolahLengkap = $allMadrasah->filter(function($m) use (&$avgPresensiKehadiran, &$avgPresensiMengajar, &$avgLaporan, &$avgPPDB) {
+        $sekolahLengkap = $allMadrasah->filter(function($m) use (&$avgPresensiKehadiran, &$avgPresensiMengajar, &$avgLaporan, &$avgPPDB, $laporanFields) {
             // Hitung presensi kehadiran sampai hari ini
             $tp = User::where('madrasah_id', $m->id)->where('role', 'tenaga_pendidik')->pluck('id');
             $ph = 0;
@@ -925,21 +928,6 @@ class SekolahController extends \App\Http\Controllers\Controller
             }
 
             // Hitung laporan dari tabel laporan_akhir_tahun_kepala_sekolah
-            $laporanFields = [
-                'nama_satpen', 'alamat', 'nama_kepala_sekolah_madrasah', 'gelar',
-                'tmt_ks_kamad_pertama', 'tmt_ks_kamad_terakhir', 'tahun_pelaporan',
-                'jumlah_siswa_2023', 'jumlah_siswa_2024', 'jumlah_siswa_2025',
-                'model_layanan_pendidikan', 'capaian_layanan_menonjol', 'masalah_layanan_utama',
-                'pns_sertifikasi', 'pns_non_sertifikasi', 'gty_sertifikasi_inpassing',
-                'gty_sertifikasi', 'gty_non_sertifikasi', 'gtt', 'pty', 'ptt',
-                'sumber_dana_utama', 'kondisi_keuangan_akhir_tahun', 'catatan_pengelolaan_keuangan',
-                'metode_ppdb', 'hasil_ppdb_tahun_berjalan', 'masalah_utama_ppdb',
-                'nama_program_unggulan', 'alasan_pemilihan_program', 'target_unggulan',
-                'kontribusi_unggulan', 'sumber_biaya_program', 'tim_program_unggulan',
-                'keberhasilan_terbesar_tahun_ini', 'masalah_paling_berat_dihadapi',
-                'risiko_terbesar_satpen_tahun_depan', 'fokus_perbaikan_tahun_depan'
-            ];
-
             $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
                 ->whereHas('user', function($q) use ($m) {
                     $q->where('madrasah_id', $m->id);
