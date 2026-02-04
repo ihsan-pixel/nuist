@@ -117,7 +117,7 @@
     <div class="row g-2 mb-3">
         <div class="col-4">
             <div class="stat-card" style="background: linear-gradient(135deg, #fd7e14, #ffc107);">
-                <div class="stat-value">{{ number_format($avgLaporan / max(1, $totalSekolah), 0) }}%</div>
+                <div class="stat-value">{{ $laporanCompletenessPercentage }}%</div>
                 <div class="stat-label">Laporan</div>
             </div>
         </div>

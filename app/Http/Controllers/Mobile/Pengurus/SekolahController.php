@@ -872,6 +872,10 @@ class SekolahController extends \App\Http\Controllers\Controller
         $totalSekolah = Madrasah::count();
         $allMadrasah = Madrasah::all();
 
+        // Calculate percentage of schools that have laporan akhir tahun data
+        $schoolsWithLaporan = \App\Models\LaporanAkhirTahunKepalaSekolah::distinct('madrasah_id')->count();
+        $laporanCompletenessPercentage = $totalSekolah > 0 ? round(($schoolsWithLaporan / $totalSekolah) * 100) : 0;
+
         // Average percentages for all schools
         $avgMadrasahCompleteness = $allMadrasah->avg(function($m) {
             $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'polygon_koordinat_2', 'enable_dual_polygon', 'hari_kbm', 'scod'];
