@@ -85,7 +85,7 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center">
-            <button onclick="window.history.back()" class="btn btn-link p-0 me-3" style="color: #004b4c;">
+            <button href="<?php echo e(route('mobile.pengurus.dashboard')); ?>" class="btn btn-link p-0 me-3" style="color: #004b4c;">
                 <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
             </button>
             <h5 class="mb-0" style="font-size: 16px; font-weight: 600; color: #004b4c;">
