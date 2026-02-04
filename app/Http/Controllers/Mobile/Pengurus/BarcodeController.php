@@ -28,7 +28,7 @@ class BarcodeController extends Controller
 
         // Generate QR code using bacon/bacon-qr-code
         $renderer = new ImageRenderer(
-            new RendererStyle(500),
+            new RendererStyle(350),
             new SvgImageBackEnd()
         );
         $writer = new Writer($renderer);
