@@ -347,6 +347,16 @@
             background: linear-gradient(135deg, #003838 0%, #0a6b3d 100%);
             color: white;
         }
+
+        /* Icon hover effect - white icons on hover */
+        .mobile-nav .nav-link:hover i {
+            color: #ffffff !important;
+        }
+
+        /* Center action button icon hover */
+        .center-action:hover i {
+            color: #ffffff !important;
+        }
     </style>
 </head>
 
