@@ -970,7 +970,7 @@ class SekolahController extends \App\Http\Controllers\Controller
             'madrasahs', 'search', 'kabupaten', 'kabupatenList',
             'totalSekolah', 'sekolahLengkap', 'sekolahBelumLengkap',
             'avgMadrasahCompleteness', 'avgPresensiKehadiran', 'avgPresensiMengajar',
-            'avgLaporan', 'avgPPDB'
+            'avgLaporan', 'avgPPDB', 'laporanCompletenessPercentage'
         ));
     }
 }
