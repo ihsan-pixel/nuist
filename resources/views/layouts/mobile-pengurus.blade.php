@@ -97,6 +97,10 @@
             color: white;
         }
 
+        .mobile-nav .nav-link.active i {
+            color: white !important;
+        }
+
         .mobile-nav .nav-link i {
             font-size: 18px;
             margin-bottom: 2px;
@@ -346,16 +350,6 @@
         .btn-primary-custom:hover {
             background: linear-gradient(135deg, #003838 0%, #0a6b3d 100%);
             color: white;
-        }
-
-        /* Icon hover effect - white icons on hover */
-        .mobile-nav .nav-link:hover i {
-            color: #ffffff !important;
-        }
-
-        /* Center action button icon hover */
-        .center-action:hover i {
-            color: #ffffff !important;
         }
     </style>
 </head>
