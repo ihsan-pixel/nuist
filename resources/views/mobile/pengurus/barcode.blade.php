@@ -1,248 +1,422 @@
 @extends('layouts.mobile-pengurus')
 
-@section('title', 'Barcode Users')
+@section('title', 'Barcode Identitas')
 
 @section('content')
 <style>
     body {
         font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        background-color: #f5f6fa;
+        background: linear-gradient(135deg, #0e8549, #004b4c);
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
         color: #333;
     }
 
-    .card {
-        border: none;
+    .id-card {
+        max-width: 380px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .id-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 120px;
+        background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+        z-index: 1;
+    }
+
+    .card-header {
+        position: relative;
+        z-index: 2;
+        padding: 30px 24px 20px;
+        text-align: center;
+        color: white;
+    }
+
+    .logo-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        backdrop-filter: blur(10px);
     }
 
-    .user-card {
-        transition: all 0.2s ease;
-        cursor: pointer;
+    .card-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .user-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    .card-subtitle {
+        font-size: 14px;
+        opacity: 0.9;
+        margin: 4px 0 0 0;
+        font-weight: 400;
+    }
+
+    .card-body {
+        padding: 24px;
+        position: relative;
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f2f5;
     }
 
     .user-avatar {
-        width: 48px;
-        height: 48px;
+        width: 85px;
+        height: 85px;
         border-radius: 50%;
         object-fit: cover;
-        border: 2px solid #e9ecef;
+        border: 4px solid #ff9a56;
+        margin-right: 18px;
+        box-shadow: 0 8px 25px rgba(255,154,86,0.3);
+        position: relative;
+    }
+
+    .user-avatar::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff9a56, #ff6b35);
+        z-index: -1;
+    }
+
+    .user-details {
+        flex: 1;
     }
 
     .user-name {
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 22px;
+        font-weight: 700;
         color: #1a1a2e;
-        margin-bottom: 2px;
+        margin-bottom: 6px;
+        line-height: 1.2;
     }
 
     .user-role {
+        font-size: 14px;
+        color: #6c757d;
+        margin-bottom: 10px;
+        text-transform: capitalize;
+        font-weight: 500;
+        background: #f8f9fa;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: inline-block;
+    }
+
+    .user-id-section {
+        background: linear-gradient(135deg, #ff9a56, #ff6b35);
+        color: white;
+        padding: 12px 16px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .user-id-label {
+        font-size: 11px;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .user-id {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .qr-section {
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e8ecf1 100%);
+        padding: 28px 24px;
+        border-radius: 16px;
+        margin-top: 20px;
+        border: 2px solid #e1e8ed;
+        position: relative;
+    }
+
+    .qr-section::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #ff9a56, #ff6b35);
+        border-radius: 2px;
+    }
+
+    .qr-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .qr-container {
+        background: white;
+        padding: 18px;
+        border-radius: 12px;
+        display: inline-block;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 2px solid #e1e8ed;
+        position: relative;
+    }
+
+    .qr-container::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(135deg, #ff9a56, #ff6b35);
+        border-radius: 12px;
+        z-index: -1;
+        opacity: 0.1;
+    }
+
+    .qr-image {
+        width: 280px;
+        height: 280px;
+        display: block;
+        border-radius: 8px;
+    }
+
+    .qr-text {
         font-size: 12px;
         color: #6c757d;
-        margin-bottom: 8px;
-    }
-
-    .barcode-container {
-        text-align: center;
-        padding: 16px;
+        margin-top: 14px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        font-family: 'Courier New', monospace;
         background: #f8f9fa;
+        padding: 8px 12px;
         border-radius: 8px;
-        margin-top: 12px;
-    }
-
-    .barcode-svg {
-        max-width: 100%;
-        height: auto;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        padding: 8px;
-        background: white;
-    }
-
-    .search-container {
-        background: white;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .stats-card {
-        background: linear-gradient(135deg, #004b4c, #0e8549);
-        color: white;
-        border-radius: 12px;
-        padding: 16px;
-        text-align: center;
-        margin-bottom: 16px;
-    }
-
-    .stats-value {
-        font-size: 24px;
-        font-weight: 700;
-        display: block;
-        margin-bottom: 4px;
-    }
-
-    .stats-label {
-        font-size: 11px;
-        opacity: 0.9;
+        display: inline-block;
     }
 
     .print-btn {
         position: fixed;
-        bottom: 80px;
-        right: 16px;
-        background: linear-gradient(135deg, #004b4c, #0e8549);
+        bottom: 24px;
+        right: 24px;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
         border: none;
         border-radius: 50%;
-        width: 56px;
-        height: 56px;
+        width: 64px;
+        height: 64px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 25px rgba(79,172,254,0.4);
         z-index: 1000;
         transition: all 0.3s ease;
+        cursor: pointer;
     }
 
     .print-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        transform: scale(1.1);
+        box-shadow: 0 12px 35px rgba(79,172,254,0.5);
     }
 
-    .loading-shimmer {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
+    .print-btn:active {
+        transform: scale(0.95);
     }
 
-    @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
+    .print-btn i {
+        font-size: 22px;
     }
 
     @media print {
-        .mobile-nav,
-        .search-container,
+        body {
+            background: white !important;
+            padding: 0 !important;
+        }
+
+        .id-card {
+            box-shadow: none !important;
+            border: 3px solid #000 !important;
+            max-width: none !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+        }
+
+        .id-card::before {
+            display: none !important;
+        }
+
         .print-btn {
             display: none !important;
         }
 
-        .card {
-            border: 1px solid #dee2e6 !important;
-            box-shadow: none !important;
-            page-break-inside: avoid;
+        .card-header {
+            background: #ff9a56 !important;
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
         }
 
-        .barcode-container {
+        .qr-section {
             background: white !important;
-            border: 1px solid #dee2e6 !important;
+            border: 2px solid #000 !important;
         }
+
+        .qr-container {
+            border: 2px solid #000 !important;
+        }
+
+        .user-avatar {
+            border: 3px solid #000 !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        body {
+            padding: 15px;
+        }
+
+        .id-card {
+            border-radius: 16px;
+        }
+
+        .card-header {
+            padding: 24px 20px 16px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .user-avatar {
+            width: 75px;
+            height: 75px;
+        }
+
+        .user-name {
+            font-size: 20px;
+        }
+
+        .qr-image {
+            width: 240px;
+            height: 240px;
+        }
+
+        .qr-container {
+            padding: 16px;
+        }
+    }
+
+    /* Animation for card entrance */
+    @keyframes cardSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .id-card {
+        animation: cardSlideIn 0.6s ease-out;
     }
 </style>
 
-<div class="container py-3" style="max-width: 540px; margin: auto;">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center">
-            <h5 class="mb-0" style="font-size: 16px; font-weight: 600; color: #004b4c;">
-                <i class="bx bx-barcode me-2"></i>Barcode Users
-            </h5>
+<div class="id-card">
+    <!-- Card Header -->
+    <div class="card-header">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="bx bx-qr-scan" style="font-size: 20px; color: white;"></i>
+            </div>
         </div>
-        <span class="badge bg-secondary" style="font-size: 11px; padding: 4px 10px; border-radius: 20px;">
-            {{ $totalUsers }} Users
-        </span>
+        <h1 class="card-title">Digital ID Card</h1>
+        {{-- <p class="card-subtitle">Sistem Presensi Universitas</p> --}}
     </div>
 
-    <!-- Search -->
-    <div class="search-container">
-        <input type="text" id="searchInput" class="form-control"
-               placeholder="Cari nama atau NUIST ID..." style="border-radius: 8px; border: 1px solid #e9ecef;">
-    </div>
-
-    <!-- Users List -->
-    <div id="usersContainer">
-        @forelse($users as $user)
-            <div class="card user-card" data-name="{{ strtolower($user->name) }}" data-nuist="{{ $user->nuist_id }}">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center mb-3">
-                        <img src="{{ $user->avatar ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                             alt="Avatar" class="user-avatar me-3">
-                        <div class="grow">
-                            <div class="user-name">{{ $user->name }}</div>
-                            <div class="user-role">{{ ucfirst($user->role) }}</div>
-                            <small class="text-muted">NUIST ID: {{ $user->nuist_id }}</small>
-                        </div>
-                    </div>
-
-                    <div class="barcode-container">
-                        <svg id="barcode-{{ $user->id }}" class="barcode-svg"></svg>
-                    </div>
+    <!-- Card Body -->
+    <div class="card-body">
+        <!-- User Profile -->
+        <div class="user-profile">
+            <img src="{{ $currentUser->avatar ? asset('storage/app/public/' . $currentUser->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                 alt="Avatar" class="user-avatar">
+            <div class="user-details">
+                <div class="user-name">{{ $currentUser->name }}</div>
+                {{-- <div class="user-role">{{ ucfirst($currentUser->role) }}</div> --}}
+                <div class="user-id-section">
+                    <div class="user-id-label">Nuist_ID</div>
+                    <div class="user-id">{{ $currentUser->nuist_id }}</div>
                 </div>
             </div>
-        @empty
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="bx bx-user-x mb-2" style="font-size: 48px; color: #dee2e6;"></i>
-                    <p class="text-muted mb-0">Tidak ada data user</p>
-                </div>
+        </div>
+
+        <!-- QR Code Section -->
+        <div class="qr-section">
+            <div class="qr-title">Scan QR Code</div>
+            <div class="qr-container">
+                <img id="qris-current-user" src="{{ $qrCodeDataUri }}"
+                     alt="QR Code Identitas"
+                     class="qr-image"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                {{-- <div id="qr-fallback"
+                     style="display: none; width: 180px; height: 180px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <span class="text-muted">QR Code tidak dapat dimuat</span>
+                </div> --}}
             </div>
-        @endforelse
+            {{-- <div class="qr-text">{{ $currentUser->nuist_id }}</div> --}}
+        </div>
     </div>
 </div>
 
 <!-- Print Button -->
-<button class="print-btn" onclick="window.print()" title="Print Barcodes">
+{{-- <button class="print-btn" onclick="window.print()" title="Print Barcode">
     <i class="bx bx-printer" style="font-size: 20px;"></i>
-</button>
+</button> --}}
 
 <div style="height: 100px;"></div>
 @endsection
 
 @section('script')
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Generate barcodes for all users
-    @foreach($users as $user)
-        JsBarcode("#barcode-{{ $user->id }}", "{{ $user->nuist_id }}", {
-            format: "CODE128",
-            width: 2,
-            height: 60,
-            displayValue: true,
-            fontSize: 14,
-            margin: 10
-        });
-    @endforeach
-
-    // Search functionality
-    const searchInput = document.getElementById('searchInput');
-    const userCards = document.querySelectorAll('.user-card');
-    const usersContainer = document.getElementById('usersContainer');
-
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase().trim();
-
-        userCards.forEach(card => {
-            const name = card.dataset.name;
-            const nuist = card.dataset.nuist;
-
-            if (name.includes(searchTerm) || nuist.includes(searchTerm)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-
     // Add loading state for print
     const printBtn = document.querySelector('.print-btn');
     const originalPrintHtml = printBtn.innerHTML;
