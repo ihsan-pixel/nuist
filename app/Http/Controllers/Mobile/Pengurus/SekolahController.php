@@ -792,14 +792,9 @@ class SekolahController extends \App\Http\Controllers\Controller
                 ];
             }
 
-            // Cek dari tabel laporan_akhir_tahun_kepala_sekolah berdasarkan madrasah_id atau user madrasah_id
+            // Cek dari tabel laporan_akhir_tahun_kepala_sekolah berdasarkan madrasah_id
             $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
-                ->where(function($q) use ($madrasah) {
-                    $q->where('madrasah_id', $madrasah->id)
-                      ->orWhereHas('user', function($subQ) use ($madrasah) {
-                          $subQ->where('madrasah_id', $madrasah->id);
-                      });
-                })
+                ->where('madrasah_id', $madrasah->id)
                 ->first();
 
             if ($laporan) {
@@ -932,14 +927,9 @@ class SekolahController extends \App\Http\Controllers\Controller
                 $pm = $estimated > 0 ? round(($totalAttendance / $estimated) * 100, 1) : 0;
             }
 
-            // Hitung laporan dari tabel laporan_akhir_tahun_kepala_sekolah berdasarkan madrasah_id atau user madrasah_id
+            // Hitung laporan dari tabel laporan_akhir_tahun_kepala_sekolah berdasarkan madrasah_id
             $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
-                ->where(function($q) use ($m) {
-                    $q->where('madrasah_id', $m->id)
-                      ->orWhereHas('user', function($subQ) use ($m) {
-                          $subQ->where('madrasah_id', $m->id);
-                      });
-                })
+                ->where('madrasah_id', $m->id)
                 ->first();
 
             if ($laporan) {

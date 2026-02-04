@@ -236,7 +236,7 @@
 
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="section-label">Laporan Akhir Tahun (<?php echo e($madrasah->laporan_akhir_tahun_details['madrasah_id']); ?>)</span>
+                        <span class="section-label">Laporan Akhir Tahun <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->laporan_akhir_tahun_details['madrasah_id']): ?> (Sudah Diisi) <?php else: ?> <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></span>
                         <span class="badge bg-secondary badge-custom" style="font-size: 10px;"><?php echo e($madrasah->laporan_akhir_tahun_percentage); ?>%</span>
                     </div>
                     <div class="progress">
