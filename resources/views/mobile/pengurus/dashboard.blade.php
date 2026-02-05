@@ -482,6 +482,24 @@ if ($hour >= 0 && $hour <= 11) {
                 </a>
                 <div class="service-label">Data Sekolah</div>
             </div>
+            <div class="service-wrapper">
+                <a href="{{ route('mobile.pengurus.kelengkapan-data') }}" class="service-item" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    <i class="bx bx-check-circle" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
+                </a>
+                <div class="service-label">Kelengkapan</div>
+            </div>
+            <div class="service-wrapper">
+                <a href="{{ route('mobile.pengurus.profile') }}" class="service-item" style="background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);">
+                    <i class="bx bx-user" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
+                </a>
+                <div class="service-label">Profile</div>
+            </div>
+            <div class="service-wrapper">
+                <a href="{{ route('mobile.pengurus.barcode') }}" class="service-item" style="background: linear-gradient(135deg, #fd7e14 0%, #ff6b35 100%);">
+                    <i class="bx bx-qr" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
+                </a>
+                <div class="service-label">Barcode</div>
+            </div>
         </div>
     </div>
 </div>

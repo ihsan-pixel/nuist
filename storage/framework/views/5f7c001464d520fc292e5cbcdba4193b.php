@@ -481,24 +481,23 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="service-label">Data Sekolah</div>
             </div>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('tenaga-pendidik.index')); ?>" class="service-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <i class="bx bx-user-voice" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
+                <a href="<?php echo e(route('mobile.pengurus.kelengkapan-data')); ?>" class="service-item" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    <i class="bx bx-check-circle" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
-                <div class="service-label">Tenaga Pendidik</div>
+                <div class="service-label">Kelengkapan</div>
             </div>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('admin.teaching_progress')); ?>" class="service-item" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
-                    <i class="bx bx-chalkboard" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
+                <a href="<?php echo e(route('mobile.pengurus.profile')); ?>" class="service-item" style="background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);">
+                    <i class="bx bx-user" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
-                <div class="service-label">Progres Mengajar</div>
+                <div class="service-label">Profile</div>
             </div>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('admin.data_madrasah')); ?>" class="service-item" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">
-                    <i class="bx bx-data" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
+                <a href="<?php echo e(route('mobile.pengurus.barcode')); ?>" class="service-item" style="background: linear-gradient(135deg, #fd7e14 0%, #ff6b35 100%);">
+                    <i class="bx bx-qr" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
-                <div class="service-label">Kelengkapan Data</div>
+                <div class="service-label">Barcode</div>
             </div>
-            
         </div>
     </div>
 </div>
