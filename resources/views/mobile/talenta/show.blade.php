@@ -287,7 +287,7 @@
             @if($talenta->pkpnu_sertifikat)
             <div class="data-item">
                 <label>Sertifikat PKPNU/PDPKPNU:</label>
-                <a href="{{ asset('storage/talenta/' . $talenta->pkpnu_sertifikat) }}" target="_blank"
+                <a href="{{ asset('storage/app/public/' . $talenta->pkpnu_sertifikat) }}" target="_blank"
                 class="btn btn-sm btn-outline-primary">
                 Lihat File
                 </a>
