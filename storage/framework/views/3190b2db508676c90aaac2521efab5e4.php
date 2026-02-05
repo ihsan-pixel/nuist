@@ -224,31 +224,31 @@
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->sertifikat_tpt_1): ?>
             <div class="data-item">
                 <label>Sertifikat TPT Level 1:</label>
-                <a href="<?php echo e(Storage::url($talenta->sertifikat_tpt_1)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->sertifikat_tpt_1); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->sertifikat_tpt_2): ?>
             <div class="data-item">
                 <label>Sertifikat TPT Level 2:</label>
-                <a href="<?php echo e(Storage::url($talenta->sertifikat_tpt_2)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->sertifikat_tpt_2); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->sertifikat_tpt_3): ?>
             <div class="data-item">
                 <label>Sertifikat TPT Level 3:</label>
-                <a href="<?php echo e(Storage::url($talenta->sertifikat_tpt_3)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->sertifikat_tpt_3); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->sertifikat_tpt_4): ?>
             <div class="data-item">
                 <label>Sertifikat TPT Level 4:</label>
-                <a href="<?php echo e(Storage::url($talenta->sertifikat_tpt_4)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->sertifikat_tpt_4); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->sertifikat_tpt_5): ?>
             <div class="data-item">
                 <label>Sertifikat TPT Level 5:</label>
-                <a href="<?php echo e(Storage::url($talenta->sertifikat_tpt_5)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->sertifikat_tpt_5); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -256,31 +256,31 @@
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->produk_unggulan_1): ?>
             <div class="data-item">
                 <label>Produk Unggulan Level 1:</label>
-                <a href="<?php echo e(Storage::url($talenta->produk_unggulan_1)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->produk_unggulan_1))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->produk_unggulan_2): ?>
             <div class="data-item">
                 <label>Produk Unggulan Level 2:</label>
-                <a href="<?php echo e(Storage::url($talenta->produk_unggulan_2)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->produk_unggulan_2))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->produk_unggulan_3): ?>
             <div class="data-item">
                 <label>Produk Unggulan Level 3:</label>
-                <a href="<?php echo e(Storage::url($talenta->produk_unggulan_3)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->produk_unggulan_3))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->produk_unggulan_4): ?>
             <div class="data-item">
                 <label>Produk Unggulan Level 4:</label>
-                <a href="<?php echo e(Storage::url($talenta->produk_unggulan_4)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->produk_unggulan_4))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->produk_unggulan_5): ?>
             <div class="data-item">
                 <label>Produk Unggulan Level 5:</label>
-                <a href="<?php echo e(Storage::url($talenta->produk_unggulan_5)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->produk_unggulan_5))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -288,19 +288,19 @@
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->pkpnu_sertifikat): ?>
             <div class="data-item">
                 <label>Sertifikat PKPNU/PDPKPNU:</label>
-                <a href="<?php echo e(Storage::url($talenta->pkpnu_sertifikat)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/app/public/<?php echo e($talenta->pkpnu_sertifikat); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->mknu_sertifikat): ?>
             <div class="data-item">
                 <label>Sertifikat MKNU:</label>
-                <a href="<?php echo e(Storage::url($talenta->mknu_sertifikat)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->mknu_sertifikat); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->pmknu_sertifikat): ?>
             <div class="data-item">
                 <label>Sertifikat PMKNU:</label>
-                <a href="<?php echo e(Storage::url($talenta->pmknu_sertifikat)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->pmknu_sertifikat); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -308,19 +308,19 @@
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->foto_resmi): ?>
             <div class="data-item">
                 <label>Foto Resmi:</label>
-                <a href="<?php echo e(Storage::url($talenta->foto_resmi)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->foto_resmi))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->foto_bebas): ?>
             <div class="data-item">
                 <label>Foto Bebas:</label>
-                <a href="<?php echo e(Storage::url($talenta->foto_bebas)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->foto_bebas))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->foto_keluarga): ?>
             <div class="data-item">
                 <label>Foto Keluarga:</label>
-                <a href="<?php echo e(Storage::url($talenta->foto_keluarga)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->foto_keluarga))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -328,19 +328,19 @@
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->ijazah_s1): ?>
             <div class="data-item">
                 <label>Ijazah S1:</label>
-                <a href="<?php echo e(Storage::url($talenta->ijazah_s1)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->ijazah_s1); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->ijazah_s2): ?>
             <div class="data-item">
                 <label>Ijazah S2:</label>
-                <a href="<?php echo e(Storage::url($talenta->ijazah_s2)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->ijazah_s2); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->ijazah_s3): ?>
             <div class="data-item">
                 <label>Ijazah S3:</label>
-                <a href="<?php echo e(Storage::url($talenta->ijazah_s3)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/<?php echo e($talenta->ijazah_s3); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -348,13 +348,13 @@
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->gtt_ptt_sk): ?>
             <div class="data-item">
                 <label>SK GTT-PTT:</label>
-                <a href="<?php echo e(Storage::url($talenta->gtt_ptt_sk)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->gtt_ptt_sk))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->gty_sk): ?>
             <div class="data-item">
                 <label>SK GTY:</label>
-                <a href="<?php echo e(Storage::url($talenta->gty_sk)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->gty_sk))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -362,25 +362,25 @@
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->lampiran_step_1): ?>
             <div class="data-item">
                 <label>Lampiran Step 1:</label>
-                <a href="<?php echo e(Storage::url($talenta->lampiran_step_1)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->lampiran_step_1))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->lampiran_step_2): ?>
             <div class="data-item">
                 <label>Lampiran Step 2:</label>
-                <a href="<?php echo e(Storage::url($talenta->lampiran_step_2)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->lampiran_step_2))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->lampiran_step_3): ?>
             <div class="data-item">
                 <label>Lampiran Step 3:</label>
-                <a href="<?php echo e(Storage::url($talenta->lampiran_step_3)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->lampiran_step_3))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($talenta->lampiran_step_4): ?>
             <div class="data-item">
                 <label>Lampiran Step 4:</label>
-                <a href="<?php echo e(Storage::url($talenta->lampiran_step_4)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="<?php echo e(route('talenta.file', basename($talenta->lampiran_step_4))); ?>" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
