@@ -5,7 +5,9 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Presensi;
+use App\Models\Talenta;
 use App\Policies\IzinPolicy;
+use App\Policies\TalentaPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {

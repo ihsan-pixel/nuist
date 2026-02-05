@@ -9,18 +9,19 @@ $__split = function ($name, $params = []) {
 [$__name, $__params] = $__split('chat');
 
 $key = null;
+$__componentSlots = [];
 
-$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-3320992945-0', null);
+$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-3320992945-0', $key);
 
-$__html = app('livewire')->mount($__name, $__params, $key);
+$__html = app('livewire')->mount($__name, $__params, $key, $__componentSlots);
 
 echo $__html;
 
 unset($__html);
 unset($__name);
 unset($__params);
+unset($__componentSlots);
 unset($__split);
-if (isset($__slots)) unset($__slots);
 ?>
 </div>
 <?php $__env->stopSection(); ?>

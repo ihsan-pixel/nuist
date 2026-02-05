@@ -166,8 +166,8 @@ Route::get('/index', function () {
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
 
-// Mobile routes for tenaga_pendidik, admin, and pengurus
-Route::middleware(['auth', 'role:tenaga_pendidik,admin,pengurus'])->prefix('mobile')->name('mobile.')->group(function () {
+// Mobile routes for all authenticated users
+Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard/calendar-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getCalendarData'])->name('dashboard.calendar-data');
@@ -234,6 +234,15 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin,pengurus'])->prefix('mobi
 
     // Laporan Akhir Tahun Kepala Sekolah
     Route::resource('laporan-akhir-tahun', App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class);
+
+    // Menu Talenta
+    Route::get('/talenta', [App\Http\Controllers\Mobile\TalentaController::class, 'index'])->name('talenta.index');
+    Route::get('/talenta/create', [App\Http\Controllers\Mobile\TalentaController::class, 'create'])->name('talenta.create');
+    Route::post('/talenta', [App\Http\Controllers\Mobile\TalentaController::class, 'store'])->name('talenta.store');
+    Route::get('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'show'])->name('talenta.show');
+    Route::get('/talenta/{talenta}/edit', [App\Http\Controllers\Mobile\TalentaController::class, 'edit'])->name('talenta.edit');
+    Route::put('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'update'])->name('talenta.update');
+    Route::delete('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'destroy'])->name('talenta.destroy');
 
     // Monitoring (kepala madrasah)
     Route::get('/monitor-presensi', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorPresensi'])->name('monitor-presensi');

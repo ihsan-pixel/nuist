@@ -1,0 +1,564 @@
+/* Talenta Form Styles - Based on Laporan Akhir Tahun Create */
+
+.form-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.simfoni-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    /* background: linear-gradient(135deg, #004b4c 0%, #007a7b 100%); */
+    border-radius: 12px;
+    color: white;
+}
+
+.simfoni-header h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.simfoni-header p {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Progress Bar */
+.progress-container {
+    margin-bottom: 0px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #004b4c 0%, #007a7b 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #666;
+}
+
+.progress-text span {
+    font-weight: 600;
+}
+
+/* Step Content */
+.step-content {
+    display: none;
+}
+
+.step-content.active {
+    display: block;
+}
+
+/* Section Cards */
+.section-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 0px;
+    overflow: hidden;
+}
+
+.section-header {
+    /* background: linear-gradient(135deg, #004b4c 0%, #007a7b 100%); */
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: -20px;
+}
+
+.section-icon {
+    font-size: 20px;
+    opacity: 0.9;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-content {
+    padding: 20px;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group.required label::after {
+    content: ' *';
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #004b4c;
+    font-size: 13px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    background: #fff;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #004b4c;
+    box-shadow: 0 0 0 3px rgba(0, 75, 76, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+/* Input with Symbol */
+.input-with-symbol {
+    position: relative;
+}
+
+.input-symbol {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+/* Row Layout */
+.row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.row-2col .form-group {
+    margin-bottom: 0;
+}
+
+/* Divider */
+.divider {
+    margin: 25px 0;
+    text-align: center;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #e9ecef 50%, transparent 100%);
+}
+
+.divider span {
+    background: #fff;
+    padding: 0 15px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #004b4c;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Info Notes */
+.info-note {
+    background: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #004b4c;
+    line-height: 1.5;
+}
+
+/* Error Messages */
+.form-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Error Container */
+.error-container {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.error-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.error-list li {
+    margin-bottom: 5px;
+    color: #721c24;
+    font-size: 13px;
+}
+
+/* Auto-save Indicator */
+.auto-save-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.auto-save-indicator i {
+    font-size: 14px;
+}
+
+/* Step Navigation */
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+.step-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.step-btn.secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.step-btn.secondary:hover {
+    background: #5a6268;
+}
+
+.step-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 75, 76, 0.3);
+}
+
+.step-btn i {
+    font-size: 16px;
+}
+
+.step-btn.draft-btn {
+    background: #ffc107;
+    color: #212529;
+}
+
+.step-btn.draft-btn:hover {
+    background: #e0a800;
+}
+
+.step-btn.publish-btn {
+    background: linear-gradient(135deg, #004b4c 0%, #007a7b 100%);
+    color: white;
+}
+
+.step-btn.publish-btn:hover {
+    background: linear-gradient(135deg, #003d3e 0%, #006a6b 100%);
+}
+
+.step-btn.full-width {
+    width: 100%;
+}
+
+/* Dynamic Inputs */
+.dynamic-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dynamic-inputs .form-group {
+    margin-bottom: 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.dynamic-inputs input {
+    flex: 1;
+}
+
+/* Checkbox Container */
+.checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.checkbox-label {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #495057;
+    cursor: pointer;
+}
+
+/* Signature Section */
+.signature-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.location-date,
+.name-section {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.location-date p,
+.name-section p {
+    margin: 0;
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.signature-area {
+    text-align: center;
+}
+
+.signature-area p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.signature-area canvas {
+    margin: 10px 0;
+    cursor: crosshair;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 15px;
+        margin: 0 10px;
+    }
+
+    .section-content {
+        padding: 15px;
+    }
+
+    .step-navigation {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .step-btn {
+        width: 100%;
+    }
+
+    .row-2col {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .progress-text {
+        flex-direction: column;
+        gap: 5px;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .simfoni-header {
+        padding: 15px;
+    }
+
+    .simfoni-header h4 {
+        font-size: 16px;
+    }
+
+    .section-header {
+        padding: 12px 15px;
+    }
+
+    .section-title {
+        font-size: 13px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .step-btn {
+        padding: 10px 20px;
+        font-size: 12px;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #004b4c;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success States */
+.success {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1) !important;
+}
+
+/* Focus States */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #004b4c;
+    box-shadow: 0 0 0 3px rgba(0, 75, 76, 0.1);
+}
+
+/* Custom Scrollbar */
+.form-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.form-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.form-container::-webkit-scrollbar-thumb {
+    background: #004b4c;
+    border-radius: 3px;
+}
+
+.form-container::-webkit-scrollbar-thumb:hover {
+    background: #003d3e;
+}
