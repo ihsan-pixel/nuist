@@ -7,6 +7,7 @@ use App\Models\Simfoni;
 use App\Models\User;
 use App\Models\Madrasah;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SimfoniAdminController extends Controller
 {
@@ -75,5 +76,24 @@ class SimfoniAdminController extends Controller
         }
 
         return view('admin.simfoni.index', compact('simfonis', 'laporanData'));
+    }
+
+    /**
+     * Generate PDF for Simfoni record
+     */
+    public function pdfSimfoni($id)
+    {
+        $simfoni = Simfoni::with('user.madrasah')->findOrFail($id);
+
+        $pdf = Pdf::loadView('pdf.simfoni-template', compact('simfoni'))
+            ->setPaper('A4')
+            ->setOrientation('portrait')
+            ->setOption('margin_top', 1)
+            ->setOption('margin_right', 1)
+            ->setOption('margin_bottom', 1)
+            ->setOption('margin_left', 1);
+
+        // Open PDF in new tab (inline)
+        return $pdf->inline('SIMFONI_' . ($simfoni->nama_lengkap_gelar ?? 'GTK') . '.pdf');
     }
 }
