@@ -279,7 +279,7 @@
             @if($talenta->produk_unggulan_5)
             <div class="data-item">
                 <label>Produk Unggulan Level 5:</label>
-                <a href="{{ asset('storage/' . $talenta->produk_unggulan_5) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->produk_unggulan_5) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
 
@@ -287,19 +287,19 @@
             @if($talenta->pkpnu_sertifikat)
             <div class="data-item">
                 <label>Sertifikat PKPNU/PDPKPNU:</label>
-                <a href="{{ asset('storage/' . $talenta->pkpnu_sertifikat) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->pkpnu_sertifikat) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->mknu_sertifikat)
             <div class="data-item">
                 <label>Sertifikat MKNU:</label>
-                <a href="{{ asset('storage/' . $talenta->mknu_sertifikat) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->mknu_sertifikat) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->pmknu_sertifikat)
             <div class="data-item">
                 <label>Sertifikat PMKNU:</label>
-                <a href="{{ asset('storage/' . $talenta->pmknu_sertifikat) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->pmknu_sertifikat) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
 
@@ -307,19 +307,19 @@
             @if($talenta->foto_resmi)
             <div class="data-item">
                 <label>Foto Resmi:</label>
-                <a href="{{ asset('storage/' . $talenta->foto_resmi) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->foto_resmi) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->foto_bebas)
             <div class="data-item">
                 <label>Foto Bebas:</label>
-                <a href="{{ asset('storage/' . $talenta->foto_bebas) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->foto_bebas) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->foto_keluarga)
             <div class="data-item">
                 <label>Foto Keluarga:</label>
-                <a href="{{ asset('storage/' . $talenta->foto_keluarga) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->foto_keluarga) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
 
@@ -327,19 +327,19 @@
             @if($talenta->ijazah_s1)
             <div class="data-item">
                 <label>Ijazah S1:</label>
-                <a href="{{ asset('storage/' . $talenta->ijazah_s1) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->ijazah_s1) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->ijazah_s2)
             <div class="data-item">
                 <label>Ijazah S2:</label>
-                <a href="{{ asset('storage/' . $talenta->ijazah_s2) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->ijazah_s2) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->ijazah_s3)
             <div class="data-item">
                 <label>Ijazah S3:</label>
-                <a href="{{ asset('storage/' . $talenta->ijazah_s3) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->ijazah_s3) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
 
@@ -347,13 +347,13 @@
             @if($talenta->gtt_ptt_sk)
             <div class="data-item">
                 <label>SK GTT-PTT:</label>
-                <a href="{{ asset('storage/' . $talenta->gtt_ptt_sk) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->gtt_ptt_sk) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->gty_sk)
             <div class="data-item">
                 <label>SK GTY:</label>
-                <a href="{{ asset('storage/' . $talenta->gty_sk) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->gty_sk) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
 
@@ -361,25 +361,25 @@
             @if($talenta->lampiran_step_1)
             <div class="data-item">
                 <label>Lampiran Step 1:</label>
-                <a href="{{ asset('storage/' . $talenta->lampiran_step_1) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->lampiran_step_1) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->lampiran_step_2)
             <div class="data-item">
                 <label>Lampiran Step 2:</label>
-                <a href="{{ asset('storage/' . $talenta->lampiran_step_2) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->lampiran_step_2) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->lampiran_step_3)
             <div class="data-item">
                 <label>Lampiran Step 3:</label>
-                <a href="{{ asset('storage/' . $talenta->lampiran_step_3) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->lampiran_step_3) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->lampiran_step_4)
             <div class="data-item">
                 <label>Lampiran Step 4:</label>
-                <a href="{{ asset('storage/' . $talenta->lampiran_step_4) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('/' . $talenta->lampiran_step_4) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
         </div>
