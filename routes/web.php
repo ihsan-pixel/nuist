@@ -243,6 +243,7 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::get('/talenta/{talenta}/edit', [App\Http\Controllers\Mobile\TalentaController::class, 'edit'])->name('talenta.edit');
     Route::put('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'update'])->name('talenta.update');
     Route::delete('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'destroy'])->name('talenta.destroy');
+    Route::get('/talenta/file/{filename}', [App\Http\Controllers\Mobile\TalentaController::class, 'lihatFile'])->name('talenta.file');
 
     // Monitoring (kepala madrasah)
     Route::get('/monitor-presensi', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorPresensi'])->name('monitor-presensi');
