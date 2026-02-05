@@ -482,36 +482,6 @@ if ($hour >= 0 && $hour <= 11) {
                 </a>
                 <div class="service-label">Data Sekolah</div>
             </div>
-            <div class="service-wrapper">
-                <a href="{{ route('tenaga-pendidik.index') }}" class="service-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                    <i class="bx bx-user-voice" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
-                </a>
-                <div class="service-label">Tenaga Pendidik</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="{{ route('admin.teaching_progress') }}" class="service-item" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
-                    <i class="bx bx-chalkboard" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
-                </a>
-                <div class="service-label">Progres Mengajar</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="{{ route('admin.data_madrasah') }}" class="service-item" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">
-                    <i class="bx bx-data" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
-                </a>
-                <div class="service-label">Kelengkapan Data</div>
-            </div>
-            {{-- <div class="service-wrapper">
-                <a href="{{ route('uppm.index') }}" class="service-item" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
-                    <i class="bx bx-certification" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
-                </a>
-                <div class="service-label">UPPM</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="{{ route('ppdb.index') }}" class="service-item" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
-                    <i class="bx bx-user-plus" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
-                </a>
-                <div class="service-label">PPDB</div>
-            </div> --}}
         </div>
     </div>
 </div>
