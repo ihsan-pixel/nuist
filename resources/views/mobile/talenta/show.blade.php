@@ -307,7 +307,7 @@
             @if($talenta->foto_resmi)
             <div class="data-item">
                 <label>Foto Resmi:</label>
-                <a href="{{ asset('storage/' . $talenta->foto_resmi) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="{{ asset('storage/app/public/' . $talenta->foto_resmi) }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->foto_bebas)
