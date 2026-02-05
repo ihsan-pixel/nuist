@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class TalentaController extends Controller
 {
@@ -201,8 +202,12 @@ class TalentaController extends Controller
                 $file = $request->file($field);
                 $filename = time() . '_' . $field . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                 try {
-                    $path = $file->storeAs('talenta', $filename, 'public');
-                    $data[$field] = $path;
+                    $destinationPath = $_SERVER['DOCUMENT_ROOT'] . '/storage/talenta';
+                    if (!File::exists($destinationPath)) {
+                        File::makeDirectory($destinationPath, 0755, true);
+                    }
+                    $file->move($destinationPath, $filename);
+                    $data[$field] = 'storage/talenta/' . $filename;
                 } catch (\Exception $e) {
                     return redirect()->back()
                         ->withErrors(['file_upload' => 'Gagal mengupload file: ' . $e->getMessage()])
@@ -394,15 +399,19 @@ class TalentaController extends Controller
         foreach ($fileFields as $field) {
             if ($request->hasFile($field)) {
                 // Delete old file if exists
-                if ($talenta->$field && Storage::disk('public')->exists($talenta->$field)) {
-                    Storage::disk('public')->delete($talenta->$field);
+                if ($talenta->$field && File::exists($_SERVER['DOCUMENT_ROOT'] . '/' . $talenta->$field)) {
+                    File::delete($_SERVER['DOCUMENT_ROOT'] . '/' . $talenta->$field);
                 }
 
                 $file = $request->file($field);
                 $filename = time() . '_' . $field . '_' . $talenta->user_id . '.' . $file->getClientOriginalExtension();
                 try {
-                    $path = $file->storeAs('talenta', $filename, 'public');
-                    $data[$field] = $path;
+                    $destinationPath = $_SERVER['DOCUMENT_ROOT'] . '/storage/talenta';
+                    if (!File::exists($destinationPath)) {
+                        File::makeDirectory($destinationPath, 0755, true);
+                    }
+                    $file->move($destinationPath, $filename);
+                    $data[$field] = 'storage/talenta/' . $filename;
                 } catch (\Exception $e) {
                     return redirect()->back()
                         ->withErrors(['file_upload' => 'Gagal mengupload file: ' . $e->getMessage()])
