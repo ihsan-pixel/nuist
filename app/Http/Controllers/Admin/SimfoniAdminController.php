@@ -86,14 +86,17 @@ class SimfoniAdminController extends Controller
         $simfoni = Simfoni::with('user.madrasah')->findOrFail($id);
 
         $pdf = Pdf::loadView('pdf.simfoni-template', compact('simfoni'))
-            ->setPaper('A4')
-            ->setOrientation('portrait')
-            ->setOption('margin_top', 1)
-            ->setOption('margin_right', 1)
-            ->setOption('margin_bottom', 1)
-            ->setOption('margin_left', 1);
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'margin_top' => 1,
+                'margin_right' => 1,
+                'margin_bottom' => 1,
+                'margin_left' => 1,
+            ]);
 
-        // Open PDF in new tab (inline)
-        return $pdf->inline('SIMFONI_' . ($simfoni->nama_lengkap_gelar ?? 'GTK') . '.pdf');
+        // Stream PDF to browser (inline view)
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="SIMFONI_' . ($simfoni->nama_lengkap_gelar ?? 'GTK') . '.pdf"');
     }
 }

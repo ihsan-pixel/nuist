@@ -53,72 +53,9 @@
                         <th>No</th>
                         <th>Nama Lengkap</th>
                         <th>Gelar</th>
-                        <th>Tempat Lahir</th>
-                        <th>Tanggal Lahir</th>
-                        <th>NUPTK</th>
-                        <th>KARTANU</th>
-                        <th>NIPM</th>
-                        <th>NIK</th>
-                        <th>TMT</th>
-                        <th>Strata Pendidikan</th>
-                        <th>PT Asal</th>
-                        <th>Tahun Lulus</th>
-                        <th>Program Studi</th>
-                        <th>Status Kerja</th>
-                        <th>Tanggal SK Pertama</th>
-                        <th>Nomor SK Pertama</th>
-                        <th>Nomor Sertifikasi Pendidik</th>
-                        <th>Riwayat Kerja Sebelumnya</th>
-                        <th>Keahlian</th>
-                        <th>Kedudukan LPM</th>
-                        <th>Prestasi</th>
-                        <th>Tahun Sertifikasi Impassing</th>
-                        <th>No HP</th>
-                        <th>Email</th>
-                        <th>Status Perkawinan</th>
-                        <th>Alamat Lengkap</th>
-                        <th>Bank</th>
-                        <th>Nomor Rekening</th>
-                        <th>Gaji Sertifikasi</th>
-                        <th>Gaji Pokok</th>
-                        <th>Honor Lain</th>
-                        <th>Penghasilan Lain</th>
-                        <th>Penghasilan Pasangan</th>
-                        <th>Total Penghasilan</th>
-                        <th>Masa Kerja</th>
-                        <th>Kategori Penghasilan</th>
-                        <th>Status Kader Diri</th>
-                        <th>Pendidikan Kader</th>
-                        <th>Status Kader Ayah</th>
-                        <th>Status Kader Ibu</th>
-                        <th>Status Kader Pasangan</th>
-                        <th>Nama Ayah</th>
-                        <th>Nama Ibu</th>
-                        <th>Nama Pasangan</th>
-                        <th>Jumlah Anak</th>
-                        <th>Akan Kuliah S2</th>
-                        <th>Akan Daftar PNS</th>
-                        <th>Akan Daftar PPPK</th>
-                        <th>Akan Ikuti PPG</th>
-                        <th>Akan Tulis Buku/Modul/Riset</th>
-                        <th>Akan Ikuti Seleksi Diklat CAKEP</th>
-                        <th>Akan Bimbing Riset Prestasi Siswa</th>
-                        <th>Akan Masuk Tim Unggulan</th>
-                        <th>Akan Kompetisi Pimpinan Level II</th>
-                        <th>Akan Aktif Ikuti Pelatihan</th>
-                        <th>Akan Aktif MGMP/MKK</th>
-                        <th>Akan Ikuti Pendidikan Kader NU</th>
-                        <th>Akan Aktif Bantu Kegiatan Lembaga</th>
-                        <th>Akan Aktif Ikuti Kegiatan NU</th>
-                        <th>Akan Aktif Ikut ZIS Kegiatan Sosial</th>
-                        <th>Akan Kembangkan Unit Usaha SATPEN</th>
-                        <th>Akan Bekerja Disiplin Produktif</th>
-                        <th>Akan Loyal NU Aktif Masyarakat</th>
-                        <th>Akan Bersedia Dipindah SATPEN Lain</th>
-                        <th>Skor Proyeksi</th>
-                        <th>Pernyataan Setuju</th>
                         <th>Asal Sekolah</th>
                         <th>Tanggal Dibuat</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -127,72 +64,16 @@
                         <td><?php echo e($index + 1); ?></td>
                         <td><?php echo e($simfoni->nama_lengkap_gelar); ?></td>
                         <td><?php echo e($simfoni->gelar); ?></td>
-                        <td><?php echo e($simfoni->tempat_lahir); ?></td>
-                        <td><?php echo e($simfoni->tanggal_lahir ? \Carbon\Carbon::parse($simfoni->tanggal_lahir)->locale('id')->format('d F Y') : '-'); ?></td>
-                        <td><?php echo e($simfoni->nuptk); ?></td>
-                        <td><?php echo e($simfoni->kartanu); ?></td>
-                        <td><?php echo e($simfoni->nipm); ?></td>
-                        <td><?php echo e($simfoni->nik); ?></td>
-                        <td><?php echo e($simfoni->tmt ? \Carbon\Carbon::parse($simfoni->tmt)->locale('id')->format('d F Y') : '-'); ?></td>
-                        <td><?php echo e($simfoni->strata_pendidikan); ?></td>
-                        <td><?php echo e($simfoni->pt_asal); ?></td>
-                        <td><?php echo e($simfoni->tahun_lulus); ?></td>
-                        <td><?php echo e($simfoni->program_studi); ?></td>
-                        <td><?php echo e($simfoni->status_kerja); ?></td>
-                        <td><?php echo e($simfoni->tanggal_sk_pertama ? \Carbon\Carbon::parse($simfoni->tanggal_sk_pertama)->locale('id')->format('d F Y') : '-'); ?></td>
-                        <td><?php echo e($simfoni->nomor_sk_pertama); ?></td>
-                        <td><?php echo e($simfoni->nomor_sertifikasi_pendidik); ?></td>
-                        <td><?php echo e($simfoni->riwayat_kerja_sebelumnya); ?></td>
-                        <td><?php echo e($simfoni->keahlian); ?></td>
-                        <td><?php echo e($simfoni->kedudukan_lpm); ?></td>
-                        <td><?php echo e($simfoni->prestasi); ?></td>
-                        <td><?php echo e($simfoni->tahun_sertifikasi_impassing); ?></td>
-                        <td><?php echo e($simfoni->no_hp); ?></td>
-                        <td><?php echo e($simfoni->email); ?></td>
-                        <td><?php echo e($simfoni->status_pernikahan); ?></td>
-                        <td><?php echo e($simfoni->alamat_lengkap); ?></td>
-                        <td><?php echo e($simfoni->bank); ?></td>
-                        <td><?php echo e($simfoni->nomor_rekening); ?></td>
-                        <td><?php echo e(number_format($simfoni->gaji_sertifikasi, 0, ',', '.')); ?></td>
-                        <td><?php echo e(number_format($simfoni->gaji_pokok, 0, ',', '.')); ?></td>
-                        <td><?php echo e(number_format($simfoni->honor_lain, 0, ',', '.')); ?></td>
-                        <td><?php echo e(number_format($simfoni->penghasilan_lain, 0, ',', '.')); ?></td>
-                        <td><?php echo e(number_format($simfoni->penghasilan_pasangan, 0, ',', '.')); ?></td>
-                        <td><?php echo e(number_format($simfoni->total_penghasilan, 0, ',', '.')); ?></td>
-                        <td><?php echo e($simfoni->masa_kerja); ?></td>
-                        <td><?php echo e($simfoni->kategori_penghasilan); ?></td>
-                        <td><?php echo e($simfoni->status_kader_diri); ?></td>
-                        <td><?php echo e($simfoni->pendidikan_kader); ?></td>
-                        <td><?php echo e($simfoni->status_kader_ayah); ?></td>
-                        <td><?php echo e($simfoni->status_kader_ibu); ?></td>
-                        <td><?php echo e($simfoni->status_kader_pasangan); ?></td>
-                        <td><?php echo e($simfoni->nama_ayah); ?></td>
-                        <td><?php echo e($simfoni->nama_ibu); ?></td>
-                        <td><?php echo e($simfoni->nama_pasangan); ?></td>
-                        <td><?php echo e($simfoni->jumlah_anak); ?></td>
-                        <td><?php echo e($simfoni->akan_kuliah_s2 ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_daftar_pns ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_daftar_pppk ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_ikut_ppg ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_tulis_buku_modul_riset ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_ikut_seleksi_diklat_cakep ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_bimbing_riset_prestasi_siswa ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_masuk_tim_unggulan_sekolah_madrasah ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_kompetisi_pimpinan_level_ii ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_aktif_mengikuti_pelatihan ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_aktif_mgmp_mkk ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_ikut_pendidikan_kader_nu ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_aktif_bantu_kegiatan_lembaga ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_aktif_ikut_kegiatan_nu ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_aktif_ikut_zis_kegiatan_sosial ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_kembangkan_unit_usaha_satpen ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_bekerja_disiplin_produktif ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_loyal_nu_aktif_masyarakat ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->akan_bersedia_dipindah_satpen_lain ? 'Ya' : 'Tidak'); ?></td>
-                        <td><?php echo e($simfoni->skor_proyeksi); ?></td>
-                        <td><?php echo e($simfoni->pernyataan_setuju ? 'Ya' : 'Tidak'); ?></td>
                         <td><?php echo e($simfoni->user->madrasah->name ?? '-'); ?></td>
                         <td><?php echo e($simfoni->created_at->format('d/m/Y')); ?></td>
+                        <td>
+                            <a href="<?php echo e(route('admin.simfoni.pdf', $simfoni->id)); ?>"
+                               target="_blank"
+                               class="btn btn-sm btn-primary"
+                               title="Lihat PDF">
+                                <i class="bx bx-file-pdf me-1"></i> PDF
+                            </a>
+                        </td>
                     </tr>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     <tr>

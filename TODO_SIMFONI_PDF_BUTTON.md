@@ -20,7 +20,8 @@
 - [x] Use blue color and open in new tab (`target="_blank"`)
 
 ## Step 5: Test the implementation
-- [ ] Verify button appears in Action column
-- [ ] Verify PDF opens correctly in new tab
-- [ ] Verify all data displays correctly in PDF
+- [x] Verify button appears in Action column
+- [x] Verify PDF opens correctly in new tab
+- [x] Verify all data displays correctly in PDF
+- [x] Verify dynamic date from created_at field (signature and header)
 
