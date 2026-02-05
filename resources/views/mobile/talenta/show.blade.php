@@ -287,7 +287,7 @@
             @if($talenta->pkpnu_sertifikat)
             <div class="data-item">
                 <label>Sertifikat PKPNU/PDPKPNU:</label>
-                <a href="/storage/app/public{{ $talenta->pkpnu_sertifikat }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/{{ $talenta->pkpnu_sertifikat }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->mknu_sertifikat)
@@ -307,7 +307,7 @@
             @if($talenta->foto_resmi)
             <div class="data-item">
                 <label>Foto Resmi:</label>
-                <a href="/storage/app/public/{{ $talenta->foto_resmi }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                <a href="/storage/{{ $talenta->foto_resmi }}" target="_blank" class="btn btn-sm btn-outline-primary">Lihat File</a>
             </div>
             @endif
             @if($talenta->foto_bebas)
