@@ -569,7 +569,7 @@
     <!-- Signature -->
     <div class="signature-section">
         @if($laporan->signature_data)
-            <div style="margin-top:30px; margin-left: -20px; text-align: left;">
+            <div style="margin-top:90px; margin-left: -20px; text-align: left;">
                 <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @endif
