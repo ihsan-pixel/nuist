@@ -107,12 +107,18 @@ class LaporanAkhirTahunAdminController extends Controller
         $laporan = LaporanAkhirTahunKepalaSekolah::with('user')->findOrFail($id);
 
         // Generate PDF using the template
-        $pdf = PDF::loadView('pdf.laporan-akhir-tahun-template', compact('laporan'));
+        $pdf = PDF::loadView('pdf.laporan-akhir-tahun-template', compact('laporan'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'margin_top' => 1,
+                'margin_right' => 1,
+                'margin_bottom' => 1,
+                'margin_left' => 1,
+            ]);
 
-        // Set paper size and orientation
-        $pdf->setPaper('a4', 'portrait');
-
-        // Return PDF for download
-        return $pdf->download('laporan-akhir-tahun-' . $laporan->nama_kepala_sekolah_madrasah . '.pdf');
+        // Stream PDF to browser (inline view)
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="Laporan_Akhir_Tahun_' . ($laporan->nama_kepala_sekolah_madrasah ?? 'Kepala_Sekolah') . '.pdf"');
     }
 }
