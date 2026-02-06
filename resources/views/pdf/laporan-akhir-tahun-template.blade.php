@@ -248,7 +248,7 @@
                     <td>{{ $laporan->persentase_alumni_tidak_terdeteksi ?? '-' }}%</td>
                     <td>-</td>
                     <td>-</td>
-                </tr>
+                </tr> --}}
                 <tr>
                     <td>BOSNAS (Rp)</td>
                     <td>Rp {{ number_format($laporan->bosnas_2023 ?? 0, 0, ',', '.') }}</td>
@@ -272,7 +272,7 @@
                     <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2023 ?? 0, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2024 ?? 0, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2025 ?? 0, 0, ',', '.') }}</td>
-                </tr> --}}
+                </tr>
             </tbody>
         </table>
 
