@@ -575,7 +575,7 @@
             </div>
         @endif
         <div class="signature-line" style="margin-top: -20px;"></div>
-        <p>NIP. {{ $laporan->user->nip ?? '-' }}</p>
+        <p style="margin-top: -40px">NIP. {{ $laporan->user->nip ?? '-' }}</p>
     </div>
 
     <!-- Lampiran -->
