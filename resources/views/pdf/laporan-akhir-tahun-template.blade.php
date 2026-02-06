@@ -572,7 +572,7 @@
         <p>NIP. {{ $laporan->user->nip ?? '-' }}</p>
         @if($laporan->signature)
             <div style="margin-top: 20px; text-align: center;">
-                <img src="{{ $laporan->signature }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
+                <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @else
             <div class="signature-line"></div>
