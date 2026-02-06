@@ -571,7 +571,7 @@
         <p>Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
         <p>Kepala {{ $laporan->nama_satpen}}</p>
         @if($laporan->signature_data)
-            <div style="margin-left: -0px; text-align: center;">
+            <div style="margin-left: -20px; text-align: left;">
                 <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @endif
