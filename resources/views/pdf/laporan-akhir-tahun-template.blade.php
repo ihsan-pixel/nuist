@@ -293,7 +293,7 @@
     </div>
 
     <!-- Step 3: Layanan Pendidikan -->
-    {{-- <div class="section">
+    <div class="section">
         <div class="section-header">3. LAYANAN PENDIDIKAN</div>
         <table class="data-table">
             <tr>
