@@ -79,19 +79,12 @@
                         </td>
                         <td><?php echo e($laporan->created_at->format('d/m/Y')); ?></td>
                         <td>
-                            <div class="btn-group" role="group">
-                                <a href="<?php echo e(route('mobile.laporan-akhir-tahun.show', $laporan->id)); ?>"
-                                   class="btn btn-sm btn-info"
-                                   title="Lihat Detail">
-                                    <i class="bx bx-show me-1"></i> Detail
-                                </a>
-                                <a href="#"
-                                   target="_blank"
-                                   class="btn btn-sm btn-primary"
-                                   title="Lihat PDF">
-                                    <i class="bx bx-file-pdf me-1"></i> PDF
-                                </a>
-                            </div>
+                            <a href="<?php echo e(route('admin.laporan-akhir-tahun.pdf', $laporan->id)); ?>"
+                               target="_blank"
+                               class="btn btn-sm btn-primary"
+                               title="Lihat PDF">
+                                <i class="bx bx-file-pdf me-1"></i> PDF
+                            </a>
                         </td>
                     </tr>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>

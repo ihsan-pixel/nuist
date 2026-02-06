@@ -47,11 +47,11 @@ class LaporanAkhirTahunAdminController extends Controller
             ];
 
             foreach ($madrasahGroup as $madrasah) {
-                $kepalaSekolah = $madrasah->tenagaPendidikUsers->first();
+                $kepalaSekolah = $madrasah->tenagaPendidikUsers ? $madrasah->tenagaPendidikUsers->first() : null;
                 $sudahIsi = 0;
                 $belumIsi = 0;
 
-                if ($kepalaSekolah) {
+                if ($kepalaSekolah && $kepalaSekolah->id) {
                     $laporanExists = LaporanAkhirTahunKepalaSekolah::where('user_id', $kepalaSekolah->id)
                         ->where('tahun_pelaporan', 2025)
                         ->exists();
