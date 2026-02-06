@@ -127,7 +127,7 @@
         .signature-section {
             margin-top: 40px;
             text-align: left;
-            margin-left: 70%;
+            margin-left: 60%;
         }
 
         .signature-line {
@@ -571,13 +571,13 @@
         <p>Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
         <p>Kepala {{ $laporan->nama_satpen}}</p>
         @if($laporan->signature_data)
-            <div style="margin-left: -40px; text-align: center;">
+            <div style="margin-left: -30px; text-align: center;">
                 <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @endif
-        <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}, {{$laporan->gelar}}</strong></p>
-        <div class="signature-line" style="margin-top: -10px;"></div>
-        <p style="margin-top: -20px">NIP. {{ $laporan->user->nip ?? '-' }}</p>
+        <p style="margin-top: -10"><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}, {{$laporan->gelar}}</strong></p>
+        <div class="signature-line" style="margin-top: -20px;"></div>
+        <p style="margin-top: -30px">NIP. {{ $laporan->user->nip ?? '-' }}</p>
     </div>
 
     <!-- Lampiran -->
