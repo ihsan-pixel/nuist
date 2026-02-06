@@ -91,4 +91,19 @@ class LaporanAkhirTahunAdminController extends Controller
 
         return view('admin.laporan-akhir-tahun.index', compact('laporans', 'laporanData'));
     }
+
+    /**
+     * Generate PDF for a specific laporan akhir tahun.
+     */
+    public function pdf($id)
+    {
+        // Only super admin can access this
+        if (Auth::user()->role !== 'super_admin') {
+            abort(403, 'Unauthorized. Only super admin can access this feature.');
+        }
+
+        $laporan = LaporanAkhirTahunKepalaSekolah::with(['user', 'madrasah'])->findOrFail($id);
+
+        return view('pdf.laporan-akhir-tahun-template', compact('laporan'));
+    }
 }
