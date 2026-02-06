@@ -126,7 +126,7 @@
 
         .signature-section {
             margin-top: 40px;
-            text-align: right;
+            text-align: left;
             margin-left: 50%;
         }
 
