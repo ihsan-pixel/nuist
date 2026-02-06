@@ -127,13 +127,13 @@
         .signature-section {
             margin-top: 40px;
             text-align: left;
-            margin-left: 50%;
+            margin-left: 70%;
         }
 
         .signature-line {
             margin-top: 60px;
             border-bottom: 1px solid #000;
-            width: 200px;
+            width: 150px;
             display: inline-block;
         }
 
@@ -571,7 +571,7 @@
         <p>Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
         <p>Kepala {{ $laporan->nama_satpen}}</p>
         @if($laporan->signature_data)
-            <div style="margin-top: 0px; text-align: center;">
+            <div style="margin-left: -40px; text-align: center;">
                 <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @endif
