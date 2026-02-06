@@ -231,7 +231,7 @@
                     <td>{{ number_format($laporan->jumlah_siswa_2024 ?? 0) }}</td>
                     <td>{{ number_format($laporan->jumlah_siswa_2025 ?? 0) }}</td>
                 </tr>
-                <tr>
+                {{-- <tr>
                     <td>Persentase Alumni Bekerja (%)</td>
                     <td>{{ $laporan->persentase_alumni_bekerja ?? '-' }}%</td>
                     <td>-</td>
@@ -272,7 +272,7 @@
                     <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2023 ?? 0, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2024 ?? 0, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2025 ?? 0, 0, ',', '.') }}</td>
-                </tr>
+                </tr> --}}
             </tbody>
         </table>
 
