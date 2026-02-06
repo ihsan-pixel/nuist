@@ -212,7 +212,7 @@
     </div>
 
     <!-- Step 2: Capaian Utama 3 Tahun Berjalan -->
-    {{-- <div class="section">
+    <div class="section">
         <div class="section-header">2. CAPAIAN UTAMA 3 TAHUN BERJALAN</div>
 
         <table class="achievement-table">
@@ -293,7 +293,7 @@
     </div>
 
     <!-- Step 3: Layanan Pendidikan -->
-    <div class="section">
+    {{-- <div class="section">
         <div class="section-header">3. LAYANAN PENDIDIKAN</div>
         <table class="data-table">
             <tr>
