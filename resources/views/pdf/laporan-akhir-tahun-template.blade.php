@@ -573,9 +573,9 @@
                 <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @endif
-        <p>Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
+        <p style="margin-top: 100px;">Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
         <p>Kepala {{ $laporan->nama_satpen}}</p>
-        <p style="margin-top: -20"><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}, {{$laporan->gelar}}</strong></p>
+        <p style="margin-top: 70"><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}, {{$laporan->gelar}}</strong></p>
         <div class="signature-line" style="margin-top: -10px;"></div>
         <p style="margin-top: -20px">NIP. {{ $laporan->user->nip ?? '-' }}</p>
     </div>
