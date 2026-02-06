@@ -47,11 +47,11 @@ class LaporanAkhirTahunAdminController extends Controller
             ];
 
             foreach ($madrasahGroup as $madrasah) {
-                $kepalaSekolah = $madrasah->tenagaPendidikUsers ? $madrasah->tenagaPendidikUsers->first() : null;
+                $kepalaSekolah = $madrasah->tenagaPendidikUsers->first();
                 $sudahIsi = 0;
                 $belumIsi = 0;
 
-                if ($kepalaSekolah && $kepalaSekolah->id) {
+                if ($kepalaSekolah) {
                     $laporanExists = LaporanAkhirTahunKepalaSekolah::where('user_id', $kepalaSekolah->id)
                         ->where('tahun_pelaporan', 2025)
                         ->exists();
@@ -90,20 +90,5 @@ class LaporanAkhirTahunAdminController extends Controller
         }
 
         return view('admin.laporan-akhir-tahun.index', compact('laporans', 'laporanData'));
-    }
-
-    /**
-     * Generate PDF for a specific laporan akhir tahun.
-     */
-    public function pdf($id)
-    {
-        // Only super admin can access this
-        if (Auth::user()->role !== 'super_admin') {
-            abort(403, 'Unauthorized. Only super admin can access this feature.');
-        }
-
-        $laporan = LaporanAkhirTahunKepalaSekolah::with(['user', 'madrasah'])->findOrFail($id);
-
-        return view('pdf.laporan-akhir-tahun-template', compact('laporan'));
     }
 }
