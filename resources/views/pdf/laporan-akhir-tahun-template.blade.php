@@ -544,11 +544,15 @@
             @php $lampiran = 'lampiran_step_' . $i; @endphp
             @if($laporan->$lampiran)
                 <div style="margin-bottom: 20px;">
-                    <strong>Lampiran {{ $i }}:</strong><br>
-                    <img src="{{ asset('/' . $laporan->$lampiran) }}" alt="Lampiran {{ $i }}" style="max-width: 100%; height: auto;">
+                    <strong>Lampiran {{ $i }}:</strong> File PDF tersedia ({{ basename($laporan->$lampiran) }})
                 </div>
             @endif
         @endfor
+        @if(!$laporan->lampiran_step_1 && !$laporan->lampiran_step_2 && !$laporan->lampiran_step_3 && !$laporan->lampiran_step_4 && !$laporan->lampiran_step_5 && !$laporan->lampiran_step_6 && !$laporan->lampiran_step_7 && !$laporan->lampiran_step_8 && !$laporan->lampiran_step_9)
+            <div style="margin-bottom: 20px;">
+                <em>Tidak ada lampiran yang tersedia.</em>
+            </div>
+        @endif
     </div>
 </body>
 </html>

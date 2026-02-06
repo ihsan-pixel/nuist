@@ -86,6 +86,17 @@
                                    title="Lihat PDF">
                                     <i class="bx bx-file-pdf me-1"></i> PDF
                                 </a>
+                                @for($i = 1; $i <= 9; $i++)
+                                    @php $lampiran = 'lampiran_step_' . $i; @endphp
+                                    @if($laporan->$lampiran)
+                                        <a href="{{ asset($laporan->$lampiran) }}"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="Lihat Lampiran {{ $i }}">
+                                            <i class="bx bx-file me-1"></i> L{{ $i }}
+                                        </a>
+                                    @endif
+                                @endfor
                             </div>
                         </td>
                     </tr>
