@@ -251,27 +251,27 @@
                 </tr> --}}
                 <tr>
                     <td>BOSNAS (Rp)</td>
-                    <td>Rp {{ number_format($laporan->bosnas_2023 ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($laporan->bosnas_2024 ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($laporan->bosnas_2025 ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ number_format($laporan->bosnas_2023 ?? 0) }}</td>
+                    <td>{{ number_format($laporan->bosnas_2024 ?? 0) }}</td>
+                    <td>{{ number_format($laporan->bosnas_2025 ?? 0) }}</td>
                 </tr>
                 <tr>
                     <td>BOSDA (Rp)</td>
-                    <td>Rp {{ number_format($laporan->bosda_2023 ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($laporan->bosda_2024 ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($laporan->bosda_2025 ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ number_format($laporan->bosda_2023 ?? 0) }}</td>
+                    <td>{{ number_format($laporan->bosda_2024 ?? 0) }}</td>
+                    <td>{{ number_format($laporan->bosda_2025 ?? 0) }}</td>
                 </tr>
                 <tr>
                     <td>SPP/BPPP/Lain (Rp)</td>
-                    <td>Rp {{ number_format($laporan->spp_bppp_lain_2023 ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($laporan->spp_bppp_lain_2024 ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($laporan->spp_bppp_lain_2025 ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ number_format($laporan->spp_bppp_lain_2023 ?? 0) }}</td>
+                    <td>{{ number_format($laporan->spp_bppp_lain_2024 ?? 0) }}</td>
+                    <td>{{ number_format($laporan->spp_bppp_lain_2025 ?? 0) }}</td>
                 </tr>
                 <tr>
                     <td>Pendapatan Unit Usaha (Rp)</td>
-                    <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2023 ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2024 ?? 0, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($laporan->pendapatan_unit_usaha_2025 ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ number_format($laporan->pendapatan_unit_usaha_2023 ?? 0) }}</td>
+                    <td>{{ number_format($laporan->pendapatan_unit_usaha_2024 ?? 0) }}</td>
+                    <td>{{ number_format($laporan->pendapatan_unit_usaha_2025 ?? 0) }}</td>
                 </tr>
             </tbody>
         </table>
