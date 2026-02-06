@@ -126,7 +126,8 @@
 
         .signature-section {
             margin-top: 40px;
-            text-align: center;
+            text-align: right;
+            margin-left: 50%;
         }
 
         .signature-line {
