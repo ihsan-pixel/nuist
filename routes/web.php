@@ -556,6 +556,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
 
     // Laporan Akhir Tahun Admin Routes
     Route::get('/laporan-akhir-tahun', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'index'])->name('laporan-akhir-tahun.index');
+    Route::get('/laporan-akhir-tahun/pdf/{id}', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'pdf'])->name('laporan-akhir-tahun.pdf');
 });
 
 

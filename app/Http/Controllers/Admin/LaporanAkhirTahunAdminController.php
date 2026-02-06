@@ -7,6 +7,7 @@ use App\Models\LaporanAkhirTahunKepalaSekolah;
 use App\Models\Madrasah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PDF;
 
 class LaporanAkhirTahunAdminController extends Controller
 {
@@ -90,5 +91,28 @@ class LaporanAkhirTahunAdminController extends Controller
         }
 
         return view('admin.laporan-akhir-tahun.index', compact('laporans', 'laporanData'));
+    }
+
+    /**
+     * Generate PDF for a specific laporan akhir tahun
+     */
+    public function pdf($id)
+    {
+        // Only super admin can access this
+        if (Auth::user()->role !== 'super_admin') {
+            abort(403, 'Unauthorized. Only super admin can access this feature.');
+        }
+
+        // Get the laporan with user relationship
+        $laporan = LaporanAkhirTahunKepalaSekolah::with('user')->findOrFail($id);
+
+        // Generate PDF using the template
+        $pdf = PDF::loadView('pdf.laporan-akhir-tahun-template', compact('laporan'));
+
+        // Set paper size and orientation
+        $pdf->setPaper('a4', 'portrait');
+
+        // Return PDF for download
+        return $pdf->download('laporan-akhir-tahun-' . $laporan->nama_kepala_sekolah_madrasah . '.pdf');
     }
 }

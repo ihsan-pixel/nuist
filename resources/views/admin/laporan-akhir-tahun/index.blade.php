@@ -80,12 +80,7 @@
                         <td>{{ $laporan->created_at->format('d/m/Y') }}</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ route('mobile.laporan-akhir-tahun.show', $laporan->id) }}"
-                                   class="btn btn-sm btn-info"
-                                   title="Lihat Detail">
-                                    <i class="bx bx-show me-1"></i> Detail
-                                </a>
-                                <a href="#"
+                                <a href="{{ route('admin.laporan-akhir-tahun.pdf', $laporan->id) }}"
                                    target="_blank"
                                    class="btn btn-sm btn-primary"
                                    title="Lihat PDF">
