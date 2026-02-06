@@ -212,7 +212,7 @@
     </div>
 
     <!-- Step 2: Capaian Utama 3 Tahun Berjalan -->
-    <div class="section">
+    {{-- <div class="section">
         <div class="section-header">2. CAPAIAN UTAMA 3 TAHUN BERJALAN</div>
 
         <table class="achievement-table">
@@ -535,6 +535,6 @@
         <p>Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
         <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}</strong></p>
         <p>NIP. {{ $laporan->user->nip ?? '-' }}</p>
-    </div>
+    </div> --}}
 </body>
 </html>
