@@ -382,14 +382,27 @@
         </div>
         @endif
 
-        @if($laporan->kondisi_guru && is_array(json_decode($laporan->kondisi_guru, true)))
+        @if(isset($kondisiGuruUsers) && !empty($kondisiGuruUsers))
         <div class="section">
             <div style="font-weight: bold; margin-bottom: 5px;">Kondisi Guru:</div>
-            <ul style="margin: 0; padding-left: 20px;">
-                @foreach(json_decode($laporan->kondisi_guru, true) as $kondisi)
-                    <li>{{ ucfirst($kondisi) }}</li>
-                @endforeach
-            </ul>
+            <table class="talent-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 60%;">Nama Guru</th>
+                        <th style="width: 35%;">Kondisi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($kondisiGuruUsers as $index => $guru)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $guru['nama'] }}</td>
+                            <td>{{ $guru['kondisi'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
         @endif
 

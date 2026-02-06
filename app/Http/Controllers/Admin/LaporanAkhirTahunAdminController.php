@@ -106,8 +106,24 @@ class LaporanAkhirTahunAdminController extends Controller
         // Get the laporan with user relationship
         $laporan = LaporanAkhirTahunKepalaSekolah::with('user')->findOrFail($id);
 
+        // Load users for kondisi_guru if exists
+        $kondisiGuruUsers = [];
+        if ($laporan->kondisi_guru && is_string($laporan->kondisi_guru)) {
+            $kondisiGuruData = json_decode($laporan->kondisi_guru, true);
+            if (is_array($kondisiGuruData) && !empty($kondisiGuruData)) {
+                $userIds = array_keys($kondisiGuruData);
+                $users = \App\Models\User::whereIn('id', $userIds)->pluck('name', 'id');
+                foreach ($kondisiGuruData as $userId => $kondisi) {
+                    $kondisiGuruUsers[] = [
+                        'nama' => $users[$userId] ?? 'User ID: ' . $userId,
+                        'kondisi' => ucfirst($kondisi)
+                    ];
+                }
+            }
+        }
+
         // Generate PDF using the template
-        $pdf = PDF::loadView('pdf.laporan-akhir-tahun-template', compact('laporan'))
+        $pdf = PDF::loadView('pdf.laporan-akhir-tahun-template', compact('laporan', 'kondisiGuruUsers'))
             ->setPaper('a4', 'portrait')
             ->setOptions([
                 'margin_top' => 1,
