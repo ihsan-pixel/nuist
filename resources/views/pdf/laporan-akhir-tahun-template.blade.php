@@ -568,14 +568,15 @@
     <!-- Signature -->
     <div class="signature-section">
         <p>Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
-        <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}</strong></p>
+        <p>Kepala Sekolah/Madrasah {{ $laporan->nama_satpen}}</p>
         @if($laporan->signature_data)
             <div style="margin-top: 0px; text-align: center;">
                 <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @endif
+        <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}</strong></p>
         <div class="signature-line" style="margin-top: -20px;"></div>
-        <p style="margin-top: -40px">NIP. {{ $laporan->user->nip ?? '-' }}</p>
+        <p style="margin-top: -30px">NIP. {{ $laporan->user->nip ?? '-' }}</p>
     </div>
 
     <!-- Lampiran -->
