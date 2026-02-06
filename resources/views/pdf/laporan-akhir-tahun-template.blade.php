@@ -574,7 +574,7 @@
                 <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @endif
-        <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}{{$laporan->gelar}}</strong></p>
+        <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}, {{$laporan->gelar}}</strong></p>
         <div class="signature-line" style="margin-top: -10px;"></div>
         <p style="margin-top: -20px">NIP. {{ $laporan->user->nip ?? '-' }}</p>
     </div>
