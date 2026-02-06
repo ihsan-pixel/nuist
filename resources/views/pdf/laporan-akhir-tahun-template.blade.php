@@ -536,5 +536,19 @@
         <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}</strong></p>
         <p>NIP. {{ $laporan->user->nip ?? '-' }}</p>
     </div>
+
+    <!-- Lampiran -->
+    <div class="section page-break">
+        <div class="section-header">LAMPIRAN</div>
+        @for($i = 1; $i <= 9; $i++)
+            @php $lampiran = 'lampiran_step_' . $i; @endphp
+            @if($laporan->$lampiran)
+                <div style="margin-bottom: 20px;">
+                    <strong>Lampiran {{ $i }}:</strong><br>
+                    <img src="{{ asset('/' . $laporan->$lampiran) }}" alt="Lampiran {{ $i }}" style="max-width: 100%; height: auto;">
+                </div>
+            @endif
+        @endfor
+    </div>
 </body>
 </html>
