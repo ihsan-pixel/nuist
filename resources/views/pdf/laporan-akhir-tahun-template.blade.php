@@ -570,9 +570,9 @@
         <p>Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
         <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}</strong></p>
         <p>NIP. {{ $laporan->user->nip ?? '-' }}</p>
-        @if($laporan->signature)
+        @if($laporan->signature_data)
             <div style="margin-top: 20px; text-align: center;">
-                <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
+                <img src="data:image/png;base64,{{ $laporan->signature_data }}" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
             </div>
         @else
             <div class="signature-line"></div>
