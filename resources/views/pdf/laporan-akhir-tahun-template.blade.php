@@ -249,30 +249,30 @@
                     <td>-</td>
                     <td>-</td>
                 </tr>
-                {{-- <tr>
+                <tr>
                     <td>BOSNAS (Rp)</td>
-                    <td>{{ number_format($laporan->bosnas_2023 ?? 0) }}</td>
-                    <td>{{ number_format($laporan->bosnas_2024 ?? 0) }}</td>
-                    <td>{{ number_format($laporan->bosnas_2025 ?? 0) }}</td>
+                    <td>{{ $laporan->bosnas_2023 ?? '-' }}</td>
+                    <td>{{ $laporan->bosnas_2024 ?? '-' }}</td>
+                    <td>{{ $laporan->bosnas_2025 ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td>BOSDA (Rp)</td>
-                    <td>{{ number_format($laporan->bosda_2023 ?? 0) }}</td>
-                    <td>{{ number_format($laporan->bosda_2024 ?? 0) }}</td>
-                    <td>{{ number_format($laporan->bosda_2025 ?? 0) }}</td>
+                    <td>{{ $laporan->bosda_2023 ?? '-' }}</td>
+                    <td>{{ $laporan->bosda_2024 ?? '-' }}</td>
+                    <td>{{ $laporan->bosda_2025 ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td>SPP/BPPP/Lain (Rp)</td>
-                    <td>{{ number_format($laporan->spp_bppp_lain_2023 ?? 0) }}</td>
-                    <td>{{ number_format($laporan->spp_bppp_lain_2024 ?? 0) }}</td>
-                    <td>{{ number_format($laporan->spp_bppp_lain_2025 ?? 0) }}</td>
+                    <td>{{ $laporan->spp_bppp_lain_2023 ?? '-' }}</td>
+                    <td>{{ $laporan->spp_bppp_lain_2024 ?? '-' }}</td>
+                    <td>{{ $laporan->spp_bppp_lain_2025 ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td>Pendapatan Unit Usaha (Rp)</td>
-                    <td>{{ number_format($laporan->pendapatan_unit_usaha_2023 ?? 0) }}</td>
-                    <td>{{ number_format($laporan->pendapatan_unit_usaha_2024 ?? 0) }}</td>
-                    <td>{{ number_format($laporan->pendapatan_unit_usaha_2025 ?? 0) }}</td>
-                </tr> --}}
+                    <td>{{ $laporan->pendapatan_unit_usaha_2023 ?? '-' }}</td>
+                    <td>{{ $laporan->pendapatan_unit_usaha_2024 ?? '-' }}</td>
+                    <td>{{ $laporan->pendapatan_unit_usaha_2025 ?? '-' }}</td>
+                </tr>
             </tbody>
         </table>
 
@@ -535,6 +535,6 @@
         <p>Yogyakarta, {{ $laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y') }}</p>
         <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}</strong></p>
         <p>NIP. {{ $laporan->user->nip ?? '-' }}</p>
-    </div> --}}
+    </div>
 </body>
 </html>
