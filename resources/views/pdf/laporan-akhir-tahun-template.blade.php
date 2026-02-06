@@ -275,6 +275,28 @@
                 </tr>
             </tbody>
         </table>
+        <table class="achievement-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Indikator</th>
+                    <th style="width: 25%;">Persentase</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Persentase Alumni Bekerja (%)</td>
+                    <td>{{ $laporan->persentase_alumni_bekerja ?? '-' }}%</td>
+                </tr>
+                <tr>
+                    <td>Persentase Alumni Wirausaha (%)</td>
+                    <td>{{ $laporan->persentase_alumni_wirausaha ?? '-' }}%</td>
+                </tr>
+                <tr>
+                    <td>Persentase Alumni Tidak Terdeteksi (%)</td>
+                    <td>{{ $laporan->persentase_alumni_tidak_terdeteksi ?? '-' }}%</td>
+                </tr>
+            </tbody>
+        </table>
 
         <table class="data-table">
             <tr>
