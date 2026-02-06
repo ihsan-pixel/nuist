@@ -276,7 +276,7 @@
             </tbody>
         </table>
 
-        {{-- <table class="data-table">
+        <table class="data-table">
             <tr>
                 <td class="label">Status Akreditasi</td>
                 <td class="value">{{ $laporan->status_akreditasi ?? '-' }}</td>
@@ -289,7 +289,7 @@
                 <td class="label">Tanggal Akreditasi Berakhir</td>
                 <td class="value">{{ $laporan->tanggal_akreditasi_berakhir ? \Carbon\Carbon::parse($laporan->tanggal_akreditasi_berakhir)->format('d-m-Y') : '-' }}</td>
             </tr>
-        </table> --}}
+        </table>
     </div>
 
     <!-- Step 3: Layanan Pendidikan -->
