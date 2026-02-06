@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Akhir Tahun Kepala Sekolah </title>
-    {{-- <style>
+    <title>Laporan Akhir Tahun Kepala Sekolah - {{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}</title>
+    <style>
         @page {
             size: A4;
             margin: 1cm;
@@ -536,5 +536,5 @@
         <p><strong>{{ $laporan->nama_kepala_sekolah_madrasah ?? 'N/A' }}</strong></p>
         <p>NIP. {{ $laporan->user->nip ?? '-' }}</p>
     </div>
-</body> --}}
+</body>
 </html>
