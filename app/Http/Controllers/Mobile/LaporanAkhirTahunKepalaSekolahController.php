@@ -7,6 +7,7 @@ use App\Models\LaporanAkhirTahunKepalaSekolah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanAkhirTahunKepalaSekolahController extends Controller
 {

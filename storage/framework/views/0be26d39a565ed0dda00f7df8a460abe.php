@@ -277,6 +277,12 @@
                         <span>Simfoni</span>
                     </a>
                 </li>
+                <li>
+                    <a href="<?php echo e(route('admin.laporan-akhir-tahun.index')); ?>" class="waves-effect">
+                        <i class="bx bx-data"></i>
+                        <span>Laporan Akhir Tahun</span>
+                    </a>
+                </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 

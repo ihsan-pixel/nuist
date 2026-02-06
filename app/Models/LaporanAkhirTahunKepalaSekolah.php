@@ -98,6 +98,7 @@ class LaporanAkhirTahunKepalaSekolah extends Model
         'lampiran_step_7',
         'lampiran_step_8',
         'lampiran_step_9',
+        'madrasah_id',
     ];
 
     protected $casts = [
@@ -116,5 +117,10 @@ class LaporanAkhirTahunKepalaSekolah extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function madrasah()
+    {
+        return $this->belongsTo(Madrasah::class);
     }
 }

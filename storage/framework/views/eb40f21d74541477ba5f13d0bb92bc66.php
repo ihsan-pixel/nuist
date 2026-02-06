@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Akhir Tahun Kepala Sekolah - <?php echo e($laporan->nama_kepala_sekolah_madrasah ?? 'N/A'); ?></title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+
+        .header h2 {
+            font-size: 14px;
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+
+        .header p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .section {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        .section-header {
+            background: #f0f0f0;
+            padding: 5px 8px;
+            font-weight: bold;
+            border: 1px solid #000;
+            margin-bottom: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .data-table td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            vertical-align: top;
+        }
+
+        .data-table .label {
+            width: 35%;
+            font-weight: bold;
+            background: #f8f8f8;
+        }
+
+        .data-table .value {
+            width: 65%;
+        }
+
+        .achievement-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .achievement-table th,
+        .achievement-table td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .achievement-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .talent-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .talent-table th,
+        .talent-table td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .talent-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-style: italic;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .signature-line {
+            margin-top: 60px;
+            border-bottom: 1px solid #000;
+            width: 200px;
+            display: inline-block;
+        }
+
+        .category-note {
+            font-size: 10px;
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        .category-note strong {
+            color: #dc3545;
+        }
+
+        .total-score {
+            background: #fff3cd;
+            padding: 8px;
+            border: 1px solid #000;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .warning-text {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 8px;
+            border: 1px solid #f5c6cb;
+            margin: 10px 0;
+            font-size: 11px;
+            text-align: justify;
+        }
+
+        @media print {
+            body { print-color-adjust: exact; }
+            .no-print { display: none; }
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .text-justify {
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>LAPORAN AKHIR TAHUN KEPALA SEKOLAH/MADRASAH</h1>
+        <h2>TAHUN PELAPORAN <?php echo e($laporan->tahun_pelaporan ?? 'N/A'); ?></h2>
+        <p><strong>Nama Satpen:</strong> <?php echo e($laporan->nama_satpen ?? 'N/A'); ?></p>
+        <p><strong>Alamat:</strong> <?php echo e($laporan->alamat ?? 'N/A'); ?></p>
+    </div>
+
+    <!-- Step 1: Identitas Kepala Sekolah -->
+    <div class="section">
+        <div class="section-header">1. IDENTITAS KEPALA SEKOLAH/MADRASAH</div>
+        <table class="data-table">
+            <tr>
+                <td class="label">Nama Lengkap</td>
+                <td class="value"><?php echo e($laporan->nama_kepala_sekolah_madrasah ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Gelar</td>
+                <td class="value"><?php echo e($laporan->gelar ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">TMT Kepala Sekolah/Madrasah Pertama</td>
+                <td class="value"><?php echo e($laporan->tmt_ks_kamad_pertama ? \Carbon\Carbon::parse($laporan->tmt_ks_kamad_pertama)->format('d-m-Y') : '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">TMT Kepala Sekolah/Madrasah Terakhir</td>
+                <td class="value"><?php echo e($laporan->tmt_ks_kamad_terakhir ? \Carbon\Carbon::parse($laporan->tmt_ks_kamad_terakhir)->format('d-m-Y') : '-'); ?></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Step 2: Capaian Utama 3 Tahun Berjalan -->
+    <div class="section">
+        <div class="section-header">2. CAPAIAN UTAMA 3 TAHUN BERJALAN</div>
+
+        <table class="achievement-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Indikator</th>
+                    <th style="width: 25%;">2023</th>
+                    <th style="width: 25%;">2024</th>
+                    <th style="width: 25%;">2025</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Jumlah Siswa</td>
+                    <td><?php echo e(number_format($laporan->jumlah_siswa_2023 ?? 0)); ?></td>
+                    <td><?php echo e(number_format($laporan->jumlah_siswa_2024 ?? 0)); ?></td>
+                    <td><?php echo e(number_format($laporan->jumlah_siswa_2025 ?? 0)); ?></td>
+                </tr>
+                <tr>
+                    <td>Persentase Alumni Bekerja (%)</td>
+                    <td><?php echo e($laporan->persentase_alumni_bekerja ?? '-'); ?>%</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Persentase Alumni Wirausaha (%)</td>
+                    <td><?php echo e($laporan->persentase_alumni_wirausaha ?? '-'); ?>%</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Persentase Alumni Tidak Terdeteksi (%)</td>
+                    <td><?php echo e($laporan->persentase_alumni_tidak_terdeteksi ?? '-'); ?>%</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>BOSNAS (Rp)</td>
+                    <td>Rp <?php echo e(number_format($laporan->bosnas_2023 ?? 0, 0, ',', '.')); ?></td>
+                    <td>Rp <?php echo e(number_format($laporan->bosnas_2024 ?? 0, 0, ',', '.')); ?></td>
+                    <td>Rp <?php echo e(number_format($laporan->bosnas_2025 ?? 0, 0, ',', '.')); ?></td>
+                </tr>
+                <tr>
+                    <td>BOSDA (Rp)</td>
+                    <td>Rp <?php echo e(number_format($laporan->bosda_2023 ?? 0, 0, ',', '.')); ?></td>
+                    <td>Rp <?php echo e(number_format($laporan->bosda_2024 ?? 0, 0, ',', '.')); ?></td>
+                    <td>Rp <?php echo e(number_format($laporan->bosda_2025 ?? 0, 0, ',', '.')); ?></td>
+                </tr>
+                <tr>
+                    <td>SPP/BPPP/Lain (Rp)</td>
+                    <td>Rp <?php echo e(number_format($laporan->spp_bppp_lain_2023 ?? 0, 0, ',', '.')); ?></td>
+                    <td>Rp <?php echo e(number_format($laporan->spp_bppp_lain_2024 ?? 0, 0, ',', '.')); ?></td>
+                    <td>Rp <?php echo e(number_format($laporan->spp_bppp_lain_2025 ?? 0, 0, ',', '.')); ?></td>
+                </tr>
+                <tr>
+                    <td>Pendapatan Unit Usaha (Rp)</td>
+                    <td>Rp <?php echo e(number_format($laporan->pendapatan_unit_usaha_2023 ?? 0, 0, ',', '.')); ?></td>
+                    <td>Rp <?php echo e(number_format($laporan->pendapatan_unit_usaha_2024 ?? 0, 0, ',', '.')); ?></td>
+                    <td>Rp <?php echo e(number_format($laporan->pendapatan_unit_usaha_2025 ?? 0, 0, ',', '.')); ?></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="data-table">
+            <tr>
+                <td class="label">Status Akreditasi</td>
+                <td class="value"><?php echo e($laporan->status_akreditasi ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Tanggal Akreditasi Mulai</td>
+                <td class="value"><?php echo e($laporan->tanggal_akreditasi_mulai ? \Carbon\Carbon::parse($laporan->tanggal_akreditasi_mulai)->format('d-m-Y') : '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Tanggal Akreditasi Berakhir</td>
+                <td class="value"><?php echo e($laporan->tanggal_akreditasi_berakhir ? \Carbon\Carbon::parse($laporan->tanggal_akreditasi_berakhir)->format('d-m-Y') : '-'); ?></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Step 3: Layanan Pendidikan -->
+    <div class="section">
+        <div class="section-header">3. LAYANAN PENDIDIKAN</div>
+        <table class="data-table">
+            <tr>
+                <td class="label">Model Layanan Pendidikan</td>
+                <td class="value"><?php echo e($laporan->model_layanan_pendidikan ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Capaian Layanan Menonjol</td>
+                <td class="value"><?php echo e($laporan->capaian_layanan_menonjol ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Masalah Layanan Utama</td>
+                <td class="value"><?php echo e($laporan->masalah_layanan_utama ?? '-'); ?></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Step 4: SDM -->
+    <div class="section">
+        <div class="section-header">4. SUMBER DAYA MANUSIA (SDM)</div>
+
+        <table class="achievement-table">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Status Kepegawaian</th>
+                    <th style="width: 50%;">Jumlah</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>PNS Sertifikasi</td>
+                    <td><?php echo e($laporan->pns_sertifikasi ?? 0); ?></td>
+                </tr>
+                <tr>
+                    <td>PNS Non Sertifikasi</td>
+                    <td><?php echo e($laporan->pns_non_sertifikasi ?? 0); ?></td>
+                </tr>
+                <tr>
+                    <td>GTY Sertifikasi Inpassing</td>
+                    <td><?php echo e($laporan->gty_sertifikasi_inpassing ?? 0); ?></td>
+                </tr>
+                <tr>
+                    <td>GTY Sertifikasi</td>
+                    <td><?php echo e($laporan->gty_sertifikasi ?? 0); ?></td>
+                </tr>
+                <tr>
+                    <td>GTY Non Sertifikasi</td>
+                    <td><?php echo e($laporan->gty_non_sertifikasi ?? 0); ?></td>
+                </tr>
+                <tr>
+                    <td>GTT</td>
+                    <td><?php echo e($laporan->gtt ?? 0); ?></td>
+                </tr>
+                <tr>
+                    <td>PTY</td>
+                    <td><?php echo e($laporan->pty ?? 0); ?></td>
+                </tr>
+                <tr>
+                    <td>PTT</td>
+                    <td><?php echo e($laporan->ptt ?? 0); ?></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->nama_talenta && is_array(json_decode($laporan->nama_talenta, true))): ?>
+        <div class="section">
+            <div style="font-weight: bold; margin-bottom: 5px;">Talenta Guru/Karyawan:</div>
+            <table class="talent-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 30%;">Nama</th>
+                        <th style="width: 65%;">Alasan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = json_decode($laporan->nama_talenta, true); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $nama): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <tr>
+                            <td><?php echo e($index + 1); ?></td>
+                            <td><?php echo e($nama ?? '-'); ?></td>
+                            <td><?php echo e(json_decode($laporan->alasan_talenta, true)[$index] ?? '-'); ?></td>
+                        </tr>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->kondisi_guru && is_array(json_decode($laporan->kondisi_guru, true))): ?>
+        <div class="section">
+            <div style="font-weight: bold; margin-bottom: 5px;">Kondisi Guru:</div>
+            <ul style="margin: 0; padding-left: 20px;">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = json_decode($laporan->kondisi_guru, true); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kondisi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                    <li><?php echo e(ucfirst($kondisi)); ?></li>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+            </ul>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->masalah_sdm_utama && is_array(json_decode($laporan->masalah_sdm_utama, true))): ?>
+        <div class="section">
+            <div style="font-weight: bold; margin-bottom: 5px;">Masalah SDM Utama:</div>
+            <ol style="margin: 0; padding-left: 20px;">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = json_decode($laporan->masalah_sdm_utama, true); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $masalah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                    <li><?php echo e($masalah); ?></li>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+            </ol>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+
+    <!-- Step 5: Keuangan -->
+    <div class="section">
+        <div class="section-header">5. KEUANGAN</div>
+        <table class="data-table">
+            <tr>
+                <td class="label">Sumber Dana Utama</td>
+                <td class="value"><?php echo e($laporan->sumber_dana_utama ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Kondisi Keuangan Akhir Tahun</td>
+                <td class="value"><?php echo e(ucfirst($laporan->kondisi_keuangan_akhir_tahun ?? '-')); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Catatan Pengelolaan Keuangan</td>
+                <td class="value"><?php echo e($laporan->catatan_pengelolaan_keuangan ?? '-'); ?></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Step 6: PPDB -->
+    <div class="section">
+        <div class="section-header">6. PENERIMAAN PESERTA DIDIK BARU (PPDB)</div>
+        <table class="data-table">
+            <tr>
+                <td class="label">Metode PPDB</td>
+                <td class="value"><?php echo e($laporan->metode_ppdb ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Hasil PPDB Tahun Berjalan</td>
+                <td class="value"><?php echo e($laporan->hasil_ppdb_tahun_berjalan ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Masalah Utama PPDB</td>
+                <td class="value"><?php echo e($laporan->masalah_utama_ppdb ?? '-'); ?></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Step 7: Program Unggulan -->
+    <div class="section">
+        <div class="section-header">7. PROGRAM UNGGULAN</div>
+        <table class="data-table">
+            <tr>
+                <td class="label">Nama Program Unggulan</td>
+                <td class="value"><?php echo e($laporan->nama_program_unggulan ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Alasan Pemilihan Program</td>
+                <td class="value"><?php echo e($laporan->alasan_pemilihan_program ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Target Unggulan</td>
+                <td class="value"><?php echo e($laporan->target_unggulan ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Kontribusi Unggulan</td>
+                <td class="value"><?php echo e($laporan->kontribusi_unggulan ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Sumber Biaya Program</td>
+                <td class="value"><?php echo e($laporan->sumber_biaya_program ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Tim Program Unggulan</td>
+                <td class="value"><?php echo e($laporan->tim_program_unggulan ?? '-'); ?></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Step 8: Refleksi -->
+    <div class="section">
+        <div class="section-header">8. REFLEKSI</div>
+        <table class="data-table">
+            <tr>
+                <td class="label">Keberhasilan Terbesar Tahun Ini</td>
+                <td class="value"><?php echo e($laporan->keberhasilan_terbesar_tahun_ini ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Masalah Paling Berat Dihadapi</td>
+                <td class="value"><?php echo e($laporan->masalah_paling_berat_dihadapi ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Keputusan Sulit yang Diambil</td>
+                <td class="value"><?php echo e($laporan->keputusan_sulit_diambil ?? '-'); ?></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Step 9: Risiko -->
+    <div class="section">
+        <div class="section-header">9. RISIKO</div>
+        <table class="data-table">
+            <tr>
+                <td class="label">Risiko Terbesar Satpen Tahun Depan</td>
+                <td class="value"><?php echo e($laporan->risiko_terbesar_satpen_tahun_depan ?? '-'); ?></td>
+            </tr>
+            <tr>
+                <td class="label">Fokus Perbaikan Tahun Depan</td>
+                <td class="value">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->fokus_perbaikan_tahun_depan && is_array(json_decode($laporan->fokus_perbaikan_tahun_depan, true))): ?>
+                        <ol style="margin: 0; padding-left: 20px;">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = json_decode($laporan->fokus_perbaikan_tahun_depan, true); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fokus): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <li><?php echo e($fokus); ?></li>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </ol>
+                    <?php else: ?>
+                        -
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Step 10: Pernyataan -->
+    <div class="section">
+        <div class="section-header">10. PERNYATAAN</div>
+        <p class="text-justify">
+            Dengan ini saya menyatakan bahwa semua yang saya tulis di atas adalah BENAR dan DAPAT DIPERTANGGUNGJAWABKAN. Apabila kelak ditemukan ketidaksesuaian, maka saya bersedia menerima sanksinya.
+        </p>
+
+        <div style="margin-top: 20px;">
+            <strong>Pernyataan Benar:</strong> <?php echo e($laporan->pernyataan_benar ? 'Ya' : 'Tidak'); ?>
+
+        </div>
+    </div>
+
+    <!-- Signature -->
+    <div class="signature-section">
+        <p>Yogyakarta, <?php echo e($laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y')); ?></p>
+        <p><strong><?php echo e($laporan->nama_kepala_sekolah_madrasah ?? 'N/A'); ?></strong></p>
+        <p>NIP. <?php echo e($laporan->user->nip ?? '-'); ?></p>
+    </div>
+</body>
+</html>
+<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/pdf/laporan-akhir-tahun-template.blade.php ENDPATH**/ ?>

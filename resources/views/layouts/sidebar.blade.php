@@ -341,6 +341,12 @@
                         <span>Simfoni</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.laporan-akhir-tahun.index') }}" class="waves-effect">
+                        <i class="bx bx-data"></i>
+                        <span>Laporan Akhir Tahun</span>
+                    </a>
+                </li>
                 @endif
                 @endif
 

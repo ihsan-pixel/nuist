@@ -553,6 +553,9 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/pending-registrations', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'index'])->name('pending-registrations.index');
     Route::post('/pending-registrations/{id}/approve', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'approve'])->name('pending-registrations.approve');
     Route::post('/pending-registrations/{id}/reject', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'reject'])->name('pending-registrations.reject');
+
+    // Laporan Akhir Tahun Admin Routes
+    Route::get('/laporan-akhir-tahun', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'index'])->name('laporan-akhir-tahun.index');
 });
 
 
