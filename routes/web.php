@@ -455,6 +455,40 @@ Route::middleware(['auth', 'role:super_admin,pengurus'])->prefix('uppm')->name('
     Route::post('/pembayaran/midtrans', [App\Http\Controllers\PembayaranController::class, 'pembayaranMidtrans'])->name('pembayaran.midtrans');
 });
 
+// Instrument Talenta Routes
+Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'])->group(function () {
+    Route::get('/', [App\Http\Controllers\InstumenTalentaController::class, 'index'])->name('index');
+
+    Route::get('/peserta', function () {
+        return view('instumen-talenta.peserta');
+    })->name('peserta');
+
+    Route::get('/pemateri', function () {
+        return view('instumen-talenta.pemateri');
+    })->name('pemateri');
+
+    Route::get('/fasilitator', function () {
+        return view('instumen-talenta.fasilitator');
+    })->name('fasilitator');
+
+    Route::get('/admin', function () {
+        return view('instumen-talenta.admin');
+    })->name('admin')->middleware(['role:super_admin,admin']);
+
+    // Input Data Routes
+    Route::get('/input-peserta', [App\Http\Controllers\InstumenTalentaController::class, 'inputPeserta'])->name('input-peserta')->middleware(['role:super_admin,admin']);
+    Route::post('/input-peserta', [App\Http\Controllers\InstumenTalentaController::class, 'storePeserta'])->name('store-peserta')->middleware(['role:super_admin,admin']);
+
+    Route::get('/input-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'inputPemateri'])->name('input-pemateri')->middleware(['role:super_admin,admin']);
+    Route::post('/input-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'storePemateri'])->name('store-pemateri')->middleware(['role:super_admin,admin']);
+
+    Route::get('/input-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'inputFasilitator'])->name('input-fasilitator')->middleware(['role:super_admin,admin']);
+    Route::post('/input-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'storeFasilitator'])->name('store-fasilitator')->middleware(['role:super_admin,admin']);
+
+    Route::get('/input-materi', [App\Http\Controllers\InstumenTalentaController::class, 'inputMateri'])->name('input-materi')->middleware(['role:super_admin,admin']);
+    Route::post('/input-materi', [App\Http\Controllers\InstumenTalentaController::class, 'storeMateri'])->name('store-materi')->middleware(['role:super_admin,admin']);
+});
+
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
 // App Settings Routes - Super Admin Only

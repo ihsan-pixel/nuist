@@ -79,12 +79,26 @@
                         </td>
                         <td><?php echo e($laporan->created_at->format('d/m/Y')); ?></td>
                         <td>
-                            <a href="<?php echo e(route('admin.laporan-akhir-tahun.pdf', $laporan->id)); ?>"
-                               target="_blank"
-                               class="btn btn-sm btn-primary"
-                               title="Lihat PDF">
-                                <i class="bx bx-file-pdf me-1"></i> PDF
-                            </a>
+                            <div class="btn-group" role="group">
+                                <a href="<?php echo e(route('admin.laporan-akhir-tahun.pdf', $laporan->id)); ?>"
+                                   target="_blank"
+                                   class="btn btn-sm btn-primary"
+                                   title="Lihat PDF">
+                                    <i class="bx bx-file-pdf me-1"></i> PDF
+                                </a>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 1; $i <= 9; $i++): ?>
+                                    <?php $lampiran = 'lampiran_step_' . $i; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->$lampiran): ?>
+                                        <a href="<?php echo e(asset($laporan->$lampiran)); ?>"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="Lihat Lampiran <?php echo e($i); ?>">
+                                            <i class="bx bx-file me-1"></i> L<?php echo e($i); ?>
+
+                                        </a>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
                         </td>
                     </tr>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>

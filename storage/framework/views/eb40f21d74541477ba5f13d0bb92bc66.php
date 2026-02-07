@@ -126,13 +126,14 @@
 
         .signature-section {
             margin-top: 40px;
-            text-align: center;
+            text-align: left;
+            margin-left: 60%;
         }
 
         .signature-line {
             margin-top: 60px;
             border-bottom: 1px solid #000;
-            width: 200px;
+            width: 150px;
             display: inline-block;
         }
 
@@ -251,27 +252,49 @@
                 </tr>
                 <tr>
                     <td>BOSNAS (Rp)</td>
-                    <td>Rp <?php echo e(number_format($laporan->bosnas_2023 ?? 0, 0, ',', '.')); ?></td>
-                    <td>Rp <?php echo e(number_format($laporan->bosnas_2024 ?? 0, 0, ',', '.')); ?></td>
-                    <td>Rp <?php echo e(number_format($laporan->bosnas_2025 ?? 0, 0, ',', '.')); ?></td>
+                    <td><?php echo e($laporan->bosnas_2023 ?? '-'); ?></td>
+                    <td><?php echo e($laporan->bosnas_2024 ?? '-'); ?></td>
+                    <td><?php echo e($laporan->bosnas_2025 ?? '-'); ?></td>
                 </tr>
                 <tr>
                     <td>BOSDA (Rp)</td>
-                    <td>Rp <?php echo e(number_format($laporan->bosda_2023 ?? 0, 0, ',', '.')); ?></td>
-                    <td>Rp <?php echo e(number_format($laporan->bosda_2024 ?? 0, 0, ',', '.')); ?></td>
-                    <td>Rp <?php echo e(number_format($laporan->bosda_2025 ?? 0, 0, ',', '.')); ?></td>
+                    <td><?php echo e($laporan->bosda_2023 ?? '-'); ?></td>
+                    <td><?php echo e($laporan->bosda_2024 ?? '-'); ?></td>
+                    <td><?php echo e($laporan->bosda_2025 ?? '-'); ?></td>
                 </tr>
                 <tr>
                     <td>SPP/BPPP/Lain (Rp)</td>
-                    <td>Rp <?php echo e(number_format($laporan->spp_bppp_lain_2023 ?? 0, 0, ',', '.')); ?></td>
-                    <td>Rp <?php echo e(number_format($laporan->spp_bppp_lain_2024 ?? 0, 0, ',', '.')); ?></td>
-                    <td>Rp <?php echo e(number_format($laporan->spp_bppp_lain_2025 ?? 0, 0, ',', '.')); ?></td>
+                    <td><?php echo e($laporan->spp_bppp_lain_2023 ?? '-'); ?></td>
+                    <td><?php echo e($laporan->spp_bppp_lain_2024 ?? '-'); ?></td>
+                    <td><?php echo e($laporan->spp_bppp_lain_2025 ?? '-'); ?></td>
                 </tr>
                 <tr>
                     <td>Pendapatan Unit Usaha (Rp)</td>
-                    <td>Rp <?php echo e(number_format($laporan->pendapatan_unit_usaha_2023 ?? 0, 0, ',', '.')); ?></td>
-                    <td>Rp <?php echo e(number_format($laporan->pendapatan_unit_usaha_2024 ?? 0, 0, ',', '.')); ?></td>
-                    <td>Rp <?php echo e(number_format($laporan->pendapatan_unit_usaha_2025 ?? 0, 0, ',', '.')); ?></td>
+                    <td><?php echo e($laporan->pendapatan_unit_usaha_2023 ?? '-'); ?></td>
+                    <td><?php echo e($laporan->pendapatan_unit_usaha_2024 ?? '-'); ?></td>
+                    <td><?php echo e($laporan->pendapatan_unit_usaha_2025 ?? '-'); ?></td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="achievement-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Indikator</th>
+                    <th style="width: 25%;">Persentase</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Persentase Alumni Bekerja (%)</td>
+                    <td><?php echo e($laporan->persentase_alumni_bekerja ?? '-'); ?>%</td>
+                </tr>
+                <tr>
+                    <td>Persentase Alumni Wirausaha (%)</td>
+                    <td><?php echo e($laporan->persentase_alumni_wirausaha ?? '-'); ?>%</td>
+                </tr>
+                <tr>
+                    <td>Persentase Alumni Tidak Terdeteksi (%)</td>
+                    <td><?php echo e($laporan->persentase_alumni_tidak_terdeteksi ?? '-'); ?>%</td>
                 </tr>
             </tbody>
         </table>
@@ -382,14 +405,27 @@
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->kondisi_guru && is_array(json_decode($laporan->kondisi_guru, true))): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($kondisiGuruUsers) && !empty($kondisiGuruUsers)): ?>
         <div class="section">
             <div style="font-weight: bold; margin-bottom: 5px;">Kondisi Guru:</div>
-            <ul style="margin: 0; padding-left: 20px;">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = json_decode($laporan->kondisi_guru, true); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kondisi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                    <li><?php echo e(ucfirst($kondisi)); ?></li>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-            </ul>
+            <table class="talent-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 60%;">Nama Guru</th>
+                        <th style="width: 35%;">Kondisi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $kondisiGuruUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $guru): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <tr>
+                            <td><?php echo e($index + 1); ?></td>
+                            <td><?php echo e($guru['nama']); ?></td>
+                            <td><?php echo e($guru['kondisi']); ?></td>
+                        </tr>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                </tbody>
+            </table>
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -534,8 +570,33 @@
     <!-- Signature -->
     <div class="signature-section">
         <p>Yogyakarta, <?php echo e($laporan->updated_at ? \Carbon\Carbon::parse($laporan->updated_at)->locale('id')->isoFormat('DD MMMM Y') : \Carbon\Carbon::now()->locale('id')->isoFormat('DD MMMM Y')); ?></p>
-        <p><strong><?php echo e($laporan->nama_kepala_sekolah_madrasah ?? 'N/A'); ?></strong></p>
-        <p>NIP. <?php echo e($laporan->user->nip ?? '-'); ?></p>
+        <p>Kepala <?php echo e($laporan->nama_satpen); ?></p>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->signature_data): ?>
+            <div style="margin-left: -20px; text-align: left;">
+                <img src="<?php echo e($laporan->signature_data); ?>" alt="Tanda Tangan" style="max-width: 200px; height: auto;">
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <p style="margin-top: -20"><strong><?php echo e($laporan->nama_kepala_sekolah_madrasah ?? 'N/A'); ?>, <?php echo e($laporan->gelar); ?></strong></p>
+        <div class="signature-line" style="margin-top: -10px;"></div>
+        <p style="margin-top: -20px">NIP. <?php echo e($laporan->user->nip ?? '-'); ?></p>
+    </div>
+
+    <!-- Lampiran -->
+    <div class="section page-break">
+        <div class="section-header">LAMPIRAN</div>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 1; $i <= 9; $i++): ?>
+            <?php $lampiran = 'lampiran_step_' . $i; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->$lampiran): ?>
+                <div style="margin-bottom: 20px;">
+                    <strong>Lampiran <?php echo e($i); ?>:</strong> File PDF tersedia (<?php echo e(basename($laporan->$lampiran)); ?>)
+                </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$laporan->lampiran_step_1 && !$laporan->lampiran_step_2 && !$laporan->lampiran_step_3 && !$laporan->lampiran_step_4 && !$laporan->lampiran_step_5 && !$laporan->lampiran_step_6 && !$laporan->lampiran_step_7 && !$laporan->lampiran_step_8 && !$laporan->lampiran_step_9): ?>
+            <div style="margin-bottom: 20px;">
+                <em>Tidak ada lampiran yang tersedia.</em>
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </body>
 </html>
