@@ -106,6 +106,12 @@ class Madrasah extends Model
         return $this->hasMany(User::class, 'madrasah_id')->where('role', 'tenaga_pendidik');
     }
 
+    // Relasi: satu madrasah punya banyak users
+    public function users()
+    {
+        return $this->hasMany(User::class, 'madrasah_id');
+    }
+
     // Relasi lama ke TenagaPendidik model (jika masih diperlukan)
     public function tenagaPendidik()
     {
@@ -128,6 +134,12 @@ class Madrasah extends Model
     public function teachingAttendances()
     {
         return $this->hasManyThrough(TeachingAttendance::class, TeachingSchedule::class, 'school_id', 'teaching_schedule_id');
+    }
+
+    // Relasi: satu madrasah punya banyak data tenaga pendidik
+    public function dataTenagaPendidik()
+    {
+        return $this->hasMany(DataTenagaPendidik::class);
     }
 
     // Relasi: satu madrasah punya banyak PPDB settings

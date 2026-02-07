@@ -59,6 +59,61 @@
 </div>
 @endforeach
 
+<!-- Table for Jumlah Tenaga Pendidik -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0">Jumlah Tenaga Pendidik</h4>
+            </div>
+            <div class="card-body">
+                @foreach($kabupatenOrder as $kabupaten)
+                <h5 class="mt-4 mb-3">{{ $kabupaten }}</h5>
+                <table id="datatable-tenaga-{{ Str::slug($kabupaten) }}" class="table table-bordered dt-responsive nowrap w-100">
+                    <thead class="table-light">
+                        <tr>
+                            <th rowspan="2" class="text-center align-middle">SCOD</th>
+                            <th rowspan="2" class="text-center align-middle">Nama Sekolah/Madrasah</th>
+                            <th colspan="10" class="text-center">Jumlah Tenaga Pendidik</th>
+                        </tr>
+                        <tr>
+                            <th class="text-center">PNS Sertifikasi</th>
+                            <th class="text-center">PNS Non Sertifikasi</th>
+                            <th class="text-center">GTY Sertifikasi Inpassing</th>
+                            <th class="text-center">GTY Sertifikasi</th>
+                            <th class="text-center">GTY</th>
+                            <th class="text-center">GTT</th>
+                            <th class="text-center">PTY</th>
+                            <th class="text-center">PTT</th>
+                            <th class="text-center">Tidak Diketahui</th>
+                            <th class="text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($tenagaPendidikData[$kabupaten] ?? [] as $data)
+                        <tr>
+                            <td class="text-center">{{ $data['scod'] }}</td>
+                            <td>{{ $data['name'] }}</td>
+                            <td class="text-center">{{ $data['pns_sertifikasi'] }}</td>
+                            <td class="text-center">{{ $data['pns_non_sertifikasi'] }}</td>
+                            <td class="text-center">{{ $data['gty_sertifikasi_inpassing'] }}</td>
+                            <td class="text-center">{{ $data['gty_sertifikasi'] }}</td>
+                            <td class="text-center">{{ $data['gty'] }}</td>
+                            <td class="text-center">{{ $data['gtt'] }}</td>
+                            <td class="text-center">{{ $data['pty'] }}</td>
+                            <td class="text-center">{{ $data['ptt'] }}</td>
+                            <td class="text-center">{{ $data['tidak_diketahui'] }}</td>
+                            <td class="text-center font-weight-bold">{{ $data['total'] }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
     $(document).ready(function() {

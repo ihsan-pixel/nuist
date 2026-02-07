@@ -68,7 +68,67 @@ class DataMadrasahController extends Controller
                 });
             });
 
-        return view('admin.data_madrasah', compact('madrasahs', 'kabupatenOrder'));
+        $tenagaPendidikData = [];
+        foreach ($kabupatenOrder as $kabupaten) {
+            $tenagaPendidikData[$kabupaten] = Madrasah::where('kabupaten', $kabupaten)
+                ->with(['users' => function($query) {
+                    $query->where('role', 'tenaga_pendidik')->with('statusKepegawaian');
+                }])
+                ->orderByRaw('CAST(scod AS UNSIGNED)')
+                ->get()
+                ->map(function ($madrasah) {
+                    $data = [
+                        'scod' => $madrasah->scod,
+                        'name' => $madrasah->name,
+                        'pns_sertifikasi' => 0,
+                        'pns_non_sertifikasi' => 0,
+                        'gty_sertifikasi_inpassing' => 0,
+                        'gty_sertifikasi' => 0,
+                        'gty' => 0,
+                        'gtt' => 0,
+                        'pty' => 0,
+                        'ptt' => 0,
+                        'tidak_diketahui' => 0,
+                        'total' => 0,
+                    ];
+                    foreach ($madrasah->users as $user) {
+                        $status = $user->statusKepegawaian->name ?? 'Tidak Diketahui';
+                        $data['total'] += 1;
+                        switch ($status) {
+                            case 'PNS Sertifkasi':
+                                $data['pns_sertifikasi'] += 1;
+                                break;
+                            case 'PNS Non Sertifkasi':
+                                $data['pns_non_sertifikasi'] += 1;
+                                break;
+                            case 'GTY Sertifikasi Inpassing':
+                                $data['gty_sertifikasi_inpassing'] += 1;
+                                break;
+                            case 'GTY Sertifikasi':
+                                $data['gty_sertifikasi'] += 1;
+                                break;
+                            case 'GTY Non Sertifikasi':
+                                $data['gty'] += 1;
+                                break;
+                            case 'GTT':
+                                $data['gtt'] += 1;
+                                break;
+                            case 'PTY':
+                                $data['pty'] += 1;
+                                break;
+                            case 'PTT':
+                                $data['ptt'] += 1;
+                                break;
+                            default:
+                                $data['tidak_diketahui'] += 1;
+                                break;
+                        }
+                    }
+                    return $data;
+                });
+        }
+
+        return view('admin.data_madrasah', compact('madrasahs', 'kabupatenOrder', 'tenagaPendidikData'));
     }
 
     /**
