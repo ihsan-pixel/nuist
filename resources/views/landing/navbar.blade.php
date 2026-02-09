@@ -274,7 +274,7 @@
                 <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}">Beranda</a></li>
                 <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}">Sekolah</a></li>
                 <li class="dropdown">
-                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="arrow">▼</i></a>
+                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
                     <ul class="submenu">
                         <li><a href="#">PPDB</a></li>
                         <li><a href="#">Presensi</a></li>
