@@ -5,12 +5,12 @@
             <div class="card stats-card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="avatar-sm flex-shrink-0">
+                        <div class="avatar-sm shrink-0">
                             <span class="avatar-title bg-primary rounded-circle fs-3">
                                 <i class="bx bx-user-check"></i>
                             </span>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Total Aktif</p>
                             <h5 class="mb-0">{{ $totalActive }}</h5>
                         </div>
@@ -24,12 +24,12 @@
             <div class="card stats-card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="avatar-sm flex-shrink-0">
+                        <div class="avatar-sm shrink-0">
                             <span class="avatar-title bg-success rounded-circle fs-3">
                                 <i class="bx bx-group"></i>
                             </span>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">{{ $label }}</p>
                             <h5 class="mb-0">{{ isset($activeUsersByRole[$role]) ? $activeUsersByRole[$role]->count() : 0 }}</h5>
                         </div>
@@ -59,7 +59,7 @@
                             <div class="d-flex align-items-center">
                                 <img src="{{ $user['avatar'] }}"
                                      alt="Avatar" class="user-avatar me-3">
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h6 class="mb-1">{{ $user['name'] }}</h6>
                                     <p class="text-muted mb-0 small">
                                         <i class="bx bx-envelope me-1"></i>{{ $user['email'] }}
