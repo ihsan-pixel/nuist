@@ -1,173 +1,167 @@
 <?php $__env->startSection('title', 'Dashboard Peserta - Instrument Talenta'); ?>
 
-<?php $__env->startSection('body'); ?>
-<body class="bg-gray-50 min-h-screen">
-<?php $__env->stopSection(); ?>
-
 <?php $__env->startSection('content'); ?>
-<div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Dashboard Peserta</h1>
-                <p class="text-gray-600 mt-2">Selamat datang kembali! Lanjutkan perjalanan pembelajaran Anda</p>
+<link rel="stylesheet" href="<?php echo e(asset('css/mobile/laporan-akhir-tahun-create.css')); ?>">
+
+<style>
+    body {
+        background: #f8f9fb url('/images/bg.png') no-repeat center center;
+        background-size: cover;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+    }
+
+    .evaluation-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 16px;
+        overflow: hidden;
+    }
+
+    .evaluation-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .evaluation-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .evaluation-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .evaluation-content {
+        padding: 16px;
+    }
+
+    .criteria-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    .criteria-table th,
+    .criteria-table td {
+        padding: 8px 4px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .criteria-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .criteria-number {
+        width: 30px;
+        text-align: center;
+    }
+
+    .criteria-aspect {
+        font-weight: 500;
+        color: #212529;
+    }
+
+    .criteria-indicator {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .scale-info {
+        margin-top: 12px;
+        padding: 12px;
+        background: #e9ecef;
+        border-radius: 8px;
+        font-size: 11px;
+    }
+
+    .scale-info strong {
+        color: #495057;
+    }
+
+    .scale-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 10px;
+        color: #6c757d;
+    }
+</style>
+
+<!-- Header -->
+<div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
+    <button onclick="window.location.href='<?php echo e(route('instumen-talenta.index')); ?>'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #ffffff;">
+        <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
+    </button>
+    <span class="fw-bold" style="color: #ffffff; font-size: 12px;">Kembali</span>
+</div>
+
+<div class="simfoni-header" style="margin-top: -10px;">
+    <h4>INSTRUMENT TALENTA</h4>
+    <p>Dashboard Peserta</p>
+</div>
+
+<!-- Main Container -->
+<div class="form-container">
+    <!-- Welcome Message -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="bx bx-star"></i>
             </div>
-            <div class="flex items-center space-x-4">
-                <div class="text-right">
-                    <p class="text-sm text-gray-500">Progress Keseluruhan</p>
-                    <div class="w-32 bg-gray-200 rounded-full h-2 mt-1">
-                        <div class="bg-blue-600 h-2 rounded-full" style="width: 75%"></div>
-                    </div>
-                    <p class="text-sm font-semibold text-gray-700 mt-1">75% Selesai</p>
-                </div>
-            </div>
+            <h6 class="section-title">SELAMAT DATANG</h6>
+        </div>
+        <div class="section-content">
+            <p style="margin: 0; color: #6c757d; font-size: 13px;">
+                Terima kasih telah berpartisipasi dalam program pengembangan talenta. Silakan berikan penilaian Anda terhadap pemateri, fasilitator, dan tim layanan teknis yang telah mendukung kegiatan ini.
+            </p>
         </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-book-open text-blue-600"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm text-gray-500">Kursus Diikuti</p>
-                    <p class="text-2xl font-bold text-gray-800">12</p>
-                </div>
+    <!-- Instrumen Penilaian Menu -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="bx bx-list-check"></i>
             </div>
+            <h6 class="section-title">INSTRUMEN PENILAIAN</h6>
         </div>
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-check-circle text-green-600"></i>
+        <div class="section-content">
+            <!-- Action Buttons -->
+            <div class="row g-2 mb-4">
+                <div class="col-12">
+                    <a href="<?php echo e(route('instumen-talenta.penilaian-pemateri')); ?>" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="padding: 12px; font-size: 14px;">
+                        <i class="bx bx-chalkboard"></i>
+                        <span>Instrumen Penilaian Pemateri</span>
+                    </a>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm text-gray-500">Kursus Selesai</p>
-                    <p class="text-2xl font-bold text-gray-800">8</p>
+                <div class="col-12">
+                    <a href="<?php echo e(route('instumen-talenta.penilaian-fasilitator')); ?>" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="padding: 12px; font-size: 14px;">
+                        <i class="bx bx-user-check"></i>
+                        <span>Instrumen Penilaian Fasilitator</span>
+                    </a>
                 </div>
-            </div>
-        </div>
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-clock text-yellow-600"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm text-gray-500">Sedang Berlangsung</p>
-                    <p class="text-2xl font-bold text-gray-800">4</p>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-certificate text-purple-600"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm text-gray-500">Sertifikat</p>
-                    <p class="text-2xl font-bold text-gray-800">6</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Current Courses -->
-    <div class="card mb-8">
-        <div class="card-body">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Kursus Sedang Diikuti</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Course Card 1 -->
-                <div class="course-card">
-                    <div class="flex items-start space-x-4">
-                        <img src="https://via.placeholder.com/80x80/4F46E5/FFFFFF?text=IT" alt="Course" class="course-image">
-                        <div class="flex-1">
-                            <h3 class="course-title">Pemrograman Web Modern</h3>
-                            <p class="course-description">Pelajari HTML, CSS, JavaScript</p>
-                            <div class="progress-bar mb-2">
-                                <div class="progress-fill bg-blue-600" style="width: 60%"></div>
-                            </div>
-                            <p class="text-xs text-gray-500">60% selesai • 2 jam tersisa</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary w-full mt-4">
-                        Lanjutkan Belajar
-                    </button>
-                </div>
-
-                <!-- Course Card 2 -->
-                <div class="course-card">
-                    <div class="flex items-start space-x-4">
-                        <img src="https://via.placeholder.com/80x80/059669/FFFFFF?text=DS" alt="Course" class="course-image">
-                        <div class="flex-1">
-                            <h3 class="course-title">Data Science Fundamentals</h3>
-                            <p class="course-description">Analisis data dengan Python</p>
-                            <div class="progress-bar mb-2">
-                                <div class="progress-fill bg-green-600" style="width: 30%"></div>
-                            </div>
-                            <p class="text-xs text-gray-500">30% selesai • 8 jam tersisa</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-success w-full mt-4">
-                        Lanjutkan Belajar
-                    </button>
-                </div>
-
-                <!-- Course Card 3 -->
-                <div class="course-card">
-                    <div class="flex items-start space-x-4">
-                        <img src="https://via.placeholder.com/80x80/DC2626/FFFFFF?text=UX" alt="Course" class="course-image">
-                        <div class="flex-1">
-                            <h3 class="course-title">UI/UX Design Principles</h3>
-                            <p class="course-description">Desain antarmuka yang baik</p>
-                            <div class="progress-bar mb-2">
-                                <div class="progress-fill bg-red-600" style="width: 85%"></div>
-                            </div>
-                            <p class="text-xs text-gray-500">85% selesai • 1 jam tersisa</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-red w-full mt-4">
-                        Lanjutkan Belajar
-                    </button>
-                </div>
-        </div>
-    </div>
-
-    <!-- Recent Activities -->
-    <div class="card">
-        <div class="card-body">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Aktivitas Terbaru</h2>
-            <div class="space-y-4">
-                <div class="activity-item">
-                    <div class="activity-icon blue">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p class="activity-title">Menyelesaikan modul "CSS Grid Layout"</p>
-                        <p class="activity-meta">2 jam yang lalu</p>
-                    </div>
-                    <span class="text-green-600 font-semibold">+10 XP</span>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon green">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p class="activity-title">Menyelesaikan kursus "JavaScript Basics"</p>
-                        <p class="activity-meta">1 hari yang lalu</p>
-                    </div>
-                    <span class="text-green-600 font-semibold">+50 XP</span>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon purple">
-                        <i class="fas fa-certificate"></i>
-                    </div>
-                    <div class="activity-content">
-                        <p class="activity-title">Mendapatkan sertifikat "Web Development"</p>
-                        <p class="activity-meta">3 hari yang lalu</p>
-                    </div>
-                    <span class="text-purple-600 font-semibold">Sertifikat</span>
+                <div class="col-12">
+                    <a href="<?php echo e(route('instumen-talenta.penilaian-teknis')); ?>" class="btn btn-info w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none" style="padding: 12px; font-size: 14px;">
+                        <i class="bx bx-cog"></i>
+                        <span>Instrumen Penilaian Tim Layanan Teknis</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -175,9 +169,4 @@
 </div>
 <?php $__env->stopSection(); ?>
 
-<?php $__env->startSection('css'); ?>
-<link rel="stylesheet" href="<?php echo e(asset('css/instumen-talenta.css')); ?>">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<?php $__env->stopSection(); ?>
-
-<?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/instumen-talenta/peserta.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/instumen-talenta/peserta.blade.php ENDPATH**/ ?>

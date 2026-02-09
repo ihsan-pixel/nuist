@@ -487,6 +487,11 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
 
     Route::get('/input-materi', [App\Http\Controllers\InstumenTalentaController::class, 'inputMateri'])->name('input-materi')->middleware(['role:super_admin,admin']);
     Route::post('/input-materi', [App\Http\Controllers\InstumenTalentaController::class, 'storeMateri'])->name('store-materi')->middleware(['role:super_admin,admin']);
+
+    // Penilaian Routes
+    Route::get('/penilaian-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianPemateri'])->name('penilaian-pemateri');
+    Route::get('/penilaian-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianFasilitator'])->name('penilaian-fasilitator');
+    Route::get('/penilaian-teknis', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianTeknis'])->name('penilaian-teknis');
 });
 
 // fallback, jangan ganggu dashboard & lainnya

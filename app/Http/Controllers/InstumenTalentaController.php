@@ -240,4 +240,38 @@ class InstumenTalentaController extends Controller
 
         return redirect()->route('instumen-talenta.input-fasilitator')->with('success', 'Data fasilitator berhasil disimpan.');
     }
+
+    public function penilaianPemateri()
+    {
+        // Get active pemateri (those with materi that have tanggal_materi = today)
+        $pemateris = TalentaPemateri::with('materi')
+            ->whereHas('materi', function($query) {
+                $query->where('tanggal_materi', '=', now()->toDateString());
+            })
+            ->get();
+
+        return view('instumen-talenta.penilaian-pemateri', compact('pemateris'));
+    }
+
+    public function penilaianFasilitator()
+    {
+        // Get active fasilitator (those with materi that have tanggal_materi = today)
+        $fasilitators = TalentaFasilitator::with('materi')
+            ->whereHas('materi', function($query) {
+                $query->where('tanggal_materi', '=', now()->toDateString());
+            })
+            ->get();
+
+        return view('instumen-talenta.penilaian-fasilitator', compact('fasilitators'));
+    }
+
+    public function penilaianTeknis()
+    {
+        // Get active materi (tanggal_materi = today)
+        $materis = TalentaMateri::where('tanggal_materi', '=', now()->toDateString())
+            ->orderBy('tanggal_materi', 'asc')
+            ->get();
+
+        return view('instumen-talenta.penilaian-teknis', compact('materis'));
+    }
 }
