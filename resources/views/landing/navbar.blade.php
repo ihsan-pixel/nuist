@@ -276,9 +276,9 @@
                 <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
                     <ul class="submenu">
-                        <li><a href="#">PPDB</a></li>
-                        <li><a href="#">Presensi</a></li>
-                        <li><a href="#">Laporan</a></li>
+                        <li><a href="#">TALENTA</a></li>
+                        <li><a href="#">MGMP</a></li>
+                        <li><a href="#">DPS</a></li>
                     </ul>
                 </li>
                 <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}">Tentang</a></li>
