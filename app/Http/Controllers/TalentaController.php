@@ -101,4 +101,12 @@ class TalentaController extends Controller
         return redirect()->route('talenta.tugas-level-1')
             ->with('success', 'Tugas Level 1 berhasil disimpan!');
     }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('talenta.login');
+    }
 }

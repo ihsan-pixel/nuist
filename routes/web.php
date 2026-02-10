@@ -510,6 +510,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/talenta/instrumen-penilaian', [App\Http\Controllers\TalentaController::class, 'instrumenPenilaian'])->name('talenta.instrumen-penilaian');
     Route::get('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'tugasLevel1'])->name('talenta.tugas-level-1');
     Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
+    Route::post('/talenta/logout', [App\Http\Controllers\TalentaController::class, 'logout'])->name('talenta.logout');
 });
 
 // fallback, jangan ganggu dashboard & lainnya

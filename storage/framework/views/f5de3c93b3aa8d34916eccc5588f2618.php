@@ -371,7 +371,7 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" style="height: 50px; margin-left: 20px;">
+            <img src="<?php echo e(asset('images/tpt logo.png')); ?>" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="<?php echo e(route('talenta.dashboard')); ?>" class="<?php echo e(request()->routeIs('talenta.dashboard') ? 'active' : ''); ?>">Dashboard</a></li>
                 <li><a href="<?php echo e(route('talenta.data')); ?>" class="<?php echo e(request()->routeIs('talenta.data') ? 'active' : ''); ?>">Data Talenta</a></li>

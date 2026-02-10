@@ -410,7 +410,7 @@
                             <i class='bx bx-list-ul'></i>
                             Data Talenta
                         </a>
-                        <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                        <form method="POST" action="{{ route('talenta.logout') }}" style="display: inline;">
                             @csrf
                             <button type="submit" class="profile-link logout-link" style="border: none; background: none; width: 100%; text-align: left; cursor: pointer;">
                                 <i class='bx bx-log-out'></i>
