@@ -273,6 +273,14 @@
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="<?php echo e(route('landing')); ?>" class="<?php echo e(request()->routeIs('landing') ? 'active' : ''); ?>">Beranda</a></li>
                 <li><a href="<?php echo e(route('landing.sekolah')); ?>" class="<?php echo e(request()->routeIs('landing.sekolah') ? 'active' : ''); ?>">Sekolah</a></li>
+                <li class="dropdown">
+                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
+                    <ul class="submenu">
+                        <li><a href="<?php echo e(route('talenta.login')); ?>">TALENTA</a></li>
+                        <li><a href="#">MGMP</a></li>
+                        <li><a href="#">DPS</a></li>
+                    </ul>
+                </li>
                 <li><a href="<?php echo e(route('landing.tentang')); ?>" class="<?php echo e(request()->routeIs('landing.tentang') ? 'active' : ''); ?>">Tentang</a></li>
                 <li><a href="<?php echo e(route('landing.kontak')); ?>" class="<?php echo e(request()->routeIs('landing.kontak') ? 'active' : ''); ?>">Kontak</a></li>
             </ul>

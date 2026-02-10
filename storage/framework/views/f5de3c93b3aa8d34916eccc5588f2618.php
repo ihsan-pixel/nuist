@@ -175,6 +175,108 @@
     padding-left: 18px;
 }
 
+/* USER PROFILE */
+.user-profile {
+    position: relative;
+}
+
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #004b4c;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.profile-avatar:hover {
+    border-color: #006666;
+    transform: scale(1.05);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.default-avatar {
+    background: linear-gradient(135deg, #004b4c, #006666);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    min-width: 250px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    display: none;
+    z-index: 1000;
+    margin-top: 10px;
+}
+
+.profile-menu.show {
+    opacity: 1;
+    transform: translateY(0);
+    display: block;
+}
+
+.profile-info {
+    padding: 20px;
+    border-bottom: 1px solid rgba(0, 75, 76, 0.1);
+    text-align: center;
+}
+
+.profile-name {
+    font-weight: 600;
+    color: #004b4c;
+    margin: 0 0 5px 0;
+    font-size: 16px;
+}
+
+.profile-email {
+    color: #666;
+    margin: 0;
+    font-size: 14px;
+}
+
+.profile-actions {
+    padding: 10px 0;
+}
+
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: #004b4c;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.profile-link:hover {
+    background: rgba(0, 75, 76, 0.1);
+    color: #006666;
+}
+
+.logout-link:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
 /* Hamburger Menu */
 .hamburger {
     display: none;
@@ -269,20 +371,12 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 50px; margin-left: 20px;">
+            <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}">Beranda</a></li>
-                <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}">Sekolah</a></li>
-                <li class="dropdown">
-                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
-                    <ul class="submenu">
-                        <li><a href="{{ route('talenta.login')}}">TALENTA</a></li>
-                        <li><a href="#">MGMP</a></li>
-                        <li><a href="#">DPS</a></li>
-                    </ul>
-                </li>
-                <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}">Tentang</a></li>
-                <li><a href="{{ route('landing.kontak') }}" class="{{ request()->routeIs('landing.kontak') ? 'active' : '' }}">Kontak</a></li>
+                <li><a href="<?php echo e(route('talenta.dashboard')); ?>" class="<?php echo e(request()->routeIs('talenta.dashboard') ? 'active' : ''); ?>">Dashboard</a></li>
+                <li><a href="<?php echo e(route('talenta.data')); ?>" class="<?php echo e(request()->routeIs('talenta.data') ? 'active' : ''); ?>">Data Talenta</a></li>
+                <li><a href="<?php echo e(route('talenta.instrumen-penilaian')); ?>" class="<?php echo e(request()->routeIs('talenta.instrumen-penilaian') ? 'active' : ''); ?>">Instrumen Penilaian</a></li>
+                <li><a href="<?php echo e(route('talenta.tugas-level-1')); ?>" class="<?php echo e(request()->routeIs('talenta.tugas-level-1') ? 'active' : ''); ?>">Tugas</a></li>
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>
@@ -290,7 +384,45 @@
                 <span></span>
             </div>
         </div>
-        <a href="{{ route('login') }}" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+        <div class="user-profile">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::check()): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->avatar): ?>
+                    <div class="profile-avatar" onclick="toggleProfileMenu()">
+                        <img src="<?php echo e(asset('storage/' . Auth::user()->avatar)); ?>" alt="Profile">
+                    </div>
+                <?php else: ?>
+                    <div class="profile-avatar default-avatar" onclick="toggleProfileMenu()">
+                        <i class='bx bx-user'></i>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <div class="profile-menu" id="profileMenu">
+                    <div class="profile-info">
+                        <p class="profile-name"><?php echo e(Auth::user()->name); ?></p>
+                        <p class="profile-email"><?php echo e(Auth::user()->email); ?></p>
+                    </div>
+                    <div class="profile-actions">
+                        <a href="<?php echo e(route('mobile.profile')); ?>" class="profile-link">
+                            <i class='bx bx-user'></i>
+                            Profile
+                        </a>
+                        <a href="<?php echo e(route('mobile.talenta.index')); ?>" class="profile-link">
+                            <i class='bx bx-list-ul'></i>
+                            Data Talenta
+                        </a>
+                        <form method="POST" action="<?php echo e(route('logout')); ?>" style="display: inline;">
+                            <?php echo csrf_field(); ?>
+                            <button type="submit" class="profile-link logout-link" style="border: none; background: none; width: 100%; text-align: left; cursor: pointer;">
+                                <i class='bx bx-log-out'></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <?php else: ?>
+                <a href="<?php echo e(route('talenta.login')); ?>" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
     </div>
 </nav>
 
@@ -329,12 +461,24 @@ function toggleMobileMenu() {
     hamburger.classList.toggle('open');
 }
 
+function toggleProfileMenu() {
+    const profileMenu = document.getElementById('profileMenu');
+    profileMenu.classList.toggle('show');
+}
+
 // Close submenu when clicking outside
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.dropdown')) {
         document.querySelectorAll('.dropdown').forEach(drop => {
             drop.classList.remove('open');
         });
+    }
+
+    if (!e.target.closest('.user-profile')) {
+        const profileMenu = document.getElementById('profileMenu');
+        if (profileMenu) {
+            profileMenu.classList.remove('show');
+        }
     }
 
     if (!e.target.closest('.nav-left') && !e.target.closest('.hamburger')) {
@@ -371,3 +515,4 @@ window.addEventListener('scroll', function() {
 });
 </script>
 
+<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/talenta/navbar.blade.php ENDPATH**/ ?>

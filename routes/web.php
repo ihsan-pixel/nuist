@@ -35,6 +35,13 @@ use App\Http\Controllers\PPDB\{
 |
 */
 
+// Account Setting Routes
+Route::get('/account/login', [App\Http\Controllers\AccountSettingController::class, 'login'])->name('account.login');
+Route::post('/account/login', [App\Http\Controllers\AccountSettingController::class, 'authenticate'])->name('account.authenticate');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/account/dashboard', [App\Http\Controllers\AccountSettingController::class, 'dashboard'])->name('account.dashboard');
+});
+
 Route::middleware(['auth'])->group(function () {
     // Presensi Admin routes - authorization handled by controller
     Route::get('/presensi-admin/settings', [PresensiAdminController::class, 'settings'])->name('presensi_admin.settings');
@@ -492,6 +499,17 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     Route::get('/penilaian-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianPemateri'])->name('penilaian-pemateri');
     Route::get('/penilaian-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianFasilitator'])->name('penilaian-fasilitator');
     Route::get('/penilaian-teknis', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianTeknis'])->name('penilaian-teknis');
+});
+
+// Talenta Routes
+Route::get('/talenta/login', [App\Http\Controllers\TalentaController::class, 'login'])->name('talenta.login');
+Route::post('/talenta/login', [App\Http\Controllers\TalentaController::class, 'authenticate'])->name('talenta.authenticate');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/talenta/dashboard', [App\Http\Controllers\TalentaController::class, 'dashboard'])->name('talenta.dashboard');
+    Route::get('/talenta/data', [App\Http\Controllers\TalentaController::class, 'data'])->name('talenta.data');
+    Route::get('/talenta/instrumen-penilaian', [App\Http\Controllers\TalentaController::class, 'instrumenPenilaian'])->name('talenta.instrumen-penilaian');
+    Route::get('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'tugasLevel1'])->name('talenta.tugas-level-1');
+    Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
 });
 
 // fallback, jangan ganggu dashboard & lainnya

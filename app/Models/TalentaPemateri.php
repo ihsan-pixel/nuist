@@ -21,4 +21,12 @@ class TalentaPemateri extends Model
     {
         return $this->belongsTo(TalentaMateri::class, 'materi_id');
     }
+
+    /**
+     * Get the materi title (accessor).
+     */
+    public function getJudulMateriAttribute()
+    {
+        return $this->materi ? $this->materi->judul_materi : null;
+    }
 }
