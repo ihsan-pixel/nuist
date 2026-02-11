@@ -44,6 +44,11 @@ class LoginController extends Controller
             return redirect()->route('mobile.pengurus.dashboard');
         }
 
+        // Redirect mgmp users to mgmp dashboard
+        if ($user->role === 'mgmp') {
+            return redirect()->route('mgmp.dashboard');
+        }
+
         // For other roles, use default redirect
         return redirect()->intended($this->redirectPath());
     }

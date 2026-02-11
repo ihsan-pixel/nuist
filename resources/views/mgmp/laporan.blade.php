@@ -1,12 +1,15 @@
-<?php $__env->startSection('title'); ?> Laporan Kegiatan MGMP - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY <?php $__env->stopSection(); ?>
+{{-- resources/views/mgmp/laporan.blade.php --}}
+@extends('layouts.master')
 
-<?php $__env->startSection('content'); ?>
+@section('title') Laporan Kegiatan MGMP - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY @endsection
 
-<?php $__env->startComponent('components.breadcrumb'); ?>
-    <?php $__env->slot('li_1'); ?> MGMP <?php $__env->endSlot(); ?>
-    <?php $__env->slot('li_2'); ?> Laporan Kegiatan <?php $__env->endSlot(); ?>
-    <?php $__env->slot('title'); ?> Laporan Kegiatan MGMP <?php $__env->endSlot(); ?>
-<?php echo $__env->renderComponent(); ?>
+@section('content')
+
+@component('components.breadcrumb')
+    @slot('li_1') MGMP @endslot
+    @slot('li_2') Laporan Kegiatan @endslot
+    @slot('title') Laporan Kegiatan MGMP @endslot
+@endcomponent
 
 <div class="row">
     <div class="col-12">
@@ -41,7 +44,7 @@
                                 <i class="mdi mdi-file-document fs-4"></i>
                             </div>
                         </div>
-                        <h5 class="mb-1"><?php echo e($totalLaporan); ?></h5>
+                        <h5 class="mb-1">{{ $totalLaporan }}</h5>
                         <small class="text-muted">Total Laporan</small>
                     </div>
                 </div>
@@ -55,7 +58,7 @@
                                 <i class="mdi mdi-calendar-check fs-4"></i>
                             </div>
                         </div>
-                        <h5 class="mb-1"><?php echo e($laporanBulanIni); ?></h5>
+                        <h5 class="mb-1">{{ $laporanBulanIni }}</h5>
                         <small class="text-muted">Bulan Ini</small>
                     </div>
                 </div>
@@ -69,7 +72,7 @@
                                 <i class="mdi mdi-account-group fs-4"></i>
                             </div>
                         </div>
-                        <h5 class="mb-1"><?php echo e($totalPeserta); ?></h5>
+                        <h5 class="mb-1">{{ $totalPeserta }}</h5>
                         <small class="text-muted">Total Peserta</small>
                     </div>
                 </div>
@@ -83,7 +86,7 @@
                                 <i class="mdi mdi-clock fs-4"></i>
                             </div>
                         </div>
-                        <h5 class="mb-1"><?php echo e($rataRataDurasi); ?></h5>
+                        <h5 class="mb-1">{{ $rataRataDurasi }}</h5>
                         <small class="text-muted">Jam Rata-rata</small>
                     </div>
                 </div>
@@ -105,41 +108,41 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $laporan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $report): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            @forelse($laporan as $report)
                             <tr class="border-bottom border-light">
                                 <td class="py-3 ps-4">
                                     <div>
-                                        <h6 class="mb-1"><?php echo e($report->judul); ?></h6>
-                                        <small class="text-muted"><?php echo e(Str::limit($report->deskripsi, 50)); ?></small>
+                                        <h6 class="mb-1">{{ $report->judul }}</h6>
+                                        <small class="text-muted">{{ Str::limit($report->deskripsi, 50) }}</small>
                                     </div>
                                 </td>
                                 <td class="py-3">
                                     <div>
-                                        <div class="fw-medium"><?php echo e($report->tanggal->format('d M Y')); ?></div>
-                                        <small class="text-muted"><?php echo e($report->waktu_mulai); ?> - <?php echo e($report->waktu_selesai); ?></small>
+                                        <div class="fw-medium">{{ $report->tanggal->format('d M Y') }}</div>
+                                        <small class="text-muted">{{ $report->waktu_mulai }} - {{ $report->waktu_selesai }}</small>
                                     </div>
                                 </td>
                                 <td class="py-3">
-                                    <span class="badge bg-info bg-opacity-10 text-info"><?php echo e($report->jumlah_peserta); ?> orang</span>
+                                    <span class="badge bg-info bg-opacity-10 text-info">{{ $report->jumlah_peserta }} orang</span>
                                 </td>
                                 <td class="py-3">
                                     <span class="badge bg-success bg-opacity-10 text-success">Selesai</span>
                                 </td>
                                 <td class="py-3 pe-4">
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="lihatDetail(<?php echo e($report->id); ?>)">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="lihatDetail({{ $report->id }})">
                                             <i class="mdi mdi-eye"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-warning" onclick="editLaporan(<?php echo e($report->id); ?>)">
+                                        <button class="btn btn-sm btn-outline-warning" onclick="editLaporan({{ $report->id }})">
                                             <i class="mdi mdi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="hapusLaporan(<?php echo e($report->id); ?>)">
+                                        <button class="btn btn-sm btn-outline-danger" onclick="hapusLaporan({{ $report->id }})">
                                             <i class="mdi mdi-delete"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            @empty
                             <tr>
                                 <td colspan="5" class="text-center py-5">
                                     <div class="avatar-lg mx-auto mb-3">
@@ -151,18 +154,17 @@
                                     <p class="text-muted small">Laporan kegiatan MGMP akan muncul di sini</p>
                                 </td>
                             </tr>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Pagination -->
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->hasPages()): ?>
+                @if($laporan->hasPages())
                 <div class="d-flex justify-content-center mt-4">
-                    <?php echo e($laporan->links()); ?>
-
+                    {{ $laporan->links() }}
                 </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                @endif
             </div>
         </div>
     </div>
@@ -226,9 +228,9 @@
     </div>
 </div>
 
-<?php $__env->stopSection(); ?>
+@endsection
 
-<?php $__env->startSection('script'); ?>
+@section('script')
 <script>
 function lihatDetail(id) {
     // Implement view detail functionality
@@ -262,6 +264,4 @@ document.getElementById('formTambahLaporan').addEventListener('submit', function
     background-color: rgba(0, 123, 255, 0.05);
 }
 </style>
-<?php $__env->stopSection(); ?>
-
-<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mgmp/laporan.blade.php ENDPATH**/ ?>
+@endsection

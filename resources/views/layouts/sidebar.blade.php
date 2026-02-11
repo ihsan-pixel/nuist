@@ -7,6 +7,14 @@
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
             <ul class="metismenu list-unstyled" id="side-menu">
+
+                @php
+                    $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
+                    $allowedRoles = ['super_admin', 'admin'];
+                    $isAllowed = in_array($userRole, $allowedRoles);
+                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
+                    @endphp
+                @if($isAllowed)
                 <li class="menu-title" key="t-menu">@lang('translation.Menu')</li>
 
                 <li>
@@ -15,14 +23,6 @@
                         <span key="t-dashboard">Dashboard</span>
                     </a>
                 </li>
-
-                @php
-                    $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
-                    $allowedRoles = ['super_admin', 'admin'];
-                    $isAllowed = in_array($userRole, $allowedRoles);
-                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
-                @endphp
-                @if($isAllowed)
                 <li>
                     <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
                         <i class="bx bx-data"></i>
@@ -54,9 +54,9 @@
                 </li>
                 @endif
 
-                <li class="menu-title">INFORMATION</li>
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
+                <li class="menu-title">INFORMATION</li>
                 <li>
                     <a href="{{ route('admin.data_madrasah') }}" class="waves-effect">
                         <i class="bx bx-bar-chart"></i>
@@ -114,13 +114,15 @@
 
 
 
-                <li class="menu-title">PRESENSI</li>
+
 
                 @php
                     $presensiAllowed = in_array($userRole, ['tenaga_pendidik']) && auth()->user()->password_changed;
                     \Log::info('Sidebar Presensi userRole: [' . $userRole . '], password_changed: ' . (auth()->user()->password_changed ? 'true' : 'false') . ', presensiAllowed: ' . ($presensiAllowed ? 'true' : 'false'));
                 @endphp
                 @if($presensiAllowed)
+
+                <li class="menu-title">PRESENSI</li>
 
                 <li>
                     <a href="{{ route('mobile.presensi') }}" class="waves-effect">
@@ -385,6 +387,38 @@
                 </li>
                 @endif
                 {{-- @endif --}}
+
+                @if($userRole === 'mgmp')
+                <li class="menu-title">MGMP</li>
+
+                <li>
+                    <a href="{{ route('mgmp.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-home-circle"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#" class="waves-effect">
+                        <i class="bx bx-data"></i>
+                        <span>Data MGMP</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('mgmp.data-anggota') }}" class="waves-effect">
+                        <i class="bx bx-group"></i>
+                        <span>Data Anggota</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('mgmp.laporan') }}" class="waves-effect">
+                        <i class="bx bx-file"></i>
+                        <span>Laporan Kegiatan</span>
+                    </a>
+                </li>
+                @endif
 
             </ul>
         </div>

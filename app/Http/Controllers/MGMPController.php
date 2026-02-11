@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Madrasah;
+use App\Models\StatusKepegawaian;
 
 class MGMPController extends Controller
 {
     /**
-     * Create a new controller instance.
+     * Show MGMP Landing Page (Public)
      */
-    public function __construct()
+    public function index()
     {
-        $this->middleware('auth');
-        $this->middleware('role:mgmp');
+        return view('mgmp.index');
     }
 
     /**
@@ -22,17 +23,7 @@ class MGMPController extends Controller
      */
     public function dashboard()
     {
-        $user = Auth::user();
-
-        // Get MGMP statistics
-        $totalAnggota = User::where('role', 'mgmp')->count();
-        $anggotaAktif = User::where('role', 'mgmp')->where('is_active', true)->count();
-
-        return view('mgmp.dashboard', compact(
-            'user',
-            'totalAnggota',
-            'anggotaAktif'
-        ));
+        return view('mgmp.dashboard');
     }
 
     /**
@@ -44,12 +35,29 @@ class MGMPController extends Controller
 
         // Get all MGMP members
         $anggota = User::where('role', 'mgmp')
+            ->with(['madrasah', 'statusKepegawaian'])
             ->orderBy('name', 'asc')
             ->paginate(10);
 
-        return view('mgmp.data_anggota', compact(
+        // Statistics
+        $totalAnggota = User::where('role', 'mgmp')->count();
+        $anggotaAktif = User::where('role', 'mgmp')->where('is_active', true)->count();
+        $totalSekolah = User::where('role', 'mgmp')->with('madrasah')->get()->pluck('madrasah')->unique()->filter()->count();
+        $totalGuru = $totalAnggota;
+
+        // Data for forms
+        $sekolah = Madrasah::orderBy('name')->get();
+        $statusKepegawaian = StatusKepegawaian::orderBy('name')->get();
+
+        return view('mgmp.data-anggota', compact(
             'user',
-            'anggota'
+            'anggota',
+            'totalAnggota',
+            'anggotaAktif',
+            'totalSekolah',
+            'totalGuru',
+            'sekolah',
+            'statusKepegawaian'
         ));
     }
 
@@ -61,11 +69,19 @@ class MGMPController extends Controller
         $user = Auth::user();
 
         // Get laporan kegiatan (placeholder - can be extended with database model)
-        $laporan = [];
+        $laporan = collect(); // Empty collection for now
+        $totalLaporan = 0;
+        $laporanBulanIni = 0;
+        $totalPeserta = 0;
+        $rataRataDurasi = 0;
 
         return view('mgmp.laporan', compact(
             'user',
-            'laporan'
+            'laporan',
+            'totalLaporan',
+            'laporanBulanIni',
+            'totalPeserta',
+            'rataRataDurasi'
         ));
     }
 
