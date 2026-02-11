@@ -705,6 +705,7 @@
 </section>
 
 <!-- TAB NAVIGATION - OVERLAP HERO -->
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role !== 'fasilitator'): ?>
 <div class="tab-navigation-wrapper">
     <div class="tab-navigation">
         <div class="tab-buttons">
@@ -723,11 +724,13 @@
         </div>
     </div>
 </div>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <!-- CONTENT -->
 <section class="content-section">
     <div class="container">
 
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role !== 'fasilitator'): ?>
         <!-- TRAINER SECTION -->
         <div id="trainer-section" class="instrumen-section animate fade-up tab-content active">
             <div class="table-container">
@@ -826,6 +829,7 @@
             </div>
         </div>
 
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role !== 'fasilitator'): ?>
         <!-- TEKNIS SECTION -->
         <div id="teknis-section" class="instrumen-section animate fade-up delay-2 tab-content" style="display: none;">
             <div class="table-container">
@@ -874,9 +878,15 @@
                 <button id="save-teknis-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+        <?php if(Auth::user()->role === 'fasilitator'): ?>
+        <!-- PESERTA SECTION FOR FASILITATOR -->
+        <div id="peserta-section" class="instrumen-section animate fade-up tab-content active">
+        <?php else: ?>
         <!-- PESERTA SECTION -->
         <div id="peserta-section" class="instrumen-section animate fade-up delay-3 tab-content" style="display: none;">
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
@@ -954,6 +964,7 @@
                 </div>
             </div>
         </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     </div>
 </section>

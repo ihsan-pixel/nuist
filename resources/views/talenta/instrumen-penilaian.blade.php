@@ -733,6 +733,7 @@
 <section class="content-section">
     <div class="container">
 
+        @if(Auth::user()->role !== 'fasilitator')
         <!-- TRAINER SECTION -->
         <div id="trainer-section" class="instrumen-section animate fade-up tab-content active">
             <div class="table-container">
@@ -781,7 +782,6 @@
                 <button id="save-trainer-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
-        @endif
 
         <!-- FASILITATOR SECTION -->
         <div id="fasilitator-section" class="instrumen-section animate fade-up delay-1 tab-content" style="display: none;">
@@ -832,6 +832,7 @@
             </div>
         </div>
 
+        @if(Auth::user()->role !== 'fasilitator')
         <!-- TEKNIS SECTION -->
         <div id="teknis-section" class="instrumen-section animate fade-up delay-2 tab-content" style="display: none;">
             <div class="table-container">
