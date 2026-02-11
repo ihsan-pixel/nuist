@@ -408,10 +408,10 @@
                         <p class="profile-email">{{ Auth::user()->email }}</p>
                     </div>
                     <div class="profile-actions">
-                        <a href="{{ route('mobile.profile') }}" class="profile-link">
+                        {{-- <a href="{{ route('mobile.profile') }}" class="profile-link">
                             <i class='bx bx-user'></i>
                             Profile
-                        </a>
+                        </a> --}}
                         <a href="{{ route('mobile.talenta.index') }}" class="profile-link">
                             <i class='bx bx-list-ul'></i>
                             Data Talenta
