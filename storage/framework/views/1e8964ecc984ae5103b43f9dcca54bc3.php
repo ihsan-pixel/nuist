@@ -400,10 +400,6 @@
                         <p class="profile-email"><?php echo e(Auth::user()->email); ?></p>
                     </div>
                     <div class="profile-actions">
-                        <a href="<?php echo e(route('mobile.mgmp.index')); ?>" class="profile-link">
-                            <i class='bx bx-list-ul'></i>
-                            Data MGMP
-                        </a>
                         <form method="POST" action="<?php echo e(route('mgmp.logout')); ?>" style="display: inline;">
                             <?php echo csrf_field(); ?>
                             <button type="submit" class="profile-link logout-link" style="border: none; background: none; width: 100%; text-align: left; cursor: pointer;">

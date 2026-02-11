@@ -236,7 +236,7 @@
 <!-- HERO -->
 <section id="home" class="hero">
     <div class="container">
-        <h1 class="hero-title animate fade-up">
+        <h1 class="hero-title animate fade-up" style="margin-top:80px;">
             Laporan MGMP
         </h1>
         <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">Musyawarah Guru Mata Pelajaran</h1>
