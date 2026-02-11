@@ -151,8 +151,8 @@
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="nama" name="nama" readonly required>
+                        <label for="modal_nama" class="form-label">Nama <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="modal_nama" name="nama" readonly required>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
