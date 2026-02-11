@@ -112,4 +112,6 @@
 
 @include('landing.footer')
 
+@include('landing._sekolah_styles')
+
 @endsection
