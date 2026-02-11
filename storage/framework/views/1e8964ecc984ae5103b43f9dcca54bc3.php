@@ -371,10 +371,10 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="{{ asset('images/mgmp-logo.png') }}" alt="Logo MGMP" style="height: 50px; margin-left: 20px;">
+            <img src="<?php echo e(asset('images/mgmp-logo.png')); ?>" alt="Logo MGMP" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="{{ route('mgmp.dashboard') }}" class="{{ request()->routeIs('mgmp.dashboard') ? 'active' : '' }}">Dashboard MGMP</a></li>
-                <li><a href="{{ route('mgmp.laporan') }}" class="{{ request()->routeIs('mgmp.laporan') ? 'active' : '' }}">Laporan</a></li>
+                <li><a href="<?php echo e(route('mgmp.dashboard')); ?>" class="<?php echo e(request()->routeIs('mgmp.dashboard') ? 'active' : ''); ?>">Dashboard MGMP</a></li>
+                <li><a href="<?php echo e(route('mgmp.laporan')); ?>" class="<?php echo e(request()->routeIs('mgmp.laporan') ? 'active' : ''); ?>">Laporan</a></li>
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>
@@ -383,25 +383,29 @@
             </div>
         </div>
         <div class="user-profile">
-            @if(Auth::check())
-                @if(Auth::user()->avatar)
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::check()): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->avatar): ?>
                     <div class="profile-avatar" onclick="toggleProfileMenu()">
-                        <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Profile">
+                        <img src="<?php echo e(asset('storage/' . Auth::user()->avatar)); ?>" alt="Profile">
                     </div>
-                @else
+                <?php else: ?>
                     <div class="profile-avatar default-avatar" onclick="toggleProfileMenu()">
                         <i class='bx bx-user'></i>
                     </div>
-                @endif
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <div class="profile-menu" id="profileMenu">
                     <div class="profile-info">
-                        <p class="profile-name">{{ Auth::user()->name }}</p>
-                        <p class="profile-email">{{ Auth::user()->email }}</p>
+                        <p class="profile-name"><?php echo e(Auth::user()->name); ?></p>
+                        <p class="profile-email"><?php echo e(Auth::user()->email); ?></p>
                     </div>
                     <div class="profile-actions">
-                        <form method="POST" action="{{ route('mgmp.logout') }}" style="display: inline;">
-                            @csrf
+                        <a href="<?php echo e(route('mobile.mgmp.index')); ?>" class="profile-link">
+                            <i class='bx bx-list-ul'></i>
+                            Data MGMP
+                        </a>
+                        <form method="POST" action="<?php echo e(route('mgmp.logout')); ?>" style="display: inline;">
+                            <?php echo csrf_field(); ?>
                             <button type="submit" class="profile-link logout-link" style="border: none; background: none; width: 100%; text-align: left; cursor: pointer;">
                                 <i class='bx bx-log-out'></i>
                                 Logout
@@ -409,9 +413,9 @@
                         </form>
                     </div>
                 </div>
-            @else
-                <a href="{{ route('mgmp.login') }}" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
-            @endif
+            <?php else: ?>
+                <a href="<?php echo e(route('mgmp.login')); ?>" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 </nav>
@@ -504,3 +508,4 @@ window.addEventListener('scroll', function() {
     }
 });
 </script>
+<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mgmp/navbar.blade.php ENDPATH**/ ?>
