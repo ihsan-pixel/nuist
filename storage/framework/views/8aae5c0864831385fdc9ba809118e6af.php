@@ -673,10 +673,10 @@
         .legend-number {
             width: 40px;
             height: 40px;
- 16px;
+            font-size: 16px;
         }
 
-        .            font-size:legend-label {
+        .legend-label {
             font-size: 12px;
         }
 
@@ -982,8 +982,6 @@
                 <button id="save-peserta-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
         <!-- LEGEND -->
         <div class="scale-legend">
             <div class="legend-header">

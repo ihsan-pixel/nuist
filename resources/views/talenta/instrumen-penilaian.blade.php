@@ -831,6 +831,7 @@
                 <button id="save-fasilitator-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        @endif
 
         @if(Auth::user()->role !== 'fasilitator')
         <!-- TEKNIS SECTION -->
@@ -985,6 +986,8 @@
                 <button id="save-peserta-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        @endif
+
         <!-- LEGEND -->
         <div class="scale-legend">
             <div class="legend-header">
