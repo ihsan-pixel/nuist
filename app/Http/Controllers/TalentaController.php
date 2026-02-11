@@ -13,6 +13,7 @@ use App\Models\TalentaFasilitator;
 use App\Models\TalentaMateri;
 use App\Models\TalentaLayananTeknis;
 use App\Models\TugasTalentaLevel1;
+use App\Models\User;
 
 class TalentaController extends Controller
 {
@@ -248,5 +249,29 @@ class TalentaController extends Controller
                 'message' => 'Terjadi kesalahan server. Silakan coba lagi.',
             ], 500);
         }
+    }
+
+    /* =========================
+     * PENILAIAN TUGAS
+     * ========================= */
+    public function penilaianTugas()
+    {
+        // Get the logged-in pemateri
+        $pemateri = TalentaPemateri::where('user_id', Auth::id())->first();
+
+        if (!$pemateri) {
+            return redirect()->route('talenta.dashboard')->with('error', 'Anda tidak memiliki akses sebagai pemateri.');
+        }
+
+        // Get material slugs for this pemateri
+        $materiSlugs = TalentaMateri::where('pemateri_id', $pemateri->id)->pluck('slug');
+
+        // Get tasks related to the pemateri's materials
+        $tugas = TugasTalentaLevel1::with(['user.madrasah'])
+            ->whereIn('area', $materiSlugs)
+            ->latest()
+            ->get();
+
+        return view('talenta.penilaian-tugas', compact('tugas'));
     }
 }

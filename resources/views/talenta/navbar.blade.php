@@ -373,10 +373,16 @@
         <div class="nav-left">
             <img src="{{ asset('images/tpt logo.png') }}" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
-                <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
-                <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
-                <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
+                @if(Auth::user()->role === 'pemateri')
+                    <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                    <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
+                    <li><a href="{{ route('talenta.penilaian-tugas') }}" class="{{ request()->routeIs('talenta.penilaian-tugas') ? 'active' : '' }}">Data Penilaian Tugas</a></li>
+                @else
+                    <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                    <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
+                    <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
+                    <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
+                @endif
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>
