@@ -256,15 +256,15 @@ class TalentaController extends Controller
      * ========================= */
     public function penilaianTugas()
     {
-        // Get the logged-in pemateri
-        $pemateri = TalentaPemateri::find(Auth::id());
+        // Get the logged-in pemateri by user_id
+        $pemateri = TalentaPemateri::where('user_id', Auth::id())->first();
 
         if (!$pemateri) {
             return redirect()->route('talenta.dashboard')->with('error', 'Anda tidak memiliki akses sebagai pemateri.');
         }
 
-        // Get material slugs for this pemateri
-        $materiSlugs = TalentaMateri::where('pemateri_id', $pemateri->id)->pluck('slug');
+        // Get material slugs for this pemateri using the relationship
+        $materiSlugs = $pemateri->materis()->pluck('slug');
 
         // Get tasks related to the pemateri's materials
         $tugas = TugasTalentaLevel1::with(['user.madrasah'])
