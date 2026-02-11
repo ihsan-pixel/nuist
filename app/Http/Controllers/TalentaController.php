@@ -80,7 +80,10 @@ class TalentaController extends Controller
             ->latest()
             ->get();
 
-        return view('talenta.instrumen-penilaian', compact('pesertaTalenta', 'fasilitatorTalenta', 'pemateriTalenta'));
+        // Fetch layanan teknis talenta
+        $layananTeknisTalenta = TalentaLayananTeknis::latest()->get();
+
+        return view('talenta.instrumen-penilaian', compact('pesertaTalenta', 'fasilitatorTalenta', 'pemateriTalenta', 'layananTeknisTalenta'));
     }
 
     public function tugasLevel1()

@@ -267,7 +267,8 @@
 
     .peserta-table thead th,
     .fasilitator-table thead th,
-    .trainer-table thead th {
+    .trainer-table thead th,
+    .teknis-table thead th {
         background: #004b4c;
         color: white;
         font-weight: 600;
@@ -278,7 +279,8 @@
 
     .peserta-table .aspek-header,
     .fasilitator-table .aspek-header,
-    .trainer-table .aspek-header {
+    .trainer-table .aspek-header,
+    .teknis-table .aspek-header {
         background: #005555;
         font-size: 16px;
         font-weight: 700;
@@ -287,7 +289,8 @@
 
     .peserta-table .aspek-subheader,
     .fasilitator-table .aspek-subheader,
-    .trainer-table .aspek-subheader {
+    .trainer-table .aspek-subheader,
+    .teknis-table .aspek-subheader {
         background: #006666;
     }
 
@@ -304,7 +307,8 @@
 
     .peserta-table .aspek-subheader th:first-child,
     .fasilitator-table .aspek-subheader th:first-child,
-    .trainer-table .aspek-subheader th:first-child {
+    .trainer-table .aspek-subheader th:first-child,
+    .teknis-table .aspek-subheader th:first-child {
         border-left: none;
     }
 
@@ -317,7 +321,8 @@
 
     .peserta-table tbody td,
     .fasilitator-table tbody td,
-    .trainer-table tbody td {
+    .trainer-table tbody td,
+    .teknis-table tbody td {
         padding: 12px 8px;
         vertical-align: middle;
         text-align: center;
@@ -335,14 +340,19 @@
     .trainer-table tbody td:first-child,
     .trainer-table tbody td:nth-child(2),
     .trainer-table tbody td:nth-child(3),
-    .trainer-table tbody td:nth-child(4) {
+    .trainer-table tbody td:nth-child(4),
+    .teknis-table tbody td:first-child,
+    .teknis-table tbody td:nth-child(2),
+    .teknis-table tbody td:nth-child(3),
+    .teknis-table tbody td:nth-child(4) {
         text-align: left;
         font-weight: 500;
     }
 
     .peserta-table .peserta-name,
     .fasilitator-table .fasilitator-name,
-    .trainer-table .trainer-name {
+    .trainer-table .trainer-name,
+    .teknis-table .teknis-name {
         font-weight: 600;
         color: #004b4c;
         font-size: 14px;
@@ -350,14 +360,16 @@
 
     .peserta-table .rating-cell,
     .fasilitator-table .rating-cell,
-    .trainer-table .rating-cell {
+    .trainer-table .rating-cell,
+    .teknis-table .rating-cell {
         padding: 8px 4px;
         min-width: 120px;
     }
 
     .peserta-table tbody tr:hover,
     .fasilitator-table tbody tr:hover,
-    .trainer-table tbody tr:hover {
+    .trainer-table tbody tr:hover,
+    .teknis-table tbody tr:hover {
         background: #f0f4f8;
         transition: background 0.2s ease;
     }
@@ -823,37 +835,46 @@
                 <table class="instrumen-table teknis-table">
                     <thead>
                         <tr>
-                            <th style="width: 60px;">No</th>
-                            <th style="width: 200px;">Aspek Penilaian</th>
-                            <th>Indikator</th>
-                            <th style="width: 200px;">Skala</th>
+                            <th rowspan="2" style="width: 60px;">No</th>
+                            <th rowspan="2" style="width: 180px;">Nama Layanan Teknis</th>
+                            <th rowspan="2" style="width: 120px;">Kode</th>
+                            <th rowspan="2" style="width: 200px;">Tugas</th>
+                            <th colspan="6" class="aspek-header">Aspek Penilaian</th>
+                        </tr>
+                        <tr class="aspek-subheader">
+                            <th class="aspek-col"><small>Kehadiran</small></th>
+                            <th class="aspek-col"><small>Partisipasi</small></th>
+                            <th class="aspek-col"><small>Disiplin</small></th>
+                            <th class="aspek-col"><small>Kualitas Tugas</small></th>
+                            <th class="aspek-col"><small>Pemahaman Materi</small></th>
+                            <th class="aspek-col"><small>Implementasi Praktik</small></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @php $teknisAspek = [
-                            1 => ['Kehadiran', 'Kebutuhan teknis tersedia dan berfungsi'],
-                            2 => ['Partisipasi', 'Merespons kendala teknis dan kebutuhan peserta'],
-                            3 => ['Disiplin', 'Tepat waktu dan konsisten dalam bertugas'],
-                            4 => ['Kualitas Tugas', 'Berkordinasi efektif dengan tim'],
-                            5 => ['Pemahaman Materi', 'Memantau progres pelatihan dengan baik'],
-                            6 => ['Implementasi Praktik', 'Informasi teknis disampaikan dengan jelas']
-                        ]; @endphp
-                        @foreach($teknisAspek as $no => $aspek)
-                        <tr>
-                            <td>{{ $no }}</td>
-                            <td><strong>{{ $aspek[0] }}</strong></td>
-                            <td>{{ $aspek[1] }}</td>
-                            <td>
+                        @forelse($layananTeknisTalenta ?? [] as $index => $teknis)
+                        <tr data-teknis-id="{{ $teknis->id }}">
+                            <td>{{ $index + 1 }}</td>
+                            <td class="teknis-name">{{ $teknis->nama_layanan_teknis ?? 'N/A' }}</td>
+                            <td>{{ $teknis->kode_layanan_teknis ?? 'N/A' }}</td>
+                            <td>{{ Str::limit($teknis->tugas_layanan_teknis ?? 'N/A', 50) }}</td>
+                            @for($aspek = 1; $aspek <= 6; $aspek++)
+                            <td class="rating-cell">
                                 <div class="rating-scale">
                                     @for($nilai = 1; $nilai <= 5; $nilai++)
-                                    <span class="rating-option" data-teknis="{{ $no }}" data-nilai="{{ $nilai }}">{{ $nilai }}</span>
+                                    <span class="rating-option" data-teknis="{{ $teknis->id }}" data-aspek="{{ $aspek }}" data-nilai="{{ $nilai }}">{{ $nilai }}</span>
                                     @endfor
                                 </div>
                             </td>
+                            @endfor
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr><td colspan="10" class="no-data">Belum ada data layanan teknis</td></tr>
+                        @endforelse
                     </tbody>
                 </table>
+            </div>
+            <div style="text-align: center; margin-top: 40px;">
+                <button id="save-teknis-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
 
@@ -987,11 +1008,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // Save handlers
     function saveRatings(type, dataAttr) {
         const ratings = {};
+        let maxAspek = 7; // default for peserta
+
+        if (type === 'trainer' || type === 'fasilitator') {
+            maxAspek = 6;
+        } else if (type === 'teknis') {
+            maxAspek = 6;
+        }
+
         document.querySelectorAll(`[data-${type}-id]`).forEach(row => {
             const id = row.dataset[`${type}Id`];
             const name = row.querySelector(`.${type}-name`)?.textContent || 'Unknown';
             ratings[id] = { name, values: {} };
-            for (let aspek = 1; aspek <= 7; aspek++) {
+            for (let aspek = 1; aspek <= maxAspek; aspek++) {
                 const selected = row.querySelector(`.rating-option[data-aspek="${aspek}"].selected`);
                 ratings[id].values[aspek] = selected ? selected.textContent : null;
             }
@@ -1009,6 +1038,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('save-trainer-ratings')?.addEventListener('click', () => saveRatings('trainer', 'trainer'));
     document.getElementById('save-fasilitator-ratings')?.addEventListener('click', () => saveRatings('fasilitator', 'fasilitator'));
+    document.getElementById('save-teknis-ratings')?.addEventListener('click', () => saveRatings('teknis', 'teknis'));
     document.getElementById('save-peserta-ratings')?.addEventListener('click', () => saveRatings('peserta', 'peserta'));
 });
 </script>
