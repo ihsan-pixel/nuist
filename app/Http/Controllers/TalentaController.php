@@ -125,75 +125,115 @@ class TalentaController extends Controller
      * ========================= */
     public function simpanTugasLevel1(Request $request)
     {
-        \Log::info('simpanTugasLevel1 called', [
+        Log::info('simpanTugasLevel1 called', [
             'all_data' => $request->all(),
             'files' => $request->file(),
-            'has_lampiran' => $request->hasFile('lampiran')
+            'has_lampiran' => $request->hasFile('lampiran'),
+            'headers' => $request->headers->all()
         ]);
 
-        /* ---------- VALIDASI DASAR ---------- */
-        $validated = $request->validate([
-            'area'        => 'required|string',
-            'jenis_tugas' => 'required|in:on_site,terstruktur,kelompok',
-        ]);
-
-        /* ---------- VALIDASI KHUSUS ---------- */
-        if ($validated['jenis_tugas'] === 'on_site' && $validated['area'] === 'kepemimpinan') {
-            $validated += $request->validate([
-                'konteks'              => 'required|string',
-                'peran'                => 'required|string',
-                'nilai_kepemimpinan'   => 'required|string',
-                'masalah_kepemimpinan' => 'required|string',
-                'pelajaran_penting'    => 'required|string',
+        try {
+            /* ---------- VALIDASI DASAR ---------- */
+            $validated = $request->validate([
+                'area'        => 'required|string',
+                'jenis_tugas' => 'required|in:on_site,terstruktur,kelompok',
             ]);
-        } else {
-            $request->validate([
-                'lampiran' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
+
+            \Log::info('Basic validation passed', ['validated' => $validated]);
+
+            /* ---------- VALIDASI KHUSUS ---------- */
+            if ($validated['jenis_tugas'] === 'on_site' && $validated['area'] === 'kepemimpinan') {
+                $validated += $request->validate([
+                    'konteks'              => 'required|string',
+                    'peran'                => 'required|string',
+                    'nilai_kepemimpinan'   => 'required|string',
+                    'masalah_kepemimpinan' => 'required|string',
+                    'pelajaran_penting'    => 'required|string',
+                ]);
+            } else {
+                $request->validate([
+                    'lampiran' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
+                ]);
+            }
+
+            \Log::info('Special validation passed');
+
+            /* ---------- VALIDASI MATERI ---------- */
+            $materi = TalentaMateri::where('level_materi', TalentaMateri::LEVEL_1)
+                ->where('slug', $validated['area'])
+                ->first();
+
+            if (!$materi) {
+                \Log::warning('Materi not found', ['slug' => $validated['area']]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Materi tidak ditemukan untuk area: ' . $validated['area'],
+                ], 422);
+            }
+
+            \Log::info('Materi found', ['materi_id' => $materi->id, 'judul' => $materi->judul_materi, 'slug' => $materi->slug]);
+
+            /* ---------- UPLOAD FILE ---------- */
+            $filePath = null;
+
+            if ($request->hasFile('lampiran')) {
+                $file = $request->file('lampiran');
+                $fileName = Str::uuid() . '.' . $file->extension();
+                $filePath = $file->storeAs('uploads/talenta', $fileName, 'public');
+
+                Log::info('File uploaded', [
+                    'original_name' => $file->getClientOriginalName(),
+                    'file_name' => $fileName,
+                    'file_path' => $filePath,
+                    'size' => $file->getSize()
+                ]);
+            }
+
+            /* ---------- SIMPAN DATABASE ---------- */
+            $tugas = TugasTalentaLevel1::create([
+                'user_id'      => Auth::id(),
+                'area'         => $validated['area'],
+                'jenis_tugas'  => $validated['jenis_tugas'],
+                'data'         => collect($validated)->except(['area', 'jenis_tugas'])->toArray(),
+                'file_path'    => $filePath,
+                'submitted_at' => now(),
             ]);
-        }
 
-        /* ---------- VALIDASI MATERI ---------- */
-        $materi = TalentaMateri::where('level_materi', TalentaMateri::LEVEL_1)
-            ->where('slug', $validated['area'])
-            ->first();
+            Log::info('TugasTalentaLevel1 created successfully', [
+                'id' => $tugas->id,
+                'user_id' => $tugas->user_id,
+                'area' => $tugas->area,
+                'jenis_tugas' => $tugas->jenis_tugas,
+                'file_path' => $tugas->file_path,
+            ]);
 
-        if (!$materi) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Tugas Level 1 berhasil disimpan',
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Materi tidak ditemukan',
+                'message' => 'Data tidak valid: ' . implode(', ', array_flatten($e->errors())),
             ], 422);
+
+        } catch (\Exception $e) {
+            \Log::error('Unexpected error in simpanTugasLevel1', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan server. Silakan coba lagi.',
+            ], 500);
         }
-
-        /* ---------- UPLOAD FILE ---------- */
-        $filePath = null;
-
-        if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $fileName = Str::uuid() . '.' . $file->extension();
-            $filePath = $file->storeAs('uploads/talenta', $fileName, 'public');
-        }
-
-        /* ---------- SIMPAN DATABASE ---------- */
-        $tugas = TugasTalentaLevel1::create([
-            'user_id'      => Auth::id(),
-            'area'         => $validated['area'],
-            'jenis_tugas'  => $validated['jenis_tugas'],
-            'data'         => collect($validated)->except(['area', 'jenis_tugas'])->toArray(),
-            'file_path'    => $filePath,
-            'submitted_at' => now(),
-        ]);
-
-        \Log::info('TugasTalentaLevel1 created successfully', [
-            'id' => $tugas->id,
-            'user_id' => $tugas->user_id,
-            'area' => $tugas->area,
-            'jenis_tugas' => $tugas->jenis_tugas,
-            'file_path' => $tugas->file_path,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tugas Level 1 berhasil disimpan',
-        ]);
     }
 }

@@ -33,8 +33,8 @@
     </div>
 
 
-    @include('talenta.partials.forms.onsite')
-    @include('talenta.partials.forms.terstruktur')
-    @include('talenta.partials.forms.kelompok')
+    @include('talenta.partials.forms.onsite', ['config' => $config])
+    @include('talenta.partials.forms.terstruktur', ['config' => $config])
+    @include('talenta.partials.forms.kelompok', ['config' => $config])
 
 </div>
