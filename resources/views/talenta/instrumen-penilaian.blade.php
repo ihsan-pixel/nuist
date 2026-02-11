@@ -1016,7 +1016,6 @@
                 </div>
             </div>
         </div>
-        @endif
 
     </div>
 </section>
