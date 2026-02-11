@@ -257,7 +257,7 @@ class TalentaController extends Controller
     public function penilaianTugas()
     {
         // Get the logged-in pemateri
-        $pemateri = TalentaPemateri::where('user_id', Auth::id())->first();
+        $pemateri = TalentaPemateri::find(Auth::id());
 
         if (!$pemateri) {
             return redirect()->route('talenta.dashboard')->with('error', 'Anda tidak memiliki akses sebagai pemateri.');
