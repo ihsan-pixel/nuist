@@ -52,7 +52,7 @@ class TalentaController extends Controller
             ->get();
 
         // Fetch pemateri talenta - eager load materi relationship
-        $pemateriTalenta = TalentaPemateri::with('materi')->latest()->get();
+        $pemateriTalenta = TalentaPemateri::with('materis')->latest()->get();
 
         // Fetch fasilitator talenta - no user relationship, uses direct fields
         $fasilitatorTalenta = TalentaFasilitator::latest()->get();
@@ -71,12 +71,12 @@ class TalentaController extends Controller
             ->get();
 
         // Fetch fasilitator talenta
-        $fasilitatorTalenta = TalentaFasilitator::with('materi')
+        $fasilitatorTalenta = TalentaFasilitator::with('materis')
             ->latest()
             ->get();
 
         // Fetch pemateri talenta
-        $pemateriTalenta = TalentaPemateri::with('materi')
+        $pemateriTalenta = TalentaPemateri::with('materis')
             ->latest()
             ->get();
 
