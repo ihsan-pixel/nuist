@@ -1,37 +1,16 @@
-# Tugas Talenta Level 1 - Implementation Status
+# TODO: Fix TalentaMateri Slug Migration Issue
 
-## ✅ Completed Tasks
+## Step 1: Modify Existing Migration
+- [x] Update `database/migrations/2026_02_11_102525_add_slug_and_improvements_to_talenta_materi.php` to add 'slug' as nullable without unique constraint
+- [x] Improve population logic to handle duplicates by appending numbers if needed
 
-### 1. Form Validation Updates
-- Updated `TalentaController@simpanTugasLevel1` to handle conditional validation
-- For "kepemimpinan" area with "on_site" jenis_tugas: requires text fields (konteks, peran, nilai_kepemimpinan, masalah_kepemimpinan, pelajaran_penting)
-- For all other cases: requires file upload (lampiran)
+## Step 2: Update TalentaMateri Model
+- [x] Add anti-duplicate slug generation logic in the `booted` method
 
-### 2. Form Action Fix
-- Fixed kepemimpinan on-site form action from "#" to correct route `{{ route('talenta.tugas-level-1.simpan') }}`
+## Step 3: Create New Migration for Unique Constraint
+- [x] Create a new migration file to add unique constraint on 'slug' column
 
-### 3. Database Connection
-- All forms are already connected to `TalentaController@simpanTugasLevel1`
-- Data is saved to `tugas_talenta_level1s` table via `TugasTalentaLevel1` model
-- File uploads are stored in `storage/app/public/uploads/talenta/` directory
-
-### 4. SweetAlert Notifications
-- JavaScript already implemented for all form submissions
-- Success notification: "Tugas berhasil dikirim!" with green check icon
-- Error notification: Shows validation errors or network issues with red error icon
-- Loading state during submission
-
-## ✅ Functional Buttons
-- **Simpan Tugas On Site** (all areas except kepemimpinan on-site)
-- **Simpan Tugas Terstruktur** (all areas)
-- **Kirim Tugas Kelompok** (all areas)
-- **Simpan Refleksi On Site** (kepemimpinan area - text fields)
-
-## ✅ Database Integration
-- All form data saved to database
-- File uploads handled properly
-- User authentication and authorization working
-- Material date validation implemented
-
-## Summary
-All save/submit buttons are now functional and connected to the database. SweetAlert notifications are implemented for success and failure cases. The system properly handles both file uploads and text input forms.
+## Step 4: Run Migrations and Populate Data
+- [ ] Run the modified migration
+- [ ] Use tinker to populate slugs for existing records
+- [ ] Run the new migration to add unique constraint

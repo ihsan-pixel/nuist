@@ -90,35 +90,44 @@ class TalentaController extends Controller
 
     public function tugasLevel1()
     {
-        // Fetch materi level I untuk validasi tanggal
-        $materiLevel1 = TalentaMateri::where('level_materi', 'I')
-            ->whereIn('judul_materi', ['IDEOLOGI DAN ORGANISASI', 'TATA KELOLA', 'LAYANAN', 'KEPEMIMPINAN'])
+        // Fetch materi level 1 untuk validasi tanggal
+        $materiLevel1 = TalentaMateri::where('level_materi', TalentaMateri::LEVEL_1)
+            ->where('status', TalentaMateri::STATUS_PUBLISHED)
             ->get()
             ->keyBy('judul_materi');
 
-        // Area configuration for tabs
-        $areaConfig = [
-            'IDEOLOGI DAN ORGANISASI' => [
-                'slug' => 'ideologi-organisasi',
-                'icon' => 'bx-heart',
-                'name' => 'Ideologi & Organisasi'
-            ],
-            'TATA KELOLA' => [
-                'slug' => 'tata-kelola',
-                'icon' => 'bx-cog',
-                'name' => 'Tata Kelola'
-            ],
-            'LAYANAN' => [
-                'slug' => 'layanan-pendidikan',
-                'icon' => 'bx-book',
-                'name' => 'Layanan Pendidikan'
-            ],
-            'KEPEMIMPINAN' => [
-                'slug' => 'kepemimpinan',
-                'icon' => 'bx-crown',
-                'name' => 'Kepemimpinan'
-            ]
+        // Area configuration for tabs - dynamically generated from database
+        $areaConfig = [];
+
+        // Icon mapping for different areas
+        $iconMapping = [
+            'IDEOLOGI' => 'bx-heart',
+            'TATA KELOLA' => 'bx-cog',
+            'LAYANAN' => 'bx-book',
+            'KEPEMIMPINAN' => 'bx-crown',
+            'ORGANISASI' => 'bx-group',
+            'PENDIDIKAN' => 'bx-graduation',
         ];
+
+        foreach ($materiLevel1 as $judul => $materi) {
+            // Use slug from database
+            $slug = $materi->slug;
+
+            // Find appropriate icon
+            $icon = 'bx-book'; // default
+            foreach ($iconMapping as $keyword => $bxIcon) {
+                if (stripos($judul, $keyword) !== false) {
+                    $icon = $bxIcon;
+                    break;
+                }
+            }
+
+            $areaConfig[$judul] = [
+                'slug' => $slug,
+                'icon' => $icon,
+                'name' => $judul
+            ];
+        }
 
         return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig'));
     }
