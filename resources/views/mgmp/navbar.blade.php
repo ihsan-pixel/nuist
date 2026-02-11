@@ -371,7 +371,7 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="{{ asset('images/mgmp-logo.png') }}" alt="Logo MGMP" style="height: 50px; margin-left: 20px;">
+            <img src="{{ asset('images/mgmp.jpeg') }}" alt="Logo MGMP" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="{{ route('mgmp.dashboard') }}" class="{{ request()->routeIs('mgmp.dashboard') ? 'active' : '' }}">Dashboard MGMP</a></li>
                 <li><a href="{{ route('mgmp.laporan') }}" class="{{ request()->routeIs('mgmp.laporan') ? 'active' : '' }}">Laporan</a></li>
