@@ -7,6 +7,7 @@ use App\Models\TalentaPeserta;
 use App\Models\TalentaMateri;
 use App\Models\TalentaPemateri;
 use App\Models\TalentaFasilitator;
+use App\Models\TalentaLayananTeknis;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -19,8 +20,9 @@ class InstumenTalentaController extends Controller
         $totalPemateri = TalentaPemateri::count();
         $totalMateri = TalentaMateri::count();
         $totalFasilitator = TalentaFasilitator::count();
+        $totalLayananTeknis = TalentaLayananTeknis::count();
 
-        return view('instumen-talenta.index', compact('totalPeserta', 'totalPemateri', 'totalMateri', 'totalFasilitator'));
+        return view('instumen-talenta.index', compact('totalPeserta', 'totalPemateri', 'totalMateri', 'totalFasilitator', 'totalLayananTeknis'));
     }
 
     public function inputPeserta()
@@ -273,5 +275,51 @@ class InstumenTalentaController extends Controller
             ->get();
 
         return view('instumen-talenta.penilaian-teknis', compact('materis'));
+    }
+
+    public function inputLayananTeknis()
+    {
+        // Generate next kode layanan teknis
+        $existingCodes = TalentaLayananTeknis::where('kode_layanan_teknis', 'like', 'LT-01.%')
+            ->pluck('kode_layanan_teknis')
+            ->map(function($code) {
+                return (int) substr($code, -3);
+            })
+            ->sort()
+            ->toArray();
+
+        $nextNumber = 1;
+        foreach ($existingCodes as $num) {
+            if ($num == $nextNumber) {
+                $nextNumber++;
+            } else {
+                break;
+            }
+        }
+
+        $nextKodeLayananTeknis = 'LT-01.' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+        return view('instumen-talenta.input-layanan-teknis', compact('nextKodeLayananTeknis'));
+    }
+
+    public function storeLayananTeknis(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'kode_layanan_teknis' => 'required|string|unique:talenta_layanan_teknis,kode_layanan_teknis',
+            'nama_layanan_teknis' => 'required|string|max:255',
+            'tugas_layanan_teknis' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        TalentaLayananTeknis::create([
+            'kode_layanan_teknis' => $request->kode_layanan_teknis,
+            'nama_layanan_teknis' => $request->nama_layanan_teknis,
+            'tugas_layanan_teknis' => $request->tugas_layanan_teknis,
+        ]);
+
+        return redirect()->route('instumen-talenta.input-layanan-teknis')->with('success', 'Data layanan teknis berhasil disimpan.');
     }
 }

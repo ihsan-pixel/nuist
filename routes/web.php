@@ -495,6 +495,9 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     Route::get('/input-materi', [App\Http\Controllers\InstumenTalentaController::class, 'inputMateri'])->name('input-materi')->middleware(['role:super_admin,admin']);
     Route::post('/input-materi', [App\Http\Controllers\InstumenTalentaController::class, 'storeMateri'])->name('store-materi')->middleware(['role:super_admin,admin']);
 
+    Route::get('/input-layanan-teknis', [App\Http\Controllers\InstumenTalentaController::class, 'inputLayananTeknis'])->name('input-layanan-teknis')->middleware(['role:super_admin,admin']);
+    Route::post('/input-layanan-teknis', [App\Http\Controllers\InstumenTalentaController::class, 'storeLayananTeknis'])->name('store-layanan-teknis')->middleware(['role:super_admin,admin']);
+
     // Penilaian Routes
     Route::get('/penilaian-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianPemateri'])->name('penilaian-pemateri');
     Route::get('/penilaian-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianFasilitator'])->name('penilaian-fasilitator');

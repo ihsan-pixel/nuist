@@ -184,6 +184,21 @@
                             </a>
                         </div>
                     </div>
+
+                    <div class="col-md-3">
+                        <div class="text-center mb-4">
+                            <div class="avatar-lg mx-auto mb-3">
+                                <span class="avatar-title bg-info rounded-circle">
+                                    <i class="fas fa-tools font-size-24"></i>
+                                </span>
+                            </div>
+                            <h5 class="font-size-15 mb-2">Input Layanan Teknis</h5>
+                            <p class="text-muted mb-3 font-size-12">Tambah data layanan teknis baru</p>
+                            <a href="{{ route('instumen-talenta.input-layanan-teknis') }}" class="btn btn-info btn-sm">
+                                <i class="fas fa-plus me-1"></i> Input Layanan Teknis
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
