@@ -143,13 +143,20 @@ class TalentaController extends Controller
 
         // Validasi tanggal materi - untuk testing, izinkan semua submission
         $materi = TalentaMateri::where('level_materi', 'I')
-            ->where('judul_materi', 'like', '%' . $areaTitle . '%')
+            ->where('judul_materi', $areaTitle)
             ->first();
+
+        if (!$materi) {
+            // Try with LIKE if exact match fails
+            $materi = TalentaMateri::where('level_materi', 'I')
+                ->where('judul_materi', 'like', '%' . $areaTitle . '%')
+                ->first();
+        }
 
         if (!$materi) {
             return response()->json([
                 'success' => false,
-                'message' => 'Materi untuk area ini tidak ditemukan.'
+                'message' => 'Materi untuk area "' . $areaTitle . '" tidak ditemukan. Area yang dikirim: ' . $validated['area']
             ], 422);
         }
 
