@@ -380,7 +380,7 @@
                 @elseif(Auth::user()->role === 'fasilitator')
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
-                    <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian Tugas</a></li>
+                    <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
                 @else
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>

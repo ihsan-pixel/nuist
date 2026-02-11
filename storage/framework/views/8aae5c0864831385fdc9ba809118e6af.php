@@ -828,6 +828,7 @@
                 <button id="save-fasilitator-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role !== 'fasilitator'): ?>
         <!-- TEKNIS SECTION -->
@@ -982,6 +983,8 @@
                 <button id="save-peserta-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
         <!-- LEGEND -->
         <div class="scale-legend">
             <div class="legend-header">
