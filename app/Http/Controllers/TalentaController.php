@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Models\TalentaPeserta;
 use App\Models\TalentaPemateri;
 use App\Models\TalentaFasilitator;
@@ -13,9 +14,11 @@ use App\Models\TugasTalentaLevel1;
 
 class TalentaController extends Controller
 {
+    /* =========================
+     * AUTH
+     * ========================= */
     public function login()
     {
-        // If already authenticated, redirect to talenta index
         if (Auth::check()) {
             return redirect()->route('talenta.dashboard');
         }
@@ -26,195 +29,18 @@ class TalentaController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required',
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-
-            return redirect()->intended(route('talenta.dashboard'));
+            return redirect()->route('talenta.dashboard');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
-    }
-
-    public function dashboard()
-    {
-        return view('talenta.dashboard');
-    }
-
-    public function data()
-    {
-        // Fetch real data from database with eager loading
-        $pesertaTalenta = TalentaPeserta::with(['user.madrasah'])
-            ->latest()
-            ->get();
-
-        // Fetch pemateri talenta - eager load materi relationship
-        $pemateriTalenta = TalentaPemateri::with('materis')->latest()->get();
-
-        // Fetch fasilitator talenta - no user relationship, uses direct fields
-        $fasilitatorTalenta = TalentaFasilitator::latest()->get();
-
-        // Fetch materi talenta
-        $materiTalenta = TalentaMateri::latest()->get();
-
-        return view('talenta.data', compact('pesertaTalenta', 'pemateriTalenta', 'fasilitatorTalenta', 'materiTalenta'));
-    }
-
-    public function instrumenPenilaian()
-    {
-        // Fetch peserta talenta for dropdown selection
-        $pesertaTalenta = TalentaPeserta::with(['user.madrasah'])
-            ->latest()
-            ->get();
-
-        // Fetch fasilitator talenta
-        $fasilitatorTalenta = TalentaFasilitator::with('materis')
-            ->latest()
-            ->get();
-
-        // Fetch pemateri talenta
-        $pemateriTalenta = TalentaPemateri::with('materis')
-            ->latest()
-            ->get();
-
-        // Fetch layanan teknis talenta
-        $layananTeknisTalenta = TalentaLayananTeknis::latest()->get();
-
-        return view('talenta.instrumen-penilaian', compact('pesertaTalenta', 'fasilitatorTalenta', 'pemateriTalenta', 'layananTeknisTalenta'));
-    }
-
-    public function tugasLevel1()
-    {
-        // Fetch materi level 1 untuk validasi tanggal
-        $materiLevel1 = TalentaMateri::where('level_materi', TalentaMateri::LEVEL_1)
-            ->where('status', TalentaMateri::STATUS_PUBLISHED)
-            ->get()
-            ->keyBy('judul_materi');
-
-        // Area configuration for tabs - dynamically generated from database
-        $areaConfig = [];
-
-        // Icon mapping for different areas
-        $iconMapping = [
-            'IDEOLOGI' => 'bx-heart',
-            'TATA KELOLA' => 'bx-cog',
-            'LAYANAN' => 'bx-book',
-            'KEPEMIMPINAN' => 'bx-crown',
-            'ORGANISASI' => 'bx-group',
-            'PENDIDIKAN' => 'bx-graduation',
-        ];
-
-        foreach ($materiLevel1 as $judul => $materi) {
-            // Use slug from database
-            $slug = $materi->slug;
-
-            // Find appropriate icon
-            $icon = 'bx-book'; // default
-            foreach ($iconMapping as $keyword => $bxIcon) {
-                if (stripos($judul, $keyword) !== false) {
-                    $icon = $bxIcon;
-                    break;
-                }
-            }
-
-            $areaConfig[$judul] = [
-                'slug' => $slug,
-                'icon' => $icon,
-                'name' => $judul
-            ];
-        }
-
-        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig'));
-    }
-
-    public function simpanTugasLevel1(Request $request)
-    {
-        // Validate the request
-        $validated = $request->validate([
-            'area' => 'required|string',
-            'jenis_tugas' => 'required|string',
-        ]);
-
-        // Conditional validation based on jenis_tugas
-        if ($validated['jenis_tugas'] === 'on_site' && $validated['area'] === 'kepemimpinan') {
-            // For kepemimpinan on_site, require text fields
-            $request->validate([
-                'konteks' => 'required|string',
-                'peran' => 'required|string',
-                'nilai_kepemimpinan' => 'required|string',
-                'masalah_kepemimpinan' => 'required|string',
-                'pelajaran_penting' => 'required|string',
-            ]);
-        } else {
-            // For all other cases, require file upload
-            $request->validate([
-                'lampiran' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240', // Required file, max 10MB
-            ]);
-        }
-
-        // Mapping area ke judul materi
-        $areaMapping = [
-            'ideologi_organisasi' => 'IDEOLOGI DAN ORGANISASI',
-            'tata_kelola' => 'TATA KELOLA',
-            'layanan_pendidikan' => 'LAYANAN',
-            'kepemimpinan' => 'KEPEMIMPINAN',
-        ];
-
-        $areaTitle = $areaMapping[$validated['area']] ?? null;
-
-        if (!$areaTitle) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Area tugas tidak valid!'
-            ], 422);
-        }
-
-        // Validasi tanggal materi - untuk testing, izinkan semua submission
-        $materi = TalentaMateri::where('level_materi', 'I')
-            ->where('judul_materi', $areaTitle)
-            ->first();
-
-        if (!$materi) {
-            // Try with LIKE if exact match fails
-            $materi = TalentaMateri::where('level_materi', 'I')
-                ->where('judul_materi', 'like', '%' . $areaTitle . '%')
-                ->first();
-        }
-
-        if (!$materi) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Materi untuk area "' . $areaTitle . '" tidak ditemukan. Area yang dikirim: ' . $validated['area']
-            ], 422);
-        }
-
-        // Handle file upload
-        $filePath = null;
-        if ($request->hasFile('lampiran')) {
-            $file = $request->file('lampiran');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('uploads/talenta', $fileName, 'public');
-        }
-
-        // Simpan data tugas
-        TugasTalentaLevel1::create([
-            'user_id' => Auth::id(),
-            'area' => $validated['area'],
-            'jenis_tugas' => $validated['jenis_tugas'],
-            'data' => json_encode($request->except(['_token', 'area', 'jenis_tugas', 'lampiran'])),
-            'file_path' => $filePath,
-            'submitted_at' => now(),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tugas Level 1 berhasil disimpan!'
-        ]);
+        return back()
+            ->withErrors(['email' => 'Email atau password salah'])
+            ->onlyInput('email');
     }
 
     public function logout(Request $request)
@@ -222,6 +48,138 @@ class TalentaController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('talenta.login');
+    }
+
+    /* =========================
+     * DASHBOARD & DATA
+     * ========================= */
+    public function dashboard()
+    {
+        return view('talenta.dashboard');
+    }
+
+    public function data()
+    {
+        return view('talenta.data', [
+            'pesertaTalenta'     => TalentaPeserta::with(['user.madrasah'])->latest()->get(),
+            'pemateriTalenta'    => TalentaPemateri::with('materis')->latest()->get(),
+            'fasilitatorTalenta' => TalentaFasilitator::latest()->get(),
+            'materiTalenta'      => TalentaMateri::latest()->get(),
+        ]);
+    }
+
+    public function instrumenPenilaian()
+    {
+        return view('talenta.instrumen-penilaian', [
+            'pesertaTalenta'        => TalentaPeserta::with(['user.madrasah'])->latest()->get(),
+            'fasilitatorTalenta'    => TalentaFasilitator::with('materis')->latest()->get(),
+            'pemateriTalenta'       => TalentaPemateri::with('materis')->latest()->get(),
+            'layananTeknisTalenta'  => TalentaLayananTeknis::latest()->get(),
+        ]);
+    }
+
+    /* =========================
+     * TUGAS LEVEL 1
+     * ========================= */
+    public function tugasLevel1()
+    {
+        $materiLevel1 = TalentaMateri::where('level_materi', TalentaMateri::LEVEL_1)
+            ->where('status', TalentaMateri::STATUS_PUBLISHED)
+            ->get();
+
+        $iconMapping = [
+            'IDEOLOGI'      => 'bx-heart',
+            'TATA KELOLA'   => 'bx-cog',
+            'LAYANAN'       => 'bx-book',
+            'KEPEMIMPINAN'  => 'bx-crown',
+            'ORGANISASI'    => 'bx-group',
+            'PENDIDIKAN'    => 'bx-graduation',
+        ];
+
+        $areaConfig = [];
+
+        foreach ($materiLevel1 as $materi) {
+            $icon = 'bx-book';
+
+            foreach ($iconMapping as $keyword => $bxIcon) {
+                if (stripos($materi->judul_materi, $keyword) !== false) {
+                    $icon = $bxIcon;
+                    break;
+                }
+            }
+
+            $areaConfig[] = [
+                'slug' => $materi->slug,
+                'icon' => $icon,
+                'name' => $materi->judul_materi,
+            ];
+        }
+
+        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig'));
+    }
+
+    /* =========================
+     * SIMPAN TUGAS LEVEL 1
+     * ========================= */
+    public function simpanTugasLevel1(Request $request)
+    {
+        /* ---------- VALIDASI DASAR ---------- */
+        $validated = $request->validate([
+            'area'        => 'required|string',
+            'jenis_tugas' => 'required|in:on_site,terstruktur,kelompok',
+        ]);
+
+        /* ---------- VALIDASI KHUSUS ---------- */
+        if ($validated['jenis_tugas'] === 'on_site' && $validated['area'] === 'kepemimpinan') {
+            $validated += $request->validate([
+                'konteks'              => 'required|string',
+                'peran'                => 'required|string',
+                'nilai_kepemimpinan'   => 'required|string',
+                'masalah_kepemimpinan' => 'required|string',
+                'pelajaran_penting'    => 'required|string',
+            ]);
+        } else {
+            $request->validate([
+                'lampiran' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
+            ]);
+        }
+
+        /* ---------- VALIDASI MATERI ---------- */
+        $materi = TalentaMateri::where('level_materi', TalentaMateri::LEVEL_1)
+            ->where('slug', $validated['area'])
+            ->first();
+
+        if (!$materi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Materi tidak ditemukan',
+            ], 422);
+        }
+
+        /* ---------- UPLOAD FILE ---------- */
+        $filePath = null;
+
+        if ($request->hasFile('lampiran')) {
+            $file = $request->file('lampiran');
+            $fileName = Str::uuid() . '.' . $file->extension();
+            $filePath = $file->storeAs('uploads/talenta', $fileName, 'public');
+        }
+
+        /* ---------- SIMPAN DATABASE ---------- */
+        TugasTalentaLevel1::create([
+            'user_id'      => Auth::id(),
+            'area'         => $validated['area'],
+            'jenis_tugas'  => $validated['jenis_tugas'],
+            'data'         => collect($validated)->except(['area', 'jenis_tugas'])->toArray(),
+            'file_path'    => $filePath,
+            'submitted_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tugas Level 1 berhasil disimpan',
+        ]);
     }
 }

@@ -1,16 +1,11 @@
-# TODO: Fix TalentaMateri Slug Migration Issue
+# TODO: Fix Talenta Level 1 Upload Bug
 
-## Step 1: Modify Existing Migration
-- [x] Update `database/migrations/2026_02_11_102525_add_slug_and_improvements_to_talenta_materi.php` to add 'slug' as nullable without unique constraint
-- [x] Improve population logic to handle duplicates by appending numbers if needed
-
-## Step 2: Update TalentaMateri Model
-- [x] Add anti-duplicate slug generation logic in the `booted` method
-
-## Step 3: Create New Migration for Unique Constraint
-- [x] Create a new migration file to add unique constraint on 'slug' column
-
-## Step 4: Run Migrations and Populate Data
-- [ ] Run the modified migration
-- [ ] Use tinker to populate slugs for existing records
-- [ ] Run the new migration to add unique constraint
+## Tasks
+- [x] Add use Illuminate\Support\Str; to TalentaController.php
+- [x] Remove $areaMapping array and $areaTitle logic in simpanTugasLevel1
+- [x] Replace with direct TalentaMateri query using slug
+- [x] Change 'data' => json_encode(...) to 'data' => $request->except(['_token', 'area', 'jenis_tugas', 'lampiran'])
+- [x] Improve file upload to use Str::uuid() for filename
+- [x] Add temporary dd($validated, $request->file('lampiran')); for debug
+- [x] Remove dd() after confirming (removed immediately as it would stop execution)
+- [ ] Test the upload after changes
