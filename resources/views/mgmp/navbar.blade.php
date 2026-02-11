@@ -375,6 +375,7 @@
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="{{ route('mgmp.dashboard') }}" class="{{ request()->routeIs('mgmp.dashboard') ? 'active' : '' }}">Dashboard MGMP</a></li>
                 <li><a href="{{ route('mgmp.laporan') }}" class="{{ request()->routeIs('mgmp.laporan') ? 'active' : '' }}">Laporan</a></li>
+                <li><a href="{{ route('mgmp.data') }}" class="{{ request()->routeIs('mgmp.data') ? 'active' : '' }}">Data MGMP</a></li>
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>
