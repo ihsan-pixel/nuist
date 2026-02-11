@@ -883,13 +883,61 @@
         </div>
         @endif
 
+        @if(Auth::user()->role !== 'fasilitator')
+        <!-- PESERTA SECTION -->
+        <div id="peserta-section" class="instrumen-section animate fade-up delay-3 tab-content" style="display: none;">
+            <div class="table-container">
+                <table class="instrumen-table peserta-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="width: 60px;">No</th>
+                            <th rowspan="2" style="width: 180px;">Nama Peserta</th>
+                            <th rowspan="2" style="width: 120px;">Kode</th>
+                            <th rowspan="2" style="width: 160px;">Sekolah</th>
+                            <th colspan="7" class="aspek-header">Aspek Penilaian</th>
+                        </tr>
+                        <tr class="aspek-subheader">
+                            <th class="aspek-col"><small>Kehadiran</small></th>
+                            <th class="aspek-col"><small>Partisipasi</small></th>
+                            <th class="aspek-col"><small>Disiplin</small></th>
+                            <th class="aspek-col"><small>Tugas</small></th>
+                            <th class="aspek-col"><small>Pemahaman</small></th>
+                            <th class="aspek-col"><small>Praktik</small></th>
+                            <th class="aspek-col"><small>Sikap</small></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pesertaTalenta ?? [] as $index => $peserta)
+                        <tr data-peserta-id="{{ $peserta->id }}">
+                            <td>{{ $index + 1 }}</td>
+                            <td class="peserta-name">{{ $peserta->nama ?? 'N/A' }}</td>
+                            <td>{{ $peserta->kode_peserta ?? 'N/A' }}</td>
+                            <td>{{ $peserta->nama_madrasah ?? 'N/A' }}</td>
+                            @for($aspek = 1; $aspek <= 7; $aspek++)
+                            <td class="rating-cell">
+                                <div class="rating-scale">
+                                    @for($nilai = 1; $nilai <= 5; $nilai++)
+                                    <span class="rating-option" data-peserta="{{ $peserta->id }}" data-aspek="{{ $aspek }}" data-nilai="{{ $nilai }}">{{ $nilai }}</span>
+                                    @endfor
+                                </div>
+                            </td>
+                            @endfor
+                        </tr>
+                        @empty
+                        <tr><td colspan="11" class="no-data">Belum ada data peserta</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 40px;">
+                <button id="save-peserta-ratings" class="save-btn">Simpan Penilaian</button>
+            </div>
+        </div>
+        @endif
+
         @if(Auth::user()->role === 'fasilitator')
         <!-- PESERTA SECTION FOR FASILITATOR -->
         <div id="peserta-section" class="instrumen-section animate fade-up tab-content active">
-
-        <!-- PESERTA SECTION -->
-        <div id="peserta-section" class="instrumen-section animate fade-up delay-3 tab-content" style="display: none;">
-
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
