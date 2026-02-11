@@ -3,6 +3,8 @@
 
 <?php $__env->startSection('content'); ?>
 
+<meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+
 <style>
     * {
         margin: 0;
@@ -537,6 +539,31 @@
         font-size: 16px;
     }
 
+    /* Warning Badge */
+    .warning-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        font-size: 12px;
+        margin-left: 8px;
+        animation: pulse 2s infinite;
+    }
+
+    .warning-badge i {
+        font-size: 14px;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .page-header {
@@ -604,18 +631,30 @@
         <button class="tab-btn active" onclick="openAreaTab(event, 'ideologi-organisasi')">
             <i class='bx bx-heart'></i>
             Ideologi & Organisasi
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($materiLevel1['IDEOLOGI DAN ORGANISASI']) && $materiLevel1['IDEOLOGI DAN ORGANISASI']->tanggal_materi > now()): ?>
+                <span class="warning-badge" title="Materi belum terlaksana"><i class='bx bx-exclamation'></i></span>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </button>
         <button class="tab-btn" onclick="openAreaTab(event, 'tata-kelola')">
             <i class='bx bx-cog'></i>
             Tata Kelola
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($materiLevel1['TATA KELOLA']) && $materiLevel1['TATA KELOLA']->tanggal_materi > now()): ?>
+                <span class="warning-badge" title="Materi belum terlaksana"><i class='bx bx-exclamation'></i></span>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </button>
         <button class="tab-btn" onclick="openAreaTab(event, 'layanan-pendidikan')">
             <i class='bx bx-book'></i>
             Layanan Pendidikan
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($materiLevel1['LAYANAN']) && $materiLevel1['LAYANAN']->tanggal_materi > now()): ?>
+                <span class="warning-badge" title="Materi belum terlaksana"><i class='bx bx-exclamation'></i></span>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </button>
         <button class="tab-btn" onclick="openAreaTab(event, 'kepemimpinan')">
             <i class='bx bx-crown'></i>
             Kepemimpinan
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($materiLevel1['KEPEMIMPINAN']) && $materiLevel1['KEPEMIMPINAN']->tanggal_materi > now()): ?>
+                <span class="warning-badge" title="Materi belum terlaksana"><i class='bx bx-exclamation'></i></span>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </button>
     </div>
 </div>
@@ -625,6 +664,28 @@
     <div class="container">
     <!-- TAB 1: IDEOLOGI & ORGANISASI -->
     <div id="ideologi-organisasi" class="area-content active">
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($materiLevel1['IDEOLOGI DAN ORGANISASI']) && $materiLevel1['IDEOLOGI DAN ORGANISASI']->tanggal_materi > now()): ?>
+            <div class="card" style="background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05)); border: 2px solid #dc3545; margin-bottom: 20px;">
+                <div class="card-header" style="background: rgba(220, 53, 69, 0.1);">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+                        <i class='bx bx-time-five'></i>
+                    </div>
+                    <div>
+                        <h3 class="card-title" style="color: #dc3545;">Materi Belum Terlaksana</h3>
+                        <p class="card-subtitle">Tugas tidak dapat dikirim sebelum materi dilaksanakan</p>
+                    </div>
+                </div>
+                <div class="info-box" style="border-left-color: #dc3545;">
+                    <p><strong>Informasi:</strong></p>
+                    <ul>
+                        <li>Materi "Ideologi & Organisasi" akan dilaksanakan pada: <strong><?php echo e($materiLevel1['IDEOLOGI DAN ORGANISASI']->tanggal_materi->format('d F Y')); ?></strong></li>
+                        <li>Tugas dapat dikirim mulai tanggal tersebut</li>
+                        <li>Silakan pilih area lain yang materinya sudah terlaksana</li>
+                    </ul>
+                </div>
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
         <!-- Sub Tabs for Ideologi & Organisasi -->
         <div class="sub-tabs" style="margin-top: -30px;">
             <button class="sub-tab-btn active" onclick="openSubTab(event, 'ideologi-organisasi-on-site')">On Site</button>
@@ -658,29 +719,15 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="ideologi_organisasi">
                     <input type="hidden" name="jenis_tugas" value="on_site">
 
                     <div class="form-group">
-                        <label class="form-label">Nama Satuan Pendidikan <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="nama_satpen" placeholder="Contoh: MTsN 1 Sleman / MAN 2 Yogyakarta" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Permasalahan yang Diidentifikasi <span class="required">*</span></label>
-                        <textarea class="form-control" name="permasalahan" rows="5" placeholder="Jelaskan 1 permasalahan nyata yang Anda identifikasi..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Kaitan dengan Nilai Ideologi NU</label>
-                        <textarea class="form-control" name="nilai_ideologi" rows="4" placeholder="Jelaskan kaitan permasalahan dengan nilai ideologi NU..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Dinamika NU Kini & Mendatang</label>
-                        <textarea class="form-control" name="dinamika_nu" rows="4" placeholder="Analisis kaitan dengan dinamika NU saat ini dan masa depan..."></textarea>
+                        <label class="form-label">Upload File</label>
+                        <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                        <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
 
                     <div style="text-align: right; margin-top: 30px;">
@@ -724,63 +771,15 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="ideologi_organisasi">
                     <input type="hidden" name="jenis_tugas" value="terstruktur">
 
                     <div class="form-group">
-                        <label class="form-label">Judul Analisis <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="judul_analisis" placeholder="Contoh: Analisis Permasalahan Ideologi di MTsN..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Nilai Aswaja yang Berkaitan <span class="required">*</span></label>
-                        <div class="group-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-                            <label class="form-check">
-                                <input type="checkbox" name="nilai_aswaja[]" value="tawasuth">
-                                <span class="form-check-label">Tawasuth</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="nilai_aswaja[]" value="tawazun">
-                                <span class="form-check-label">Tawazun</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="nilai_aswaja[]" value="tasamuh">
-                                <span class="form-check-label">Tasamuh</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="nilai_aswaja[]" value="itidal">
-                                <span class="form-check-label">I'tidal</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Bagian yang Tidak Berjalan <span class="required">*</span></label>
-                        <div class="group-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-                            <label class="form-check">
-                                <input type="checkbox" name="bagian_tidak_berjalan[]" value="ideologi">
-                                <span class="form-check-label">Ideologi</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="bagian_tidak_berjalan[]" value="organisasi">
-                                <span class="form-check-label">Organisasi</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="bagian_tidak_berjalan[]" value="kepemimpinan">
-                                <span class="form-check-label">Kepemimpinan</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="bagian_tidak_berjalan[]" value="layanan">
-                                <span class="form-check-label">Layanan</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Refleksi Talenta <span class="required">*</span></label>
-                        <textarea class="form-control" name="refleksi_talenta" rows="6" placeholder="Solusi yang diusulkan, peran pribadi, dan langkah perbaikan diri..." required></textarea>
+                        <label class="form-label">Upload File</label>
+                        <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                        <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
 
                     <div style="text-align: right; margin-top: 30px;">
@@ -823,53 +822,13 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="ideologi_organisasi">
                     <input type="hidden" name="jenis_tugas" value="kelompok">
 
                     <div class="form-group">
-                        <label class="form-label">Nomor Kelompok <span class="required">*</span></label>
-                        <select class="form-control" name="nomor_kelompok" required>
-                            <option value="">Pilih Nomor Kelompok</option>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 1; $i <= 10; $i++): ?>
-                                <option value="<?php echo e($i); ?>">Kelompok <?php echo e($i); ?></option>
-                            <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Nama Produk Ideologisasi <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="nama_produk" placeholder="Contoh: Program Penguatan Nilai Aswaja di Madrasah" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Analisis Masalah Ideologi & Organisasi <span class="required">*</span></label>
-                        <textarea class="form-control" name="analisis_masalah" rows="5" placeholder="Analisis masalah yang ditemukan terkait ideologi dan organisasi..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Perumusan Nilai Relevan <span class="required">*</span></label>
-                        <textarea class="form-control" name="perumusan_nilai" rows="4" placeholder="Rumusan nilai-nilai Aswaja yang relevan dengan masalah..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Desain Kebijakan/Program <span class="required">*</span></label>
-                        <textarea class="form-control" name="desain_kebijakan" rows="6" placeholder="Desain kebijakan atau program yang akan diimplementasikan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Rencana Implementasi <span class="required">*</span></label>
-                        <textarea class="form-control" name="rencana_implementasi" rows="5" placeholder="Rencana langkah-langkah implementasi..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Sistem Kontrol <span class="required">*</span></label>
-                        <textarea class="form-control" name="sistem_kontrol" rows="4" placeholder="Sistem monitoring dan evaluasi..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Lampiran File (opsional)</label>
+                        <label class="form-label">Upload File</label>
                         <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
                         <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
@@ -922,49 +881,15 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="tata_kelola">
                     <input type="hidden" name="jenis_tugas" value="on_site">
 
                     <div class="form-group">
-                        <label class="form-label">Nama Satuan Pendidikan <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="nama_satpen" placeholder="Contoh: MTsN 1 Sleman / MAN 2 Yogyakarta" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Aspek Tata Kelola yang Bermasalah <span class="required">*</span></label>
-                        <div class="group-grid">
-                            <label class="group-card">
-                                <input type="radio" name="aspek_tata_kelola" value="keuangan_aset" style="display: none;">
-                                <i class='bx bx-money'></i>
-                                <h4>Keuangan & Aset</h4>
-                                <p>Pengelolaan anggaran, keuangan, dan aset sekolah</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="aspek_tata_kelola" value="sdm" style="display: none;">
-                                <i class='bx bx-user-voice'></i>
-                                <h4>SDM</h4>
-                                <p>Pengelolaan sumber daya manusia tenaga pendidik</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="aspek_tata_kelola" value="organisasi_sistem" style="display: none;">
-                                <i class='bx bx-cog'></i>
-                                <h4>Organisasi & Sistem</h4>
-                                <p>Struktur organisasi dan sistem kerja</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="aspek_tata_kelola" value="layanan_pendidikan" style="display: none;">
-                                <i class='bx bx-book'></i>
-                                <h4>Layanan Pendidikan</h4>
-                                <p>Kualitas dan akses layanan pendidikan</p>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Uraikan Permasalahan yang Ditemukan <span class="required">*</span></label>
-                        <textarea class="form-control" name="uraian_permasalahan" rows="5" placeholder="Jelaskan permasalahan tata kelola yang Anda identifikasi..." required></textarea>
+                        <label class="form-label">Upload File</label>
+                        <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                        <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
 
                     <div style="text-align: right; margin-top: 30px;">
@@ -1007,47 +932,15 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="tata_kelola">
                     <input type="hidden" name="jenis_tugas" value="terstruktur">
 
                     <div class="form-group">
-                        <label class="form-label">Judul Analisis <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="judul_analisis" placeholder="Contoh: Analisis Permasalahan Pengelolaan Kepegawaian..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Bagian yang Tidak Berjalan <span class="required">*</span></label>
-                        <textarea class="form-control" name="bagian_tidak_berjalan" rows="4" placeholder="Deskripsikan bagian tata kelola yang tidak berjalan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Analisis Penyebab Utama <span class="required">*</span></label>
-                        <div class="group-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-                            <label class="form-check">
-                                <input type="checkbox" name="penyebab[]" value="sistem">
-                                <span class="form-check-label">Sistem</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="penyebab[]" value="aturan">
-                                <span class="form-check-label">Aturan</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="penyebab[]" value="kebijakan">
-                                <span class="form-check-label">Kebijakan</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="checkbox" name="penyebab[]" value="kepemimpinan">
-                                <span class="form-check-label">Kepemimpinan</span>
-                            </label>
-                        </div>
-                        <textarea class="form-control" name="keterangan_penyebab" rows="3" placeholder="Jelaskan analisis penyebab utama..." style="margin-top: 15px;"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Refleksi Peran dan Perbaikan Diri <span class="required">*</span></label>
-                        <textarea class="form-control" name="refleksi_peran" rows="5" placeholder="Refleksi peran pribadi dan perbaikan diri..." required></textarea>
+                        <label class="form-label">Upload File</label>
+                        <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                        <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
 
                     <div style="text-align: right; margin-top: 30px;">
@@ -1090,88 +983,13 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="tata_kelola">
                     <input type="hidden" name="jenis_tugas" value="kelompok">
 
                     <div class="form-group">
-                        <label class="form-label">Nomor Kelompok <span class="required">*</span></label>
-                        <select class="form-control" name="nomor_kelompok" required>
-                            <option value="">Pilih Nomor Kelompok</option>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 1; $i <= 10; $i++): ?>
-                                <option value="<?php echo e($i); ?>">Kelompok <?php echo e($i); ?></option>
-                            <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Jenis Tugas <span class="required">*</span></label>
-                        <div class="group-grid">
-                            <label class="form-check">
-                                <input type="radio" name="jenis_tugas_kelompok" value="draft_aturan">
-                                <span class="form-check-label">Draft Aturan/Kebijakan Internal (Kel. 1-5)</span>
-                            </label>
-                            <label class="form-check">
-                                <input type="radio" name="jenis_tugas_kelompok" value="mekanisme_operasional">
-                                <span class="form-check-label">Mekanisme Operasional & Implementasi (Kel. 6-10)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Aspek Tata Kelola yang Dikerjakan <span class="required">*</span></label>
-                        <div class="group-grid">
-                            <label class="group-card">
-                                <input type="radio" name="aspek_kelompok" value="sdm" style="display: none;">
-                                <i class='bx bx-user-voice'></i>
-                                <h4>SDM</h4>
-                                <p>Sumber Daya Manusia</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="aspek_kelompok" value="organisasi_sistem" style="display: none;">
-                                <i class='bx bx-cog'></i>
-                                <h4>Organisasi & Sistem</h4>
-                                <p>Struktur & Prosedur</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="aspek_kelompok" value="kepemimpinan" style="display: none;">
-                                <i class='bx bx-crown'></i>
-                                <h4>Kepemimpinan</h4>
-                                <p>Kepemimpinan Sekolah</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="aspek_kelompok" value="keuangan_aset" style="display: none;">
-                                <i class='bx bx-money'></i>
-                                <h4>Keuangan & Aset</h4>
-                                <p>Pengelolaan Keuangan</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="aspek_kelompok" value="layanan_pendidikan" style="display: none;">
-                                <i class='bx bx-book'></i>
-                                <h4>Layanan Pendidikan</h4>
-                                <p>Kualitas Layanan</p>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Nama/Judul Draft Tata Kelola <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="nama_draft" placeholder="Contoh: Draft SOP Pengelolaan Kepegawaian Madrasah" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Dasar Hukum/Kebijakan Acuan</label>
-                        <textarea class="form-control" name="dasar_hukum" rows="3" placeholder="Sebutkan dasar hukum atau kebijakan yang menjadi acuan..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Draft Konten Utama <span class="required">*</span></label>
-                        <textarea class="form-control" name="draft_konten" rows="8" placeholder="Masukkan draft aturan/kebijakan atau mekanisme operasional..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Lampiran File (opsional)</label>
+                        <label class="form-label">Upload File</label>
                         <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
                         <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
@@ -1224,49 +1042,15 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="layanan_pendidikan">
                     <input type="hidden" name="jenis_tugas" value="on_site">
 
                     <div class="form-group">
-                        <label class="form-label">Nama Satuan Pendidikan <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="nama_satpen" placeholder="Contoh: MTsN 1 Sleman / MAN 2 Yogyakarta" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Jenis Layanan yang Direfleksikan <span class="required">*</span></label>
-                        <div class="group-grid">
-                            <label class="group-card">
-                                <input type="radio" name="jenis_layanan" value="akademik" style="display: none;">
-                                <i class='bx bx-book-open'></i>
-                                <h4>Akademik</h4>
-                                <p>Proses pembelajaran dan kurikulum</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="jenis_layanan" value="administrasi" style="display: none;">
-                                <i class='bx bx-file'></i>
-                                <h4>Administrasi</h4>
-                                <p>Administrasi sekolah dan akademik</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="jenis_layanan" value="kesiswaan" style="display: none;">
-                                <i class='bx bx-group'></i>
-                                <h4>Kesiswaan</h4>
-                                <p>Layanan bimbingan siswa</p>
-                            </label>
-                            <label class="group-card">
-                                <input type="radio" name="jenis_layanan" value="layanan_orang_tua" style="display: none;">
-                                <i class='bx bx-heart'></i>
-                                <h4>Layanan Orang Tua</h4>
-                                <p>Komunikasi dengan orang tua/wali</p>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Refleksi Layanan <span class="required">*</span></label>
-                        <textarea class="form-control" name="refleksi_layanan" rows="6" placeholder="Refleksikan layanan yang Anda amati, kekuatan, kelemahan, dan saran perbaikan..." required></textarea>
+                        <label class="form-label">Upload File</label>
+                        <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                        <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
 
                     <div style="text-align: right; margin-top: 30px;">
@@ -1308,50 +1092,15 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="layanan_pendidikan">
                     <input type="hidden" name="jenis_tugas" value="terstruktur">
 
                     <div class="form-group">
-                        <label class="form-label">Judul Analisis <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="judul_analisis" placeholder="Contoh: Analisis Layanan Akademik di MTsN..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Layanan yang Dianalisis <span class="required">*</span></label>
-                        <select class="form-control" name="layanan_dipilih" required>
-                            <option value="">Pilih Layanan</option>
-                            <option value="akademik">Akademik</option>
-                            <option value="administrasi">Administrasi</option>
-                            <option value="kesiswaan">Kesiswaan</option>
-                            <option value="layanan_orang_tua">Layanan Orang Tua</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Masalah Utama <span class="required">*</span></label>
-                        <textarea class="form-control" name="masalah_utama" rows="4" placeholder="Jelaskan masalah utama yang ditemukan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Penyebab Mutu Rendah <span class="required">*</span></label>
-                        <textarea class="form-control" name="penyebab_mutu" rows="4" placeholder="Analisis penyebab-penyebab mutu layanan rendah..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Dampak bagi Siswa/Orang Tua <span class="required">*</span></label>
-                        <textarea class="form-control" name="dampak" rows="4" placeholder="Jelaskan dampak negatif terhadap siswa dan orang tua..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Analisis dengan Kerangka PRIMA TERRA <span class="required">*</span></label>
-                        <textarea class="form-control" name="analisis_prima_terra" rows="6" placeholder="Analisis menggunakan kerangka PRIMA TERRA..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Rekomendasi Perbaikan</label>
-                        <textarea class="form-control" name="rekomendasi" rows="4" placeholder="Berikan rekomendasi perbaikan layanan..."></textarea>
+                        <label class="form-label">Upload File</label>
+                        <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                        <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
 
                     <div style="text-align: right; margin-top: 30px;">
@@ -1395,69 +1144,13 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="layanan_pendidikan">
                     <input type="hidden" name="jenis_tugas" value="kelompok">
 
                     <div class="form-group">
-                        <label class="form-label">Nomor Kelompok <span class="required">*</span></label>
-                        <select class="form-control" name="nomor_kelompok" required>
-                            <option value="">Pilih Nomor Kelompok</option>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 1; $i <= 10; $i++): ?>
-                                <option value="<?php echo e($i); ?>">Kelompok <?php echo e($i); ?></option>
-                            <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Layanan Prioritas yang Dipilih <span class="required">*</span></label>
-                        <select class="form-control" name="layanan_prioritas" required>
-                            <option value="">Pilih Layanan Prioritas</option>
-                            <option value="akademik">Akademik</option>
-                            <option value="administrasi">Administrasi</option>
-                            <option value="kesiswaan">Kesiswaan</option>
-                            <option value="layanan_orang_tua">Layanan Orang Tua</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Analisis Masalah <span class="required">*</span></label>
-                        <textarea class="form-control" name="analisis_masalah" rows="5" placeholder="Analisis mendalam masalah pada layanan yang dipilih..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Penyebab Masalah <span class="required">*</span></label>
-                        <textarea class="form-control" name="penyebab_masalah" rows="4" placeholder="Identifikasi penyebab-penyebab masalah..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Risiko Kegagalan <span class="required">*</span></label>
-                        <textarea class="form-control" name="risiko_kegagalan" rows="4" placeholder="Analisis risiko-risiko yang mungkin terjadi jika tidak diperbaiki..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Rancangan Perbaikan <span class="required">*</span></label>
-                        <textarea class="form-control" name="rancangan_perbaikan" rows="6" placeholder="Rancangan solusi perbaikan layanan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Pemulihan Layanan (PRIMA TERRA) <span class="required">*</span></label>
-                        <textarea class="form-control" name="pemulihan_prima_terra" rows="6" placeholder="Strategi pemulihan berbasis kerangka PRIMA TERRA..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Indikator Keberhasilan <span class="required">*</span></label>
-                        <textarea class="form-control" name="indikator_keberhasilan" rows="4" placeholder="Indikator-indikator yang menunjukkan keberhasilan perbaikan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Kelayakan Implementasi <span class="required">*</span></label>
-                        <textarea class="form-control" name="kelayakan_implementasi" rows="4" placeholder="Analisis kelayakan implementasi rancangan perbaikan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Lampiran File (opsional)</label>
+                        <label class="form-label">Upload File</label>
                         <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
                         <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
@@ -1477,6 +1170,28 @@
 
     <!-- TAB 4: KEPEMIMPINAN -->
     <div id="kepemimpinan" class="area-content animate fade-up delay-3">
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($materiLevel1['KEPEMIMPINAN']) && $materiLevel1['KEPEMIMPINAN']->tanggal_materi > now()): ?>
+            <div class="card" style="background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05)); border: 2px solid #dc3545; margin-bottom: 20px;">
+                <div class="card-header" style="background: rgba(220, 53, 69, 0.1);">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+                        <i class='bx bx-time-five'></i>
+                    </div>
+                    <div>
+                        <h3 class="card-title" style="color: #dc3545;">Materi Belum Terlaksana</h3>
+                        <p class="card-subtitle">Tugas tidak dapat dikirim sebelum materi dilaksanakan</p>
+                    </div>
+                </div>
+                <div class="info-box" style="border-left-color: #dc3545;">
+                    <p><strong>Informasi:</strong></p>
+                    <ul>
+                        <li>Materi "Kepemimpinan" akan dilaksanakan pada: <strong><?php echo e($materiLevel1['KEPEMIMPINAN']->tanggal_materi->format('d F Y')); ?></strong></li>
+                        <li>Tugas dapat dikirim mulai tanggal tersebut</li>
+                        <li>Silakan pilih area lain yang materinya sudah terlaksana</li>
+                    </ul>
+                </div>
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
         <!-- Sub Tabs for Kepemimpinan -->
         <div class="sub-tabs">
             <button class="sub-tab-btn active" onclick="openSubTab(event, 'kepemimpinan-on-site')">On Site</button>
@@ -1579,39 +1294,15 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="kepemimpinan">
                     <input type="hidden" name="jenis_tugas" value="terstruktur">
 
                     <div class="form-group">
-                        <label class="form-label">Judul Analisis <span class="required">*</span></label>
-                        <input type="text" class="form-control" name="judul_analisis" placeholder="Contoh: Analisis Kepemimpinan di MTsN..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Pola Kepemimpinan Dominan <span class="required">*</span></label>
-                        <textarea class="form-control" name="pola_kepemimpinan" rows="4" placeholder="Jelaskan pola kepemimpinan yang dominan di lembaga..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Kesesuaian dengan Nilai Islam & NU <span class="required">*</span></label>
-                        <textarea class="form-control" name="kesesuaian_nilai" rows="5" placeholder="Analisis kesesuaian pola kepemimpinan dengan nilai Islam dan NU..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Masalah Utama Kepemimpinan <span class="required">*</span></label>
-                        <textarea class="form-control" name="masalah_utama" rows="4" placeholder="Identifikasi masalah utama dalam praktik kepemimpinan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Refleksi Kritis Pribadi <span class="required">*</span></label>
-                        <textarea class="form-control" name="refleksi_kritis" rows="5" placeholder="Refleksi kritis Anda terhadap praktik kepemimpinan di lembaga..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Rekomendasi Perbaikan</label>
-                        <textarea class="form-control" name="rekomendasi" rows="4" placeholder="Berikan rekomendasi untuk perbaikan kepemimpinan..."></textarea>
+                        <label class="form-label">Upload File</label>
+                        <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                        <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
 
                     <div style="text-align: right; margin-top: 30px;">
@@ -1653,53 +1344,13 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="kepemimpinan">
                     <input type="hidden" name="jenis_tugas" value="kelompok">
 
                     <div class="form-group">
-                        <label class="form-label">Nomor Kelompok <span class="required">*</span></label>
-                        <select class="form-control" name="nomor_kelompok" required>
-                            <option value="">Pilih Nomor Kelompok</option>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 1; $i <= 10; $i++): ?>
-                                <option value="<?php echo e($i); ?>">Kelompok <?php echo e($i); ?></option>
-                            <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Analisis Masalah Kepemimpinan <span class="required">*</span></label>
-                        <textarea class="form-control" name="analisis_masalah" rows="6" placeholder="Analisis mendalam masalah kepemimpinan di LP Ma'arif NU..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Strategi Penguatan (Nilai Islam) <span class="required">*</span></label>
-                        <textarea class="form-control" name="strategi_islam" rows="5" placeholder="Strategi penguatan kepemimpinan berbasis nilai-nilai Islam..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Strategi Penguatan (Nilai NU) <span class="required">*</span></label>
-                        <textarea class="form-control" name="strategi_nu" rows="5" placeholder="Strategi penguatan kepemimpinan berbasis nilai-nilai NU..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Indikator Keberhasilan <span class="required">*</span></label>
-                        <textarea class="form-control" name="indikator_keberhasilan" rows="5" placeholder="Indikator-indikator yang menunjukkan keberhasilan strategi penguatan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Refleksi Kelayakan Implementasi <span class="required">*</span></label>
-                        <textarea class="form-control" name="refleksi_kelayakan" rows="5" placeholder="Refleksi kritis terhadap kelayakan implementasi strategi yang dirumuskan..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Rencana Aksi Jangka Pendek</label>
-                        <textarea class="form-control" name="rencana_aksi" rows="4" placeholder="Rencana aksi yang dapat diimplementasikan dalam jangka pendek..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Lampiran File (opsional)</label>
+                        <label class="form-label">Upload File</label>
                         <input type="file" class="form-control" name="lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx">
                         <small style="color: #888; margin-top: 5px; display: block;">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX</small>
                     </div>
@@ -1745,7 +1396,7 @@
                 </ul>
             </div>
 
-            <form action="#" method="POST">
+            <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST" enctype="multipart/form-data">
                 <?php echo csrf_field(); ?>
 
                 <div class="form-group">
@@ -1939,7 +1590,7 @@
         });
     });
 
-    // Initialize first area and sub-tab as active
+    // Handle form submission with SweetAlert
     document.addEventListener('DOMContentLoaded', function() {
         // Show first area
         const firstArea = document.querySelector('.area-content');
@@ -1953,6 +1604,64 @@
             if (firstSubTab) {
                 firstSubTab.classList.add('active');
             }
+        });
+
+        // Handle form submissions
+        document.querySelectorAll('form[action*="tugas-level-1"]').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+
+                // Show loading alert
+                Swal.fire({
+                    title: 'Mengirim Tugas...',
+                    text: 'Mohon tunggu sebentar',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message || 'Tugas berhasil dikirim!',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Reset form
+                            this.reset();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: data.message || 'Terjadi kesalahan saat mengirim tugas.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan jaringan. Silakan coba lagi.',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            });
         });
     });
 </script>
