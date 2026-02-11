@@ -371,10 +371,11 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="<?php echo e(asset('images/mgmp-logo.png')); ?>" alt="Logo MGMP" style="height: 50px; margin-left: 20px;">
+            <img src="<?php echo e(asset('images/mgmp.jpeg')); ?>" alt="Logo MGMP" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="<?php echo e(route('mgmp.dashboard')); ?>" class="<?php echo e(request()->routeIs('mgmp.dashboard') ? 'active' : ''); ?>">Dashboard MGMP</a></li>
                 <li><a href="<?php echo e(route('mgmp.laporan')); ?>" class="<?php echo e(request()->routeIs('mgmp.laporan') ? 'active' : ''); ?>">Laporan</a></li>
+                <li><a href="<?php echo e(route('mgmp.data')); ?>" class="<?php echo e(request()->routeIs('mgmp.data') ? 'active' : ''); ?>">Data MGMP</a></li>
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>

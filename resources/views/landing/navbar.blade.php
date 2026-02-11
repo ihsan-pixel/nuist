@@ -273,12 +273,13 @@
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}">Beranda</a></li>
                 <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}">Sekolah</a></li>
-                <li class="dropdown">
+                <li><a href="{{ route('talenta.login') }}" class="{{ request()->routeIs('talenta.login') ? 'active' : '' }}">Talenta</a></li>
+                <li><a href="{{ route('mgmp.index') }}" class="{{ request()->routeIs('mgmp.index') ? 'active' : '' }}">MGMP</a></li>
+                {{-- <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
                     <ul class="submenu">
                         <li><a href="{{ route('talenta.login')}}">TALENTA</a></li>
-                        <li><a href="{{ route('mgmp.login')}}">MGMP</a></li>
-                        {{-- <li><a href="#">DPS</a></li> --}}
+                        <li><a href="{{ route('mgmp.index')}}">MGMP</a></li>
                     </ul>
                 </li>
                 {{-- <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}">Tentang</a></li>
