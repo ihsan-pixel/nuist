@@ -505,6 +505,9 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
 
     // Create User for Pemateri
     Route::post('/create-user-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'createUserForPemateri'])->name('create-user-pemateri')->middleware(['role:super_admin,admin']);
+
+    // Create User for Fasilitator
+    Route::post('/create-user-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'createUserForFasilitator'])->name('create-user-fasilitator')->middleware(['role:super_admin,admin']);
 });
 
 // Talenta Routes

@@ -103,6 +103,7 @@
                                 <th>Kode Fasilitator</th>
                                 <th>Nama Fasilitator</th>
                                 <th>Materi</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -119,16 +120,59 @@
                                             </span>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                     </td>
+                                    <td>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($fasilitator->user_id): ?>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i> Akun Dibuat
+                                            </span>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-success btn-sm" onclick="openCreateUserModal('<?php echo e($fasilitator->nama); ?>')">
+                                                <i class="fas fa-user-plus me-1"></i> Buat Akun
+                                            </button>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </td>
                                 </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 <tr>
-                                    <td colspan="4" class="text-center">Belum ada data fasilitator</td>
+                                    <td colspan="5" class="text-center">Belum ada data fasilitator</td>
                                 </tr>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<!-- Modal for Creating User -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModalLabel">Buat Akun Fasilitator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createUserForm" action="<?php echo e(route('instumen-talenta.create-user-fasilitator')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="modal_nama" class="form-label">Nama <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="modal_nama" name="nama" readonly required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="modal_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="modal_password" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Buat Akun</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -141,27 +185,37 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Generate kode fasilitator otomatis
-    generateKodeFasilitator();
+    // SweetAlert untuk pesan sukses
+    <?php if(session('success')): ?>
+        Swal.fire({
+            title: 'Berhasil!',
+            text: '<?php echo e(session('success')); ?>',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    <?php endif; ?>
+
+    // SweetAlert untuk pesan error
+    <?php if(session('error')): ?>
+        Swal.fire({
+            title: 'Error!',
+            text: '<?php echo e(session('error')); ?>',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    <?php endif; ?>
 });
 
-function generateKodePeserta() {
-    // Format: T-01.001, T-01.002, dst.
-    // Jika belum ada data di database, mulai dari 001
-    // Nomor akan diupdate ketika data berhasil terinput
-    var baseCode = 'T-F-01.';
-    var nextNumber = 1; // Default mulai dari 1 jika belum ada data
-
-    // Dalam implementasi nyata, nextNumber didapatkan dari database
-    // Misalnya: SELECT COUNT(*) + 1 FROM talenta_peserta
-
-    // Format nomor dengan leading zeros (3 digit)
-    var formattedNumber = nextNumber.toString().padStart(3, '0');
-    var kodePeserta = baseCode + formattedNumber;
-
-    document.getElementById('kode_peserta').value = kodePeserta;
+// Function to open modal and pre-fill name
+function openCreateUserModal(nama) {
+    document.getElementById('modal_nama').value = nama;
+    document.getElementById('modal_email').value = '';
+    document.getElementById('modal_password').value = '';
+    var modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+    modal.show();
 }
 </script>
 <?php $__env->stopSection(); ?>
