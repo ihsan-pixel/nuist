@@ -115,5 +115,16 @@ class LoginController extends Controller
         $this->incrementLoginAttempts($request);
         return $this->sendFailedLoginResponse($request);
     }
+    protected function redirectTo()
+    {
+        $user = auth()->user();
+
+        if ($user->role === 'mgmp') {
+            return '/mgmp/dashboard';
+        }
+
+        return '/dashboard';
+    }
+
 
 }
