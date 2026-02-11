@@ -8,6 +8,7 @@ use App\Models\TalentaPeserta;
 use App\Models\TalentaPemateri;
 use App\Models\TalentaFasilitator;
 use App\Models\TalentaMateri;
+use App\Models\TalentaLayananTeknis;
 
 class TalentaController extends Controller
 {
