@@ -880,13 +880,9 @@
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <?php if(Auth::user()->role === 'fasilitator'): ?>
-        <!-- PESERTA SECTION FOR FASILITATOR -->
-        <div id="peserta-section" class="instrumen-section animate fade-up tab-content active">
-        <?php else: ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role !== 'fasilitator'): ?>
         <!-- PESERTA SECTION -->
         <div id="peserta-section" class="instrumen-section animate fade-up delay-3 tab-content" style="display: none;">
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
@@ -934,6 +930,59 @@
                 <button id="save-peserta-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if(Auth::user()->role === 'fasilitator'): ?>
+        <!-- PESERTA SECTION FOR FASILITATOR -->
+        <div id="peserta-section" class="instrumen-section animate fade-up tab-content active">
+            <div class="table-container">
+                <table class="instrumen-table peserta-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="width: 60px;">No</th>
+                            <th rowspan="2" style="width: 180px;">Nama Peserta</th>
+                            <th rowspan="2" style="width: 120px;">Kode</th>
+                            <th rowspan="2" style="width: 160px;">Sekolah</th>
+                            <th colspan="7" class="aspek-header">Aspek Penilaian</th>
+                        </tr>
+                        <tr class="aspek-subheader">
+                            <th class="aspek-col"><small>Kehadiran</small></th>
+                            <th class="aspek-col"><small>Partisipasi</small></th>
+                            <th class="aspek-col"><small>Disiplin</small></th>
+                            <th class="aspek-col"><small>Tugas</small></th>
+                            <th class="aspek-col"><small>Pemahaman</small></th>
+                            <th class="aspek-col"><small>Praktik</small></th>
+                            <th class="aspek-col"><small>Sikap</small></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $pesertaTalenta ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $peserta): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <tr data-peserta-id="<?php echo e($peserta->id); ?>">
+                            <td><?php echo e($index + 1); ?></td>
+                            <td class="peserta-name"><?php echo e($peserta->nama ?? 'N/A'); ?></td>
+                            <td><?php echo e($peserta->kode_peserta ?? 'N/A'); ?></td>
+                            <td><?php echo e($peserta->nama_madrasah ?? 'N/A'); ?></td>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($aspek = 1; $aspek <= 7; $aspek++): ?>
+                            <td class="rating-cell">
+                                <div class="rating-scale">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($nilai = 1; $nilai <= 5; $nilai++): ?>
+                                    <span class="rating-option" data-peserta="<?php echo e($peserta->id); ?>" data-aspek="<?php echo e($aspek); ?>" data-nilai="<?php echo e($nilai); ?>"><?php echo e($nilai); ?></span>
+                                    <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </div>
+                            </td>
+                            <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </tr>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        <tr><td colspan="11" class="no-data">Belum ada data peserta</td></tr>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 40px;">
+                <button id="save-peserta-ratings" class="save-btn">Simpan Penilaian</button>
+            </div>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <!-- LEGEND -->
         <div class="scale-legend">
@@ -964,7 +1013,6 @@
                 </div>
             </div>
         </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     </div>
 </section>
