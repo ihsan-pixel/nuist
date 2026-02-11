@@ -13,22 +13,18 @@
 <input type="hidden" name="area" value="{{ $config['slug'] }}">
 <input type="hidden" name="jenis_tugas" value="on_site">
 
-    <input type="file"
-           name="lampiran"
-           class="form-control"
-           required>
+<input type="file"
+       name="lampiran"
+       class="form-control"
+       required>
 
 <div class="d-flex justify-content-end mt-3">
-    @if($config['slug'] === 'kepemimpinan' || !isset($existingTasks[$config['slug']]))
+    @if(!isset($existingTasks[$config['slug']]))
         <button class="btn btn-primary me-2" type="submit">
-            @if($config['slug'] === 'kepemimpinan')
-                Simpan On Site
-            @else
-                Upload On Site
-            @endif
+            Upload On Site
         </button>
     @endif
-    @if(isset($existingTasks[$config['slug']]) && $config['slug'] !== 'kepemimpinan')
+    @if(isset($existingTasks[$config['slug']]))
         <a href="{{ asset('storage/' . $existingTasks[$config['slug']]->file_path) }}"
            target="_blank"
            class="btn btn-secondary">
