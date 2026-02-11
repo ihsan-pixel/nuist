@@ -119,7 +119,12 @@ class TalentaController extends Controller
             ];
         }
 
-        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig'));
+        // Calculate progress
+        $totalTasks = $materiLevel1->count() * 3; // 3 jenis tugas per area
+        $completedTasks = TugasTalentaLevel1::where('user_id', Auth::id())->count();
+        $progressPercentage = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 1) : 0;
+
+        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks'));
     }
 
     /* =========================

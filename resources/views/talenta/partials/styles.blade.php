@@ -87,6 +87,60 @@
         margin-right: auto;
     }
 
+    /* Progress Bar */
+    .progress-container {
+        margin-top: 30px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .progress-text {
+        font-weight: 500;
+    }
+
+    .progress-percentage {
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #059669);
+        border-radius: 6px;
+        transition: width 0.8s ease;
+        position: relative;
+    }
+
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), transparent);
+        border-radius: 6px;
+    }
+
     /* Tab Navigation */
     .tabs-container {
         position: relative;
