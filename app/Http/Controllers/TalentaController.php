@@ -163,15 +163,7 @@ class TalentaController extends Controller
             Log::info('Basic validation passed', ['validated' => $validated]);
 
             /* ---------- VALIDASI KHUSUS ---------- */
-            if ($validated['jenis_tugas'] === 'on_site' && $validated['area'] === 'kepemimpinan') {
-                $validated += $request->validate([
-                    'konteks'              => 'required|string',
-                    'peran'                => 'required|string',
-                    'nilai_kepemimpinan'   => 'required|string',
-                    'masalah_kepemimpinan' => 'required|string',
-                    'pelajaran_penting'    => 'required|string',
-                ]);
-            } else {
+            if ($validated['jenis_tugas'] === 'on_site') {
                 $request->validate([
                     'lampiran' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
                 ]);
