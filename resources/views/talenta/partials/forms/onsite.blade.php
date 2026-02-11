@@ -42,13 +42,15 @@
 @endif
 
 <div class="d-flex justify-content-end mt-3">
-    <button class="btn btn-primary me-2" type="submit">
-        @if($config['slug'] === 'kepemimpinan')
-            Simpan On Site
-        @else
-            Upload On Site
-        @endif
-    </button>
+    @if($config['slug'] === 'kepemimpinan' || !isset($existingTasks[$config['slug']]))
+        <button class="btn btn-primary me-2" type="submit">
+            @if($config['slug'] === 'kepemimpinan')
+                Simpan On Site
+            @else
+                Upload On Site
+            @endif
+        </button>
+    @endif
     @if(isset($existingTasks[$config['slug']]) && $config['slug'] !== 'kepemimpinan')
         <a href="{{ asset('storage/' . $existingTasks[$config['slug']]->file_path) }}"
            target="_blank"
