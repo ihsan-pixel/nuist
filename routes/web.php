@@ -525,6 +525,15 @@ Route::middleware(['auth'])->group(function () {
 // Move POST route outside auth middleware to handle AJAX requests properly
 Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
 
+// MGMP Routes
+Route::get('/mgmp/login', [App\Http\Controllers\MGMPController::class, 'login'])->name('mgmp.login');
+Route::post('/mgmp/login', [App\Http\Controllers\MGMPController::class, 'authenticate'])->name('mgmp.authenticate');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/mgmp/dashboard', [App\Http\Controllers\MGMPController::class, 'dashboard'])->name('mgmp.dashboard');
+    Route::get('/mgmp/laporan', [App\Http\Controllers\MGMPController::class, 'laporan'])->name('mgmp.laporan');
+    Route::post('/mgmp/logout', [App\Http\Controllers\MGMPController::class, 'logout'])->name('mgmp.logout');
+});
+
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
 // App Settings Routes - Super Admin Only

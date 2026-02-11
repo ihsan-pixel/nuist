@@ -1,8 +1,9 @@
-# TODO: Implement Role-Based Navbar and Penilaian Tugas Page
+# TODO: Create MGMP Pages
 
-## Tasks
-- [ ] Modify navbar.blade.php to show limited menus for 'pemateri' role
-- [ ] Add route for /talenta/penilaian-tugas in routes/web.php
-- [ ] Add penilaianTugas() method in TalentaController.php
-- [ ] Create resources/views/talenta/penilaian-tugas.blade.php view
-- [ ] Test the implementation
+- [x] Create resources/views/mgmp/navbar.blade.php with customized navbar for MGMP
+- [x] Create resources/views/mgmp/dashboard.blade.php with simple dashboard content
+- [x] Create resources/views/mgmp/laporan.blade.php with simple reports content
+- [x] Create app/Http/Controllers/MGMPController.php with basic controller methods
+- [x] Add MGMP routes to routes/web.php
+
+All tasks completed successfully.
