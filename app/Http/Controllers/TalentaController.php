@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use App\Models\TalentaPeserta;
 use App\Models\TalentaPemateri;
 use App\Models\TalentaFasilitator;
@@ -139,7 +141,7 @@ class TalentaController extends Controller
                 'jenis_tugas' => 'required|in:on_site,terstruktur,kelompok',
             ]);
 
-            \Log::info('Basic validation passed', ['validated' => $validated]);
+            Log::info('Basic validation passed', ['validated' => $validated]);
 
             /* ---------- VALIDASI KHUSUS ---------- */
             if ($validated['jenis_tugas'] === 'on_site' && $validated['area'] === 'kepemimpinan') {
@@ -156,7 +158,7 @@ class TalentaController extends Controller
                 ]);
             }
 
-            \Log::info('Special validation passed');
+            Log::info('Special validation passed');
 
             /* ---------- VALIDASI MATERI ---------- */
             $materi = TalentaMateri::where('level_materi', TalentaMateri::LEVEL_1)
@@ -164,21 +166,21 @@ class TalentaController extends Controller
                 ->first();
 
             if (!$materi) {
-                \Log::warning('Materi not found', ['slug' => $validated['area']]);
+                Log::warning('Materi not found', ['slug' => $validated['area']]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Materi tidak ditemukan untuk area: ' . $validated['area'],
                 ], 422);
             }
 
-            \Log::info('Materi found', ['materi_id' => $materi->id, 'judul' => $materi->judul_materi, 'slug' => $materi->slug]);
+            Log::info('Materi found', ['materi_id' => $materi->id, 'judul' => $materi->judul_materi, 'slug' => $materi->slug]);
 
             /* ---------- UPLOAD FILE ---------- */
             $filePath = null;
 
             if ($request->hasFile('lampiran')) {
                 $file = $request->file('lampiran');
-                $fileName = Str::uuid() . '.' . $file->extension();
+                $fileName = Str::uuid()->toString() . '.' . $file->extension();
                 $filePath = $file->storeAs('uploads/talenta', $fileName, 'public');
 
                 Log::info('File uploaded', [
@@ -213,18 +215,18 @@ class TalentaController extends Controller
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation error', [
+            Log::error('Validation error', [
                 'errors' => $e->errors(),
                 'request_data' => $request->all()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Data tidak valid: ' . implode(', ', array_flatten($e->errors())),
+                'message' => 'Data tidak valid: ' . implode(', ', collect($e->errors())->flatten()->toArray()),
             ], 422);
 
         } catch (\Exception $e) {
-            \Log::error('Unexpected error in simpanTugasLevel1', [
+            Log::error('Unexpected error in simpanTugasLevel1', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'request_data' => $request->all()
