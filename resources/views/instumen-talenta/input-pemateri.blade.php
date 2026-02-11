@@ -122,9 +122,15 @@
                                         @endforeach
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-success btn-sm" onclick="openCreateUserModal('{{ $pemateri->nama }}')">
-                                            <i class="fas fa-user-plus me-1"></i> Buat Akun
-                                        </button>
+                                        @if($pemateri->user_id)
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i> Akun Dibuat
+                                            </span>
+                                        @else
+                                            <button type="button" class="btn btn-success btn-sm" onclick="openCreateUserModal('{{ $pemateri->nama }}')">
+                                                <i class="fas fa-user-plus me-1"></i> Buat Akun
+                                            </button>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

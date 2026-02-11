@@ -336,12 +336,18 @@ class InstumenTalentaController extends Controller
         }
 
         try {
-            User::create([
+            $user = User::create([
                 'name' => $request->nama,
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
                 'role' => 'pemateri', // Assuming pemateri role exists
             ]);
+
+            // Update pemateri record with user_id
+            $pemateri = TalentaPemateri::where('nama', $request->nama)->first();
+            if ($pemateri) {
+                $pemateri->update(['user_id' => $user->id]);
+            }
 
             return redirect()->route('instumen-talenta.input-pemateri')->with('success', 'Akun pemateri berhasil dibuat.');
         } catch (\Exception $e) {
