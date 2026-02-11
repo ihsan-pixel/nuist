@@ -281,8 +281,8 @@
                         <li><a href="#">DPS</a></li>
                     </ul>
                 </li>
-                <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}">Tentang</a></li>
-                <li><a href="{{ route('landing.kontak') }}" class="{{ request()->routeIs('landing.kontak') ? 'active' : '' }}">Kontak</a></li>
+                {{-- <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}">Tentang</a></li>
+                <li><a href="{{ route('landing.kontak') }}" class="{{ request()->routeIs('landing.kontak') ? 'active' : '' }}">Kontak</a></li> --}}
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>
