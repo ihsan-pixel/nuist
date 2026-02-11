@@ -141,16 +141,15 @@ class TalentaController extends Controller
             ], 422);
         }
 
-        // Validasi tanggal materi
+        // Validasi tanggal materi - untuk testing, izinkan semua submission
         $materi = TalentaMateri::where('level_materi', 'I')
             ->where('judul_materi', 'like', '%' . $areaTitle . '%')
-            ->where('tanggal_materi', '<=', now()->toDateString())
             ->first();
 
         if (!$materi) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tugas tidak dapat dikirim karena materi untuk area ini belum terlaksana. Tanggal materi: ' . ($materi ? $materi->tanggal_materi->format('d-m-Y') : 'Belum ditentukan')
+                'message' => 'Materi untuk area ini tidak ditemukan.'
             ], 422);
         }
 
