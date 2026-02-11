@@ -14,6 +14,7 @@ class TalentaPemateri extends Model
     protected $fillable = [
         'kode_pemateri',
         'nama',
+        'user_id',
     ];
 
     public function materis()

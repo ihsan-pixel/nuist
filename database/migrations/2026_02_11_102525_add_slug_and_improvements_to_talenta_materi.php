@@ -14,8 +14,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('talenta_materi', function (Blueprint $table) {
-            // Add slug column (nullable first, then populate)
-            $table->string('slug')->nullable()->after('judul_materi');
+            // Add slug column only if it doesn't exist
+            if (!Schema::hasColumn('talenta_materi', 'slug')) {
+                $table->string('slug')->nullable()->after('judul_materi');
+            }
 
             // Change level_materi to integer
             $table->integer('level_materi')->change();
