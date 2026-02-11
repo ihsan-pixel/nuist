@@ -28,6 +28,7 @@ class InstumenTalentaController extends Controller
     public function inputPeserta()
     {
         $pesertas = TalentaPeserta::with('user')->get();
+        $kelompoks = TalentaKelompok::with('pesertas')->get();
 
         // Generate next kode peserta
         $existingCodes = TalentaPeserta::where('kode_peserta', 'like', 'T-01.%')
@@ -49,7 +50,7 @@ class InstumenTalentaController extends Controller
 
         $nextKodePeserta = 'T-01.' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
-        return view('instumen-talenta.input-peserta', compact('pesertas', 'nextKodePeserta'));
+        return view('instumen-talenta.input-peserta', compact('pesertas', 'kelompoks', 'nextKodePeserta'));
     }
 
     public function storePeserta(Request $request)
@@ -384,6 +385,32 @@ class InstumenTalentaController extends Controller
             return redirect()->route('instumen-talenta.input-fasilitator')->with('success', 'Akun fasilitator berhasil dibuat.');
         } catch (\Exception $e) {
             return redirect()->route('instumen-talenta.input-fasilitator')->with('error', 'Gagal membuat akun: ' . $e->getMessage());
+        }
+    }
+
+    public function storeKelompok(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_kelompok' => 'required|string|max:255',
+            'peserta_ids' => 'required|array',
+            'peserta_ids.*' => 'exists:talenta_peserta,id',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            $kelompok = TalentaKelompok::create([
+                'nama_kelompok' => $request->nama_kelompok,
+            ]);
+
+            // Attach peserta to kelompok
+            $kelompok->pesertas()->attach($request->peserta_ids);
+
+            return redirect()->route('instumen-talenta.input-peserta')->with('success', 'Kelompok peserta berhasil dibuat.');
+        } catch (\Exception $e) {
+            return redirect()->route('instumen-talenta.input-peserta')->with('error', 'Gagal membuat kelompok: ' . $e->getMessage());
         }
     }
 }

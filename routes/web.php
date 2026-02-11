@@ -485,6 +485,7 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     // Input Data Routes
     Route::get('/input-peserta', [App\Http\Controllers\InstumenTalentaController::class, 'inputPeserta'])->name('input-peserta')->middleware(['role:super_admin,admin']);
     Route::post('/input-peserta', [App\Http\Controllers\InstumenTalentaController::class, 'storePeserta'])->name('store-peserta')->middleware(['role:super_admin,admin']);
+    Route::post('/store-kelompok', [App\Http\Controllers\InstumenTalentaController::class, 'storeKelompok'])->name('store-kelompok')->middleware(['role:super_admin,admin']);
 
     Route::get('/input-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'inputPemateri'])->name('input-pemateri')->middleware(['role:super_admin,admin']);
     Route::post('/input-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'storePemateri'])->name('store-pemateri')->middleware(['role:super_admin,admin']);
