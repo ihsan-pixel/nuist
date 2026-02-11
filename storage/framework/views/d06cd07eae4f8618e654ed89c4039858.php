@@ -1,9 +1,7 @@
-@extends('layouts.master-without-nav')
+<?php $__env->startSection('title', 'Penilaian Tugas Talenta - NUIST'); ?>
+<?php $__env->startSection('description', 'Penilaian tugas peserta talenta berdasarkan materi yang diajarkan'); ?>
 
-@section('title', 'Penilaian Tugas Talenta - NUIST')
-@section('description', 'Penilaian tugas peserta talenta berdasarkan materi yang diajarkan')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <style>
     * {
@@ -251,7 +249,7 @@
 <!-- HERO -->
 <section class="hero">
     <div class="hero-content">
-        <a href="{{ route('talenta.dashboard') }}" class="back-btn">
+        <a href="<?php echo e(route('talenta.dashboard')); ?>" class="back-btn">
             <i class="bi bi-arrow-left"></i> Kembali ke Dashboard
         </a>
         <h1 class="hero-title">Penilaian Tugas</h1>
@@ -279,32 +277,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($tugas ?? [] as $index => $tugasItem)
-                        {{-- <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
-                            <td>{{ $tugasItem->user->madrasah->nama_madrasah ?? 'N/A' }}</td>
-                            <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area)) }}</td>
-                            <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
-                            <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tugas ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $tugasItem): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <tr>
+                            <td><?php echo e($index + 1); ?></td>
+                            <td><?php echo e($tugasItem->user->name ?? 'N/A'); ?></td>
+                            <td><?php echo e($tugasItem->user->madrasah->nama_madrasah ?? 'N/A'); ?></td>
+                            <td><?php echo e(ucwords(str_replace('-', ' ', $tugasItem->area))); ?></td>
+                            <td><?php echo e(ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas))); ?></td>
+                            <td><?php echo e($tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A'); ?></td>
                             <td>
-                                @if($tugasItem->file_path)
-                                    <a href="{{ asset('storage/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tugasItem->file_path): ?>
+                                    <a href="<?php echo e(asset('storage/' . $tugasItem->file_path)); ?>" target="_blank" class="action-btn btn-view">
                                         <i class="bi bi-eye"></i> Lihat
                                     </a>
-                                    <a href="{{ asset('storage/' . $tugasItem->file_path) }}" download class="action-btn btn-download">
+                                    <a href="<?php echo e(asset('storage/' . $tugasItem->file_path)); ?>" download class="action-btn btn-download">
                                         <i class="bi bi-download"></i> Download
                                     </a>
-                                @else
+                                <?php else: ?>
                                     <span class="text-muted">Tidak ada file</span>
-                                @endif
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </td>
-                        </tr> --}}
-                        @empty
+                        </tr>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                         <tr>
                             <td colspan="7" class="no-data">Belum ada tugas yang disubmit untuk materi Anda</td>
                         </tr>
-                        @endforelse
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -313,9 +311,9 @@
     </div>
 </section>
 
-@include('landing.footer')
+<?php echo $__env->make('landing.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -345,3 +343,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
+<?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/talenta/penilaian-tugas.blade.php ENDPATH**/ ?>
