@@ -11,4 +11,6 @@
 - [x] Add logging to debug request data
 - [x] Add success logging after database insert
 - [x] Add required attribute and form IDs to upload forms
+- [x] Add SweetAlert2 for success/error notifications
+- [x] Implement AJAX form submission with SweetAlert feedback
 - [ ] Test the upload after changes
