@@ -96,7 +96,31 @@ class TalentaController extends Controller
             ->get()
             ->keyBy('judul_materi');
 
-        return view('talenta.tugas-level-1', compact('materiLevel1'));
+        // Area configuration for tabs
+        $areaConfig = [
+            'IDEOLOGI DAN ORGANISASI' => [
+                'slug' => 'ideologi-organisasi',
+                'icon' => 'bx-heart',
+                'name' => 'Ideologi & Organisasi'
+            ],
+            'TATA KELOLA' => [
+                'slug' => 'tata-kelola',
+                'icon' => 'bx-cog',
+                'name' => 'Tata Kelola'
+            ],
+            'LAYANAN' => [
+                'slug' => 'layanan-pendidikan',
+                'icon' => 'bx-book',
+                'name' => 'Layanan Pendidikan'
+            ],
+            'KEPEMIMPINAN' => [
+                'slug' => 'kepemimpinan',
+                'icon' => 'bx-crown',
+                'name' => 'Kepemimpinan'
+            ]
+        ];
+
+        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig'));
     }
 
     public function simpanTugasLevel1(Request $request)
