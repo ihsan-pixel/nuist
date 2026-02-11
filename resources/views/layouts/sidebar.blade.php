@@ -342,6 +342,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('instumen-talenta.index') }}" class="waves-effect">
+                        <i class="bx bx-data"></i>
+                        <span>Talenta</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.laporan-akhir-tahun.index') }}" class="waves-effect">
                         <i class="bx bx-data"></i>
                         <span>Laporan Akhir Tahun</span>
