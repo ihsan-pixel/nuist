@@ -29,7 +29,7 @@ class InstumenTalentaController extends Controller
     public function inputPeserta()
     {
         $pesertas = TalentaPeserta::with('user')->get();
-        $kelompoks = TalentaKelompok::with('pesertas')->get();
+        $kelompoks = TalentaKelompok::with('users')->get();
 
         // Generate next kode peserta
         $existingCodes = TalentaPeserta::where('kode_peserta', 'like', 'T-01.%')
@@ -393,8 +393,8 @@ class InstumenTalentaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_kelompok' => 'required|string|max:255',
-            'peserta_ids' => 'required|array',
-            'peserta_ids.*' => 'exists:talenta_peserta,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -406,8 +406,8 @@ class InstumenTalentaController extends Controller
                 'nama_kelompok' => $request->nama_kelompok,
             ]);
 
-            // Attach peserta to kelompok
-            $kelompok->pesertas()->attach($request->peserta_ids);
+            // Attach users to kelompok
+            $kelompok->users()->attach($request->user_ids);
 
             return redirect()->route('instumen-talenta.input-peserta')->with('success', 'Kelompok peserta berhasil dibuat.');
         } catch (\Exception $e) {

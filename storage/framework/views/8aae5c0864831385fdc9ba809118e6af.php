@@ -718,9 +718,11 @@
             <button class="tab-btn" data-target="teknis-section">
                 <i class="bi bi-tools"></i> Tim Teknis
             </button>
+            <?php if(Auth::user()->role !== 'tenaga_pendidik'): ?>
             <button class="tab-btn" data-target="peserta-section">
                 <i class="bi bi-people"></i> Peserta
             </button>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 </div>

@@ -119,10 +119,10 @@
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="peserta_ids" class="form-label">Pilih Peserta <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="peserta_ids" name="peserta_ids[]" multiple required>
+                                        <label for="user_ids" class="form-label">Pilih Peserta <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="user_ids" name="user_ids[]" multiple required>
                                             @foreach($pesertas as $peserta)
-                                                <option value="{{ $peserta->id }}">{{ $peserta->user->name ?? 'N/A' }} - {{ $peserta->kode_peserta }}</option>
+                                                <option value="{{ $peserta->user_id }}">{{ $peserta->user->name ?? 'N/A' }} - {{ $peserta->kode_peserta }}</option>
                                             @endforeach
                                         </select>
                                         <small class="form-text text-muted">Tekan Ctrl (Windows) atau Cmd (Mac) untuk memilih multiple peserta</small>

@@ -16,10 +16,10 @@ class TalentaKelompok extends Model
     ];
 
     /**
-     * Get the pesertas for the kelompok.
+     * Get the users for the kelompok.
      */
-    public function pesertas()
+    public function users()
     {
-        return $this->belongsToMany(TalentaPeserta::class, 'talenta_kelompok_peserta', 'talenta_kelompok_id', 'talenta_peserta_id');
+        return $this->belongsToMany(User::class, 'talenta_kelompok_users', 'talenta_kelompok_id', 'user_id');
     }
 }

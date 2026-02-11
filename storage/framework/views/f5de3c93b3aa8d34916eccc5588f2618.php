@@ -377,6 +377,14 @@
                     <li><a href="<?php echo e(route('talenta.dashboard')); ?>" class="<?php echo e(request()->routeIs('talenta.dashboard') ? 'active' : ''); ?>">Dashboard</a></li>
                     <li><a href="<?php echo e(route('talenta.data')); ?>" class="<?php echo e(request()->routeIs('talenta.data') ? 'active' : ''); ?>">Data Talenta</a></li>
                     <li><a href="<?php echo e(route('talenta.penilaian-tugas')); ?>" class="<?php echo e(request()->routeIs('talenta.penilaian-tugas') ? 'active' : ''); ?>">Data Penilaian Tugas</a></li>
+                <?php elseif(Auth::user()->role === 'fasilitator'): ?>
+                    <li><a href="<?php echo e(route('talenta.dashboard')); ?>" class="<?php echo e(request()->routeIs('talenta.dashboard') ? 'active' : ''); ?>">Dashboard</a></li>
+                    <li><a href="<?php echo e(route('talenta.data')); ?>" class="<?php echo e(request()->routeIs('talenta.data') ? 'active' : ''); ?>">Data Talenta</a></li>
+                    <li><a href="<?php echo e(route('talenta.instrumen-penilaian')); ?>" class="<?php echo e(request()->routeIs('talenta.instrumen-penilaian') ? 'active' : ''); ?>">Instrumen Penilaian</a></li>
+                <?php elseif(Auth::user()->role === 'tenaga_pendidik'): ?>
+                    <li><a href="<?php echo e(route('talenta.dashboard')); ?>" class="<?php echo e(request()->routeIs('talenta.dashboard') ? 'active' : ''); ?>">Dashboard</a></li>
+                    <li><a href="<?php echo e(route('talenta.instrumen-penilaian')); ?>" class="<?php echo e(request()->routeIs('talenta.instrumen-penilaian') ? 'active' : ''); ?>">Instrumen Penilaian</a></li>
+                    <li><a href="<?php echo e(route('talenta.tugas-level-1')); ?>" class="<?php echo e(request()->routeIs('talenta.tugas-level-1') ? 'active' : ''); ?>">Tugas</a></li>
                 <?php else: ?>
                     <li><a href="<?php echo e(route('talenta.dashboard')); ?>" class="<?php echo e(request()->routeIs('talenta.dashboard') ? 'active' : ''); ?>">Dashboard</a></li>
                     <li><a href="<?php echo e(route('talenta.data')); ?>" class="<?php echo e(request()->routeIs('talenta.data') ? 'active' : ''); ?>">Data Talenta</a></li>
@@ -408,10 +416,7 @@
                         <p class="profile-email"><?php echo e(Auth::user()->email); ?></p>
                     </div>
                     <div class="profile-actions">
-                        <a href="<?php echo e(route('mobile.profile')); ?>" class="profile-link">
-                            <i class='bx bx-user'></i>
-                            Profile
-                        </a>
+                        
                         <a href="<?php echo e(route('mobile.talenta.index')); ?>" class="profile-link">
                             <i class='bx bx-list-ul'></i>
                             Data Talenta
