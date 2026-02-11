@@ -721,9 +721,11 @@
             <button class="tab-btn" data-target="teknis-section">
                 <i class="bi bi-tools"></i> Tim Teknis
             </button>
+            @if(Auth::user()->role !== 'tenaga_pendidik')
             <button class="tab-btn" data-target="peserta-section">
                 <i class="bi bi-people"></i> Peserta
             </button>
+            @endif
         </div>
     </div>
 </div>
