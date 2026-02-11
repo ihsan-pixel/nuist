@@ -730,7 +730,7 @@
                         <div class="benefits-list">
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Efisiensi Pembiayaan</h6>
                                         <p class="small mb-0" style="color: #666;">Mengurangi biaya operasional</p>
@@ -739,7 +739,7 @@
                             </div>
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Reputasi Terjaga</h6>
                                         <p class="small mb-0" style="color: #666;">Meningkatkan kredibilitas dan transparansi sekolah</p>
@@ -748,7 +748,7 @@
                             </div>
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Akses Universal</h6>
                                         <p class="small mb-0" style="color: #666;">Memberikan akses yang luas kepada masyarakat</p>
@@ -757,7 +757,7 @@
                             </div>
                             <div class="benefit-item">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Data Terintegrasi</h6>
                                         <p class="small mb-0" style="color: #666;">Basis data terpadu untuk perencanaan pendidikan</p>
@@ -783,7 +783,7 @@
                         <div class="benefits-list">
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Pendaftaran Mudah</h6>
                                         <p class="small mb-0" style="color: #666;">Proses pendaftaran yang sederhana dan cepat</p>
@@ -792,7 +792,7 @@
                             </div>
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Informasi Real-time</h6>
                                         <p class="small mb-0" style="color: #666;">Update informasi penerimaan secara langsung</p>
@@ -801,7 +801,7 @@
                             </div>
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Monitoring Terpadu</h6>
                                         <p class="small mb-0" style="color: #666;">Pantau status pendaftaran dengan mudah</p>
@@ -810,7 +810,7 @@
                             </div>
                             <div class="benefit-item">
                                 <div class="d-flex align-items-start">
-                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Pelayanan Prima</h6>
                                         <p class="small mb-0" style="color: #666;">Fasilitas dan pelayanan yang memuaskan</p>
