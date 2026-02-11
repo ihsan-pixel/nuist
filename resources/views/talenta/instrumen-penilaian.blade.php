@@ -886,10 +886,10 @@
         @if(Auth::user()->role === 'fasilitator')
         <!-- PESERTA SECTION FOR FASILITATOR -->
         <div id="peserta-section" class="instrumen-section animate fade-up tab-content active">
-        @else
+
         <!-- PESERTA SECTION -->
         <div id="peserta-section" class="instrumen-section animate fade-up delay-3 tab-content" style="display: none;">
-        @endif
+
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
@@ -937,6 +937,7 @@
                 <button id="save-peserta-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        @endif
 
         <!-- LEGEND -->
         <div class="scale-legend">
