@@ -381,6 +381,10 @@
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
+                @elseif(Auth::user()->role === 'tenaga_pendidik')
+                    <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                    <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
+                    <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
                 @else
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
