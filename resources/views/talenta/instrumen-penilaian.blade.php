@@ -708,6 +708,7 @@
 </section>
 
 <!-- TAB NAVIGATION - OVERLAP HERO -->
+@if(Auth::user()->role !== 'fasilitator')
 <div class="tab-navigation-wrapper">
     <div class="tab-navigation">
         <div class="tab-buttons">
@@ -726,6 +727,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- CONTENT -->
 <section class="content-section">
@@ -779,6 +781,7 @@
                 <button id="save-trainer-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        @endif
 
         <!-- FASILITATOR SECTION -->
         <div id="fasilitator-section" class="instrumen-section animate fade-up delay-1 tab-content" style="display: none;">
@@ -877,9 +880,15 @@
                 <button id="save-teknis-ratings" class="save-btn">Simpan Penilaian</button>
             </div>
         </div>
+        @endif
 
+        @if(Auth::user()->role === 'fasilitator')
+        <!-- PESERTA SECTION FOR FASILITATOR -->
+        <div id="peserta-section" class="instrumen-section animate fade-up tab-content active">
+        @else
         <!-- PESERTA SECTION -->
         <div id="peserta-section" class="instrumen-section animate fade-up delay-3 tab-content" style="display: none;">
+        @endif
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
@@ -957,6 +966,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
     </div>
 </section>
