@@ -525,8 +525,22 @@ Route::middleware(['auth'])->group(function () {
 // Move POST route outside auth middleware to handle AJAX requests properly
 Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
 
-// MGMP Routes - No authentication required
-Route::get('/mgmp', [App\Http\Controllers\MGMPController::class, 'index'])->name('mgmp.index');
+// MGMP Routes - Protected by auth and mgmp role
+Route::middleware(['auth', 'role:mgmp'])->prefix('mgmp')->name('mgmp.')->group(function () {
+    // Landing page for MGMP (public but inside mgmp namespace)
+    Route::get('/', [App\Http\Controllers\MGMPController::class, 'index'])->name('index');
+
+    // Protected MGMP Dashboard routes (for logged in users with mgmp role)
+    Route::get('/dashboard', [App\Http\Controllers\MGMPController::class, 'dashboard'])->name('dashboard');
+    Route::get('/data-anggota', [App\Http\Controllers\MGMPController::class, 'dataAnggota'])->name('data-anggota');
+    Route::get('/laporan', [App\Http\Controllers\MGMPController::class, 'laporan'])->name('laporan');
+
+    // Logout route for MGMP
+    Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])->name('logout');
+});
+
+// Public MGMP landing page (no auth required)
+Route::get('/mgmp', [App\Http\Controllers\MGMPController::class, 'index'])->name('mgmp.public');
 
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
