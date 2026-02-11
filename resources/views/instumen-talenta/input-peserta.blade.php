@@ -219,11 +219,11 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $kelompok->nama_kelompok }}</td>
-                                    <td>{{ $kelompok->pesertas->count() }}</td>
+                                    <td>{{ $kelompok->users->count() }}</td>
                                     <td>
                                         <ul class="list-unstyled mb-0">
-                                            @foreach($kelompok->pesertas as $peserta)
-                                                <li>{{ $peserta->user->name ?? 'N/A' }} ({{ $peserta->kode_peserta }})</li>
+                                            @foreach($kelompok->users as $user)
+                                                <li>{{ $user->name ?? 'N/A' }}</li>
                                             @endforeach
                                         </ul>
                                     </td>

@@ -116,10 +116,10 @@
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="peserta_ids" class="form-label">Pilih Peserta <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="peserta_ids" name="peserta_ids[]" multiple required>
+                                        <label for="user_ids" class="form-label">Pilih Peserta <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="user_ids" name="user_ids[]" multiple required>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $pesertas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $peserta): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                                <option value="<?php echo e($peserta->id); ?>"><?php echo e($peserta->user->name ?? 'N/A'); ?> - <?php echo e($peserta->kode_peserta); ?></option>
+                                                <option value="<?php echo e($peserta->user_id); ?>"><?php echo e($peserta->user->name ?? 'N/A'); ?> - <?php echo e($peserta->kode_peserta); ?></option>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                         </select>
                                         <small class="form-text text-muted">Tekan Ctrl (Windows) atau Cmd (Mac) untuk memilih multiple peserta</small>
@@ -216,11 +216,11 @@
                                 <tr>
                                     <td><?php echo e($index + 1); ?></td>
                                     <td><?php echo e($kelompok->nama_kelompok); ?></td>
-                                    <td><?php echo e($kelompok->pesertas->count()); ?></td>
+                                    <td><?php echo e($kelompok->users->count()); ?></td>
                                     <td>
                                         <ul class="list-unstyled mb-0">
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $kelompok->pesertas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $peserta): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                                <li><?php echo e($peserta->user->name ?? 'N/A'); ?> (<?php echo e($peserta->kode_peserta); ?>)</li>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $kelompok->users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                <li><?php echo e($user->name ?? 'N/A'); ?></li>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                         </ul>
                                     </td>
