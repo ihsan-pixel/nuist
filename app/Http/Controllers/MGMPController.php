@@ -31,34 +31,22 @@ class MGMPController extends Controller
      */
     public function dataAnggota()
     {
-        $user = Auth::user();
+        // Assumption: members are users with role 'tenaga_pendidik' or 'mgmp'
+        // If your project stores MGMP members differently, adjust the query accordingly.
+        $members = User::whereIn('role', ['tenaga_pendidik', 'mgmp'])->get();
 
-        // Get all MGMP members
-        $anggota = User::where('role', 'mgmp')
-            ->with(['madrasah', 'statusKepegawaian'])
-            ->orderBy('name', 'asc')
-            ->paginate(10);
+        return view('mgmp.data-anggota', compact('members'));
+    }
 
-        // Statistics
-        $totalAnggota = User::where('role', 'mgmp')->count();
-        $anggotaAktif = User::where('role', 'mgmp')->where('is_active', true)->count();
-        $totalSekolah = User::where('role', 'mgmp')->with('madrasah')->get()->pluck('madrasah')->unique()->filter()->count();
-        $totalGuru = $totalAnggota;
+    /**
+     * Show Data MGMP (management UI)
+     */
+    public function manage()
+    {
+        // Placeholder collection for MGMP groups. Replace with real model when available.
+        $mgmpGroups = collect();
 
-        // Data for forms
-        $sekolah = Madrasah::orderBy('name')->get();
-        $statusKepegawaian = StatusKepegawaian::orderBy('name')->get();
-
-        return view('mgmp.data-anggota', compact(
-            'user',
-            'anggota',
-            'totalAnggota',
-            'anggotaAktif',
-            'totalSekolah',
-            'totalGuru',
-            'sekolah',
-            'statusKepegawaian'
-        ));
+        return view('mgmp.data-mgmp', compact('mgmpGroups'));
     }
 
     /**
@@ -75,13 +63,17 @@ class MGMPController extends Controller
         $totalPeserta = 0;
         $rataRataDurasi = 0;
 
+        // Provide members list for the modal attendee selector
+        $members = User::whereIn('role', ['tenaga_pendidik', 'mgmp'])->get();
+
         return view('mgmp.laporan', compact(
             'user',
             'laporan',
             'totalLaporan',
             'laporanBulanIni',
             'totalPeserta',
-            'rataRataDurasi'
+            'rataRataDurasi',
+            'members'
         ));
     }
 

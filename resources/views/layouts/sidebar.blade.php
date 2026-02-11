@@ -399,7 +399,7 @@
                 </li>
 
                 <li>
-                    <a href="#" class="waves-effect">
+                    <a href="{{ route('mgmp.data-mgmp') }}" class="waves-effect">
                         <i class="bx bx-data"></i>
                         <span>Data MGMP</span>
                     </a>

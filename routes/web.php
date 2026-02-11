@@ -533,7 +533,14 @@ Route::middleware(['auth', 'role:mgmp'])->prefix('mgmp')->name('mgmp.')->group(f
     // Protected MGMP Dashboard routes (for logged in users with mgmp role)
     Route::get('/dashboard', [App\Http\Controllers\MGMPController::class, 'dashboard'])->name('dashboard');
     Route::get('/data-anggota', [App\Http\Controllers\MGMPController::class, 'dataAnggota'])->name('data-anggota');
+    Route::get('/data-mgmp', [App\Http\Controllers\MGMPController::class, 'manage'])->name('data-mgmp');
     Route::get('/laporan', [App\Http\Controllers\MGMPController::class, 'laporan'])->name('laporan');
+
+    // CRUD routes for MGMP (store, update, destroy, import)
+    Route::post('/', [App\Http\Controllers\MGMPController::class, 'store'])->name('store');
+    Route::put('/{id}', [App\Http\Controllers\MGMPController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\MGMPController::class, 'destroy'])->name('destroy');
+    Route::post('/import', [App\Http\Controllers\MGMPController::class, 'import'])->name('import');
 
     // Logout route for MGMP
     Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])->name('logout');

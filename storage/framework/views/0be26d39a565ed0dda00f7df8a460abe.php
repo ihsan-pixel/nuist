@@ -335,7 +335,7 @@
                 </li>
 
                 <li>
-                    <a href="#" class="waves-effect">
+                    <a href="<?php echo e(route('mgmp.data-mgmp')); ?>" class="waves-effect">
                         <i class="bx bx-data"></i>
                         <span>Data MGMP</span>
                     </a>

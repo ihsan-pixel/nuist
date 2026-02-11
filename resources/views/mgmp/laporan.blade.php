@@ -100,46 +100,69 @@
                     <table class="table table-hover align-middle mb-0" style="border-radius: 10px; overflow: hidden;">
                         <thead class="table-light">
                             <tr>
-                                <th class="border-0 fw-semibold text-dark py-3 ps-4">Kegiatan</th>
+                                <th class="border-0 fw-semibold text-dark py-3 ps-4">No</th>
+                                <th class="border-0 fw-semibold text-dark py-3">Nama Kegiatan</th>
                                 <th class="border-0 fw-semibold text-dark py-3">Tanggal</th>
-                                <th class="border-0 fw-semibold text-dark py-3">Peserta</th>
-                                <th class="border-0 fw-semibold text-dark py-3">Status</th>
-                                <th class="border-0 fw-semibold text-dark py-3 pe-4">Aksi</th>
+                                <th class="border-0 fw-semibold text-dark py-3">Dokumentasi</th>
+                                <th class="border-0 fw-semibold text-dark py-3 pe-4">Jumlah Anggota Hadir</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($laporan as $report)
                             <tr class="border-bottom border-light">
-                                <td class="py-3 ps-4">
+                                <td class="py-3 ps-4">{{ $loop->iteration }}</td>
+                                <td class="py-3">
                                     <div>
                                         <h6 class="mb-1">{{ $report->judul }}</h6>
-                                        <small class="text-muted">{{ Str::limit($report->deskripsi, 50) }}</small>
                                     </div>
                                 </td>
                                 <td class="py-3">
                                     <div>
-                                        <div class="fw-medium">{{ $report->tanggal->format('d M Y') }}</div>
-                                        <small class="text-muted">{{ $report->waktu_mulai }} - {{ $report->waktu_selesai }}</small>
+                                        @if(isset($report->tanggal) && $report->tanggal)
+                                            <div class="fw-medium">{{ \Carbon\Carbon::parse($report->tanggal)->format('d M Y') }}</div>
+                                        @else
+                                            -
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="py-3">
-                                    <span class="badge bg-info bg-opacity-10 text-info">{{ $report->jumlah_peserta }} orang</span>
-                                </td>
-                                <td class="py-3">
-                                    <span class="badge bg-success bg-opacity-10 text-success">Selesai</span>
+                                    @if(!empty($report->dokumentasi))
+                                        {{-- dokumentasi could be a file path or array; show thumbnail or link --}}
+                                        @if(is_array($report->dokumentasi))
+                                            @foreach($report->dokumentasi as $doc)
+                                                <a href="{{ asset('storage/' . $doc) }}" target="_blank" class="me-2">Lihat</a>
+                                            @endforeach
+                                        @else
+                                            <a href="{{ asset('storage/' . $report->dokumentasi) }}" target="_blank">Lihat</a>
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
                                 </td>
                                 <td class="py-3 pe-4">
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="lihatDetail({{ $report->id }})">
-                                            <i class="mdi mdi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-warning" onclick="editLaporan({{ $report->id }})">
-                                            <i class="mdi mdi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="hapusLaporan({{ $report->id }})">
-                                            <i class="mdi mdi-delete"></i>
-                                        </button>
-                                    </div>
+                                    @if(!empty($report->peserta) && (is_array($report->peserta) || $report->peserta instanceof \Illuminate\Support\Collection))
+                                        <div class="d-flex flex-wrap gap-1">
+                                            @foreach($report->peserta as $p)
+                                                @php
+                                                    // Normalize $p to a displayable name
+                                                    if (is_object($p)) {
+                                                        $pName = $p->name ?? ($p->nama ?? null);
+                                                    } elseif (is_array($p)) {
+                                                        $pName = $p['name'] ?? ($p['nama'] ?? null);
+                                                    } else {
+                                                        $pName = $p;
+                                                    }
+                                                @endphp
+                                                @if($pName)
+                                                    <span class="badge bg-info bg-opacity-10 text-info">{{ $pName }}</span>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @elseif(!empty($report->jumlah_peserta))
+                                        {{ $report->jumlah_peserta }} orang
+                                    @else
+                                        -
+                                    @endif
                                 </td>
                             </tr>
                             @empty
@@ -159,8 +182,8 @@
                     </table>
                 </div>
 
-                <!-- Pagination -->
-                @if($laporan->hasPages())
+                <!-- Pagination (only if paginated) -->
+                @if(method_exists($laporan, 'hasPages') && $laporan->hasPages())
                 <div class="d-flex justify-content-center mt-4">
                     {{ $laporan->links() }}
                 </div>
@@ -202,8 +225,13 @@
                             <textarea class="form-control" name="deskripsi" rows="3" required></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Jumlah Peserta</label>
-                            <input type="number" class="form-control" name="jumlah_peserta" required>
+                            <label class="form-label">Pilih Nama Peserta yang Hadir</label>
+                            <select class="form-select" name="peserta[]" id="selectPeserta" multiple aria-label="Pilih peserta">
+                                @foreach($members as $m)
+                                    <option value="{{ $m->id }}">{{ $m->name ?? $m->nama ?? ('User #' . $m->id) }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">Tekan Ctrl/Cmd + klik untuk memilih beberapa peserta</small>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Lokasi</label>
@@ -251,8 +279,19 @@ function hapusLaporan(id) {
 
 document.getElementById('formTambahLaporan').addEventListener('submit', function(e) {
     e.preventDefault();
-    // Implement form submission
-    console.log('Form submitted');
+    // Collect selected peserta names and ids
+    const select = document.getElementById('selectPeserta');
+    let selected = [];
+    if (select) {
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].selected) {
+                selected.push({ id: select.options[i].value, name: select.options[i].text });
+            }
+        }
+    }
+
+    // For now we just log the payload (replace with AJAX or form submit to server)
+    console.log('Form submitted. Peserta:', selected);
     // Close modal
     const modal = bootstrap.Modal.getInstance(document.getElementById('tambahLaporanModal'));
     modal.hide();
