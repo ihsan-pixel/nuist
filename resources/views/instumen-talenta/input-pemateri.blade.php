@@ -155,12 +155,12 @@
                         <input type="text" class="form-control" id="modal_nama" name="nama" readonly required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label for="modal_email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="modal_email" name="email" required>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label for="modal_password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="modal_password" name="password" required>
                     </div>
                 </div>
                 <div class="modal-footer">
