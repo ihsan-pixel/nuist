@@ -1,5 +1,5 @@
 {{-- resources/views/mgmp/index.blade.php --}}
-@extends('layouts.master')
+@extends('layouts.master-without-nav')
 
 @section('title') MGMP - Musyawarah Guru Mata Pelajaran @endsection
 
