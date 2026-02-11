@@ -278,7 +278,7 @@
                     <ul class="submenu">
                         <li><a href="{{ route('talenta.login')}}">TALENTA</a></li>
                         <li><a href="#">MGMP</a></li>
-                        <li><a href="#">DPS</a></li>
+                        {{-- <li><a href="#">DPS</a></li> --}}
                     </ul>
                 </li>
                 {{-- <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}">Tentang</a></li>
