@@ -105,6 +105,7 @@
                                 <th>Kode Pemateri</th>
                                 <th>Nama Pemateri</th>
                                 <th>Materi</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,10 +121,15 @@
                                             </span>
                                         @endforeach
                                     </td>
+                                    <td>
+                                        <button type="button" class="btn btn-success btn-sm" onclick="openCreateUserModal('{{ $pemateri->nama }}')">
+                                            <i class="fas fa-user-plus me-1"></i> Buat Akun
+                                        </button>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center">Belum ada data pemateri</td>
+                                    <td colspan="5" class="text-center">Belum ada data pemateri</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -134,6 +140,39 @@
     </div>
 </div>
 @endsection
+
+<!-- Modal for Creating User -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModalLabel">Buat Akun Pemateri</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createUserForm" action="{{ route('instumen-talenta.create-user-pemateri') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nama" name="nama" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Buat Akun</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/instumen-talenta.css') }}">
@@ -154,6 +193,25 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmButtonText: 'OK'
         });
     @endif
+
+    // SweetAlert untuk pesan error
+    @if(session('error'))
+        Swal.fire({
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    @endif
 });
+
+// Function to open modal and pre-fill name
+function openCreateUserModal(nama) {
+    document.getElementById('nama').value = nama;
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+    var modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+    modal.show();
+}
 </script>
 @endsection

@@ -322,4 +322,30 @@ class InstumenTalentaController extends Controller
 
         return redirect()->route('instumen-talenta.input-layanan-teknis')->with('success', 'Data layanan teknis berhasil disimpan.');
     }
+
+    public function createUserForPemateri(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            User::create([
+                'name' => $request->nama,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'role' => 'pemateri', // Assuming pemateri role exists
+            ]);
+
+            return redirect()->route('instumen-talenta.input-pemateri')->with('success', 'Akun pemateri berhasil dibuat.');
+        } catch (\Exception $e) {
+            return redirect()->route('instumen-talenta.input-pemateri')->with('error', 'Gagal membuat akun: ' . $e->getMessage());
+        }
+    }
 }
