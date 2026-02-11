@@ -381,7 +381,7 @@
     }
 
     .teknis-table thead th {
-        background: linear-gradient(135deg, #004b4c, #006666);
+        /* background: linear-gradient(135deg, #004b4c, #006666); */
         color: white;
         padding: 20px 15px;
         text-align: left;
