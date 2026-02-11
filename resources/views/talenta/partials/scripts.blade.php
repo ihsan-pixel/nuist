@@ -54,14 +54,26 @@ document.addEventListener('submit', function(e) {
 
         const formData = new FormData(form);
 
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        console.log('Form submission debug:', {
+            action: form.action,
+            csrfToken: csrfToken,
+            formData: Object.fromEntries(formData)
+        });
+
         fetch(form.action, {
             method: 'POST',
             body: formData,
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': csrfToken
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 Swal.fire({
@@ -90,10 +102,28 @@ document.addEventListener('submit', function(e) {
         })
         .catch(error => {
             console.error('Upload error:', error);
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            });
+
+            let errorMessage = 'Terjadi kesalahan saat mengupload file';
+
+            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                errorMessage = 'Koneksi internet bermasalah. Silakan coba lagi.';
+            } else if (error.message.includes('403')) {
+                errorMessage = 'Akses ditolak. Token keamanan tidak valid.';
+            } else if (error.message.includes('404')) {
+                errorMessage = 'Halaman tidak ditemukan.';
+            } else if (error.message.includes('500')) {
+                errorMessage = 'Server mengalami kesalahan. Silakan coba lagi nanti.';
+            }
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
-                text: 'Terjadi kesalahan saat mengupload file'
+                text: errorMessage
             });
         })
         .finally(() => {

@@ -13,4 +13,5 @@
 - [x] Add required attribute and form IDs to upload forms
 - [x] Add SweetAlert2 for success/error notifications
 - [x] Implement AJAX form submission with SweetAlert feedback
-- [ ] Test the upload after changes
+- [x] Add comprehensive error handling and debugging
+- [ ] Test the upload after changes and debug any remaining issues
