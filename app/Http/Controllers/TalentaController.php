@@ -124,7 +124,13 @@ class TalentaController extends Controller
         $completedTasks = TugasTalentaLevel1::where('user_id', Auth::id())->count();
         $progressPercentage = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 1) : 0;
 
-        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks'));
+        // Get existing tasks for the user
+        $existingTasks = TugasTalentaLevel1::where('user_id', Auth::id())
+            ->where('jenis_tugas', 'on_site')
+            ->get()
+            ->keyBy('area');
+
+        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks', 'existingTasks'));
     }
 
     /* =========================
