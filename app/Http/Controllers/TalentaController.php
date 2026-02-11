@@ -127,6 +127,14 @@ class TalentaController extends Controller
      * ========================= */
     public function simpanTugasLevel1(Request $request)
     {
+        // Check authentication for AJAX requests
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi telah berakhir. Silakan login kembali.',
+            ], 401);
+        }
+
         Log::info('simpanTugasLevel1 called', [
             'all_data' => $request->all(),
             'files' => $request->file(),

@@ -512,9 +512,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/talenta/data', [App\Http\Controllers\TalentaController::class, 'data'])->name('talenta.data');
     Route::get('/talenta/instrumen-penilaian', [App\Http\Controllers\TalentaController::class, 'instrumenPenilaian'])->name('talenta.instrumen-penilaian');
     Route::get('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'tugasLevel1'])->name('talenta.tugas-level-1');
-    Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
     Route::post('/talenta/logout', [App\Http\Controllers\TalentaController::class, 'logout'])->name('talenta.logout');
 });
+// Move POST route outside auth middleware to handle AJAX requests properly
+Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
 
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');

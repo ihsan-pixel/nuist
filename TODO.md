@@ -15,3 +15,6 @@
 - [x] Implement AJAX form submission with SweetAlert feedback
 - [x] Add comprehensive error handling and debugging
 - [x] Test the upload after changes and debug any remaining issues
+- [x] Fix authentication check for AJAX requests
+- [x] Move POST route outside auth middleware
+- [x] Improve error handling for session expiry
