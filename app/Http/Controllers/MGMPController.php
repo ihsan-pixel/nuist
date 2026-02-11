@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
+use App\Models\MgmpGroup;
+use App\Models\MgmpMember;
+use App\Models\MgmpReport;
 
 class MGMPController extends Controller
 {
@@ -15,7 +18,31 @@ class MGMPController extends Controller
      */
     public function index()
     {
-        return view('mgmp.index');
+        // Core MGMP metrics for the landing page
+        try {
+            $totalAnggota = MgmpMember::count();
+        } catch (\Throwable $e) {
+            // fallback to counting users with role mgmp if table/model isn't migrated yet
+            $totalAnggota = User::where('role', 'mgmp')->count();
+        }
+
+        try {
+            $totalKegiatan = MgmpReport::count();
+        } catch (\Throwable $e) {
+            $totalKegiatan = 0;
+        }
+
+        // Placeholder for materi count (if you have a materi model, replace this)
+        $totalMateri = 0;
+
+        // Recent groups to show on index (if available)
+        try {
+            $mgmpGroups = MgmpGroup::limit(6)->get();
+        } catch (\Throwable $e) {
+            $mgmpGroups = collect();
+        }
+
+        return view('mgmp.index', compact('totalAnggota', 'totalKegiatan', 'totalMateri', 'mgmpGroups'));
     }
 
     /**

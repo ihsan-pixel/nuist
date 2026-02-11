@@ -45,7 +45,7 @@
                         <p class="text-muted mb-3">
                             Komunitas guru yang berkolaborasi untuk meningkatkan kualitas pembelajaran
                         </p>
-                        <div class="text-primary fw-bold fs-4"><?php echo e(User::where('role', 'mgmp')->count()); ?></div>
+                        <div class="text-primary fw-bold fs-4"><?php echo e($totalAnggota ?? 0); ?></div>
                         <small class="text-muted">Total Anggota</small>
                     </div>
                 </div>
@@ -63,8 +63,8 @@
                         <p class="text-muted mb-3">
                             Workshop, seminar, dan kegiatan pengembangan profesi secara berkala
                         </p>
-                        <div class="text-success fw-bold fs-4">12</div>
-                        <small class="text-muted">Kegiatan per Tahun</small>
+                        <div class="text-success fw-bold fs-4"><?php echo e($totalKegiatan ?? 0); ?></div>
+                        <small class="text-muted">Kegiatan</small>
                     </div>
                 </div>
             </div>
@@ -81,7 +81,7 @@
                         <p class="text-muted mb-3">
                             Berbagi materi, metode, dan inovasi pembelajaran antar guru
                         </p>
-                        <div class="text-info fw-bold fs-4">50+</div>
+                        <div class="text-info fw-bold fs-4"><?php echo e($totalMateri ?? '0'); ?></div>
                         <small class="text-muted">Materi Tersedia</small>
                     </div>
                 </div>

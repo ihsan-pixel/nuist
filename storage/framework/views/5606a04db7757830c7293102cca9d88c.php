@@ -274,7 +274,7 @@
                 <li><a href="<?php echo e(route('landing')); ?>" class="<?php echo e(request()->routeIs('landing') ? 'active' : ''); ?>">Beranda</a></li>
                 <li><a href="<?php echo e(route('landing.sekolah')); ?>" class="<?php echo e(request()->routeIs('landing.sekolah') ? 'active' : ''); ?>">Sekolah</a></li>
                 <li><a href="<?php echo e(route('talenta.login')); ?>" class="<?php echo e(request()->routeIs('talenta.login') ? 'active' : ''); ?>">Talenta</a></li>
-                <li><a href="<?php echo e(route('mgmp.index')); ?>" class="<?php echo e(request()->routeIs('mgmp.index') ? 'active' : ''); ?>">MGMP</a></li>
+                <li><a href="<?php echo e(route('mgmp.public')); ?>" class="<?php echo e(request()->routeIs('mgmp.public') ? 'active' : ''); ?>">MGMP</a></li>
                 
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
