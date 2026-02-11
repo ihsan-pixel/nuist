@@ -20,6 +20,6 @@ class TalentaKelompok extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class, 'talenta_kelompok_users', 'talenta_kelompok_id', 'user_id');
+        return $this->belongsToMany(User::class, 'talenta_kelompok_peserta', 'talenta_kelompok_id', 'user_id');
     }
 }
