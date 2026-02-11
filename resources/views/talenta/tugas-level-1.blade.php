@@ -1864,6 +1864,9 @@
         // Hide all area content
         document.querySelectorAll('.area-content').forEach(content => {
             content.classList.remove('active');
+            if (content.classList.contains('animate')) {
+                content.classList.remove('show');
+            }
         });
 
         // Remove active class from all area tab buttons
@@ -1873,6 +1876,9 @@
 
         // Show the current area and add active class to the clicked button
         document.getElementById(areaName).classList.add('active');
+        if (document.getElementById(areaName).classList.contains('animate')) {
+            document.getElementById(areaName).classList.add('show');
+        }
         evt.currentTarget.classList.add('active');
     }
 
