@@ -39,6 +39,14 @@
            name="lampiran"
            class="form-control"
            required>
+
+    @if(isset($existingTasks[$config['slug']]))
+        <a href="{{ asset('storage/' . $existingTasks[$config['slug']]->file_path) }}"
+           target="_blank"
+           class="btn btn-secondary mt-2">
+            <i class="bx bx-file"></i> Lihat File Terupload
+        </a>
+    @endif
 @endif
 
 <button class="btn btn-primary mt-3" type="submit">
