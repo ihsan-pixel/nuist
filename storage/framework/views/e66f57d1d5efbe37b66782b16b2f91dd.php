@@ -103,6 +103,7 @@
                                 <th>Kode Pemateri</th>
                                 <th>Nama Pemateri</th>
                                 <th>Materi</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -119,10 +120,21 @@
                                             </span>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                     </td>
+                                    <td>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pemateri->user_id): ?>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i> Akun Dibuat
+                                            </span>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-success btn-sm" onclick="openCreateUserModal('<?php echo e($pemateri->nama); ?>')">
+                                                <i class="fas fa-user-plus me-1"></i> Buat Akun
+                                            </button>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </td>
                                 </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 <tr>
-                                    <td colspan="4" class="text-center">Belum ada data pemateri</td>
+                                    <td colspan="5" class="text-center">Belum ada data pemateri</td>
                                 </tr>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
@@ -132,7 +144,40 @@
         </div>
     </div>
 </div>
+<!-- Modal for Creating User -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModalLabel">Buat Akun Pemateri</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createUserForm" action="<?php echo e(route('instumen-talenta.create-user-pemateri')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="modal_nama" class="form-label">Nama <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="modal_nama" name="nama" readonly required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="modal_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="modal_password" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Buat Akun</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <?php $__env->stopSection(); ?>
+
 
 <?php $__env->startSection('css'); ?>
 <link rel="stylesheet" href="<?php echo e(asset('css/instumen-talenta.css')); ?>">
@@ -153,7 +198,26 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmButtonText: 'OK'
         });
     <?php endif; ?>
+
+    // SweetAlert untuk pesan error
+    <?php if(session('error')): ?>
+        Swal.fire({
+            title: 'Error!',
+            text: '<?php echo e(session('error')); ?>',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    <?php endif; ?>
 });
+
+// Function to open modal and pre-fill name
+function openCreateUserModal(nama) {
+    document.getElementById('modal_nama').value = nama;
+    document.getElementById('modal_email').value = '';
+    document.getElementById('modal_password').value = '';
+    var modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+    modal.show();
+}
 </script>
 <?php $__env->stopSection(); ?>
 

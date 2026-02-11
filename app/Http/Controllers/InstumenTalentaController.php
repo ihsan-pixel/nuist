@@ -354,4 +354,36 @@ class InstumenTalentaController extends Controller
             return redirect()->route('instumen-talenta.input-pemateri')->with('error', 'Gagal membuat akun: ' . $e->getMessage());
         }
     }
+
+    public function createUserForFasilitator(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        try {
+            $user = User::create([
+                'name' => $request->nama,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'role' => 'fasilitator', // Assuming fasilitator role exists
+            ]);
+
+            // Update fasilitator record with user_id
+            $fasilitator = TalentaFasilitator::where('nama', $request->nama)->first();
+            if ($fasilitator) {
+                $fasilitator->update(['user_id' => $user->id]);
+            }
+
+            return redirect()->route('instumen-talenta.input-fasilitator')->with('success', 'Akun fasilitator berhasil dibuat.');
+        } catch (\Exception $e) {
+            return redirect()->route('instumen-talenta.input-fasilitator')->with('error', 'Gagal membuat akun: ' . $e->getMessage());
+        }
+    }
 }
