@@ -480,7 +480,7 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
 
     Route::get('/admin', function () {
         return view('instumen-talenta.admin');
-    })->name('admin')->middleware(['role:super_admin,admin']);
+    })->name('admin')->middleware(['role:super_admin,admin,pemateri,fasilitator']);
 
     // Input Data Routes
     Route::get('/input-peserta', [App\Http\Controllers\InstumenTalentaController::class, 'inputPeserta'])->name('input-peserta')->middleware(['role:super_admin,admin']);
