@@ -48,12 +48,12 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="pilih_materi" class="form-label">Pilih Materi <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="pilih_materi" name="pilih_materi" required>
-                                            <option value="">Pilih Materi</option>
+                                        <select class="form-select" id="pilih_materi" name="pilih_materi[]" multiple required style="height: 120px;">
                                             @foreach($materis as $materi)
                                                 <option value="{{ $materi->id }}">{{ $materi->judul_materi }}</option>
                                             @endforeach
                                         </select>
+                                        <small class="form-text text-muted">Tekan Ctrl (atau Cmd di Mac) untuk memilih lebih dari satu materi</small>
                                     </div>
                                 </div>
                             </div>
@@ -108,12 +108,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(\App\Models\TalentaFasilitator::with('materi')->get() as $index => $fasilitator)
+                            @forelse(\App\Models\TalentaFasilitator::with('materis')->get() as $index => $fasilitator)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $fasilitator->kode_fasilitator }}</td>
                                     <td>{{ $fasilitator->nama }}</td>
-                                    <td>{{ $fasilitator->materi->judul_materi ?? 'N/A' }}</td>
+                                    <td>
+                                        @foreach($fasilitator->materis as $materi)
+                                            <span class="badge bg-primary">
+                                                {{ $materi->judul_materi }}
+                                            </span>
+                                        @endforeach
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>

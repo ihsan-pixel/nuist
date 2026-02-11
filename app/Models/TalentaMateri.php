@@ -31,4 +31,14 @@ class TalentaMateri extends Model
             'talenta_pemateri_id'
         );
     }
+
+    public function fasilitators()
+    {
+        return $this->belongsToMany(
+            TalentaFasilitator::class,
+            'talenta_fasilitator_materi',
+            'talenta_materi_id',
+            'talenta_fasilitator_id'
+        );
+    }
 }

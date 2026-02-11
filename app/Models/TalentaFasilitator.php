@@ -14,11 +14,10 @@ class TalentaFasilitator extends Model
     protected $fillable = [
         'kode_fasilitator',
         'nama',
-        'materi_id',
     ];
 
-    public function materi()
+    public function materis()
     {
-        return $this->belongsTo(TalentaMateri::class, 'materi_id');
+        return $this->belongsToMany(TalentaMateri::class, 'talenta_fasilitator_materi', 'talenta_fasilitator_id', 'talenta_materi_id');
     }
 }

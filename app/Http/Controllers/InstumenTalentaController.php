@@ -219,26 +219,26 @@ class InstumenTalentaController extends Controller
 
     public function storeFasilitator(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'nama' => 'required|string|max:255',
-            'pilih_materi' => 'required|exists:talenta_materi,id',
+            'pilih_materi' => 'required|array',
+            'pilih_materi.*' => 'exists:talenta_materi,id',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        // Generate kode fasilitator
         $count = TalentaFasilitator::count() + 1;
         $kodeFasilitator = 'T-F-01.' . str_pad($count, 3, '0', STR_PAD_LEFT);
 
-        TalentaFasilitator::create([
+        $fasilitator = TalentaFasilitator::create([
             'kode_fasilitator' => $kodeFasilitator,
             'nama' => $request->nama,
-            'materi_id' => $request->pilih_materi,
         ]);
 
-        return redirect()->route('instumen-talenta.input-fasilitator')->with('success', 'Data fasilitator berhasil disimpan.');
+        // Simpan ke pivot table
+        $fasilitator->materis()->attach($request->pilih_materi);
+
+        return redirect()
+            ->route('instumen-talenta.input-fasilitator')
+            ->with('success', 'Data fasilitator berhasil disimpan.');
     }
 
     public function penilaianPemateri()
@@ -256,8 +256,8 @@ class InstumenTalentaController extends Controller
     public function penilaianFasilitator()
     {
         // Get active fasilitator (those with materi that have tanggal_materi = today)
-        $fasilitators = TalentaFasilitator::with('materi')
-            ->whereHas('materi', function($query) {
+        $fasilitators = TalentaFasilitator::with('materis')
+            ->whereHas('materis', function($query) {
                 $query->where('tanggal_materi', '=', now()->toDateString());
             })
             ->get();
