@@ -1,10 +1,11 @@
-# TODO: Update Dashboard Talenta
+# TODO: Change talenta_pemateri to many-to-many with talenta_materi
 
-## Tasks
-- [x] Update CSS styles: Add .section-clean, .section-soft, update .card, .section-title, .grid, .karakteristik-timeline, .table-modern, .section-divider
-- [x] Replace section classes: Assign alternating .section-clean and .section-soft to sections (Pendahuluan: clean, Tujuan: soft, etc.)
-- [x] Update table in Gelar Talenta to use .table-modern class
-- [x] Add .section-divider divs between sections
-- [x] Fix text visibility in step content
-- [x] Update Materi Pokok section to use new classes
-- [x] Verify styles and responsiveness
+## Steps:
+- [x] Create new migration for pivot table talenta_pemateri_materi
+- [x] Modify existing talenta_pemateri migration to remove materi_id
+- [x] Update TalentaPemateri model: change to belongsToMany materis
+- [x] Update TalentaMateri model: add belongsToMany pemateris
+- [x] Update InstumenTalentaController: validation to array, store to attach
+- [x] Update blade table display: show multiple materis as badges
+- [x] Run php artisan migrate:fresh (Failed due to missing users table migration)
+- [ ] Test functionality (after fixing users table issue)

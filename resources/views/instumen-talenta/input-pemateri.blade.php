@@ -108,12 +108,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse(\App\Models\TalentaPemateri::with('materi')->get() as $index => $pemateri)
+                            @forelse(\App\Models\TalentaPemateri::with('materis')->get() as $index => $pemateri)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $pemateri->kode_pemateri }}</td>
                                     <td>{{ $pemateri->nama }}</td>
-                                    <td>{{ $pemateri->materi->judul_materi ?? 'N/A' }}</td>
+                                    <td>
+                                        @foreach($pemateri->materis as $materi)
+                                            <span class="badge bg-primary">
+                                                {{ $materi->judul_materi }}
+                                            </span>
+                                        @endforeach
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>

@@ -168,26 +168,26 @@ class InstumenTalentaController extends Controller
 
     public function storePemateri(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'nama' => 'required|string|max:255',
-            'pilih_materi' => 'required|exists:talenta_materi,id',
+            'pilih_materi' => 'required|array',
+            'pilih_materi.*' => 'exists:talenta_materi,id',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        // Generate kode pemateri
         $count = TalentaPemateri::count() + 1;
         $kodePemateri = 'T-P-01.' . str_pad($count, 3, '0', STR_PAD_LEFT);
 
-        TalentaPemateri::create([
+        $pemateri = TalentaPemateri::create([
             'kode_pemateri' => $kodePemateri,
             'nama' => $request->nama,
-            'materi_id' => $request->pilih_materi,
         ]);
 
-        return redirect()->route('instumen-talenta.input-pemateri')->with('success', 'Data pemateri berhasil disimpan.');
+        // Simpan ke pivot table
+        $pemateri->materis()->attach($request->pilih_materi);
+
+        return redirect()
+            ->route('instumen-talenta.input-pemateri')
+            ->with('success', 'Data pemateri berhasil disimpan.');
     }
 
     public function inputFasilitator()

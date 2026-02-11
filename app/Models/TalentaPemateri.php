@@ -14,19 +14,15 @@ class TalentaPemateri extends Model
     protected $fillable = [
         'kode_pemateri',
         'nama',
-        'materi_id',
     ];
 
-    public function materi()
+    public function materis()
     {
-        return $this->belongsTo(TalentaMateri::class, 'materi_id');
-    }
-
-    /**
-     * Get the materi title (accessor).
-     */
-    public function getJudulMateriAttribute()
-    {
-        return $this->materi ? $this->materi->judul_materi : null;
+        return $this->belongsToMany(
+            TalentaMateri::class,
+            'talenta_pemateri_materi',
+            'talenta_pemateri_id',
+            'talenta_materi_id'
+        );
     }
 }

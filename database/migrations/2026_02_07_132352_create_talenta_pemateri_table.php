@@ -15,8 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('kode_pemateri')->unique();
             $table->string('nama');
-            $table->unsignedBigInteger('materi_id');
-            $table->foreign('materi_id')->references('id')->on('talenta_materi');
             $table->timestamps();
         });
     }

@@ -21,4 +21,14 @@ class TalentaMateri extends Model
     protected $casts = [
         'tanggal_materi' => 'date',
     ];
+
+    public function pemateris()
+    {
+        return $this->belongsToMany(
+            TalentaPemateri::class,
+            'talenta_pemateri_materi',
+            'talenta_materi_id',
+            'talenta_pemateri_id'
+        );
+    }
 }
