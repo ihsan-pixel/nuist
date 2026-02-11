@@ -105,8 +105,24 @@ class TalentaController extends Controller
         $validated = $request->validate([
             'area' => 'required|string',
             'jenis_tugas' => 'required|string',
-            'lampiran' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240', // Required file, max 10MB
         ]);
+
+        // Conditional validation based on jenis_tugas
+        if ($validated['jenis_tugas'] === 'on_site' && $validated['area'] === 'kepemimpinan') {
+            // For kepemimpinan on_site, require text fields
+            $request->validate([
+                'konteks' => 'required|string',
+                'peran' => 'required|string',
+                'nilai_kepemimpinan' => 'required|string',
+                'masalah_kepemimpinan' => 'required|string',
+                'pelajaran_penting' => 'required|string',
+            ]);
+        } else {
+            // For all other cases, require file upload
+            $request->validate([
+                'lampiran' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240', // Required file, max 10MB
+            ]);
+        }
 
         // Mapping area ke judul materi
         $areaMapping = [

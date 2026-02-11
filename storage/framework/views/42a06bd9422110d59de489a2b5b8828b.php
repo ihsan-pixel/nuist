@@ -1225,7 +1225,7 @@
                     </ul>
                 </div>
 
-                <form action="#" method="POST">
+                <form action="<?php echo e(route('talenta.tugas-level-1.simpan')); ?>" method="POST">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="area" value="kepemimpinan">
                     <input type="hidden" name="jenis_tugas" value="on_site">
@@ -1507,6 +1507,8 @@
         </div>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     function openAreaTab(evt, areaName) {
