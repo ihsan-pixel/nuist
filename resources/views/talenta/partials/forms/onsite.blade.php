@@ -39,23 +39,24 @@
            name="lampiran"
            class="form-control"
            required>
+@endif
 
-    @if(isset($existingTasks[$config['slug']]))
+<div class="d-flex justify-content-end mt-3">
+    <button class="btn btn-primary me-2" type="submit">
+        @if($config['slug'] === 'kepemimpinan')
+            Simpan On Site
+        @else
+            Upload On Site
+        @endif
+    </button>
+    @if(isset($existingTasks[$config['slug']]) && $config['slug'] !== 'kepemimpinan')
         <a href="{{ asset('storage/' . $existingTasks[$config['slug']]->file_path) }}"
            target="_blank"
-           class="btn btn-secondary mt-2">
+           class="btn btn-secondary">
             <i class="bx bx-file"></i> Lihat File Terupload
         </a>
     @endif
-@endif
-
-<button class="btn btn-primary mt-3" type="submit">
-    @if($config['slug'] === 'kepemimpinan')
-        Simpan On Site
-    @else
-        Upload On Site
-    @endif
-</button>
+</div>
 
 </form>
 </div>
