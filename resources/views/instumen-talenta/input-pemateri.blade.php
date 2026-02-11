@@ -139,8 +139,6 @@
         </div>
     </div>
 </div>
-@endsection
-
 <!-- Modal for Creating User -->
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -173,6 +171,8 @@
         </div>
     </div>
 </div>
+@endsection
+
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/instumen-talenta.css') }}">
