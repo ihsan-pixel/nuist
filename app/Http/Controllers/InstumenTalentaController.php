@@ -8,6 +8,7 @@ use App\Models\TalentaMateri;
 use App\Models\TalentaPemateri;
 use App\Models\TalentaFasilitator;
 use App\Models\TalentaLayananTeknis;
+use App\Models\TalentaKelompok;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
