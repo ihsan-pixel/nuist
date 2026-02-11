@@ -207,9 +207,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to open modal and pre-fill name
 function openCreateUserModal(nama) {
-    document.getElementById('nama').value = nama;
-    document.getElementById('email').value = '';
-    document.getElementById('password').value = '';
+    document.getElementById('modal_nama').value = nama;
+    document.getElementById('modal_email').value = '';
+    document.getElementById('modal_password').value = '';
     var modal = new bootstrap.Modal(document.getElementById('createUserModal'));
     modal.show();
 }
