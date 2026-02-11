@@ -62,7 +62,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            {{-- <div class="col-lg-4">
                 <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                     <div class="card-body p-4 text-center">
                         <div class="avatar-lg mx-auto mb-3">
@@ -76,7 +76,7 @@
                         <small class="text-muted">Materi Tersedia</small>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </section>
