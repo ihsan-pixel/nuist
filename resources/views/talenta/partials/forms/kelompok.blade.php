@@ -5,7 +5,8 @@
 
 <form action="{{ route('talenta.tugas-level-1.simpan') }}"
       method="POST"
-      enctype="multipart/form-data">
+      enctype="multipart/form-data"
+      id="form-kelompok-{{ $config['slug'] }}">
 
 @csrf
 
@@ -14,9 +15,10 @@
 
 <input type="file"
        name="lampiran"
-       class="form-control">
+       class="form-control"
+       required>
 
-<button class="btn btn-primary mt-3">
+<button class="btn btn-primary mt-3" type="submit">
     Upload Kelompok
 </button>
 

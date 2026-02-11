@@ -125,6 +125,12 @@ class TalentaController extends Controller
      * ========================= */
     public function simpanTugasLevel1(Request $request)
     {
+        \Log::info('simpanTugasLevel1 called', [
+            'all_data' => $request->all(),
+            'files' => $request->file(),
+            'has_lampiran' => $request->hasFile('lampiran')
+        ]);
+
         /* ---------- VALIDASI DASAR ---------- */
         $validated = $request->validate([
             'area'        => 'required|string',
@@ -168,13 +174,21 @@ class TalentaController extends Controller
         }
 
         /* ---------- SIMPAN DATABASE ---------- */
-        TugasTalentaLevel1::create([
+        $tugas = TugasTalentaLevel1::create([
             'user_id'      => Auth::id(),
             'area'         => $validated['area'],
             'jenis_tugas'  => $validated['jenis_tugas'],
             'data'         => collect($validated)->except(['area', 'jenis_tugas'])->toArray(),
             'file_path'    => $filePath,
             'submitted_at' => now(),
+        ]);
+
+        \Log::info('TugasTalentaLevel1 created successfully', [
+            'id' => $tugas->id,
+            'user_id' => $tugas->user_id,
+            'area' => $tugas->area,
+            'jenis_tugas' => $tugas->jenis_tugas,
+            'file_path' => $tugas->file_path,
         ]);
 
         return response()->json([

@@ -8,4 +8,7 @@
 - [x] Improve file upload to use Str::uuid() for filename
 - [x] Add temporary dd($validated, $request->file('lampiran')); for debug
 - [x] Remove dd() after confirming (removed immediately as it would stop execution)
+- [x] Add logging to debug request data
+- [x] Add success logging after database insert
+- [x] Add required attribute and form IDs to upload forms
 - [ ] Test the upload after changes
