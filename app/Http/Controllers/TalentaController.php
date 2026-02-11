@@ -12,6 +12,7 @@ use App\Models\TalentaPemateri;
 use App\Models\TalentaFasilitator;
 use App\Models\TalentaMateri;
 use App\Models\TalentaLayananTeknis;
+use App\Models\TalentaKelompok;
 use App\Models\TugasTalentaLevel1;
 use App\Models\User;
 
@@ -70,6 +71,7 @@ class TalentaController extends Controller
             'pemateriTalenta'    => TalentaPemateri::with('materis')->latest()->get(),
             'fasilitatorTalenta' => TalentaFasilitator::latest()->get(),
             'materiTalenta'      => TalentaMateri::latest()->get(),
+            'kelompokTalenta'    => \App\Models\TalentaKelompok::with('users')->latest()->get(),
         ]);
     }
 

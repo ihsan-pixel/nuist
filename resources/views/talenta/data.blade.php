@@ -387,6 +387,9 @@
             <button class="tab-btn" data-target="materi-section">
                 <i class="bi bi-book"></i> Materi Talenta
             </button>
+            <button class="tab-btn" data-target="kelompok-section">
+                <i class="bi bi-people-fill"></i> Kelompok Tugas
+            </button>
         </div>
     </div>
 </div>
@@ -512,6 +515,42 @@
                         @empty
                         <tr>
                             <td colspan="5" class="no-data">Belum ada data materi talenta</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- KELOMPOK TUGAS -->
+        <div id="kelompok-section" class="data-section animate fade-up delay-4 tab-content" style="display: none;">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Kelompok</th>
+                            <th>Jumlah Peserta</th>
+                            <th>Daftar Peserta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($kelompokTalenta ?? [] as $index => $kelompok)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $kelompok->nama_kelompok ?? 'N/A' }}</td>
+                            <td>{{ $kelompok->users->count() }}</td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach($kelompok->users as $user)
+                                        <li>{{ $user->name ?? 'N/A' }}</li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="no-data">Belum ada data kelompok tugas</td>
                         </tr>
                         @endforelse
                     </tbody>
