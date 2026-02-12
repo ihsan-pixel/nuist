@@ -519,7 +519,7 @@
                                     </td>
                                     <td class="py-3 pe-4">
                                         <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1 me-3">
+                                            <div class="grow me-3">
                                                 <div class="progress" style="height: 8px;">
                                                     <div class="progress-bar bg-success" role="progressbar"
                                                          style="width: {{ $adminStats['total_teachers'] > 0 ? round(($status['count'] / $adminStats['total_teachers']) * 100) : 0 }}%"
@@ -835,7 +835,7 @@
                                     </td>
                                     <td class="py-3 pe-4">
                                         <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1 me-3">
+                                            <div class="grow me-3">
                                                 <div class="progress" style="height: 8px;">
                                                     <div class="progress-bar bg-success" role="progressbar"
                                                          style="width: {{ $superAdminStats['total_teachers'] > 0 ? round(($status['count'] / $superAdminStats['total_teachers']) * 100) : 0 }}%"
@@ -1007,7 +1007,7 @@
                                      width="50"
                                      height="50">
                             </div>
-                            <div class="flex-grow-1">
+                            <div class="grow">
                                 <h6 class="mb-1">{{ $user->name }}</h6>
                                 <div class="d-flex flex-wrap gap-2">
                                     <small class="badge bg-primary-subtle text-primary">{{ $user->ketugasan ?? '-' }}</small>
