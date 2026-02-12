@@ -26,6 +26,7 @@ class TugasTalentaLevel1 extends Model
     protected $casts = [
         'data' => 'array',
         'submitted_at' => 'datetime',
+        'nilai' => 'integer',
     ];
 
     /* ================= RELATION ================= */

@@ -4,6 +4,7 @@
 @section('description', 'Penilaian tugas peserta talenta berdasarkan materi yang diajarkan')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <style>
     * {
@@ -189,6 +190,16 @@
         color: #1b5e20;
     }
 
+    .btn-nilai {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .btn-nilai:hover {
+        background: #ffeaa7;
+        color: #5a4a00;
+    }
+
     /* ANIMATION */
     .animate {
         opacity: 0;
@@ -298,6 +309,9 @@
                                 @else
                                     <span class="text-muted">Tidak ada file</span>
                                 @endif
+                                <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $tugasItem->nilai ?? 'null' }})">
+                                    <i class="bi bi-star"></i> Nilai
+                                </button>
                             </td>
                         </tr>
                         @empty
@@ -314,6 +328,30 @@
 </section>
 
 @include('landing.footer')
+
+<!-- MODAL NILAI TUGAS -->
+<div id="nilaiModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 10px;">
+        <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+        <h3 style="margin-bottom: 20px;">Nilai Tugas</h3>
+        <form id="nilaiForm">
+            <input type="hidden" id="tugasId" name="tugas_id">
+            <div style="margin-bottom: 15px;">
+                <label for="namaPeserta" style="display: block; margin-bottom: 5px; font-weight: bold;">Nama Peserta:</label>
+                <span id="namaPeserta" style="display: block; padding: 8px; background: #f8f9fa; border-radius: 4px;"></span>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="areaTugas" style="display: block; margin-bottom: 5px; font-weight: bold;">Area Tugas:</label>
+                <span id="areaTugas" style="display: block; padding: 8px; background: #f8f9fa; border-radius: 4px;"></span>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="nilaiInput" style="display: block; margin-bottom: 5px; font-weight: bold;">Nilai (0-100):</label>
+                <input type="number" id="nilaiInput" name="nilai" min="0" max="100" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            </div>
+            <button type="submit" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Simpan Nilai</button>
+        </form>
+    </div>
+</div>
 
 @endsection
 
@@ -343,5 +381,67 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // Modal functionality
+    const modal = document.getElementById('nilaiModal');
+    const closeBtn = document.querySelector('.close');
+    const form = document.getElementById('nilaiForm');
+
+    // Close modal when clicking close button
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Handle form submission
+    form.onsubmit = function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const tugasId = formData.get('tugas_id');
+        const nilai = formData.get('nilai');
+
+        fetch('{{ route("talenta.simpan-nilai-tugas") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tugas_id: tugasId,
+                nilai: nilai
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                modal.style.display = 'none';
+                location.reload(); // Reload to show updated nilai
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat menyimpan nilai.');
+        });
+    }
 });
+
+// Function to open modal
+function openNilaiModal(tugasId, namaPeserta, areaTugas, currentNilai) {
+    document.getElementById('tugasId').value = tugasId;
+    document.getElementById('namaPeserta').textContent = namaPeserta;
+    document.getElementById('areaTugas').textContent = areaTugas.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    document.getElementById('nilaiInput').value = currentNilai || '';
+    document.getElementById('nilaiModal').style.display = 'block';
+}
 </script>

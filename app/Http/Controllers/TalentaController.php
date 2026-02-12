@@ -276,4 +276,54 @@ class TalentaController extends Controller
 
         return view('talenta.penilaian-tugas', compact('tugas'));
     }
+
+    /* =========================
+     * SIMPAN NILAI TUGAS
+     * ========================= */
+    public function simpanNilaiTugas(Request $request)
+    {
+        $request->validate([
+            'tugas_id' => 'required|integer|exists:tugas_talenta_level1s,id',
+            'nilai' => 'required|integer|min:0|max:100',
+        ]);
+
+        try {
+            $tugas = TugasTalentaLevel1::findOrFail($request->tugas_id);
+
+            // Check if the logged-in pemateri has access to this task
+            $pemateri = TalentaPemateri::where('user_id', Auth::id())->first();
+            if (!$pemateri) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses sebagai pemateri.',
+                ], 403);
+            }
+
+            $materiSlugs = $pemateri->materis()->pluck('slug');
+            if (!$materiSlugs->contains($tugas->area)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses untuk menilai tugas ini.',
+                ], 403);
+            }
+
+            $tugas->update(['nilai' => $request->nilai]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Nilai berhasil disimpan.',
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error saving nilai tugas', [
+                'error' => $e->getMessage(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan nilai.',
+            ], 500);
+        }
+    }
 }
