@@ -101,6 +101,10 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <p class="mb-0">Don't have an account? <a href="{{ url('register') }}" class="text-primary">Register here</a></p>
                 </div>
 
+                <div class="mt-3 text-center">
+                    <p class="mb-0">kembali ke <a href="{{ url('landing') }}" class="text-primary">Halaman Utama</a></p>
+                </div>
+
                 <div class="mt-2 text-center">
                     <p class="mb-0"><a href="{{ route('landing') }}" class="text-primary">Kembali ke Halaman Utama</a></p>
                 </div>
