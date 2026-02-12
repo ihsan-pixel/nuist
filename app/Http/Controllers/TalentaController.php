@@ -211,6 +211,9 @@ class TalentaController extends Controller
                         throw new \Exception('Upload directory is not writable: ' . $uploadDir);
                     }
 
+                    // Get file size before moving
+                    $fileSize = $file->getSize();
+
                     $file->move($uploadDir, $fileName);
                     $filePath = 'uploads/talenta/' . $fileName;
 
@@ -219,7 +222,7 @@ class TalentaController extends Controller
                         'file_name' => $fileName,
                         'file_path' => $filePath,
                         'full_path' => $uploadDir . '/' . $fileName,
-                        'size' => $file->getSize(),
+                        'size' => $fileSize,
                         'document_root' => $documentRoot
                     ]);
                 } catch (\Exception $e) {
