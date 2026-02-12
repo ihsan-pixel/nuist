@@ -19,13 +19,13 @@
        required>
 
 <div class="d-flex justify-content-end mt-3">
-    @if(!isset($existingTasks[$config['slug']]))
+    @if(!isset($existingTasks[$config['slug'] . '-on_site']))
         <button class="btn btn-primary me-2" type="submit">
             Upload On Site
         </button>
     @endif
-    @if(isset($existingTasks[$config['slug']]))
-        <a href="{{ asset('storage/' . $existingTasks[$config['slug']]->file_path) }}"
+    @if(isset($existingTasks[$config['slug'] . '-on_site']))
+        <a href="{{ asset($existingTasks[$config['slug'] . '-on_site']->file_path) }}"
            target="_blank"
            class="btn btn-secondary">
             <i class="bx bx-file"></i> Lihat File Terupload
