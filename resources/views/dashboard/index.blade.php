@@ -1000,7 +1000,7 @@
                     @foreach($users as $index => $user)
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0 me-3">
+                            <div class="shrink-0 me-3">
                                 <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                                      alt="Foto {{ $user->name }}"
                                      class="rounded-circle"
@@ -1014,7 +1014,7 @@
                                     <small class="badge bg-info-subtle text-info">{{ $user->statusKepegawaian ? $user->statusKepegawaian->name : '-' }}</small>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0">
+                            <div class="shrink-0">
                                 <small class="text-muted">{{ $users->firstItem() + $index }}</small>
                             </div>
                         </div>
