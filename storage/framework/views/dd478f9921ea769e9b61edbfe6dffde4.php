@@ -14,6 +14,9 @@
 
 <!-- SweetAlert2 -->
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -48,7 +51,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $members; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                    <tr>
+                        <td><?php echo e($loop->iteration); ?></td>
+                        <td><?php echo e($member->name); ?></td>
+                        <td><?php echo e($member->sekolah); ?></td>
+                        <td>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->role === 'mgmp' && $member->mgmpGroup->user_id === auth()->id() || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus'])): ?>
+                            <form action="#" method="POST" style="display:inline-block;">
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('DELETE'); ?>
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus anggota ini?')">Hapus</button>
+                            </form>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     <tr>
                         <td colspan="4" class="text-center p-5">
                             <div class="mb-3">
@@ -58,6 +76,7 @@
                             <p class="text-muted">Klik tombol "Tambah Anggota" untuk menambahkan anggota MGMP.</p>
                         </td>
                     </tr>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -73,7 +92,7 @@
 <!-- Modal Tambah Anggota -->
 <div class="modal fade" id="modalTambahAnggota" tabindex="-1" aria-labelledby="modalTambahAnggotaLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="#" method="POST" id="formTambahAnggota">
+        <form action="<?php echo e(route('mgmp.store-member')); ?>" method="POST" id="formTambahAnggota">
             <?php echo csrf_field(); ?>
             <div class="modal-content">
                 <div class="modal-header">
@@ -83,15 +102,12 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Nama</label>
-                        <input type="text" name="name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Asal Sekolah / Madrasah</label>
-                        <input type="text" name="sekolah" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label>Email (opsional)</label>
-                        <input type="email" name="email" class="form-control">
+                        <select name="user_ids[]" class="form-control" multiple required>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $tenagaPendidik; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <option value="<?php echo e($user->id); ?>"><?php echo e($user->name); ?></option>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </select>
+                        <small class="text-muted">Pilih satu atau lebih tenaga pendidik</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -121,6 +137,9 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
 $(document).ready(function () {
     let table = $("#datatable-anggota").DataTable({
@@ -132,6 +151,35 @@ $(document).ready(function () {
 
     table.buttons().container()
         .appendTo('#datatable-anggota_wrapper .col-md-6:eq(0)');
+
+    // Initialize Select2 for multi-select
+    $('select[name="user_ids[]"]').select2({
+        placeholder: "Pilih tenaga pendidik...",
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Handle form submission
+    $('#formTambahAnggota').on('submit', function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#modalTambahAnggota').modal('hide');
+                location.reload();
+            },
+            error: function(xhr) {
+                alert('Terjadi kesalahan: ' + xhr.responseJSON?.message || 'Unknown error');
+            }
+        });
+    });
 });
 </script>
 <?php $__env->stopSection(); ?>

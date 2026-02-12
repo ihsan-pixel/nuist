@@ -17,6 +17,9 @@
 
 <!-- SweetAlert2 -->
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endsection
 
 @section('content')
@@ -51,7 +54,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- For now, do not display users from database. Show empty placeholder and let user add members using the button above. --}}
+                    @forelse($members as $member)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $member->name }}</td>
+                        <td>{{ $member->sekolah }}</td>
+                        <td>
+                            @if(auth()->user()->role === 'mgmp' && $member->mgmpGroup->user_id === auth()->id() || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus']))
+                            <form action="#" method="POST" style="display:inline-block;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus anggota ini?')">Hapus</button>
+                            </form>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
                     <tr>
                         <td colspan="4" class="text-center p-5">
                             <div class="mb-3">
@@ -61,6 +79,7 @@
                             <p class="text-muted">Klik tombol "Tambah Anggota" untuk menambahkan anggota MGMP.</p>
                         </td>
                     </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -76,7 +95,7 @@
 <!-- Modal Tambah Anggota -->
 <div class="modal fade" id="modalTambahAnggota" tabindex="-1" aria-labelledby="modalTambahAnggotaLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="#" method="POST" id="formTambahAnggota">
+        <form action="{{ route('mgmp.store-member') }}" method="POST" id="formTambahAnggota">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
@@ -86,15 +105,12 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Nama</label>
-                        <input type="text" name="name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Asal Sekolah / Madrasah</label>
-                        <input type="text" name="sekolah" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label>Email (opsional)</label>
-                        <input type="email" name="email" class="form-control">
+                        <select name="user_ids[]" class="form-control" multiple required>
+                            @foreach($tenagaPendidik as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Pilih satu atau lebih tenaga pendidik</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -124,6 +140,9 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
 $(document).ready(function () {
     let table = $("#datatable-anggota").DataTable({
@@ -135,6 +154,35 @@ $(document).ready(function () {
 
     table.buttons().container()
         .appendTo('#datatable-anggota_wrapper .col-md-6:eq(0)');
+
+    // Initialize Select2 for multi-select
+    $('select[name="user_ids[]"]').select2({
+        placeholder: "Pilih tenaga pendidik...",
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Handle form submission
+    $('#formTambahAnggota').on('submit', function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#modalTambahAnggota').modal('hide');
+                location.reload();
+            },
+            error: function(xhr) {
+                alert('Terjadi kesalahan: ' + xhr.responseJSON?.message || 'Unknown error');
+            }
+        });
+    });
 });
 </script>
 @endsection

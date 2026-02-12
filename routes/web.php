@@ -526,7 +526,7 @@ Route::middleware(['auth'])->group(function () {
 Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
 
 // MGMP Routes - Protected by auth and mgmp role
-Route::middleware(['auth', 'role:mgmp'])->prefix('mgmp')->name('mgmp.')->group(function () {
+Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgmp')->name('mgmp.')->group(function () {
     // Landing page for MGMP (public but inside mgmp namespace)
     Route::get('/', [App\Http\Controllers\MGMPController::class, 'index'])->name('index');
 
@@ -541,6 +541,9 @@ Route::middleware(['auth', 'role:mgmp'])->prefix('mgmp')->name('mgmp.')->group(f
     Route::put('/{id}', [App\Http\Controllers\MGMPController::class, 'update'])->name('update');
     Route::delete('/{id}', [App\Http\Controllers\MGMPController::class, 'destroy'])->name('destroy');
     Route::post('/import', [App\Http\Controllers\MGMPController::class, 'import'])->name('import');
+
+    // Member management routes
+    Route::post('/store-member', [App\Http\Controllers\MGMPController::class, 'storeMember'])->name('store-member');
 
     // Logout route for MGMP
     Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])->name('logout');

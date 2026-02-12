@@ -58,11 +58,13 @@ class MGMPController extends Controller
      */
     public function dataAnggota()
     {
-        // Assumption: members are users with role 'tenaga_pendidik' or 'mgmp'
-        // If your project stores MGMP members differently, adjust the query accordingly.
-        $members = User::whereIn('role', ['tenaga_pendidik', 'mgmp'])->get();
+        // Fetch existing MGMP members with relationships
+        $members = MgmpMember::with('user', 'mgmpGroup')->get();
 
-        return view('mgmp.data-anggota', compact('members'));
+        // Fetch tenaga pendidik users for the modal selection
+        $tenagaPendidik = User::where('role', 'tenaga_pendidik')->with('madrasah')->get();
+
+        return view('mgmp.data-anggota', compact('members', 'tenagaPendidik'));
     }
 
     /**
