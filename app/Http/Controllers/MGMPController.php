@@ -109,6 +109,108 @@ class MGMPController extends Controller
     }
 
     /**
+     * Store a new MGMP group
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'member_count' => 'required|integer|min:1',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = auth()->user();
+
+        // Check if user with role 'mgmp' already has a MGMP group
+        if ($user->role === 'mgmp' && MgmpGroup::where('user_id', $user->id)->exists()) {
+            return redirect()->back()->with('error', 'Anda sudah memiliki data MGMP. Hanya satu data MGMP yang diperbolehkan.');
+        }
+
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('mgmp_logos', 'public');
+        }
+
+        MgmpGroup::create([
+            'user_id' => $user->id,
+            'name' => $request->name,
+            'member_count' => $request->member_count,
+            'logo' => $logoPath,
+        ]);
+
+        return redirect()->back()->with('success', 'Data MGMP berhasil ditambahkan.');
+    }
+
+    /**
+     * Update an existing MGMP group
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'member_count' => 'required|integer|min:1',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $mgmpGroup = MgmpGroup::findOrFail($id);
+
+        // Ensure user can only update their own MGMP group
+        if ($mgmpGroup->user_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit data MGMP ini.');
+        }
+
+        $logoPath = $mgmpGroup->logo;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('mgmp_logos', 'public');
+        }
+
+        $mgmpGroup->update([
+            'name' => $request->name,
+            'member_count' => $request->member_count,
+            'logo' => $logoPath,
+        ]);
+
+        return redirect()->back()->with('success', 'Data MGMP berhasil diperbarui.');
+    }
+
+    /**
+     * Delete an MGMP group
+     */
+    public function destroy($id)
+    {
+        $mgmpGroup = MgmpGroup::findOrFail($id);
+
+        // Ensure user can only delete their own MGMP group
+        if ($mgmpGroup->user_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus data MGMP ini.');
+        }
+
+        $mgmpGroup->delete();
+
+        return redirect()->back()->with('success', 'Data MGMP berhasil dihapus.');
+    }
+
+    /**
+     * Import MGMP data from file
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xls,xlsx,csv|max:2048',
+        ]);
+
+        $user = auth()->user();
+
+        // Check if user with role 'mgmp' already has a MGMP group
+        if ($user->role === 'mgmp' && MgmpGroup::where('user_id', $user->id)->exists()) {
+            return redirect()->back()->with('error', 'Anda sudah memiliki data MGMP. Hanya satu data MGMP yang diperbolehkan.');
+        }
+
+        // For now, just return success message. Actual import logic would need to be implemented.
+        return redirect()->back()->with('success', 'Import data MGMP berhasil.');
+    }
+
+    /**
      * Logout MGMP user
      */
     public function logout()

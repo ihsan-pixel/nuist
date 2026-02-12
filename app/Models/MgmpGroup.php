@@ -12,6 +12,7 @@ class MgmpGroup extends Model
     protected $table = 'mgmp_groups';
 
     protected $fillable = [
+        'user_id',
         'name',
         'member_count',
         'logo',

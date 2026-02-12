@@ -30,14 +30,23 @@
 <div class="card mb-4">
     <div class="card-body">
 
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->role === 'mgmp' && !$canAdd): ?>
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="bx bx-info-circle me-2"></i>Anda sudah memiliki data MGMP. Hanya satu data MGMP yang diperbolehkan per pengguna dengan role MGMP.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
         <!-- Tombol aksi -->
         <div class="mb-3 d-flex justify-content-end gap-2">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canAdd): ?>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahMGMP">
                 <i class="bx bx-plus"></i> Tambah MGMP
             </button>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportMGMP">
                 <i class="bx bx-upload"></i> Import Data MGMP
             </button>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
@@ -73,12 +82,14 @@
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </td>
                         <td>
+                            <?php if(auth()->user()->role === 'mgmp' && $mgmp->user_id === auth()->id() || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus'])): ?>
                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditMGMP<?php echo e($mgmp->id); ?>">Edit</button>
                             <form action="<?php echo e(route('mgmp.destroy', $mgmp->id)); ?>" method="POST" style="display:inline-block;">
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('DELETE'); ?>
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus MGMP ini?')">Delete</button>
                             </form>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </td>
                     </tr>
 
