@@ -310,8 +310,9 @@
                                     <span class="text-muted">Tidak ada file</span>
                                 @endif
                                 @php
-                                    $currentUserNilai = $tugasItem->nilai()->where('penilai_id', Auth::id())->first();
-                                    $averageNilai = $tugasItem->nilai()->avg('nilai');
+                                    $nilaiCollection = $tugasItem->nilai ?? collect();
+                                    $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
+                                    $averageNilai = $nilaiCollection->avg('nilai');
                                 @endphp
                                 <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ $averageNilai ? number_format($averageNilai, 1) : 'null' }})">
                                     <i class="bi bi-star"></i> Nilai
@@ -358,6 +359,8 @@
                 <label for="nilaiInput" style="display: block; margin-bottom: 5px; font-weight: bold;">Nilai (0-100):</label>
                 <input type="number" id="nilaiInput" name="nilai" min="0" max="100" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
             </div>
+            <div id="currentNilaiDisplay" style="margin-bottom: 10px; font-size: 14px; color: #666;"></div>
+            <div id="averageNilaiDisplay" style="margin-bottom: 15px; font-size: 14px; color: #666;"></div>
             <button type="submit" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Simpan Nilai</button>
         </form>
     </div>

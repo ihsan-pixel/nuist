@@ -305,7 +305,7 @@ class TalentaController extends Controller
         $materiSlugs = $pemateri->materis()->pluck('slug');
 
         // Get tasks related to the pemateri's materials
-        $tugas = TugasTalentaLevel1::with(['user.madrasah'])
+        $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
             ->whereIn('area', $materiSlugs)
             ->latest()
             ->get();
