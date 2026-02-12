@@ -196,22 +196,44 @@ class TalentaController extends Controller
                 $file = $request->file('lampiran');
                 $fileName = Str::uuid()->toString() . '.' . $file->extension();
 
-                // Save to uploads/talenta directory using document root
-                $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/talenta';
-                if (!file_exists($uploadDir)) {
-                    mkdir($uploadDir, 0755, true);
+                try {
+                    // Save to uploads/talenta directory using document root
+                    $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? base_path('public');
+                    $uploadDir = $documentRoot . '/uploads/talenta';
+
+                    if (!file_exists($uploadDir)) {
+                        if (!mkdir($uploadDir, 0755, true)) {
+                            throw new \Exception('Failed to create upload directory: ' . $uploadDir);
+                        }
+                    }
+
+                    if (!is_writable($uploadDir)) {
+                        throw new \Exception('Upload directory is not writable: ' . $uploadDir);
+                    }
+
+                    $file->move($uploadDir, $fileName);
+                    $filePath = 'uploads/talenta/' . $fileName;
+
+                    Log::info('File uploaded successfully', [
+                        'original_name' => $file->getClientOriginalName(),
+                        'file_name' => $fileName,
+                        'file_path' => $filePath,
+                        'full_path' => $uploadDir . '/' . $fileName,
+                        'size' => $file->getSize(),
+                        'document_root' => $documentRoot
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('File upload failed', [
+                        'error' => $e->getMessage(),
+                        'file_name' => $fileName,
+                        'upload_dir' => $uploadDir ?? 'not set'
+                    ]);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal mengupload file: ' . $e->getMessage(),
+                    ], 500);
                 }
-
-                $file->move($uploadDir, $fileName);
-                $filePath = 'uploads/talenta/' . $fileName;
-
-                Log::info('File uploaded', [
-                    'original_name' => $file->getClientOriginalName(),
-                    'file_name' => $fileName,
-                    'file_path' => $filePath,
-                    'full_path' => $uploadDir . '/' . $fileName,
-                    'size' => $file->getSize()
-                ]);
             }
 
             /* ---------- SIMPAN DATABASE ---------- */
