@@ -212,6 +212,166 @@
         transform: translateY(0);
     }
 
+    /* MODAL STYLES */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 57, 58, 0.8);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content-custom {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        margin: 5% auto;
+        padding: 0;
+        border: none;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 57, 58, 0.3);
+        animation: slideIn 0.4s ease-out;
+        overflow: hidden;
+    }
+
+    .modal-header-custom {
+        background: linear-gradient(135deg, #00393a 0%, #005555 50%, #00393a 100%);
+        color: white;
+        padding: 25px 30px;
+        position: relative;
+    }
+
+    .modal-header-custom h3 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .close-custom {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 32px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .close-custom:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+
+    .modal-body-custom {
+        padding: 30px;
+    }
+
+    .form-group-custom {
+        margin-bottom: 25px;
+    }
+
+    .form-label-custom {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+    }
+
+    .form-display-custom {
+        display: block;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    .form-input-custom {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #d1d5db;
+        border-radius: 12px;
+        box-sizing: border-box;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-input-custom:focus {
+        outline: none;
+        border-color: #00393a;
+        box-shadow: 0 0 0 3px rgba(0, 57, 58, 0.1);
+    }
+
+    .nilai-info {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 5px;
+        font-style: italic;
+    }
+
+    .modal-footer-custom {
+        padding: 20px 30px 30px;
+        background: #f8fafc;
+        border-top: 1px solid #e5e7eb;
+        text-align: right;
+    }
+
+    .btn-submit-custom {
+        background: linear-gradient(135deg, #00393a 0%, #005555 100%);
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 57, 58, 0.3);
+    }
+
+    .btn-submit-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 57, 58, 0.4);
+    }
+
+    .btn-submit-custom:active {
+        transform: translateY(0);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
     /* Responsive */
     @media (max-width: 992px) {
         .table-container {
@@ -221,6 +381,11 @@
 
         .data-table {
             min-width: 800px;
+        }
+
+        .modal-content-custom {
+            margin: 10% auto;
+            width: 95%;
         }
     }
 
@@ -242,6 +407,22 @@
             position: static;
             margin-bottom: 16px;
         }
+
+        .modal-content-custom {
+            margin: 15% auto;
+        }
+
+        .modal-header-custom {
+            padding: 20px;
+        }
+
+        .modal-body-custom {
+            padding: 20px;
+        }
+
+        .modal-footer-custom {
+            padding: 15px 20px 20px;
+        }
     }
 
     @media (max-width: 480px) {
@@ -255,6 +436,21 @@
 
         .hero p {
             font-size: 15px;
+        }
+
+        .modal-content-custom {
+            margin: 20% auto;
+            width: 98%;
+        }
+
+        .modal-header-custom h3 {
+            font-size: 20px;
+        }
+
+        .close-custom {
+            font-size: 28px;
+            width: 35px;
+            height: 35px;
         }
     }
 </style>
@@ -341,28 +537,35 @@
 @include('landing.footer')
 
 <!-- MODAL NILAI TUGAS -->
-<div id="nilaiModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-    <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 10px;">
-        <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-        <h3 style="margin-bottom: 20px;">Nilai Tugas</h3>
-        <form id="nilaiForm">
-            <input type="hidden" id="tugasId" name="tugas_id">
-            <div style="margin-bottom: 15px;">
-                <label for="namaPeserta" style="display: block; margin-bottom: 5px; font-weight: bold;">Nama Peserta:</label>
-                <span id="namaPeserta" style="display: block; padding: 8px; background: #f8f9fa; border-radius: 4px;"></span>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label for="areaTugas" style="display: block; margin-bottom: 5px; font-weight: bold;">Area Tugas:</label>
-                <span id="areaTugas" style="display: block; padding: 8px; background: #f8f9fa; border-radius: 4px;"></span>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label for="nilaiInput" style="display: block; margin-bottom: 5px; font-weight: bold;">Nilai (0-100):</label>
-                <input type="number" id="nilaiInput" name="nilai" min="0" max="100" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-            <div id="currentNilaiDisplay" style="margin-bottom: 10px; font-size: 14px; color: #666;"></div>
-            <div id="averageNilaiDisplay" style="margin-bottom: 15px; font-size: 14px; color: #666;"></div>
-            <button type="submit" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Simpan Nilai</button>
-        </form>
+<div id="nilaiModal" class="modal-overlay">
+    <div class="modal-content-custom">
+        <div class="modal-header-custom">
+            <h3>Nilai Tugas</h3>
+            <span class="close-custom">&times;</span>
+        </div>
+        <div class="modal-body-custom">
+            <form id="nilaiForm">
+                <input type="hidden" id="tugasId" name="tugas_id">
+                <div class="form-group-custom">
+                    <label for="namaPeserta" class="form-label-custom">Nama Peserta:</label>
+                    <span id="namaPeserta" class="form-display-custom"></span>
+                </div>
+                <div class="form-group-custom">
+                    <label for="areaTugas" class="form-label-custom">Area Tugas:</label>
+                    <span id="areaTugas" class="form-display-custom"></span>
+                </div>
+                <div class="form-group-custom">
+                    <label for="nilaiInput" class="form-label-custom">Nilai (0-100):</label>
+                    <input type="number" id="nilaiInput" name="nilai" min="0" max="100" class="form-input-custom" placeholder="Masukkan nilai 0-100">
+                    <div class="nilai-info">Masukkan nilai antara 0 hingga 100</div>
+                </div>
+                <div id="currentNilaiDisplay" class="nilai-info"></div>
+                <div id="averageNilaiDisplay" class="nilai-info"></div>
+            </form>
+        </div>
+        <div class="modal-footer-custom">
+            <button type="submit" form="nilaiForm" class="btn-submit-custom">Simpan Nilai</button>
+        </div>
     </div>
 </div>
 
