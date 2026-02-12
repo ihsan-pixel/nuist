@@ -280,7 +280,7 @@
                     </thead>
                     <tbody>
                         @forelse($tugas ?? [] as $index => $tugasItem)
-                        {{-- <tr>
+                        <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
                             <td>{{ $tugasItem->user->madrasah->nama_madrasah ?? 'N/A' }}</td>
@@ -299,7 +299,7 @@
                                     <span class="text-muted">Tidak ada file</span>
                                 @endif
                             </td>
-                        </tr> --}}
+                        </tr>
                         @empty
                         <tr>
                             <td colspan="7" class="no-data">Belum ada tugas yang disubmit untuk materi Anda</td>
