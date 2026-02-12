@@ -59,21 +59,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="avatar-lg mx-auto mb-3">
-                            <div class="avatar-title bg-info bg-opacity-10 text-info rounded-circle">
-                                <i class="mdi mdi-book-open fs-2"></i>
-                            </div>
-                        </div>
-                        <h5 class="card-title mb-3">Materi Pembelajaran</h5>
-                        <p class="text-muted mb-3">Berbagi materi, metode, dan inovasi</p>
-                        <div class="text-info fw-bold fs-4"><?php echo e($totalMateri ?? '0'); ?></div>
-                        <small class="text-muted">Materi Tersedia</small>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 </section>

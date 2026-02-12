@@ -70,10 +70,14 @@ class MGMPController extends Controller
      */
     public function manage()
     {
-        // Placeholder collection for MGMP groups. Replace with real model when available.
-        $mgmpGroups = collect();
+        $mgmpGroups = MgmpGroup::all();
+        $canAdd = true;
 
-        return view('mgmp.data-mgmp', compact('mgmpGroups'));
+        if (auth()->user()->role === 'mgmp' && $mgmpGroups->count() > 0) {
+            $canAdd = false;
+        }
+
+        return view('mgmp.data-mgmp', compact('mgmpGroups', 'canAdd'));
     }
 
     /**

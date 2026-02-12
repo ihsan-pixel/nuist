@@ -19,7 +19,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex-grow-1">
+                    <div class="grow">
                         <h5 class="mb-1 text-white"><?php echo e(Str::title(Auth::user()->name ?? 'MGMP User')); ?></h5>
                         <p class="mb-1 text-white-50 small">MGMP NUIST • <?php echo e(Auth::user()->email ?? '-'); ?></p>
                         <div class="d-flex flex-wrap gap-2 mt-2">
@@ -119,7 +119,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="flex-grow-1">
+                                        <div class="grow">
                                             <div class="d-flex justify-content-between">
                                                 <h6 class="mb-1"><?php echo e($activity->title); ?></h6>
                                                 <small class="text-muted"><?php echo e($activity->created_at->diffForHumans()); ?></small>

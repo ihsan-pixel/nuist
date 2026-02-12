@@ -33,14 +33,23 @@
 <div class="card mb-4">
     <div class="card-body">
 
+        @if(auth()->user()->role === 'mgmp' && !$canAdd)
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="bx bx-info-circle me-2"></i>Anda sudah memiliki data MGMP. Hanya satu data MGMP yang diperbolehkan per pengguna dengan role MGMP.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
         <!-- Tombol aksi -->
         <div class="mb-3 d-flex justify-content-end gap-2">
+            @if($canAdd)
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahMGMP">
                 <i class="bx bx-plus"></i> Tambah MGMP
             </button>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportMGMP">
                 <i class="bx bx-upload"></i> Import Data MGMP
             </button>
+            @endif
         </div>
 
         @if(session('success'))
