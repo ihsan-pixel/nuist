@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tugas_talenta_level1s', function (Blueprint $table) {
+        Schema::table('tugas_talenta_level1', function (Blueprint $table) {
             $table->integer('nilai')->nullable()->after('file_path');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tugas_talenta_level1s', function (Blueprint $table) {
+        Schema::table('tugas_talenta_level1', function (Blueprint $table) {
             //
         });
     }
