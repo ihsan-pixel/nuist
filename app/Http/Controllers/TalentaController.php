@@ -195,12 +195,21 @@ class TalentaController extends Controller
             if ($request->hasFile('lampiran')) {
                 $file = $request->file('lampiran');
                 $fileName = Str::uuid()->toString() . '.' . $file->extension();
-                $filePath = $file->storeAs('uploads/talenta', $fileName, 'public');
+
+                // Save to uploads/talenta directory using document root
+                $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/talenta';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                $file->move($uploadDir, $fileName);
+                $filePath = 'uploads/talenta/' . $fileName;
 
                 Log::info('File uploaded', [
                     'original_name' => $file->getClientOriginalName(),
                     'file_name' => $fileName,
                     'file_path' => $filePath,
+                    'full_path' => $uploadDir . '/' . $fileName,
                     'size' => $file->getSize()
                 ]);
             }
