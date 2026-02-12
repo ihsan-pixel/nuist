@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('nilai');
             $table->timestamps();
 
-            $table->foreign('tugas_talenta_level1_id')->references('id')->on('tugas_talenta_level1s')->onDelete('cascade');
+            $table->foreign('tugas_talenta_level1_id')->references('id')->on('tugas_talenta_level1')->onDelete('cascade');
             $table->foreign('penilai_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
