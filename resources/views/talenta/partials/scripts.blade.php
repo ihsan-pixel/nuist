@@ -82,6 +82,8 @@ document.addEventListener('submit', function(e) {
                     text: data.message,
                     timer: 3000,
                     showConfirmButton: false
+                }).then(() => {
+                    location.reload();
                 });
 
                 // Reset form

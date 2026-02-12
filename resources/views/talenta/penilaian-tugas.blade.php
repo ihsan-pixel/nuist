@@ -300,10 +300,10 @@
                             <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
                             <td>
                                 @if($tugasItem->file_path)
-                                    <a href="{{ asset('storage/app/public/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
+                                    <a href="{{ asset('public/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
                                         <i class="bi bi-eye"></i> Lihat
                                     </a>
-                                    <a href="{{ asset('storage/app/public/' . $tugasItem->file_path) }}" download class="action-btn btn-download">
+                                    <a href="{{ asset('public/' . $tugasItem->file_path) }}" download class="action-btn btn-download">
                                         <i class="bi bi-download"></i> Download
                                     </a>
                                 @else
