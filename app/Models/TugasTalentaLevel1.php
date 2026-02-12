@@ -26,7 +26,6 @@ class TugasTalentaLevel1 extends Model
     protected $casts = [
         'data' => 'array',
         'submitted_at' => 'datetime',
-        'nilai' => 'integer',
     ];
 
     /* ================= RELATION ================= */
@@ -34,5 +33,10 @@ class TugasTalentaLevel1 extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function nilai()
+    {
+        return $this->hasMany(TugasNilai::class, 'tugas_talenta_level1_id');
     }
 }

@@ -309,8 +309,18 @@
                                 @else
                                     <span class="text-muted">Tidak ada file</span>
                                 @endif
-                                <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $tugasItem->nilai ?? 'null' }})">
+                                @php
+                                    $currentUserNilai = $tugasItem->nilai()->where('penilai_id', Auth::id())->first();
+                                    $averageNilai = $tugasItem->nilai()->avg('nilai');
+                                @endphp
+                                <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ $averageNilai ? number_format($averageNilai, 1) : 'null' }})">
                                     <i class="bi bi-star"></i> Nilai
+                                    @if($currentUserNilai)
+                                        ({{ $currentUserNilai->nilai }})
+                                    @endif
+                                    @if($averageNilai)
+                                        <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
+                                    @endif
                                 </button>
                             </td>
                         </tr>
@@ -404,20 +414,14 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
 
         const formData = new FormData(form);
-        const tugasId = formData.get('tugas_id');
-        const nilai = formData.get('nilai');
 
         fetch('{{ route("talenta.simpan-nilai-tugas") }}', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                tugas_id: tugasId,
-                nilai: nilai
-            })
+            body: formData
         })
         .then(response => response.json())
         .then(data => {
@@ -437,11 +441,27 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Function to open modal
-function openNilaiModal(tugasId, namaPeserta, areaTugas, currentNilai) {
+function openNilaiModal(tugasId, namaPeserta, areaTugas, currentNilai, averageNilai) {
     document.getElementById('tugasId').value = tugasId;
     document.getElementById('namaPeserta').textContent = namaPeserta;
     document.getElementById('areaTugas').textContent = areaTugas.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     document.getElementById('nilaiInput').value = currentNilai || '';
+
+    const currentDisplay = document.getElementById('currentNilaiDisplay');
+    const averageDisplay = document.getElementById('averageNilaiDisplay');
+
+    if (currentNilai !== null && currentNilai !== undefined) {
+        currentDisplay.textContent = 'Nilai Anda sebelumnya: ' + currentNilai;
+    } else {
+        currentDisplay.textContent = '';
+    }
+
+    if (averageNilai !== null && averageNilai !== undefined) {
+        averageDisplay.textContent = 'Rata-rata nilai: ' + averageNilai;
+    } else {
+        averageDisplay.textContent = '';
+    }
+
     document.getElementById('nilaiModal').style.display = 'block';
 }
 </script>

@@ -14,6 +14,7 @@ use App\Models\TalentaMateri;
 use App\Models\TalentaLayananTeknis;
 use App\Models\TalentaKelompok;
 use App\Models\TugasTalentaLevel1;
+use App\Models\TugasNilai;
 use App\Models\User;
 
 class TalentaController extends Controller
@@ -342,7 +343,16 @@ class TalentaController extends Controller
                 ], 403);
             }
 
-            $tugas->update(['nilai' => $request->nilai]);
+            // Save or update nilai for this penilai
+            TugasNilai::updateOrCreate(
+                [
+                    'tugas_talenta_level1_id' => $request->tugas_id,
+                    'penilai_id' => Auth::id(),
+                ],
+                [
+                    'nilai' => $request->nilai,
+                ]
+            );
 
             return response()->json([
                 'success' => true,
