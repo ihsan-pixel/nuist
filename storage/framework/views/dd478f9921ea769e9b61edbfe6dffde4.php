@@ -104,7 +104,7 @@
                         <label>Nama</label>
                         <select name="user_ids[]" class="form-control" multiple required>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $tenagaPendidik; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                            <option value="<?php echo e($user->id); ?>"><?php echo e($user->name); ?></option>
+                            <option value="<?php echo e($user->id); ?>"><?php echo e($user->name); ?> - <?php echo e($user->madrasahs->nama ?? 'Tidak ada sekolah'); ?></option>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                         </select>
                         <small class="text-muted">Pilih satu atau lebih tenaga pendidik</small>
@@ -156,7 +156,19 @@ $(document).ready(function () {
     $('select[name="user_ids[]"]').select2({
         placeholder: "Pilih tenaga pendidik...",
         allowClear: true,
-        width: '100%'
+        width: '100%',
+        templateResult: function (data) {
+            if (!data.id) { return data.text; }
+            var $data = $(data.element);
+            var text = $data.text();
+            return text;
+        },
+        templateSelection: function (data) {
+            if (!data.id) { return data.text; }
+            var $data = $(data.element);
+            var text = $data.text();
+            return text;
+        }
     });
 
     // Handle form submission
