@@ -101,6 +101,10 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <p class="mb-0">Don't have an account? <a href="{{ url('register') }}" class="text-primary">Register here</a></p>
                 </div>
 
+                <div class="mt-2 text-center">
+                    <p class="mb-0"><a href="{{ route('landing') }}" class="text-primary">Kembali ke Halaman Utama</a></p>
+                </div>
+
                 <div class="footer-text">
                     <p class="mb-0">© <script>document.write(new Date().getFullYear())</script> Nuist. Crafted by LP. Ma'arif NU PWNU DIY</p>
                 </div>
