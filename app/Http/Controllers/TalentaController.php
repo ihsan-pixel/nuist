@@ -129,9 +129,10 @@ class TalentaController extends Controller
 
         // Get existing tasks for the user
         $existingTasks = TugasTalentaLevel1::where('user_id', Auth::id())
-            ->where('jenis_tugas', 'on_site')
             ->get()
-            ->keyBy('area');
+            ->keyBy(function($item) {
+                return $item->area . '-' . $item->jenis_tugas;
+            });
 
         return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks', 'existingTasks'));
     }

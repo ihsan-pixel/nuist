@@ -18,9 +18,20 @@
        class="form-control"
        required>
 
-<button class="btn btn-primary mt-3" type="submit">
-    Upload Kelompok
-</button>
+<div class="d-flex justify-content-end mt-3">
+    @if(!isset($existingTasks[$config['slug'] . '-kelompok']))
+        <button class="btn btn-primary me-2" type="submit">
+            Upload Kelompok
+        </button>
+    @endif
+    @if(isset($existingTasks[$config['slug'] . '-kelompok']))
+        <a href="{{ asset($existingTasks[$config['slug'] . '-kelompok']->file_path) }}"
+           target="_blank"
+           class="btn btn-secondary">
+            <i class="bx bx-file"></i> Lihat File Terupload
+        </a>
+    @endif
+</div>
 
 </form>
 </div>
