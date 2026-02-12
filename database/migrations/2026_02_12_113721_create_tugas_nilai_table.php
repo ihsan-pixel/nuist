@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('tugas_nilai', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tugas_talenta_level1_id')->constrained('tugas_talenta_level1s')->onDelete('cascade');
-            $table->foreignId('penilai_id')->constrained('users')->onDelete('cascade');
+            $table->unsignedBigInteger('tugas_talenta_level1_id');
+            $table->unsignedBigInteger('penilai_id');
             $table->integer('nilai');
             $table->timestamps();
+
+            $table->foreign('tugas_talenta_level1_id')->references('id')->on('tugas_talenta_level1s')->onDelete('cascade');
+            $table->foreign('penilai_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
