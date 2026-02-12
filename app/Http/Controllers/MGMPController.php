@@ -61,8 +61,8 @@ class MGMPController extends Controller
         // Fetch existing MGMP members with relationships
         $members = MgmpMember::with('user', 'mgmpGroup')->get();
 
-        // Fetch tenaga pendidik users for the modal selection
-        $tenagaPendidik = User::where('role', 'tenaga_pendidik')->with('madrasah')->get();
+        // Fetch tenaga pendidik users for the modal selection, sorted by name A-Z
+        $tenagaPendidik = User::where('role', 'tenaga_pendidik')->with('madrasah')->orderBy('name', 'asc')->get();
 
         return view('mgmp.data-anggota', compact('members', 'tenagaPendidik'));
     }

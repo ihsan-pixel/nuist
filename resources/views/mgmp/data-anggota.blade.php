@@ -107,7 +107,7 @@
                         <label>Nama</label>
                         <select name="user_ids[]" class="form-control" multiple required>
                             @foreach($tenagaPendidik as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            <option value="{{ $user->id }}">{{ $user->name }} - {{ $user->madrasah->nama ?? 'Tidak ada sekolah' }}</option>
                             @endforeach
                         </select>
                         <small class="text-muted">Pilih satu atau lebih tenaga pendidik</small>
@@ -159,7 +159,19 @@ $(document).ready(function () {
     $('select[name="user_ids[]"]').select2({
         placeholder: "Pilih tenaga pendidik...",
         allowClear: true,
-        width: '100%'
+        width: '100%',
+        templateResult: function (data) {
+            if (!data.id) { return data.text; }
+            var $data = $(data.element);
+            var text = $data.text();
+            return text;
+        },
+        templateSelection: function (data) {
+            if (!data.id) { return data.text; }
+            var $data = $(data.element);
+            var text = $data.text();
+            return text;
+        }
     });
 
     // Handle form submission
