@@ -506,7 +506,7 @@
                                 @elseif($averageNilai)
                                     <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
                                 @else
-                                    <span class="text-muted">-</span>
+                                    <span class="text-muted">Belum ada nilai</span>
                                 @endif
                             </td>
                             <td>
