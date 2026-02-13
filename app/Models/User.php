@@ -99,4 +99,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(\App\Models\Presensi::class, 'user_id');
     }
+
+    /**
+     * Relationship: 1 user -> 1 talenta peserta
+     * Use this in views/controllers like: auth()->user()->talentaPeserta
+     */
+    public function talentaPeserta()
+    {
+        return $this->hasOne(\App\Models\Talenta::class, 'user_id');
+    }
 }

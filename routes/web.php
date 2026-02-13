@@ -244,14 +244,19 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::resource('laporan-akhir-tahun', App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class);
 
     // Menu Talenta
-    Route::get('/talenta', [App\Http\Controllers\Mobile\TalentaController::class, 'index'])->name('talenta.index');
+    // Allow users to create/store talenta (for users who don't have a record yet)
     Route::get('/talenta/create', [App\Http\Controllers\Mobile\TalentaController::class, 'create'])->name('talenta.create');
     Route::post('/talenta', [App\Http\Controllers\Mobile\TalentaController::class, 'store'])->name('talenta.store');
-    Route::get('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'show'])->name('talenta.show');
-    Route::get('/talenta/{talenta}/edit', [App\Http\Controllers\Mobile\TalentaController::class, 'edit'])->name('talenta.edit');
-    Route::put('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'update'])->name('talenta.update');
-    Route::delete('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'destroy'])->name('talenta.destroy');
-    Route::get('/talenta/file/{filename}', [App\Http\Controllers\Mobile\TalentaController::class, 'lihatFile'])->name('talenta.file');
+
+    // Protect access to talenta index/show/edit/update/destroy/file for users registered as talenta peserta
+    Route::middleware(['ensure.talenta'])->group(function () {
+        Route::get('/talenta', [App\Http\Controllers\Mobile\TalentaController::class, 'index'])->name('talenta.index');
+        Route::get('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'show'])->name('talenta.show');
+        Route::get('/talenta/{talenta}/edit', [App\Http\Controllers\Mobile\TalentaController::class, 'edit'])->name('talenta.edit');
+        Route::put('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'update'])->name('talenta.update');
+        Route::delete('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'destroy'])->name('talenta.destroy');
+        Route::get('/talenta/file/{filename}', [App\Http\Controllers\Mobile\TalentaController::class, 'lihatFile'])->name('talenta.file');
+    });
 
     // Monitoring (kepala madrasah)
     Route::get('/monitor-presensi', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorPresensi'])->name('monitor-presensi');

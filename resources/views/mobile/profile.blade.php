@@ -533,8 +533,8 @@
                 Aplikasi PWA sudah terinstall.
             </div>
 
-            {{-- Talenta button: only visible for users whose user_id exists in talenta table --}}
-            @if(\App\Models\Talenta::where('user_id', Auth::id())->exists())
+            {{-- Talenta button: only visible for users who have a talenta peserta relationship --}}
+            @if(Auth::user()->talentaPeserta)
             <a href="{{ route('mobile.talenta.index') }}" class="settings-button" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white;">
                 <i class="bx bx-award"></i>
                 Talenta Saya
