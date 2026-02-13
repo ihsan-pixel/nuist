@@ -30,6 +30,14 @@
            class="btn btn-secondary">
             <i class="bx bx-file"></i> Lihat File Terupload
         </a>
+        <form action="{{ route('talenta.tugas-level-1.reset') }}" method="POST" class="d-inline-block ms-2" onsubmit="return confirm('Yakin ingin menghapus file terupload?');">
+            @csrf
+            <input type="hidden" name="area" value="{{ $config['slug'] }}">
+            <input type="hidden" name="jenis_tugas" value="kelompok">
+            <button type="submit" class="btn btn-danger">
+                <i class="bx bx-trash"></i> Reset
+            </button>
+        </form>
     @endif
 </div>
 

@@ -536,6 +536,8 @@ Route::middleware(['auth'])->group(function () {
 });
 // Move POST route outside auth middleware to handle AJAX requests properly
 Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
+// Reset / delete uploaded tugas file (allow form POST or AJAX)
+Route::post('/talenta/tugas-level-1/reset', [App\Http\Controllers\TalentaController::class, 'resetTugasLevel1'])->name('talenta.tugas-level-1.reset');
 
 // MGMP Routes - Protected by auth and mgmp role
 Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgmp')->name('mgmp.')->group(function () {

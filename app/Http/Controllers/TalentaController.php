@@ -293,6 +293,60 @@ class TalentaController extends Controller
         }
     }
 
+    /**
+     * Reset / delete uploaded file for a given area and jenis_tugas for the current user.
+     * Accepts POST from regular form (redirect back) or AJAX (returns JSON).
+     */
+    public function resetTugasLevel1(Request $request)
+    {
+        if (!Auth::check()) {
+            return $request->wantsJson()
+                ? response()->json(['success' => false, 'message' => 'Sesi telah berakhir. Silakan login kembali.'], 401)
+                : redirect()->route('talenta.login');
+        }
+
+        $validated = $request->validate([
+            'area' => 'required|string',
+            'jenis_tugas' => 'required|in:on_site,terstruktur,kelompok',
+        ]);
+
+        try {
+            $tasks = TugasTalentaLevel1::where('user_id', Auth::id())
+                ->where('area', $validated['area'])
+                ->where('jenis_tugas', $validated['jenis_tugas'])
+                ->get();
+
+            if ($tasks->isEmpty()) {
+                $message = 'Tidak ditemukan file yang tersimpan untuk tugas ini.';
+                return $request->wantsJson()
+                    ? response()->json(['success' => false, 'message' => $message], 404)
+                    : redirect()->back()->with('error', $message);
+            }
+
+            foreach ($tasks as $task) {
+                if ($task->file_path) {
+                    $fullPath = public_path($task->file_path);
+                    if (file_exists($fullPath)) {
+                        @unlink($fullPath);
+                    }
+                }
+                $task->delete();
+            }
+
+            $message = 'File terupload berhasil dihapus. Anda dapat mengupload file baru.';
+            return $request->wantsJson()
+                ? response()->json(['success' => true, 'message' => $message])
+                : redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Error resetting tugas level 1', ['error' => $e->getMessage(), 'request' => $request->all()]);
+            $message = 'Terjadi kesalahan saat menghapus file.';
+            return $request->wantsJson()
+                ? response()->json(['success' => false, 'message' => $message], 500)
+                : redirect()->back()->with('error', $message);
+        }
+    }
+
     /* =========================
      * PENILAIAN TUGAS
      * ========================= */
