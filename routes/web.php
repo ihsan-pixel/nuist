@@ -518,6 +518,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/talenta/dashboard', [App\Http\Controllers\TalentaController::class, 'dashboard'])->name('talenta.dashboard');
     Route::get('/talenta/data', [App\Http\Controllers\TalentaController::class, 'data'])->name('talenta.data');
     Route::get('/talenta/instrumen-penilaian', [App\Http\Controllers\TalentaController::class, 'instrumenPenilaian'])->name('talenta.instrumen-penilaian');
+
+    // Instrumen Penilaian Routes - Save and Get
+    Route::post('/talenta/penilaian-trainer', [App\Http\Controllers\TalentaController::class, 'simpanPenilaianTrainer'])->name('talenta.penilaian-trainer.simpan');
+    Route::get('/talenta/penilaian-trainer', [App\Http\Controllers\TalentaController::class, 'getPenilaianTrainer'])->name('talenta.penilaian-trainer.get');
+    Route::post('/talenta/penilaian-fasilitator', [App\Http\Controllers\TalentaController::class, 'simpanPenilaianFasilitator'])->name('talenta.penilaian-fasilitator.simpan');
+    Route::get('/talenta/penilaian-fasilitator', [App\Http\Controllers\TalentaController::class, 'getPenilaianFasilitator'])->name('talenta.penilaian-fasilitator.get');
+    Route::post('/talenta/penilaian-teknis', [App\Http\Controllers\TalentaController::class, 'simpanPenilaianTeknis'])->name('talenta.penilaian-teknis.simpan');
+    Route::get('/talenta/penilaian-teknis', [App\Http\Controllers\TalentaController::class, 'getPenilaianTeknis'])->name('talenta.penilaian-teknis.get');
+    Route::post('/talenta/penilaian-peserta', [App\Http\Controllers\TalentaController::class, 'simpanPenilaianPeserta'])->name('talenta.penilaian-peserta.simpan');
+    Route::get('/talenta/penilaian-peserta', [App\Http\Controllers\TalentaController::class, 'getPenilaianPeserta'])->name('talenta.penilaian-peserta.get');
+
     Route::get('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'tugasLevel1'])->name('talenta.tugas-level-1');
     Route::get('/talenta/penilaian-tugas', [App\Http\Controllers\TalentaController::class, 'penilaianTugas'])->name('talenta.penilaian-tugas');
     Route::post('/talenta/penilaian-tugas/nilai', [App\Http\Controllers\TalentaController::class, 'simpanNilaiTugas'])->name('talenta.simpan-nilai-tugas');

@@ -16,6 +16,10 @@ use App\Models\TalentaKelompok;
 use App\Models\TugasTalentaLevel1;
 use App\Models\TugasNilai;
 use App\Models\User;
+use App\Models\TalentaPenilaianTrainer;
+use App\Models\TalentaPenilaianFasilitator;
+use App\Models\TalentaPenilaianTeknis;
+use App\Models\TalentaPenilaianPeserta;
 
 class TalentaController extends Controller
 {
@@ -369,6 +373,239 @@ class TalentaController extends Controller
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menyimpan nilai.',
             ], 500);
+        }
+    }
+
+    /* =========================
+     * PENILAIAN INSTRUMEN - SAVE & GET
+     * ========================= */
+
+    // Simpan Penilaian Trainer (Pemateri)
+    public function simpanPenilaianTrainer(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
+        }
+
+        try {
+            $ratings = $request->input('ratings', []);
+
+            foreach ($ratings as $pemateriId => $data) {
+                TalentaPenilaianTrainer::updateOrCreate(
+                    [
+                        'talenta_pemateri_id' => $pemateriId,
+                        'user_id' => Auth::id(),
+                    ],
+                    [
+                        'kualitas_materi' => $data['kualitas_materi'] ?? null,
+                        'penyampaian' => $data['penyampaian'] ?? null,
+                        'integrasi_kasus' => $data['integrasi_kasus'] ?? null,
+                        'penjelasan' => $data['penjelasan'] ?? null,
+                        'umpan_balik' => $data['umpan_balik'] ?? null,
+                        'waktu' => $data['waktu'] ?? null,
+                    ]
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penilaian trainer berhasil disimpan.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saving trainer penilaian', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal menyimpan penilaian.'], 500);
+        }
+    }
+
+    // Get Penilaian Trainer
+    public function getPenilaianTrainer()
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
+        }
+
+        try {
+            $penilaian = TalentaPenilaianTrainer::where('user_id', Auth::id())
+                ->get()
+                ->keyBy('talenta_pemateri_id')
+                ->toArray();
+
+            return response()->json(['success' => true, 'data' => $penilaian]);
+        } catch (\Exception $e) {
+            Log::error('Error getting trainer penilaian', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal memuat penilaian.'], 500);
+        }
+    }
+
+    // Simpan Penilaian Fasilitator
+    public function simpanPenilaianFasilitator(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
+        }
+
+        try {
+            $ratings = $request->input('ratings', []);
+
+            foreach ($ratings as $fasilitatorId => $data) {
+                TalentaPenilaianFasilitator::updateOrCreate(
+                    [
+                        'talenta_fasilitator_id' => $fasilitatorId,
+                        'user_id' => Auth::id(),
+                    ],
+                    [
+                        'fasilitasi' => $data['fasilitasi'] ?? null,
+                        'pendampingan' => $data['pendampingan'] ?? null,
+                        'respons' => $data['respons'] ?? null,
+                        'koordinasi' => $data['koordinasi'] ?? null,
+                        'monitoring' => $data['monitoring'] ?? null,
+                        'waktu' => $data['waktu'] ?? null,
+                    ]
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penilaian fasilitator berhasil disimpan.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saving fasilitator penilaian', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal menyimpan penilaian.'], 500);
+        }
+    }
+
+    // Get Penilaian Fasilitator
+    public function getPenilaianFasilitator()
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
+        }
+
+        try {
+            $penilaian = TalentaPenilaianFasilitator::where('user_id', Auth::id())
+                ->get()
+                ->keyBy('talenta_fasilitator_id')
+                ->toArray();
+
+            return response()->json(['success' => true, 'data' => $penilaian]);
+        } catch (\Exception $e) {
+            Log::error('Error getting fasilitator penilaian', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal memuat penilaian.'], 500);
+        }
+    }
+
+    // Simpan Penilaian Teknis
+    public function simpanPenilaianTeknis(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
+        }
+
+        try {
+            $ratings = $request->input('ratings', []);
+
+            foreach ($ratings as $teknisId => $data) {
+                TalentaPenilaianTeknis::updateOrCreate(
+                    [
+                        'talenta_layanan_teknis_id' => $teknisId,
+                        'user_id' => Auth::id(),
+                    ],
+                    [
+                        'kehadiran' => $data['kehadiran'] ?? null,
+                        'partisipasi' => $data['partisipasi'] ?? null,
+                        'disiplin' => $data['disiplin'] ?? null,
+                        'kualitas_tugas' => $data['kualitas_tugas'] ?? null,
+                        'pemahaman_materi' => $data['pemahaman_materi'] ?? null,
+                        'implementasi_praktik' => $data['implementasi_praktik'] ?? null,
+                    ]
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penilaian teknis berhasil disimpan.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saving teknis penilaian', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal menyimpan penilaian.'], 500);
+        }
+    }
+
+    // Get Penilaian Teknis
+    public function getPenilaianTeknis()
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
+        }
+
+        try {
+            $penilaian = TalentaPenilaianTeknis::where('user_id', Auth::id())
+                ->get()
+                ->keyBy('talenta_layanan_teknis_id')
+                ->toArray();
+
+            return response()->json(['success' => true, 'data' => $penilaian]);
+        } catch (\Exception $e) {
+            Log::error('Error getting teknis penilaian', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal memuat penilaian.'], 500);
+        }
+    }
+
+    // Simpan Penilaian Peserta
+    public function simpanPenilaianPeserta(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
+        }
+
+        try {
+            $ratings = $request->input('ratings', []);
+
+            foreach ($ratings as $pesertaId => $data) {
+                TalentaPenilaianPeserta::updateOrCreate(
+                    [
+                        'talenta_peserta_id' => $pesertaId,
+                        'user_id' => Auth::id(),
+                    ],
+                    [
+                        'kehadiran' => $data['kehadiran'] ?? null,
+                        'partisipasi' => $data['partisipasi'] ?? null,
+                        'disiplin' => $data['disiplin'] ?? null,
+                        'tugas' => $data['tugas'] ?? null,
+                        'pemahaman' => $data['pemahaman'] ?? null,
+                        'praktik' => $data['praktik'] ?? null,
+                        'sikap' => $data['sikap'] ?? null,
+                    ]
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penilaian peserta berhasil disimpan.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saving peserta penilaian', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal menyimpan penilaian.'], 500);
+        }
+    }
+
+    // Get Penilaian Peserta
+    public function getPenilaianPeserta()
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
+        }
+
+        try {
+            $penilaian = TalentaPenilaianPeserta::where('user_id', Auth::id())
+                ->get()
+                ->keyBy('talenta_peserta_id')
+                ->toArray();
+
+            return response()->json(['success' => true, 'data' => $penilaian]);
+        } catch (\Exception $e) {
+            Log::error('Error getting peserta penilaian', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Gagal memuat penilaian.'], 500);
         }
     }
 }
