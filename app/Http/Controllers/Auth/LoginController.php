@@ -49,6 +49,11 @@ class LoginController extends Controller
             return redirect()->route('mgmp.dashboard');
         }
 
+        // Redirect pemateri and fasilitator to talenta index
+        if ($user->role === 'pemateri' || $user->role === 'fasilitator') {
+            return redirect()->route('talenta.index');
+        }
+
         // For other roles, use default redirect
         return redirect()->intended($this->redirectPath());
     }
@@ -117,7 +122,7 @@ class LoginController extends Controller
     }
     protected function redirectTo()
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($user->role === 'mgmp') {
             return '/mgmp/dashboard';
