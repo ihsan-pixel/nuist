@@ -641,7 +641,6 @@ document.addEventListener('DOMContentLoaded', function () {
             tugas_id: tugasId,
             nilai: Number(nilai),
         };
-
         return fetch(url, {
             method: 'POST',
             headers: {
@@ -651,49 +650,73 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify(payload)
         })
-        .then(response => {
-            // Try to parse JSON even on non-2xx so we can surface backend error messages
-            return response.json().then(json => ({ ok: response.ok, status: response.status, body: json }));
-        })
-        .then(({ ok, status, body }) => {
-            if (ok && body && body.success) {
+        .then(async response => {
+            let body = null;
+            try {
+                body = await response.json();
+            } catch (e) {
+                // ignore parse errors; body stays null
+            }
+
+            // Success path
+            if (response.ok && body && body.success) {
+                const successMsg = body.message || 'Nilai berhasil disimpan.';
                 if (window.Swal) {
                     window.Swal.fire({
                         icon: 'success',
                         title: 'Berhasil',
-                        text: body.message || 'Nilai berhasil disimpan.',
+                        text: successMsg,
                         timer: 1500,
                         showConfirmButton: false,
                     });
                 } else if (showAlerts) {
-                    alert(body.message || 'Nilai berhasil disimpan.');
+                    alert(successMsg);
                 } else {
-                    showToast(body.message || 'Nilai berhasil disimpan.');
+                    showToast(successMsg);
                 }
                 return body;
             }
 
-            // Normalize error message
-            const errMsg = (body && body.message) ? body.message : 'Terjadi kesalahan saat menyimpan nilai.';
+            // Error path - prefer server message when present
+            const status = response.status;
+            let errMsg = (body && body.message) ? body.message : null;
+
+            // Map common statuses to clearer messages when backend doesn't provide details
+            if (!errMsg) {
+                if (status === 401) errMsg = 'Sesi telah berakhir. Silakan login kembali.';
+                else if (status === 403) errMsg = 'Anda tidak memiliki izin untuk melakukan tindakan ini.';
+                else if (status === 422) errMsg = 'Data tidak valid. Silakan periksa input Anda.';
+                else errMsg = 'Terjadi kesalahan saat menyimpan nilai.';
+            }
+
+            // Determine a suitable title/icon for the alert
+            let title = 'Gagal';
+            let icon = 'error';
+            if (status === 401) title = 'Sesi Habis';
+            else if (status === 403 || (errMsg && /pemateri|akses/i.test(errMsg))) title = 'Akses Ditolak';
+            else if (status === 422) title = 'Validasi';
+
             if (window.Swal) {
-                window.Swal.fire({ icon: 'error', title: 'Gagal', text: errMsg });
+                window.Swal.fire({ icon, title, text: errMsg });
             } else if (showAlerts) {
                 alert(errMsg);
             } else {
-                console.error('SaveNilai error:', errMsg);
+                console.error('SaveNilai error:', status, errMsg);
             }
-            const error = new Error(errMsg);
+
+            const error = new Error(errMsg || 'Error saving nilai');
             error.status = status;
             throw error;
         })
         .catch(error => {
             // network / parse errors
             console.error('Error saving nilai:', error);
+            const fallbackMsg = error && error.message ? error.message : 'Terjadi kesalahan saat menyimpan nilai.';
             if (showAlerts) {
                 if (window.Swal) {
-                    window.Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat menyimpan nilai.' });
+                    window.Swal.fire({ icon: 'error', title: 'Gagal', text: fallbackMsg });
                 } else {
-                    alert('Terjadi kesalahan saat menyimpan nilai.');
+                    alert(fallbackMsg);
                 }
             }
             throw error;
