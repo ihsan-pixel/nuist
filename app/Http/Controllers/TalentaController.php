@@ -512,17 +512,6 @@ class TalentaController extends Controller
             'nilai' => 'required|integer|min:0|max:100',
         ]);
 
-        // Log incoming request for debugging when 500 occurs
-        try {
-            Log::info('simpanNilaiTugas called', [
-                'user_id' => Auth::id(),
-                'payload' => $request->all(),
-                'headers' => $request->headers->all()
-            ]);
-        } catch (\Exception $e) {
-            // swallow logging errors
-        }
-
         try {
             $tugas = TugasTalentaLevel1::findOrFail($request->tugas_id);
 
