@@ -600,49 +600,108 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Modal functionality
     const modal = document.getElementById('nilaiModal');
-    const closeBtn = document.querySelector('.close');
+    const closeBtn = document.querySelector('.close-custom');
     const form = document.getElementById('nilaiForm');
+    const nilaiInput = document.getElementById('nilaiInput');
 
-    // Close modal when clicking close button
-    closeBtn.onclick = function() {
-        modal.style.display = 'none';
+    // Close modal when clicking close button (guarded)
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            modal.style.display = 'none';
+        });
     }
 
     // Close modal when clicking outside
-    window.onclick = function(event) {
+    window.addEventListener('click', function (event) {
         if (event.target == modal) {
             modal.style.display = 'none';
         }
+    });
+
+    // helper: show small non-blocking feedback
+    function showToast(message) {
+        // lightweight: use console and non-blocking alert replacement
+        console.info('Toast:', message);
     }
 
-    // Handle form submission
-    form.onsubmit = function(e) {
-        e.preventDefault();
+    // Save nilai via AJAX
+    function saveNilai(tugasId, nilai, showAlerts = false) {
+        const fd = new FormData();
+        fd.append('tugas_id', tugasId);
+        fd.append('nilai', nilai);
 
-        const formData = new FormData(form);
-
-        fetch('{{ route("talenta.simpan-nilai-tugas") }}', {
+        return fetch('{{ route("talenta.simpan-nilai-tugas") }}', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json',
             },
-            body: formData
+            body: fd
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
-                modal.style.display = 'none';
-                location.reload(); // Reload to show updated nilai
+                if (showAlerts) {
+                    alert(data.message);
+                } else {
+                    showToast(data.message);
+                }
+                // update current display without full reload
+                const currentDisplay = document.getElementById('currentNilaiDisplay');
+                if (currentDisplay) currentDisplay.textContent = 'Nilai Anda sebelumnya: ' + nilai;
+                return data;
             } else {
-                alert(data.message);
+                if (showAlerts) alert(data.message);
+                throw new Error(data.message || 'Gagal menyimpan nilai');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Terjadi kesalahan saat menyimpan nilai.');
+            if (showAlerts) alert('Terjadi kesalahan saat menyimpan nilai.');
+            throw error;
         });
+    }
+
+    // Debounce helper
+    function debounce(fn, delay) {
+        let t;
+        return function () {
+            const args = arguments;
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    // Auto-save on input with debounce
+    if (nilaiInput) {
+        const debouncedSave = debounce(function () {
+            const tugasId = document.getElementById('tugasId').value;
+            const nilai = nilaiInput.value;
+            if (!tugasId) return;
+            // only save when nilai is a number within range
+            const n = parseInt(nilai, 10);
+            if (isNaN(n) || n < 0 || n > 100) return;
+            saveNilai(tugasId, n, false).catch(() => {});
+        }, 600);
+
+        nilaiInput.addEventListener('input', debouncedSave);
+    }
+
+    // Handle explicit form submission (keeps existing behavior but uses same save function)
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        const tugasId = document.getElementById('tugasId').value;
+        const nilai = document.getElementById('nilaiInput').value;
+        const n = parseInt(nilai, 10);
+        if (!tugasId) return alert('Tugas tidak ditemukan.');
+        if (isNaN(n) || n < 0 || n > 100) return alert('Nilai harus angka antara 0 - 100.');
+
+        saveNilai(tugasId, n, true)
+            .then(() => {
+                modal.style.display = 'none';
+                location.reload(); // reload to reflect updated rata-rata badges and listing
+            })
+            .catch(() => {});
     }
 });
 

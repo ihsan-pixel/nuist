@@ -532,16 +532,27 @@ class TalentaController extends Controller
                 ], 403);
             }
 
-            // Save or update nilai for this penilai
-            TugasNilai::updateOrCreate(
-                [
-                    'tugas_talenta_level1_id' => $request->tugas_id,
-                    'penilai_id' => Auth::id(),
-                ],
-                [
-                    'nilai' => $request->nilai,
-                ]
-            );
+            // If this tugas belongs to a kelompok, apply the same nilai to all tugas
+            // records for that kelompok (same area & jenis_tugas). Otherwise, update only this tugas.
+            $targets = collect([$tugas]);
+            if (!empty($tugas->kelompok_id)) {
+                $targets = TugasTalentaLevel1::where('kelompok_id', $tugas->kelompok_id)
+                    ->where('area', $tugas->area)
+                    ->where('jenis_tugas', $tugas->jenis_tugas)
+                    ->get();
+            }
+
+            foreach ($targets as $target) {
+                TugasNilai::updateOrCreate(
+                    [
+                        'tugas_talenta_level1_id' => $target->id,
+                        'penilai_id' => Auth::id(),
+                    ],
+                    [
+                        'nilai' => $request->nilai,
+                    ]
+                );
+            }
 
             return response()->json([
                 'success' => true,
