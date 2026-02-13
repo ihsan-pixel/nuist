@@ -421,10 +421,10 @@
                             <i class='bx bx-user'></i>
                             Profile
                         </a> --}}
-                        <a href="{{ route('mobile.talenta.index') }}" class="profile-link">
+                        {{-- <a href="{{ route('mobile.talenta.index') }}" class="profile-link">
                             <i class='bx bx-list-ul'></i>
                             Data Talenta
-                        </a>
+                        </a> --}}
                         <form method="POST" action="{{ route('talenta.logout') }}" style="display: inline;">
                             @csrf
                             <button type="submit" class="profile-link logout-link" style="border: none; background: none; width: 100%; text-align: left; cursor: pointer;">
