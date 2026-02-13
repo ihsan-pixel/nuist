@@ -646,10 +646,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     showToast(data.message);
                 }
-                // update current display without full reload
-                const currentDisplay = document.getElementById('currentNilaiDisplay');
-                if (currentDisplay) currentDisplay.textContent = 'Nilai Anda sebelumnya: ' + nilai;
-                return data;
             } else {
                 if (showAlerts) alert(data.message);
                 throw new Error(data.message || 'Gagal menyimpan nilai');
