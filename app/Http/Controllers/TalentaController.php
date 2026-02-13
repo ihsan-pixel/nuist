@@ -70,7 +70,7 @@ class TalentaController extends Controller
         return view('talenta.data', [
             'pesertaTalenta'     => TalentaPeserta::with(['user.madrasah'])->first()->get(),
             'pemateriTalenta'    => TalentaPemateri::with('materis')->orderByRaw("FIELD(id, 27, 28, 25, 33, 26, 32, 34, 30, 29, 31)")->get(),
-            'fasilitatorTalenta' => TalentaFasilitator::latest()->get(),
+            'fasilitatorTalenta' => TalentaFasilitator::orderByRaw("FIELD(id, 36, 31, 27, 28, 34, 32, 35, 29, 30, 33, 37)")->get(),
             'materiTalenta'      => TalentaMateri::first()->get(),
             'kelompokTalenta'    => \App\Models\TalentaKelompok::with('users')->first()->get(),
         ]);
