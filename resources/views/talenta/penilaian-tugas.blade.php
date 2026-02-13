@@ -700,50 +700,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Debounce helper
-    function debounce(fn, delay) {
-        let t;
-        return function () {
-            const args = arguments;
-            clearTimeout(t);
-            t = setTimeout(() => fn.apply(this, args), delay);
-        };
-    }
+    // Note: Auto-save on input was removed so data is only sent when the user
+    // explicitly clicks the "Simpan Nilai" button. This prevents accidental
+    // saves while the user is editing.
 
-    // Auto-save on input with debounce
-    if (nilaiInput) {
-        const debouncedSave = debounce(function () {
-            const tugasId = document.getElementById('tugasId').value;
-            const nilai = nilaiInput.value;
-            if (!tugasId) return;
-            // only save when nilai is a number within range
-            const n = parseInt(nilai, 10);
-            if (isNaN(n) || n < 0 || n > 100) return;
-            saveNilai(tugasId, n, false).catch(() => {});
-        }, 600);
-
-        nilaiInput.addEventListener('input', debouncedSave);
-    }
-
-    // Handle explicit form submission (keeps existing behavior but uses same save function)
-    if (form) {
-        form.onsubmit = function(e) {
-            e.preventDefault();
-            const tugasId = document.getElementById('tugasId').value;
-            const nilai = document.getElementById('nilaiInput').value;
-            const n = parseInt(nilai, 10);
-            if (!tugasId) return alert('Tugas tidak ditemukan.');
-            if (isNaN(n) || n < 0 || n > 100) return alert('Nilai harus angka antara 0 - 100.');
-
-            saveNilai(tugasId, n, true)
-                .then(() => {
-                    modal.style.display = 'none';
-                    // reload to reflect updated rata-rata badges and listing
-                    location.reload();
-                })
-                .catch(() => {});
-        }
-    }
+    // We intentionally do NOT attach a form submit handler so the form will
+    // only be submitted when the user clicks the explicit save button below.
+    // The footerSaveBtn click handler performs the save using the same
+    // saveNilai() function.
 
     // Fallback: add click handler to the footer save button (in case form submission via form attr doesn't fire)
     const footerSaveBtn = document.querySelector('.btn-submit-custom');
