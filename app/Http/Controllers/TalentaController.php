@@ -504,25 +504,48 @@ class TalentaController extends Controller
     /* =========================
      * PENILAIAN TUGAS
      * ========================= */
-    public function penilaianTugas()
+    public function penilaianTugas(Request $request)
     {
-        // Get the logged-in pemateri by user_id
+        // Try find pemateri or fasilitator record connected to the logged-in user
         $pemateri = TalentaPemateri::where('user_id', Auth::id())->first();
+        $fasilitator = TalentaFasilitator::where('user_id', Auth::id())->first();
 
-        if (!$pemateri) {
-            return redirect()->route('talenta.dashboard')->with('error', 'Anda tidak memiliki akses sebagai pemateri.');
+        if (!$pemateri && !$fasilitator) {
+            return redirect()->route('talenta.dashboard')->with('error', 'Anda tidak memiliki akses sebagai pemateri atau fasilitator.');
         }
 
-        // Get material slugs for this pemateri using the relationship
-        $materiSlugs = $pemateri->materis()->pluck('slug');
+        // Build list of materi models the user is allowed to assess
+        if ($pemateri) {
+            $materiModels = $pemateri->materis()->get();
+        } else {
+            $materiModels = $fasilitator->materis()->get();
+        }
 
-        // Get tasks related to the pemateri's materials
+        // If a specific materi_id is provided, make sure the current user actually teaches it
+        $selectedMateriId = $request->input('materi_id');
+        if ($selectedMateriId) {
+            $allowedIds = $materiModels->pluck('id')->map(function($v){ return (int) $v; })->toArray();
+            if (!in_array((int) $selectedMateriId, $allowedIds, true)) {
+                return redirect()->route('talenta.dashboard')->with('error', 'Anda tidak memiliki akses untuk materi yang dipilih.');
+            }
+            $materiModels = $materiModels->where('id', (int) $selectedMateriId);
+        }
+
+        // Map to slugs which correspond to the `area` column on tugas table
+        $materiSlugs = $materiModels->pluck('slug')->toArray();
+
+        // Get tasks related to the user's materi(s)
         $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
             ->whereIn('area', $materiSlugs)
             ->latest()
             ->get();
 
-        return view('talenta.penilaian-tugas', compact('tugas'));
+        // Pass materi list to the view so UI can present selection if needed
+        return view('talenta.penilaian-tugas', [
+            'tugas' => $tugas,
+            'materis' => $materiModels,
+            'selected_materi_id' => $selectedMateriId,
+        ]);
     }
 
     /* =========================
