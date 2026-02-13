@@ -1041,32 +1041,11 @@ document.addEventListener('DOMContentLoaded', function () {
     animateElements.forEach(el => observer.observe(el));
 
     // Rating selection
-    fetch(getRoute(type), {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": document
-                .querySelector('meta[name="csrf-token"]')
-                .getAttribute("content")
-        },
-        body: JSON.stringify({
-            ratings: ratings
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: "Penilaian berhasil disimpan"
-        });
-    })
-    .catch(err => {
-        console.error(err);
-        Swal.fire({
-            icon: "error",
-            title: "Gagal!",
-            text: "Server error"
+    document.querySelectorAll('.rating-option').forEach(opt => {
+        opt.addEventListener('click', function() {
+            const parent = this.parentElement;
+            parent.querySelectorAll('.rating-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
         });
     });
 
