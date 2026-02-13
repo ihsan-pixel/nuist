@@ -624,69 +624,64 @@ document.addEventListener('DOMContentLoaded', function () {
         console.info('Toast:', message);
     }
 
-    // Save nilai via AJAX
+    // Save nilai via AJAX (send JSON payload, return a promise)
     function saveNilai(tugasId, nilai, showAlerts = false) {
-        const fd = new FormData();
-        fd.append('tugas_id', tugasId);
-        fd.append('nilai', nilai);
+        const url = '{{ route("talenta.simpan-nilai-tugas") }}';
+        const payload = {
+            tugas_id: tugasId,
+            nilai: Number(nilai),
+        };
 
-        return fetch('{{ route("talenta.simpan-nilai-tugas") }}', {
+        return fetch(url, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: fd
+            body: JSON.stringify(payload)
         })
-        .then(response => response.json())
-        .then(data => {
-            // Use SweetAlert2 if available for nicer notifications
-            const successHandler = () => {
+        .then(response => {
+            // Try to parse JSON even on non-2xx so we can surface backend error messages
+            return response.json().then(json => ({ ok: response.ok, status: response.status, body: json }));
+        })
+        .then(({ ok, status, body }) => {
+            if (ok && body && body.success) {
                 if (window.Swal) {
                     window.Swal.fire({
                         icon: 'success',
                         title: 'Berhasil',
-                        text: data.message || 'Nilai berhasil disimpan.',
+                        text: body.message || 'Nilai berhasil disimpan.',
                         timer: 1500,
                         showConfirmButton: false,
                     });
                 } else if (showAlerts) {
-                    alert(data.message || 'Nilai berhasil disimpan.');
+                    alert(body.message || 'Nilai berhasil disimpan.');
                 } else {
-                    showToast(data.message || 'Nilai berhasil disimpan.');
+                    showToast(body.message || 'Nilai berhasil disimpan.');
                 }
-            };
-
-            const errorHandler = (msg) => {
-                if (window.Swal) {
-                    window.Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: msg || 'Terjadi kesalahan saat menyimpan nilai.'
-                    });
-                } else if (showAlerts) {
-                    alert(msg || 'Terjadi kesalahan saat menyimpan nilai.');
-                } else {
-                    console.error(msg || 'Terjadi kesalahan saat menyimpan nilai.');
-                }
-            };
-
-            if (data.success) {
-                successHandler();
-            } else {
-                errorHandler(data.message);
-                throw new Error(data.message || 'Gagal menyimpan nilai');
+                return body;
             }
+
+            // Normalize error message
+            const errMsg = (body && body.message) ? body.message : 'Terjadi kesalahan saat menyimpan nilai.';
+            if (window.Swal) {
+                window.Swal.fire({ icon: 'error', title: 'Gagal', text: errMsg });
+            } else if (showAlerts) {
+                alert(errMsg);
+            } else {
+                console.error('SaveNilai error:', errMsg);
+            }
+            const error = new Error(errMsg);
+            error.status = status;
+            throw error;
         })
         .catch(error => {
-            console.error('Error:', error);
+            // network / parse errors
+            console.error('Error saving nilai:', error);
             if (showAlerts) {
                 if (window.Swal) {
-                    window.Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: 'Terjadi kesalahan saat menyimpan nilai.'
-                    });
+                    window.Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat menyimpan nilai.' });
                 } else {
                     alert('Terjadi kesalahan saat menyimpan nilai.');
                 }
@@ -721,20 +716,47 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Handle explicit form submission (keeps existing behavior but uses same save function)
-    form.onsubmit = function(e) {
-        e.preventDefault();
-        const tugasId = document.getElementById('tugasId').value;
-        const nilai = document.getElementById('nilaiInput').value;
-        const n = parseInt(nilai, 10);
-        if (!tugasId) return alert('Tugas tidak ditemukan.');
-        if (isNaN(n) || n < 0 || n > 100) return alert('Nilai harus angka antara 0 - 100.');
+    if (form) {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            const tugasId = document.getElementById('tugasId').value;
+            const nilai = document.getElementById('nilaiInput').value;
+            const n = parseInt(nilai, 10);
+            if (!tugasId) return alert('Tugas tidak ditemukan.');
+            if (isNaN(n) || n < 0 || n > 100) return alert('Nilai harus angka antara 0 - 100.');
 
-        saveNilai(tugasId, n, true)
-            .then(() => {
-                modal.style.display = 'none';
-                location.reload(); // reload to reflect updated rata-rata badges and listing
-            })
-            .catch(() => {});
+            saveNilai(tugasId, n, true)
+                .then(() => {
+                    modal.style.display = 'none';
+                    // reload to reflect updated rata-rata badges and listing
+                    location.reload();
+                })
+                .catch(() => {});
+        }
+    }
+
+    // Fallback: add click handler to the footer save button (in case form submission via form attr doesn't fire)
+    const footerSaveBtn = document.querySelector('.btn-submit-custom');
+    if (footerSaveBtn) {
+        footerSaveBtn.addEventListener('click', function (e) {
+            // If the button has form attribute it will trigger form submit; we still handle explicitly as a fallback
+            if (form) {
+                // Trigger the same logic as form.onsubmit
+                e.preventDefault();
+                const tugasId = document.getElementById('tugasId').value;
+                const nilai = document.getElementById('nilaiInput').value;
+                const n = parseInt(nilai, 10);
+                if (!tugasId) return alert('Tugas tidak ditemukan.');
+                if (isNaN(n) || n < 0 || n > 100) return alert('Nilai harus angka antara 0 - 100.');
+
+                saveNilai(tugasId, n, true)
+                    .then(() => {
+                        modal.style.display = 'none';
+                        location.reload();
+                    })
+                    .catch(() => {});
+            }
+        });
     }
 });
 
