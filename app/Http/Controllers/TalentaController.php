@@ -128,24 +128,47 @@ class TalentaController extends Controller
             ];
         }
 
+        // Find kelompok (if any) early so we can count shared kelompok tasks toward progress
+        $myKelompok = null;
+        try {
+            $myKelompok = TalentaKelompok::whereHas('users', function($q) {
+                $q->where('users.id', Auth::id());
+            })->first();
+        } catch (\Exception $e) {
+            // don't break the page if kelompok lookup fails; log and continue
+            Log::warning('Failed to lookup kelompok: ' . $e->getMessage());
+            $myKelompok = null;
+        }
+
         // Calculate progress
         $totalTasks = $materiLevel1->count() * 3; // 3 jenis tugas per area
-        $completedTasks = TugasTalentaLevel1::where('user_id', Auth::id())->count();
+
+        // Personal tasks (exclude 'kelompok' because those are shared)
+        $personalCount = TugasTalentaLevel1::where('user_id', Auth::id())
+            ->where('jenis_tugas', '!=', 'kelompok')
+            ->count();
+
+        // Count kelompok tasks (distinct per area) if user is in a kelompok
+        $groupCount = 0;
+        if ($myKelompok) {
+            $groupCount = TugasTalentaLevel1::where('kelompok_id', $myKelompok->id)
+                ->where('jenis_tugas', 'kelompok')
+                ->distinct()
+                ->count('area');
+        }
+
+        $completedTasks = $personalCount + $groupCount;
         $progressPercentage = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 1) : 0;
 
-        // Get existing tasks for the user
+        // Get existing tasks for the user (personal records)
         $existingTasks = TugasTalentaLevel1::where('user_id', Auth::id())
             ->get()
             ->keyBy(function($item) {
                 return $item->area . '-' . $item->jenis_tugas;
             });
 
-        // If user belongs to a kelompok, merge kelompok-level tugas so members can see shared upload
+        // Merge kelompok-level tugas so members can see shared upload
         try {
-            $myKelompok = TalentaKelompok::whereHas('users', function($q) {
-                $q->where('users.id', Auth::id());
-            })->first();
-
             if ($myKelompok) {
                 $groupTasks = TugasTalentaLevel1::where('kelompok_id', $myKelompok->id)
                     ->get()
@@ -161,7 +184,7 @@ class TalentaController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            // don't break the page if kelompok lookup fails; log and continue
+            // don't break the page if kelompok merge fails; log and continue
             Log::warning('Failed to merge kelompok tasks: ' . $e->getMessage());
         }
 
