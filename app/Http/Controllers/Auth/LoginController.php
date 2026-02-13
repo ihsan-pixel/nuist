@@ -51,7 +51,7 @@ class LoginController extends Controller
 
         // Redirect pemateri and fasilitator to talenta index
         if ($user->role === 'pemateri' || $user->role === 'fasilitator') {
-            return redirect()->route('talenta.index');
+            return redirect()->route('talenta.dashboard');
         }
 
         // For other roles, use default redirect
