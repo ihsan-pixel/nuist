@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use App\Models\TalentaPeserta;
@@ -245,23 +246,63 @@ class TalentaController extends Controller
                 }
             }
 
-            /* ---------- SIMPAN DATABASE ---------- */
-            $tugas = TugasTalentaLevel1::create([
-                'user_id'      => Auth::id(),
-                'area'         => $validated['area'],
-                'jenis_tugas'  => $validated['jenis_tugas'],
-                'data'         => collect($validated)->except(['area', 'jenis_tugas'])->toArray(),
-                'file_path'    => $filePath,
-                'submitted_at' => now(),
-            ]);
+            /* ---------- SIMPAN DATABASE (safe replace & archive old files) ---------- */
+            $existing = TugasTalentaLevel1::where('user_id', Auth::id())
+                ->where('area', $validated['area'])
+                ->where('jenis_tugas', $validated['jenis_tugas'])
+                ->latest()
+                ->first();
 
-            Log::info('TugasTalentaLevel1 created successfully', [
-                'id' => $tugas->id,
-                'user_id' => $tugas->user_id,
-                'area' => $tugas->area,
-                'jenis_tugas' => $tugas->jenis_tugas,
-                'file_path' => $tugas->file_path,
-            ]);
+            if ($existing) {
+                // archive old file if present
+                if ($existing->file_path) {
+                    $oldFull = public_path($existing->file_path);
+                    if (file_exists($oldFull)) {
+                        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? base_path('public');
+                        $uploadDir = $documentRoot . '/uploads/talenta';
+                        $archiveDir = $uploadDir . '/archive/' . date('Ymd');
+                        if (!file_exists($archiveDir)) {
+                            if (!mkdir($archiveDir, 0755, true) && !is_dir($archiveDir)) {
+                                Log::warning('Failed to create archive dir', ['dir' => $archiveDir]);
+                            }
+                        }
+                        $oldBase = basename($existing->file_path);
+                        $archName = time() . '_' . $oldBase;
+                        @rename($oldFull, $archiveDir . '/' . $archName);
+                    }
+                }
+
+                $existing->data = collect($validated)->except(['area', 'jenis_tugas'])->toArray();
+                $existing->file_path = $filePath;
+                $existing->submitted_at = now();
+                $existing->save();
+                $tugas = $existing;
+                Log::info('TugasTalentaLevel1 updated with new upload (old file archived)', [
+                    'id' => $tugas->id,
+                    'user_id' => $tugas->user_id,
+                    'area' => $tugas->area,
+                    'jenis_tugas' => $tugas->jenis_tugas,
+                    'file_path' => $tugas->file_path,
+                ]);
+
+            } else {
+                $tugas = TugasTalentaLevel1::create([
+                    'user_id'      => Auth::id(),
+                    'area'         => $validated['area'],
+                    'jenis_tugas'  => $validated['jenis_tugas'],
+                    'data'         => collect($validated)->except(['area', 'jenis_tugas'])->toArray(),
+                    'file_path'    => $filePath,
+                    'submitted_at' => now(),
+                ]);
+
+                Log::info('TugasTalentaLevel1 created successfully', [
+                    'id' => $tugas->id,
+                    'user_id' => $tugas->user_id,
+                    'area' => $tugas->area,
+                    'jenis_tugas' => $tugas->jenis_tugas,
+                    'file_path' => $tugas->file_path,
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -327,13 +368,27 @@ class TalentaController extends Controller
                 if ($task->file_path) {
                     $fullPath = public_path($task->file_path);
                     if (file_exists($fullPath)) {
-                        @unlink($fullPath);
+                        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? base_path('public');
+                        $uploadDir = $documentRoot . '/uploads/talenta';
+                        $archiveDir = $uploadDir . '/archive/' . date('Ymd');
+                        if (!file_exists($archiveDir)) {
+                            if (!mkdir($archiveDir, 0755, true) && !is_dir($archiveDir)) {
+                                Log::warning('Failed to create archive dir', ['dir' => $archiveDir]);
+                            }
+                        }
+                        $base = basename($task->file_path);
+                        $archName = time() . '_' . $base;
+                        @rename($fullPath, $archiveDir . '/' . $archName);
                     }
                 }
-                $task->delete();
+
+                // keep record but clear file reference so user can upload again
+                $task->file_path = null;
+                $task->submitted_at = null;
+                $task->save();
             }
 
-            $message = 'File terupload berhasil dihapus. Anda dapat mengupload file baru.';
+            $message = 'File terupload dipindahkan ke arsip. Anda dapat mengupload file baru.';
             return $request->wantsJson()
                 ? response()->json(['success' => true, 'message' => $message])
                 : redirect()->back()->with('success', $message);
