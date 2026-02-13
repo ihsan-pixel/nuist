@@ -1067,41 +1067,115 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Save handlers
-    function saveRatings(type, dataAttr) {
+    // Save handlers - build payload and POST to server
+    function mapAspekToFields(type, aspekIndex) {
+        const maps = {
+            trainer: {
+                1: 'kualitas_materi',
+                2: 'penyampaian',
+                3: 'integrasi_kasus',
+                4: 'penjelasan',
+                5: 'umpan_balik',
+                6: 'waktu'
+            },
+            fasilitator: {
+                1: 'fasilitasi',
+                2: 'pendampingan',
+                3: 'respons',
+                4: 'koordinasi',
+                5: 'monitoring',
+                6: 'waktu'
+            },
+            teknis: {
+                1: 'kehadiran',
+                2: 'partisipasi',
+                3: 'disiplin',
+                4: 'kualitas_tugas',
+                5: 'pemahaman_materi',
+                6: 'implementasi_praktik'
+            },
+            peserta: {
+                1: 'kehadiran',
+                2: 'partisipasi',
+                3: 'disiplin',
+                4: 'tugas',
+                5: 'pemahaman',
+                6: 'praktik',
+                7: 'sikap'
+            }
+        };
+
+        return maps[type] ? maps[type][aspekIndex] : null;
+    }
+
+    async function saveRatings(type) {
         const ratings = {};
         let maxAspek = 7; // default for peserta
 
-        if (type === 'trainer' || type === 'fasilitator') {
-            maxAspek = 6;
-        } else if (type === 'teknis') {
+        if (type === 'trainer' || type === 'fasilitator' || type === 'teknis') {
             maxAspek = 6;
         }
 
         document.querySelectorAll(`[data-${type}-id]`).forEach(row => {
             const id = row.dataset[`${type}Id`];
-            const name = row.querySelector(`.${type}-name`)?.textContent || 'Unknown';
-            ratings[id] = { name, values: {} };
+            ratings[id] = {};
             for (let aspek = 1; aspek <= maxAspek; aspek++) {
+                const fieldName = mapAspekToFields(type, aspek);
+                if (!fieldName) continue;
                 const selected = row.querySelector(`.rating-option[data-aspek="${aspek}"].selected`);
-                ratings[id].values[aspek] = selected ? selected.textContent : null;
+                ratings[id][fieldName] = selected ? parseInt(selected.textContent) : null;
             }
         });
 
-        const hasRating = Object.values(ratings).some(r => Object.values(r.values).some(v => v !== null));
+        const hasRating = Object.values(ratings).some(r => Object.values(r).some(v => v !== null));
         if (!hasRating) {
             Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Berikan setidaknya satu penilaian' });
             return;
         }
 
-        console.log(`Saving ${type} ratings:`, ratings);
-        Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Penilaian berhasil disimpan' });
+        // Determine endpoint
+        const routes = {
+            trainer: "{{ route('talenta.penilaian-trainer.simpan') }}",
+            fasilitator: "{{ route('talenta.penilaian-fasilitator.simpan') }}",
+            teknis: "{{ route('talenta.penilaian-teknis.simpan') }}",
+            peserta: "{{ route('talenta.penilaian-peserta.simpan') }}",
+        };
+
+        const url = routes[type];
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+        try {
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrf
+                },
+                body: JSON.stringify({ ratings })
+            });
+
+            const data = await res.json();
+            Swal.close();
+
+            if (res.ok && data.success) {
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message || 'Penilaian berhasil disimpan' });
+            } else {
+                const msg = data.message || 'Gagal menyimpan penilaian';
+                Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+            }
+        } catch (err) {
+            console.error('Error saving ratings', err);
+            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat menyimpan. Periksa konsol.' });
+        }
     }
 
-    document.getElementById('save-trainer-ratings')?.addEventListener('click', () => saveRatings('trainer', 'trainer'));
-    document.getElementById('save-fasilitator-ratings')?.addEventListener('click', () => saveRatings('fasilitator', 'fasilitator'));
-    document.getElementById('save-teknis-ratings')?.addEventListener('click', () => saveRatings('teknis', 'teknis'));
-    document.getElementById('save-peserta-ratings')?.addEventListener('click', () => saveRatings('peserta', 'peserta'));
+    document.getElementById('save-trainer-ratings')?.addEventListener('click', () => saveRatings('trainer'));
+    document.getElementById('save-fasilitator-ratings')?.addEventListener('click', () => saveRatings('fasilitator'));
+    document.getElementById('save-teknis-ratings')?.addEventListener('click', () => saveRatings('teknis'));
+    document.getElementById('save-peserta-ratings')?.addEventListener('click', () => saveRatings('peserta'));
 });
 </script>
 
