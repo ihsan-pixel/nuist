@@ -508,9 +508,20 @@ class TalentaController extends Controller
     public function simpanNilaiTugas(Request $request)
     {
         $request->validate([
-            'tugas_id' => 'required|integer|exists:tugas_talenta_level1s,id',
+            'tugas_id' => 'required|integer|exists:tugas_talenta_level1,id',
             'nilai' => 'required|integer|min:0|max:100',
         ]);
+
+        // Log incoming request for debugging when 500 occurs
+        try {
+            Log::info('simpanNilaiTugas called', [
+                'user_id' => Auth::id(),
+                'payload' => $request->all(),
+                'headers' => $request->headers->all()
+            ]);
+        } catch (\Exception $e) {
+            // swallow logging errors
+        }
 
         try {
             $tugas = TugasTalentaLevel1::findOrFail($request->tugas_id);
