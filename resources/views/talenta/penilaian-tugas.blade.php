@@ -712,14 +712,14 @@ function openNilaiModal(tugasId, namaPeserta, areaTugas, currentNilai, averageNi
     document.getElementById('areaTugas').textContent = areaTugas.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     document.getElementById('nilaiInput').value = currentNilai || '';
 
-    const currentDisplay = document.getElementById('currentNilaiDisplay');
+    // const currentDisplay = document.getElementById('currentNilaiDisplay');
     const averageDisplay = document.getElementById('averageNilaiDisplay');
 
-    if (currentNilai !== null && currentNilai !== undefined) {
-        currentDisplay.textContent = 'Nilai Anda sebelumnya: ' + currentNilai;
-    } else {
-        currentDisplay.textContent = '';
-    }
+    // if (currentNilai !== null && currentNilai !== undefined) {
+    //     currentDisplay.textContent = 'Nilai Anda sebelumnya: ' + currentNilai;
+    // } else {
+    //     currentDisplay.textContent = '';
+    // }
 
     if (averageNilai !== null && averageNilai !== undefined) {
         averageDisplay.textContent = 'Rata-rata nilai: ' + averageNilai;
