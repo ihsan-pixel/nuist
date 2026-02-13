@@ -381,6 +381,7 @@
                     <li><a href="<?php echo e(route('talenta.dashboard')); ?>" class="<?php echo e(request()->routeIs('talenta.dashboard') ? 'active' : ''); ?>">Dashboard</a></li>
                     <li><a href="<?php echo e(route('talenta.data')); ?>" class="<?php echo e(request()->routeIs('talenta.data') ? 'active' : ''); ?>">Data Talenta</a></li>
                     <li><a href="<?php echo e(route('talenta.instrumen-penilaian')); ?>" class="<?php echo e(request()->routeIs('talenta.instrumen-penilaian') ? 'active' : ''); ?>">Instrumen Penilaian</a></li>
+                    <li><a href="<?php echo e(route('talenta.penilaian-tugas')); ?>" class="<?php echo e(request()->routeIs('talenta.penilaian-tugas') ? 'active' : ''); ?>">Data Penilaian Tugas</a></li>
                 <?php elseif(Auth::user()->role === 'tenaga_pendidik'): ?>
                     <li><a href="<?php echo e(route('talenta.dashboard')); ?>" class="<?php echo e(request()->routeIs('talenta.dashboard') ? 'active' : ''); ?>">Dashboard</a></li>
                     <li><a href="<?php echo e(route('talenta.instrumen-penilaian')); ?>" class="<?php echo e(request()->routeIs('talenta.instrumen-penilaian') ? 'active' : ''); ?>">Instrumen Penilaian</a></li>
