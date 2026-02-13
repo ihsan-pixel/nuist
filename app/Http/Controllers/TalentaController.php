@@ -509,7 +509,7 @@ class TalentaController extends Controller
     {
         // Validate tugas_id against the actual DB table (plural).
         $request->validate([
-            'tugas_id' => 'required|integer|exists:tugas_talenta_level1s,id',
+            'tugas_id' => 'required|integer|exists:tugas_talenta_level1,id',
             'nilai' => 'required|integer|min:0|max:100',
         ]);
 
