@@ -1049,6 +1049,98 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Load saved ratings from server and apply to UI
+    function getFieldToAspekMap(type) {
+        const maps = {
+            trainer: {
+                'kualitas_materi': 1,
+                'penyampaian': 2,
+                'integrasi_kasus': 3,
+                'penjelasan': 4,
+                'umpan_balik': 5,
+                'waktu': 6
+            },
+            fasilitator: {
+                'fasilitasi': 1,
+                'pendampingan': 2,
+                'respons': 3,
+                'koordinasi': 4,
+                'monitoring': 5,
+                'waktu': 6
+            },
+            teknis: {
+                'kehadiran': 1,
+                'partisipasi': 2,
+                'disiplin': 3,
+                'kualitas_tugas': 4,
+                'pemahaman_materi': 5,
+                'implementasi_praktik': 6
+            },
+            peserta: {
+                'kehadiran': 1,
+                'partisipasi': 2,
+                'disiplin': 3,
+                'tugas': 4,
+                'pemahaman': 5,
+                'praktik': 6,
+                'sikap': 7
+            }
+        };
+        return maps[type] || {};
+    }
+
+    function applySavedRatings(type, payload) {
+        // payload expected as object keyed by item id
+        const fieldMap = getFieldToAspekMap(type);
+
+        Object.keys(payload || {}).forEach(id => {
+            const row = document.querySelector(`[data-${type}-id='${id}']`);
+            if (!row) return;
+
+            // For each field in the saved record, map to aspek index and mark selected
+            const record = payload[id];
+            Object.keys(record).forEach(field => {
+                if (field === 'id' || field === 'user_id' || record[field] === null) return;
+                const aspekIndex = fieldMap[field];
+                if (!aspekIndex) return;
+                const val = record[field];
+                // Find the corresponding span with matching data-<type> and data-aspek and data-nilai
+                const selector = `.rating-option[data-aspek="${aspekIndex}"][data-nilai="${val}"][data-${type}="${id}"]`;
+                const el = row.querySelector(selector);
+                if (el) {
+                    // remove previous selection in same rating-scale
+                    const scale = el.parentElement;
+                    scale.querySelectorAll('.rating-option').forEach(o => o.classList.remove('selected'));
+                    el.classList.add('selected');
+                }
+            });
+        });
+    }
+
+    async function fetchAndApply(type) {
+        const routes = {
+            trainer: "{{ route('talenta.penilaian-trainer.get') }}",
+            fasilitator: "{{ route('talenta.penilaian-fasilitator.get') }}",
+            teknis: "{{ route('talenta.penilaian-teknis.get') }}",
+            peserta: "{{ route('talenta.penilaian-peserta.get') }}",
+        };
+
+        const url = routes[type];
+        try {
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) return;
+            const json = await res.json();
+            if (json.success && json.data) {
+                applySavedRatings(type, json.data);
+            }
+        } catch (e) {
+            console.error('Failed to fetch saved ratings for', type, e);
+        }
+    }
+
+    // Fetch saved ratings for all sections (if routes available)
+    ['trainer','fasilitator','teknis','peserta'].forEach(t => fetchAndApply(t));
+
     // Tab navigation
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
