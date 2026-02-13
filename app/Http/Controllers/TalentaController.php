@@ -71,8 +71,8 @@ class TalentaController extends Controller
             'pesertaTalenta'     => TalentaPeserta::with(['user.madrasah'])->first()->get(),
             'pemateriTalenta'    => TalentaPemateri::with('materis')->latest()->get(),
             'fasilitatorTalenta' => TalentaFasilitator::latest()->get(),
-            'materiTalenta'      => TalentaMateri::latest()->get(),
-            'kelompokTalenta'    => \App\Models\TalentaKelompok::with('users')->latest()->get(),
+            'materiTalenta'      => TalentaMateri::first()->get(),
+            'kelompokTalenta'    => \App\Models\TalentaKelompok::with('users')->first()->get(),
         ]);
     }
 
