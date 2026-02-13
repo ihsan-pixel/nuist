@@ -640,20 +640,57 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                if (showAlerts) {
-                    alert(data.message);
+            // Use SweetAlert2 if available for nicer notifications
+            const successHandler = () => {
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: data.message || 'Nilai berhasil disimpan.',
+                        timer: 1500,
+                        showConfirmButton: false,
+                    });
+                } else if (showAlerts) {
+                    alert(data.message || 'Nilai berhasil disimpan.');
                 } else {
-                    showToast(data.message);
+                    showToast(data.message || 'Nilai berhasil disimpan.');
                 }
+            };
+
+            const errorHandler = (msg) => {
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: msg || 'Terjadi kesalahan saat menyimpan nilai.'
+                    });
+                } else if (showAlerts) {
+                    alert(msg || 'Terjadi kesalahan saat menyimpan nilai.');
+                } else {
+                    console.error(msg || 'Terjadi kesalahan saat menyimpan nilai.');
+                }
+            };
+
+            if (data.success) {
+                successHandler();
             } else {
-                if (showAlerts) alert(data.message);
+                errorHandler(data.message);
                 throw new Error(data.message || 'Gagal menyimpan nilai');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            if (showAlerts) alert('Terjadi kesalahan saat menyimpan nilai.');
+            if (showAlerts) {
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan saat menyimpan nilai.'
+                    });
+                } else {
+                    alert('Terjadi kesalahan saat menyimpan nilai.');
+                }
+            }
             throw error;
         });
     }
@@ -717,5 +754,15 @@ function openNilaiModal(tugasId, namaPeserta, areaTugas, currentNilai, averageNi
     }
 
     document.getElementById('nilaiModal').style.display = 'block';
+}
+</script>
+
+<!-- Load SweetAlert2 if not already loaded on the page -->
+<script>
+if (!window.Swal) {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+    s.defer = true;
+    document.head.appendChild(s);
 }
 </script>

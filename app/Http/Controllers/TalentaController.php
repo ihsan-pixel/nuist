@@ -507,8 +507,9 @@ class TalentaController extends Controller
      * ========================= */
     public function simpanNilaiTugas(Request $request)
     {
+        // Validate tugas_id against the actual DB table (plural).
         $request->validate([
-            'tugas_id' => 'required|integer|exists:tugas_talenta_level1,id',
+            'tugas_id' => 'required|integer|exists:tugas_talenta_level1s,id',
             'nilai' => 'required|integer|min:0|max:100',
         ]);
 

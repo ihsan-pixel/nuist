@@ -13,6 +13,8 @@ class TugasTalentaLevel1 extends Model
 {
     use HasFactory;
 
+    // Note: migrations create the table as "tugas_talenta_level1s" (plural).
+    // Align the model table name with the actual DB table to avoid validation/find issues.
     protected $table = 'tugas_talenta_level1';
     // optional tapi bagus kalau nama tabel tidak jamak standar
 
