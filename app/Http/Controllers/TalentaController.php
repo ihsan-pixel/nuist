@@ -143,7 +143,7 @@ class TalentaController extends Controller
         // If user belongs to a kelompok, merge kelompok-level tugas so members can see shared upload
         try {
             $myKelompok = TalentaKelompok::whereHas('users', function($q) {
-                $q->where('id', Auth::id());
+                $q->where('users.id', Auth::id());
             })->first();
 
             if ($myKelompok) {
@@ -276,7 +276,7 @@ class TalentaController extends Controller
             if ($validated['jenis_tugas'] === 'kelompok') {
                 // find kelompok for current user
                 $kelompok = TalentaKelompok::whereHas('users', function($q) {
-                    $q->where('id', Auth::id());
+                    $q->where('users.id', Auth::id());
                 })->first();
 
                 if (!$kelompok) {
@@ -412,7 +412,7 @@ class TalentaController extends Controller
         try {
             if ($validated['jenis_tugas'] === 'kelompok') {
                 $kelompok = TalentaKelompok::whereHas('users', function($q) {
-                    $q->where('id', Auth::id());
+                    $q->where('users.id', Auth::id());
                 })->first();
 
                 if (!$kelompok) {
