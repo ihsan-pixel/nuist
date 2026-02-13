@@ -68,7 +68,7 @@ class TalentaController extends Controller
     public function data()
     {
         return view('talenta.data', [
-            'pesertaTalenta'     => TalentaPeserta::with(['user.madrasah'])->latest()->get(),
+            'pesertaTalenta'     => TalentaPeserta::with(['user.madrasah'])->first()->get(),
             'pemateriTalenta'    => TalentaPemateri::with('materis')->latest()->get(),
             'fasilitatorTalenta' => TalentaFasilitator::latest()->get(),
             'materiTalenta'      => TalentaMateri::latest()->get(),
