@@ -1031,77 +1031,113 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Animation observer
-    const animateElements = document.querySelectorAll('.animate');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.classList.add('show');
-        });
-    }, { threshold: 0.15 });
-    animateElements.forEach(el => observer.observe(el));
 
-    // Rating selection
+    // rating click
     document.querySelectorAll('.rating-option').forEach(opt => {
         opt.addEventListener('click', function() {
             const parent = this.parentElement;
-            parent.querySelectorAll('.rating-option').forEach(o => o.classList.remove('selected'));
+            parent.querySelectorAll('.rating-option')
+                .forEach(o => o.classList.remove('selected'));
+
             this.classList.add('selected');
         });
     });
 
-    // Tab navigation
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const target = this.dataset.target;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(c => {
-                c.style.display = 'none';
-                c.classList.remove('active');
-            });
-            const targetEl = document.getElementById(target);
-            if (targetEl) {
-                targetEl.style.display = 'block';
-                setTimeout(() => targetEl.classList.add('show'), 10);
-            }
-        });
-    });
 
-    // Save handlers
-    function saveRatings(type, dataAttr) {
+    function getRoute(type){
+        const routes = {
+            trainer: "{{ route('talenta.penilaian-trainer.simpan') }}",
+            fasilitator: "{{ route('talenta.penilaian-fasilitator.simpan') }}",
+            teknis: "{{ route('talenta.penilaian-teknis.simpan') }}",
+            peserta: "{{ route('talenta.penilaian-peserta.simpan') }}"
+        };
+
+        return routes[type];
+    }
+
+
+    function saveRatings(type){
+
         const ratings = {};
-        let maxAspek = 7; // default for peserta
-
-        if (type === 'trainer' || type === 'fasilitator') {
-            maxAspek = 6;
-        } else if (type === 'teknis') {
-            maxAspek = 6;
-        }
 
         document.querySelectorAll(`[data-${type}-id]`).forEach(row => {
+
             const id = row.dataset[`${type}Id`];
-            const name = row.querySelector(`.${type}-name`)?.textContent || 'Unknown';
-            ratings[id] = { name, values: {} };
-            for (let aspek = 1; aspek <= maxAspek; aspek++) {
-                const selected = row.querySelector(`.rating-option[data-aspek="${aspek}"].selected`);
-                ratings[id].values[aspek] = selected ? selected.textContent : null;
-            }
+
+            ratings[id] = {};
+
+            row.querySelectorAll('.rating-option.selected')
+                .forEach(el => {
+
+                    const aspek = el.dataset.aspek;
+                    const nilai = el.dataset.nilai;
+
+                    ratings[id][aspek] = nilai;
+                });
+
         });
 
-        const hasRating = Object.values(ratings).some(r => Object.values(r.values).some(v => v !== null));
-        if (!hasRating) {
-            Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Berikan setidaknya satu penilaian' });
+
+        if(Object.keys(ratings).length === 0){
+            Swal.fire({
+                icon:'warning',
+                title:'Oops',
+                text:'Belum ada penilaian!'
+            });
             return;
         }
 
-        console.log(`Saving ${type} ratings:`, ratings);
-        Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Penilaian berhasil disimpan' });
+
+        fetch(getRoute(type), {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content")
+            },
+
+            body: JSON.stringify({
+                ratings: ratings
+            })
+
+        })
+        .then(res => res.json())
+        .then(() => {
+
+            Swal.fire({
+                icon:'success',
+                title:'Berhasil',
+                text:'Penilaian tersimpan!'
+            });
+
+        })
+        .catch(() => {
+
+            Swal.fire({
+                icon:'error',
+                title:'Server Error'
+            });
+
+        });
+
     }
 
-    document.getElementById('save-trainer-ratings')?.addEventListener('click', () => saveRatings('trainer', 'trainer'));
-    document.getElementById('save-fasilitator-ratings')?.addEventListener('click', () => saveRatings('fasilitator', 'fasilitator'));
-    document.getElementById('save-teknis-ratings')?.addEventListener('click', () => saveRatings('teknis', 'teknis'));
-    document.getElementById('save-peserta-ratings')?.addEventListener('click', () => saveRatings('peserta', 'peserta'));
+
+    document.getElementById('save-trainer-ratings')
+        ?.addEventListener('click', () => saveRatings('trainer'));
+
+    document.getElementById('save-fasilitator-ratings')
+        ?.addEventListener('click', () => saveRatings('fasilitator'));
+
+    document.getElementById('save-teknis-ratings')
+        ?.addEventListener('click', () => saveRatings('teknis'));
+
+    document.getElementById('save-peserta-ratings')
+        ?.addEventListener('click', () => saveRatings('peserta'));
+
 });
 </script>
 
