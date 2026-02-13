@@ -482,6 +482,7 @@
                             <th>Area Tugas</th>
                             <th>Jenis Tugas</th>
                             <th>Tanggal Submit</th>
+                            <th>Nilai</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -494,6 +495,20 @@
                             <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area)) }}</td>
                             <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                             <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
+                            @php
+                                $nilaiCollection = $tugasItem->nilai ?? collect();
+                                $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
+                                $averageNilai = $nilaiCollection->avg('nilai');
+                            @endphp
+                            <td>
+                                @if($currentUserNilai)
+                                    <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
+                                @elseif($averageNilai)
+                                    <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td>
                                 @if($tugasItem->file_path)
                                     <a href="{{ asset('/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
@@ -505,11 +520,6 @@
                                 @else
                                     <span class="text-muted">Tidak ada file</span>
                                 @endif
-                                @php
-                                    $nilaiCollection = $tugasItem->nilai ?? collect();
-                                    $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
-                                    $averageNilai = $nilaiCollection->avg('nilai');
-                                @endphp
                                 <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ $averageNilai ? number_format($averageNilai, 1) : 'null' }})">
                                     <i class="bi bi-star"></i> Nilai
                                     @if($currentUserNilai)
