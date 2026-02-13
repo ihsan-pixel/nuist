@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 use App\Models\TugasNilai;
+use App\Models\TalentaKelompok;
 
 class TugasTalentaLevel1 extends Model
 {
@@ -17,6 +18,7 @@ class TugasTalentaLevel1 extends Model
 
     protected $fillable = [
         'user_id',
+        'kelompok_id',
         'area',
         'jenis_tugas',
         'data',
@@ -34,6 +36,11 @@ class TugasTalentaLevel1 extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function kelompok(): BelongsTo
+    {
+        return $this->belongsTo(TalentaKelompok::class, 'kelompok_id');
     }
 
     public function nilai()

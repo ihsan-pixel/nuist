@@ -140,6 +140,31 @@ class TalentaController extends Controller
                 return $item->area . '-' . $item->jenis_tugas;
             });
 
+        // If user belongs to a kelompok, merge kelompok-level tugas so members can see shared upload
+        try {
+            $myKelompok = TalentaKelompok::whereHas('users', function($q) {
+                $q->where('id', Auth::id());
+            })->first();
+
+            if ($myKelompok) {
+                $groupTasks = TugasTalentaLevel1::where('kelompok_id', $myKelompok->id)
+                    ->get()
+                    ->keyBy(function($item) {
+                        return $item->area . '-' . $item->jenis_tugas;
+                    });
+
+                foreach ($groupTasks as $key => $task) {
+                    // only override kelompok-type tasks (shared)
+                    if (strpos($key, '-kelompok') !== false) {
+                        $existingTasks[$key] = $task;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // don't break the page if kelompok lookup fails; log and continue
+            Log::warning('Failed to merge kelompok tasks: ' . $e->getMessage());
+        }
+
         return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks', 'existingTasks'));
     }
 
@@ -247,11 +272,34 @@ class TalentaController extends Controller
             }
 
             /* ---------- SIMPAN DATABASE (safe replace & archive old files) ---------- */
-            $existing = TugasTalentaLevel1::where('user_id', Auth::id())
-                ->where('area', $validated['area'])
-                ->where('jenis_tugas', $validated['jenis_tugas'])
-                ->latest()
-                ->first();
+            $kelompokId = null;
+            if ($validated['jenis_tugas'] === 'kelompok') {
+                // find kelompok for current user
+                $kelompok = TalentaKelompok::whereHas('users', function($q) {
+                    $q->where('id', Auth::id());
+                })->first();
+
+                if (!$kelompok) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda belum tergabung dalam kelompok. Tidak dapat mengupload tugas kelompok.',
+                    ], 422);
+                }
+
+                $kelompokId = $kelompok->id;
+
+                $existing = TugasTalentaLevel1::where('kelompok_id', $kelompokId)
+                    ->where('area', $validated['area'])
+                    ->where('jenis_tugas', $validated['jenis_tugas'])
+                    ->latest()
+                    ->first();
+            } else {
+                $existing = TugasTalentaLevel1::where('user_id', Auth::id())
+                    ->where('area', $validated['area'])
+                    ->where('jenis_tugas', $validated['jenis_tugas'])
+                    ->latest()
+                    ->first();
+            }
 
             if ($existing) {
                 // archive old file if present
@@ -275,6 +323,10 @@ class TalentaController extends Controller
                 $existing->data = collect($validated)->except(['area', 'jenis_tugas'])->toArray();
                 $existing->file_path = $filePath;
                 $existing->submitted_at = now();
+                // ensure kelompok_id is set for kelompok-type tugas
+                if ($kelompokId) {
+                    $existing->kelompok_id = $kelompokId;
+                }
                 $existing->save();
                 $tugas = $existing;
                 Log::info('TugasTalentaLevel1 updated with new upload (old file archived)', [
@@ -286,14 +338,20 @@ class TalentaController extends Controller
                 ]);
 
             } else {
-                $tugas = TugasTalentaLevel1::create([
+                $createData = [
                     'user_id'      => Auth::id(),
                     'area'         => $validated['area'],
                     'jenis_tugas'  => $validated['jenis_tugas'],
                     'data'         => collect($validated)->except(['area', 'jenis_tugas'])->toArray(),
                     'file_path'    => $filePath,
                     'submitted_at' => now(),
-                ]);
+                ];
+
+                if ($kelompokId) {
+                    $createData['kelompok_id'] = $kelompokId;
+                }
+
+                $tugas = TugasTalentaLevel1::create($createData);
 
                 Log::info('TugasTalentaLevel1 created successfully', [
                     'id' => $tugas->id,
@@ -352,10 +410,28 @@ class TalentaController extends Controller
         ]);
 
         try {
-            $tasks = TugasTalentaLevel1::where('user_id', Auth::id())
-                ->where('area', $validated['area'])
-                ->where('jenis_tugas', $validated['jenis_tugas'])
-                ->get();
+            if ($validated['jenis_tugas'] === 'kelompok') {
+                $kelompok = TalentaKelompok::whereHas('users', function($q) {
+                    $q->where('id', Auth::id());
+                })->first();
+
+                if (!$kelompok) {
+                    $message = 'Anda belum tergabung dalam kelompok.';
+                    return $request->wantsJson()
+                        ? response()->json(['success' => false, 'message' => $message], 422)
+                        : redirect()->back()->with('error', $message);
+                }
+
+                $tasks = TugasTalentaLevel1::where('kelompok_id', $kelompok->id)
+                    ->where('area', $validated['area'])
+                    ->where('jenis_tugas', $validated['jenis_tugas'])
+                    ->get();
+            } else {
+                $tasks = TugasTalentaLevel1::where('user_id', Auth::id())
+                    ->where('area', $validated['area'])
+                    ->where('jenis_tugas', $validated['jenis_tugas'])
+                    ->get();
+            }
 
             if ($tasks->isEmpty()) {
                 $message = 'Tidak ditemukan file yang tersimpan untuk tugas ini.';
