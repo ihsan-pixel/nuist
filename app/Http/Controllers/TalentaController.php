@@ -85,8 +85,8 @@ class TalentaController extends Controller
     {
         return view('talenta.instrumen-penilaian', [
             'pesertaTalenta'        => TalentaPeserta::with(['user.madrasah'])->latest()->get(),
-            'fasilitatorTalenta'    => TalentaFasilitator::with('materis')->latest()->get(),
-            'pemateriTalenta'       => TalentaPemateri::with('materis')->latest()->get(),
+            'fasilitatorTalenta'    => TalentaFasilitator::orderByRaw("FIELD(id, 36, 31, 27, 28, 34, 32, 35, 29, 30, 33, 37)")->get(),
+            'pemateriTalenta'       => TalentaPemateri::with('materis')->orderByRaw("FIELD(id, 27, 28, 25, 33, 26, 32, 34, 30, 29, 31)")->get(),
             'layananTeknisTalenta'  => TalentaLayananTeknis::latest()->get(),
         ]);
     }
