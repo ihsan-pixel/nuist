@@ -482,11 +482,15 @@
                             <th>Area Tugas</th>
                             <th>Jenis Tugas</th>
                             <th>Tanggal Submit</th>
-                            <th>Nilai</th>
+                            {{-- <th>Nilai</th> --}}
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            // Areas (slugs) the current user is allowed to assess
+                            $allowedAreas = collect($materis ?? [])->pluck('slug')->toArray();
+                        @endphp
                         @forelse($tugas ?? [] as $index => $tugasItem)
                         <tr>
                             <td>{{ $index + 1 }}</td>
@@ -500,7 +504,7 @@
                                 $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
                                 $averageNilai = $nilaiCollection->avg('nilai');
                             @endphp
-                            <td>
+                            {{-- <td>
                                 @if($currentUserNilai)
                                     <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
                                 @elseif($averageNilai)
@@ -508,7 +512,7 @@
                                 @else
                                     <span class="text-muted">Belum ada nilai</span>
                                 @endif
-                            </td>
+                            </td> --}}
                             <td>
                                 @if($tugasItem->file_path)
                                     <a href="{{ asset('/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
@@ -520,15 +524,17 @@
                                 @else
                                     <span class="text-muted">Tidak ada file</span>
                                 @endif
-                                <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ $averageNilai ? number_format($averageNilai, 1) : 'null' }})">
-                                    <i class="bi bi-star"></i> Nilai
-                                    @if($currentUserNilai)
-                                        ({{ $currentUserNilai->nilai }})
-                                    @endif
-                                    @if($averageNilai)
-                                        <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
-                                    @endif
-                                </button>
+                                @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                    <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ $averageNilai ? number_format($averageNilai, 1) : 'null' }})">
+                                        <i class="bi bi-star"></i> Nilai
+                                        @if($currentUserNilai)
+                                            ({{ $currentUserNilai->nilai }})
+                                        @endif
+                                        @if($averageNilai)
+                                            <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
+                                        @endif
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                         @empty

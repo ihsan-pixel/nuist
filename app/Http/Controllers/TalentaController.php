@@ -534,11 +534,18 @@ class TalentaController extends Controller
         // Map to slugs which correspond to the `area` column on tugas table
         $materiSlugs = $materiModels->pluck('slug')->toArray();
 
-        // Get tasks related to the user's materi(s)
-        $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
-            ->whereIn('area', $materiSlugs)
-            ->latest()
-            ->get();
+        // Special case: user ID 2472 may access ALL uploaded tugas regardless of materi
+        if (Auth::id() === 2472) {
+            $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
+                ->latest()
+                ->get();
+        } else {
+            // Get tasks related to the user's materi(s)
+            $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
+                ->whereIn('area', $materiSlugs)
+                ->latest()
+                ->get();
+        }
 
         // Pass materi list to the view so UI can present selection if needed
         return view('talenta.penilaian-tugas', [
