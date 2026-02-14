@@ -13,16 +13,28 @@
 <input type="hidden" name="area" value="{{ $config['slug'] }}">
 <input type="hidden" name="jenis_tugas" value="on_site">
 
+@php
+    // Determine if the materi has passed its tanggal_materi (expired)
+    $expired = false;
+    if (isset($materi) && $materi->tanggal_materi) {
+        $expired = now()->gt($materi->tanggal_materi);
+    }
+@endphp
+
 <input type="file"
        name="lampiran"
        class="form-control"
-       required>
+       @if($expired) disabled @else required @endif>
 
 <div class="d-flex justify-content-end mt-3">
-    @if(!isset($existingTasks[$config['slug'] . '-on_site']))
-        <button class="btn btn-primary me-2" type="submit">
-            Upload On Site
-        </button>
+    @if($expired)
+        <p class="text-danger me-2">Batas waktu upload telah lewat ({{ isset($materi->tanggal_materi) ? $materi->tanggal_materi->format('d M Y') : '-' }}).</p>
+    @else
+        @if(!isset($existingTasks[$config['slug'] . '-on_site']))
+            <button class="btn btn-primary me-2" type="submit">
+                Upload On Site
+            </button>
+        @endif
     @endif
     @if(isset($existingTasks[$config['slug'] . '-on_site']))
         <a href="{{ asset($existingTasks[$config['slug'] . '-on_site']->file_path) }}"
