@@ -495,7 +495,7 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
-                            <td>{{ $tugasItem->user->madrasah->nama_madrasah ?? 'N/A' }}</td>
+                            <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td>
                             <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area)) }}</td>
                             <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                             <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
