@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Models\TalentaPeserta;
 use App\Models\TalentaPemateri;
 use App\Models\TalentaFasilitator;
@@ -824,6 +825,9 @@ class TalentaController extends Controller
             return response()->json(['success' => false, 'message' => 'Sesi telah berakhir.'], 401);
         }
 
+        // Wrap DB operations in a transaction to keep data consistent and
+        // provide clearer error reporting when something fails.
+        DB::beginTransaction();
         try {
             $ratings = $request->input('ratings', []);
             // materi_id is now stored per-penilaian peserta
@@ -867,13 +871,28 @@ class TalentaController extends Controller
                 }
             }
 
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Penilaian peserta berhasil disimpan.'
             ]);
         } catch (\Exception $e) {
-            Log::error('Error saving peserta penilaian', ['error' => $e->getMessage()]);
-            return response()->json(['success' => false, 'message' => 'Gagal menyimpan penilaian.'], 500);
+            DB::rollBack();
+            // Log full exception and request payload to help debugging
+            Log::error('Error saving peserta penilaian', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'payload' => $request->all(),
+                'user_id' => Auth::id(),
+            ]);
+
+            // Return error message to client for immediate debugging (remove in prod)
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan penilaian.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
