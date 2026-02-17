@@ -87,7 +87,7 @@ class TalentaController extends Controller
         // Get materi list for selection
         $materiTalenta = TalentaMateri::where('status', TalentaMateri::STATUS_PUBLISHED)
             ->orderBy('level_materi')
-            ->orderBy('judul_materi')
+            ->orderBy('id')
             ->get();
 
         // Get selected materi from request
