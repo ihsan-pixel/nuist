@@ -834,20 +834,15 @@ class TalentaController extends Controller
             $materiId = $request->input('materi_id');
 
             foreach ($ratings as $pesertaId => $data) {
-                // Try to find existing penilaian for this peserta/user/materi
+                // Only update when there is an existing record for the same peserta/user/materi
+                // Otherwise, attempt to create a new per-materi record. If the DB schema
+                // still enforces a unique constraint on (talenta_peserta_id, user_id),
+                // the insert will fail with a duplicate-key error and we return a clear
+                // message so the operator can adjust the schema.
                 $penilaian = TalentaPenilaianPeserta::where('talenta_peserta_id', $pesertaId)
                     ->where('user_id', Auth::id())
                     ->where('materi_id', $materiId)
                     ->first();
-
-                // If not found, check for any existing penilaian for the same peserta/user
-                // (legacy DBs may have a unique index on talenta_peserta_id+user_id). We
-                // update that record instead of inserting to avoid duplicate-key errors.
-                if (!$penilaian) {
-                    $penilaian = TalentaPenilaianPeserta::where('talenta_peserta_id', $pesertaId)
-                        ->where('user_id', Auth::id())
-                        ->first();
-                }
 
                 $values = [
                     'talenta_peserta_id' => $pesertaId,
@@ -863,12 +858,39 @@ class TalentaController extends Controller
                 ];
 
                 if ($penilaian) {
-                    // update existing record (either matching materi or legacy without materi)
+                    // update existing per-materi record
                     $penilaian->fill($values);
                     $penilaian->save();
                 } else {
-                    // create new record
-                    TalentaPenilaianPeserta::create($values);
+                    // try to create a new record; catch duplicate-key errors and
+                    // return a helpful message instead of overwriting other materi rows
+                    try {
+                        TalentaPenilaianPeserta::create($values);
+                    } catch (\Illuminate\Database\QueryException $qe) {
+                        // Duplicate entry (1062) or integrity constraint violation (23000)
+                        $errorCode = $qe->errorInfo[1] ?? $qe->getCode();
+                        Log::error('DB QueryException while creating penilaian', [
+                            'code' => $errorCode,
+                            'message' => $qe->getMessage(),
+                            'peserta_id' => $pesertaId,
+                            'user_id' => Auth::id(),
+                            'materi_id' => $materiId,
+                        ]);
+
+                        if ((int) $errorCode === 1062) {
+                            // Inform operator that schema prevents per-materi inserts
+                            DB::rollBack();
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Gagal membuat penilaian baru karena indeks unik pada database mencegah duplikasi pada pasangan (talenta_peserta_id, user_id).',
+                                'error' => 'duplicate_key',
+                                'detail' => $qe->getMessage(),
+                            ], 409);
+                        }
+
+                        // Re-throw for other DB errors
+                        throw $qe;
+                    }
                 }
             }
 

@@ -886,6 +886,17 @@
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role !== 'fasilitator'): ?>
         <!-- PESERTA SECTION -->
         <div id="peserta-section" class="instrumen-section animate fade-up delay-3 tab-content" style="display: none;">
+            
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($materiTalenta) && $materiTalenta->isNotEmpty()): ?>
+            <div style="margin: 18px 0; display:flex; gap:8px; overflow:auto;">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $materiTalenta; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                    <button class="materi-btn" data-materi-id="<?php echo e($m->id); ?>" style="padding:8px 14px; border-radius:12px; border:1px solid #e2e8f0; background:white; cursor:pointer;">
+                        <?php echo e(Str::limit($m->judul_materi, 40)); ?>
+
+                    </button>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
@@ -938,6 +949,17 @@
         <?php if(Auth::user()->role === 'fasilitator'): ?>
         <!-- PESERTA SECTION FOR FASILITATOR -->
         <div id="peserta-section" class="instrumen-section animate fade-up tab-content active">
+            
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($materiTalenta) && $materiTalenta->isNotEmpty()): ?>
+            <div style="margin: 18px 0; display:flex; gap:8px; overflow:auto;">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $materiTalenta; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                    <button class="materi-btn" data-materi-id="<?php echo e($m->id); ?>" style="padding:8px 14px; border-radius:12px; border:1px solid #e2e8f0; background:white; cursor:pointer;">
+                        <?php echo e(Str::limit($m->judul_materi, 40)); ?>
+
+                    </button>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
@@ -1046,6 +1068,124 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Load saved ratings from server and apply to UI
+    // selectedMateriId controls which materi's peserta-penilaian is fetched/saved
+    let selectedMateriId = '<?php echo e($selectedMateriId ?? ($materiTalenta->first()->id ?? '')); ?>';
+
+    // initialize materi buttons
+    document.querySelectorAll('.materi-btn').forEach(btn => {
+        const id = btn.dataset.materiId;
+        if (String(id) === String(selectedMateriId)) {
+            btn.style.background = '#004b4c'; btn.style.color = 'white'; btn.style.borderColor = '#00393a';
+        }
+        btn.addEventListener('click', function() {
+            // toggle active look
+            document.querySelectorAll('.materi-btn').forEach(b => { b.style.background = 'white'; b.style.color = ''; b.style.borderColor = '#e2e8f0'; });
+            this.style.background = '#004b4c'; this.style.color = 'white'; this.style.borderColor = '#00393a';
+            selectedMateriId = this.dataset.materiId;
+            // re-fetch peserta saved ratings for the selected materi
+            fetchAndApply('peserta');
+        });
+    });
+    function getFieldToAspekMap(type) {
+        const maps = {
+            trainer: {
+                'kualitas_materi': 1,
+                'penyampaian': 2,
+                'integrasi_kasus': 3,
+                'penjelasan': 4,
+                'umpan_balik': 5,
+                'waktu': 6
+            },
+            fasilitator: {
+                'fasilitasi': 1,
+                'pendampingan': 2,
+                'respons': 3,
+                'koordinasi': 4,
+                'monitoring': 5,
+                'waktu': 6
+            },
+            teknis: {
+                'kehadiran': 1,
+                'partisipasi': 2,
+                'disiplin': 3,
+                'kualitas_tugas': 4,
+                'pemahaman_materi': 5,
+                'implementasi_praktik': 6
+            },
+            peserta: {
+                'kehadiran': 1,
+                'partisipasi': 2,
+                'disiplin': 3,
+                'tugas': 4,
+                'pemahaman': 5,
+                'praktik': 6,
+                'sikap': 7
+            }
+        };
+        return maps[type] || {};
+    }
+
+    function applySavedRatings(type, payload) {
+        // payload expected as object keyed by item id
+        const fieldMap = getFieldToAspekMap(type);
+
+        Object.keys(payload || {}).forEach(id => {
+            const row = document.querySelector(`[data-${type}-id='${id}']`);
+            if (!row) return;
+
+            // For each field in the saved record, map to aspek index and mark selected
+            const record = payload[id];
+            Object.keys(record).forEach(field => {
+                if (field === 'id' || field === 'user_id' || record[field] === null) return;
+                const aspekIndex = fieldMap[field];
+                if (!aspekIndex) return;
+                const val = record[field];
+                // Find the corresponding span with matching data-<type> and data-aspek and data-nilai
+                const selector = `.rating-option[data-aspek="${aspekIndex}"][data-nilai="${val}"][data-${type}="${id}"]`;
+                const el = row.querySelector(selector);
+                if (el) {
+                    // remove previous selection in same rating-scale
+                    const scale = el.parentElement;
+                    scale.querySelectorAll('.rating-option').forEach(o => o.classList.remove('selected'));
+                    el.classList.add('selected');
+                }
+            });
+        });
+    }
+
+    async function fetchAndApply(type) {
+        const routes = {
+            trainer: "<?php echo e(route('talenta.penilaian-trainer.get')); ?>",
+            fasilitator: "<?php echo e(route('talenta.penilaian-fasilitator.get')); ?>",
+            teknis: "<?php echo e(route('talenta.penilaian-teknis.get')); ?>",
+            peserta: "<?php echo e(route('talenta.penilaian-peserta.get')); ?>",
+        };
+        let url = routes[type];
+        if (type === 'peserta' && selectedMateriId) {
+            // append materi filter as query param
+            url += (url.includes('?') ? '&' : '?') + 'materi_id=' + encodeURIComponent(selectedMateriId);
+        }
+        try {
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) return;
+            const json = await res.json();
+
+            // Clear previous selections for this section so switching materi shows
+            // an empty scale when there are no saved penilaian for the selected materi.
+            document.querySelectorAll('.rating-option.selected').forEach(el => el.classList.remove('selected'));
+
+            if (json.success && json.data) {
+                applySavedRatings(type, json.data);
+            }
+        } catch (e) {
+            console.error('Failed to fetch saved ratings for', type, e);
+        }
+    }
+
+    // Fetch saved ratings for all sections (if routes available)
+    ['trainer','fasilitator','teknis','peserta'].forEach(t => fetchAndApply(t));
+
     // Tab navigation
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -1064,41 +1204,143 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Save handlers
-    function saveRatings(type, dataAttr) {
+    // Save handlers - build payload and POST to server
+    function mapAspekToFields(type, aspekIndex) {
+        const maps = {
+            trainer: {
+                1: 'kualitas_materi',
+                2: 'penyampaian',
+                3: 'integrasi_kasus',
+                4: 'penjelasan',
+                5: 'umpan_balik',
+                6: 'waktu'
+            },
+            fasilitator: {
+                1: 'fasilitasi',
+                2: 'pendampingan',
+                3: 'respons',
+                4: 'koordinasi',
+                5: 'monitoring',
+                6: 'waktu'
+            },
+            teknis: {
+                1: 'kehadiran',
+                2: 'partisipasi',
+                3: 'disiplin',
+                4: 'kualitas_tugas',
+                5: 'pemahaman_materi',
+                6: 'implementasi_praktik'
+            },
+            peserta: {
+                1: 'kehadiran',
+                2: 'partisipasi',
+                3: 'disiplin',
+                4: 'tugas',
+                5: 'pemahaman',
+                6: 'praktik',
+                7: 'sikap'
+            }
+        };
+
+        return maps[type] ? maps[type][aspekIndex] : null;
+    }
+
+    async function saveRatings(type) {
         const ratings = {};
         let maxAspek = 7; // default for peserta
 
-        if (type === 'trainer' || type === 'fasilitator') {
-            maxAspek = 6;
-        } else if (type === 'teknis') {
+        if (type === 'trainer' || type === 'fasilitator' || type === 'teknis') {
             maxAspek = 6;
         }
 
         document.querySelectorAll(`[data-${type}-id]`).forEach(row => {
             const id = row.dataset[`${type}Id`];
-            const name = row.querySelector(`.${type}-name`)?.textContent || 'Unknown';
-            ratings[id] = { name, values: {} };
+            ratings[id] = {};
             for (let aspek = 1; aspek <= maxAspek; aspek++) {
+                const fieldName = mapAspekToFields(type, aspek);
+                if (!fieldName) continue;
                 const selected = row.querySelector(`.rating-option[data-aspek="${aspek}"].selected`);
-                ratings[id].values[aspek] = selected ? selected.textContent : null;
+                ratings[id][fieldName] = selected ? parseInt(selected.textContent) : null;
             }
         });
 
-        const hasRating = Object.values(ratings).some(r => Object.values(r.values).some(v => v !== null));
+        const hasRating = Object.values(ratings).some(r => Object.values(r).some(v => v !== null));
         if (!hasRating) {
             Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Berikan setidaknya satu penilaian' });
             return;
         }
 
-        console.log(`Saving ${type} ratings:`, ratings);
-        Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Penilaian berhasil disimpan' });
+        // Determine endpoint
+        const routes = {
+            trainer: "<?php echo e(route('talenta.penilaian-trainer.simpan')); ?>",
+            fasilitator: "<?php echo e(route('talenta.penilaian-fasilitator.simpan')); ?>",
+            teknis: "<?php echo e(route('talenta.penilaian-teknis.simpan')); ?>",
+            peserta: "<?php echo e(route('talenta.penilaian-peserta.simpan')); ?>",
+        };
+
+        const url = routes[type];
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?php echo e(csrf_token()); ?>';
+
+        try {
+            Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            // if saving peserta ratings, include materi_id
+            const payload = { ratings };
+            if (type === 'peserta') {
+                if (!selectedMateriId) {
+                    Swal.close();
+                    Swal.fire({ icon: 'warning', title: 'Pilih Materi', text: 'Silakan pilih materi terlebih dahulu sebelum menyimpan penilaian peserta.' });
+                    return;
+                }
+                payload.materi_id = selectedMateriId;
+            }
+
+            console.log('Saving payload to', url, payload);
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrf
+                },
+                body: JSON.stringify(payload)
+            });
+
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                const text = await res.text().catch(() => 'No response body');
+                Swal.close();
+                console.error('Save failed, non-JSON response:', text);
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Server mengembalikan respon yang tidak valid.' });
+                return;
+            }
+
+            Swal.close();
+
+            if (!res.ok) {
+                console.error('Save failed:', data);
+                Swal.fire({ icon: 'error', title: 'Gagal', text: (data.error || data.message) || 'Gagal menyimpan penilaian.' });
+                return;
+            }
+
+            if (!data.success) {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Gagal menyimpan penilaian.' });
+                return;
+            }
+
+            Swal.fire({ icon: 'success', title: 'Sukses', text: data.message || 'Penilaian berhasil disimpan.' });
+        } catch (err) {
+            console.error('Error saving ratings', err);
+            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat menyimpan. Periksa konsol.' });
+        }
     }
 
-    document.getElementById('save-trainer-ratings')?.addEventListener('click', () => saveRatings('trainer', 'trainer'));
-    document.getElementById('save-fasilitator-ratings')?.addEventListener('click', () => saveRatings('fasilitator', 'fasilitator'));
-    document.getElementById('save-teknis-ratings')?.addEventListener('click', () => saveRatings('teknis', 'teknis'));
-    document.getElementById('save-peserta-ratings')?.addEventListener('click', () => saveRatings('peserta', 'peserta'));
+    document.getElementById('save-trainer-ratings')?.addEventListener('click', () => saveRatings('trainer'));
+    document.getElementById('save-fasilitator-ratings')?.addEventListener('click', () => saveRatings('fasilitator'));
+    document.getElementById('save-teknis-ratings')?.addEventListener('click', () => saveRatings('teknis'));
+    document.getElementById('save-peserta-ratings')?.addEventListener('click', () => saveRatings('peserta'));
 });
 </script>
 

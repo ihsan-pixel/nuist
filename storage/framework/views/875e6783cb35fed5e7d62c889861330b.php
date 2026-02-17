@@ -509,7 +509,7 @@
                                     </td>
                                     <td class="py-3 pe-4">
                                         <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1 me-3">
+                                            <div class="grow me-3">
                                                 <div class="progress" style="height: 8px;">
                                                     <div class="progress-bar bg-success" role="progressbar"
                                                          style="width: <?php echo e($adminStats['total_teachers'] > 0 ? round(($status['count'] / $adminStats['total_teachers']) * 100) : 0); ?>%"
@@ -825,7 +825,7 @@
                                     </td>
                                     <td class="py-3 pe-4">
                                         <div class="d-flex align-items-center">
-                                            <div class="flex-grow-1 me-3">
+                                            <div class="grow me-3">
                                                 <div class="progress" style="height: 8px;">
                                                     <div class="progress-bar bg-success" role="progressbar"
                                                          style="width: <?php echo e($superAdminStats['total_teachers'] > 0 ? round(($status['count'] / $superAdminStats['total_teachers']) * 100) : 0); ?>%"
@@ -990,21 +990,21 @@
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0 me-3">
+                            <div class="shrink-0 me-3">
                                 <img src="<?php echo e(isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg')); ?>"
                                      alt="Foto <?php echo e($user->name); ?>"
                                      class="rounded-circle"
                                      width="50"
                                      height="50">
                             </div>
-                            <div class="flex-grow-1">
+                            <div class="grow">
                                 <h6 class="mb-1"><?php echo e($user->name); ?></h6>
                                 <div class="d-flex flex-wrap gap-2">
                                     <small class="badge bg-primary-subtle text-primary"><?php echo e($user->ketugasan ?? '-'); ?></small>
                                     <small class="badge bg-info-subtle text-info"><?php echo e($user->statusKepegawaian ? $user->statusKepegawaian->name : '-'); ?></small>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0">
+                            <div class="shrink-0">
                                 <small class="text-muted"><?php echo e($users->firstItem() + $index); ?></small>
                             </div>
                         </div>

@@ -195,6 +195,10 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                     <p class="mb-0">Already have an account? <a href="<?php echo e(url('login')); ?>" class="text-primary">Login here</a></p>
                 </div>
 
+                <div class="mt-2 text-center">
+                    <p class="mb-0"><a href="<?php echo e(route('landing')); ?>" class="text-primary">Kembali ke Halaman Utama</a></p>
+                </div>
+
                 <div class="footer-text">
                     <p class="mb-0">© <script>document.write(new Date().getFullYear())</script> Nuist. Crafted by LP. Ma'arif NU PWNU DIY</p>
                 </div>

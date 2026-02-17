@@ -18,9 +18,28 @@
        class="form-control"
        required>
 
-<button class="btn btn-primary mt-3" type="submit">
-    Upload Kelompok
-</button>
+<div class="d-flex justify-content-end mt-3">
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!isset($existingTasks[$config['slug'] . '-kelompok'])): ?>
+        <button class="btn btn-primary me-2" type="submit">
+            Upload Kelompok
+        </button>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($existingTasks[$config['slug'] . '-kelompok'])): ?>
+        <a href="<?php echo e(asset($existingTasks[$config['slug'] . '-kelompok']->file_path)); ?>"
+           target="_blank"
+           class="btn btn-secondary">
+            <i class="bx bx-file"></i> Lihat File Terupload
+        </a>
+        <form action="<?php echo e(route('talenta.tugas-level-1.reset')); ?>" method="POST" class="d-inline-block ms-2" onsubmit="return confirm('Yakin ingin menghapus file terupload?');">
+            <?php echo csrf_field(); ?>
+            <input type="hidden" name="area" value="<?php echo e($config['slug']); ?>">
+            <input type="hidden" name="jenis_tugas" value="kelompok">
+            <button type="submit" class="btn btn-danger">
+                <i class="bx bx-trash"></i> Reset
+            </button>
+        </form>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+</div>
 
 </form>
 </div>

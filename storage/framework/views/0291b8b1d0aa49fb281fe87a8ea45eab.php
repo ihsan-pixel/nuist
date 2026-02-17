@@ -497,6 +497,14 @@
                 Aplikasi PWA sudah terinstall.
             </div>
 
+            
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(\App\Models\TalentaPeserta::where('user_id', Auth::id())->exists()): ?>
+            <a href="<?php echo e(route('mobile.talenta.index')); ?>" class="settings-button" style="background: linear-gradient(135deg, #0069d9 0%, #0062cc 100%); color: white;">
+                <i class="bx bx-list-ul"></i>
+                Talenta Saya
+            </a>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
         </div>
     </div>
 
