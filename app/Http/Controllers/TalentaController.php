@@ -564,56 +564,11 @@ class TalentaController extends Controller
                 ->get();
         }
 
-        // Prepare list of peserta / kelompok that did NOT submit on or before the materi date
-        $notSubmittedPeserta = collect();
-        $notSubmittedKelompok = collect();
-        $selectedMateriDeadline = null;
-
-        // Use the (possibly filtered) materiModels: if multiple were provided, use the first as the context
-        $selectedMateri = $materiModels->first();
-        if ($selectedMateri && $selectedMateri->tanggal_materi) {
-            $selectedMateriDeadline = $selectedMateri->tanggal_materi;
-            $slug = $selectedMateri->slug;
-
-            // Users who submitted personal-type tugas on or before the materi date
-            $submittedUserIds = TugasTalentaLevel1::where('area', $slug)
-                ->where('jenis_tugas', '!=', 'kelompok')
-                ->whereNotNull('submitted_at')
-                ->where('submitted_at', '<=', $selectedMateriDeadline)
-                ->pluck('user_id')
-                ->filter()
-                ->unique()
-                ->toArray();
-
-            // All peserta (registered talenta participants)
-            $pesertaList = TalentaPeserta::with('user.madrasah')->get();
-            $notSubmittedPeserta = $pesertaList->filter(function ($p) use ($submittedUserIds) {
-                return empty($p->user_id) || !in_array($p->user_id, $submittedUserIds, true);
-            })->values();
-
-            // Kelompok that did not submit kelompok-type tugas on time
-            $submittedKelompokIds = TugasTalentaLevel1::where('area', $slug)
-                ->where('jenis_tugas', 'kelompok')
-                ->whereNotNull('submitted_at')
-                ->where('submitted_at', '<=', $selectedMateriDeadline)
-                ->pluck('kelompok_id')
-                ->filter()
-                ->unique()
-                ->toArray();
-
-            $allKelompoks = TalentaKelompok::with('users')->get();
-            $notSubmittedKelompok = $allKelompoks->filter(function ($k) use ($submittedKelompokIds) {
-                return !in_array($k->id, $submittedKelompokIds, true);
-            })->values();
-        }
-
+        // Pass materi list to the view so UI can present selection if needed
         return view('talenta.penilaian-tugas', [
             'tugas' => $tugas,
             'materis' => $materiModels,
             'selected_materi_id' => $selectedMateriId,
-            'not_submitted_peserta' => $notSubmittedPeserta,
-            'not_submitted_kelompok' => $notSubmittedKelompok,
-            'selected_materi_deadline' => $selectedMateriDeadline,
         ]);
     }
 
