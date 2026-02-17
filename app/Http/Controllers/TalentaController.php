@@ -92,8 +92,24 @@ class TalentaController extends Controller
         // Get selected materi from request
         $selectedMateriId = $request->input('materi_id');
 
+        // If a materi is selected, only show peserta who have penilaian records for that materi.
+        // This avoids assuming a peserta->materi assignment table exists.
+        if ($selectedMateriId) {
+            $pesertaIdsForMateri = TalentaPenilaianPeserta::where('materi_id', $selectedMateriId)
+                ->pluck('talenta_peserta_id')
+                ->unique()
+                ->toArray();
+
+            $pesertaList = TalentaPeserta::with(['user.madrasah'])
+                ->whereIn('id', $pesertaIdsForMateri)
+                ->latest()
+                ->get();
+        } else {
+            $pesertaList = TalentaPeserta::with(['user.madrasah'])->latest()->get();
+        }
+
         return view('talenta.instrumen-penilaian', [
-            'pesertaTalenta'        => TalentaPeserta::with(['user.madrasah'])->latest()->get(),
+            'pesertaTalenta'        => $pesertaList,
             'fasilitatorTalenta'    => TalentaFasilitator::orderByRaw("FIELD(id, 36, 31, 27, 28, 34, 32, 35, 29, 30, 33, 37)")->get(),
             'pemateriTalenta'       => TalentaPemateri::with('materis')->orderByRaw("FIELD(id, 27, 28, 25, 33, 26, 32, 34, 30, 29, 31)")->get(),
             'layananTeknisTalenta'  => TalentaLayananTeknis::latest()->get(),
