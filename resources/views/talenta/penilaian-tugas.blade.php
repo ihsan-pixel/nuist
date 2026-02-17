@@ -488,8 +488,8 @@
                     $onsite = $tugasCollection->filter(function ($t) {
                         if (!isset($t->jenis_tugas)) return false;
                         $j = strtolower($t->jenis_tugas);
-                        // Exclude items that explicitly contain 'terstruktur' so they are only in the terstruktur group
-                        return strpos($j, 'onsite') !== false && strpos($j, 'terstruktur') === false;
+                        // Include any item that contains 'onsite' (including those that also contain 'terstruktur')
+                        return strpos($j, 'onsite') !== false;
                     })->values();
 
                     $kelompok = $tugasCollection->filter(function ($t) {
@@ -517,7 +517,7 @@
                     <tbody>
                         @if($onsite->isEmpty())
                             <tr>
-                                <td colspan="8" class="no-data">Belum ada tugas Onsite Terstruktur yang disubmit untuk materi Anda</td>
+                                <td colspan="8" class="no-data">Belum ada tugas Onsite yang disubmit untuk materi Anda</td>
                             </tr>
                         @else
                             @foreach($onsite as $index => $tugasItem)
