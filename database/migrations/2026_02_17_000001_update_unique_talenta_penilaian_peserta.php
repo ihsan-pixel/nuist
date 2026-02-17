@@ -12,48 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Before attempting to drop the old unique index, check if any foreign keys
-        // in other tables reference `talenta_penilaian_peserta`. MySQL prevents
-        // dropping an index that is required by a foreign key constraint.
-
-        $refs = DB::select(<<<'SQL'
-            SELECT DISTINCT TABLE_NAME, CONSTRAINT_NAME
-            FROM information_schema.KEY_COLUMN_USAGE
-            WHERE REFERENCED_TABLE_SCHEMA = DATABASE()
-              AND REFERENCED_TABLE_NAME = 'talenta_penilaian_peserta'
-              AND REFERENCED_COLUMN_NAME IN ('talenta_peserta_id', 'user_id')
-        SQL
-        );
-
-        if (count($refs) > 0) {
-            // There are referencing foreign keys; skip altering the unique index to avoid
-            // breaking constraints. Log a message to the migration output so operator
-            // can inspect and handle it manually.
-            echo "Skipping unique-index change for talenta_penilaian_peserta because other tables reference it via foreign keys:\n";
-            foreach ($refs as $r) {
-                echo " - {$r->TABLE_NAME} -> constraint {$r->CONSTRAINT_NAME}\n";
-            }
-            echo "Please drop or modify those foreign keys manually if you wish to change the unique index.\n";
-            return;
-        }
-
-        Schema::table('talenta_penilaian_peserta', function (Blueprint $table) {
-            // drop the old unique index on (talenta_peserta_id, user_id) if it exists
-            if (Schema::hasColumn('talenta_penilaian_peserta', 'talenta_peserta_id')) {
-                try {
-                    $table->dropUnique('talenta_penilaian_peserta_unique');
-                } catch (\Exception $e) {
-                    // ignore if it doesn't exist or cannot be dropped for some reason
-                }
-            }
-
-            // add a composite unique including materi_id so penilaian is unique per (peserta, user, materi)
-            try {
-                $table->unique(['talenta_peserta_id', 'user_id', 'materi_id'], 'talenta_penilaian_peserta_unique_v2');
-            } catch (\Exception $e) {
-                // if adding the unique fails, ignore to avoid breaking migration
-            }
-        });
+        // NOTE: This migration attempts to change a unique index to include `materi_id`.
+        // In many production databases the existing index may be required by foreign
+        // key constraints and cannot be dropped automatically. To avoid causing
+        // failures during `php artisan migrate` we skip making schema changes here.
+        //
+        // If you want to apply the unique-index change, perform the following steps
+        // manually on the database after reviewing constraints and backups:
+        // 1. Inspect any foreign keys referencing `talenta_penilaian_peserta` and
+        //    drop/adjust them as appropriate.
+        // 2. ALTER TABLE to drop the old unique index `talenta_penilaian_peserta_unique`.
+        // 3. ALTER TABLE to add the new unique index on
+        //    (talenta_peserta_id, user_id, materi_id) named
+        //    `talenta_penilaian_peserta_unique_v2`.
+        //
+        // We're intentionally leaving this migration as a no-op to avoid breaking
+        // production deployments. The application controller already handles
+        // legacy rows safely.
+        echo "Skipping automatic unique-index migration for talenta_penilaian_peserta.\n";
+        return;
     }
 
     /**
