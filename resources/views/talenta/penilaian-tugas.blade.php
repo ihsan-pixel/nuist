@@ -536,6 +536,28 @@
                             'kelompok' => $kelompok->where('area', $area)->count(),
                         ];
                     }
+                    // Build submitted user id map per jenis and area so we can find missing participants
+                    $submittedMap = [
+                        'terstruktur' => collect(),
+                        'onsite' => collect(),
+                        'kelompok' => collect(),
+                    ];
+
+                    foreach ($tugasCollection as $t) {
+                        $jenisNorm = isset($t->jenis_tugas) ? strtolower(str_replace([' ', '_'], ['_', ''], $t->jenis_tugas)) : '';
+                        $uid = $t->user_id ?? ($t->user->id ?? null);
+                        if (!$uid) continue;
+                        if (strpos($jenisNorm, 'terstruktur') !== false) {
+                            $submittedMap['terstruktur']->push($uid);
+                        } elseif (strpos($jenisNorm, 'onsite') !== false) {
+                            $submittedMap['onsite']->push($uid);
+                        } elseif (strpos($jenisNorm, 'kelompok') !== false) {
+                            $submittedMap['kelompok']->push($uid);
+                        }
+                    }
+
+                    // Unique user ids
+                    $submittedMap = array_map(function ($c) { return $c->unique()->values(); }, $submittedMap);
                 @endphp
 
                 {{-- Info cards: jumlah per area untuk Onsite / Terstruktur / Kelompok --}}
@@ -559,6 +581,85 @@
                             </div>
                         @endforeach
                     </div>
+                </div>
+
+                {{-- Show participants who haven't submitted yet per area --}}
+                @php
+                    use Illuminate\Support\Facades\DB;
+                    // Helper to read possible name fields
+                    $nameField = function ($p) {
+                        return $p->name ?? $p->nama ?? $p->nama_lengkap ?? ($p->full_name ?? 'N/A');
+                    };
+                @endphp
+                <div style="padding:0 24px 12px 24px; display:flex; flex-direction:column; gap:10px;">
+                    @foreach($countsByArea as $area => $counts)
+                        @php
+                            // fetch peserta for area from talenta_peserta
+                            $pesertas = DB::table('talenta_peserta')->where('area', $area)->get();
+                            // determine missing for each jenis
+                            $missing = [
+                                'onsite' => [],
+                                'terstruktur' => [],
+                                'kelompok' => [],
+                            ];
+
+                            foreach ($pesertas as $p) {
+                                $pid = $p->user_id ?? $p->id ?? null;
+                                if (!$pid) continue;
+                                if (!in_array($pid, $submittedMap['onsite']->toArray(), true)) {
+                                    $missing['onsite'][] = $nameField($p);
+                                }
+                                if (!in_array($pid, $submittedMap['terstruktur']->toArray(), true)) {
+                                    $missing['terstruktur'][] = $nameField($p);
+                                }
+                                if (!in_array($pid, $submittedMap['kelompok']->toArray(), true)) {
+                                    $missing['kelompok'][] = $nameField($p);
+                                }
+                            }
+                        @endphp
+
+                        <details>
+                            <summary style="cursor:pointer; font-weight:600;">Belum mengumpulkan di {{ ucwords(str_replace('-', ' ', $area)) }} — Onsite: {{ count($missing['onsite']) }}, Terstruktur: {{ count($missing['terstruktur']) }}, Kelompok: {{ count($missing['kelompok']) }}</summary>
+                            <div style="padding:8px 12px; display:flex; gap:16px; flex-wrap:wrap;">
+                                <div style="min-width:180px;">
+                                    <div style="font-weight:600; margin-bottom:6px;">Onsite</div>
+                                    @if(empty($missing['onsite']))
+                                        <div class="text-muted">Semua peserta sudah mengumpulkan</div>
+                                    @else
+                                        <ul>
+                                            @foreach(array_slice($missing['onsite'], 0, 20) as $nm)
+                                                <li>{{ $nm }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                                <div style="min-width:180px;">
+                                    <div style="font-weight:600; margin-bottom:6px;">Terstruktur</div>
+                                    @if(empty($missing['terstruktur']))
+                                        <div class="text-muted">Semua peserta sudah mengumpulkan</div>
+                                    @else
+                                        <ul>
+                                            @foreach(array_slice($missing['terstruktur'], 0, 20) as $nm)
+                                                <li>{{ $nm }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                                <div style="min-width:180px;">
+                                    <div style="font-weight:600; margin-bottom:6px;">Kelompok</div>
+                                    @if(empty($missing['kelompok']))
+                                        <div class="text-muted">Semua peserta sudah mengumpulkan</div>
+                                    @else
+                                        <ul>
+                                            @foreach(array_slice($missing['kelompok'], 0, 20) as $nm)
+                                                <li>{{ $nm }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+                        </details>
+                    @endforeach
                 </div>
 
                 {{-- Render Onsite (non-terstruktur) group --}}
