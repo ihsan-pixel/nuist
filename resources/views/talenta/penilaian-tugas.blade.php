@@ -484,23 +484,39 @@
             <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;">
                 @foreach($materisList as $materi)
                     @php
-                        // Try to match tasks that reference materi by materi_id or nested relation; fallback to empty set
+                        // Try to match tasks that reference materi by materi_id, nested relation, or a stored materi slug/value
                         $mTugas = $allTugas->filter(function($t) use ($materi) {
                             $hasMateriId = isset($t->materi_id) && $t->materi_id == ($materi->id ?? null);
-                            $hasNestedMateri = isset($t->materi) && isset($t->materi->id) && $t->materi->id == ($materi->id ?? null);
-                            return ($hasMateriId || $hasNestedMateri) && !empty($t->file_path);
+                            $hasNestedMateri = isset($t->materi) && is_object($t->materi) && isset($t->materi->id) && $t->materi->id == ($materi->id ?? null);
+
+                            // sometimes the tugas stores the materi slug directly (e.g. 'ideologi-dan-organisasi')
+                            $tMateriSlug = null;
+                            if (isset($t->materi) && !is_object($t->materi)) {
+                                $tMateriSlug = $t->materi;
+                            }
+                            if (isset($t->materi_slug)) {
+                                $tMateriSlug = $t->materi_slug;
+                            }
+                            $hasMateriSlug = $tMateriSlug && isset($materi->slug) && $tMateriSlug == $materi->slug;
+
+                            return ($hasMateriId || $hasNestedMateri || $hasMateriSlug) && !empty($t->file_path);
                         });
+
+                        // normalize area strings so 'on_site' / 'on-site' match 'onsite'
                         $onsiteCount = $mTugas->filter(function($t){
                             $area = strtolower($t->area ?? '');
-                            return $area === 'onsite' || strpos($area, 'onsite') !== false;
+                            $areaNorm = str_replace(['-','_',' '], '', $area);
+                            return $areaNorm === 'onsite' || strpos($areaNorm, 'onsite') !== false;
                         })->count();
                         $terstrukturCount = $mTugas->filter(function($t){
                             $area = strtolower($t->area ?? '');
-                            return $area === 'terstruktur' || strpos($area, 'terstruktur') !== false;
+                            $areaNorm = str_replace(['-','_',' '], '', $area);
+                            return $areaNorm === 'terstruktur' || strpos($areaNorm, 'terstruktur') !== false;
                         })->count();
                         $kelompokCount = $mTugas->filter(function($t){
                             $area = strtolower($t->area ?? '');
-                            return $area === 'kelompok' || strpos($area, 'kelompok') !== false;
+                            $areaNorm = str_replace(['-','_',' '], '', $area);
+                            return $areaNorm === 'kelompok' || strpos($areaNorm, 'kelompok') !== false;
                         })->count();
                     @endphp
 
@@ -534,7 +550,8 @@
                         <tbody>
                             @php $onsiteTugas = $allTugas->filter(function($t) {
                                 $area = strtolower($t->area ?? '');
-                                return $area === 'onsite' || strpos($area, 'onsite') !== false;
+                                $areaNorm = str_replace(['-','_',' '], '', $area);
+                                return $areaNorm === 'onsite' || strpos($areaNorm, 'onsite') !== false;
                             }); @endphp
                             @forelse($onsiteTugas as $index => $tugasItem)
                                 <tr>
@@ -612,7 +629,8 @@
                         <tbody>
                             @php $terstrukturTugas = $allTugas->filter(function($t) {
                                 $area = strtolower($t->area ?? '');
-                                return $area === 'terstruktur' || strpos($area, 'terstruktur') !== false;
+                                $areaNorm = str_replace(['-','_',' '], '', $area);
+                                return $areaNorm === 'terstruktur' || strpos($areaNorm, 'terstruktur') !== false;
                             }); @endphp
                             @forelse($terstrukturTugas as $index => $tugasItem)
                                 <tr>
@@ -690,7 +708,8 @@
                         <tbody>
                             @php $kelompokTugas = $allTugas->filter(function($t) {
                                 $area = strtolower($t->area ?? '');
-                                return $area === 'kelompok' || strpos($area, 'kelompok') !== false;
+                                $areaNorm = str_replace(['-','_',' '], '', $area);
+                                return $areaNorm === 'kelompok' || strpos($areaNorm, 'kelompok') !== false;
                             }); @endphp
                             @forelse($kelompokTugas as $index => $tugasItem)
                                 <tr>
