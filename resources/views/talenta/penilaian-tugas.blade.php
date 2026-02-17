@@ -638,7 +638,10 @@
                     </tbody>
                 </table>
                 {{-- Render Terstruktur group --}}
-                <h3 style="padding:20px 24px 0 24px;">Tugas Terstruktur</h3>
+                <div class="section-header">
+                    <h3>Tugas Terstruktur</h3>
+                    <div class="subtitle">Daftar tugas Terstruktur yang dikumpulkan peserta</div>
+                </div>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -712,7 +715,10 @@
                 </table>
 
                 {{-- Render Kelompok group --}}
-                <h3 style="padding:20px 24px 0 24px;">Tugas Kelompok</h3>
+                <div class="section-header">
+                    <h3>Tugas Kelompok</h3>
+                    <div class="subtitle">Daftar tugas Kelompok yang dikumpulkan peserta</div>
+                </div>
                 <table class="data-table">
                     <thead>
                         <tr>
