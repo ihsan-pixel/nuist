@@ -735,6 +735,17 @@
 <section class="content-section">
     <div class="container">
 
+        {{-- Materi selection navigation for Penilaian Peserta --}}
+        @if(isset($materiTalenta) && $materiTalenta->isNotEmpty())
+        <div style="margin: 18px 0; display:flex; gap:8px; overflow:auto;">
+            @foreach($materiTalenta as $m)
+                <button class="materi-btn" data-materi-id="{{ $m->id }}" style="padding:8px 14px; border-radius:12px; border:1px solid #e2e8f0; background:white; cursor:pointer;">
+                    {{ Str::limit($m->judul_materi, 40) }}
+                </button>
+            @endforeach
+        </div>
+        @endif
+
         @if(Auth::user()->role !== 'fasilitator')
         <!-- TRAINER SECTION -->
         <div id="trainer-section" class="instrumen-section animate fade-up tab-content active">
@@ -1050,6 +1061,24 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Load saved ratings from server and apply to UI
+    // selectedMateriId controls which materi's peserta-penilaian is fetched/saved
+    let selectedMateriId = '{{ $selectedMateriId ?? ($materiTalenta->first()->id ?? '') }}';
+
+    // initialize materi buttons
+    document.querySelectorAll('.materi-btn').forEach(btn => {
+        const id = btn.dataset.materiId;
+        if (String(id) === String(selectedMateriId)) {
+            btn.style.background = '#004b4c'; btn.style.color = 'white'; btn.style.borderColor = '#00393a';
+        }
+        btn.addEventListener('click', function() {
+            // toggle active look
+            document.querySelectorAll('.materi-btn').forEach(b => { b.style.background = 'white'; b.style.color = ''; b.style.borderColor = '#e2e8f0'; });
+            this.style.background = '#004b4c'; this.style.color = 'white'; this.style.borderColor = '#00393a';
+            selectedMateriId = this.dataset.materiId;
+            // re-fetch peserta saved ratings for the selected materi
+            fetchAndApply('peserta');
+        });
+    });
     function getFieldToAspekMap(type) {
         const maps = {
             trainer: {
@@ -1124,8 +1153,11 @@ document.addEventListener('DOMContentLoaded', function () {
             teknis: "{{ route('talenta.penilaian-teknis.get') }}",
             peserta: "{{ route('talenta.penilaian-peserta.get') }}",
         };
-
-        const url = routes[type];
+        let url = routes[type];
+        if (type === 'peserta' && selectedMateriId) {
+            // append materi filter as query param
+            url += (url.includes('?') ? '&' : '?') + 'materi_id=' + encodeURIComponent(selectedMateriId);
+        }
         try {
             const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
             if (!res.ok) return;
@@ -1239,6 +1271,17 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
+            // if saving peserta ratings, include materi_id
+            const payload = { ratings };
+            if (type === 'peserta') {
+                if (!selectedMateriId) {
+                    Swal.close();
+                    Swal.fire({ icon: 'warning', title: 'Pilih Materi', text: 'Silakan pilih materi terlebih dahulu sebelum menyimpan penilaian peserta.' });
+                    return;
+                }
+                payload.materi_id = selectedMateriId;
+            }
+
             const res = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -1246,7 +1289,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrf
                 },
-                body: JSON.stringify({ ratings })
+                body: JSON.stringify(payload)
             });
 
             const data = await res.json();

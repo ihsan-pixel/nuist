@@ -14,6 +14,7 @@ class TalentaPenilaianPeserta extends Model
     protected $fillable = [
         'talenta_peserta_id',
         'user_id',
+        'materi_id',
         'kehadiran',
         'partisipasi',
         'disiplin',
@@ -41,5 +42,10 @@ class TalentaPenilaianPeserta extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function materi()
+    {
+        return $this->belongsTo(TalentaMateri::class, 'materi_id');
     }
 }

@@ -81,13 +81,24 @@ class TalentaController extends Controller
         ]);
     }
 
-    public function instrumenPenilaian()
+    public function instrumenPenilaian(Request $request)
     {
+        // Get materi list for selection
+        $materiTalenta = TalentaMateri::where('status', TalentaMateri::STATUS_PUBLISHED)
+            ->orderBy('level_materi')
+            ->orderBy('judul_materi')
+            ->get();
+
+        // Get selected materi from request
+        $selectedMateriId = $request->input('materi_id');
+
         return view('talenta.instrumen-penilaian', [
             'pesertaTalenta'        => TalentaPeserta::with(['user.madrasah'])->latest()->get(),
             'fasilitatorTalenta'    => TalentaFasilitator::orderByRaw("FIELD(id, 36, 31, 27, 28, 34, 32, 35, 29, 30, 33, 37)")->get(),
             'pemateriTalenta'       => TalentaPemateri::with('materis')->orderByRaw("FIELD(id, 27, 28, 25, 33, 26, 32, 34, 30, 29, 31)")->get(),
             'layananTeknisTalenta'  => TalentaLayananTeknis::latest()->get(),
+            'materiTalenta'         => $materiTalenta,
+            'selectedMateriId'      => $selectedMateriId,
         ]);
     }
 
@@ -810,23 +821,28 @@ class TalentaController extends Controller
 
         try {
             $ratings = $request->input('ratings', []);
+            // materi_id is now stored per-penilaian peserta
+            $materiId = $request->input('materi_id');
 
             foreach ($ratings as $pesertaId => $data) {
-                TalentaPenilaianPeserta::updateOrCreate(
-                    [
-                        'talenta_peserta_id' => $pesertaId,
-                        'user_id' => Auth::id(),
-                    ],
-                    [
-                        'kehadiran' => $data['kehadiran'] ?? null,
-                        'partisipasi' => $data['partisipasi'] ?? null,
-                        'disiplin' => $data['disiplin'] ?? null,
-                        'tugas' => $data['tugas'] ?? null,
-                        'pemahaman' => $data['pemahaman'] ?? null,
-                        'praktik' => $data['praktik'] ?? null,
-                        'sikap' => $data['sikap'] ?? null,
-                    ]
-                );
+                $match = [
+                    'talenta_peserta_id' => $pesertaId,
+                    'user_id' => Auth::id(),
+                    'materi_id' => $materiId,
+                ];
+
+                $values = [
+                    'kehadiran' => $data['kehadiran'] ?? null,
+                    'partisipasi' => $data['partisipasi'] ?? null,
+                    'disiplin' => $data['disiplin'] ?? null,
+                    'tugas' => $data['tugas'] ?? null,
+                    'pemahaman' => $data['pemahaman'] ?? null,
+                    'praktik' => $data['praktik'] ?? null,
+                    'sikap' => $data['sikap'] ?? null,
+                    'materi_id' => $materiId,
+                ];
+
+                TalentaPenilaianPeserta::updateOrCreate($match, $values);
             }
 
             return response()->json([
@@ -847,10 +863,15 @@ class TalentaController extends Controller
         }
 
         try {
-            $penilaian = TalentaPenilaianPeserta::where('user_id', Auth::id())
-                ->get()
-                ->keyBy('talenta_peserta_id')
-                ->toArray();
+            $query = TalentaPenilaianPeserta::where('user_id', Auth::id());
+
+            // optional materi filter
+            $materiId = request()->query('materi_id');
+            if ($materiId) {
+                $query->where('materi_id', $materiId);
+            }
+
+            $penilaian = $query->get()->keyBy('talenta_peserta_id')->toArray();
 
             return response()->json(['success' => true, 'data' => $penilaian]);
         } catch (\Exception $e) {

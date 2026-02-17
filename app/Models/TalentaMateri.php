@@ -74,6 +74,11 @@ class TalentaMateri extends Model
         );
     }
 
+    public function penilaianPesertas()
+    {
+        return $this->hasMany(\App\Models\TalentaPenilaianPeserta::class, 'materi_id');
+    }
+
     // Helper methods
     public function isPublished()
     {
