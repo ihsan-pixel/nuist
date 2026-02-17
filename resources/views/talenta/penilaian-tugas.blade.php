@@ -538,8 +538,8 @@
                     </div>
                 </div>
 
-                {{-- Render Terstruktur group --}}
-                <h3 style="padding:20px 24px 0 24px;">Tugas Terstruktur</h3>
+                {{-- Render Onsite (non-terstruktur) group --}}
+                <h3 style="padding:20px 24px 0 24px;">Tugas Onsite</h3>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -554,12 +554,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if($terstruktur->isEmpty())
+                        @if($onsite->isEmpty())
                             <tr>
-                                <td colspan="8" class="no-data">Belum ada tugas Terstruktur yang disubmit untuk materi Anda</td>
+                                <td colspan="8" class="no-data">Belum ada tugas Onsite yang disubmit untuk materi Anda</td>
                             </tr>
                         @else
-                            @foreach($terstruktur as $index => $tugasItem)
+                            @foreach($onsite as $index => $tugasItem)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
@@ -611,9 +611,8 @@
                         @endif
                     </tbody>
                 </table>
-
-                {{-- Render Onsite (non-terstruktur) group --}}
-                <h3 style="padding:20px 24px 0 24px;">Tugas Onsite</h3>
+                {{-- Render Terstruktur group --}}
+                <h3 style="padding:20px 24px 0 24px;">Tugas Terstruktur</h3>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -628,12 +627,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if($onsite->isEmpty())
+                        @if($terstruktur->isEmpty())
                             <tr>
-                                <td colspan="8" class="no-data">Belum ada tugas Onsite yang disubmit untuk materi Anda</td>
+                                <td colspan="8" class="no-data">Belum ada tugas Terstruktur yang disubmit untuk materi Anda</td>
                             </tr>
                         @else
-                            @foreach($onsite as $index => $tugasItem)
+                            @foreach($terstruktur as $index => $tugasItem)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
