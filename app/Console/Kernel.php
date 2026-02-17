@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\AutoInsertAbsence::class,
         \App\Console\Commands\SyncDevelopmentHistory::class,
         \App\Console\Commands\TrackGitCommits::class,
+        \App\Console\Commands\DetectTalentaPenilaianConstraints::class,
     ];
 
     /**
