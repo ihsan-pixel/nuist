@@ -586,6 +586,11 @@
                                             </button>
                                         @endif
                                     </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
 
                 {{-- Render Terstruktur group --}}
                 <h3 style="padding:20px 24px 0 24px;">Terstruktur</h3>
