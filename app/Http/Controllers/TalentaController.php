@@ -240,7 +240,7 @@ class TalentaController extends Controller
             /* ---------- VALIDASI KHUSUS ---------- */
             if ($validated['jenis_tugas'] === 'on_site') {
                 $request->validate([
-                    'lampiran' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
+                    'lampiran' => 'required|file|mimes:pdf|max:10240',
                 ]);
             }
 
