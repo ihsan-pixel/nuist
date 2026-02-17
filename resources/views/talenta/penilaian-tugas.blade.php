@@ -497,7 +497,46 @@
                         $j = strtolower($t->jenis_tugas);
                         return strpos($j, 'kelompok') !== false;
                     })->values();
+
+                    // Areas to show on info cards: prefer provided $materis (slugs), fallback to areas present in tugas
+                    $areas = collect($materis ?? [])->pluck('slug')->filter()->values();
+                    if ($areas->isEmpty()) {
+                        $areas = $tugasCollection->pluck('area')->filter()->unique()->values();
+                    }
+
+                    // Build counts per area for each jenis
+                    $countsByArea = [];
+                    foreach ($areas as $area) {
+                        $countsByArea[$area] = [
+                            'terstruktur' => $terstruktur->where('area', $area)->count(),
+                            'onsite' => $onsite->where('area', $area)->count(),
+                            'kelompok' => $kelompok->where('area', $area)->count(),
+                        ];
+                    }
                 @endphp
+
+                {{-- Info cards: jumlah per area untuk Onsite / Terstruktur / Kelompok --}}
+                <div style="padding:20px 24px;">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+                        @foreach($countsByArea as $area => $counts)
+                            <div class="table-container" style="padding:14px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                                    <div>
+                                        <h4 style="margin:0 0 6px 0; font-size:16px;">{{ ucwords(str_replace('-', ' ', $area)) }}</h4>
+                                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                            <span class="badge bg-info">Onsite: {{ $counts['onsite'] }}</span>
+                                            <span class="badge bg-warning text-dark">Terstruktur: {{ $counts['terstruktur'] }}</span>
+                                            <span class="badge bg-secondary">Kelompok: {{ $counts['kelompok'] }}</span>
+                                        </div>
+                                    </div>
+                                    <div style="font-size:22px; font-weight:700; color:#00393a;">
+                                        {{ array_sum($counts) }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
 
                 {{-- Render Terstruktur group --}}
                 <h3 style="padding:20px 24px 0 24px;">Tugas Terstruktur</h3>
