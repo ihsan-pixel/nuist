@@ -648,13 +648,13 @@
                 </table>
 
                 {{-- Render Kelompok group --}}
-                <h3 style="padding:20px 24px 0 24px;">Kelompok</h3>
+                <h3 style="padding:20px 24px 0 24px;">Tugas Kelompok</h3>
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>No</th>
                             <th>Nama Kelompok</th>
-                            <th>Sekolah/Madrasah</th>
+                            {{-- <th>Sekolah/Madrasah</th> --}}
                             <th>Area Tugas</th>
                             <th>Jenis Tugas</th>
                             <th>Tanggal Submit</th>
@@ -672,7 +672,7 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $tugasItem->kelompok->nama_kelompok ?? $tugasItem->user->name ?? 'N/A' }}</td>
-                                    <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td>
+                                    {{-- <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td> --}}
                                     <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area)) }}</td>
                                     <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                                     <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
