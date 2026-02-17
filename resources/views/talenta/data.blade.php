@@ -484,7 +484,13 @@
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $fasilitator->nama ?? 'N/A' }}</td>
                             <td>{{ $fasilitator->kode_fasilitator ?? 'N/A' }}</td>
-                            <td>{{ $fasilitator->materi->judul_materi ?? 'N/A' }}</td>
+                            <td>
+                                @foreach($fasilitator->materis as $materi)
+                                    <span class="badge bg-primary">
+                                        {{ $materi->judul_materi }}
+                                    </span>
+                                @endforeach
+                            </td>
                         </tr>
                         @empty
                         <tr>
