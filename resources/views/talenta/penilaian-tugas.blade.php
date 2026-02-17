@@ -554,6 +554,89 @@
     </div>
 </section>
 
+<!-- NOT SUBMITTED SECTION -->
+<section class="talenta-penilaian">
+    <div class="container">
+        <div id="not-submitted-section" class="data-section animate" style="margin-top:20px;">
+            <div class="table-container">
+                <div style="padding:20px 24px; border-bottom:1px solid #eef2f7;">
+                    <h3 style="margin:0; font-size:18px; font-weight:700;">Belum Mengirim Tugas</h3>
+                    @if(!empty($selected_materi_deadline))
+                        <div style="font-size:13px; color:#6b7280; margin-top:6px">Batas pengumpulan (tanggal materi): {{ $selected_materi_deadline->format('d M Y H:i') }}</div>
+                    @else
+                        <div style="font-size:13px; color:#6b7280; margin-top:6px">Tidak ada tanggal materi yang ditetapkan untuk materi ini.</div>
+                    @endif
+                </div>
+
+                {{-- PESERTA TABLE --}}
+                <table class="data-table" style="margin-top:0;">
+                    <thead>
+                        <tr>
+                            <th style="width:60px">No</th>
+                            <th>Nama Peserta</th>
+                            <th>Sekolah/Madrasah</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(isset($not_submitted_peserta) && $not_submitted_peserta->isNotEmpty())
+                            @foreach($not_submitted_peserta as $i => $peserta)
+                                <tr>
+                                    <td>{{ $i + 1 }}</td>
+                                    <td>{{ $peserta->user->name ?? 'N/A' }}</td>
+                                    <td>{{ $peserta->user && $peserta->user->madrasah ? $peserta->user->madrasah->name : ($peserta->asal_sekolah ?? 'N/A') }}</td>
+                                    <td>Tidak mengirim tugas sampai batas tanggal materi</td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="4" class="no-data">Semua peserta telah mengirim tugas tepat waktu atau tidak ada data peserta.</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+
+                {{-- KELOMPOK TABLE --}}
+                <table class="data-table" style="margin-top:18px;">
+                    <thead>
+                        <tr>
+                            <th style="width:60px">No</th>
+                            <th>Nama Kelompok</th>
+                            <th>Anggota</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(isset($not_submitted_kelompok) && $not_submitted_kelompok->isNotEmpty())
+                            @foreach($not_submitted_kelompok as $j => $kelompok)
+                                <tr>
+                                    <td>{{ $j + 1 }}</td>
+                                    <td>{{ $kelompok->nama_kelompok ?? 'Kelompok ' . $kelompok->id }}</td>
+                                    <td>
+                                        @if($kelompok->users && $kelompok->users->isNotEmpty())
+                                            @php $names = $kelompok->users->pluck('name')->filter()->toArray(); @endphp
+                                            {{ implode(', ', array_slice($names, 0, 5)) }}
+                                            @if(count($names) > 5) ...
+                                            @endif
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>Tidak mengirim tugas kelompok sampai batas tanggal materi</td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="4" class="no-data">Semua kelompok telah mengirim tugas tepat waktu atau tidak ada data kelompok.</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
 @include('landing.footer')
 
 <!-- MODAL NILAI TUGAS -->
