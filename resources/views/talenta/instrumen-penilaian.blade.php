@@ -1171,6 +1171,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
             if (!res.ok) return;
             const json = await res.json();
+
+            // Clear previous selections for this section so switching materi shows
+            // an empty scale when there are no saved penilaian for the selected materi.
+            document.querySelectorAll('.rating-option.selected').forEach(el => el.classList.remove('selected'));
+
             if (json.success && json.data) {
                 applySavedRatings(type, json.data);
             }
