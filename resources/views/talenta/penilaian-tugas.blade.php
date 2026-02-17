@@ -478,11 +478,18 @@
                     $allowedAreas = collect($materis ?? [])->pluck('slug')->toArray();
                     $tugasCollection = collect($tugas ?? []);
 
-                    // Normalize jenis_tugas checks to detect 'onsite terstruktur' and 'kelompok'
+                    // Grouping: prioritize 'terstruktur' if present, otherwise classify as 'onsite' when 'onsite' appears.
+                    $terstruktur = $tugasCollection->filter(function ($t) {
+                        if (!isset($t->jenis_tugas)) return false;
+                        $j = strtolower($t->jenis_tugas);
+                        return strpos($j, 'terstruktur') !== false;
+                    })->values();
+
                     $onsite = $tugasCollection->filter(function ($t) {
                         if (!isset($t->jenis_tugas)) return false;
-                        $j = strtolower(str_replace([' ', '_'], ['_', ''], $t->jenis_tugas));
-                        return strpos($j, 'onsite') !== false || strpos($j, 'onsiteterstruktur') !== false || strpos($j, 'terstruktur') !== false;
+                        $j = strtolower($t->jenis_tugas);
+                        // Exclude items that explicitly contain 'terstruktur' so they are only in the terstruktur group
+                        return strpos($j, 'onsite') !== false && strpos($j, 'terstruktur') === false;
                     })->values();
 
                     $kelompok = $tugasCollection->filter(function ($t) {
@@ -492,8 +499,8 @@
                     })->values();
                 @endphp
 
-                {{-- Render Onsite Terstruktur group --}}
-                <h3 style="padding:20px 24px 0 24px;">Onsite Terstruktur</h3>
+                {{-- Render Onsite group --}}
+                <h3 style="padding:20px 24px 0 24px;">Onsite</h3>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -514,6 +521,80 @@
                             </tr>
                         @else
                             @foreach($onsite as $index => $tugasItem)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
+                                    <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td>
+                                    <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area)) }}</td>
+                                    <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
+                                    <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
+                                    @php
+                                        $nilaiCollection = $tugasItem->nilai ?? collect();
+                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
+                                        $averageNilai = $nilaiCollection->avg('nilai');
+                                    @endphp
+                                    <td>
+                                        @if($currentUserNilai)
+                                            <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
+                                        @else
+                                            @if(Auth::id() === 2472 && $averageNilai)
+                                                <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
+                                            @else
+                                                <span class="text-muted">Belum dinilai oleh Anda</span>
+                                            @endif
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($tugasItem->file_path)
+                                            <a href="{{ asset('/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
+                                                <i class="bi bi-eye"></i> Lihat
+                                            </a>
+                                            <a href="{{ asset('/' . $tugasItem->file_path) }}" download class="action-btn btn-download">
+                                                <i class="bi bi-download"></i> Download
+                                            </a>
+                                        @else
+                                            <span class="text-muted">Tidak ada file</span>
+                                        @endif
+                                        @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                            <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
+                                                <i class="bi bi-star"></i> Nilai
+                                                @if($currentUserNilai)
+                                                    ({{ $currentUserNilai->nilai }})
+                                                @endif
+                                                @if(Auth::id() === 2472 && $averageNilai)
+                                                    <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
+                                                @endif
+                                            </button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+
+                {{-- Render Terstruktur group --}}
+                <h3 style="padding:20px 24px 0 24px;">Terstruktur</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Peserta</th>
+                            <th>Sekolah/Madrasah</th>
+                            <th>Area Tugas</th>
+                            <th>Jenis Tugas</th>
+                            <th>Tanggal Submit</th>
+                            <th>Nilai</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if($terstruktur->isEmpty())
+                            <tr>
+                                <td colspan="8" class="no-data">Belum ada tugas Terstruktur yang disubmit untuk materi Anda</td>
+                            </tr>
+                        @else
+                            @foreach($terstruktur as $index => $tugasItem)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
