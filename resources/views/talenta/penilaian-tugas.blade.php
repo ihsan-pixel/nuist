@@ -453,6 +453,29 @@
             height: 35px;
         }
     }
+
+    /* Section header styles for cleaner titles */
+    .section-header {
+        padding: 20px 24px 0 24px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .section-header h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: #00393a;
+        letter-spacing: 0.2px;
+    }
+
+    .section-header .subtitle {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 500;
+    }
 </style>
 
 <!-- HERO -->
@@ -539,7 +562,10 @@
                 </div>
 
                 {{-- Render Onsite (non-terstruktur) group --}}
-                <h3 style="padding:20px 24px 0 24px;">Tugas Onsite</h3>
+                <div class="section-header">
+                    <h3>Tugas Onsite</h3>
+                    <div class="subtitle">Daftar tugas onsite yang dikumpulkan peserta</div>
+                </div>
                 <table class="data-table">
                     <thead>
                         <tr>
