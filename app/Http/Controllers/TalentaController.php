@@ -840,11 +840,12 @@ class TalentaController extends Controller
                     ->where('materi_id', $materiId)
                     ->first();
 
-                // If not found, check for an existing generic penilaian without materi_id (legacy rows)
+                // If not found, check for any existing penilaian for the same peserta/user
+                // (legacy DBs may have a unique index on talenta_peserta_id+user_id). We
+                // update that record instead of inserting to avoid duplicate-key errors.
                 if (!$penilaian) {
                     $penilaian = TalentaPenilaianPeserta::where('talenta_peserta_id', $pesertaId)
                         ->where('user_id', Auth::id())
-                        ->whereNull('materi_id')
                         ->first();
                 }
 
