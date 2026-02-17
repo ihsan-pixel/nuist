@@ -472,303 +472,83 @@
 
         <!-- PENILAIAN TUGAS -->
         <div id="penilaian-section" class="data-section animate">
-
-            @php
-                // Areas (slugs) the current user is allowed to assess
-                $allowedAreas = collect($materis ?? [])->pluck('slug')->toArray();
-                $allTugas = collect($tugas ?? []);
-                $materisList = collect($materis ?? []);
-            @endphp
-
-            {{-- CARDS PER MATERI: show counts of uploaded tugas per area --}}
-            <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;">
-                @foreach($materisList as $materi)
-                    @php
-                        // Try to match tasks that reference materi by materi_id, nested relation, or a stored materi slug/value
-                        $mTugas = $allTugas->filter(function($t) use ($materi) {
-                            $hasMateriId = isset($t->materi_id) && $t->materi_id == ($materi->id ?? null);
-                            $hasNestedMateri = isset($t->materi) && is_object($t->materi) && isset($t->materi->id) && $t->materi->id == ($materi->id ?? null);
-
-                            // sometimes the tugas stores the materi slug directly (e.g. 'ideologi-dan-organisasi')
-                            $tMateriSlug = null;
-                            if (isset($t->materi) && !is_object($t->materi)) {
-                                $tMateriSlug = $t->materi;
-                            }
-                            if (isset($t->materi_slug)) {
-                                $tMateriSlug = $t->materi_slug;
-                            }
-                            $hasMateriSlug = $tMateriSlug && isset($materi->slug) && $tMateriSlug == $materi->slug;
-
-                            return ($hasMateriId || $hasNestedMateri || $hasMateriSlug) && !empty($t->file_path);
-                        });
-
-                        // normalize area strings so 'on_site' / 'on-site' match 'onsite'
-                        $onsiteCount = $mTugas->filter(function($t){
-                            $area = strtolower($t->area ?? '');
-                            $areaNorm = str_replace(['-','_',' '], '', $area);
-                            return $areaNorm === 'onsite' || strpos($areaNorm, 'onsite') !== false;
-                        })->count();
-                        $terstrukturCount = $mTugas->filter(function($t){
-                            $area = strtolower($t->area ?? '');
-                            $areaNorm = str_replace(['-','_',' '], '', $area);
-                            return $areaNorm === 'terstruktur' || strpos($areaNorm, 'terstruktur') !== false;
-                        })->count();
-                        $kelompokCount = $mTugas->filter(function($t){
-                            $area = strtolower($t->area ?? '');
-                            $areaNorm = str_replace(['-','_',' '], '', $area);
-                            return $areaNorm === 'kelompok' || strpos($areaNorm, 'kelompok') !== false;
-                        })->count();
-                    @endphp
-
-                    <div style="background:#fff; padding:12px 14px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.06); min-width:220px;">
-                        <div style="font-weight:700; margin-bottom:6px;">{{ $materi->judul_materi ?? ('Materi ' . ($materi->id ?? '-')) }}</div>
-                        <div style="font-size:13px; color:#374151;">Onsite terupload: <strong>{{ $onsiteCount }}</strong></div>
-                        <div style="font-size:13px; color:#374151;">Terstruktur terupload: <strong>{{ $terstrukturCount }}</strong></div>
-                        <div style="font-size:13px; color:#374151;">Kelompok terupload: <strong>{{ $kelompokCount }}</strong></div>
-                    </div>
-                @endforeach
-            </div>
-
-            {{-- GROUPED TABLES BY AREA: Onsite, Terstruktur, Kelompok --}}
             <div class="table-container">
-                {{-- Onsite --}}
-                <div style="padding:18px; border-bottom:1px solid #eef2f6;">
-                    <h3 style="margin:0 0 8px; font-size:18px;">Tugas Area: Onsite</h3>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Peserta</th>
-                                <th>Sekolah/Madrasah</th>
-                                <th>Area Tugas</th>
-                                <th>Jenis Tugas</th>
-                                <th>Tanggal Submit</th>
-                                <th>Nilai</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php $onsiteTugas = $allTugas->filter(function($t) {
-                                $area = strtolower($t->area ?? '');
-                                $areaNorm = str_replace(['-','_',' '], '', $area);
-                                return $areaNorm === 'onsite' || strpos($areaNorm, 'onsite') !== false;
-                            }); @endphp
-                            @forelse($onsiteTugas as $index => $tugasItem)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
-                                    <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td>
-                                    <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area ?? 'N/A')) }}</td>
-                                    <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas ?? 'N/A')) }}</td>
-                                    <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
-                                    @php
-                                        $nilaiCollection = $tugasItem->nilai ?? collect();
-                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
-                                        $averageNilai = $nilaiCollection->avg('nilai');
-                                    @endphp
-                                    <td>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Peserta</th>
+                            <th>Sekolah/Madrasah</th>
+                            <th>Area Tugas</th>
+                            <th>Jenis Tugas</th>
+                            <th>Tanggal Submit</th>
+                            <th>Nilai</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            // Areas (slugs) the current user is allowed to assess
+                            $allowedAreas = collect($materis ?? [])->pluck('slug')->toArray();
+                        @endphp
+                        @forelse($tugas ?? [] as $index => $tugasItem)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
+                            <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td>
+                            <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area)) }}</td>
+                            <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
+                            <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
+                            @php
+                                $nilaiCollection = $tugasItem->nilai ?? collect();
+                                $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
+                                $averageNilai = $nilaiCollection->avg('nilai');
+                            @endphp
+                            <td>
+                                @if($currentUserNilai)
+                                    <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
+                                @else
+                                    {{-- Pemateri biasa tidak boleh melihat nilai pemateri lain. Hanya admin (id 2472) yang dapat melihat rata-rata. --}}
+                                    @if(Auth::id() === 2472 && $averageNilai)
+                                        <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
+                                    @else
+                                        <span class="text-muted">Belum dinilai oleh Anda</span>
+                                    @endif
+                                @endif
+                            </td>
+                            <td>
+                                @if($tugasItem->file_path)
+                                    <a href="{{ asset('/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
+                                        <i class="bi bi-eye"></i> Lihat
+                                    </a>
+                                    <a href="{{ asset('/' . $tugasItem->file_path) }}" download class="action-btn btn-download">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                @else
+                                    <span class="text-muted">Tidak ada file</span>
+                                @endif
+                                @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                    {{-- Pass averageNilai to modal only for admin (2472) to avoid exposing other pemateri scores --}}
+                                    <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
+                                        <i class="bi bi-star"></i> Nilai
                                         @if($currentUserNilai)
-                                            <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        @else
-                                            @if(Auth::id() === 2472 && $averageNilai)
-                                                <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
-                                            @else
-                                                <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif
+                                            ({{ $currentUserNilai->nilai }})
                                         @endif
-                                    </td>
-                                    <td>
-                                        @if($tugasItem->file_path)
-                                            <a href="{{ asset('/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
-                                                <i class="bi bi-eye"></i> Lihat
-                                            </a>
-                                            <a href="{{ asset('/' . $tugasItem->file_path) }}" download class="action-btn btn-download">
-                                                <i class="bi bi-download"></i> Download
-                                            </a>
-                                        @else
-                                            <span class="text-muted">Tidak ada file</span>
+                                        @if(Auth::id() === 2472 && $averageNilai)
+                                            <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
                                         @endif
-                                        @if(Auth::id() === 2472 || in_array($tugasItem->area ?? '', $allowedAreas, true))
-                                            <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
-                                                <i class="bi bi-star"></i> Nilai
-                                                @if($currentUserNilai)
-                                                    ({{ $currentUserNilai->nilai }})
-                                                @endif
-                                                @if(Auth::id() === 2472 && $averageNilai)
-                                                    <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
-                                                @endif
-                                            </button>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="no-data">Belum ada tugas Onsite yang disubmit untuk materi Anda</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Terstruktur --}}
-                <div style="padding:18px; border-bottom:1px solid #eef2f6;">
-                    <h3 style="margin:0 0 8px; font-size:18px;">Tugas Area: Terstruktur</h3>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Peserta</th>
-                                <th>Sekolah/Madrasah</th>
-                                <th>Area Tugas</th>
-                                <th>Jenis Tugas</th>
-                                <th>Tanggal Submit</th>
-                                <th>Nilai</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php $terstrukturTugas = $allTugas->filter(function($t) {
-                                $area = strtolower($t->area ?? '');
-                                $areaNorm = str_replace(['-','_',' '], '', $area);
-                                return $areaNorm === 'terstruktur' || strpos($areaNorm, 'terstruktur') !== false;
-                            }); @endphp
-                            @forelse($terstrukturTugas as $index => $tugasItem)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
-                                    <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td>
-                                    <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area ?? 'N/A')) }}</td>
-                                    <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas ?? 'N/A')) }}</td>
-                                    <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
-                                    @php
-                                        $nilaiCollection = $tugasItem->nilai ?? collect();
-                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
-                                        $averageNilai = $nilaiCollection->avg('nilai');
-                                    @endphp
-                                    <td>
-                                        @if($currentUserNilai)
-                                            <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        @else
-                                            @if(Auth::id() === 2472 && $averageNilai)
-                                                <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
-                                            @else
-                                                <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($tugasItem->file_path)
-                                            <a href="{{ asset('/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
-                                                <i class="bi bi-eye"></i> Lihat
-                                            </a>
-                                            <a href="{{ asset('/' . $tugasItem->file_path) }}" download class="action-btn btn-download">
-                                                <i class="bi bi-download"></i> Download
-                                            </a>
-                                        @else
-                                            <span class="text-muted">Tidak ada file</span>
-                                        @endif
-                                        @if(Auth::id() === 2472 || in_array($tugasItem->area ?? '', $allowedAreas, true))
-                                            <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
-                                                <i class="bi bi-star"></i> Nilai
-                                                @if($currentUserNilai)
-                                                    ({{ $currentUserNilai->nilai }})
-                                                @endif
-                                                @if(Auth::id() === 2472 && $averageNilai)
-                                                    <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
-                                                @endif
-                                            </button>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="no-data">Belum ada tugas Terstruktur yang disubmit untuk materi Anda</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Kelompok --}}
-                <div style="padding:18px;">
-                    <h3 style="margin:0 0 8px; font-size:18px;">Tugas Area: Kelompok</h3>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Peserta</th>
-                                <th>Sekolah/Madrasah</th>
-                                <th>Area Tugas</th>
-                                <th>Jenis Tugas</th>
-                                <th>Tanggal Submit</th>
-                                <th>Nilai</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php $kelompokTugas = $allTugas->filter(function($t) {
-                                $area = strtolower($t->area ?? '');
-                                $areaNorm = str_replace(['-','_',' '], '', $area);
-                                return $areaNorm === 'kelompok' || strpos($areaNorm, 'kelompok') !== false;
-                            }); @endphp
-                            @forelse($kelompokTugas as $index => $tugasItem)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
-                                    <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td>
-                                    <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area ?? 'N/A')) }}</td>
-                                    <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas ?? 'N/A')) }}</td>
-                                    <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
-                                    @php
-                                        $nilaiCollection = $tugasItem->nilai ?? collect();
-                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
-                                        $averageNilai = $nilaiCollection->avg('nilai');
-                                    @endphp
-                                    <td>
-                                        @if($currentUserNilai)
-                                            <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        @else
-                                            @if(Auth::id() === 2472 && $averageNilai)
-                                                <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
-                                            @else
-                                                <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($tugasItem->file_path)
-                                            <a href="{{ asset('/' . $tugasItem->file_path) }}" target="_blank" class="action-btn btn-view">
-                                                <i class="bi bi-eye"></i> Lihat
-                                            </a>
-                                            <a href="{{ asset('/' . $tugasItem->file_path) }}" download class="action-btn btn-download">
-                                                <i class="bi bi-download"></i> Download
-                                            </a>
-                                        @else
-                                            <span class="text-muted">Tidak ada file</span>
-                                        @endif
-                                        @if(Auth::id() === 2472 || in_array($tugasItem->area ?? '', $allowedAreas, true))
-                                            <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
-                                                <i class="bi bi-star"></i> Nilai
-                                                @if($currentUserNilai)
-                                                    ({{ $currentUserNilai->nilai }})
-                                                @endif
-                                                @if(Auth::id() === 2472 && $averageNilai)
-                                                    <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
-                                                @endif
-                                            </button>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="no-data">Belum ada tugas Kelompok yang disubmit untuk materi Anda</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                    </button>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8" class="no-data">Belum ada tugas yang disubmit untuk materi Anda</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-
         </div>
 
     </div>
