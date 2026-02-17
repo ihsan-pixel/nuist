@@ -735,17 +735,6 @@
 <section class="content-section">
     <div class="container">
 
-        {{-- Materi selection navigation for Penilaian Peserta --}}
-        @if(isset($materiTalenta) && $materiTalenta->isNotEmpty())
-        <div style="margin: 18px 0; display:flex; gap:8px; overflow:auto;">
-            @foreach($materiTalenta as $m)
-                <button class="materi-btn" data-materi-id="{{ $m->id }}" style="padding:8px 14px; border-radius:12px; border:1px solid #e2e8f0; background:white; cursor:pointer;">
-                    {{ Str::limit($m->judul_materi, 40) }}
-                </button>
-            @endforeach
-        </div>
-        @endif
-
         @if(Auth::user()->role !== 'fasilitator')
         <!-- TRAINER SECTION -->
         <div id="trainer-section" class="instrumen-section animate fade-up tab-content active">
@@ -900,6 +889,16 @@
         @if(Auth::user()->role !== 'fasilitator')
         <!-- PESERTA SECTION -->
         <div id="peserta-section" class="instrumen-section animate fade-up delay-3 tab-content" style="display: none;">
+            {{-- Materi selection navigation for Penilaian Peserta (only for peserta table) --}}
+            @if(isset($materiTalenta) && $materiTalenta->isNotEmpty())
+            <div style="margin: 18px 0; display:flex; gap:8px; overflow:auto;">
+                @foreach($materiTalenta as $m)
+                    <button class="materi-btn" data-materi-id="{{ $m->id }}" style="padding:8px 14px; border-radius:12px; border:1px solid #e2e8f0; background:white; cursor:pointer;">
+                        {{ Str::limit($m->judul_materi, 40) }}
+                    </button>
+                @endforeach
+            </div>
+            @endif
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
@@ -952,6 +951,16 @@
         @if(Auth::user()->role === 'fasilitator')
         <!-- PESERTA SECTION FOR FASILITATOR -->
         <div id="peserta-section" class="instrumen-section animate fade-up tab-content active">
+            {{-- Materi selection navigation for Penilaian Peserta (only for peserta table) --}}
+            @if(isset($materiTalenta) && $materiTalenta->isNotEmpty())
+            <div style="margin: 18px 0; display:flex; gap:8px; overflow:auto;">
+                @foreach($materiTalenta as $m)
+                    <button class="materi-btn" data-materi-id="{{ $m->id }}" style="padding:8px 14px; border-radius:12px; border:1px solid #e2e8f0; background:white; cursor:pointer;">
+                        {{ Str::limit($m->judul_materi, 40) }}
+                    </button>
+                @endforeach
+            </div>
+            @endif
             <div class="table-container">
                 <table class="instrumen-table peserta-table">
                     <thead>
