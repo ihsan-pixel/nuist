@@ -565,10 +565,27 @@ class TalentaController extends Controller
         }
 
         // Pass materi list to the view so UI can present selection if needed
+        // Build list of peserta (from talenta_peserta) who have NOT submitted tugas per materi
+        $allPeserta = TalentaPeserta::with('user')->get();
+        $pesertaBelum = [];
+        foreach ($materiModels as $materi) {
+            $slug = $materi->slug;
+            $submittedUserIds = TugasTalentaLevel1::where('area', $slug)->pluck('user_id')->unique()->toArray();
+
+            $belum = $allPeserta->filter(function ($p) use ($submittedUserIds) {
+                // If peserta has no linked user, consider them as not submitted
+                if (empty($p->user_id)) return true;
+                return !in_array($p->user_id, $submittedUserIds, true);
+            })->values();
+
+            $pesertaBelum[$materi->id] = $belum;
+        }
+
         return view('talenta.penilaian-tugas', [
             'tugas' => $tugas,
             'materis' => $materiModels,
             'selected_materi_id' => $selectedMateriId,
+            'peserta_belum' => $pesertaBelum,
         ]);
     }
 
