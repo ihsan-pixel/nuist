@@ -572,7 +572,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Nama Peserta</th>
+                            <th>Nama Kelompok</th>
                             <th>Sekolah/Madrasah</th>
                             <th>Area Tugas</th>
                             <th>Jenis Tugas</th>
@@ -590,7 +590,7 @@
                             @foreach($kelompok as $index => $tugasItem)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td>{{ $tugasItem->user->name ?? 'N/A' }}</td>
+                                    <td>{{ $tugasItem->kelompok->nama_kelompok ?? $tugasItem->user->name ?? 'N/A' }}</td>
                                     <td>{{ $tugasItem->user->madrasah->name ?? 'N/A' }}</td>
                                     <td>{{ ucwords(str_replace('-', ' ', $tugasItem->area)) }}</td>
                                     <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
@@ -623,7 +623,10 @@
                                             <span class="text-muted">Tidak ada file</span>
                                         @endif
                                         @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
-                                            <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
+                                            @php
+                                                $displayName = $tugasItem->kelompok->nama_kelompok ?? ($tugasItem->user->name ?? 'N/A');
+                                            @endphp
+                                            <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $displayName }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
                                                 <i class="bi bi-star"></i> Nilai
                                                 @if($currentUserNilai)
                                                     ({{ $currentUserNilai->nilai }})
