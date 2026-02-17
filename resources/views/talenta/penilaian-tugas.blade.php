@@ -484,12 +484,24 @@
             <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;">
                 @foreach($materisList as $materi)
                     @php
+                        // Try to match tasks that reference materi by materi_id or nested relation; fallback to empty set
                         $mTugas = $allTugas->filter(function($t) use ($materi) {
-                            return isset($t->materi_id) && $t->materi_id == $materi->id && !empty($t->file_path);
+                            $hasMateriId = isset($t->materi_id) && $t->materi_id == ($materi->id ?? null);
+                            $hasNestedMateri = isset($t->materi) && isset($t->materi->id) && $t->materi->id == ($materi->id ?? null);
+                            return ($hasMateriId || $hasNestedMateri) && !empty($t->file_path);
                         });
-                        $onsiteCount = $mTugas->filter(function($t){ return isset($t->area) && strpos(strtolower($t->area), 'onsite') !== false; })->count();
-                        $terstrukturCount = $mTugas->filter(function($t){ return isset($t->area) && strpos(strtolower($t->area), 'terstruktur') !== false; })->count();
-                        $kelompokCount = $mTugas->filter(function($t){ return isset($t->area) && strpos(strtolower($t->area), 'kelompok') !== false; })->count();
+                        $onsiteCount = $mTugas->filter(function($t){
+                            $area = strtolower($t->area ?? '');
+                            return $area === 'onsite' || strpos($area, 'onsite') !== false;
+                        })->count();
+                        $terstrukturCount = $mTugas->filter(function($t){
+                            $area = strtolower($t->area ?? '');
+                            return $area === 'terstruktur' || strpos($area, 'terstruktur') !== false;
+                        })->count();
+                        $kelompokCount = $mTugas->filter(function($t){
+                            $area = strtolower($t->area ?? '');
+                            return $area === 'kelompok' || strpos($area, 'kelompok') !== false;
+                        })->count();
                     @endphp
 
                     <div style="background:#fff; padding:12px 14px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.06); min-width:220px;">
@@ -520,7 +532,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $onsiteTugas = $allTugas->filter(fn($t) => isset($t->area) && strpos(strtolower($t->area), 'onsite') !== false); @endphp
+                            @php $onsiteTugas = $allTugas->filter(function($t) {
+                                $area = strtolower($t->area ?? '');
+                                return $area === 'onsite' || strpos($area, 'onsite') !== false;
+                            }); @endphp
                             @forelse($onsiteTugas as $index => $tugasItem)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
@@ -595,7 +610,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $terstrukturTugas = $allTugas->filter(fn($t) => isset($t->area) && strpos(strtolower($t->area), 'terstruktur') !== false); @endphp
+                            @php $terstrukturTugas = $allTugas->filter(function($t) {
+                                $area = strtolower($t->area ?? '');
+                                return $area === 'terstruktur' || strpos($area, 'terstruktur') !== false;
+                            }); @endphp
                             @forelse($terstrukturTugas as $index => $tugasItem)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
@@ -670,7 +688,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $kelompokTugas = $allTugas->filter(fn($t) => isset($t->area) && strpos(strtolower($t->area), 'kelompok') !== false); @endphp
+                            @php $kelompokTugas = $allTugas->filter(function($t) {
+                                $area = strtolower($t->area ?? '');
+                                return $area === 'kelompok' || strpos($area, 'kelompok') !== false;
+                            }); @endphp
                             @forelse($kelompokTugas as $index => $tugasItem)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
