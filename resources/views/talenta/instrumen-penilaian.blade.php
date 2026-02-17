@@ -1296,6 +1296,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 payload.materi_id = selectedMateriId;
             }
 
+            console.log('Saving payload to', url, payload);
             const res = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -1306,15 +1307,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(payload)
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                const text = await res.text().catch(() => 'No response body');
+                Swal.close();
+                console.error('Save failed, non-JSON response:', text);
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Server mengembalikan respon yang tidak valid.' });
+                return;
+            }
+
             Swal.close();
 
-            if (res.ok && data.success) {
-                Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message || 'Penilaian berhasil disimpan' });
-            } else {
-                const msg = data.message || 'Gagal menyimpan penilaian';
-                Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+            if (!res.ok) {
+                console.error('Save failed:', data);
+                Swal.fire({ icon: 'error', title: 'Gagal', text: (data.error || data.message) || 'Gagal menyimpan penilaian.' });
+                return;
             }
+
+            if (!data.success) {
+                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Gagal menyimpan penilaian.' });
+                return;
+            }
+
+            Swal.fire({ icon: 'success', title: 'Sukses', text: data.message || 'Penilaian berhasil disimpan.' });
         } catch (err) {
             console.error('Error saving ratings', err);
             Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat menyimpan. Periksa konsol.' });
