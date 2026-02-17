@@ -660,11 +660,6 @@
                         @endif
                     </tbody>
                 </table>
-                                </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
 
                 {{-- Render Kelompok group --}}
                 <h3 style="padding:20px 24px 0 24px;">Kelompok</h3>
