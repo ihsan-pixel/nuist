@@ -830,13 +830,24 @@ class TalentaController extends Controller
             $materiId = $request->input('materi_id');
 
             foreach ($ratings as $pesertaId => $data) {
-                $match = [
+                // Try to find existing penilaian for this peserta/user/materi
+                $penilaian = TalentaPenilaianPeserta::where('talenta_peserta_id', $pesertaId)
+                    ->where('user_id', Auth::id())
+                    ->where('materi_id', $materiId)
+                    ->first();
+
+                // If not found, check for an existing generic penilaian without materi_id (legacy rows)
+                if (!$penilaian) {
+                    $penilaian = TalentaPenilaianPeserta::where('talenta_peserta_id', $pesertaId)
+                        ->where('user_id', Auth::id())
+                        ->whereNull('materi_id')
+                        ->first();
+                }
+
+                $values = [
                     'talenta_peserta_id' => $pesertaId,
                     'user_id' => Auth::id(),
                     'materi_id' => $materiId,
-                ];
-
-                $values = [
                     'kehadiran' => $data['kehadiran'] ?? null,
                     'partisipasi' => $data['partisipasi'] ?? null,
                     'disiplin' => $data['disiplin'] ?? null,
@@ -844,10 +855,16 @@ class TalentaController extends Controller
                     'pemahaman' => $data['pemahaman'] ?? null,
                     'praktik' => $data['praktik'] ?? null,
                     'sikap' => $data['sikap'] ?? null,
-                    'materi_id' => $materiId,
                 ];
 
-                TalentaPenilaianPeserta::updateOrCreate($match, $values);
+                if ($penilaian) {
+                    // update existing record (either matching materi or legacy without materi)
+                    $penilaian->fill($values);
+                    $penilaian->save();
+                } else {
+                    // create new record
+                    TalentaPenilaianPeserta::create($values);
+                }
             }
 
             return response()->json([
