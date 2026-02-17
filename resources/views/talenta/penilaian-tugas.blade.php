@@ -479,6 +479,11 @@
                 $allowedAreas = $materisColl->pluck('slug')->toArray();
                 // Define canonical areas and labels
                 $areas = ['onsite' => 'Onsite', 'terstruktur' => 'Terstruktur', 'kelompok' => 'Kelompok'];
+
+                // Normalizer to accept variants like 'on-site', 'on_site', 'Onsite'
+                $normalize = function($s) {
+                    return strtolower(str_replace([' ', '-', '_'], '', (string) $s));
+                };
             @endphp
 
             <!-- SUMMARY CARDS PER MATERI -->
@@ -486,10 +491,12 @@
                 <div class="summary-cards" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
                     @forelse($materisColl as $materi)
                         @php
-                            $mTugas = $tugasColl->where('materi_id', $materi->id);
-                            $onsiteCount = $mTugas->where('area', 'onsite')->filter(fn($t) => !empty($t->file_path))->count();
-                            $terstrukturCount = $mTugas->where('area', 'terstruktur')->filter(fn($t) => !empty($t->file_path))->count();
-                            $kelompokCount = $mTugas->where('area', 'kelompok')->filter(fn($t) => !empty($t->file_path))->count();
+                            $mTugas = $tugasColl->filter(function($t) use ($materi, $normalize) {
+                                return isset($t->materi_id) && $t->materi_id == $materi->id;
+                            });
+                            $onsiteCount = $mTugas->filter(function($t) use ($normalize) { return $normalize($t->area) === 'onsite' && !empty($t->file_path); })->count();
+                            $terstrukturCount = $mTugas->filter(function($t) use ($normalize) { return $normalize($t->area) === 'terstruktur' && !empty($t->file_path); })->count();
+                            $kelompokCount = $mTugas->filter(function($t) use ($normalize) { return $normalize($t->area) === 'kelompok' && !empty($t->file_path); })->count();
                         @endphp
                         <div class="summary-card" style="background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 6px 18px rgba(0,0,0,0.04);min-width:220px;flex:1 1 220px;">
                             <div style="font-weight:700;color:#00393a;margin-bottom:6px;font-size:15px;">{{ $materi->name ?? 'Materi ' . ($materi->id ?? '') }}</div>
@@ -509,7 +516,10 @@
             <div style="padding:0 18px 20px;">
                 @foreach($areas as $areaSlug => $areaLabel)
                     @php
-                        $areaTugas = $tugasColl->where('area', $areaSlug)->values();
+                        // Use normalizer for robustness against different area spellings
+                        $areaTugas = $tugasColl->filter(function($t) use ($normalize, $areaSlug) {
+                            return $normalize($t->area) === $areaSlug;
+                        })->values();
                     @endphp
                     <div style="margin-bottom:22px;">
                         <h3 style="margin:0 0 12px 0;color:#00393a;font-size:18px">{{ $areaLabel }}</h3>
