@@ -637,51 +637,6 @@
                         @endif
                     </tbody>
                 </table>
-                
-                {{-- Peserta yang belum mengirim tugas (diperoleh dari tabel talenta_peserta) --}}
-                <div class="section-header">
-                    <h3>Peserta Belum Mengirim Tugas</h3>
-                    <div class="subtitle">Daftar peserta (berdasarkan `talenta_peserta`) yang belum mengumpulkan tugas per materi</div>
-                </div>
-
-                @php
-                    $materiList = collect($materis ?? []);
-                @endphp
-
-                @foreach($materiList as $materiItem)
-                    @php
-                        $belum = isset($peserta_belum[$materiItem->id]) ? $peserta_belum[$materiItem->id] : collect();
-                    @endphp
-                    <div class="table-container" style="margin:12px 24px; padding:14px;">
-                        <h4 style="margin:0 0 8px 0;">{{ $materiItem->nama ?? ucwords(str_replace('-', ' ', $materiItem->slug)) }}</h4>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Peserta</th>
-                                    <th>Sekolah/Madrasah</th>
-                                    <th>Email</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if($belum->isEmpty())
-                                    <tr>
-                                        <td colspan="4" class="no-data">Semua peserta untuk materi ini telah mengirim tugas atau tidak ada peserta terdaftar.</td>
-                                    </tr>
-                                @else
-                                    @foreach($belum as $i => $p)
-                                        <tr>
-                                            <td>{{ $i + 1 }}</td>
-                                            <td>{{ $p->nama ?? ($p->user->name ?? 'N/A') }}</td>
-                                            <td>{{ $p->nama_madrasah ?? ($p->user && $p->user->madrasah ? $p->user->madrasah->name : ($p->asal_sekolah ?? '-')) }}</td>
-                                            <td>{{ $p->email ?? ($p->user->email ?? '-') }}</td>
-                                        </tr>
-                                    @endforeach
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
-                @endforeach
                 {{-- Render Terstruktur group --}}
                 <div class="section-header">
                     <h3>Tugas Terstruktur</h3>
