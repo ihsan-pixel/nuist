@@ -74,7 +74,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr>
+                    {{-- <tr>
                         <td colspan="5" class="text-center p-5">
                             <div class="mb-3">
                                 <i class="bx bx-info-circle bx-lg text-info"></i>
@@ -82,7 +82,7 @@
                             <h5 class="mb-1">Belum ada data anggota</h5>
                             <p class="text-muted">Klik tombol "Tambah Anggota" untuk menambahkan anggota MGMP.</p>
                         </td>
-                    </tr>
+                    </tr> --}}
                     @endforelse
                 </tbody>
             </table>
