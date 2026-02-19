@@ -50,6 +50,7 @@
                         <th>No</th>
                         <th>Nama</th>
                         <th>Asal Sekolah</th>
+                        <th>Grup MGMP</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -59,6 +60,7 @@
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $member->name }}</td>
                         <td>{{ $member->sekolah }}</td>
+                        <td>{{ $member->mgmpGroup->name ?? '-' }}</td>
                         <td>
                             @if(auth()->user()->role === 'mgmp' && $member->mgmpGroup->user_id === auth()->id() || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus']))
                             <form action="#" method="POST" style="display:inline-block;">
@@ -71,7 +73,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="text-center p-5">
+                        <td colspan="5" class="text-center p-5">
                             <div class="mb-3">
                                 <i class="bx bx-info-circle bx-lg text-info"></i>
                             </div>
@@ -187,11 +189,35 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function(response) {
-                $('#modalTambahAnggota').modal('hide');
-                location.reload();
+                if (response.success) {
+                    $('#modalTambahAnggota').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
+                }
             },
             error: function(xhr) {
-                alert('Terjadi kesalahan: ' + xhr.responseJSON?.message || 'Unknown error');
+                let errorMessage = 'Terjadi kesalahan';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: errorMessage
+                });
             }
         });
     });

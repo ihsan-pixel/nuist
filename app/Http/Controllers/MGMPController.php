@@ -58,13 +58,114 @@ class MGMPController extends Controller
      */
     public function dataAnggota()
     {
+        // Get current user's MGMP group
+        $currentMgmpGroup = MgmpGroup::where('user_id', auth()->id())->first();
+
         // Fetch existing MGMP members with relationships
-        $members = MgmpMember::with('user', 'mgmpGroup')->get();
+        // If user is mgmp, only show members of their group
+        if (auth()->user()->role === 'mgmp' && $currentMgmpGroup) {
+            $members = MgmpMember::with('user', 'mgmpGroup')
+                ->where('mgmp_group_id', $currentMgmpGroup->id)
+                ->get();
+        } else {
+            // For admin/super_admin/pengurus, show all members
+            $members = MgmpMember::with('user', 'mgmpGroup')->get();
+        }
+
+        // Get user_ids that are already members (to exclude from selection)
+        $existingMemberIds = MgmpMember::pluck('user_id')->toArray();
 
         // Fetch tenaga pendidik users for the modal selection, sorted by name A-Z
-        $tenagaPendidik = User::where('role', 'tenaga_pendidik')->with('madrasah')->orderBy('name', 'asc')->get();
+        // Exclude users who are already members
+        $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+            ->whereNotIn('id', $existingMemberIds)
+            ->with('madrasah')
+            ->orderBy('name', 'asc')
+            ->get();
 
-        return view('mgmp.data-anggota', compact('members', 'tenagaPendidik'));
+        return view('mgmp.data-anggota', compact('members', 'tenagaPendidik', 'existingMemberIds'));
+    }
+
+    /**
+     * Store a new MGMP member
+     */
+    public function storeMember(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'required|integer|exists:users,id',
+        ]);
+
+        // Get current user's MGMP group
+        $currentMgmpGroup = MgmpGroup::where('user_id', auth()->id())->first();
+
+        // If user is mgmp but doesn't have a group yet, return error
+        if (auth()->user()->role === 'mgmp' && !$currentMgmpGroup) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda belum memiliki grup MGMP. Silakan buat grup MGMP terlebih dahulu.'
+            ], 422);
+        }
+
+        // Determine mgmp_group_id to use
+        // For admin/super_admin/pengurus, they need to specify which group or we use their associated group
+        $mgmpGroupId = $currentMgmpGroup ? $currentMgmpGroup->id : null;
+
+        // If no group found, return error
+        if (!$mgmpGroupId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Grup MGMP tidak ditemukan. Silakan hubungi administrator.'
+            ], 422);
+        }
+
+        $addedCount = 0;
+        $errors = [];
+
+        foreach ($request->user_ids as $userId) {
+            // Check if user is already a member of this group
+            $exists = MgmpMember::where('user_id', $userId)
+                ->where('mgmp_group_id', $mgmpGroupId)
+                ->exists();
+
+            if ($exists) {
+                $errors[] = "User ID $userId sudah menjadi anggota grup ini.";
+                continue;
+            }
+
+            // Get user data
+            $user = User::find($userId);
+            if (!$user) {
+                $errors[] = "User dengan ID $userId tidak ditemukan.";
+                continue;
+            }
+
+            // Create member record
+            MgmpMember::create([
+                'user_id' => $userId,
+                'mgmp_group_id' => $mgmpGroupId,
+                'name' => $user->name,
+                'sekolah' => $user->madrasah->name ?? 'Tidak ada sekolah',
+                'madrasah_id' => $user->madrasah->id ?? null,
+                'email' => $user->email
+            ]);
+
+            $addedCount++;
+        }
+
+        if ($addedCount > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => "$addedCount anggota berhasil ditambahkan.",
+                'errors' => $errors
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada anggota yang ditambahkan.',
+                'errors' => $errors
+            ], 422);
+        }
     }
 
     /**
