@@ -46,16 +46,7 @@
                         <input type="password" name="password_confirmation" class="form-control" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Sekolah (opsional)</label>
-                        <select name="madrasah_id" class="form-control">
-                            <option value="">-- Pilih Sekolah --</option>
-                            @foreach($madrasahs as $m)
-                            <option value="{{ $m->id }}">{{ $m->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('madrasah_id') <div class="text-danger">{{ $message }}</div> @enderror
-                    </div>
+                    <!-- Sekolah field removed as requested -->
 
                     <button class="btn btn-primary">Buat Akun MGMP</button>
                 </form>

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
 use App\Models\MgmpGroup;
 use App\Models\MgmpMember;
@@ -268,8 +267,8 @@ class MGMPController extends Controller
      */
     public function createMgmpUser()
     {
-        $madrasahs = Madrasah::orderBy('name', 'asc')->get();
-        return view('admin.create_mgmp_user', compact('madrasahs'));
+        // No madrasah selection required for MGMP accounts
+        return view('admin.create_mgmp_user');
     }
 
     /**
@@ -281,7 +280,6 @@ class MGMPController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'madrasah_id' => 'nullable|integer|exists:madrasahs,id',
         ]);
 
         $user = \App\Models\User::create([
@@ -289,7 +287,6 @@ class MGMPController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'mgmp',
-            'madrasah_id' => $request->madrasah_id ?? null,
             'password_changed' => true,
         ]);
 
