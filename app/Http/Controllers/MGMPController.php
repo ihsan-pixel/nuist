@@ -268,7 +268,9 @@ class MGMPController extends Controller
     public function createMgmpUser()
     {
         // No madrasah selection required for MGMP accounts
-        return view('admin.create_mgmp_user');
+        // Load existing MGMP users so the create page can display the accounts table
+        $mgmpUsers = User::where('role', 'mgmp')->orderBy('created_at', 'desc')->get();
+        return view('admin.create_mgmp_user', compact('mgmpUsers'));
     }
 
     /**
@@ -290,7 +292,8 @@ class MGMPController extends Controller
             'password_changed' => true,
         ]);
 
-        return redirect()->route('admin.mgmp_dashboard')->with('success', 'Akun MGMP berhasil dibuat.');
+        // Redirect back to the create page so the accounts table (loaded there) shows the new user
+        return redirect()->route('admin.create_mgmp_user')->with('success', 'Akun MGMP berhasil dibuat.');
     }
 
     /**
