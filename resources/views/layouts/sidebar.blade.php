@@ -272,7 +272,7 @@
                 <li>
                     <a href="{{ route('admin.mgmp_dashboard') }}" class="waves-effect">
                         <i class="bx bx-bar-chart-alt-2"></i>
-                        <span>Dashboard MGMP (Super Admin)</span>
+                        <span>Dashboard MGMP</span>
                     </a>
                 </li>
                 <li>
