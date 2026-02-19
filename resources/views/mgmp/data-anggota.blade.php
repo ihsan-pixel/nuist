@@ -107,7 +107,7 @@
                         <label>Nama</label>
                         <select name="user_ids[]" class="form-control" multiple required>
                             @foreach($tenagaPendidik as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }} - {{ $user->madrasah_id ?? 'Tidak ada sekolah' }}</option>
+                            <option value="{{ $user->id }}">{{ $user->name }} - {{ $user->madrasah->name ?? 'Tidak ada sekolah' }}</option>
                             @endforeach
                         </select>
                         <small class="text-muted">Pilih satu atau lebih tenaga pendidik</small>
