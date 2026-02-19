@@ -260,8 +260,33 @@ class MGMPController extends Controller
     {
         $user = auth()->user();
 
-        // Show all proposals (admins) or only own (regular users) — we'll pass both for the view to decide
-        $proposals = AcademicaProposal::with('user')->orderBy('created_at', 'desc')->get();
+        // Determine which proposals to show depending on role
+        if ($user && $user->role === 'mgmp') {
+            // If mgmp user has a group, show proposals only from group members
+            $mgmpGroup = MgmpGroup::where('user_id', $user->id)->first();
+            if ($mgmpGroup) {
+                $groupMemberUserIds = $mgmpGroup->members()->pluck('user_id')->toArray();
+                $proposals = AcademicaProposal::with('user')
+                    ->whereIn('user_id', $groupMemberUserIds)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            } else {
+                // no group: show only own proposal (if any)
+                $proposals = AcademicaProposal::with('user')
+                    ->where('user_id', $user->id)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
+        } elseif ($user && in_array($user->role, ['super_admin', 'admin', 'pengurus'])) {
+            // privileged roles see all proposals
+            $proposals = AcademicaProposal::with('user')->orderBy('created_at', 'desc')->get();
+        } else {
+            // default: show only own proposals
+            $proposals = AcademicaProposal::with('user')
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
 
         $userHasUploaded = AcademicaProposal::where('user_id', $user->id)->exists();
         $userProposal = AcademicaProposal::where('user_id', $user->id)->first();
