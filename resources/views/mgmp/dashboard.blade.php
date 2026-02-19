@@ -16,9 +16,13 @@
             <div class="p-4" style="background: linear-gradient(135deg, #0e8549 0%, #0b6b4d 100%); color: #fff;">
                 <div class="d-flex align-items-center">
                     <div class="me-3">
-                        <div class="avatar-lg profile-user-wid mb-0">
-                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="margin-top:20px;">
-                                <i class="mdi mdi-school fs-2"></i>
+                            <div class="avatar-lg profile-user-wid mb-0">
+                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="margin-top:20px; width:72px; height:72px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                @if(isset($mgmpGroup) && $mgmpGroup && !empty($mgmpGroup->logo))
+                                    <img src="{{ url('/uploads/' . $mgmpGroup->logo) }}" alt="Logo MGMP" style="width:64px; height:64px; object-fit:cover; border-radius:50%;" />
+                                @else
+                                    <i class="mdi mdi-school fs-2"></i>
+                                @endif
                             </div>
                         </div>
                     </div>
