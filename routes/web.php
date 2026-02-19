@@ -110,7 +110,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Super Admin - consolidated MGMP dashboard and user management
-    Route::middleware(['auth','role:super_admin'])->group(function () {
+    Route::middleware(['auth','role:super_admin,pengurus'])->group(function () {
         Route::get('/admin/mgmp-dashboard', [App\Http\Controllers\MGMPController::class, 'superAdminDashboard'])->name('admin.mgmp_dashboard');
         Route::get('/admin/create-mgmp-user', [App\Http\Controllers\MGMPController::class, 'createMgmpUser'])->name('admin.create_mgmp_user');
         Route::post('/admin/create-mgmp-user', [App\Http\Controllers\MGMPController::class, 'storeMgmpUser'])->name('admin.store_mgmp_user');
