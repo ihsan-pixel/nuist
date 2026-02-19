@@ -267,7 +267,7 @@
                 </li>
                 @endif
 
-                @if($userRole === 'super_admin')
+                @if($userRole === 'super_admin, pengurus')
                 <li class="menu-title">MGMP</li>
                 <li>
                     <a href="{{ route('admin.mgmp_dashboard') }}" class="waves-effect">
