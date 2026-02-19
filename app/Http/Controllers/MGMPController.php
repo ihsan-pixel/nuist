@@ -10,6 +10,8 @@ use App\Models\StatusKepegawaian;
 use App\Models\MgmpGroup;
 use App\Models\MgmpMember;
 use App\Models\MgmpReport;
+use App\Models\AcademicaProposal;
+use Illuminate\Support\Facades\Storage;
 
 class MGMPController extends Controller
 {
@@ -209,6 +211,63 @@ class MGMPController extends Controller
             'rataRataDurasi',
             'members'
         ));
+    }
+
+    /**
+     * Show Academica page with proposals and upload form
+     */
+    public function academica()
+    {
+        $user = auth()->user();
+
+        // Show all proposals (admins) or only own (regular users) — we'll pass both for the view to decide
+        $proposals = AcademicaProposal::with('user')->orderBy('created_at', 'desc')->get();
+
+        $userHasUploaded = AcademicaProposal::where('user_id', $user->id)->exists();
+        $userProposal = AcademicaProposal::where('user_id', $user->id)->first();
+
+        return view('mgmp.academica', compact('proposals', 'userHasUploaded', 'userProposal'));
+    }
+
+    /**
+     * Handle PDF proposal upload. Each user allowed only one upload.
+     */
+    public function uploadAcademica(Request $request)
+    {
+        $request->validate([
+            'proposal' => 'required|file|mimes:pdf|max:10240', // max 10MB
+        ]);
+
+        $user = auth()->user();
+
+        // enforce single upload per user
+        if (AcademicaProposal::where('user_id', $user->id)->exists()) {
+            return redirect()->back()->with('error', 'Anda hanya dapat mengupload proposal satu kali.');
+        }
+
+        $file = $request->file('proposal');
+        $filename = time() . '_' . $user->id . '_' . preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $file->getClientOriginalName());
+
+        // use public/uploads/academica_proposals
+        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? public_path();
+        $destinationPath = $documentRoot . '/uploads/academica_proposals';
+
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+
+        $file->move($destinationPath, $filename);
+
+        $path = 'academica_proposals/' . $filename;
+
+        AcademicaProposal::create([
+            'user_id' => $user->id,
+            'filename' => $file->getClientOriginalName(),
+            'path' => $path,
+            'mime' => $file->getClientMimeType(),
+        ]);
+
+        return redirect()->back()->with('success', 'Proposal berhasil diupload.');
     }
 
     /**
