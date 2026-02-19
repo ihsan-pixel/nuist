@@ -195,11 +195,16 @@ class MGMPController extends Controller
      */
     public function manage()
     {
-        $mgmpGroups = MgmpGroup::all();
-        $canAdd = true;
+        $user = auth()->user();
 
-        if (auth()->user()->role === 'mgmp' && $mgmpGroups->count() > 0) {
-            $canAdd = false;
+        // If current user is an MGMP user, only show their own MGMP data and allow adding only if they don't have one
+        if ($user && $user->role === 'mgmp') {
+            $mgmpGroups = MgmpGroup::where('user_id', $user->id)->get();
+            $canAdd = !MgmpGroup::where('user_id', $user->id)->exists();
+        } else {
+            // For admin/super_admin/pengurus show all and allow add
+            $mgmpGroups = MgmpGroup::all();
+            $canAdd = true;
         }
 
         return view('mgmp.data-mgmp', compact('mgmpGroups', 'canAdd'));
