@@ -1,15 +1,13 @@
-# TODO - Fix MGMP RouteNotFoundException
+# TODO: Update MGMP Image Upload to Use public_html (Document Root)
 
-## Task
-Fix RouteNotFoundException for MGMP routes by adding missing routes and controller methods.
+## Plan Summary
+Mengubah penyimpanan gambar logo MGMP dari `storage/app/public` ke `public/uploads/mgmp_logos` agar bisa diakses langsung melalui document root di mode production.
 
-## Steps Completed
-- [ ] 1. Update MGMPController with missing methods (dashboard, data, laporan, login, authenticate, logout)
-- [ ] 2. Add missing MGMP routes to routes/web.php
+## Steps
 
-## Files to Edit
-1. `app/Http/Controllers/MGMPController.php`
-2. `routes/web.php`
+- [x] 1. Modify MGMPController.php - store() method to save to public/uploads/mgmp_logos
+- [x] 2. Modify MGMPController.php - update() method to save to public/uploads/mgmp_logos
+- [x] 3. Modify data-mgmp.blade.php - change image source from storage/ to uploads/
+- [x] 4. Create directory public/uploads/mgmp_logos
 
-## Status: In Progress
-
+## Status: COMPLETED

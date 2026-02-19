@@ -130,7 +130,18 @@ class MGMPController extends Controller
 
         $logoPath = null;
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('mgmp_logos', 'public');
+            $file = $request->file('logo');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? public_path();
+            $destinationPath = $documentRoot . '/uploads/mgmp_logos';
+
+            // Create directory if not exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $file->move($destinationPath, $filename);
+            $logoPath = 'mgmp_logos/' . $filename;
         }
 
         MgmpGroup::create([
@@ -163,7 +174,18 @@ class MGMPController extends Controller
 
         $logoPath = $mgmpGroup->logo;
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('mgmp_logos', 'public');
+            $file = $request->file('logo');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? public_path();
+            $destinationPath = $documentRoot . '/uploads/mgmp_logos';
+
+            // Create directory if not exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $file->move($destinationPath, $filename);
+            $logoPath = 'mgmp_logos/' . $filename;
         }
 
         $mgmpGroup->update([

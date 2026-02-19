@@ -78,7 +78,7 @@
                         <td>{{ $mgmp->member_count }}</td>
                         <td>
                             @if($mgmp->logo)
-                                <img src="{{ asset('storage/' . $mgmp->logo) }}" alt="Logo" width="50">
+                                <img src="{{ asset('uploads/' . $mgmp->logo) }}" alt="Logo" width="50">
                             @else
                                 -
                             @endif
