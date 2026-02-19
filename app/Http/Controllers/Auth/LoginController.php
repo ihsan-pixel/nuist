@@ -41,7 +41,7 @@ class LoginController extends Controller
     {
         // Redirect pengurus users to mobile pengurus dashboard
         if ($user->role === 'pengurus') {
-            return redirect()->route('mobile.pengurus.dashboard');
+            return redirect()->route('dashboard');
         }
 
         // Redirect mgmp users to mgmp dashboard
