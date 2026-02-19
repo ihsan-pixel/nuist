@@ -83,29 +83,44 @@ class MGMPController extends Controller
         // Get current user's MGMP group
         $currentMgmpGroup = MgmpGroup::where('user_id', auth()->id())->first();
 
-        // Fetch existing MGMP members with relationships
-        // If user is mgmp, only show members of their group
-        if (auth()->user()->role === 'mgmp' && $currentMgmpGroup) {
-            $members = MgmpMember::with('user', 'mgmpGroup')
-                ->where('mgmp_group_id', $currentMgmpGroup->id)
-                ->get();
+        $existingMemberIds = [];
+        $tenagaPendidik = collect();
+        $canAddMember = false;
+
+        // If user is mgmp, only show members of their group (or none if they don't have group)
+        if (auth()->user()->role === 'mgmp') {
+            if ($currentMgmpGroup) {
+                $members = MgmpMember::with('user', 'mgmpGroup')
+                    ->where('mgmp_group_id', $currentMgmpGroup->id)
+                    ->get();
+
+                // prepare selection list excluding existing members
+                $existingMemberIds = $members->pluck('user_id')->toArray();
+                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                    ->whereNotIn('id', $existingMemberIds)
+                    ->with('madrasah')
+                    ->orderBy('name', 'asc')
+                    ->get();
+
+                $canAddMember = true;
+            } else {
+                // no group yet: show empty members and disallow adding (user must create MGMP group first)
+                $members = collect();
+                $canAddMember = false;
+            }
         } else {
-            // For admin/super_admin/pengurus, show all members
+            // For admin/super_admin/pengurus, show all members and allow adding
             $members = MgmpMember::with('user', 'mgmpGroup')->get();
+            $existingMemberIds = $members->pluck('user_id')->toArray();
+            $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                ->whereNotIn('id', $existingMemberIds)
+                ->with('madrasah')
+                ->orderBy('name', 'asc')
+                ->get();
+            $canAddMember = true;
         }
 
-        // Get user_ids that are already members (to exclude from selection)
-        $existingMemberIds = MgmpMember::pluck('user_id')->toArray();
-
-        // Fetch tenaga pendidik users for the modal selection, sorted by name A-Z
-        // Exclude users who are already members
-        $tenagaPendidik = User::where('role', 'tenaga_pendidik')
-            ->whereNotIn('id', $existingMemberIds)
-            ->with('madrasah')
-            ->orderBy('name', 'asc')
-            ->get();
-
-        return view('mgmp.data-anggota', compact('members', 'tenagaPendidik', 'existingMemberIds'));
+        return view('mgmp.data-anggota', compact('members', 'tenagaPendidik', 'existingMemberIds', 'canAddMember'));
     }
 
     /**

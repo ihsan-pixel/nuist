@@ -38,9 +38,16 @@
 
         <!-- Tombol tambah anggota -->
         <div class="mb-3 d-flex justify-content-end">
+            @if(isset($canAddMember) && $canAddMember)
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahAnggota">
                 <i class="bx bx-plus"></i> Tambah Anggota
             </button>
+            @else
+            <div class="alert alert-info mb-0">
+                <i class="bx bx-info-circle me-1"></i>
+                Jika Anda belum membuat data MGMP, silakan buat data MGMP terlebih dahulu untuk dapat menambahkan anggota.
+            </div>
+            @endif
         </div>
 
         <div class="table-responsive">
@@ -99,7 +106,7 @@
 <!-- Modal Tambah Anggota -->
 <div class="modal fade" id="modalTambahAnggota" tabindex="-1" aria-labelledby="modalTambahAnggotaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <form action="{{ route('mgmp.store-member') }}" method="POST" id="formTambahAnggota">
+                <form action="{{ route('mgmp.store-member') }}" method="POST" id="formTambahAnggota">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
@@ -109,6 +116,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Pilih Tenaga Pendidik</label>
+                        @if(isset($canAddMember) && $canAddMember)
                         <select name="user_ids[]" class="form-select select2-anggota" multiple="multiple" required data-placeholder="Ketik nama atau sekolah...">
                             @forelse($tenagaPendidik as $user)
                             <option value="{{ $user->id }}">{{ $user->name }} - {{ $user->madrasah->name ?? 'Tidak ada sekolah' }}</option>
@@ -116,6 +124,11 @@
                             <option value="">Tidak ada tenaga pendidik yang tersedia</option>
                             @endforelse
                         </select>
+                        @else
+                        <select class="form-select" disabled>
+                            <option>Anda harus membuat data MGMP terlebih dahulu</option>
+                        </select>
+                        @endif
                         <div class="form-text">Pilih satu atau lebih tenaga pendidik yang akan ditambahkan sebagai anggota MGMP</div>
                     </div>
                     <div class="alert alert-info mb-0">
