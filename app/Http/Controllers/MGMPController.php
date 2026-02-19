@@ -12,6 +12,7 @@ use App\Models\MgmpMember;
 use App\Models\MgmpReport;
 use App\Models\AcademicaProposal;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class MGMPController extends Controller
 {
@@ -247,6 +248,52 @@ class MGMPController extends Controller
         $userProposal = AcademicaProposal::where('user_id', $user->id)->first();
 
         return view('mgmp.academica', compact('proposals', 'userHasUploaded', 'userProposal'));
+    }
+
+    /**
+     * Super Admin consolidated MGMP dashboard
+     */
+    public function superAdminDashboard()
+    {
+        // Only accessible to super_admin via route middleware
+        $mgmpGroups = MgmpGroup::with('members')->get();
+        $members = MgmpMember::with('user', 'mgmpGroup')->get();
+        $proposals = AcademicaProposal::with('user')->orderBy('created_at', 'desc')->get();
+
+        return view('admin.super_mgmp_dashboard', compact('mgmpGroups', 'members', 'proposals'));
+    }
+
+    /**
+     * Show form to create a new user with role 'mgmp'
+     */
+    public function createMgmpUser()
+    {
+        $madrasahs = Madrasah::orderBy('name', 'asc')->get();
+        return view('admin.create_mgmp_user', compact('madrasahs'));
+    }
+
+    /**
+     * Store a new user with role mgmp
+     */
+    public function storeMgmpUser(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+            'madrasah_id' => 'nullable|integer|exists:madrasahs,id',
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'mgmp',
+            'madrasah_id' => $request->madrasah_id ?? null,
+            'password_changed' => true,
+        ]);
+
+        return redirect()->route('admin.mgmp_dashboard')->with('success', 'Akun MGMP berhasil dibuat.');
     }
 
     /**
