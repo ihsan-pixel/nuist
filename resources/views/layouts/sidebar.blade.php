@@ -267,6 +267,22 @@
                 </li>
                 @endif
 
+                @if($userRole === 'super_admin')
+                <li class="menu-title">MGMP</li>
+                <li>
+                    <a href="{{ route('admin.mgmp_dashboard') }}" class="waves-effect">
+                        <i class="bx bx-bar-chart-alt-2"></i>
+                        <span>Dashboard MGMP (Super Admin)</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.create_mgmp_user') }}" class="waves-effect">
+                        <i class="bx bx-user-plus"></i>
+                        <span>Buat Akun MGMP</span>
+                    </a>
+                </li>
+                @endif
+
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li class="menu-title">UPPM</li>
 
