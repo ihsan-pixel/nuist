@@ -68,6 +68,8 @@
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus anggota ini?')">Hapus</button>
                             </form>
+                            @else
+                            <span class="text-muted">-</span>
                             @endif
                         </td>
                     </tr>
@@ -147,10 +149,16 @@
 
 <script>
 $(document).ready(function () {
+    // Destroy existing DataTable instance if exists
+    if ($.fn.DataTable.isDataTable('#datatable-anggota')) {
+        $('#datatable-anggota').DataTable().destroy();
+    }
+
     let table = $("#datatable-anggota").DataTable({
         responsive: true,
         lengthChange: true,
         autoWidth: false,
+        destroy: true,
         buttons: ["copy", "excel", "pdf", "print", "colvis"]
     });
 
