@@ -412,6 +412,13 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{ route('mgmp.academica') }}" class="waves-effect">
+                        <i class="bx bx-book"></i>
+                        <span>Academica</span>
+                    </a>
+                </li>
+
                 {{-- <li>
                     <a href="{{ route('mgmp.laporan') }}" class="waves-effect">
                         <i class="bx bx-file"></i>
