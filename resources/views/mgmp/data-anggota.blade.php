@@ -98,7 +98,7 @@
 @endif
 <!-- Modal Tambah Anggota -->
 <div class="modal fade" id="modalTambahAnggota" tabindex="-1" aria-labelledby="modalTambahAnggotaLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <form action="{{ route('mgmp.store-member') }}" method="POST" id="formTambahAnggota">
             @csrf
             <div class="modal-content">
@@ -108,18 +108,28 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label>Nama</label>
-                        <select name="user_ids[]" class="form-control" multiple required>
-                            @foreach($tenagaPendidik as $user)
+                        <label class="form-label fw-bold">Pilih Tenaga Pendidik</label>
+                        <select name="user_ids[]" class="form-select select2-anggota" multiple="multiple" required data-placeholder="Ketik nama atau sekolah...">
+                            @forelse($tenagaPendidik as $user)
                             <option value="{{ $user->id }}">{{ $user->name }} - {{ $user->madrasah->name ?? 'Tidak ada sekolah' }}</option>
-                            @endforeach
+                            @empty
+                            <option value="">Tidak ada tenaga pendidik yang tersedia</option>
+                            @endforelse
                         </select>
-                        <small class="text-muted">Pilih satu atau lebih tenaga pendidik</small>
+                        <div class="form-text">Pilih satu atau lebih tenaga pendidik yang akan ditambahkan sebagai anggota MGMP</div>
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        <i class="bx bx-info-circle me-1"></i>
+                        <strong>Catatan:</strong> Pengguna yang sudah menjadi anggota di grup MGMP lain tidak akan ditampilkan dalam daftar ini.
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bx bx-x"></i> Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-save"></i> Simpan
+                    </button>
                 </div>
             </div>
         </form>
@@ -166,21 +176,30 @@ $(document).ready(function () {
         .appendTo('#datatable-anggota_wrapper .col-md-6:eq(0)');
 
     // Initialize Select2 for multi-select
-    $('select[name="user_ids[]"]').select2({
-        placeholder: "Pilih tenaga pendidik...",
+    $('.select2-anggota').select2({
+        placeholder: "Ketik nama atau sekolah...",
         allowClear: true,
         width: '100%',
+        dropdownParent: $('#modalTambahAnggota'),
+        language: {
+            noResults: function() {
+                return "Tidak ada hasil ditemukan";
+            },
+            searching: function() {
+                return "Mencari...";
+            }
+        },
         templateResult: function (data) {
             if (!data.id) { return data.text; }
             var $data = $(data.element);
             var text = $data.text();
-            return text;
+            return $('<span>').text(text);
         },
         templateSelection: function (data) {
             if (!data.id) { return data.text; }
             var $data = $(data.element);
             var text = $data.text();
-            return text;
+            return $('<span>').text(text);
         }
     });
 
