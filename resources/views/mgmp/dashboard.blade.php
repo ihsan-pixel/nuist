@@ -38,13 +38,13 @@
                     <div class="col-6">
                         <div class="p-2 bg-light rounded text-center">
                             <div class="text-muted small">Anggota</div>
-                            <div class="h5 mb-0">{{ $totalAnggota ?? 0 }}</div>
+                            <div class="h5 mb-0">{{ $memberCount ?? 0 }}</div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="p-2 bg-light rounded text-center">
                             <div class="text-muted small">Kegiatan</div>
-                            <div class="h5 mb-0">{{ $totalKegiatan ?? 0 }}</div>
+                            <div class="h5 mb-0">{{ $totalReports ?? 0 }}</div>
                         </div>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                         </div>
                         <div>
                             <div class="text-muted small">Total Anggota</div>
-                            <div class="h5 mb-0">{{ $totalAnggota ?? 0 }}</div>
+                            <div class="h5 mb-0">{{ $memberCount ?? 0 }}</div>
                         </div>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                         </div>
                         <div>
                             <div class="text-muted small">Kegiatan</div>
-                            <div class="h5 mb-0">{{ $totalKegiatan ?? 0 }}</div>
+                            <div class="h5 mb-0">{{ $totalReports ?? 0 }}</div>
                         </div>
                     </div>
                 </div>
@@ -94,8 +94,8 @@
                             </div>
                         </div>
                         <div>
-                            <div class="text-muted small">Laporan</div>
-                            <div class="h5 mb-0">{{ $totalLaporan ?? 0 }}</div>
+                            <div class="text-muted small">Proposal</div>
+                            <div class="h5 mb-0">{{ $proposalCount ?? 0 }}</div>
                         </div>
                     </div>
                 </div>
@@ -108,11 +108,11 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <h6 class="mb-0">Aktivitas Terbaru</h6>
-                            <small class="text-muted">{{ isset($recentActivities) ? $recentActivities->count() : 0 }} items</small>
+                            <small class="text-muted">{{ isset($recentReports) ? $recentReports->count() : 0 }} items</small>
                         </div>
-                        @if(isset($recentActivities) && $recentActivities->count() > 0)
+                        @if(isset($recentReports) && $recentReports->count() > 0)
                             <div class="list-group list-group-flush">
-                                @foreach($recentActivities as $activity)
+                                @foreach($recentReports as $activity)
                                 <div class="list-group-item px-0 py-2 border-0">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
@@ -124,7 +124,7 @@
                                         </div>
                                         <div class="grow">
                                             <div class="d-flex justify-content-between">
-                                                <h6 class="mb-1">{{ $activity->title }}</h6>
+                                                <h6 class="mb-1">{{ $activity->title ?? $activity->name ?? '-' }}</h6>
                                                 <small class="text-muted">{{ $activity->created_at->diffForHumans() }}</small>
                                             </div>
                                             <p class="text-muted small mb-0">{{ Str::limit($activity->description, 120) }}</p>

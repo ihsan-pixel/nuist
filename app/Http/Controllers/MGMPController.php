@@ -52,7 +52,27 @@ class MGMPController extends Controller
      */
     public function dashboard()
     {
-        return view('mgmp.dashboard');
+        $user = auth()->user();
+
+        // If user has an MGMP group (role mgmp), show their group info; else show general stats
+        $mgmpGroup = MgmpGroup::where('user_id', $user->id)->first();
+
+        if ($mgmpGroup) {
+            $memberCount = $mgmpGroup->members()->count();
+            $totalReports = $mgmpGroup->reports()->count();
+            $recentReports = $mgmpGroup->reports()->orderBy('created_at', 'desc')->limit(5)->get();
+
+            // proposals by group members
+            $groupMemberUserIds = $mgmpGroup->members()->pluck('user_id')->toArray();
+            $proposalCount = AcademicaProposal::whereIn('user_id', $groupMemberUserIds)->count();
+        } else {
+            $memberCount = MgmpMember::count();
+            $totalReports = MgmpReport::count();
+            $recentReports = MgmpReport::orderBy('created_at', 'desc')->limit(5)->get();
+            $proposalCount = AcademicaProposal::count();
+        }
+
+        return view('mgmp.dashboard', compact('mgmpGroup', 'memberCount', 'totalReports', 'recentReports', 'proposalCount'));
     }
 
     /**
