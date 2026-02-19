@@ -29,6 +29,11 @@
                             <small class="badge bg-white bg-opacity-10 text-white">Role: {{ Str::ucfirst(Auth::user()->role ?? 'mgmp') }}</small>
                             <small class="badge bg-white bg-opacity-10 text-white">ID: {{ Auth::user()->nuist_id ?? '-' }}</small>
                         </div>
+                        @if(isset($mgmpGroup) && $mgmpGroup)
+                        <div class="mt-2">
+                            <small class="text-white-50">Nama MGMP: <strong>{{ $mgmpGroup->name }}</strong></small>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
