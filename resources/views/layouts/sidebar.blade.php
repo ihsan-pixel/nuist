@@ -275,6 +275,8 @@
                         <span>Dashboard MGMP</span>
                     </a>
                 </li>
+                @endif
+                @if(in_array($userRole, ['super_admin']))
                 <li>
                     <a href="{{ route('admin.create_mgmp_user') }}" class="waves-effect">
                         <i class="bx bx-user-plus"></i>
