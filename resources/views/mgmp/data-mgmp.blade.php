@@ -86,11 +86,11 @@
                         <td>
                             @if(auth()->user()->role === 'mgmp' && $mgmp->user_id === auth()->id() || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus']))
                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditMGMP{{ $mgmp->id }}">Edit</button>
-                            <form action="{{ route('mgmp.destroy', $mgmp->id) }}" method="POST" style="display:inline-block;">
+                            {{-- <form action="{{ route('mgmp.destroy', $mgmp->id) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus MGMP ini?')">Delete</button>
-                            </form>
+                            </form> --}}
                             @endif
                         </td>
                     </tr>
