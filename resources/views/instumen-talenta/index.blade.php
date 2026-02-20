@@ -20,25 +20,6 @@
         </div>
     </div>
 
-    <!-- Welcome -->
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h4 class="card-title">Selamat Datang di Instrument Talenta</h4>
-                            <p class="text-muted">Platform pengembangan talenta profesional untuk meningkatkan kompetensi dan keterampilan tenaga pendidik di lingkungan LP. Ma'arif NU DIY</p>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <img src="{{ asset('images/tpt logo.png') }}" alt="Logo Instrument Talenta" class="img-fluid" style="max-height:80px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Statistics -->
     <div class="row mb-3">
         <div class="col-6 col-sm-6 col-md-6 col-lg-3 mb-2">
