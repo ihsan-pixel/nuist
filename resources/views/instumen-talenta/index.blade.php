@@ -123,7 +123,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-6 col-sm-6 col-md-4 col-lg-2 mb-3">
+                        <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
                                 <div class="avatar-lg mx-auto mb-3">
                                     <span class="avatar-title bg-primary rounded-circle">
@@ -138,7 +138,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6 col-sm-6 col-md-4 col-lg-2 mb-3">
+                        <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
                                 <div class="avatar-lg mx-auto mb-3">
                                     <span class="avatar-title bg-success rounded-circle">
@@ -153,7 +153,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6 col-sm-6 col-md-4 col-lg-2 mb-3">
+                        <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
                                 <div class="avatar-lg mx-auto mb-3">
                                     <span class="avatar-title bg-info rounded-circle">
@@ -168,7 +168,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6 col-sm-6 col-md-4 col-lg-2 mb-3">
+                        <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
                                 <div class="avatar-lg mx-auto mb-3">
                                     <span class="avatar-title bg-warning rounded-circle">
@@ -183,7 +183,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6 col-sm-6 col-md-4 col-lg-2 mb-3">
+                        <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
                                 <div class="avatar-lg mx-auto mb-3">
                                     <span class="avatar-title bg-info rounded-circle">
