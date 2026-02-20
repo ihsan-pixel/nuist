@@ -213,10 +213,10 @@
         <div class="col-lg-4 mb-3">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title mb-0">Fitur Platform</h4>
+                    <h4 class="card-title mb-0">Fitur Talenta</h4>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
+                    {{-- <div class="d-flex align-items-center mb-3">
                         <div class="avatar-xs me-3">
                             <span class="avatar-title bg-primary rounded-circle">
                                 <i class="fas fa-book-open font-size-12"></i>
@@ -262,7 +262,7 @@
                             <h6 class="mb-0">Kolaborasi</h6>
                             <p class="text-muted mb-0 small">Forum diskusi & grup</p>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
