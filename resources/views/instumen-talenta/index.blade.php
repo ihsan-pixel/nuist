@@ -184,7 +184,7 @@
 
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
-                                <a href="{{ route('talenta.data-talenta') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
+                                <a href="{{ route('talenta.data') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
                                     <i class="fas fa-plus me-1"></i> Data Talenta
                                 </a>
                             </div>
@@ -200,7 +200,7 @@
 
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
-                                <a href="{{ route('talenta.tugas') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
+                                <a href="{{ route('talenta.tugas-level-1') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
                                     <i class="fas fa-plus me-1"></i> Tugas
                                 </a>
                             </div>
