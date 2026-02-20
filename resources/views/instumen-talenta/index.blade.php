@@ -3,7 +3,8 @@
 @section('title', 'Instrument Talenta - Dashboard')
 
 @section('content')
-<div class="row">
+<div class="container-fluid">
+    <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
             <h4 class="mb-sm-0 font-size-18">Dashboard Instrument Talenta</h4>
@@ -16,9 +17,9 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
 
-<div class="row">
+    <div class="row">
     <!-- Welcome Card -->
     <div class="col-xl-12">
         <div class="card">
@@ -43,7 +44,7 @@
 
 <div class="row">
     <!-- Statistics Cards -->
-    <div class="col-xl-3 col-md-6">
+    <div class="col-6 col-sm-6 col-md-6 col-lg-3">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -61,7 +62,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-6 col-sm-6 col-md-6 col-lg-3">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -79,7 +80,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-6 col-sm-6 col-md-6 col-lg-3">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -97,7 +98,7 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-6 col-sm-6 col-md-6 col-lg-3">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -105,16 +106,19 @@
                         <span class="avatar-title bg-warning rounded">
                             <i class="fas fa-star font-size-20"></i>
                         </span>
-                    </div>
-                    <div class="grow ms-3">
-                        <p class="text-muted mb-1">Fasilitator</p>
+                                </div>
+                            </div>
+
+                            <!-- Input Data Section -->
+                            <div class="row">
+                                <div class="col-12">
                         <h4 class="mb-0">{{ number_format($totalFasilitator) }}</h4>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+                                                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
 
 <!-- Input Data Section -->
 <div class="row">
@@ -123,13 +127,12 @@
             <div class="card-header">
                 <h4 class="card-title mb-0">Input Data</h4>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
+                                                        <a href="{{ route('instumen-talenta.input-peserta') }}" class="btn btn-primary btn-sm w-100" aria-label="Input Peserta">
+                                                            <i class="fas fa-plus me-1"></i> Input Peserta
+                                                        </a>
                         <div class="text-center mb-4">
                             <div class="avatar-lg mx-auto mb-3">
-                                <span class="avatar-title bg-primary rounded-circle">
-                                    <i class="fas fa-user-plus font-size-24"></i>
+                                                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
                                 </span>
                             </div>
                             <h5 class="font-size-15 mb-2">Input Peserta</h5>
@@ -138,13 +141,12 @@
                                 <i class="fas fa-plus me-1"></i> Input Peserta
                             </a>
                         </div>
-                    </div>
-
-                    <div class="col-md-3">
+                                                        <a href="{{ route('instumen-talenta.input-pemateri') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
+                                                            <i class="fas fa-plus me-1"></i> Input Pemateri
+                                                        </a>
                         <div class="text-center mb-4">
                             <div class="avatar-lg mx-auto mb-3">
-                                <span class="avatar-title bg-success rounded-circle">
-                                    <i class="fas fa-chalkboard-teacher font-size-24"></i>
+                                                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
                                 </span>
                             </div>
                             <h5 class="font-size-15 mb-2">Input Pemateri</h5>
@@ -153,13 +155,12 @@
                                 <i class="fas fa-plus me-1"></i> Input Pemateri
                             </a>
                         </div>
-                    </div>
-
-                    <div class="col-md-3">
+                                                        <a href="{{ route('instumen-talenta.input-fasilitator') }}" class="btn btn-info btn-sm w-100" aria-label="Input Fasilitator">
+                                                            <i class="fas fa-plus me-1"></i> Input Fasilitator
+                                                        </a>
                         <div class="text-center mb-4">
                             <div class="avatar-lg mx-auto mb-3">
-                                <span class="avatar-title bg-info rounded-circle">
-                                    <i class="fas fa-user-cog font-size-24"></i>
+                                                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
                                 </span>
                             </div>
                             <h5 class="font-size-15 mb-2">Input Fasilitator</h5>
@@ -168,13 +169,12 @@
                                 <i class="fas fa-plus me-1"></i> Input Fasilitator
                             </a>
                         </div>
-                    </div>
-
-                    <div class="col-md-3">
+                                                        <a href="{{ route('instumen-talenta.input-materi') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
+                                                            <i class="fas fa-plus me-1"></i> Input Materi
+                                                        </a>
                         <div class="text-center mb-4">
                             <div class="avatar-lg mx-auto mb-3">
-                                <span class="avatar-title bg-warning rounded-circle">
-                                    <i class="fas fa-book-open font-size-24"></i>
+                                                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
                                 </span>
                             </div>
                             <h5 class="font-size-15 mb-2">Input Materi</h5>
@@ -183,17 +183,17 @@
                                 <i class="fas fa-plus me-1"></i> Input Materi
                             </a>
                         </div>
-                    </div>
-
-                    <div class="col-md-3">
+                                                        <a href="{{ route('instumen-talenta.input-layanan-teknis') }}" class="btn btn-info btn-sm w-100" aria-label="Input Layanan Teknis">
+                                                            <i class="fas fa-plus me-1"></i> Input Layanan Teknis
+                                                        </a>
                         <div class="text-center mb-4">
                             <div class="avatar-lg mx-auto mb-3">
-                                <span class="avatar-title bg-info rounded-circle">
+                                            </div>
                                     <i class="fas fa-tools font-size-24"></i>
                                 </span>
                             </div>
                             <h5 class="font-size-15 mb-2">Input Layanan Teknis</h5>
-                            <p class="text-muted mb-3 font-size-12">Tambah data layanan teknis baru</p>
+                        </div>
                             <a href="{{ route('instumen-talenta.input-layanan-teknis') }}" class="btn btn-info btn-sm">
                                 <i class="fas fa-plus me-1"></i> Input Layanan Teknis
                             </a>
