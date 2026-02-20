@@ -843,7 +843,7 @@
                     <thead>
                         <tr>
                             <th rowspan="2" style="width: 60px;">No</th>
-                            <th rowspan="2" style="width: 180px;">Nama Layanan Teknis</th>
+                            {{-- <th rowspan="2" style="width: 180px;">Nama Layanan Teknis</th> --}}
                             <th rowspan="2" style="width: 120px;">Kode</th>
                             <th rowspan="2" style="width: 200px;">Tugas</th>
                             <th colspan="6" class="aspek-header">Aspek Penilaian</th>
@@ -861,7 +861,7 @@
                         @forelse($layananTeknisTalenta ?? [] as $index => $teknis)
                         <tr data-teknis-id="{{ $teknis->id }}">
                             <td>{{ $index + 1 }}</td>
-                            <td class="teknis-name">{{ $teknis->nama_layanan_teknis ?? 'N/A' }}</td>
+                            {{-- <td class="teknis-name">{{ $teknis->nama_layanan_teknis ?? 'N/A' }}</td> --}}
                             <td>{{ $teknis->kode_layanan_teknis ?? 'N/A' }}</td>
                             <td>{{ Str::limit($teknis->tugas_layanan_teknis ?? 'N/A', 50) }}</td>
                             @for($aspek = 1; $aspek <= 6; $aspek++)
