@@ -130,8 +130,6 @@
                                         <i class="fas fa-user-plus font-size-24"></i>
                                     </span>
                                 </div>
-                                <h5 class="font-size-15 mb-2">Input Peserta</h5>
-                                {{-- <p class="text-muted mb-3 font-size-12">Tambah data peserta baru ke dalam sistem</p> --}}
                                 <a href="{{ route('instumen-talenta.input-peserta') }}" class="btn btn-primary btn-sm w-100" aria-label="Input Peserta">
                                     <i class="fas fa-plus me-1"></i> Input Peserta
                                 </a>
@@ -145,8 +143,6 @@
                                         <i class="fas fa-chalkboard-teacher font-size-24"></i>
                                     </span>
                                 </div>
-                                <h5 class="font-size-15 mb-2">Input Pemateri</h5>
-                                {{-- <p class="text-muted mb-3 font-size-12">Tambah data pemateri/instruktur baru</p> --}}
                                 <a href="{{ route('instumen-talenta.input-pemateri') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
                                     <i class="fas fa-plus me-1"></i> Input Pemateri
                                 </a>
@@ -160,8 +156,6 @@
                                         <i class="fas fa-user-cog font-size-24"></i>
                                     </span>
                                 </div>
-                                <h5 class="font-size-15 mb-2">Input Fasilitator</h5>
-                                {{-- <p class="text-muted mb-3 font-size-12">Tambah data fasilitator/trainer baru</p> --}}
                                 <a href="{{ route('instumen-talenta.input-fasilitator') }}" class="btn btn-info btn-sm w-100" aria-label="Input Fasilitator">
                                     <i class="fas fa-plus me-1"></i> Input Fasilitator
                                 </a>
@@ -175,8 +169,6 @@
                                         <i class="fas fa-book-open font-size-24"></i>
                                     </span>
                                 </div>
-                                <h5 class="font-size-15 mb-2">Input Materi</h5>
-                                {{-- <p class="text-muted mb-3 font-size-12">Tambah data materi pembelajaran baru</p> --}}
                                 <a href="{{ route('instumen-talenta.input-materi') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
                                     <i class="fas fa-plus me-1"></i> Input Materi
                                 </a>
@@ -190,8 +182,6 @@
                                         <i class="fas fa-tools font-size-24"></i>
                                     </span>
                                 </div>
-                                <h5 class="font-size-15 mb-2">Input Layanan Teknis</h5>
-                                {{-- <p class="text-muted mb-3 font-size-12">Tambah data layanan teknis baru</p> --}}
                                 <a href="{{ route('instumen-talenta.input-layanan-teknis') }}" class="btn btn-info btn-sm w-100" aria-label="Input Layanan Teknis">
                                     <i class="fas fa-plus me-1"></i> Input Layanan Teknis
                                 </a>
