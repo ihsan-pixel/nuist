@@ -157,7 +157,7 @@
 
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
-                                <a href="{{ route('instumen-talenta.input-layanan-teknis') }}" class="btn btn-info btn-sm w-100" aria-label="Input Layanan Teknis">
+                                <a href="{{ route('instumen-talenta.input-layanan-teknis') }}" class="btn btn-danger btn-sm w-100" aria-label="Input Layanan Teknis">
                                     <i class="fas fa-plus me-1"></i> Input Layanan Teknis
                                 </a>
                             </div>
