@@ -116,7 +116,7 @@
 
     <!-- Input Data -->
     <div class="row mb-3">
-        <div class="col-12">
+        <div class="col-lg-4 mb-3">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">Input Data</h4>
