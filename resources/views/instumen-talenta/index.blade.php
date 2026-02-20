@@ -166,10 +166,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Akses Cepat -->
-    <div class="row mb-3">
+        <!-- Akses Cepat -->
         <div class="col-lg-4 mb-3">
             <div class="card">
                 <div class="card-header">
@@ -213,6 +210,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- Quick Access + Features -->
     <div class="row">
