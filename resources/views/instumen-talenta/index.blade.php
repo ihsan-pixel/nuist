@@ -209,82 +209,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-
-    <!-- Quick Access + Features -->
-    <div class="row">
-        <div class="col-lg-8 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Akses Cepat</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-4 mb-3">
-                            <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-primary rounded-circle">
-                                        <i class="fas fa-users font-size-24"></i>
-                                    </span>
-                                </div>
-                                <h5 class="font-size-15 mb-2">Dashboard Peserta</h5>
-                                <p class="text-muted mb-3 font-size-12">Akses materi dan tracking progress</p>
-                                <a href="{{ route('instumen-talenta.peserta') }}" class="btn btn-primary btn-sm w-100" aria-label="Dashboard Peserta">
-                                    <i class="fas fa-sign-in-alt me-1"></i> Masuk
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 mb-3">
-                            <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-success rounded-circle">
-                                        <i class="fas fa-chalkboard-teacher font-size-24"></i>
-                                    </span>
-                                </div>
-                                <h5 class="font-size-15 mb-2">Dashboard Pemateri</h5>
-                                <p class="text-muted mb-3 font-size-12">Kelola konten dan materi kursus</p>
-                                <a href="{{ route('instumen-talenta.pemateri') }}" class="btn btn-success btn-sm w-100" aria-label="Dashboard Pemateri">
-                                    <i class="fas fa-sign-in-alt me-1"></i> Masuk
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 mb-3">
-                            <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-info rounded-circle">
-                                        <i class="fas fa-user-cog font-size-24"></i>
-                                    </span>
-                                </div>
-                                <h5 class="font-size-15 mb-2">Dashboard Fasilitator</h5>
-                                <p class="text-muted mb-3 font-size-12">Pantau dan fasilitasi pembelajaran</p>
-                                <a href="{{ route('instumen-talenta.fasilitator') }}" class="btn btn-info btn-sm w-100" aria-label="Dashboard Fasilitator">
-                                    <i class="fas fa-sign-in-alt me-1"></i> Masuk
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 mb-3">
-                            <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-danger rounded-circle">
-                                        <i class="fas fa-cog font-size-24"></i>
-                                    </span>
-                                </div>
-                                <h5 class="font-size-15 mb-2">Dashboard Admin</h5>
-                                <p class="text-muted mb-3 font-size-12">Kelola sistem dan pengaturan</p>
-                                <a href="{{ route('instumen-talenta.admin') }}" class="btn btn-danger btn-sm w-100" aria-label="Dashboard Admin">
-                                    <i class="fas fa-sign-in-alt me-1"></i> Masuk
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <!-- fitur  -->
         <div class="col-lg-4 mb-3">
             <div class="card">
                 <div class="card-header">
@@ -342,7 +267,6 @@
             </div>
         </div>
     </div>
-
 </div>
 @endsection
 
