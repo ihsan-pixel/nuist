@@ -125,11 +125,6 @@
                     <div class="row">
                         <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-primary rounded-circle">
-                                        <i class="fas fa-user-plus font-size-24"></i>
-                                    </span>
-                                </div>
                                 <a href="{{ route('instumen-talenta.input-peserta') }}" class="btn btn-primary btn-sm w-100" aria-label="Input Peserta">
                                     <i class="fas fa-plus me-1"></i> Input Peserta
                                 </a>
@@ -138,11 +133,6 @@
 
                         <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-success rounded-circle">
-                                        <i class="fas fa-chalkboard-teacher font-size-24"></i>
-                                    </span>
-                                </div>
                                 <a href="{{ route('instumen-talenta.input-pemateri') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
                                     <i class="fas fa-plus me-1"></i> Input Pemateri
                                 </a>
@@ -151,11 +141,6 @@
 
                         <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-info rounded-circle">
-                                        <i class="fas fa-user-cog font-size-24"></i>
-                                    </span>
-                                </div>
                                 <a href="{{ route('instumen-talenta.input-fasilitator') }}" class="btn btn-info btn-sm w-100" aria-label="Input Fasilitator">
                                     <i class="fas fa-plus me-1"></i> Input Fasilitator
                                 </a>
@@ -164,11 +149,6 @@
 
                         <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-warning rounded-circle">
-                                        <i class="fas fa-book-open font-size-24"></i>
-                                    </span>
-                                </div>
                                 <a href="{{ route('instumen-talenta.input-materi') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
                                     <i class="fas fa-plus me-1"></i> Input Materi
                                 </a>
@@ -177,11 +157,6 @@
 
                         <div class="col-6 col-sm-6 col-md-4 col-lg-3 mb-3">
                             <div class="text-center">
-                                <div class="avatar-lg mx-auto mb-3">
-                                    <span class="avatar-title bg-info rounded-circle">
-                                        <i class="fas fa-tools font-size-24"></i>
-                                    </span>
-                                </div>
                                 <a href="{{ route('instumen-talenta.input-layanan-teknis') }}" class="btn btn-info btn-sm w-100" aria-label="Input Layanan Teknis">
                                     <i class="fas fa-plus me-1"></i> Input Layanan Teknis
                                 </a>
