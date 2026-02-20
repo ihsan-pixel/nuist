@@ -414,4 +414,30 @@ class InstumenTalentaController extends Controller
             return redirect()->route('instumen-talenta.input-peserta')->with('error', 'Gagal membuat kelompok: ' . $e->getMessage());
         }
     }
+
+    // Lightweight methods for the new feature pages (placeholders)
+    public function kelengkapan()
+    {
+        return view('instumen-talenta.kelengkapan');
+    }
+
+    public function uploadTugas()
+    {
+        return view('instumen-talenta.upload-tugas');
+    }
+
+    public function instrumenPenilaian()
+    {
+        return view('instumen-talenta.instrumen-penilaian');
+    }
+
+    public function nilaiTugas()
+    {
+        return view('instumen-talenta.nilai-tugas');
+    }
+
+    public function uploadSertifikat()
+    {
+        return view('instumen-talenta.upload-sertifikat');
+    }
 }
