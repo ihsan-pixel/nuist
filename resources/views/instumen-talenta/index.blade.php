@@ -31,7 +31,7 @@
                             <p class="text-muted">Platform pengembangan talenta profesional untuk meningkatkan kompetensi dan keterampilan tenaga pendidik di lingkungan LP. Ma'arif NU DIY</p>
                         </div>
                         <div class="col-md-4 text-center">
-                            <img src="{{ asset('images/logo favicon 1.png') }}" alt="Logo Instrument Talenta" class="img-fluid" style="max-height:80px;">
+                            <img src="{{ asset('images/tpt logo.png') }}" alt="Logo Instrument Talenta" class="img-fluid" style="max-height:80px;">
                         </div>
                     </div>
                 </div>
