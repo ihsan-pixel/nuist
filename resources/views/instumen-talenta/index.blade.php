@@ -177,7 +177,7 @@
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('talenta.dashboard') }}" class="btn btn-primary btn-sm w-100" aria-label="Input Peserta">
-                                    <i class="fas fa-plus me-1"></i> Dashboard Talenta
+                                    Dashboard Talenta
                                 </a>
                             </div>
                         </div>
@@ -185,7 +185,7 @@
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('talenta.data') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
-                                    <i class="fas fa-plus me-1"></i> Data Talenta
+                                    Data Talenta
                                 </a>
                             </div>
                         </div>
@@ -193,7 +193,7 @@
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('talenta.instrumen-penilaian') }}" class="btn btn-info btn-sm w-100" aria-label="Input Fasilitator">
-                                    <i class="fas fa-plus me-1"></i> Instrumen Penilaian
+                                    Instrumen Penilaian
                                 </a>
                             </div>
                         </div>
@@ -201,7 +201,7 @@
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('talenta.tugas-level-1') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
-                                    <i class="fas fa-plus me-1"></i> Tugas
+                                    Tugas
                                 </a>
                             </div>
                         </div>
