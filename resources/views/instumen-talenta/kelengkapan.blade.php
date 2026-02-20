@@ -39,9 +39,6 @@
                                         <td>
                                             @if($peserta->in_talenta)
                                                 <span class="badge bg-success">Sudah Mengisi Data Talenta</span>
-                                                @if(!empty($peserta->talenta->nomor_talenta))
-                                                    <div class="small text-muted">No: {{ $peserta->talenta->nomor_talenta }}</div>
-                                                @endif
                                             @else
                                                 <span class="badge bg-danger">Belum Mengisi Data Talenta</span>
                                             @endif
