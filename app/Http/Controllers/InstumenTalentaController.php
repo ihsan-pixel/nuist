@@ -418,7 +418,33 @@ class InstumenTalentaController extends Controller
     // Lightweight methods for the new feature pages (placeholders)
     public function kelengkapan()
     {
-        return view('instumen-talenta.kelengkapan');
+        // Define which user fields we consider required for "kelengkapan"
+        $requiredUserFields = [
+            'name',
+            'email',
+            'no_hp',
+            'tanggal_lahir',
+            'madrasah_id',
+        ];
+
+        $pesertas = TalentaPeserta::with(['user.madrasah'])->get()->map(function ($peserta) use ($requiredUserFields) {
+            $user = $peserta->user;
+            $isComplete = false;
+
+            if ($user) {
+                $isComplete = collect($requiredUserFields)->every(function ($field) use ($user) {
+                    // treat 0 as valid but null/empty string as not complete
+                    $value = data_get($user, $field);
+                    return !is_null($value) && $value !== '';
+                });
+            }
+
+            // attach a virtual property for the view
+            $peserta->is_complete = $isComplete;
+            return $peserta;
+        });
+
+        return view('instumen-talenta.kelengkapan', compact('pesertas'));
     }
 
     public function uploadTugas()

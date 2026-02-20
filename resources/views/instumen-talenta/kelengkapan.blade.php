@@ -15,8 +15,42 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <!-- Placeholder: replace with real table -->
-                    <div class="alert alert-info">Tabel daftar peserta akan ditampilkan di sini (placeholder).</div>
+                    @if(isset($pesertas) && $pesertas->count())
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width:50px">No</th>
+                                        <th>Kode Peserta</th>
+                                        <th>Nama</th>
+                                        <th>Email</th>
+                                        <th>Asal Sekolah / Madrasah</th>
+                                        <th style="width:160px">Status Kelengkapan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($pesertas as $i => $peserta)
+                                    <tr>
+                                        <td>{{ $i + 1 }}</td>
+                                        <td>{{ $peserta->kode_peserta }}</td>
+                                        <td>{{ $peserta->nama ?? '-' }}</td>
+                                        <td>{{ $peserta->email ?? '-' }}</td>
+                                        <td>{{ $peserta->nama_madrasah ?? ($peserta->asal_sekolah ?? '-') }}</td>
+                                        <td>
+                                            @if($peserta->is_complete)
+                                                <span class="badge bg-success">Lengkap</span>
+                                            @else
+                                                <span class="badge bg-danger">Belum Lengkap</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="alert alert-info">Tidak ada data peserta Talenta.</div>
+                    @endif
                 </div>
             </div>
         </div>
