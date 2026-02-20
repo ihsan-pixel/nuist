@@ -846,7 +846,7 @@
                             {{-- <th rowspan="2" style="width: 180px;">Nama Layanan Teknis</th> --}}
                             <th rowspan="2" style="width: 120px;">Kode</th>
                             <th rowspan="2" style="width: 200px;">Tugas</th>
-                            <th colspan="6" class="aspek-header">Aspek Penilaian</th>
+                            <th colspan="" class="aspek-header">Aspek Penilaian</th>
                         </tr>
                         <tr class="aspek-subheader">
                             <th class="aspek-col"><small>Kehadiran</small></th>
