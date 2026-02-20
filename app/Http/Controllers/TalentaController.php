@@ -554,7 +554,9 @@ class TalentaController extends Controller
         // Special case: user ID 2472 may access ALL uploaded tugas regardless of materi
         if (Auth::id() === 2472) {
             $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
-                ->orderBy('id', 'asc')
+                ->join('talenta_peserta', 'tugas_talenta_level1.user_id', '=', 'talenta_peserta.user_id')
+                ->orderBy('talenta_peserta.id', 'asc') // urut berdasarkan id talenta peserta
+                ->select('tugas_talenta_level1.*') // penting
                 ->get();
         } else {
             // Get tasks related to the user's materi(s)
