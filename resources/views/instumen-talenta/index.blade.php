@@ -216,53 +216,37 @@
                     <h4 class="card-title mb-0">Fitur Talenta</h4>
                 </div>
                 <div class="card-body">
-                    {{-- <div class="d-flex align-items-center mb-3">
-                        <div class="avatar-xs me-3">
-                            <span class="avatar-title bg-primary rounded-circle">
-                                <i class="fas fa-book-open font-size-12"></i>
-                            </span>
+                    <div class="row">
+                        <div class="col-lg-12 mb-2">
+                            <a href="{{ route('instumen-talenta.kelengkapan') }}" class="btn btn-outline-primary w-100" aria-label="Kelengkapan Data Peserta">
+                                <i class="fas fa-list-check me-1"></i> Kelengkapan Data Peserta
+                            </a>
                         </div>
-                        <div>
-                            <h6 class="mb-0">Materi Pembelajaran</h6>
-                            <p class="text-muted mb-0 small">Akses materi interaktif</p>
+
+                        <div class="col-lg-12 mb-2">
+                            <a href="{{ route('instumen-talenta.upload-tugas') }}" class="btn btn-outline-success w-100" aria-label="Upload Tugas Peserta">
+                                <i class="fas fa-upload me-1"></i> Upload Tugas Peserta
+                            </a>
+                        </div>
+
+                        <div class="col-lg-12 mb-2">
+                            <a href="{{ route('instumen-talenta.instrumen-penilaian') }}" class="btn btn-outline-info w-100" aria-label="Instrumen Penilaian">
+                                <i class="fas fa-clipboard-list me-1"></i> Instrumen Penilaian
+                            </a>
+                        </div>
+
+                        <div class="col-lg-12 mb-2">
+                            <a href="{{ route('instumen-talenta.nilai-tugas') }}" class="btn btn-outline-warning w-100" aria-label="Nilai Tugas">
+                                <i class="fas fa-table me-1"></i> Nilai Tugas
+                            </a>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <a href="{{ route('instumen-talenta.upload-sertifikat') }}" class="btn btn-outline-danger w-100" aria-label="Upload Sertifikat">
+                                <i class="fas fa-certificate me-1"></i> Upload Sertifikat
+                            </a>
                         </div>
                     </div>
-
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="avatar-xs me-3">
-                            <span class="avatar-title bg-success rounded-circle">
-                                <i class="fas fa-chart-line font-size-12"></i>
-                            </span>
-                        </div>
-                        <div>
-                            <h6 class="mb-0">Tracking Progress</h6>
-                            <p class="text-muted mb-0 small">Monitor perkembangan</p>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="avatar-xs me-3">
-                            <span class="avatar-title bg-info rounded-circle">
-                                <i class="fas fa-certificate font-size-12"></i>
-                            </span>
-                        </div>
-                        <div>
-                            <h6 class="mb-0">Sertifikasi</h6>
-                            <p class="text-muted mb-0 small">Sertifikat kompetensi</p>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center">
-                        <div class="avatar-xs me-3">
-                            <span class="avatar-title bg-warning rounded-circle">
-                                <i class="fas fa-users font-size-12"></i>
-                            </span>
-                        </div>
-                        <div>
-                            <h6 class="mb-0">Kolaborasi</h6>
-                            <p class="text-muted mb-0 small">Forum diskusi & grup</p>
-                        </div>
-                    </div> --}}
                 </div>
             </div>
         </div>

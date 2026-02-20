@@ -276,6 +276,17 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::post('/simfoni', [App\Http\Controllers\Mobile\Simfoni\SimfoniController::class, 'store'])->name('simfoni.store');
 });
 
+// Instumen Talenta routes - monitoring, upload and evaluation pages
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('instumen-talenta')->name('instumen-talenta.')->group(function () {
+        Route::get('/kelengkapan', [App\Http\Controllers\InstumenTalentaController::class, 'kelengkapan'])->name('kelengkapan');
+        Route::get('/upload-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'uploadTugas'])->name('upload-tugas');
+        Route::get('/instrumen-penilaian', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaian'])->name('instrumen-penilaian');
+        Route::get('/nilai-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'nilaiTugas'])->name('nilai-tugas');
+        Route::get('/upload-sertifikat', [App\Http\Controllers\InstumenTalentaController::class, 'uploadSertifikat'])->name('upload-sertifikat');
+    });
+});
+
 // panduan route - accessible by super_admin and pengurus
 Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index')->middleware(['auth', 'role:super_admin,pengurus']);
 
