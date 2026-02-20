@@ -176,7 +176,7 @@
                     <div class="row">
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
-                                <a href="{{ route('instumen-talenta.input-peserta') }}" class="btn btn-primary btn-sm w-100" aria-label="Input Peserta">
+                                <a href="{{ route('talenta.dashboard') }}" class="btn btn-primary btn-sm w-100" aria-label="Input Peserta">
                                     <i class="fas fa-plus me-1"></i> Dashboard Talenta
                                 </a>
                             </div>
@@ -184,7 +184,7 @@
 
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
-                                <a href="{{ route('instumen-talenta.input-pemateri') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
+                                <a href="{{ route('talenta.data-talenta') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
                                     <i class="fas fa-plus me-1"></i> Data Talenta
                                 </a>
                             </div>
@@ -192,7 +192,7 @@
 
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
-                                <a href="{{ route('instumen-talenta.input-fasilitator') }}" class="btn btn-info btn-sm w-100" aria-label="Input Fasilitator">
+                                <a href="{{ route('talenta.instrumen-penilaian') }}" class="btn btn-info btn-sm w-100" aria-label="Input Fasilitator">
                                     <i class="fas fa-plus me-1"></i> Instrumen Penilaian
                                 </a>
                             </div>
@@ -200,7 +200,7 @@
 
                         <div class="col-lg-12 mb-3">
                             <div class="text-center">
-                                <a href="{{ route('instumen-talenta.input-materi') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
+                                <a href="{{ route('talenta.tugas') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
                                     <i class="fas fa-plus me-1"></i> Tugas
                                 </a>
                             </div>
