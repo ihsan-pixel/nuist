@@ -168,6 +168,52 @@
         </div>
     </div>
 
+    <!-- Akses Cepat -->
+    <div class="row mb-3">
+        <div class="col-lg-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Akses Cepat</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12 mb-3">
+                            <div class="text-center">
+                                <a href="{{ route('instumen-talenta.input-peserta') }}" class="btn btn-primary btn-sm w-100" aria-label="Input Peserta">
+                                    <i class="fas fa-plus me-1"></i> Dashboard Talenta
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mb-3">
+                            <div class="text-center">
+                                <a href="{{ route('instumen-talenta.input-pemateri') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
+                                    <i class="fas fa-plus me-1"></i> Data Talenta
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mb-3">
+                            <div class="text-center">
+                                <a href="{{ route('instumen-talenta.input-fasilitator') }}" class="btn btn-info btn-sm w-100" aria-label="Input Fasilitator">
+                                    <i class="fas fa-plus me-1"></i> Instrumen Penilaian
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mb-3">
+                            <div class="text-center">
+                                <a href="{{ route('instumen-talenta.input-materi') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
+                                    <i class="fas fa-plus me-1"></i> Tugas
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Quick Access + Features -->
     <div class="row">
         <div class="col-lg-8 mb-3">
