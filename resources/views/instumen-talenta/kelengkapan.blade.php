@@ -37,11 +37,21 @@
                                         <td>{{ $peserta->email ?? '-' }}</td>
                                         <td>{{ $peserta->nama_madrasah ?? ($peserta->asal_sekolah ?? '-') }}</td>
                                         <td>
-                                            @if($peserta->is_complete)
-                                                <span class="badge bg-success">Lengkap</span>
+                                            @if($peserta->in_talenta)
+                                                <span class="badge bg-success">Sudah Mengisi Talenta</span>
+                                                @if(!empty($peserta->talenta->nomor_talenta))
+                                                    <div class="small text-muted">No: {{ $peserta->talenta->nomor_talenta }}</div>
+                                                @endif
                                             @else
-                                                <span class="badge bg-danger">Belum Lengkap</span>
+                                                <span class="badge bg-danger">Belum Mengisi Talenta</span>
                                             @endif
+                                            <div class="mt-1">
+                                                @if($peserta->is_complete)
+                                                    <small class="text-success">Profil lengkap</small>
+                                                @else
+                                                    <small class="text-muted">Profil belum lengkap</small>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach

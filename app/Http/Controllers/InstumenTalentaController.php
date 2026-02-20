@@ -427,20 +427,36 @@ class InstumenTalentaController extends Controller
             'madrasah_id',
         ];
 
-        $pesertas = TalentaPeserta::with(['user.madrasah'])->get()->map(function ($peserta) use ($requiredUserFields) {
+        $pesertas = TalentaPeserta::with(['user.madrasah'])->get();
+
+        // Collect user_ids and fetch any Talenta records in bulk to avoid N+1
+        $userIds = $pesertas->map(fn($p) => $p->user_id)->filter()->unique()->values()->all();
+        $talentaByUser = [];
+        if (!empty($userIds)) {
+            $talentaRecords = \App\Models\Talenta::whereIn('user_id', $userIds)->get();
+            $talentaByUser = $talentaRecords->keyBy('user_id');
+        }
+
+        $pesertas = $pesertas->map(function ($peserta) use ($requiredUserFields, $talentaByUser) {
             $user = $peserta->user;
             $isComplete = false;
 
             if ($user) {
                 $isComplete = collect($requiredUserFields)->every(function ($field) use ($user) {
-                    // treat 0 as valid but null/empty string as not complete
                     $value = data_get($user, $field);
                     return !is_null($value) && $value !== '';
                 });
             }
 
-            // attach a virtual property for the view
             $peserta->is_complete = $isComplete;
+
+            $peserta->in_talenta = false;
+            $peserta->talenta = null;
+            if ($user && isset($talentaByUser[$user->id])) {
+                $peserta->in_talenta = true;
+                $peserta->talenta = $talentaByUser[$user->id];
+            }
+
             return $peserta;
         });
 
