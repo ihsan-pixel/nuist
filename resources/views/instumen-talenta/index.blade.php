@@ -123,7 +123,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-lg-4 mb-3">
+                        <div class="col-lg-1 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('instumen-talenta.input-peserta') }}" class="btn btn-primary btn-sm w-100" aria-label="Input Peserta">
                                     <i class="fas fa-plus me-1"></i> Input Peserta
@@ -131,7 +131,7 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-4 mb-3">
+                        <div class="col-lg-1 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('instumen-talenta.input-pemateri') }}" class="btn btn-success btn-sm w-100" aria-label="Input Pemateri">
                                     <i class="fas fa-plus me-1"></i> Input Pemateri
@@ -139,7 +139,7 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-4 mb-3">
+                        <div class="col-lg-1 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('instumen-talenta.input-fasilitator') }}" class="btn btn-info btn-sm w-100" aria-label="Input Fasilitator">
                                     <i class="fas fa-plus me-1"></i> Input Fasilitator
@@ -147,7 +147,7 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-4 mb-3">
+                        <div class="col-lg-1 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('instumen-talenta.input-materi') }}" class="btn btn-warning btn-sm w-100" aria-label="Input Materi">
                                     <i class="fas fa-plus me-1"></i> Input Materi
@@ -155,7 +155,7 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-4 mb-3">
+                        <div class="col-lg-1 mb-3">
                             <div class="text-center">
                                 <a href="{{ route('instumen-talenta.input-layanan-teknis') }}" class="btn btn-info btn-sm w-100" aria-label="Input Layanan Teknis">
                                     <i class="fas fa-plus me-1"></i> Input Layanan Teknis
