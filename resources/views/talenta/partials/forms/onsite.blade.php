@@ -47,15 +47,15 @@
        @if($expired) disabled @else required @endif>
 
 <div class="d-flex justify-content-end mt-3">
-    @if($expired)
-        <p class="text-danger me-2">Batas waktu upload telah lewat ({{ isset($materi->tanggal_materi) ? $materi->tanggal_materi->format('d M Y') : '-' }}).</p>
-    @else
+    {{-- @if($expired) --}}
+        {{-- <p class="text-danger me-2">Batas waktu upload telah lewat ({{ isset($materi->tanggal_materi) ? $materi->tanggal_materi->format('d M Y') : '-' }}).</p> --}}
+    {{-- @else --}}
         @if(!isset($existingTasks[$config['slug'] . '-on_site']))
             <button class="btn btn-primary me-2" type="submit">
                 Upload On Site
             </button>
         @endif
-    @endif
+    {{-- @endif --}}
     @if(isset($existingTasks[$config['slug'] . '-on_site']))
         <a href="{{ asset($existingTasks[$config['slug'] . '-on_site']->file_path) }}"
            target="_blank"
