@@ -13,6 +13,25 @@
 <input type="hidden" name="area" value="{{ $config['slug'] }}">
 <input type="hidden" name="jenis_tugas" value="terstruktur">
 
+@php
+    $soalsForArea = $soalsByArea[$config['slug']] ?? collect();
+    $soalList = $soalsForArea['terstruktur'] ?? collect();
+@endphp
+
+@if($soalList->isNotEmpty())
+    <div class="mb-3">
+        @foreach($soalList as $soal)
+            <div class="card bg-light p-2 mb-2">
+                <div class="fw-semibold">Soal:</div>
+                <div class="small">{!! nl2br(e($soal->pertanyaan)) !!}</div>
+                @if($soal->instruksi)
+                    <div class="small text-muted mt-1">{!! nl2br(e($soal->instruksi)) !!}</div>
+                @endif
+            </div>
+        @endforeach
+    </div>
+@endif
+
 <input type="file"
        name="lampiran"
        class="form-control"

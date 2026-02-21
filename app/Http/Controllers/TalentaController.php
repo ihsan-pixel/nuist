@@ -22,6 +22,7 @@ use App\Models\TalentaPenilaianTrainer;
 use App\Models\TalentaPenilaianFasilitator;
 use App\Models\TalentaPenilaianTeknis;
 use App\Models\TalentaPenilaianPeserta;
+use App\Models\Soal;
 
 class TalentaController extends Controller
 {
@@ -207,7 +208,20 @@ class TalentaController extends Controller
             Log::warning('Failed to merge kelompok tasks: ' . $e->getMessage());
         }
 
-        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks', 'existingTasks'));
+        // Load soal/questions for the displayed materi so blades can render them above file inputs
+        $soalsByArea = [];
+        try {
+            foreach ($materiLevel1 as $materi) {
+                $grouped = Soal::where('materi_slug', $materi->slug)->ordered()->get()->groupBy('jenis');
+                $soalsByArea[$materi->slug] = $grouped;
+            }
+        } catch (\Exception $e) {
+            // don't halt page on soal load failure; log and continue
+            Log::warning('Failed to load soals: ' . $e->getMessage());
+            $soalsByArea = [];
+        }
+
+        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks', 'existingTasks', 'soalsByArea'));
     }
 
     /* =========================
