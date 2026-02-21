@@ -664,6 +664,79 @@ class TalentaController extends Controller
     }
 
     /* =========================
+     * SOAL (QUESTION) CRUD FOR ADMIN
+     * ========================= */
+    public function soalsIndex()
+    {
+        // show list of materis and soals grouped by materi
+        $materis = TalentaMateri::where('status', TalentaMateri::STATUS_PUBLISHED)
+            ->orderBy('level_materi')
+            ->orderBy('id')
+            ->get();
+
+        $soals = Soal::ordered()->get()->groupBy('materi_slug');
+
+        return view('talenta.soals.index', compact('materis', 'soals'));
+    }
+
+    public function soalsStore(Request $request)
+    {
+        $data = $request->validate([
+            'materi_slug' => 'required|string',
+            'jenis' => 'required|in:on_site,terstruktur,kelompok',
+            'kelompok' => 'nullable|string',
+            'pertanyaan' => 'required|string',
+            'instruksi' => 'nullable|string',
+            'urut' => 'nullable|integer',
+        ]);
+
+        try {
+            Soal::create($data);
+            return redirect()->route('talenta.soals.index')->with('success', 'Soal berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error('Failed to store soal', ['error' => $e->getMessage(), 'data' => $data]);
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan soal.');
+        }
+    }
+
+    public function soalsEdit(Soal $soal)
+    {
+        $materis = TalentaMateri::where('status', TalentaMateri::STATUS_PUBLISHED)->orderBy('level_materi')->orderBy('id')->get();
+        return view('talenta.soals.index', ['materis' => $materis, 'soals' => Soal::ordered()->get()->groupBy('materi_slug'), 'editing' => $soal]);
+    }
+
+    public function soalsUpdate(Request $request, Soal $soal)
+    {
+        $data = $request->validate([
+            'materi_slug' => 'required|string',
+            'jenis' => 'required|in:on_site,terstruktur,kelompok',
+            'kelompok' => 'nullable|string',
+            'pertanyaan' => 'required|string',
+            'instruksi' => 'nullable|string',
+            'urut' => 'nullable|integer',
+        ]);
+
+        try {
+            $soal->update($data);
+            return redirect()->route('talenta.soals.index')->with('success', 'Soal berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Failed to update soal', ['error' => $e->getMessage(), 'data' => $data, 'id' => $soal->id]);
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui soal.');
+        }
+    }
+
+    public function soalsDestroy(Soal $soal)
+    {
+        try {
+            $soal->delete();
+            return redirect()->route('talenta.soals.index')->with('success', 'Soal berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Failed to delete soal', ['error' => $e->getMessage(), 'id' => $soal->id]);
+            return redirect()->back()->with('error', 'Gagal menghapus soal.');
+        }
+    }
+
+    /* =========================
      * PENILAIAN INSTRUMEN - SAVE & GET
      * ========================= */
 

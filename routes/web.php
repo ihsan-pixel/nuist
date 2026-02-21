@@ -557,6 +557,15 @@ Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::c
 // Reset / delete uploaded tugas file (allow form POST or AJAX)
 Route::post('/talenta/tugas-level-1/reset', [App\Http\Controllers\TalentaController::class, 'resetTugasLevel1'])->name('talenta.tugas-level-1.reset');
 
+// Soal management (admin)
+Route::middleware(['auth','role:super_admin,admin'])->group(function () {
+    Route::get('/talenta/soals', [App\Http\Controllers\TalentaController::class, 'soalsIndex'])->name('talenta.soals.index');
+    Route::post('/talenta/soals', [App\Http\Controllers\TalentaController::class, 'soalsStore'])->name('talenta.soals.store');
+    Route::get('/talenta/soals/{soal}/edit', [App\Http\Controllers\TalentaController::class, 'soalsEdit'])->name('talenta.soals.edit');
+    Route::put('/talenta/soals/{soal}', [App\Http\Controllers\TalentaController::class, 'soalsUpdate'])->name('talenta.soals.update');
+    Route::delete('/talenta/soals/{soal}', [App\Http\Controllers\TalentaController::class, 'soalsDestroy'])->name('talenta.soals.destroy');
+});
+
 // MGMP Routes - Protected by auth and mgmp role
 Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgmp')->name('mgmp.')->group(function () {
     // Landing page for MGMP (public but inside mgmp namespace)
