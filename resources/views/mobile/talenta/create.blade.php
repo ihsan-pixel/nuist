@@ -396,6 +396,7 @@
                         <select name="jabatan_saat_ini">
                             <option value="">Pilih Jabatan</option>
                             <option value="guru" {{ old('jabatan_saat_ini') == 'guru' ? 'selected' : '' }}>Guru</option>
+                            <option value="kepala_sekolah" {{ old('jabatan_saat_ini') == 'kepala_sekolah' ? 'selected' : '' }}>Kepala Sekolah</option>
                             <option value="kaprodi" {{ old('jabatan_saat_ini') == 'kaprodi' ? 'selected' : '' }}>Kaprodi</option>
                             <option value="kepala_laboratorium" {{ old('jabatan_saat_ini') == 'kepala_laboratorium' ? 'selected' : '' }}>Kepala Laboratorium</option>
                             <option value="kepala_perpustakaan" {{ old('jabatan_saat_ini') == 'kepala_perpustakaan' ? 'selected' : '' }}>Kepala Perpustakaan</option>
