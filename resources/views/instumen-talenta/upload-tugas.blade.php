@@ -49,7 +49,7 @@
                                                 <th>File / Data</th>
                                                 <th>Submitted At</th>
                                                 <th>Nilai</th>
-                                                <th>Actions</th>
+                                                {{-- <th>Actions</th> --}}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -83,9 +83,9 @@
                                                             -
                                                         @endif
                                                     </td>
-                                                    <td>
+                                                    {{-- <td>
                                                         <a href="#" class="btn btn-sm btn-outline-primary">Detail</a>
-                                                    </td>
+                                                    </td> --}}
                                                 </tr>
                                             @endforeach
                                         </tbody>
