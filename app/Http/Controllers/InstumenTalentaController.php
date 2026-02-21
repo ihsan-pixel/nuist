@@ -12,6 +12,7 @@ use App\Models\TalentaKelompok;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Models\TugasTalentaLevel1;
 
 class InstumenTalentaController extends Controller
 {
@@ -463,9 +464,23 @@ class InstumenTalentaController extends Controller
         return view('instumen-talenta.kelengkapan', compact('pesertas'));
     }
 
-    public function uploadTugas()
+    public function uploadTugas(Request $request)
     {
-        return view('instumen-talenta.upload-tugas');
+        // Ambil daftar tugas dari tabel tugas_talenta_level1 beserta relasinya
+        $tugasQuery = TugasTalentaLevel1::with(['user', 'kelompok', 'nilai']);
+
+        // Optional: bisa tambahkan filter di sini (mis. berdasarkan area atau kelompok)
+        if ($request->filled('area')) {
+            $tugasQuery->where('area', $request->area);
+        }
+
+        if ($request->filled('kelompok_id')) {
+            $tugasQuery->where('kelompok_id', $request->kelompok_id);
+        }
+
+        $tugas = $tugasQuery->orderBy('submitted_at', 'desc')->get();
+
+        return view('instumen-talenta.upload-tugas', compact('tugas'));
     }
 
     public function instrumenPenilaian()
