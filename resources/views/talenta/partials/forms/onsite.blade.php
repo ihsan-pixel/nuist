@@ -45,6 +45,7 @@
     name="lampiran"
     class="form-control"
     required>
+    {{-- @if($expired) disabled @else required @endif> --}}
 
 <div class="d-flex justify-content-end mt-3">
     {{-- @if($expired) --}}
