@@ -96,7 +96,9 @@ class TalentaController extends Controller
         // Always load the full peserta list. The UI will fetch per-materi penilaian
         // via AJAX and populate the rating inputs; this allows showing empty rows
         // when no penilaian exists yet for the selected materi.
-        $pesertaList = TalentaPeserta::with(['user.madrasah'])->latest()->get();
+        $pesertaList = TalentaPeserta::with(['user.madrasah'])
+                ->orderBy('id', 'asc')
+                ->get();
 
         return view('talenta.instrumen-penilaian', [
             'pesertaTalenta'        => $pesertaList,
