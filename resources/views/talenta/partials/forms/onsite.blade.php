@@ -42,9 +42,9 @@
 @endif
 
 <input type="file"
-       name="lampiran"
-       class="form-control"
-       @if($expired) disabled @else required @endif>
+    name="lampiran"
+    class="form-control"
+    required>
 
 <div class="d-flex justify-content-end mt-3">
     {{-- @if($expired) --}}
