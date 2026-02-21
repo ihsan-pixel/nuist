@@ -15,6 +15,18 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+                    {{-- Area navigation buttons --}}
+                    <div class="mb-3">
+                        <div class="btn-group" role="group" aria-label="Area filter">
+                            <a href="{{ route('instumen-talenta.upload-tugas') }}" class="btn btn-sm {{ empty($selectedArea) ? 'btn-primary' : 'btn-outline-primary' }}">Semua Area</a>
+                            @if(isset($areas) && $areas->isNotEmpty())
+                                @foreach($areas as $area)
+                                    <a href="{{ route('instumen-talenta.upload-tugas', ['area' => $area]) }}" class="btn btn-sm {{ ($selectedArea === $area) ? 'btn-primary' : 'btn-outline-primary' }}">{{ $area }}</a>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+
                     @if(isset($tugas) && $tugas->isNotEmpty())
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover">

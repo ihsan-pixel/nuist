@@ -480,7 +480,20 @@ class InstumenTalentaController extends Controller
 
         $tugas = $tugasQuery->orderBy('submitted_at', 'desc')->get();
 
-        return view('instumen-talenta.upload-tugas', compact('tugas'));
+        // Ambil daftar unique area untuk navigasi
+        $areas = TugasTalentaLevel1::select('area')
+            ->whereNotNull('area')
+            ->distinct()
+            ->orderBy('area')
+            ->pluck('area');
+
+        // Ambil semua kelompok untuk opsi filter (opsional)
+        $kelompoks = TalentaKelompok::all();
+
+        $selectedArea = $request->query('area', null);
+        $selectedKelompok = $request->query('kelompok_id', null);
+
+        return view('instumen-talenta.upload-tugas', compact('tugas', 'areas', 'kelompoks', 'selectedArea', 'selectedKelompok'));
     }
 
     public function instrumenPenilaian()
