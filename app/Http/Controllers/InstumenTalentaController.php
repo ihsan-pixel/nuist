@@ -498,7 +498,91 @@ class InstumenTalentaController extends Controller
 
     public function instrumenPenilaian()
     {
-        return view('instumen-talenta.instrumen-penilaian');
+        // Load peserta and related user
+        $pesertas = TalentaPeserta::with('user')->orderBy('id')->get();
+
+        // Short-circuit when no peserta
+        if ($pesertas->isEmpty()) {
+            return view('instumen-talenta.instrumen-penilaian', ['rows' => collect()]);
+        }
+
+        $pesertaIds = $pesertas->pluck('id')->all();
+        $userIds = $pesertas->pluck('user_id')->filter()->unique()->values()->all();
+
+        // Fetch all evaluations in bulk to avoid N+1
+        $penilaianPesertas = \App\Models\TalentaPenilaianPeserta::whereIn('talenta_peserta_id', $pesertaIds)->get()->groupBy('talenta_peserta_id');
+        $penilaianTrainer = \App\Models\TalentaPenilaianTrainer::whereIn('user_id', $userIds)->get()->groupBy('user_id');
+        $penilaianFasilitator = \App\Models\TalentaPenilaianFasilitator::whereIn('user_id', $userIds)->get()->groupBy('user_id');
+        $penilaianTeknis = \App\Models\TalentaPenilaianTeknis::whereIn('user_id', $userIds)->get()->groupBy('user_id');
+
+        // Fields to average for each model
+        $fields_peserta = ['kehadiran','partisipasi','disiplin','tugas','pemahaman','praktik','sikap'];
+        $fields_trainer = ['kualitas_materi','penyampaian','integrasi_kasus','penjelasan','umpan_balik','waktu'];
+        $fields_fasilitator = ['fasilitasi','pendampingan','respons','koordinasi','monitoring','waktu'];
+        $fields_teknis = ['kehadiran','partisipasi','disiplin','kualitas_tugas','pemahaman_materi','implementasi_praktik'];
+
+        $rows = collect();
+
+        foreach ($pesertas as $peserta) {
+            $received = $penilaianPesertas->get($peserta->id, collect());
+
+            $received_avgs = [];
+            foreach ($fields_peserta as $f) {
+                $received_avgs[$f] = $received->isEmpty() ? null : round($received->avg($f), 2);
+            }
+            $received_overall = null;
+            $received_non_null = array_filter($received_avgs);
+            if (!empty($received_non_null)) {
+                $received_overall = round(array_sum($received_non_null) / count($received_non_null), 2);
+            }
+
+            $givenTrainer = $penilaianTrainer->get($peserta->user_id, collect());
+            $trainer_avgs = [];
+            foreach ($fields_trainer as $f) {
+                $trainer_avgs[$f] = $givenTrainer->isEmpty() ? null : round($givenTrainer->avg($f), 2);
+            }
+            $trainer_overall = null;
+            $trainer_non_null = array_filter($trainer_avgs);
+            if (!empty($trainer_non_null)) {
+                $trainer_overall = round(array_sum($trainer_non_null) / count($trainer_non_null), 2);
+            }
+
+            $givenFasilitator = $penilaianFasilitator->get($peserta->user_id, collect());
+            $fasilitator_avgs = [];
+            foreach ($fields_fasilitator as $f) {
+                $fasilitator_avgs[$f] = $givenFasilitator->isEmpty() ? null : round($givenFasilitator->avg($f), 2);
+            }
+            $fasilitator_overall = null;
+            $fasilitator_non_null = array_filter($fasilitator_avgs);
+            if (!empty($fasilitator_non_null)) {
+                $fasilitator_overall = round(array_sum($fasilitator_non_null) / count($fasilitator_non_null), 2);
+            }
+
+            $givenTeknis = $penilaianTeknis->get($peserta->user_id, collect());
+            $teknis_avgs = [];
+            foreach ($fields_teknis as $f) {
+                $teknis_avgs[$f] = $givenTeknis->isEmpty() ? null : round($givenTeknis->avg($f), 2);
+            }
+            $teknis_overall = null;
+            $teknis_non_null = array_filter($teknis_avgs);
+            if (!empty($teknis_non_null)) {
+                $teknis_overall = round(array_sum($teknis_non_null) / count($teknis_non_null), 2);
+            }
+
+            $rows->push([
+                'peserta' => $peserta,
+                'received_overall' => $received_overall,
+                'received_count' => $received->count(),
+                'trainer_overall' => $trainer_overall,
+                'trainer_count' => $givenTrainer->count(),
+                'fasilitator_overall' => $fasilitator_overall,
+                'fasilitator_count' => $givenFasilitator->count(),
+                'teknis_overall' => $teknis_overall,
+                'teknis_count' => $givenTeknis->count(),
+            ]);
+        }
+
+        return view('instumen-talenta.instrumen-penilaian', compact('rows'));
     }
 
     public function nilaiTugas()
