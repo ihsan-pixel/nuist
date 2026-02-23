@@ -221,8 +221,15 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         // Special handling for penjaga sekolah - no time restrictions
         if ($user->ketugasan !== 'penjaga sekolah') {
-            // Check if time is after 22:00 - mark as alpha (only for non-penjaga sekolah)
-            if ($now->format('H:i:s') > '22:00:00') {
+            // Use madrasah-specific presensi_pulang_end as end-of-day cutoff if available
+            $endOfDayCutoff = '22:00:00';
+            if ($user->madrasah && $user->madrasah->presensi_pulang_end) {
+                $val = $user->madrasah->presensi_pulang_end;
+                $endOfDayCutoff = (strlen($val) == 5) ? $val . ':00' : $val;
+            }
+
+            // Check if time is after endOfDayCutoff - mark as alpha (only for non-penjaga sekolah)
+            if ($now->format('H:i:s') > $endOfDayCutoff) {
                 // Check if user already has presensi for today
                 $existingPresensi = Presensi::where('user_id', $user->id)
                     ->whereDate('tanggal', $tanggal)
@@ -378,19 +385,30 @@ class PresensiController extends \App\Http\Controllers\Controller
                 // Can presensi anytime 24 hours
             } elseif ($user->pemenuhan_beban_kerja_lain) {
                 // User with beban kerja lain: presensi masuk 05:00 - 22:00
-                if ($now->format('H:i:s') < '05:00:00') {
+                // Prefer madrasah-specific presensi_masuk_start if present else default 05:00
+                $minTimeMasuk = '05:00:00';
+                if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
+                    $v = $user->madrasah->presensi_masuk_start;
+                    $minTimeMasuk = (strlen($v) == 5) ? $v . ':00' : $v;
+                }
+                if ($now->format('H:i:s') < $minTimeMasuk) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
+                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul ' . substr($minTimeMasuk, 0, 5) . '.'
                     ], 400);
                 }
             } else {
                 // User biasa: presensi masuk sesuai hari KBM
-                $minTimeMasuk = '05:00:00'; // Default for all days
+                // Use madrasah-specific presensi_masuk_start when available
+                $minTimeMasuk = '05:00:00';
+                if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
+                    $v = $user->madrasah->presensi_masuk_start;
+                    $minTimeMasuk = (strlen($v) == 5) ? $v . ':00' : $v;
+                }
                 if ($now->format('H:i:s') < $minTimeMasuk) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
+                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul ' . substr($minTimeMasuk, 0, 5) . '.'
                     ], 400);
                 }
             }

@@ -598,32 +598,65 @@
             </div>
             <h6 class="section-title mb-0">Jadwal Presensi</h6>
         </div>
+        @php
+            // prefer madrasah-specific values when present
+            $ms = $user->madrasah ?? null;
+            $masukStart = $ms && $ms->presensi_masuk_start ? \Carbon\Carbon::parse($ms->presensi_masuk_start)->format('H:i') : ($timeRanges['masuk_start'] ? \Carbon\Carbon::parse($timeRanges['masuk_start'])->format('H:i') : '-');
+            $masukEnd = $ms && $ms->presensi_masuk_end ? \Carbon\Carbon::parse($ms->presensi_masuk_end)->format('H:i') : '07:00';
+            $pulangStart = null;
+            $pulangEnd = $ms && $ms->presensi_pulang_end ? \Carbon\Carbon::parse($ms->presensi_pulang_end)->format('H:i') : ($timeRanges['pulang_end'] ? \Carbon\Carbon::parse($timeRanges['pulang_end'])->format('H:i') : '22:00');
+
+            // Day specific overrides
+            $dayOfWeek = \Carbon\Carbon::parse($selectedDate)->dayOfWeek; // 0=Sun,5=Fri,6=Sat
+            if ($ms) {
+                if ($dayOfWeek == 5 && $ms->presensi_pulang_jumat) {
+                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_jumat)->format('H:i');
+                } elseif ($dayOfWeek == 6 && $ms->presensi_pulang_sabtu) {
+                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_sabtu)->format('H:i');
+                } elseif ($ms->presensi_pulang_start) {
+                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_start)->format('H:i');
+                }
+            }
+
+            // fallback to controller-provided range if still null
+            if (!$pulangStart) {
+                $pulangStart = $timeRanges['pulang_start'] ? \Carbon\Carbon::parse($timeRanges['pulang_start'])->format('H:i') : '-';
+            }
+        @endphp
+
         <div class="schedule-grid">
             <div class="schedule-item masuk">
                 <i class="bx bx-log-in-circle text-primary"></i>
                 <h6 class="text-primary">Masuk</h6>
-                <p>{{ $timeRanges['masuk_start'] }} - 07:00</p>
+                <p>{{ $masukStart }} - {{ $masukEnd }}</p>
                 <small>Terlambat setelah 07:00</small>
             </div>
             <div class="schedule-item pulang">
                 <i class="bx bx-log-out-circle text-success"></i>
                 <h6 class="text-success">Pulang</h6>
-                <p>{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</p>
-                @if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5)
-                <small>Jumat khusus: mulai 11:15</small>
-                @else
-                <small>Mulai pukul {{ $timeRanges['pulang_start'] }}</small>
-                @endif
+                <p>{{ $pulangStart }} - {{ $pulangEnd }}</p>
+                <small>Mulai pukul {{ $pulangStart }}</small>
             </div>
         </div>
+
         <div class="alert-custom info" style="margin-top: 6px;">
             <small>
                 <i class="bx bx-info-circle me-1"></i>
                 <strong>Catatan:</strong>
-                @if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5)
-                Pulang dapat dilakukan mulai pukul 11:15 hingga 22:00 (khusus Jumat).
+                @if($ms && $ms->hari_kbm == '6' && $dayOfWeek == 5)
+                    @if($ms->presensi_pulang_jumat)
+                        Pulang dapat dilakukan mulai pukul {{ \Carbon\Carbon::parse($ms->presensi_pulang_jumat)->format('H:i') }} hingga {{ $pulangEnd }} (khusus Jumat).
+                    @else
+                        Pulang dapat dilakukan sesuai pengaturan umum; catatan: jadwal pulang Jumat belum diisi pada data madrasah.
+                    @endif
+                @elseif($ms && $ms->hari_kbm == '6' && $dayOfWeek == 6)
+                    @if($ms->presensi_pulang_sabtu)
+                        Pulang dapat dilakukan mulai pukul {{ \Carbon\Carbon::parse($ms->presensi_pulang_sabtu)->format('H:i') }} hingga {{ $pulangEnd }} (khusus Sabtu).
+                    @else
+                        Perhatian: untuk madrasah dengan KBM 6 hari, jam pulang Sabtu belum diatur. Silakan isi kolom "Jam Pulang Khusus Sabtu" pada masterdata madrasah.
+                    @endif
                 @else
-                Pulang dapat dilakukan mulai pukul 13:35 hingga 22:00.
+                    Pulang dapat dilakukan mulai pukul {{ $pulangStart }} hingga {{ $pulangEnd }}.
                 @endif
             </small>
         </div>
