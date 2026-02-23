@@ -51,6 +51,13 @@ class MadrasahController extends Controller
             'polygon_koordinat_2' => 'nullable|json',
             'enable_dual_polygon' => 'boolean',
             'hari_kbm' => 'nullable|in:5,6',
+            // Presensi schedule fields (time format HH:MM)
+            'presensi_masuk_start' => 'nullable|date_format:H:i',
+            'presensi_masuk_end' => 'nullable|date_format:H:i',
+            'presensi_pulang_start' => 'nullable|date_format:H:i',
+            'presensi_pulang_end' => 'nullable|date_format:H:i',
+            'presensi_pulang_jumat' => 'nullable|date_format:H:i',
+            'presensi_pulang_sabtu' => 'nullable|date_format:H:i',
         ]);
 
         // Restrict dual polygon to specific madrasah IDs (only for store method)
@@ -92,6 +99,12 @@ class MadrasahController extends Controller
         $madrasah->polygon_koordinat_2 = $validated['polygon_koordinat_2'] ?? null;
         $madrasah->enable_dual_polygon = $validated['enable_dual_polygon'] ?? false;
         $madrasah->hari_kbm = $validated['hari_kbm'] ?? null;
+    $madrasah->presensi_masuk_start = $validated['presensi_masuk_start'] ?? null;
+    $madrasah->presensi_masuk_end = $validated['presensi_masuk_end'] ?? null;
+    $madrasah->presensi_pulang_start = $validated['presensi_pulang_start'] ?? null;
+    $madrasah->presensi_pulang_end = $validated['presensi_pulang_end'] ?? null;
+    $madrasah->presensi_pulang_jumat = $validated['presensi_pulang_jumat'] ?? null;
+    $madrasah->presensi_pulang_sabtu = $validated['presensi_pulang_sabtu'] ?? null;
         $madrasah->save();
 
         return redirect()->route('madrasah.index')->with('success', 'Madrasah berhasil ditambahkan.');
@@ -123,6 +136,13 @@ class MadrasahController extends Controller
             'polygon_koordinat_2' => 'nullable|json',
             'enable_dual_polygon' => 'boolean',
             'hari_kbm' => 'nullable|in:5,6',
+            // Presensi schedule fields (time format HH:MM)
+            'presensi_masuk_start' => 'nullable|date_format:H:i',
+            'presensi_masuk_end' => 'nullable|date_format:H:i',
+            'presensi_pulang_start' => 'nullable|date_format:H:i',
+            'presensi_pulang_end' => 'nullable|date_format:H:i',
+            'presensi_pulang_jumat' => 'nullable|date_format:H:i',
+            'presensi_pulang_sabtu' => 'nullable|date_format:H:i',
         ]);
 
         // Restrict dual polygon to specific madrasah IDs
@@ -170,6 +190,12 @@ class MadrasahController extends Controller
         $madrasah->polygon_koordinat_2 = $validated['polygon_koordinat_2'] ?? null;
         $madrasah->enable_dual_polygon = $validated['enable_dual_polygon'] ?? false;
         $madrasah->hari_kbm = $validated['hari_kbm'] ?? null;
+    $madrasah->presensi_masuk_start = $validated['presensi_masuk_start'] ?? null;
+    $madrasah->presensi_masuk_end = $validated['presensi_masuk_end'] ?? null;
+    $madrasah->presensi_pulang_start = $validated['presensi_pulang_start'] ?? null;
+    $madrasah->presensi_pulang_end = $validated['presensi_pulang_end'] ?? null;
+    $madrasah->presensi_pulang_jumat = $validated['presensi_pulang_jumat'] ?? null;
+    $madrasah->presensi_pulang_sabtu = $validated['presensi_pulang_sabtu'] ?? null;
         $madrasah->save();
 
         return redirect()->route('madrasah.index')->with('success', 'Madrasah berhasil diperbarui.');

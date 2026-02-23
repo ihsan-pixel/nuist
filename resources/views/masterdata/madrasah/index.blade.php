@@ -360,6 +360,33 @@
                                     </select>
                                 </div>
 
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Presensi Masuk (start)</label>
+                                        <input type="time" name="presensi_masuk_start" class="form-control">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Presensi Masuk (end)</label>
+                                        <input type="time" name="presensi_masuk_end" class="form-control">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Presensi Pulang (start)</label>
+                                        <input type="time" name="presensi_pulang_start" class="form-control">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Presensi Pulang (end)</label>
+                                        <input type="time" name="presensi_pulang_end" class="form-control">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Pulang Khusus Jumat</label>
+                                        <input type="time" name="presensi_pulang_jumat" class="form-control">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Pulang Khusus Sabtu</label>
+                                        <input type="time" name="presensi_pulang_sabtu" class="form-control">
+                                    </div>
+                                </div>
+
                                 <div class="mb-3">
                                     <label>Area Polygon Presensi</label>
                                     <div id="map-add" class="polygon-map-container" style="height:300px;">
@@ -482,6 +509,32 @@
                                         <option value="5" {{ $madrasah->hari_kbm == '5' ? 'selected' : '' }}>5 Hari</option>
                                         <option value="6" {{ $madrasah->hari_kbm == '6' ? 'selected' : '' }}>6 Hari</option>
                                     </select>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Presensi Masuk (start)</label>
+                                        <input type="time" name="presensi_masuk_start" class="form-control" value="{{ $madrasah->presensi_masuk_start ? \Carbon\Carbon::parse($madrasah->presensi_masuk_start)->format('H:i') : '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Presensi Masuk (end)</label>
+                                        <input type="time" name="presensi_masuk_end" class="form-control" value="{{ $madrasah->presensi_masuk_end ? \Carbon\Carbon::parse($madrasah->presensi_masuk_end)->format('H:i') : '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Presensi Pulang (start)</label>
+                                        <input type="time" name="presensi_pulang_start" class="form-control" value="{{ $madrasah->presensi_pulang_start ? \Carbon\Carbon::parse($madrasah->presensi_pulang_start)->format('H:i') : '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Presensi Pulang (end)</label>
+                                        <input type="time" name="presensi_pulang_end" class="form-control" value="{{ $madrasah->presensi_pulang_end ? \Carbon\Carbon::parse($madrasah->presensi_pulang_end)->format('H:i') : '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Pulang Khusus Jumat</label>
+                                        <input type="time" name="presensi_pulang_jumat" class="form-control" value="{{ $madrasah->presensi_pulang_jumat ? \Carbon\Carbon::parse($madrasah->presensi_pulang_jumat)->format('H:i') : '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Jam Pulang Khusus Sabtu</label>
+                                        <input type="time" name="presensi_pulang_sabtu" class="form-control" value="{{ $madrasah->presensi_pulang_sabtu ? \Carbon\Carbon::parse($madrasah->presensi_pulang_sabtu)->format('H:i') : '' }}">
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label>Logo</label>

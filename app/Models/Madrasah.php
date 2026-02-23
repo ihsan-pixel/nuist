@@ -67,6 +67,13 @@ class Madrasah extends Model
         'ppdb_jalur',
         'ppdb_biaya_pendaftaran',
         'ppdb_catatan_pengumuman',
+    // Presensi schedule overrides
+    'presensi_masuk_start',
+    'presensi_masuk_end',
+    'presensi_pulang_start',
+    'presensi_pulang_end',
+    'presensi_pulang_jumat',
+    'presensi_pulang_sabtu',
     // Note: ppdb contact fields moved to ppdb_pendaftar table. Keep madrasah defaults elsewhere if needed.
     ];
 

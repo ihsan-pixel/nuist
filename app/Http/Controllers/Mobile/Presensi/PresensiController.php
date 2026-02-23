@@ -134,23 +134,27 @@ class PresensiController extends \App\Http\Controllers\Controller
             $hariKbm = $user->madrasah->hari_kbm;
             $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek; // 0=Sunday, 5=Friday
 
-            if ($hariKbm == '5') {
-                $masukStart = '05:00';
-                $masukEnd = '07:00';
-                // Khusus hari Jumat untuk 5 hari KBM, presensi pulang mulai pukul 11:15, Senin-Kamis pukul 13:35
-                $pulangStart = ($dayOfWeek == 5) ? '11:15' : '13:35';
-                $pulangEnd = '22:00';
-            } elseif ($hariKbm == '6') {
-                $masukStart = '05:00';
-                $masukEnd = '07:00';
-                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 13:00, Sabtu pukul 12:00
-                $pulangStart = ($dayOfWeek == 5) ? '13:00' : (($dayOfWeek == 6) ? '12:00' : '14:00');
-                $pulangEnd = '22:00';
+            // Defaults
+            $masukStart = $user->madrasah->presensi_masuk_start ?? '05:00';
+            $masukEnd = $user->madrasah->presensi_masuk_end ?? '07:00';
+            $pulangEnd = $user->madrasah->presensi_pulang_end ?? '22:00';
+
+            // Determine pulang start using day-specific overrides if present
+            if ($dayOfWeek == 5 && $user->madrasah->presensi_pulang_jumat) {
+                $pulangStart = $user->madrasah->presensi_pulang_jumat;
+            } elseif ($dayOfWeek == 6 && $user->madrasah->presensi_pulang_sabtu) {
+                $pulangStart = $user->madrasah->presensi_pulang_sabtu;
+            } elseif ($user->madrasah->presensi_pulang_start) {
+                $pulangStart = $user->madrasah->presensi_pulang_start;
             } else {
-                $masukStart = '05:00';
-                $masukEnd = '07:00';
-                $pulangStart = '15:00';
-                $pulangEnd = '22:00';
+                // Fallbacks depending on KBM policy
+                if ($hariKbm == '5') {
+                    $pulangStart = ($dayOfWeek == 5) ? '11:15' : '13:35';
+                } elseif ($hariKbm == '6') {
+                    $pulangStart = ($dayOfWeek == 5) ? '13:00' : (($dayOfWeek == 6) ? '12:00' : '14:00');
+                } else {
+                    $pulangStart = '15:00';
+                }
             }
 
             $timeRanges = [
@@ -506,26 +510,24 @@ class PresensiController extends \App\Http\Controllers\Controller
             } elseif (!$user->pemenuhan_beban_kerja_lain) {
                 // User biasa: presensi keluar sesuai hari KBM
                 $pulangStart = '15:00:00'; // Default fallback
+                // Prefer madrasah-specific settings when available
+                if ($user->madrasah) {
+                    $ms = $user->madrasah;
+                    $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek;
 
-                if ($user->madrasah && $user->madrasah->hari_kbm) {
-                    $hariKbm = $user->madrasah->hari_kbm;
-                    $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
-
-                    if ($hariKbm == '5') {
-                        // KBM 5 hari: Senin-Jumat presensi keluar mulai 15:00
-                        if ($dayOfWeek == 5) { // Friday
-                            $pulangStart = '11:15:00';
-                        } else { // Monday-Thursday
-                            $pulangStart = '13:35:00';
-                        }
-                    } elseif ($hariKbm == '6') {
-                        // KBM 6 hari: Senin-Kamis 14:00, Jumat 13:00, Sabtu 12:00
-                        if ($dayOfWeek == 5) { // Friday
-                            $pulangStart = '13:00:00';
-                        } elseif ($dayOfWeek == 6) { // Saturday
-                            $pulangStart = '12:00:00';
-                        } else { // Monday-Thursday
-                            $pulangStart = '14:00:00';
+                    if ($dayOfWeek == 5 && $ms->presensi_pulang_jumat) {
+                        $pulangStart = (strlen($ms->presensi_pulang_jumat) == 5) ? $ms->presensi_pulang_jumat . ':00' : $ms->presensi_pulang_jumat;
+                    } elseif ($dayOfWeek == 6 && $ms->presensi_pulang_sabtu) {
+                        $pulangStart = (strlen($ms->presensi_pulang_sabtu) == 5) ? $ms->presensi_pulang_sabtu . ':00' : $ms->presensi_pulang_sabtu;
+                    } elseif ($ms->presensi_pulang_start) {
+                        $pulangStart = (strlen($ms->presensi_pulang_start) == 5) ? $ms->presensi_pulang_start . ':00' : $ms->presensi_pulang_start;
+                    } else {
+                        // fallback based on hari_kbm
+                        $hariKbm = $ms->hari_kbm;
+                        if ($hariKbm == '5') {
+                            $pulangStart = ($dayOfWeek == 5) ? '11:15:00' : '13:35:00';
+                        } elseif ($hariKbm == '6') {
+                            $pulangStart = ($dayOfWeek == 5) ? '13:00:00' : (($dayOfWeek == 6) ? '12:00:00' : '14:00:00');
                         }
                     }
                 }
