@@ -410,6 +410,9 @@
                     <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
                         <small class="text-white-50">{{ $openPresensi->madrasah?->name ?? 'Madrasah' }}</small>
                         <p class="mb-1">Masuk: <strong>{{ $openPresensi->waktu_masuk->format('H:i') }}</strong> ({{ \Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y') }})</p>
+                        @if($openPresensi->keterangan)
+                        <p class="mb-1 text-muted">Keterangan: <strong>{{ $openPresensi->keterangan }}</strong></p>
+                        @endif
                         <p class="mb-0 text-muted">Belum presensi keluar</p>
                     </div>
                     <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
@@ -423,6 +426,9 @@
                         <p class="mb-0">Keluar: <strong>{{ $presensi->waktu_keluar->format('H:i') }}</strong></p>
                         @else
                         <p class="mb-0 text-muted">Belum presensi keluar</p>
+                        @endif
+                        @if($presensi->keterangan)
+                        <p class="mb-0 text-muted">Keterangan: <strong>{{ $presensi->keterangan }}</strong></p>
                         @endif
                         @else
                         <p class="mb-1">Masuk: <strong>-</strong></p>
@@ -604,7 +610,7 @@
                 <h6 class="text-success">Pulang</h6>
                 <p>{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</p>
                 @if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5)
-                <small>Jumat khusus: mulai 14:30</small>
+                <small>Jumat khusus: mulai 10:30</small>
                 @else
                 <small>Mulai pukul {{ $timeRanges['pulang_start'] }}</small>
                 @endif
@@ -615,9 +621,9 @@
                 <i class="bx bx-info-circle me-1"></i>
                 <strong>Catatan:</strong>
                 @if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5)
-                Pulang dapat dilakukan mulai pukul 14:30 hingga 22:00 (khusus Jumat).
+                Pulang dapat dilakukan mulai pukul 10:30 hingga 22:00 (khusus Jumat).
                 @else
-                Pulang dapat dilakukan mulai pukul 15:00 hingga 22:00.
+                Pulang dapat dilakukan mulai pukul 14:30 hingga 22:00.
                 @endif
             </small>
         </div>

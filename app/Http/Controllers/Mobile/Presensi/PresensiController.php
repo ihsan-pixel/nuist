@@ -198,6 +198,8 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         $tanggal = Carbon::today()->toDateString();
         $now = Carbon::now('Asia/Jakarta');
+    // default flag to mark early checkout; will be set later if checkout-before-pulang_start
+    $isPulangAwal = false;
 
         // Check if it's a holiday or Sunday - prevent presensi
         $isHoliday = Holiday::isHoliday($tanggal);
@@ -510,7 +512,11 @@ class PresensiController extends \App\Http\Controllers\Controller
 
                     if ($hariKbm == '5') {
                         // KBM 5 hari: Senin-Jumat presensi keluar mulai 15:00
-                        $pulangStart = '15:00:00';
+                        if ($dayOfWeek == 5) { // Friday
+                            $pulangStart = '10:30:00';
+                        } else { // Monday-Thursday
+                            $pulangStart = '14:45:00';
+                        }
                     } elseif ($hariKbm == '6') {
                         // KBM 6 hari: Senin-Kamis 14:00, Jumat 13:00, Sabtu 12:00
                         if ($dayOfWeek == 5) { // Friday
@@ -523,17 +529,28 @@ class PresensiController extends \App\Http\Controllers\Controller
                     }
                 }
 
+                // If it's before pulangStart, allow checkout but mark as pulang awal
+                $isPulangAwal = false;
                 if ($now->format('H:i:s') < $pulangStart) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '.'
-                    ], 400);
+                    $isPulangAwal = true;
+                    // we'll continue and set keterangan pada saat update existing presensi
                 }
             }
             // User with beban kerja lain: no time restriction for presensi keluar
 
             // Presensi Keluar - update existing record
             // For penjaga sekolah, update the existing open presensi record
+            // If this checkout is before official pulang_start, append 'pulang awal' to keterangan
+            $newKeterangan = $existingPresensi->keterangan ?? '';
+            if (!empty($isPulangAwal) && $isPulangAwal) {
+                $suffix = 'pulang awal';
+                if (trim($newKeterangan) !== '') {
+                    $newKeterangan = $newKeterangan . ' / ' . $suffix;
+                } else {
+                    $newKeterangan = $suffix;
+                }
+            }
+
             $existingPresensi->update([
                 'waktu_keluar' => $now,
                 'latitude_keluar' => $request->latitude,
@@ -545,6 +562,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'device_info_keluar' => $request->device_info,
                 'location_readings_keluar' => $request->location_readings,
                 'selfie_keluar_path' => $selfiePath,
+                'keterangan' => $newKeterangan,
                 'is_fake_location_keluar' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis_keluar' => $locationValidation['analysis'] ?? null,
             ]);
