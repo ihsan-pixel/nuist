@@ -610,7 +610,7 @@
                 <h6 class="text-success">Pulang</h6>
                 <p>{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</p>
                 @if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5)
-                <small>Jumat khusus: mulai 10:30</small>
+                <small>Jumat khusus: mulai 11:15</small>
                 @else
                 <small>Mulai pukul {{ $timeRanges['pulang_start'] }}</small>
                 @endif
@@ -621,9 +621,9 @@
                 <i class="bx bx-info-circle me-1"></i>
                 <strong>Catatan:</strong>
                 @if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5)
-                Pulang dapat dilakukan mulai pukul 10:30 hingga 22:00 (khusus Jumat).
+                Pulang dapat dilakukan mulai pukul 11:15 hingga 22:00 (khusus Jumat).
                 @else
-                Pulang dapat dilakukan mulai pukul 14:30 hingga 22:00.
+                Pulang dapat dilakukan mulai pukul 13:35 hingga 22:00.
                 @endif
             </small>
         </div>
