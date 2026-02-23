@@ -762,6 +762,40 @@ window.addEventListener('load', function() {
     const totalReadings = 1; // Single location reading only
     const readingInterval = 5000; // 5 seconds
 
+    // Presensi mode: apakah tombol saat ini adalah untuk keluar (checkout)
+    const isPresensiKeluar = {{ isset($showKeluar) && $showKeluar ? 'true' : 'false' }};
+    // Determine pulang start time to be used for early-check detection.
+    // Prefer madrasah-specific overrides, else use controller-provided timeRanges
+    let pulangStartStr = null;
+    @php
+        $ms = Auth::user()->madrasah ?? null;
+        $dayOfWeek = \Carbon\Carbon::parse($selectedDate)->dayOfWeek;
+        if ($ms) {
+            if ($dayOfWeek == 5 && $ms->presensi_pulang_jumat) {
+                $ps = \Carbon\Carbon::parse($ms->presensi_pulang_jumat)->format('H:i');
+            } elseif ($dayOfWeek == 6 && $ms->presensi_pulang_sabtu) {
+                $ps = \Carbon\Carbon::parse($ms->presensi_pulang_sabtu)->format('H:i');
+            } elseif ($ms->presensi_pulang_start) {
+                $ps = \Carbon\Carbon::parse($ms->presensi_pulang_start)->format('H:i');
+            } else {
+                $ps = null;
+            }
+        } else {
+            $ps = null;
+        }
+    @endphp
+    pulangStartStr = @json($ps ?? ($timeRanges['pulang_start'] ?? null));
+
+    function timeStringToSeconds(t) {
+        if (!t) return null;
+        // accepts HH:mm or HH:mm:ss
+        const parts = t.split(':').map(Number);
+        if (parts.length === 2) return parts[0]*3600 + parts[1]*60;
+        if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+        return null;
+    }
+    const pulangStartSeconds = timeStringToSeconds(pulangStartStr);
+
 
 
     // Map variables
@@ -1367,6 +1401,24 @@ window.addEventListener('load', function() {
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
         // If selfie is already captured, proceed with location validation
+        // If this action is a checkout and current time is before pulangStart, ask for confirmation
+        if (isPresensiKeluar && pulangStartSeconds) {
+            const now = new Date();
+            const nowSeconds = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
+            if (nowSeconds < pulangStartSeconds) {
+                const res = await Swal.fire({
+                    title: 'Pulang Awal',
+                    text: 'Apakah Anda yakin ingin melakukan presensi pulang sebelum waktunya?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, saya yakin',
+                    cancelButtonText: 'Batal'
+                });
+                if (!res.isConfirmed) {
+                    return; // user cancelled early checkout
+                }
+            }
+        }
         if (!latitude || !longitude) {
             Swal.fire({
                 icon: 'error',
