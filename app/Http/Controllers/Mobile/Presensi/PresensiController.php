@@ -513,9 +513,9 @@ class PresensiController extends \App\Http\Controllers\Controller
                     if ($hariKbm == '5') {
                         // KBM 5 hari: Senin-Jumat presensi keluar mulai 15:00
                         if ($dayOfWeek == 5) { // Friday
-                            $pulangStart = '10:30:00';
+                            $pulangStart = '11:15:00';
                         } else { // Monday-Thursday
-                            $pulangStart = '14:45:00';
+                            $pulangStart = '13:35:00';
                         }
                     } elseif ($hariKbm == '6') {
                         // KBM 6 hari: Senin-Kamis 14:00, Jumat 13:00, Sabtu 12:00
