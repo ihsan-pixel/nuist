@@ -137,7 +137,8 @@ class PresensiController extends \App\Http\Controllers\Controller
             if ($hariKbm == '5') {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                $pulangStart = '15:00';
+                // Khusus hari Jumat untuk 5 hari KBM, presensi pulang mulai pukul 11:15, Senin-Kamis pukul 13:35
+                $pulangStart = ($dayOfWeek == 5) ? '11:15' : '13:35';
                 $pulangEnd = '22:00';
             } elseif ($hariKbm == '6') {
                 $masukStart = '05:00';
