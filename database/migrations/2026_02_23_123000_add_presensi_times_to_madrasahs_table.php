@@ -14,12 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::table('madrasahs', function (Blueprint $table) {
-            $table->time('presensi_masuk_start')->nullable()->after('jam_operasional_buka');
-            $table->time('presensi_masuk_end')->nullable()->after('presensi_masuk_start');
-            $table->time('presensi_pulang_start')->nullable()->after('presensi_masuk_end');
-            $table->time('presensi_pulang_end')->nullable()->after('presensi_pulang_start');
-            $table->time('presensi_pulang_jumat')->nullable()->after('presensi_pulang_end');
-            $table->time('presensi_pulang_sabtu')->nullable()->after('presensi_pulang_jumat');
+            // Avoid using ->after() to prevent failures when referenced column does not exist in older schemas
+            $table->time('presensi_masuk_start')->nullable();
+            $table->time('presensi_masuk_end')->nullable();
+            $table->time('presensi_pulang_start')->nullable();
+            $table->time('presensi_pulang_end')->nullable();
+            $table->time('presensi_pulang_jumat')->nullable();
+            $table->time('presensi_pulang_sabtu')->nullable();
         });
     }
 
