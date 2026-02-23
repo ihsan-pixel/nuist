@@ -49,4 +49,20 @@ class TugasTalentaLevel1 extends Model
     {
         return $this->hasMany(TugasNilai::class, 'tugas_talenta_level1_id');
     }
+
+    /**
+     * Helper accessor to get the nilai record for the currently authenticated penilai (if any).
+     * Usage in blade: $tugasItem->nilai_saya (returns a TugasNilai model or null)
+     */
+    public function getNilaiSayaAttribute()
+    {
+        try {
+            $penilaiId = auth()->id();
+            if (!$penilaiId) return null;
+            return $this->nilai()->where('penilai_id', $penilaiId)->first();
+        } catch (\Exception $e) {
+            // If auth helper isn't available for some reason, fail gracefully
+            return null;
+        }
+    }
 }
