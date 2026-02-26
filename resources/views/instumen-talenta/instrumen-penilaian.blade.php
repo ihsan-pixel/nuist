@@ -48,7 +48,7 @@
                         {{-- Buttons: filter by evaluator --}}
                         <div class="mb-3">
                             <div class="btn-group" role="group" aria-label="Filter evaluator">
-                                {{-- removed 'Semua Penilai' button --}}
+                                <button type="button" class="btn btn-sm btn-outline-secondary me-1 btn-evaluator" data-evaluator-id="all">Semua</button>
                                 @foreach($evaluator_details as $ed_btn)
                                     @php $evbtn = $ed_btn['evaluator']; $evbtnId = $ed_btn['evaluator_id']; @endphp
                                     <button type="button" class="btn btn-sm btn-outline-secondary me-1 btn-evaluator" data-evaluator-id="{{ $evbtnId }}">{{ $evbtn ? $evbtn->name : 'User ID:'.$evbtnId }}</button>
