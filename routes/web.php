@@ -522,6 +522,12 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     Route::get('/penilaian-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianFasilitator'])->name('penilaian-fasilitator');
     Route::get('/penilaian-teknis', [App\Http\Controllers\InstumenTalentaController::class, 'penilaianTeknis'])->name('penilaian-teknis');
 
+    // Instrumen Penilaian pages (separate views)
+    Route::get('/instrumen-penilaian', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaian'])->name('instrumen-penilaian');
+    Route::get('/instrumen-penilaian-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaianFasilitator'])->name('instrumen-penilaian-fasilitator');
+    Route::get('/instrumen-penilaian-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaianPemateri'])->name('instrumen-penilaian-pemateri');
+    Route::get('/instrumen-penilaian-teknis', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaianTeknis'])->name('instrumen-penilaian-teknis');
+
     // Create User for Pemateri
     Route::post('/create-user-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'createUserForPemateri'])->name('create-user-pemateri')->middleware(['role:super_admin,admin']);
 

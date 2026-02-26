@@ -649,6 +649,112 @@ class InstumenTalentaController extends Controller
         return view('instumen-talenta.instrumen-penilaian', compact('participant_details', 'fasilitator_details', 'pemateri_details', 'materis', 'selected_materi_id', 'evaluator_details'));
     }
 
+    // New separate pages for fasilitator, pemateri, teknis
+    public function instrumenPenilaianFasilitator()
+    {
+        $fasilitator_details = collect();
+        $fields_fasilitator = ['fasilitasi','pendampingan','respons','koordinasi','monitoring','waktu'];
+        $fasilitators = TalentaFasilitator::all();
+        foreach ($fasilitators as $fasilitator) {
+            $entries = \App\Models\TalentaPenilaianFasilitator::with('user')
+                ->where('talenta_fasilitator_id', $fasilitator->id)
+                ->get()
+                ->groupBy('user_id');
+
+            $evaluators = collect();
+            foreach ($entries as $evaluatorId => $group) {
+                $user = $group->first()->user;
+                $scores = [];
+                foreach ($fields_fasilitator as $f) {
+                    $scores[$f] = $group->avg($f) !== null ? round($group->avg($f), 2) : null;
+                }
+                $evaluators->push([
+                    'evaluator_id' => $evaluatorId,
+                    'evaluator' => $user,
+                    'scores' => $scores,
+                    'count' => $group->count(),
+                ]);
+            }
+
+            $fasilitator_details->push([
+                'fasilitator' => $fasilitator,
+                'evaluators' => $evaluators,
+            ]);
+        }
+
+        return view('instumen-talenta.instrumen-penilaian-fasilitator', compact('fasilitator_details'));
+    }
+
+    public function instrumenPenilaianPemateri()
+    {
+        $pemateri_details = collect();
+        $fields_trainer = ['kualitas_materi','penyampaian','integrasi_kasus','penjelasan','umpan_balik','waktu'];
+        $pemateris = TalentaPemateri::all();
+        foreach ($pemateris as $pemateri) {
+            $entries = \App\Models\TalentaPenilaianTrainer::with('user')
+                ->where('talenta_pemateri_id', $pemateri->id)
+                ->get()
+                ->groupBy('user_id');
+
+            $evaluators = collect();
+            foreach ($entries as $evaluatorId => $group) {
+                $user = $group->first()->user;
+                $scores = [];
+                foreach ($fields_trainer as $f) {
+                    $scores[$f] = $group->avg($f) !== null ? round($group->avg($f), 2) : null;
+                }
+                $evaluators->push([
+                    'evaluator_id' => $evaluatorId,
+                    'evaluator' => $user,
+                    'scores' => $scores,
+                    'count' => $group->count(),
+                ]);
+            }
+
+            $pemateri_details->push([
+                'pemateri' => $pemateri,
+                'evaluators' => $evaluators,
+            ]);
+        }
+
+        return view('instumen-talenta.instrumen-penilaian-pemateri', compact('pemateri_details'));
+    }
+
+    public function instrumenPenilaianTeknis()
+    {
+        $teknis_details = collect();
+        $fields_teknis = ['kehadiran','partisipasi','disiplin','kualitas_tugas','pemahaman_materi','implementasi_praktik'];
+        $layanans = TalentaLayananTeknis::all();
+        foreach ($layanans as $layanan) {
+            $entries = \App\Models\TalentaPenilaianTeknis::with('user')
+                ->where('talenta_layanan_teknis_id', $layanan->id)
+                ->get()
+                ->groupBy('user_id');
+
+            $evaluators = collect();
+            foreach ($entries as $evaluatorId => $group) {
+                $user = $group->first()->user;
+                $scores = [];
+                foreach ($fields_teknis as $f) {
+                    $scores[$f] = $group->avg($f) !== null ? round($group->avg($f), 2) : null;
+                }
+                $evaluators->push([
+                    'evaluator_id' => $evaluatorId,
+                    'evaluator' => $user,
+                    'scores' => $scores,
+                    'count' => $group->count(),
+                ]);
+            }
+
+            $teknis_details->push([
+                'layanan' => $layanan,
+                'evaluators' => $evaluators,
+            ]);
+        }
+
+        return view('instumen-talenta.instrumen-penilaian-teknis', compact('teknis_details'));
+    }
+
     public function nilaiTugas()
     {
         return view('instumen-talenta.nilai-tugas');
