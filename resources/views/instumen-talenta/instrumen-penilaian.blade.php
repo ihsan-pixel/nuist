@@ -17,9 +17,9 @@
                 <div class="card-body">
                     <h5 class="card-title">Penilaian Peserta (per materi)</h5>
 
-                    <div class="mb-2 d-flex justify-content-end">
+                    {{-- <div class="mb-2 d-flex justify-content-end">
                         <a href="{{ route('instumen-talenta.instrumen-penilaian.peserta.export_all', ['materi_id' => $selected_materi_id]) }}" class="btn btn-sm btn-success">Export Semua (Excel)</a>
-                    </div>
+                    </div> --}}
 
                     {{-- Materi navigation --}}
                     <ul class="nav nav-pills mb-3">
