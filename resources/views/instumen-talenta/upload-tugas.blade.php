@@ -111,7 +111,7 @@
 <div class="modal fade" id="downloadTugasModal" tabindex="-1" aria-labelledby="downloadTugasModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="POST" action="{{ route('instumen-talenta.download-tugas') }}" target="_blank">
+                    <form id="downloadTugasForm" method="POST" action="{{ route('instumen-talenta.download-tugas') }}">
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title" id="downloadTugasModalLabel">Download Semua File</h5>
@@ -139,12 +139,80 @@
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Download</button>
-                </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Download</button>
+                        </div>
             </form>
         </div>
     </div>
 </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('downloadTugasForm');
+            const modalEl = document.getElementById('downloadTugasModal');
+            const bootstrapModal = modalEl ? bootstrap.Modal.getOrCreateInstance(modalEl) : null;
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const submitBtn = form.querySelector('button[type=submit]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Memproses...';
+
+                const fd = new FormData(form);
+
+                try {
+                    const res = await fetch(form.action, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: fd
+                    });
+
+                    const contentType = res.headers.get('content-type') || '';
+
+                    if (res.ok && contentType.indexOf('application/pdf') === 0) {
+                        const blob = await res.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        // try to get filename from disposition
+                        const disp = res.headers.get('content-disposition') || '';
+                        let filename = 'gabungan_tugas.pdf';
+                        const m = /filename\*=UTF-8''([^;\n]+)/i.exec(disp) || /filename="?([^";\n]+)"?/i.exec(disp);
+                        if (m && m[1]) filename = decodeURIComponent(m[1]);
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                        if (bootstrapModal) bootstrapModal.hide();
+                    } else {
+                        // read text/html or error message
+                        const text = await res.text();
+                        // show error inside modal or alert
+                        let msg = text;
+                        // try to extract plain text message if server returned plain text
+                        if (contentType.indexOf('text/plain') === 0) {
+                            msg = text;
+                        } else {
+                            // attempt to parse common flash structure
+                            const tmp = document.createElement('div');
+                            tmp.innerHTML = text;
+                            msg = tmp.innerText || text;
+                        }
+                        alert('Terjadi kesalahan:\n' + msg);
+                    }
+                } catch (err) {
+                    alert('Gagal menghubungi server: ' + err.message);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Download';
+                }
+            });
+        });
+        </script>
 @endsection

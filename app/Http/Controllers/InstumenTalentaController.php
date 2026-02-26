@@ -519,7 +519,9 @@ class InstumenTalentaController extends Controller
 
         // Ensure FPDI is installed
         if (!class_exists(\setasign\Fpdi\Fpdi::class)) {
-            return redirect()->back()->with('error', 'Library untuk menggabungkan PDF tidak ditemukan. Jalankan: composer require setasign/fpdf setasign/fpdi');
+            // Return plain error so JS caller can display it (don't redirect which opens new tab)
+            return response('Library untuk menggabungkan PDF tidak ditemukan. Jalankan: composer require setasign/fpdf setasign/fpdi', 500)
+                ->header('Content-Type', 'text/plain');
         }
 
         // Query files
