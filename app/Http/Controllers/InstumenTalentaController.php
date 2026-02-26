@@ -496,41 +496,56 @@ class InstumenTalentaController extends Controller
         return view('instumen-talenta.upload-tugas', compact('tugas', 'areas', 'kelompoks', 'selectedArea', 'selectedKelompok'));
     }
 
-    public function instrumenPenilaian()
+    public function instrumenPenilaian(\Illuminate\Http\Request $request)
     {
         // Load peserta and related user
         $pesertas = TalentaPeserta::with('user')->orderBy('id')->get();
 
-        // Prepare participant-level detailed breakdown per evaluator
+        // Load list of materi for navigation
+        $materis = TalentaMateri::orderBy('tanggal_materi', 'asc')->get();
+        $selected_materi_id = $request->query('materi_id', 'all');
+
+        // Prepare participant-level detailed breakdown per materi and per evaluator
         $participant_details = collect();
 
         $fields_peserta = ['kehadiran','partisipasi','disiplin','tugas','pemahaman','praktik','sikap'];
 
         foreach ($pesertas as $peserta) {
-            // fetch all penilaian entries for this peserta
-            $entries = \App\Models\TalentaPenilaianPeserta::with('user')
+            // fetch all penilaian entries for this peserta grouped by materi_id
+            $entries_by_materi = \App\Models\TalentaPenilaianPeserta::with('user')
                 ->where('talenta_peserta_id', $peserta->id)
                 ->get()
-                ->groupBy('user_id');
+                ->groupBy('materi_id');
 
-            $evaluators = collect();
-            foreach ($entries as $evaluatorId => $group) {
-                $user = $group->first()->user;
-                $scores = [];
-                foreach ($fields_peserta as $f) {
-                    $scores[$f] = $group->avg($f) !== null ? round($group->avg($f), 2) : null;
+            $by_materi = collect();
+            foreach ($entries_by_materi as $materi_id => $entries) {
+                // group entries for this materi by evaluator (user_id)
+                $groups = $entries->groupBy('user_id');
+                $evaluators = collect();
+                foreach ($groups as $evaluatorId => $group) {
+                    $user = $group->first()->user;
+                    $scores = [];
+                    foreach ($fields_peserta as $f) {
+                        $scores[$f] = $group->avg($f) !== null ? round($group->avg($f), 2) : null;
+                    }
+                    $evaluators->push([
+                        'evaluator_id' => $evaluatorId,
+                        'evaluator' => $user,
+                        'scores' => $scores,
+                        'count' => $group->count(),
+                    ]);
                 }
-                $evaluators->push([
-                    'evaluator_id' => $evaluatorId,
-                    'evaluator' => $user,
-                    'scores' => $scores,
-                    'count' => $group->count(),
+
+                $materiModel = $materis->firstWhere('id', $materi_id);
+                $by_materi->put($materi_id, [
+                    'materi' => $materiModel,
+                    'evaluators' => $evaluators,
                 ]);
             }
 
             $participant_details->push([
                 'peserta' => $peserta,
-                'evaluators' => $evaluators,
+                'by_materi' => $by_materi,
             ]);
         }
 
@@ -596,7 +611,7 @@ class InstumenTalentaController extends Controller
             ]);
         }
 
-        return view('instumen-talenta.instrumen-penilaian', compact('participant_details', 'fasilitator_details', 'pemateri_details'));
+        return view('instumen-talenta.instrumen-penilaian', compact('participant_details', 'fasilitator_details', 'pemateri_details', 'materis', 'selected_materi_id'));
     }
 
     public function nilaiTugas()
