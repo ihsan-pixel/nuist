@@ -32,9 +32,20 @@
                     @if(empty($evaluator_details) || $evaluator_details->isEmpty())
                         <div class="alert alert-warning">Tidak ada data penilaian peserta untuk materi yang dipilih.</div>
                     @else
+                        {{-- Buttons: filter by evaluator --}}
+                        <div class="mb-3">
+                            <div class="btn-group" role="group" aria-label="Filter evaluator">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-evaluator active" data-evaluator-id="all">Semua Penilai</button>
+                                @foreach($evaluator_details as $ed_btn)
+                                    @php $evbtn = $ed_btn['evaluator']; $evbtnId = $ed_btn['evaluator_id']; @endphp
+                                    <button type="button" class="btn btn-sm btn-outline-secondary me-1 btn-evaluator" data-evaluator-id="{{ $evbtnId }}">{{ $evbtn ? $evbtn->name : 'User ID:'.$evbtnId }}</button>
+                                @endforeach
+                            </div>
+                        </div>
+
                         @foreach($evaluator_details as $ed)
                             @php $evaluator = $ed['evaluator']; $by_peserta = $ed['by_peserta']; @endphp
-                            <div class="mb-4">
+                            <div class="mb-4 evaluator-block" data-evaluator-id="{{ $ed['evaluator_id'] }}">
                                 <h6><strong>{{ $evaluator ? $evaluator->name : 'User ID:'.$ed['evaluator_id'] }}</strong></h6>
                                 <div class="text-muted small mb-2">{{ $evaluator ? $evaluator->email : '' }}</div>
 
@@ -69,6 +80,35 @@
                             </div>
                         @endforeach
                     @endif
+
+                    <script>
+                        (function(){
+                            const buttons = document.querySelectorAll('.btn-evaluator');
+                            const blocks = document.querySelectorAll('.evaluator-block');
+
+                            function setActive(id){
+                                buttons.forEach(b => {
+                                    if(b.dataset.evaluatorId === id) b.classList.add('active');
+                                    else b.classList.remove('active');
+                                });
+
+                                blocks.forEach(bl => {
+                                    if(id === 'all') bl.style.display = '';
+                                    else bl.style.display = (bl.dataset.evaluatorId === id) ? '' : 'none';
+                                });
+                            }
+
+                            buttons.forEach(btn => {
+                                btn.addEventListener('click', function(){
+                                    const id = this.dataset.evaluatorId;
+                                    setActive(id);
+                                });
+                            });
+
+                            // initial state: show all
+                            setActive('all');
+                        })();
+                    </script>
                 </div>
             </div>
 
