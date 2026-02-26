@@ -535,6 +535,10 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     Route::get('/instrumen-penilaian/teknis/export/{id}', [App\Http\Controllers\InstumenTalentaController::class, 'exportTeknis'])->name('instrumen-penilaian.teknis.export');
     Route::get('/instrumen-penilaian/teknis/export-all', [App\Http\Controllers\InstumenTalentaController::class, 'exportTeknisAll'])->name('instrumen-penilaian.teknis.export_all');
 
+    // Peserta export endpoints (evaluator-centric)
+    Route::get('/instrumen-penilaian/peserta/export/{evaluatorId}', [App\Http\Controllers\InstumenTalentaController::class, 'exportPeserta'])->name('instrumen-penilaian.peserta.export');
+    Route::get('/instrumen-penilaian/peserta/export-all', [App\Http\Controllers\InstumenTalentaController::class, 'exportPesertaAll'])->name('instrumen-penilaian.peserta.export_all');
+
     // Create User for Pemateri
     Route::post('/create-user-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'createUserForPemateri'])->name('create-user-pemateri')->middleware(['role:super_admin,admin']);
 

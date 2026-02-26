@@ -17,6 +17,10 @@
                 <div class="card-body">
                     <h5 class="card-title">Penilaian Peserta (per materi)</h5>
 
+                    <div class="mb-2 d-flex justify-content-end">
+                        <a href="{{ route('instumen-talenta.instrumen-penilaian.peserta.export_all', ['materi_id' => $selected_materi_id]) }}" class="btn btn-sm btn-success">Export Semua (Excel)</a>
+                    </div>
+
                     {{-- Materi navigation --}}
                     <ul class="nav nav-pills mb-3">
                         <li class="nav-item">
@@ -46,7 +50,12 @@
                         @foreach($evaluator_details as $ed)
                             @php $evaluator = $ed['evaluator']; $by_peserta = $ed['by_peserta']; @endphp
                             <div class="mb-4 evaluator-block" data-evaluator-id="{{ $ed['evaluator_id'] }}">
-                                <h6><strong>{{ $evaluator ? $evaluator->name : 'User ID:'.$ed['evaluator_id'] }}</strong></h6>
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <h6 class="mb-0"><strong>{{ $evaluator ? $evaluator->name : 'User ID:'.$ed['evaluator_id'] }}</strong></h6>
+                                    <div>
+                                        <a href="{{ route('instumen-talenta.instrumen-penilaian.peserta.export', ['evaluatorId' => $ed['evaluator_id'], 'materi_id' => $selected_materi_id]) }}" class="btn btn-sm btn-outline-success">Export (Excel)</a>
+                                    </div>
+                                </div>
                                 <div class="text-muted small mb-2">{{ $evaluator ? $evaluator->email : '' }}</div>
 
                                 <div class="table-responsive">

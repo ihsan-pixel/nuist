@@ -19,6 +19,8 @@ use App\Exports\Instumen\PemateriSheetExport;
 use App\Exports\Instumen\PemateriAllExport;
 use App\Exports\Instumen\TeknisSheetExport;
 use App\Exports\Instumen\TeknisAllExport;
+use App\Exports\Instumen\PesertaSheetExport;
+use App\Exports\Instumen\PesertaAllExport;
 use App\Models\TugasTalentaLevel1;
 
 class InstumenTalentaController extends Controller
@@ -691,6 +693,19 @@ class InstumenTalentaController extends Controller
     public function exportTeknisAll()
     {
         return Excel::download(new TeknisAllExport(), 'teknis_all.xlsx');
+    }
+
+    // Peserta export (per evaluator)
+    public function exportPeserta($evaluatorId, \Illuminate\Http\Request $request)
+    {
+        $materiId = $request->query('materi_id', null);
+        return Excel::download(new PesertaSheetExport($evaluatorId, $materiId), 'peserta_evaluator_' . $evaluatorId . '.xlsx');
+    }
+
+    public function exportPesertaAll(\Illuminate\Http\Request $request)
+    {
+        $materiId = $request->query('materi_id', null);
+        return Excel::download(new PesertaAllExport($materiId), 'peserta_all.xlsx');
     }
 
     // New separate pages for fasilitator, pemateri, teknis
