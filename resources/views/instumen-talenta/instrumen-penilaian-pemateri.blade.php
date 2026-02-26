@@ -5,9 +5,14 @@
 @section('content')
 <div class="container-fluid">
     <div class="row mb-3">
-        <div class="col-12">
-            <h4>Instrumen Penilaian - Pemateri</h4>
-            <p class="text-muted">Lihat penilaian pemateri per evaluator.</p>
+        <div class="col-12 d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="mb-0">Instrumen Penilaian - Pemateri</h4>
+                <p class="text-muted mb-0">Lihat penilaian pemateri per evaluator.</p>
+            </div>
+            <div>
+                <a href="{{ route('instumen-talenta.instrumen-penilaian') }}" class="btn btn-sm btn-secondary">&larr; Kembali</a>
+            </div>
         </div>
     </div>
 
@@ -66,8 +71,8 @@
             </div>
         </div>
     </div>
-
-    <script>
+</div>
+@endsection
         (function(){
             const pButtons = document.querySelectorAll('.btn-pemateri');
             const pBlocks = document.querySelectorAll('.pemateri-block');
