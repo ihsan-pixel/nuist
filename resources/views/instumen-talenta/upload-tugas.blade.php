@@ -25,6 +25,9 @@
                                 @endforeach
                             @endif
                         </div>
+                        @if(!empty($selectedArea) && $selectedArea === 'layanan')
+                            <a href="{{ route('instumen-talenta.upload-tugas.download_all', ['area' => $selectedArea]) }}" class="btn btn-sm btn-success ml-2">Download Semua File</a>
+                        @endif
                     </div>
 
                     @if(isset($tugas) && $tugas->isNotEmpty())

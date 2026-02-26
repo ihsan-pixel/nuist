@@ -22,6 +22,8 @@ use App\Exports\Instumen\TeknisAllExport;
 use App\Exports\Instumen\PesertaSheetExport;
 use App\Exports\Instumen\PesertaAllExport;
 use App\Models\TugasTalentaLevel1;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class InstumenTalentaController extends Controller
 {
@@ -503,6 +505,155 @@ class InstumenTalentaController extends Controller
         $selectedKelompok = $request->query('kelompok_id', null);
 
         return view('instumen-talenta.upload-tugas', compact('tugas', 'areas', 'kelompoks', 'selectedArea', 'selectedKelompok'));
+    }
+
+    /**
+     * Download all uploaded tugas as a single merged PDF.
+     * For each peserta, prepend a small PDF page with Nama Peserta and Kode Peserta.
+     * This implementation attempts to use GhostScript (gs) to concatenate PDFs.
+     * If gs is not available it will return a ZIP fallback containing the generated PDFs and original files.
+     */
+    public function downloadAllTugas(Request $request)
+    {
+        $area = $request->query('area', null);
+
+        $query = TugasTalentaLevel1::whereNotNull('file_path');
+        if ($area) {
+            $query->where('area', $area);
+        }
+
+        $tugas = $query->orderBy('submitted_at', 'asc')->get();
+
+        if ($tugas->isEmpty()) {
+            return redirect()->route('instumen-talenta.upload-tugas', ['area' => $area])->with('error', 'Tidak ada file tugas untuk di-download.');
+        }
+
+        $tmpDir = storage_path('app/tmp/merge_tugas_' . uniqid());
+        @mkdir($tmpDir, 0755, true);
+
+        $pdfParts = [];
+
+        foreach ($tugas as $item) {
+            // Resolve peserta info
+            $peserta = \App\Models\TalentaPeserta::where('user_id', $item->user_id)->first();
+            $nama = $item->user->name ?? ($peserta->user->name ?? 'Unknown');
+            $kode = $peserta->kode_peserta ?? '-';
+
+            // Create header PDF
+            $headerHtml = "<div style='font-family: DejaVu Sans, sans-serif; padding:20px;'>" .
+                "<h2>Nama Peserta: " . e($nama) . "</h2>" .
+                "<p>Kode Peserta: " . e($kode) . "</p>" .
+                "<hr></div>";
+
+            $headerPdfPath = $tmpDir . DIRECTORY_SEPARATOR . 'header_' . $item->id . '.pdf';
+            try {
+                Pdf::loadHTML($headerHtml)->setPaper('a4')->save($headerPdfPath);
+                $pdfParts[] = $headerPdfPath;
+            } catch (\Exception $e) {
+                Log::error('Failed to create header PDF for tugas id ' . $item->id, ['error' => $e->getMessage()]);
+                // continue, but header may be missing
+            }
+
+            // Resolve original file path (public path)
+            $relative = ltrim($item->file_path, '/');
+            $fullPath = public_path($relative);
+
+            if (file_exists($fullPath) && is_file($fullPath)) {
+                $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+                if ($ext === 'pdf') {
+                    // Use directly
+                    $pdfParts[] = $fullPath;
+                } elseif (in_array($ext, ['png','jpg','jpeg','gif','bmp','webp'])) {
+                    // Render image into a PDF page
+                    $html = "<div style='padding:10px;text-align:center;font-family: DejaVu Sans, sans-serif;'>" .
+                        "<img src='file://" . e($fullPath) . "' style='max-width:100%;height:auto;'>" .
+                        "</div>";
+                    $imgPdf = $tmpDir . DIRECTORY_SEPARATOR . 'img_' . $item->id . '.pdf';
+                    try {
+                        Pdf::loadHTML($html)->setPaper('a4')->save($imgPdf);
+                        $pdfParts[] = $imgPdf;
+                    } catch (\Exception $e) {
+                        Log::error('Failed to convert image to PDF for tugas id ' . $item->id, ['error' => $e->getMessage()]);
+                        // fallback: skip
+                    }
+                } else {
+                    // Unsupported type: generate a PDF page that contains filename and a link
+                    $noticeHtml = "<div style='font-family: DejaVu Sans, sans-serif; padding:20px;'>" .
+                        "<h3>File tidak dapat ditampilkan secara otomatis</h3>" .
+                        "<p>Nama file: " . e(basename($fullPath)) . "</p>" .
+                        "<p>Lokasi file: " . e(url($relative)) . "</p>" .
+                        "</div>";
+                    $noticePdf = $tmpDir . DIRECTORY_SEPARATOR . 'notice_' . $item->id . '.pdf';
+                    try {
+                        Pdf::loadHTML($noticeHtml)->setPaper('a4')->save($noticePdf);
+                        $pdfParts[] = $noticePdf;
+                    } catch (\Exception $e) {
+                        Log::error('Failed to create notice PDF for tugas id ' . $item->id, ['error' => $e->getMessage()]);
+                    }
+                }
+            } else {
+                // file missing: create a small note PDF
+                $missingHtml = "<div style='font-family: DejaVu Sans, sans-serif; padding:20px;'>" .
+                    "<h3>File tidak ditemukan</h3>" .
+                    "<p>Item ID: " . e($item->id) . "</p>" .
+                    "</div>";
+                $missingPdf = $tmpDir . DIRECTORY_SEPARATOR . 'missing_' . $item->id . '.pdf';
+                try {
+                    Pdf::loadHTML($missingHtml)->setPaper('a4')->save($missingPdf);
+                    $pdfParts[] = $missingPdf;
+                } catch (\Exception $e) {
+                    Log::error('Failed to create missing file PDF for tugas id ' . $item->id, ['error' => $e->getMessage()]);
+                }
+            }
+        }
+
+        if (empty($pdfParts)) {
+            return redirect()->route('instumen-talenta.upload-tugas', ['area' => $area])->with('error', 'Tidak ada file PDF yang bisa digabungkan.');
+        }
+
+        // Attempt to merge using GhostScript
+        $mergedPath = $tmpDir . DIRECTORY_SEPARATOR . 'merged_' . time() . '.pdf';
+        $gsPath = null;
+        try {
+            $which = trim(shell_exec('which gs'));
+            if (!empty($which)) {
+                $gsPath = $which;
+            }
+        } catch (\Throwable $e) {
+            $gsPath = null;
+        }
+
+        if ($gsPath) {
+            $partsEscaped = array_map(function ($p) { return escapeshellarg($p); }, $pdfParts);
+            $cmd = escapeshellcmd($gsPath) . ' -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=' . escapeshellarg($mergedPath) . ' ' . implode(' ', $partsEscaped);
+            exec($cmd, $out, $rv);
+            if ($rv === 0 && file_exists($mergedPath)) {
+                return response()->download($mergedPath, 'tugas_semua_' . ($area ?: 'all') . '.pdf')->deleteFileAfterSend(true);
+            }
+            Log::warning('GhostScript merge failed', ['cmd' => $cmd, 'rv' => $rv, 'out' => $out]);
+        }
+
+        // Fallback: create a zip with generated PDFs and original files
+        $zipPath = $tmpDir . DIRECTORY_SEPARATOR . 'tugas_semua_' . ($area ?: 'all') . '.zip';
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE) === true) {
+            // add all pdfParts
+            foreach ($pdfParts as $p) {
+                $zip->addFile($p, basename($p));
+            }
+            // also add original files if exist
+            foreach ($tugas as $item) {
+                $relative = ltrim($item->file_path, '/');
+                $fullPath = public_path($relative);
+                if (file_exists($fullPath) && is_file($fullPath)) {
+                    $zip->addFile($fullPath, 'originals/' . basename($fullPath));
+                }
+            }
+            $zip->close();
+            return response()->download($zipPath, 'tugas_semua_' . ($area ?: 'all') . '.zip')->deleteFileAfterSend(true);
+        }
+
+        return redirect()->route('instumen-talenta.upload-tugas', ['area' => $area])->with('error', 'Gagal membuat file gabungan.');
     }
 
     public function instrumenPenilaian(\Illuminate\Http\Request $request)
