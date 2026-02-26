@@ -15,6 +15,11 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#downloadTugasModal">
+                            <i class="fas fa-file-download me-1"></i> Download Semua File
+                        </button>
+                    </div>
                     {{-- Area navigation buttons --}}
                     <div class="mb-3">
                         <div class="btn-group" role="group" aria-label="Area filter">
@@ -25,9 +30,6 @@
                                 @endforeach
                             @endif
                         </div>
-                        @if(!empty($selectedArea) && $selectedArea === 'layanan')
-                            <a href="{{ route('instumen-talenta.upload-tugas.download_all', ['area' => $selectedArea]) }}" class="btn btn-sm btn-success ml-2">Download Semua File</a>
-                        @endif
                     </div>
 
                     @if(isset($tugas) && $tugas->isNotEmpty())
@@ -101,6 +103,47 @@
                     @endif
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Pilihan Download Semua File -->
+<div class="modal fade" id="downloadTugasModal" tabindex="-1" aria-labelledby="downloadTugasModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('instumen-talenta.download-tugas') }}" target="_blank">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="downloadTugasModalLabel">Download Semua File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="areaSelect" class="form-label">Pilih Materi / Area (opsional)</label>
+                        <select id="areaSelect" name="area" class="form-select">
+                            <option value="">-- Semua Area --</option>
+                            @if(isset($areas))
+                                @foreach($areas as $area)
+                                    <option value="{{ $area }}">{{ $area }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="jenisSelect" class="form-label">Pilih Jenis Tugas</label>
+                        <select id="jenisSelect" name="jenis_tugas" class="form-select" required>
+                            <option value="on_site">Tugas Onsite</option>
+                            <option value="terstruktur">Tugas Terstruktur</option>
+                            <option value="kelompok">Tugas Kelompok</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Download</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

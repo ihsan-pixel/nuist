@@ -281,7 +281,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('instumen-talenta')->name('instumen-talenta.')->group(function () {
         Route::get('/kelengkapan', [App\Http\Controllers\InstumenTalentaController::class, 'kelengkapan'])->name('kelengkapan');
         Route::get('/upload-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'uploadTugas'])->name('upload-tugas');
-    Route::get('/upload-tugas/download-all', [App\Http\Controllers\InstumenTalentaController::class, 'downloadAllTugas'])->name('upload-tugas.download_all');
+    Route::post('/download-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'downloadTugas'])->name('download-tugas');
         Route::get('/instrumen-penilaian', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaian'])->name('instrumen-penilaian');
         Route::get('/nilai-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'nilaiTugas'])->name('nilai-tugas');
         Route::get('/upload-sertifikat', [App\Http\Controllers\InstumenTalentaController::class, 'uploadSertifikat'])->name('upload-sertifikat');
