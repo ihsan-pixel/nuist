@@ -24,7 +24,7 @@
                         </li>
                         @foreach($materis as $materi)
                             <li class="nav-item">
-                                <a class="nav-link {{ (string)$selected_materi_id === (string)$materi->id ? 'active' : '' }}" href="{{ route('instumen-talenta.instrumen-penilaian', ['materi_id' => $materi->id]) }}">{{ $materi->judul_materi }} @if($materi->tanggal_materi) <small class="text-muted">({{ \\Carbon\\Carbon::parse($materi->tanggal_materi)->format('d M Y') }})</small>@endif</a>
+                                <a class="nav-link {{ (string)$selected_materi_id === (string)$materi->id ? 'active' : '' }}" href="{{ route('instumen-talenta.instrumen-penilaian', ['materi_id' => $materi->id]) }}">{{ $materi->judul_materi }} @if($materi->tanggal_materi) <small class="text-muted">({{ \Carbon\Carbon::parse($materi->tanggal_materi)->format('d M Y') }})</small>@endif</a>
                             </li>
                         @endforeach
                     </ul>
