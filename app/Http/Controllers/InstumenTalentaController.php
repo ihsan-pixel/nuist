@@ -690,7 +690,7 @@ class InstumenTalentaController extends Controller
             ]);
         }
 
-        return view('instumen-talenta.instrumen-penilaian', compact('participant_details', 'fasilitator_details', 'pemateri_details', 'materis', 'selected_materi_id', 'evaluator_details'));
+    return view('instumen-talenta.instrumen-penilaian', compact('participant_details', 'fasilitator_details', 'pemateri_details', 'materis', 'selected_materi_id', 'evaluator_details', 'participant_averages'));
     }
 
     // Export helpers for fasilitator/pemateri/teknis
