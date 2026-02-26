@@ -118,9 +118,20 @@
                     @if(empty($fasilitator_details) || $fasilitator_details->isEmpty())
                         <div class="alert alert-warning">Tidak ada data fasilitator atau penilaian.</div>
                     @else
+                        {{-- Buttons: filter by fasilitator (show blocks per fasilitator) --}}
+                        <div class="mb-3">
+                            <div class="btn-group" role="group" aria-label="Filter fasilitator">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-fasilitator active" data-fasilitator-id="all">Semua Fasilitator</button>
+                                @foreach($fasilitator_details as $fd_btn)
+                                    @php $fbtn = $fd_btn['fasilitator']; $fbtnId = $fbtn->id; @endphp
+                                    <button type="button" class="btn btn-sm btn-outline-secondary me-1 btn-fasilitator" data-fasilitator-id="{{ $fbtnId }}">{{ $fbtn->nama ?? 'Fasilitator ID:'.$fbtnId }}</button>
+                                @endforeach
+                            </div>
+                        </div>
+
                         @foreach($fasilitator_details as $fd)
                             @php $f = $fd['fasilitator']; $evaluators = $fd['evaluators']; @endphp
-                            <div class="mb-3">
+                            <div class="mb-3 fasilitator-block" data-fasilitator-id="{{ $f->id }}">
                                 <h6><strong>{{ $f->nama ?? 'Fasilitator ID:'.$f->id }}</strong></h6>
                                 @if($evaluators->isEmpty())
                                     <div class="text-muted">Belum ada penilaian untuk fasilitator ini.</div>
@@ -162,9 +173,20 @@
                     @if(empty($pemateri_details) || $pemateri_details->isEmpty())
                         <div class="alert alert-warning">Tidak ada data pemateri atau penilaian.</div>
                     @else
+                        {{-- Buttons: filter by pemateri --}}
+                        <div class="mb-3">
+                            <div class="btn-group" role="group" aria-label="Filter pemateri">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-pemateri active" data-pemateri-id="all">Semua Pemateri</button>
+                                @foreach($pemateri_details as $md_btn)
+                                    @php $mbtn = $md_btn['pemateri']; $mbtnId = $mbtn->id; @endphp
+                                    <button type="button" class="btn btn-sm btn-outline-secondary me-1 btn-pemateri" data-pemateri-id="{{ $mbtnId }}">{{ $mbtn->nama ?? 'Pemateri ID:'.$mbtnId }}</button>
+                                @endforeach
+                            </div>
+                        </div>
+
                         @foreach($pemateri_details as $md)
                             @php $m = $md['pemateri']; $evaluators = $md['evaluators']; @endphp
-                            <div class="mb-3">
+                            <div class="mb-3 pemateri-block" data-pemateri-id="{{ $m->id }}">
                                 <h6><strong>{{ $m->nama ?? 'Pemateri ID:'.$m->id }}</strong></h6>
                                 @if($evaluators->isEmpty())
                                     <div class="text-muted">Belum ada penilaian untuk pemateri ini.</div>
@@ -199,6 +221,28 @@
                     @endif
                 </div>
             </div>
+
+            <script>
+                (function(){
+                    // fasilitator filter
+                    const fButtons = document.querySelectorAll('.btn-fasilitator');
+                    const fBlocks = document.querySelectorAll('.fasilitator-block');
+                    fButtons.forEach(b => b.addEventListener('click', function(){
+                        const id = this.dataset.fasilitatorId;
+                        fButtons.forEach(x=> x.classList.toggle('active', x===this));
+                        fBlocks.forEach(bl => bl.style.display = (id==='all' ? '' : (bl.dataset.fasilitatorId===id ? '' : 'none')));
+                    }));
+
+                    // pemateri filter
+                    const pButtons = document.querySelectorAll('.btn-pemateri');
+                    const pBlocks = document.querySelectorAll('.pemateri-block');
+                    pButtons.forEach(b => b.addEventListener('click', function(){
+                        const id = this.dataset.pemateriId;
+                        pButtons.forEach(x=> x.classList.toggle('active', x===this));
+                        pBlocks.forEach(bl => bl.style.display = (id==='all' ? '' : (bl.dataset.pemateriId===id ? '' : 'none')));
+                    }));
+                })();
+            </script>
         </div>
     </div>
 </div>
