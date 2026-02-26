@@ -554,13 +554,34 @@ class InstumenTalentaController extends Controller
             $mergedPages = 0;
             $skipped = [];
             foreach ($items as $item) {
-                $file = public_path($item->file_path);
-                if (!file_exists($file)) {
-                    // skip missing files
-                    $skipped[] = ['file' => $file, 'reason' => 'not_found'];
-                    Log::warning('downloadTugas: file not found', ['file' => $file, 'tugas_id' => $item->id]);
+                // Resolve file path by trying multiple candidate roots because on some hosting
+                // the document root may be `public_html` (outside this project's `public` dir).
+                $relative = ltrim($item->file_path, '/');
+                $candidates = [
+                    public_path($relative),
+                    // server document root (typical on shared hosting)
+                    (isset($_SERVER['DOCUMENT_ROOT']) ? rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/' . $relative : null),
+                    // commonly used sibling folder
+                    base_path('public_html/' . $relative),
+                ];
+
+                $found = null;
+                $attempts = [];
+                foreach ($candidates as $cand) {
+                    if (empty($cand)) continue;
+                    $attempts[] = $cand;
+                    if (file_exists($cand)) {
+                        $found = $cand;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    $skipped[] = ['file' => $relative, 'reason' => 'not_found', 'attempts' => $attempts];
+                    Log::warning('downloadTugas: file not found in candidates', ['relative' => $relative, 'attempts' => $attempts, 'tugas_id' => $item->id]);
                     continue;
                 }
+                $file = $found;
 
                 // Only process PDF files (basic check)
                 if (strtolower(pathinfo($file, PATHINFO_EXTENSION)) !== 'pdf') {
