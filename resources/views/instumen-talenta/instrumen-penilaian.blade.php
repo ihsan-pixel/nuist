@@ -35,7 +35,7 @@
                         {{-- Buttons: filter by evaluator --}}
                         <div class="mb-3">
                             <div class="btn-group" role="group" aria-label="Filter evaluator">
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-evaluator active" data-evaluator-id="all">Semua Penilai</button>
+                                {{-- removed 'Semua Penilai' button --}}
                                 @foreach($evaluator_details as $ed_btn)
                                     @php $evbtn = $ed_btn['evaluator']; $evbtnId = $ed_btn['evaluator_id']; @endphp
                                     <button type="button" class="btn btn-sm btn-outline-secondary me-1 btn-evaluator" data-evaluator-id="{{ $evbtnId }}">{{ $evbtn ? $evbtn->name : 'User ID:'.$evbtnId }}</button>
@@ -121,7 +121,7 @@
                         {{-- Buttons: filter by fasilitator (show blocks per fasilitator) --}}
                         <div class="mb-3">
                             <div class="btn-group" role="group" aria-label="Filter fasilitator">
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-fasilitator active" data-fasilitator-id="all">Semua Fasilitator</button>
+                                {{-- removed 'Semua Fasilitator' button --}}
                                 @foreach($fasilitator_details as $fd_btn)
                                     @php $fbtn = $fd_btn['fasilitator']; $fbtnId = $fbtn->id; @endphp
                                     <button type="button" class="btn btn-sm btn-outline-secondary me-1 btn-fasilitator" data-fasilitator-id="{{ $fbtnId }}">{{ $fbtn->nama ?? 'Fasilitator ID:'.$fbtnId }}</button>
@@ -176,7 +176,7 @@
                         {{-- Buttons: filter by pemateri --}}
                         <div class="mb-3">
                             <div class="btn-group" role="group" aria-label="Filter pemateri">
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-pemateri active" data-pemateri-id="all">Semua Pemateri</button>
+                                {{-- removed 'Semua Pemateri' button --}}
                                 @foreach($pemateri_details as $md_btn)
                                     @php $mbtn = $md_btn['pemateri']; $mbtnId = $mbtn->id; @endphp
                                     <button type="button" class="btn btn-sm btn-outline-secondary me-1 btn-pemateri" data-pemateri-id="{{ $mbtnId }}">{{ $mbtn->nama ?? 'Pemateri ID:'.$mbtnId }}</button>
