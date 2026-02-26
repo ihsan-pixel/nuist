@@ -558,6 +558,41 @@ class InstumenTalentaController extends Controller
             ]);
         }
 
+        // Prepare aggregated averages per peserta (across all evaluators) for the selected materi
+        $participant_averages = collect();
+        foreach ($pesertas as $peserta) {
+            $query = \App\Models\TalentaPenilaianPeserta::where('talenta_peserta_id', $peserta->id);
+            if ($selected_materi_id !== 'all') {
+                $query->where('materi_id', $selected_materi_id);
+            }
+            $entries = $query->get();
+            if ($entries->isEmpty()) {
+                // still include peserta with nulls
+                $scores = [];
+                foreach ($fields_peserta as $f) {
+                    $scores[$f] = null;
+                }
+                $participant_averages->push([
+                    'peserta' => $peserta,
+                    'scores' => $scores,
+                    'count' => 0,
+                ]);
+                continue;
+            }
+
+            $scores = [];
+            foreach ($fields_peserta as $f) {
+                $avg = $entries->avg($f);
+                $scores[$f] = $avg !== null ? round($avg, 2) : null;
+            }
+
+            $participant_averages->push([
+                'peserta' => $peserta,
+                'scores' => $scores,
+                'count' => $entries->count(),
+            ]);
+        }
+
         // Prepare fasilitator-level breakdown
         $fasilitator_details = collect();
         $fields_fasilitator = ['fasilitasi','pendampingan','respons','koordinasi','monitoring','waktu'];

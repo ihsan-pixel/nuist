@@ -56,6 +56,39 @@
                             </div>
                         </div>
 
+                        {{-- Aggregated table for 'Semua' (averages across all evaluators) --}}
+                        <div class="mb-4 all-evaluators-block" style="display:none;">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Peserta</th>
+                                            @if($participant_averages->isNotEmpty())
+                                                @foreach(array_keys($participant_averages->first()['scores']) as $field)
+                                                    <th class="text-center">{{ ucwords(str_replace('_', ' ', $field)) }}</th>
+                                                @endforeach
+                                            @else
+                                                <th class="text-center">-</th>
+                                            @endif
+                                            <th class="text-center">Entri</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($participant_averages as $pa)
+                                            <tr>
+                                                <td>{{ $pa['peserta'] ? ($pa['peserta']->nama ?? ($pa['peserta']->user ? $pa['peserta']->user->name : 'ID:'.$pa['peserta']->id)) : 'ID:'.$pa['peserta']->id }}</td>
+                                                @foreach($pa['scores'] as $val)
+                                                    <td class="text-center">{{ $val !== null ? $val : '-' }}</td>
+                                                @endforeach
+                                                <td class="text-center">{{ $pa['count'] }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-muted small">Tabel di atas menampilkan rata-rata nilai peserta dari semua evaluator (sesuai filter materi jika ada).</div>
+                        </div>
+
                         @foreach($evaluator_details as $ed)
                             @php $evaluator = $ed['evaluator']; $by_peserta = $ed['by_peserta']; @endphp
                             <div class="mb-4 evaluator-block" data-evaluator-id="{{ $ed['evaluator_id'] }}">
@@ -110,10 +143,14 @@
                                     else b.classList.remove('active');
                                 });
 
+                                const allBlock = document.querySelector('.all-evaluators-block');
                                 blocks.forEach(bl => {
-                                    if(id === 'all') bl.style.display = '';
-                                    else bl.style.display = (bl.dataset.evaluatorId === id) ? '' : 'none';
-                                });
+                                        if(id === 'all') bl.style.display = 'none';
+                                        else bl.style.display = (bl.dataset.evaluatorId === id) ? '' : 'none';
+                                    });
+                                if(allBlock) {
+                                    allBlock.style.display = (id === 'all') ? '' : 'none';
+                                }
                             }
 
                             buttons.forEach(btn => {
