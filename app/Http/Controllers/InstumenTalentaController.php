@@ -22,6 +22,8 @@ use App\Exports\Instumen\TeknisAllExport;
 use App\Exports\Instumen\PesertaSheetExport;
 use App\Exports\Instumen\PesertaAllExport;
 use App\Models\TugasTalentaLevel1;
+use Illuminate\Support\Facades\Log;
+use setasign\Fpdi\Fpdi;
 
 class InstumenTalentaController extends Controller
 {
@@ -543,15 +545,20 @@ class InstumenTalentaController extends Controller
         $labelArea = $validated['area'] ?? 'semua-area';
         $filename = 'gabungan_tugas_' . $validated['jenis_tugas'] . '_' . preg_replace('/[^A-Za-z0-9\-]/', '_', $labelArea) . '_' . date('Ymd_His') . '.pdf';
 
-        // Use FPDI to merge
-        $pdf = new \setasign\Fpdi\Fpdi();
+    // Use FPDI to merge
+    // (class imported above as setasign\Fpdi\Fpdi)
+    $pdf = new Fpdi();
         // Use UTF-8-safe font if available; fallback to core fonts
         try {
             $pdf->SetAutoPageBreak(false);
+            $mergedPages = 0;
+            $skipped = [];
             foreach ($items as $item) {
                 $file = public_path($item->file_path);
                 if (!file_exists($file)) {
                     // skip missing files
+                    $skipped[] = ['file' => $file, 'reason' => 'not_found'];
+                    Log::warning('downloadTugas: file not found', ['file' => $file, 'tugas_id' => $item->id]);
                     continue;
                 }
 
@@ -560,7 +567,13 @@ class InstumenTalentaController extends Controller
                     continue;
                 }
 
-                $pageCount = $pdf->setSourceFile($file);
+                try {
+                    $pageCount = $pdf->setSourceFile($file);
+                } catch (\Exception $ex) {
+                    $skipped[] = ['file' => $file, 'reason' => 'invalid_pdf', 'message' => $ex->getMessage()];
+                    Log::warning('downloadTugas: setSourceFile failed', ['file' => $file, 'message' => $ex->getMessage(), 'tugas_id' => $item->id]);
+                    continue;
+                }
                 for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                     $tplId = $pdf->importPage($pageNo);
                     $size = $pdf->getTemplateSize($tplId);
@@ -581,7 +594,21 @@ class InstumenTalentaController extends Controller
                     $pdf->Cell(0, 4, 'Nama Peserta : ' . ($nama ?? '-'));
                     $pdf->Ln(4);
                     $pdf->Cell(0, 4, 'Kode Peserta : ' . ($kode ?? '-'));
+                    $mergedPages++;
                 }
+            }
+
+            if ($mergedPages === 0) {
+                $msg = 'Tidak ada halaman PDF yang berhasil digabung.\n';
+                if (!empty($skipped)) {
+                    $msg .= "Rincian file yang dilewati:\n";
+                    foreach ($skipped as $s) {
+                        $msg .= sprintf("- %s : %s\n", $s['file'] ?? 'unknown', $s['reason'] ?? 'skipped');
+                        if (isset($s['message'])) $msg .= '  detail: ' . $s['message'] . "\n";
+                    }
+                }
+                Log::error('downloadTugas: no pages merged', ['skipped' => $skipped]);
+                return response($msg, 500)->header('Content-Type', 'text/plain');
             }
 
             // Stream PDF to browser for download
