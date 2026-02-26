@@ -538,7 +538,11 @@ class InstumenTalentaController extends Controller
         $items = $query->orderBy('submitted_at', 'asc')->get();
 
         if ($items->isEmpty()) {
-            return redirect()->back()->with('error', 'Tidak ditemukan file PDF untuk kombinasi yang dipilih.');
+            $msg = 'Tidak ditemukan file PDF untuk kombinasi yang dipilih.';
+            if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response($msg, 404)->header('Content-Type', 'text/plain');
+            }
+            return redirect()->back()->with('error', $msg);
         }
 
         // Prepare response filename
@@ -555,14 +559,18 @@ class InstumenTalentaController extends Controller
             $skipped = [];
             foreach ($items as $item) {
                 // Resolve file path by trying multiple candidate roots because on some hosting
-                // the document root may be `public_html` (outside this project's `public` dir).
+                // the uploads may live under `public_html` outside the project's `public` dir.
                 $relative = ltrim($item->file_path, '/');
                 $candidates = [
                     public_path($relative),
                     // server document root (typical on shared hosting)
                     (isset($_SERVER['DOCUMENT_ROOT']) ? rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/' . $relative : null),
-                    // commonly used sibling folder
+                    // sibling public_html in parent directory
+                    dirname(base_path()) . '/public_html/' . $relative,
+                    // possible public_html inside project root
                     base_path('public_html/' . $relative),
+                    // direct path (in case file_path already absolute)
+                    $item->file_path,
                 ];
 
                 $found = null;
@@ -629,7 +637,10 @@ class InstumenTalentaController extends Controller
                     }
                 }
                 Log::error('downloadTugas: no pages merged', ['skipped' => $skipped]);
-                return response($msg, 500)->header('Content-Type', 'text/plain');
+                if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                    return response($msg, 500)->header('Content-Type', 'text/plain');
+                }
+                return redirect()->back()->with('error', $msg);
             }
 
             // Stream PDF to browser for download
@@ -639,7 +650,11 @@ class InstumenTalentaController extends Controller
             ]);
         } catch (\Throwable $e) {
             \Log::error('downloadTugas error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return redirect()->back()->with('error', 'Gagal menghasilkan PDF: ' . $e->getMessage());
+            $msg = 'Gagal menghasilkan PDF: ' . $e->getMessage();
+            if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response($msg, 500)->header('Content-Type', 'text/plain');
+            }
+            return redirect()->back()->with('error', $msg);
         }
     }
 
