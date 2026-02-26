@@ -12,6 +12,13 @@ use App\Models\TalentaKelompok;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Instumen\FasilitatorSheetExport;
+use App\Exports\Instumen\FasilitatorAllExport;
+use App\Exports\Instumen\PemateriSheetExport;
+use App\Exports\Instumen\PemateriAllExport;
+use App\Exports\Instumen\TeknisSheetExport;
+use App\Exports\Instumen\TeknisAllExport;
 use App\Models\TugasTalentaLevel1;
 
 class InstumenTalentaController extends Controller
@@ -647,6 +654,43 @@ class InstumenTalentaController extends Controller
         }
 
         return view('instumen-talenta.instrumen-penilaian', compact('participant_details', 'fasilitator_details', 'pemateri_details', 'materis', 'selected_materi_id', 'evaluator_details'));
+    }
+
+    // Export helpers for fasilitator/pemateri/teknis
+    public function exportFasilitator($id)
+    {
+        $fasil = \App\Models\TalentaFasilitator::find($id);
+        $name = $fasil ? ($fasil->nama ?? 'fasilitator_'.$id) : 'fasilitator_'.$id;
+        return Excel::download(new FasilitatorSheetExport($id), 'fasilitator_' . preg_replace('/[^A-Za-z0-9_\-]/','_', $name) . '.xlsx');
+    }
+
+    public function exportFasilitatorAll()
+    {
+        return Excel::download(new FasilitatorAllExport(), 'fasilitator_all.xlsx');
+    }
+
+    public function exportPemateri($id)
+    {
+        $pem = \App\Models\TalentaPemateri::find($id);
+        $name = $pem ? ($pem->nama ?? 'pemateri_'.$id) : 'pemateri_'.$id;
+        return Excel::download(new PemateriSheetExport($id), 'pemateri_' . preg_replace('/[^A-Za-z0-9_\-]/','_', $name) . '.xlsx');
+    }
+
+    public function exportPemateriAll()
+    {
+        return Excel::download(new PemateriAllExport(), 'pemateri_all.xlsx');
+    }
+
+    public function exportTeknis($id)
+    {
+        $lay = \App\Models\TalentaLayananTeknis::find($id);
+        $name = $lay ? ($lay->nama_layanan_teknis ?? 'layanan_'.$id) : 'layanan_'.$id;
+        return Excel::download(new TeknisSheetExport($id), 'teknis_' . preg_replace('/[^A-Za-z0-9_\-]/','_', $name) . '.xlsx');
+    }
+
+    public function exportTeknisAll()
+    {
+        return Excel::download(new TeknisAllExport(), 'teknis_all.xlsx');
     }
 
     // New separate pages for fasilitator, pemateri, teknis

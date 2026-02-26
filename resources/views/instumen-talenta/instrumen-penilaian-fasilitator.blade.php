@@ -18,6 +18,9 @@
                     @if(empty($fasilitator_details) || $fasilitator_details->isEmpty())
                         <div class="alert alert-warning">Tidak ada data fasilitator atau penilaian.</div>
                     @else
+                        <div class="mb-2 d-flex justify-content-end">
+                            <a href="{{ route('instumen-talenta.instrumen-penilaian.fasilitator.export_all') }}" class="btn btn-sm btn-success me-2">Export Semua (Excel)</a>
+                        </div>
                         <div class="mb-3">
                             <div class="btn-group" role="group" aria-label="Filter fasilitator">
                                 @foreach($fasilitator_details as $fd_btn)
@@ -30,7 +33,12 @@
                         @foreach($fasilitator_details as $fd)
                             @php $f = $fd['fasilitator']; $evaluators = $fd['evaluators']; @endphp
                             <div class="mb-3 fasilitator-block" data-fasilitator-id="{{ $f->id }}">
-                                <h6><strong>{{ $f->nama ?? 'Fasilitator ID:'.$f->id }}</strong></h6>
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <h6 class="mb-0"><strong>{{ $f->nama ?? 'Fasilitator ID:'.$f->id }}</strong></h6>
+                                    <div>
+                                        <a href="{{ route('instumen-talenta.instrumen-penilaian.fasilitator.export', $f->id) }}" class="btn btn-sm btn-outline-success">Export (Excel)</a>
+                                    </div>
+                                </div>
                                 @if($evaluators->isEmpty())
                                     <div class="text-muted">Belum ada penilaian untuk fasilitator ini.</div>
                                 @else

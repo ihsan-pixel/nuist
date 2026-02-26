@@ -18,6 +18,9 @@
                     @if(empty($teknis_details) || $teknis_details->isEmpty())
                         <div class="alert alert-warning">Tidak ada data teknis atau penilaian.</div>
                     @else
+                        <div class="mb-2 d-flex justify-content-end">
+                            <a href="{{ route('instumen-talenta.instrumen-penilaian.teknis.export_all') }}" class="btn btn-sm btn-success me-2">Export Semua (Excel)</a>
+                        </div>
                         <div class="mb-3">
                             <div class="btn-group" role="group" aria-label="Filter teknis">
                                 @foreach($teknis_details as $td_btn)
@@ -30,7 +33,12 @@
                         @foreach($teknis_details as $td)
                             @php $t = $td['layanan']; $evaluators = $td['evaluators']; @endphp
                             <div class="mb-3 teknis-block" data-teknis-id="{{ $t->id }}">
-                                <h6><strong>{{ $t->nama_layanan_teknis ?? 'Layanan ID:'.$t->id }}</strong></h6>
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <h6 class="mb-0"><strong>{{ $t->nama_layanan_teknis ?? 'Layanan ID:'.$t->id }}</strong></h6>
+                                    <div>
+                                        <a href="{{ route('instumen-talenta.instrumen-penilaian.teknis.export', $t->id) }}" class="btn btn-sm btn-outline-success">Export (Excel)</a>
+                                    </div>
+                                </div>
                                 @if($evaluators->isEmpty())
                                     <div class="text-muted">Belum ada penilaian untuk layanan teknis ini.</div>
                                 @else

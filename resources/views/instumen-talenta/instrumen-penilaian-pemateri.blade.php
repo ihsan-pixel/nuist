@@ -18,6 +18,9 @@
                     @if(empty($pemateri_details) || $pemateri_details->isEmpty())
                         <div class="alert alert-warning">Tidak ada data pemateri atau penilaian.</div>
                     @else
+                        <div class="mb-2 d-flex justify-content-end">
+                            <a href="{{ route('instumen-talenta.instrumen-penilaian.pemateri.export_all') }}" class="btn btn-sm btn-success me-2">Export Semua (Excel)</a>
+                        </div>
                         <div class="mb-3">
                             <div class="btn-group" role="group" aria-label="Filter pemateri">
                                 @foreach($pemateri_details as $md_btn)
@@ -30,7 +33,12 @@
                         @foreach($pemateri_details as $md)
                             @php $m = $md['pemateri']; $evaluators = $md['evaluators']; @endphp
                             <div class="mb-3 pemateri-block" data-pemateri-id="{{ $m->id }}">
-                                <h6><strong>{{ $m->nama ?? 'Pemateri ID:'.$m->id }}</strong></h6>
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <h6 class="mb-0"><strong>{{ $m->nama ?? 'Pemateri ID:'.$m->id }}</strong></h6>
+                                    <div>
+                                        <a href="{{ route('instumen-talenta.instrumen-penilaian.pemateri.export', $m->id) }}" class="btn btn-sm btn-outline-success">Export (Excel)</a>
+                                    </div>
+                                </div>
                                 @if($evaluators->isEmpty())
                                     <div class="text-muted">Belum ada penilaian untuk pemateri ini.</div>
                                 @else

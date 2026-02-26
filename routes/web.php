@@ -527,6 +527,13 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     Route::get('/instrumen-penilaian-fasilitator', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaianFasilitator'])->name('instrumen-penilaian-fasilitator');
     Route::get('/instrumen-penilaian-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaianPemateri'])->name('instrumen-penilaian-pemateri');
     Route::get('/instrumen-penilaian-teknis', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaianTeknis'])->name('instrumen-penilaian-teknis');
+    // Export endpoints for instrumen penilaian
+    Route::get('/instrumen-penilaian/fasilitator/export/{id}', [App\Http\Controllers\InstumenTalentaController::class, 'exportFasilitator'])->name('instrumen-penilaian.fasilitator.export');
+    Route::get('/instrumen-penilaian/fasilitator/export-all', [App\Http\Controllers\InstumenTalentaController::class, 'exportFasilitatorAll'])->name('instrumen-penilaian.fasilitator.export_all');
+    Route::get('/instrumen-penilaian/pemateri/export/{id}', [App\Http\Controllers\InstumenTalentaController::class, 'exportPemateri'])->name('instrumen-penilaian.pemateri.export');
+    Route::get('/instrumen-penilaian/pemateri/export-all', [App\Http\Controllers\InstumenTalentaController::class, 'exportPemateriAll'])->name('instrumen-penilaian.pemateri.export_all');
+    Route::get('/instrumen-penilaian/teknis/export/{id}', [App\Http\Controllers\InstumenTalentaController::class, 'exportTeknis'])->name('instrumen-penilaian.teknis.export');
+    Route::get('/instrumen-penilaian/teknis/export-all', [App\Http\Controllers\InstumenTalentaController::class, 'exportTeknisAll'])->name('instrumen-penilaian.teknis.export_all');
 
     // Create User for Pemateri
     Route::post('/create-user-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'createUserForPemateri'])->name('create-user-pemateri')->middleware(['role:super_admin,admin']);
