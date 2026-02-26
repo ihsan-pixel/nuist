@@ -605,10 +605,20 @@ class InstumenTalentaController extends Controller
                 }
                 for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                     $tplId = $pdf->importPage($pageNo);
-                    $size = $pdf->getTemplateSize($tplId);
-                    $orientation = ($size['w'] > $size['h']) ? 'L' : 'P';
-                    $pdf->AddPage($orientation, [$size['w'], $size['h']]);
-                    $pdf->useTemplate($tplId, 0, 0, $size['w'], $size['h'], true);
+                    $tplSize = $pdf->getTemplateSize($tplId);
+
+                    // getTemplateSize may return different keys depending on FPDI version
+                    $tplW = $tplSize['w'] ?? $tplSize['width'] ?? ($tplSize[0] ?? null);
+                    $tplH = $tplSize['h'] ?? $tplSize['height'] ?? ($tplSize[1] ?? null);
+
+                    if (empty($tplW) || empty($tplH)) {
+                        Log::warning('downloadTugas: template size missing', ['tplSize' => $tplSize, 'file' => $file, 'tugas_id' => $item->id, 'page' => $pageNo]);
+                        continue;
+                    }
+
+                    $orientation = ($tplW > $tplH) ? 'L' : 'P';
+                    $pdf->AddPage($orientation, [$tplW, $tplH]);
+                    $pdf->useTemplate($tplId, 0, 0, $tplW, $tplH, true);
 
                     // Add header (Nama Peserta & Kode Peserta) at top of each participant's pages
                     $nama = $item->user->name ?? ($item->kelompok->nama_kelompok ?? 'N/A');
@@ -618,7 +628,7 @@ class InstumenTalentaController extends Controller
                     $pdf->SetTextColor(0, 0, 0);
                     // small translucent rectangle behind header for readability (optional)
                     $pdf->SetFillColor(255, 255, 255);
-                    $pdf->Rect(5, 5, $size['w'] - 10, 10, 'F');
+                    $pdf->Rect(5, 5, $tplW - 10, 10, 'F');
                     $pdf->SetXY(6, 6);
                     $pdf->Cell(0, 4, 'Nama Peserta : ' . ($nama ?? '-'));
                     $pdf->Ln(4);
