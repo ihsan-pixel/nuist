@@ -15,6 +15,15 @@
         <div class="col-12">
             <div class="card mb-3">
                 <div class="card-body">
+                    <h5 class="card-title">Penilaian Fasilitator & Pemateri</h5>
+                    <p class="mb-2">Halaman penilaian Fasilitator, Pemateri, dan Teknis sekarang dipisah menjadi halaman tersendiri agar tampilan seragam.</p>
+                    <a href="{{ route('instumen-talenta.instrumen-penilaian-fasilitator') }}" class="btn btn-sm btn-primary me-2">Lihat Penilaian Fasilitator</a>
+                    <a href="{{ route('instumen-talenta.instrumen-penilaian-pemateri') }}" class="btn btn-sm btn-primary me-2">Lihat Penilaian Pemateri</a>
+                    {{-- <a href="{{ route('instumen-talenta.instrumen-penilaian-teknis') }}" class="btn btn-sm btn-primary">Lihat Penilaian Teknis</a> --}}
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
                     <h5 class="card-title">Penilaian Peserta (per materi)</h5>
 
                     {{-- <div class="mb-2 d-flex justify-content-end">
@@ -118,16 +127,6 @@
                             setActive('all');
                         })();
                     </script>
-                </div>
-            </div>
-
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Penilaian Fasilitator & Pemateri</h5>
-                    <p class="mb-2">Halaman penilaian Fasilitator, Pemateri, dan Teknis sekarang dipisah menjadi halaman tersendiri agar tampilan seragam.</p>
-                    <a href="{{ route('instumen-talenta.instrumen-penilaian-fasilitator') }}" class="btn btn-sm btn-primary me-2">Lihat Penilaian Fasilitator</a>
-                    <a href="{{ route('instumen-talenta.instrumen-penilaian-pemateri') }}" class="btn btn-sm btn-primary me-2">Lihat Penilaian Pemateri</a>
-                    <a href="{{ route('instumen-talenta.instrumen-penilaian-teknis') }}" class="btn btn-sm btn-primary">Lihat Penilaian Teknis</a>
                 </div>
             </div>
         </div>
