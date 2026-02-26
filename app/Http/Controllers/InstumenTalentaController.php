@@ -611,7 +611,42 @@ class InstumenTalentaController extends Controller
             ]);
         }
 
-        return view('instumen-talenta.instrumen-penilaian', compact('participant_details', 'fasilitator_details', 'pemateri_details', 'materis', 'selected_materi_id'));
+        // Prepare evaluator-centric view for peserta (list of evaluators -> table of peserta scores)
+        $evaluator_details = collect();
+        // base query for peserta penilaian
+        $penilaianQuery = \App\Models\TalentaPenilaianPeserta::with(['user','peserta']);
+        if ($selected_materi_id !== 'all') {
+            $penilaianQuery = $penilaianQuery->where('materi_id', $selected_materi_id);
+        }
+        $allEntries = $penilaianQuery->get()->groupBy('user_id');
+
+        foreach ($allEntries as $evaluatorId => $entries) {
+            $user = $entries->first()->user;
+            // group by peserta
+            $by_peserta = collect();
+            $groups = $entries->groupBy('talenta_peserta_id');
+            foreach ($groups as $pesertaId => $group) {
+                $pesertaModel = TalentaPeserta::find($pesertaId);
+                $scores = [];
+                foreach ($fields_peserta as $f) {
+                    $scores[$f] = $group->avg($f) !== null ? round($group->avg($f), 2) : null;
+                }
+                $by_peserta->push([
+                    'peserta_id' => $pesertaId,
+                    'peserta' => $pesertaModel,
+                    'scores' => $scores,
+                    'count' => $group->count(),
+                ]);
+            }
+
+            $evaluator_details->push([
+                'evaluator_id' => $evaluatorId,
+                'evaluator' => $user,
+                'by_peserta' => $by_peserta,
+            ]);
+        }
+
+        return view('instumen-talenta.instrumen-penilaian', compact('participant_details', 'fasilitator_details', 'pemateri_details', 'materis', 'selected_materi_id', 'evaluator_details'));
     }
 
     public function nilaiTugas()

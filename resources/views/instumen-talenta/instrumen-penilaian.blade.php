@@ -29,95 +29,43 @@
                         @endforeach
                     </ul>
 
-                    @if(empty($participant_details) || $participant_details->isEmpty())
-                        <div class="alert alert-warning">Tidak ada data peserta atau penilaian.</div>
+                    @if(empty($evaluator_details) || $evaluator_details->isEmpty())
+                        <div class="alert alert-warning">Tidak ada data penilaian peserta untuk materi yang dipilih.</div>
                     @else
-                        @foreach($participant_details as $pd)
-                            @php $peserta = $pd['peserta']; $by_materi = $pd['by_materi']; @endphp
-                            <div class="mb-3">
-                                <h6><strong>{{ $peserta->nama ?? ($peserta->user ? $peserta->user->name : 'ID:'.$peserta->id) }}</strong></h6>
-                                <div class="text-muted small mb-2">{{ $peserta->email ?? ($peserta->user ? $peserta->user->email : '') }}</div>
+                        @foreach($evaluator_details as $ed)
+                            @php $evaluator = $ed['evaluator']; $by_peserta = $ed['by_peserta']; @endphp
+                            <div class="mb-4">
+                                <h6><strong>{{ $evaluator ? $evaluator->name : 'User ID:'.$ed['evaluator_id'] }}</strong></h6>
+                                <div class="text-muted small mb-2">{{ $evaluator ? $evaluator->email : '' }}</div>
 
-                                @if($selected_materi_id === 'all')
-                                    @if($by_materi->isEmpty())
-                                        <div class="text-muted">Belum ada penilaian untuk peserta ini.</div>
-                                    @else
-                                        @foreach($by_materi as $mid => $info)
-                                            @php $materi = $info['materi']; $evaluators = $info['evaluators']; @endphp
-                                            <div class="mb-2">
-                                                <strong>{{ $materi ? $materi->judul_materi : 'Materi: (tidak diketahui)' }}</strong>
-                                                <div class="table-responsive mt-1">
-                                                    @if($evaluators->isEmpty())
-                                                        <div class="text-muted">Belum ada penilaian untuk materi ini.</div>
-                                                    @else
-                                                        <table class="table table-sm table-bordered">
-                                                            <thead class="table-light">
-                                                                <tr>
-                                                                    <th>Evaluator</th>
-                                                                    @foreach(array_keys($evaluators->first()['scores']) as $field)
-                                                                        <th class="text-center">{{ ucwords(str_replace('_', ' ', $field)) }}</th>
-                                                                    @endforeach
-                                                                    <th class="text-center">Entri</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach($evaluators as $ev)
-                                                                    <tr>
-                                                                        <td>{{ $ev['evaluator'] ? $ev['evaluator']->name : 'User ID:'.$ev['evaluator_id'] }}</td>
-                                                                        @foreach($ev['scores'] as $val)
-                                                                            <td class="text-center">{{ $val !== null ? $val : '-' }}</td>
-                                                                        @endforeach
-                                                                        <td class="text-center">{{ $ev['count'] }}</td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            </tbody>
-                                                        </table>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    @endif
-
-                                @else
-                                    {{-- specific materi selected --}}
-                                    @php $info = $by_materi->get($selected_materi_id); @endphp
-                                    @if(!$info)
-                                        <div class="text-muted">Belum ada penilaian untuk peserta ini pada materi ini.</div>
-                                    @else
-                                        @php $evaluators = $info['evaluators']; $materi = $info['materi']; @endphp
-                                        <div class="mb-2">
-                                            <strong>{{ $materi ? $materi->judul_materi : 'Materi: (tidak diketahui)' }}</strong>
-                                            <div class="table-responsive mt-1">
-                                                @if($evaluators->isEmpty())
-                                                    <div class="text-muted">Belum ada penilaian untuk materi ini.</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Peserta</th>
+                                                @if($by_peserta->isNotEmpty())
+                                                    @foreach(array_keys($by_peserta->first()['scores']) as $field)
+                                                        <th class="text-center">{{ ucwords(str_replace('_', ' ', $field)) }}</th>
+                                                    @endforeach
                                                 @else
-                                                    <table class="table table-sm table-bordered">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th>Evaluator</th>
-                                                                @foreach(array_keys($evaluators->first()['scores']) as $field)
-                                                                    <th class="text-center">{{ ucwords(str_replace('_', ' ', $field)) }}</th>
-                                                                @endforeach
-                                                                <th class="text-center">Entri</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach($evaluators as $ev)
-                                                                <tr>
-                                                                    <td>{{ $ev['evaluator'] ? $ev['evaluator']->name : 'User ID:'.$ev['evaluator_id'] }}</td>
-                                                                    @foreach($ev['scores'] as $val)
-                                                                        <td class="text-center">{{ $val !== null ? $val : '-' }}</td>
-                                                                    @endforeach
-                                                                    <td class="text-center">{{ $ev['count'] }}</td>
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
+                                                    <th class="text-center">-</th>
                                                 @endif
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endif
+                                                <th class="text-center">Entri</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($by_peserta as $bp)
+                                                <tr>
+                                                    <td>{{ $bp['peserta'] ? ($bp['peserta']->nama ?? ($bp['peserta']->user ? $bp['peserta']->user->name : 'ID:'.$bp['peserta_id'])) : 'ID:'.$bp['peserta_id'] }}</td>
+                                                    @foreach($bp['scores'] as $val)
+                                                        <td class="text-center">{{ $val !== null ? $val : '-' }}</td>
+                                                    @endforeach
+                                                    <td class="text-center">{{ $bp['count'] }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         @endforeach
                     @endif
