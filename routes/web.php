@@ -174,6 +174,10 @@ Route::get('/mobile/login', function () {
     return view('mobile.login');
 })->name('mobile.login');
 
+// Mobile login POST handler (form-based mobile login)
+use App\Http\Controllers\Mobile\MobileAuthController;
+Route::post('/mobile/login', [MobileAuthController::class, 'authenticate'])->name('mobile.login.authenticate');
+
 // Contact form submission
 Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])->name('landing.sekolah.contact');
 Route::post('/kontak', [App\Http\Controllers\LandingController::class, 'sendContactMessageGeneral'])->name('landing.kontak.submit');

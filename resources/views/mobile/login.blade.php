@@ -83,7 +83,7 @@
     <div class="mobile-auth-bg">
         <div class="mobile-login-card">
             <div class="mobile-login-logo">
-                <a href="/" class="d-inline-block"> 
+                <a href="#" class="d-inline-block">
                     <img src="{{ asset('build/images/logo-light.png') }}" alt="Nuist" />
                 </a>
                 <div>
@@ -92,7 +92,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('account.authenticate') }}">
+            <form method="POST" action="{{ route('mobile.login.authenticate') }}">
                 @csrf
 
                 <div class="mb-3">
