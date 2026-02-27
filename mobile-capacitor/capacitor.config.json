@@ -1,0 +1,10 @@
+{
+  "appId": "com.nuist.mobile",
+  "appName": "Nuist Mobile",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://nuist.id",
+    "cleartext": false
+  }
+}

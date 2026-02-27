@@ -1,0 +1,21 @@
+{
+  "name": "nuist-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "cap:init": "npx cap init 'Nuist Mobile' com.nuist.mobile --web-dir=www",
+    "cap:add:android": "npx cap add android",
+    "cap:add:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "cap:open:ios": "npx cap open ios"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^5.0.0",
+    "@capacitor/core": "^5.0.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "^5.7.8",
+    "@capacitor/ios": "^5.7.8"
+  }
+}
