@@ -169,6 +169,11 @@ Route::get('/sekolah/{id}', [App\Http\Controllers\LandingController::class, 'sek
 Route::get('/tentang', [App\Http\Controllers\LandingController::class, 'tentang'])->name('landing.tentang');
 Route::get('/kontak', [App\Http\Controllers\LandingController::class, 'kontak'])->name('landing.kontak');
 
+// Mobile optimized login page (mobile webview / capacitor)
+Route::get('/mobile/login', function () {
+    return view('mobile.login');
+})->name('mobile.login');
+
 // Contact form submission
 Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])->name('landing.sekolah.contact');
 Route::post('/kontak', [App\Http\Controllers\LandingController::class, 'sendContactMessageGeneral'])->name('landing.kontak.submit');
