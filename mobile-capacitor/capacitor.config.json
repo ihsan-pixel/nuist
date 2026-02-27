@@ -4,7 +4,7 @@
   "webDir": "www",
   "bundledWebRuntime": false,
   "server": {
-    "url": "https://nuist.id",
+    "url": "https://nuist.id/mobile/login",
     "cleartext": false
   }
 }
