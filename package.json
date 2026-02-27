@@ -28,8 +28,10 @@
         "vite": "^4.1.4"
     },
     "dependencies": {
+        "@capacitor/android": "^5.7.8",
+        "@capacitor/ios": "^5.7.8",
         "bootstrap": "5.3.5",
-        "vite-plugin-static-copy": "^0.13.1",
-        "face-api.js": "^0.22.2"
+        "face-api.js": "^0.22.2",
+        "vite-plugin-static-copy": "^0.13.1"
     }
 }

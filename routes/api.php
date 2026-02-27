@@ -20,6 +20,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Mobile token login/logout for Capacitor apps (token-based auth)
+Route::post('/mobile/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
+
 Route::middleware('auth')->get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'apiIndex']);
 
 Route::post('github-commit', [GithubWebhookController::class, 'handle']);
