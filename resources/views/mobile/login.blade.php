@@ -39,6 +39,7 @@
             color: #fff;
             position: relative;
             flex: 0 0 auto;
+            height: 70%;
         }
 
         .hero-title{
@@ -114,7 +115,7 @@
     <div class="mobile-auth-bg">
         <div class="mobile-screen" role="main">
             <!-- Blue header with illustration (full-bleed) -->
-            <div class="header-hero">
+                <div class="header-hero">
                     <div class="hero-content">
                         <h2 class="hero-title">Hello!</h2>
                     </div>
@@ -159,8 +160,7 @@
                         <div class="forgot"><a href="{{ route('password.request') }}">Forgot password?</a></div>
                     </form>
                 </div>
-
-                <div class="bottom-handle" aria-hidden="true"></div>
+            {{-- <div class="bottom-handle" aria-hidden="true"></div> --}}
         </div>
     </div>
 
