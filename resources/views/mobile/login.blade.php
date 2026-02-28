@@ -119,6 +119,12 @@
             .btn-primary-pill{ padding:10px 14px }
             .header-hero{ padding:18px 12px 12px 12px }
         }
+
+        /* Collapsed / open states for sliding form */
+        .collapsed-area{ display:flex; justify-content:center; padding:6px 0 }
+        .form-fields{ max-height:0; opacity:0; transform:translateY(12px); overflow:hidden; transition:all .45s cubic-bezier(.2,.9,.2,1); }
+        .mobile-screen.open .form-fields{ max-height:800px; opacity:1; transform:translateY(0); }
+        .mobile-screen.open .collapsed-area{ display:none }
     </style>
 @endsection
 
@@ -142,40 +148,48 @@
 
                 <!-- White form card overlapping header (rounded) -->
                 {{-- <div class="bottom-handle" aria-hidden="true"></div> --}}
-                <div class="form-card">
+                <div class="form-card" id="formCard">
                     <div class="form-top-spacer"></div>
 
-                    <form method="POST" action="{{ route('mobile.login.authenticate') }}">
-                        @csrf
+                    <!-- Collapsed area: shows a single login button initially -->
+                    <div class="collapsed-area" id="collapsedArea">
+                        <button type="button" class="btn-primary-pill open-login-btn" id="openLogin">Masuk</button>
+                    </div>
 
-                        <div class="input-wrap">
-                            <input id="email" name="email" type="email" class="pill-input" placeholder="contoh@gmail.com" required value="{{ old('email') }}">
-                            @error('email')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    <!-- Form fields: hidden initially, slide up when open -->
+                    <div class="form-fields" id="formFields" aria-hidden="true">
+                        <form method="POST" action="{{ route('mobile.login.authenticate') }}">
+                            @csrf
 
-                        <div class="input-wrap">
-                            <div class="pill-password">
-                                <input id="password" name="password" type="password" class="pill-input" placeholder="password" required>
-                                <button type="button" id="togglePassword" class="eye-btn" title="Tampilkan kata sandi">&#128065;</button>
+                            <div class="input-wrap">
+                                <input id="email" name="email" type="email" class="pill-input" placeholder="nama@contoh.com" required value="{{ old('email') }}">
+                                @error('email')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
-                            @error('password')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
 
-                        <div class="btn-row">
-                            <button class="btn-primary-pill" type="submit">Login</button>
-                        </div>
+                            <div class="input-wrap">
+                                <div class="pill-password">
+                                    <input id="password" name="password" type="password" class="pill-input" placeholder="Kata sandi" required>
+                                    <button type="button" id="togglePassword" class="eye-btn" title="Tampilkan kata sandi">&#128065;</button>
+                                </div>
+                                @error('password')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                        <div class="socials">
-                            <a class="social-pill" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G"></a>
-                            <a class="social-pill" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F"></a>
-                        </div>
+                            <div class="btn-row">
+                                <button class="btn-primary-pill" type="submit">Masuk</button>
+                            </div>
 
-                        <div class="forgot"><a href="{{ route('password.request') }}">Forgot password?</a></div>
-                    </form>
+                            <div class="socials">
+                                <a class="social-pill" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G"></a>
+                                <a class="social-pill" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F"></a>
+                            </div>
+
+                            <div class="forgot"><a href="{{ route('password.request') }}">Lupa kata sandi?</a></div>
+                        </form>
+                    </div>
                 </div>
         </div>
     </div>
@@ -185,11 +199,49 @@
 @section('script')
     <script>
         document.addEventListener('DOMContentLoaded', function(){
-            var toggle = document.getElementById('togglePassword');
-            var pwd = document.getElementById('password');
-            if(toggle && pwd){
-                toggle.addEventListener('click', function(){
-                    if(pwd.type === 'password') pwd.type = 'text'; else pwd.type = 'password';
+            // password toggle (works after form is revealed too)
+            function setupPasswordToggle(){
+                var toggle = document.getElementById('togglePassword');
+                var pwd = document.getElementById('password');
+                if(toggle && pwd){
+                    toggle.addEventListener('click', function(){
+                        if(pwd.type === 'password') pwd.type = 'text'; else pwd.type = 'password';
+                    });
+                }
+            }
+
+            setupPasswordToggle();
+
+            // open login form: slide up from bottom
+            var openBtn = document.getElementById('openLogin');
+            var mobileScreen = document.querySelector('.mobile-screen');
+            var formFields = document.getElementById('formFields');
+            var collapsedArea = document.getElementById('collapsedArea');
+
+            if(openBtn && mobileScreen && formFields){
+                openBtn.addEventListener('click', function(){
+                    // add open class to enable CSS transition
+                    mobileScreen.classList.add('open');
+                    formFields.setAttribute('aria-hidden','false');
+                    // focus the email input after a short delay to allow animation
+                    setTimeout(function(){
+                        var email = document.getElementById('email');
+                        if(email) email.focus();
+                        setupPasswordToggle();
+                    }, 300);
+                });
+            }
+
+            // Optional: close the form if user taps header area
+            var headerHero = document.querySelector('.header-hero');
+            if(headerHero && mobileScreen){
+                headerHero.addEventListener('click', function(){
+                    if(mobileScreen.classList.contains('open')){
+                        mobileScreen.classList.remove('open');
+                        formFields.setAttribute('aria-hidden','true');
+                        // scroll to top of mobile screen
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
                 });
             }
         });
