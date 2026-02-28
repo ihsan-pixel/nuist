@@ -52,9 +52,9 @@
         .hero-illustration{ display:flex; justify-content:center; margin-top:8px }
         .hero-illustration img{ width:100%; max-width:260px; height:auto; display:block }
 
-    /* logo pill centered */
-    .logo-pill{ position:relative; margin:0 auto 8px auto; background:#ffffff; padding:10px; border-radius:14px; box-shadow:0 8px 26px rgba(11,34,60,0.08); display:inline-flex; align-items:center; justify-content:center;}
-    .logo-pill img{ display:block; width:64px; height:64px; object-fit:contain }
+    /* logo pill top-right */
+    .logo-pill{ position:absolute; right:14px; top:14px; background:#ffffff; padding:8px; border-radius:12px; box-shadow:0 6px 18px rgba(14,42,120,0.06); display:inline-flex; align-items:center; justify-content:center }
+    .logo-pill img{ display:block; width:60px; height:auto }
 
         /* White form area overlapping hero */
 
@@ -130,13 +130,8 @@
         .mobile-screen.open .form-fields{ max-height:800px; opacity:1; transform:translateY(0); }
         .mobile-screen.open .collapsed-area{ display:none }
 
-    /* Hero login button (white, placed under fast-menu) */
-    .hero-login-white{ display:block; margin:12px auto 6px auto; background:#fff; color:#004b4c; border-radius:999px; padding:10px 18px; font-weight:700; border:none; box-shadow:0 8px 20px rgba(9,30,66,0.08); cursor:pointer; min-width:160px }
-
-    /* Tighter, more professional header */
-    .header-hero{ background: linear-gradient(180deg,#01393a 0,#005a5b 100%); padding:28px 16px 18px 16px; color:#fff; position:relative; flex:0 0 auto; height:56%; border-bottom-left-radius:20px; border-bottom-right-radius:20px }
-    .hero-title{ font-size:20px; margin: 8px 0 4px 0; letter-spacing:0.2px }
-    .hero-illustration{ margin-top:6px }
+    /* Header login button */
+    .header-login-btn{ position:absolute; left:14px; top:14px; background:transparent; border:2px solid rgba(255,255,255,0.12); color:#fff; padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer; backdrop-filter: blur(4px) }
 
     /* Drawer/backdrop for mobile form */
     .drawer-backdrop{ position:fixed; inset:0; background:rgba(3,9,23,0.45); opacity:0; pointer-events:none; transition:opacity .28s ease; z-index:1000 }
@@ -202,9 +197,10 @@
                             </div>
                         </div>
                     </div>
-                    <!-- White login button placed under Fast Menu (visible on hero) -->
-                    <button id="openLogin" class="hero-login-white" aria-expanded="false" aria-controls="loginDrawer">Masuk</button>
                 </div>
+
+                <!-- Header login button (reveals drawer) -->
+                <button id="openLogin" class="header-login-btn" aria-expanded="false" aria-controls="loginDrawer">Masuk</button>
 
                 <!-- Drawer backdrop -->
                 <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
