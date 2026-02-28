@@ -52,9 +52,9 @@
         .hero-illustration{ display:flex; justify-content:center; margin-top:8px }
         .hero-illustration img{ width:100%; max-width:260px; height:auto; display:block }
 
-    /* logo pill top-right */
-    .logo-pill{ position:absolute; right:14px; top:14px; background:#ffffff; padding:8px; border-radius:12px; box-shadow:0 6px 18px rgba(14,42,120,0.06); display:inline-flex; align-items:center; justify-content:center }
-    .logo-pill img{ display:block; width:60px; height:auto }
+    /* logo pill centered */
+    .logo-pill{ position:relative; margin:0 auto 8px auto; background:#ffffff; padding:10px; border-radius:14px; box-shadow:0 8px 26px rgba(11,34,60,0.08); display:inline-flex; align-items:center; justify-content:center; width:74px; height:74px }
+    .logo-pill img{ display:block; width:64px; height:64px; object-fit:contain }
 
         /* White form area overlapping hero */
 
@@ -202,8 +202,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- White login button placed under Fast Menu (visible on hero) -->
-                    <button id="openLogin" class="hero-login-white" aria-expanded="false" aria-controls="loginDrawer">Masuk</button>
                 </div>
 
                 <!-- Drawer backdrop -->
