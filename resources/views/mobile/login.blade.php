@@ -45,7 +45,7 @@
         .hero-title{
             text-align:center;
             font-size:22px;
-            margin: 50px 0 4px 0;
+            margin: 100px 0 4px 0;
             font-weight:700;
         }
 
@@ -168,7 +168,7 @@
             <!-- Blue header with illustration (full-bleed) -->
                 <div class="header-hero">
                     <div class="hero-content">
-                        <div class="logo-pill" aria-hidden="true" style="align-content: center">
+                        <div class="logo-pill" aria-hidden="true">
                             <img src="{{ asset('images/logo1.png') }}" alt="logo">
                         </div>
                         <h2 class="hero-title">Halo, Selamat Datang!</h2>
