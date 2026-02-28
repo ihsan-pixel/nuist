@@ -64,7 +64,7 @@
             border-top-right-radius: 22px;
             margin-top: -18px;
             padding: 22px 16px 18px 16px;
-            box-shadow: 0 -6px 18px rgba(14,42,120,0.03);
+            box-shadow: 0 -6px 18px #0e8549;
             flex: 1 1 auto;
             overflow: auto;
             display: flex;
@@ -85,11 +85,11 @@
             border: none;
             background: #f3f7ff;
             font-size: 15px;
-            color: #0b2b4a;
+            color: #0e8549;
             outline: none;
             transition: box-shadow .15s ease, transform .08s ease;
         }
-        .pill-input::placeholder{ color: #94a6d6 }
+        .pill-input::placeholder{ color: #0e8549 }
         .pill-input:focus{
             box-shadow: 0 6px 18px rgba(16,88,236,0.12);
             transform: translateY(-1px);
@@ -98,7 +98,7 @@
         .pill-password{ position: relative }
         .eye-btn{
             position:absolute; right:12px; top:50%; transform:translateY(-50%);
-            background:transparent; border:none; font-size:16px; cursor:pointer; color:#90a6d8; padding:6px;
+            background:transparent; border:none; font-size:16px; cursor:pointer; color:#0e8549; padding:6px;
         }
 
         .btn-row{ margin-top:8px }
