@@ -39,8 +39,7 @@
             color: #fff;
             position: relative;
             flex: 0 0 auto;
-            /* do not force the header to fill the whole viewport - allow content to size naturally */
-            height: auto;
+            height: 100%;
         }
 
         .hero-title{
@@ -133,9 +132,6 @@
 
     /* Hero login button (white, placed under fast-menu) */
     .hero-login-white{ display:block; margin:12px auto 6px auto; background:#fff; color:#004b4c; border-radius:999px; padding:10px 18px; font-weight:700; border:none; box-shadow:0 8px 20px rgba(9,30,66,0.08); cursor:pointer; min-width:160px }
-
-    /* ensure the hero login button appears above the hero if any overlap occurs */
-    .hero-login-white{ position:relative; z-index:1 }
 
     /* Drawer/backdrop for mobile form */
     .drawer-backdrop{ position:fixed; inset:0; background:rgba(3,9,23,0.45); opacity:0; pointer-events:none; transition:opacity .28s ease; z-index:1000 }
