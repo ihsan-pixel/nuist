@@ -49,7 +49,7 @@
             font-weight:700;
         }
 
-        .hero-illustration{ display:flex; justify-content:center; margin-top:8px }
+        .hero-illustration{ display:flex; justify-content:center; margin-top:14px; margin-bottom: 14px }
         .hero-illustration img{ width:100%; max-width:260px; height:auto; display:block }
 
     /* logo pill top-right */
