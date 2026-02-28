@@ -16,13 +16,14 @@
             padding: 20px;
         }
 
-        .screen-wrap {
-            width: 360px;
-            max-width: calc(100vw - 24px);
-            border-radius: 26px;
+        /* full-bleed container (no centered wrapper) */
+        .mobile-screen {
+            width: 100vw;
+            max-width: 100vw;
+            border-radius: 0;
             overflow: hidden;
             background: transparent;
-            box-shadow: 0 12px 30px rgba(14,42,120,0.08);
+            box-shadow: none;
             position: relative;
         }
 
@@ -47,8 +48,8 @@
         /* White form area overlapping hero */
         .form-card{
             background: #fff;
-            border-top-left-radius: 26px;
-            border-top-right-radius: 26px;
+            border-top-left-radius: 22px;
+            border-top-right-radius: 22px;
             margin-top: -18px;
             padding: 22px 20px 18px 20px;
             box-shadow: 0 -6px 18px rgba(14,42,120,0.03);
@@ -88,7 +89,7 @@
         .bottom-handle{ width:60px; height:6px; background:#e6eefb; border-radius:4px; margin:12px auto 18px auto }
 
         @media (max-width:380px){
-            .screen-wrap{ max-width: calc(100vw - 20px); width: calc(100vw - 20px) }
+            .mobile-screen{ max-width: 100vw; width: 100vw }
         }
     </style>
 @endsection
@@ -101,10 +102,8 @@
 
     <div class="mobile-auth-bg">
         <div class="mobile-screen" role="main">
-            <!-- Phone-like rounded screen container -->
-            <div class="screen-wrap">
-                <!-- Blue header with illustration -->
-                <div class="header-hero">
+            <!-- Blue header with illustration (full-bleed) -->
+            <div class="header-hero">
                     <div class="hero-content">
                         <h2 class="hero-title">Hello!</h2>
                     </div>
@@ -151,7 +150,6 @@
                 </div>
 
                 <div class="bottom-handle" aria-hidden="true"></div>
-            </div>
         </div>
     </div>
 
