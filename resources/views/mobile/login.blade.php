@@ -141,7 +141,7 @@
                 </div>
 
                 <!-- White form card overlapping header (rounded) -->
-                <div class="bottom-handle" aria-hidden="true"></div>
+                {{-- <div class="bottom-handle" aria-hidden="true"></div> --}}
                 <div class="form-card">
                     <div class="form-top-spacer"></div>
 
