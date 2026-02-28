@@ -6,70 +6,115 @@
 
 @section('css')
     <style>
-        /* Mobile-first login styles */
+        /* Mobile-first login styles - updated to match sample mobile UI */
         .mobile-auth-bg {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
-            background: linear-gradient(180deg, rgba(13,110,253,0.12) 0%, rgba(13,110,253,0.06) 50%, #ffffff 100%);
+            padding: 20px;
+            background: linear-gradient(180deg, #f4f8ff 0%, #ffffff 100%);
         }
 
-        .mobile-login-card {
+        .mobile-screen {
             width: 100%;
             max-width: 420px;
+            position: relative;
+            -webkit-font-smoothing:antialiased;
+        }
+
+        /* Blue header with illustration */
+        .mobile-header {
+            background: linear-gradient(180deg, #0d6efd 0%, #2b9bff 100%);
+            color: #fff;
+            border-radius: 20px;
+            padding: 22px 18px 40px 18px;
+            box-shadow: 0 12px 30px rgba(13,110,253,0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-header h2 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .mobile-header p.lead {
+            margin: 8px 0 0 0;
+            opacity: 0.95;
+            font-size: 13px;
+        }
+
+        .mobile-illustration {
+            width: 100%;
+            max-height: 110px;
+            object-fit: contain;
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* White rounded card overlapping the header */
+        .mobile-card {
             background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(13,110,253,0.08);
-            padding: 20px;
+            border-radius: 22px;
+            padding: 18px;
+            position: relative;
+            margin-top: -28px;
+            box-shadow: 0 10px 30px rgba(20,40,80,0.06);
             border: 1px solid rgba(13,110,253,0.06);
         }
 
-        .mobile-login-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
-
-        .mobile-login-logo img {
-            height: 40px;
-        }
-
-        .mobile-login-title {
-            font-weight: 700;
-            color: #0d6efd; /* preserve primary color */
-            margin: 0 0 6px 0;
-            font-size: 18px;
-        }
-
-        .mobile-login-sub {
+        .mobile-card .muted {
             color: #6c757d;
             font-size: 13px;
-            margin-bottom: 14px;
         }
 
-        .form-control-lg {
-            padding: 14px 12px;
+        .input-round {
+            border-radius: 12px !important;
+            padding: 12px 14px !important;
+            box-shadow: none !important;
+            border: 1px solid rgba(10,40,120,0.06) !important;
             font-size: 15px;
-            border-radius: 10px;
         }
 
-        .btn-primary-lg {
+        .btn-login {
             width: 100%;
+            background: linear-gradient(90deg,#0d6efd,#2b9bff);
+            color: #fff;
+            border-radius: 12px;
             padding: 12px 14px;
-            border-radius: 10px;
-            font-weight: 600;
+            font-weight: 700;
+            border: none;
+            box-shadow: 0 8px 18px rgba(13,110,253,0.12);
         }
 
-        .small-link {
-            font-size: 13px;
-            color: #6c757d;
+        .social-row {
+            display:flex;
+            gap:10px;
+            justify-content:center;
+            margin-top:8px;
         }
+
+        .social-btn {
+            border-radius: 999px;
+            width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;
+            border:1px solid rgba(13,110,253,0.08);
+            background:#fff;
+        }
+
+        .forgot-link { display:block; text-align:center; margin-top:10px; color:#6c757d; }
+
+        .dots {
+            display:flex;gap:6px;justify-content:center;margin-top:8px
+        }
+
+        .dot { width:6px;height:6px;border-radius:999px;background:rgba(255,255,255,0.45)}
 
         @media (max-width:420px){
-            .mobile-login-card { padding: 16px; border-radius: 12px; }
+            .mobile-header { padding:18px 14px 36px 14px; border-radius:16px }
+            .mobile-card { border-radius:16px; margin-top:-22px }
         }
     </style>
 @endsection
@@ -81,55 +126,58 @@
 @section('content')
 
     <div class="mobile-auth-bg">
-        <div class="mobile-login-card">
-            <div class="mobile-login-logo">
-                <a href="#" class="d-inline-block">
-                    <img src="{{ asset('build/images/logo-light.png') }}" alt="Nuist" />
-                </a>
-                <div>
-                    <h1 class="mobile-login-title">Nuist Mobile</h1>
-                    <div class="mobile-login-sub">Masuk untuk mengakses fitur mobile Nuist</div>
+        <div class="mobile-screen">
+            <div class="mobile-header">
+                <h2>Hello!</h2>
+                <p class="lead">This application will help you to simplify interaction with your team and increase benefits in your work</p>
+                {{-- illustration: use existing image if available --}}
+                <img src="{{ asset('images/verification-img.png') }}" alt="illustration" class="mobile-illustration">
+
+                <div class="dots" aria-hidden="true">
+                    <div class="dot"></div>
+                    <div class="dot" style="opacity:.6"></div>
+                    <div class="dot" style="opacity:.3"></div>
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('mobile.login.authenticate') }}">
-                @csrf
+            <div class="mobile-card">
+                <div class="text-center muted mb-2">Login To Your Account</div>
 
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input id="email" name="email" type="email" class="form-control form-control-lg" placeholder="nama@contoh.com" required value="{{ old('email') }}">
-                    @error('email')
-                        <div class="text-danger small mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
+                <form method="POST" action="{{ route('mobile.login.authenticate') }}">
+                    @csrf
 
-                <div class="mb-3">
-                    <label for="password" class="form-label">Kata sandi</label>
-                    <div class="input-group">
-                        <input id="password" name="password" type="password" class="form-control form-control-lg" placeholder="Kata sandi" required>
-                        <button type="button" class="btn btn-outline-secondary" id="togglePassword" title="Tampilkan kata sandi">👁</button>
+                    <div class="mb-3">
+                        <input id="email" name="email" type="email" class="form-control input-round" placeholder="nikiforov@dribbble.com" required value="{{ old('email') }}">
+                        @error('email')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
-                    @error('password')
-                        <div class="text-danger small mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                        <label class="form-check-label small" for="remember">Ingat saya</label>
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input id="password" name="password" type="password" class="form-control input-round" placeholder="Kata sandi" required>
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword" title="Tampilkan kata sandi">👁</button>
+                        </div>
+                        @error('password')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
-                    <a href="{{ route('password.request') }}" class="small-link">Lupa kata sandi?</a>
-                </div>
 
-                <div class="d-grid mb-3">
-                    <button class="btn btn-primary btn-primary-lg" type="submit">Masuk</button>
-                </div>
+                    <div class="mb-3">
+                        <button class="btn-login" type="submit">Login</button>
+                    </div>
 
-                <div class="text-center small-link">
-                    Belum punya akun? <a href="{{ route('register') }}" class="text-primary">Daftar</a>
-                </div>
-            </form>
+                    <div class="text-center muted">atau masuk dengan</div>
+                    <div class="social-row" role="group" aria-label="social logins">
+                        <a class="social-btn" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G" style="width:18px;height:18px"></a>
+                        <a class="social-btn" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F" style="width:18px;height:18px"></a>
+                    </div>
+
+                    <a class="forgot-link" href="{{ route('password.request') }}">Forgot password?</a>
+
+                    <div class="text-center muted mt-3">Belum punya akun? <a href="{{ route('register') }}" class="text-primary">Daftar</a></div>
+                </form>
+            </div>
         </div>
     </div>
 
