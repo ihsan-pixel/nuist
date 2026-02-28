@@ -149,7 +149,7 @@
                         @csrf
 
                         <div class="input-wrap">
-                            <input id="email" name="email" type="email" class="pill-input" placeholder="nikiforov@dribbble.com" required value="{{ old('email') }}">
+                            <input id="email" name="email" type="email" class="pill-input" placeholder="contoh@gmail.com" required value="{{ old('email') }}">
                             @error('email')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -157,7 +157,7 @@
 
                         <div class="input-wrap">
                             <div class="pill-password">
-                                <input id="password" name="password" type="password" class="pill-input" placeholder="••••••••" required>
+                                <input id="password" name="password" type="password" class="pill-input" placeholder="password" required>
                                 <button type="button" id="togglePassword" class="eye-btn" title="Tampilkan kata sandi">&#128065;</button>
                             </div>
                             @error('password')
