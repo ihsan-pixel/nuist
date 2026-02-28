@@ -6,30 +6,28 @@
 
 @section('css')
     <style>
-        /* Mobile-first login styles - updated to match sample mobile UI */
+        /* Mobile-first login styles - full width, green theme */
         .mobile-auth-bg {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: linear-gradient(180deg, #f4f8ff 0%, #ffffff 100%);
+            display: block;
+            padding: 0;
+            background: linear-gradient(180deg, #eaf7f0 0%, #ffffff 100%);
         }
 
         .mobile-screen {
-            width: 100%;
-            max-width: 420px;
+            width: 100vw;
+            max-width: 100vw;
             position: relative;
             -webkit-font-smoothing:antialiased;
+            margin: 0;
         }
 
-        /* Blue header with illustration */
+        /* Green header that spans full device width. No outer whitespace. */
         .mobile-header {
-            background: linear-gradient(180deg, #0d6efd 0%, #2b9bff 100%);
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: #fff;
-            border-radius: 20px;
-            padding: 22px 18px 40px 18px;
-            box-shadow: 0 12px 30px rgba(13,110,253,0.12);
+            border-radius: 0;
+            padding: 28px 18px 22px 18px;
             position: relative;
             overflow: hidden;
         }
@@ -38,7 +36,6 @@
             margin: 0;
             font-size: 26px;
             font-weight: 700;
-            letter-spacing: 0.2px;
         }
 
         .mobile-header p.lead {
@@ -47,74 +44,46 @@
             font-size: 13px;
         }
 
-        .mobile-illustration {
-            width: 100%;
-            max-height: 110px;
-            object-fit: contain;
-            display: block;
-            margin-top: 10px;
-        }
+        .mobile-illustration { display:block; width:100%; max-height:120px; object-fit:contain; margin-top:12px }
 
-        /* White rounded card overlapping the header */
-        .mobile-card {
-            background: #fff;
-            border-radius: 22px;
+        /* Form area: full width, sitting directly below header with consistent green background */
+        .mobile-form-area {
             padding: 18px;
-            position: relative;
-            margin-top: -28px;
-            box-shadow: 0 10px 30px rgba(20,40,80,0.06);
-            border: 1px solid rgba(13,110,253,0.06);
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
         }
 
-        .mobile-card .muted {
-            color: #6c757d;
-            font-size: 13px;
+        .muted {
+            color: rgba(255,255,255,0.9);
         }
 
         .input-round {
-            border-radius: 12px !important;
+            border-radius: 10px !important;
             padding: 12px 14px !important;
             box-shadow: none !important;
-            border: 1px solid rgba(10,40,120,0.06) !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
             font-size: 15px;
+            background: rgba(255,255,255,0.95);
+            color: #0b3b37;
         }
 
         .btn-login {
             width: 100%;
-            background: linear-gradient(90deg,#0d6efd,#2b9bff);
-            color: #fff;
-            border-radius: 12px;
+            background: #ffffff;
+            color: #004b4c;
+            border-radius: 10px;
             padding: 12px 14px;
             font-weight: 700;
             border: none;
-            box-shadow: 0 8px 18px rgba(13,110,253,0.12);
         }
 
-        .social-row {
-            display:flex;
-            gap:10px;
-            justify-content:center;
-            margin-top:8px;
-        }
+        .social-row { display:flex; gap:10px; justify-content:center; margin-top:10px }
+        .social-btn { border-radius:999px; width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.95); border: 1px solid rgba(255,255,255,0.12) }
 
-        .social-btn {
-            border-radius: 999px;
-            width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;
-            border:1px solid rgba(13,110,253,0.08);
-            background:#fff;
-        }
-
-        .forgot-link { display:block; text-align:center; margin-top:10px; color:#6c757d; }
-
-        .dots {
-            display:flex;gap:6px;justify-content:center;margin-top:8px
-        }
-
-        .dot { width:6px;height:6px;border-radius:999px;background:rgba(255,255,255,0.45)}
+        .forgot-link { display:block; text-align:center; margin-top:10px; color:rgba(255,255,255,0.95); }
 
         @media (max-width:420px){
-            .mobile-header { padding:18px 14px 36px 14px; border-radius:16px }
-            .mobile-card { border-radius:16px; margin-top:-22px }
+            .mobile-header { padding:20px 14px 18px 14px }
+            .mobile-form-area { padding:14px }
         }
     </style>
 @endsection
@@ -132,22 +101,16 @@
                 <p class="lead">This application will help you to simplify interaction with your team and increase benefits in your work</p>
                 {{-- illustration: use existing image if available --}}
                 <img src="{{ asset('images/verification-img.png') }}" alt="illustration" class="mobile-illustration">
-
-                <div class="dots" aria-hidden="true">
-                    <div class="dot"></div>
-                    <div class="dot" style="opacity:.6"></div>
-                    <div class="dot" style="opacity:.3"></div>
-                </div>
             </div>
 
-            <div class="mobile-card">
+            <div class="mobile-form-area">
                 <div class="text-center muted mb-2">Login To Your Account</div>
 
                 <form method="POST" action="{{ route('mobile.login.authenticate') }}">
                     @csrf
 
                     <div class="mb-3">
-                        <input id="email" name="email" type="email" class="form-control input-round" placeholder="nikiforov@dribbble.com" required value="{{ old('email') }}">
+                        <input id="email" name="email" type="email" class="form-control input-round" placeholder="nama@contoh.com" required value="{{ old('email') }}">
                         @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -164,7 +127,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <button class="btn-login" type="submit">Login</button>
+                        <button class="btn-login" type="submit">Masuk</button>
                     </div>
 
                     <div class="text-center muted">atau masuk dengan</div>
@@ -173,9 +136,9 @@
                         <a class="social-btn" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F" style="width:18px;height:18px"></a>
                     </div>
 
-                    <a class="forgot-link" href="{{ route('password.request') }}">Forgot password?</a>
+                    <a class="forgot-link" href="{{ route('password.request') }}">Lupa kata sandi?</a>
 
-                    <div class="text-center muted mt-3">Belum punya akun? <a href="{{ route('register') }}" class="text-primary">Daftar</a></div>
+                    <div class="text-center muted mt-3">Belum punya akun? <a href="{{ route('register') }}" class="text-white" style="text-decoration:underline">Daftar</a></div>
                 </form>
             </div>
         </div>
