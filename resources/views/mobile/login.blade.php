@@ -201,10 +201,10 @@
                             </div>
                         </div>
                     </div>
+                    <!-- White login button placed under Fast Menu (visible on hero) -->
+                    <button id="openLogin" class="hero-login-white" aria-expanded="false" aria-controls="loginDrawer">Masuk</button>
                 </div>
 
-                <!-- White login button placed under Fast Menu (visible on hero) -->
-                <button id="openLogin" class="hero-login-white" aria-expanded="false" aria-controls="loginDrawer">Masuk</button>
 
                 <!-- Drawer backdrop -->
                 <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
