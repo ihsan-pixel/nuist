@@ -152,6 +152,7 @@
             <!-- Blue header with illustration (full-bleed) -->
                 <div class="header-hero">
                     <div class="hero-content">
+                        <img src="{{ asset('images/logo1.png')}}" alt="illustration" style="width:48px;height:auto;margin-bottom:6px">
                         <h2 class="hero-title">Halo, Selamat Datang!</h2>
                     </div>
                     <div class="hero-illustration">
