@@ -211,7 +211,7 @@
                         <div class="fast-menu-title">Fast Menu</div>
                         <div class="fast-menu-row">
                             <div class="menu-item">
-                                <div class="menu-icon"><img src="https://www.svgrepo.com/svg/503084/scan.svg" alt="note" style="width:22px;height:22px"></div>
+                                <div class="menu-icon"><img src="{{ asset('images/fingerprint.png') }}" alt="note" style="width:22px;height:22px"></div>
                                 <div class="menu-label">Presensi</div>
                             </div>
                             <div class="menu-item">
