@@ -169,7 +169,7 @@
                 <div class="header-hero">
                     <div class="hero-content">
                         {{-- <div class="logo-pill" aria-hidden="true"> --}}
-                            <img src="{{ asset('images/logo1.png') }}" alt="logo">
+                            <img src="{{ asset('images/logo1.png') }}" alt="logo" style="align-content: center">
                         {{-- </div> --}}
                         <h2 class="hero-title">Halo, Selamat Datang!</h2>
                     </div>
