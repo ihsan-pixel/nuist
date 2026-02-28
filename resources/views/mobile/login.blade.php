@@ -6,84 +6,89 @@
 
 @section('css')
     <style>
-        /* Mobile-first login styles - full width, green theme */
+        /* Mobile login design - match supplied mockup */
         .mobile-auth-bg {
             min-height: 100vh;
-            display: block;
-            padding: 0;
-            background: linear-gradient(180deg, #eaf7f0 0%, #ffffff 100%);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background: #f2f6fb;
+            padding: 20px;
         }
 
-        .mobile-screen {
-            width: 100vw;
-            max-width: 100vw;
-            position: relative;
-            -webkit-font-smoothing:antialiased;
-            margin: 0;
-        }
-
-        /* Green header that spans full device width. No outer whitespace. */
-        .mobile-header {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            color: #fff;
-            border-radius: 0;
-            padding: 28px 18px 22px 18px;
-            position: relative;
+        .screen-wrap {
+            width: 360px;
+            max-width: calc(100vw - 24px);
+            border-radius: 26px;
             overflow: hidden;
+            background: transparent;
+            box-shadow: 0 12px 30px rgba(14,42,120,0.08);
+            position: relative;
         }
 
-        .mobile-header h2 {
-            margin: 0;
-            font-size: 26px;
-            font-weight: 700;
+        /* Blue hero */
+        .header-hero{
+            background: linear-gradient(180deg,#2089ff 0%,#0d6efd 100%);
+            padding: 22px 18px 14px 18px;
+            color: #fff;
+            position: relative;
         }
 
-        .mobile-header p.lead {
-            margin: 8px 0 0 0;
-            opacity: 0.95;
-            font-size: 13px;
+        .hero-title{
+            text-align:center;
+            font-size:22px;
+            margin: 6px 0 4px 0;
+            font-weight:700;
         }
 
-        .mobile-illustration { display:block; width:100%; max-height:120px; object-fit:contain; margin-top:12px }
+        .hero-illustration{ display:flex; justify-content:center; margin-top:8px }
+        .hero-illustration img{ width:100%; max-width:260px; height:auto; display:block }
 
-        /* Form area: full width, sitting directly below header with consistent green background */
-        .mobile-form-area {
-            padding: 18px;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        /* White form area overlapping hero */
+        .form-card{
+            background: #fff;
+            border-top-left-radius: 26px;
+            border-top-right-radius: 26px;
+            margin-top: -18px;
+            padding: 22px 20px 18px 20px;
+            box-shadow: 0 -6px 18px rgba(14,42,120,0.03);
         }
 
-        .muted {
-            color: rgba(255,255,255,0.9);
-        }
+        .form-top-spacer{ height: 6px }
 
-        .input-round {
-            border-radius: 10px !important;
-            padding: 12px 14px !important;
-            box-shadow: none !important;
-            border: 1px solid rgba(255,255,255,0.12) !important;
-            font-size: 15px;
-            background: rgba(255,255,255,0.95);
-            color: #0b3b37;
-        }
-
-        .btn-login {
+        .pill-input{
             width: 100%;
-            background: #ffffff;
-            color: #004b4c;
-            border-radius: 10px;
-            padding: 12px 14px;
-            font-weight: 700;
+            border-radius: 28px;
+            padding: 14px 18px;
             border: none;
+            background: #f3f7ff;
+            font-size: 14px;
+            color: #0b2b4a;
+            outline: none;
         }
 
-        .social-row { display:flex; gap:10px; justify-content:center; margin-top:10px }
-        .social-btn { border-radius:999px; width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.95); border: 1px solid rgba(255,255,255,0.12) }
+        .pill-password{ position: relative }
+        .eye-btn{
+            position:absolute; right:10px; top:50%; transform:translateY(-50%);
+            background:transparent; border:none; font-size:16px; cursor:pointer; color:#90a6d8
+        }
 
-        .forgot-link { display:block; text-align:center; margin-top:10px; color:rgba(255,255,255,0.95); }
+        .btn-primary-pill{
+            display:block; width:100%; background:linear-gradient(90deg,#1e88ff,#0d6efd); color:#fff; border:none;
+            padding:12px 18px; border-radius:28px; font-weight:600; font-size:15px; box-shadow:0 8px 18px rgba(13,110,253,0.12);
+        }
 
-        @media (max-width:420px){
-            .mobile-header { padding:20px 14px 18px 14px }
-            .mobile-form-area { padding:14px }
+        .socials{ display:flex; gap:12px; justify-content:center; margin-top:14px }
+        .social-pill{ display:inline-flex; align-items:center; justify-content:center; height:40px; min-width:120px; gap:8px;
+            border-radius:22px; border:1px solid rgba(13,110,253,0.08); padding:6px 10px; text-decoration:none; color:#23374a; background:#fff }
+        .social-pill img{ width:18px; height:18px }
+
+        .forgot{ text-align:center; margin-top:12px; color:#6c757d }
+
+        .bottom-handle{ width:60px; height:6px; background:#e6eefb; border-radius:4px; margin:12px auto 18px auto }
+
+        @media (max-width:380px){
+            .screen-wrap{ max-width: calc(100vw - 20px); width: calc(100vw - 20px) }
         }
     </style>
 @endsection
@@ -95,51 +100,57 @@
 @section('content')
 
     <div class="mobile-auth-bg">
-        <div class="mobile-screen">
-            <div class="mobile-header">
-                <h2>Hello!</h2>
-                <p class="lead">This application will help you to simplify interaction with your team and increase benefits in your work</p>
-                {{-- illustration: use existing image if available --}}
-                <img src="{{ asset('images/verification-img.png') }}" alt="illustration" class="mobile-illustration">
-            </div>
-
-            <div class="mobile-form-area">
-                <div class="text-center muted mb-2">Login To Your Account</div>
-
-                <form method="POST" action="{{ route('mobile.login.authenticate') }}">
-                    @csrf
-
-                    <div class="mb-3">
-                        <input id="email" name="email" type="email" class="form-control input-round" placeholder="nama@contoh.com" required value="{{ old('email') }}">
-                        @error('email')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+        <div class="mobile-screen" role="main">
+            <!-- Phone-like rounded screen container -->
+            <div class="screen-wrap">
+                <!-- Blue header with illustration -->
+                <div class="header-hero">
+                    <div class="hero-content">
+                        <h2 class="hero-title">Hello!</h2>
                     </div>
+                    <div class="hero-illustration">
+                        <img src="{{ asset('images/verification-img.png') }}" alt="illustration"/>
+                    </div>
+                </div>
 
-                    <div class="mb-3">
-                        <div class="input-group">
-                            <input id="password" name="password" type="password" class="form-control input-round" placeholder="Kata sandi" required>
-                            <button type="button" class="btn btn-outline-secondary" id="togglePassword" title="Tampilkan kata sandi">👁</button>
+                <!-- White form card overlapping header (rounded) -->
+                <div class="form-card">
+                    <div class="form-top-spacer"></div>
+
+                    <form method="POST" action="{{ route('mobile.login.authenticate') }}">
+                        @csrf
+
+                        <div class="input-wrap">
+                            <input id="email" name="email" type="email" class="pill-input" placeholder="nikiforov@dribbble.com" required value="{{ old('email') }}">
+                            @error('email')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
-                        @error('password')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
 
-                    <div class="mb-3">
-                        <button class="btn-login" type="submit">Masuk</button>
-                    </div>
+                        <div class="input-wrap">
+                            <div class="pill-password">
+                                <input id="password" name="password" type="password" class="pill-input" placeholder="••••••••" required>
+                                <button type="button" id="togglePassword" class="eye-btn" title="Tampilkan kata sandi">&#128065;</button>
+                            </div>
+                            @error('password')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                    <div class="text-center muted">atau masuk dengan</div>
-                    <div class="social-row" role="group" aria-label="social logins">
-                        <a class="social-btn" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G" style="width:18px;height:18px"></a>
-                        <a class="social-btn" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F" style="width:18px;height:18px"></a>
-                    </div>
+                        <div class="btn-row">
+                            <button class="btn-primary-pill" type="submit">Login</button>
+                        </div>
 
-                    <a class="forgot-link" href="{{ route('password.request') }}">Lupa kata sandi?</a>
+                        <div class="socials">
+                            <a class="social-pill" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G"></a>
+                            <a class="social-pill" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F"></a>
+                        </div>
 
-                    <div class="text-center muted mt-3">Belum punya akun? <a href="{{ route('register') }}" class="text-white" style="text-decoration:underline">Daftar</a></div>
-                </form>
+                        <div class="forgot"><a href="{{ route('password.request') }}">Forgot password?</a></div>
+                    </form>
+                </div>
+
+                <div class="bottom-handle" aria-hidden="true"></div>
             </div>
         </div>
     </div>
