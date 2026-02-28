@@ -175,11 +175,11 @@
         padding: 0 16px;
         z-index: 10;
     }
-    .fast-menu-title{ font-size:13px; color:#6b7cae; font-weight:600 }
+    .fast-menu-title{ font-size:13px; color:#ffffff; font-weight:600 }
     .fast-menu-row{ display:flex; gap:12px; justify-content:center; width:100%; padding:4px 6px }
     .menu-item{ display:flex; flex-direction:column; align-items:center; gap:8px; width:20%; min-width:60px; text-align:center }
     .menu-icon{ width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#f3f8ff; box-shadow:inset 0 -4px 10px rgba(13,110,253,0.03); }
-    .menu-label{ font-size:12px; color:#1b3554 }
+    .menu-label{ font-size:12px; color:#ffffff }
 
     /* Login action row: large blue pill + small circular icon */
     .login-actions{ display:flex; gap:10px; align-items:center; margin-top:6px }
