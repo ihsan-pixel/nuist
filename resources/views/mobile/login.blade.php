@@ -53,6 +53,7 @@
         .hero-illustration img{ width:100%; max-width:260px; height:auto; display:block }
 
         /* White form area overlapping hero */
+
         .form-card{
             background: #fff;
             border-top-left-radius: 22px;
@@ -62,9 +63,16 @@
             box-shadow: 0 -6px 18px rgba(14,42,120,0.03);
             flex: 1 1 auto;
             overflow: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .form-top-spacer{ height: 6px }
+
+        /* tidy input rows */
+        .input-wrap{ display:block; width:100%; }
+        .input-wrap + .input-wrap{ margin-top: 12px }
 
         .pill-input{
             width: 100%;
@@ -72,24 +80,32 @@
             padding: 14px 18px;
             border: none;
             background: #f3f7ff;
-            font-size: 14px;
+            font-size: 15px;
             color: #0b2b4a;
             outline: none;
+            transition: box-shadow .15s ease, transform .08s ease;
+        }
+        .pill-input::placeholder{ color: #94a6d6 }
+        .pill-input:focus{
+            box-shadow: 0 6px 18px rgba(16,88,236,0.12);
+            transform: translateY(-1px);
         }
 
         .pill-password{ position: relative }
         .eye-btn{
-            position:absolute; right:10px; top:50%; transform:translateY(-50%);
-            background:transparent; border:none; font-size:16px; cursor:pointer; color:#90a6d8
+            position:absolute; right:12px; top:50%; transform:translateY(-50%);
+            background:transparent; border:none; font-size:16px; cursor:pointer; color:#90a6d8; padding:6px;
         }
 
+        .btn-row{ margin-top:8px }
         .btn-primary-pill{
             display:block; width:100%; background:linear-gradient(90deg,#1e88ff,#0d6efd); color:#fff; border:none;
             padding:12px 18px; border-radius:28px; font-weight:600; font-size:15px; box-shadow:0 8px 18px rgba(13,110,253,0.12);
         }
 
         .socials{ display:flex; gap:12px; justify-content:center; margin-top:14px }
-        .social-pill{ display:inline-flex; align-items:center; justify-content:center; height:40px; min-width:120px; gap:8px;
+        /* make social pills smaller and consistent */
+        .social-pill{ display:inline-flex; align-items:center; justify-content:center; height:40px; min-width:110px; gap:8px;
             border-radius:22px; border:1px solid rgba(13,110,253,0.08); padding:6px 10px; text-decoration:none; color:#23374a; background:#fff }
         .social-pill img{ width:18px; height:18px }
 
