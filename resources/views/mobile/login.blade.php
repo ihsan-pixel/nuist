@@ -52,6 +52,10 @@
         .hero-illustration{ display:flex; justify-content:center; margin-top:8px }
         .hero-illustration img{ width:100%; max-width:260px; height:auto; display:block }
 
+    /* logo pill top-right */
+    .logo-pill{ position:absolute; right:14px; top:14px; background:#ffffff; padding:8px; border-radius:12px; box-shadow:0 6px 18px rgba(14,42,120,0.06); display:inline-flex; align-items:center; justify-content:center }
+    .logo-pill img{ display:block; width:40px; height:auto }
+
         /* White form area overlapping hero */
 
         .form-card{
@@ -152,7 +156,9 @@
             <!-- Blue header with illustration (full-bleed) -->
                 <div class="header-hero">
                     <div class="hero-content">
-                        <img src="{{ asset('images/logo1.png')}}" alt="illustration" style="width:48px;height:auto;margin-bottom:6px">
+                        <div class="logo-pill" aria-hidden="true">
+                            <img src="{{ asset('images/logo1.png') }}" alt="logo">
+                        </div>
                         <h2 class="hero-title">Halo, Selamat Datang!</h2>
                     </div>
                     <div class="hero-illustration">
