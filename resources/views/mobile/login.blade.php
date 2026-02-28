@@ -130,6 +130,18 @@
         .mobile-screen.open .form-fields{ max-height:800px; opacity:1; transform:translateY(0); }
         .mobile-screen.open .collapsed-area{ display:none }
 
+    /* Header login button */
+    .header-login-btn{ position:absolute; left:14px; top:14px; background:transparent; border:2px solid rgba(255,255,255,0.12); color:#fff; padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer; backdrop-filter: blur(4px) }
+
+    /* Drawer/backdrop for mobile form */
+    .drawer-backdrop{ position:fixed; inset:0; background:rgba(3,9,23,0.45); opacity:0; pointer-events:none; transition:opacity .28s ease; z-index:1000 }
+    .drawer-backdrop.visible{ opacity:1; pointer-events:auto }
+
+    .form-card.drawer{ position:fixed; left:0; right:0; bottom:0; margin:0; border-top-left-radius:18px; border-top-right-radius:18px; transform:translateY(110%); transition:transform .45s cubic-bezier(.2,.9,.2,1); z-index:1100; max-height:86vh; overflow:auto; box-shadow: 0 -18px 30px rgba(9,30,66,0.12) }
+    .mobile-screen.open .form-card.drawer{ transform:translateY(0) }
+
+    .drawer-handle{ width:64px; height:6px; background:#e6eefb; border-radius:6px; margin:8px auto 10px auto }
+
     /* Fast menu (icon grid) */
     .fast-menu { display:flex; flex-direction:column; gap:10px; align-items:center; margin-bottom:6px }
     .fast-menu-title{ font-size:13px; color:#6b7cae; font-weight:600 }
@@ -187,11 +199,16 @@
                     </div>
                 </div>
 
-                <!-- White form card overlapping header (rounded) -->
-                <div class="bottom-handle" aria-hidden="true"></div>
-                <div class="form-card">
-                    <div class="form-top-spacer"></div>
+                <!-- Header login button (reveals drawer) -->
+                <button id="openLogin" class="header-login-btn" aria-expanded="false" aria-controls="loginDrawer">Masuk</button>
 
+                <!-- Drawer backdrop -->
+                <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
+
+                <!-- White form card as a bottom drawer (hidden initially) -->
+                <div id="loginDrawer" class="form-card drawer" role="dialog" aria-modal="true" aria-hidden="true">
+                    <div class="drawer-handle" aria-hidden="true"></div>
+                    <div class="form-top-spacer"></div>
 
                     <form method="POST" action="{{ route('mobile.login.authenticate') }}">
                         @csrf
@@ -239,6 +256,9 @@
                 var toggle = document.getElementById('togglePassword');
                 var pwd = document.getElementById('password');
                 if(toggle && pwd){
+                    // ensure we don't double-bind
+                    toggle.replaceWith(toggle.cloneNode(true));
+                    toggle = document.getElementById('togglePassword');
                     toggle.addEventListener('click', function(){
                         if(pwd.type === 'password') pwd.type = 'text'; else pwd.type = 'password';
                     });
@@ -247,38 +267,43 @@
 
             setupPasswordToggle();
 
-            // open login form: slide up from bottom
             var openBtn = document.getElementById('openLogin');
             var mobileScreen = document.querySelector('.mobile-screen');
-            var formFields = document.getElementById('formFields');
-            var collapsedArea = document.getElementById('collapsedArea');
-
-            if(openBtn && mobileScreen && formFields){
-                openBtn.addEventListener('click', function(){
-                    // add open class to enable CSS transition
-                    mobileScreen.classList.add('open');
-                    formFields.setAttribute('aria-hidden','false');
-                    // focus the email input after a short delay to allow animation
-                    setTimeout(function(){
-                        var email = document.getElementById('email');
-                        if(email) email.focus();
-                        setupPasswordToggle();
-                    }, 300);
-                });
-            }
-
-            // Optional: close the form if user taps header area
+            var drawer = document.getElementById('loginDrawer');
+            var backdrop = document.getElementById('drawerBackdrop');
             var headerHero = document.querySelector('.header-hero');
-            if(headerHero && mobileScreen){
-                headerHero.addEventListener('click', function(){
-                    if(mobileScreen.classList.contains('open')){
-                        mobileScreen.classList.remove('open');
-                        formFields.setAttribute('aria-hidden','true');
-                        // scroll to top of mobile screen
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                });
+
+            function openDrawer(){
+                if(mobileScreen) mobileScreen.classList.add('open');
+                if(drawer) drawer.setAttribute('aria-hidden','false');
+                if(openBtn) openBtn.setAttribute('aria-expanded','true');
+                if(backdrop) backdrop.classList.add('visible');
+                // autofocus email after animation starts
+                setTimeout(function(){ var email = document.getElementById('email'); if(email) email.focus(); setupPasswordToggle(); }, 320);
             }
+
+            function closeDrawer(){
+                if(mobileScreen) mobileScreen.classList.remove('open');
+                if(drawer) drawer.setAttribute('aria-hidden','true');
+                if(openBtn) openBtn.setAttribute('aria-expanded','false');
+                if(backdrop) backdrop.classList.remove('visible');
+            }
+
+            if(openBtn){
+                openBtn.addEventListener('click', function(e){ e.stopPropagation(); openDrawer(); });
+            }
+
+            if(backdrop){
+                backdrop.addEventListener('click', function(){ closeDrawer(); });
+            }
+
+            // tapping header when open will close drawer (convenience)
+            if(headerHero){
+                headerHero.addEventListener('click', function(){ if(mobileScreen && mobileScreen.classList.contains('open')) closeDrawer(); });
+            }
+
+            // allow Escape key to close the drawer
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && mobileScreen && mobileScreen.classList.contains('open')) closeDrawer(); });
         });
     </script>
 @endsection
