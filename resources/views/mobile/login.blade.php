@@ -54,7 +54,7 @@
 
     /* logo pill top-right */
     .logo-pill{ position:absolute; right:14px; top:14px; background:#ffffff; padding:8px; border-radius:12px; box-shadow:0 6px 18px rgba(14,42,120,0.06); display:inline-flex; align-items:center; justify-content:center }
-    .logo-pill img{ display:block; width:40px; height:auto }
+    .logo-pill img{ display:block; width:60px; height:auto }
 
         /* White form area overlapping hero */
 
