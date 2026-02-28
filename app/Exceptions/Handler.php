@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -36,6 +37,17 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // Redirect friendly message when CSRF token mismatch occurs (419)
+        $this->renderable(function (TokenMismatchException $e, $request) {
+            // If request expects JSON, return JSON response
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Sesi berakhir (CSRF). Silakan muat ulang dan coba lagi.'], 419);
+            }
+
+            return redirect()->route('mobile.login')
+                ->withErrors(['email' => 'Sesi telah berakhir. Silakan muat ulang halaman dan coba lagi.']);
         });
     }
 }
