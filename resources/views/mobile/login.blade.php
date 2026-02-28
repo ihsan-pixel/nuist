@@ -131,7 +131,7 @@
         .mobile-screen.open .collapsed-area{ display:none }
 
     /* Hero login button (white, placed under fast-menu) */
-    .hero-login-white{ display:block; margin:12px auto 6px auto; background:#fff; color:#004b4c; border-radius:999px; padding:10px 18px; font-weight:700; border:none; box-shadow:0 8px 20px rgba(9,30,66,0.08); cursor:pointer; min-width:160px }
+    .hero-login-white{ display:block; margin:12px auto 6px auto; background:#fff; color:#004b4c; border-radius:999px; padding:10px 18px; font-weight:700; border:none; box-shadow:0 8px 20px rgba(9,30,66,0.08); cursor:pointer; min-width:200px }
 
     /* Drawer/backdrop for mobile form */
     .drawer-backdrop{ position:fixed; inset:0; background:rgba(3,9,23,0.45); opacity:0; pointer-events:none; transition:opacity .28s ease; z-index:1000 }
@@ -198,7 +198,7 @@
                         </div>
                     </div>
                     <!-- White login button placed under Fast Menu (visible on hero) -->
-                    <button id="openLogin" class="hero-login-white" aria-expanded="false" aria-controls="loginDrawer">Masuk</button>
+                    <button id="openLogin" class="hero-login-white" aria-expanded="false" aria-controls="loginDrawer">Login</button>
                 </div>
 
 
