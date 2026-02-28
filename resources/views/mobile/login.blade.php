@@ -141,6 +141,7 @@
                 </div>
 
                 <!-- White form card overlapping header (rounded) -->
+                <div class="bottom-handle" aria-hidden="true"></div>
                 <div class="form-card">
                     <div class="form-top-spacer"></div>
 
@@ -176,7 +177,6 @@
                         <div class="forgot"><a href="{{ route('password.request') }}">Forgot password?</a></div>
                     </form>
                 </div>
-            {{-- <div class="bottom-handle" aria-hidden="true"></div> --}}
         </div>
     </div>
 
