@@ -45,7 +45,7 @@
         .hero-title{
             text-align:center;
             font-size:22px;
-            margin: 6px 0 4px 0;
+            margin: 10px 0 4px 0;
             font-weight:700;
         }
 
