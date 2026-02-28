@@ -6,33 +6,39 @@
 
 @section('css')
     <style>
-        /* Mobile login design - match supplied mockup */
+        /* Mobile login design - match supplied mockup; full-bleed (no margins) */
+        html, body { height: 100%; margin: 0; padding: 0; }
         .mobile-auth-bg {
-            min-height: 100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
+            height: 100vh;
+            width: 100vw;
+            display:block;
             background: #f2f6fb;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
         }
 
         /* full-bleed container (no centered wrapper) */
         .mobile-screen {
             width: 100vw;
             max-width: 100vw;
+            height: 100vh;
+            max-height: 100vh;
             border-radius: 0;
             overflow: hidden;
             background: transparent;
             box-shadow: none;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Blue hero */
         .header-hero{
             background: linear-gradient(180deg,#2089ff 0%,#0d6efd 100%);
-            padding: 22px 18px 14px 18px;
+            padding: 22px 16px 14px 16px;
             color: #fff;
             position: relative;
+            flex: 0 0 auto;
         }
 
         .hero-title{
@@ -51,8 +57,10 @@
             border-top-left-radius: 22px;
             border-top-right-radius: 22px;
             margin-top: -18px;
-            padding: 22px 20px 18px 20px;
+            padding: 22px 16px 18px 16px;
             box-shadow: 0 -6px 18px rgba(14,42,120,0.03);
+            flex: 1 1 auto;
+            overflow: auto;
         }
 
         .form-top-spacer{ height: 6px }
@@ -86,10 +94,13 @@
 
         .forgot{ text-align:center; margin-top:12px; color:#6c757d }
 
-        .bottom-handle{ width:60px; height:6px; background:#e6eefb; border-radius:4px; margin:12px auto 18px auto }
+    .bottom-handle{ width:60px; height:6px; background:#e6eefb; border-radius:4px; position:absolute; left:50%; transform:translateX(-50%); bottom:10px }
 
         @media (max-width:380px){
             .mobile-screen{ max-width: 100vw; width: 100vw }
+            .pill-input{ padding:12px 14px }
+            .btn-primary-pill{ padding:10px 14px }
+            .header-hero{ padding:18px 12px 12px 12px }
         }
     </style>
 @endsection
