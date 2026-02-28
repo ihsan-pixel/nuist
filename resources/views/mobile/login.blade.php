@@ -157,13 +157,6 @@
                     <div class="hero-illustration">
                         <img src="{{ asset('images/verification-img.png') }}" alt="illustration"/>
                     </div>
-                </div>
-
-                <!-- White form card overlapping header (rounded) -->
-                <div class="bottom-handle" aria-hidden="true"></div>
-                <div class="form-card">
-                    <div class="form-top-spacer"></div>
-
                     <div class="fast-menu" aria-hidden="false">
                         <div class="fast-menu-title">Fast Menu</div>
                         <div class="fast-menu-row">
@@ -185,6 +178,13 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- White form card overlapping header (rounded) -->
+                <div class="bottom-handle" aria-hidden="true"></div>
+                <div class="form-card">
+                    <div class="form-top-spacer"></div>
+
 
                     <form method="POST" action="{{ route('mobile.login.authenticate') }}">
                         @csrf
