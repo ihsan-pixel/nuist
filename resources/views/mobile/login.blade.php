@@ -212,19 +212,19 @@
                         <div class="fast-menu-row">
                             <div class="menu-item">
                                 <div class="menu-icon"><img src="https://www.svgrepo.com/show/331488/note.svg" alt="note" style="width:22px;height:22px"></div>
-                                <div class="menu-label">Catatan<br/>Kewajiban</div>
+                                <div class="menu-label">Presensi</div>
                             </div>
                             <div class="menu-item">
                                 <div class="menu-icon"><img src="https://www.svgrepo.com/show/443131/wallet.svg" alt="wallet" style="width:22px;height:22px"></div>
-                                <div class="menu-label">BSE/TB</div>
+                                <div class="menu-label">Presensi Mengajar</div>
                             </div>
                             <div class="menu-item">
                                 <div class="menu-icon"><img src="https://www.svgrepo.com/show/50899/wallet.svg" alt="ewallet" style="width:22px;height:22px"></div>
-                                <div class="menu-label">E-Wallet</div>
+                                <div class="menu-label">Izin</div>
                             </div>
                             <div class="menu-item">
                                 <div class="menu-icon"><img src="https://www.svgrepo.com/show/349164/data.svg" alt="data" style="width:22px;height:22px"></div>
-                                <div class="menu-label">Pulsa/Data</div>
+                                <div class="menu-label">Jadwal Mengajar</div>
                             </div>
                         </div>
                     </div>
