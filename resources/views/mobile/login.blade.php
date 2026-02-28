@@ -176,7 +176,7 @@
                     <div class="hero-illustration">
                         <img src="{{ asset('images/verification-img.png') }}" alt="illustration"/>
                     </div>
-                    <div class="fast-menu" aria-hidden="false">
+                    <div class="fast-menu" aria-hidden="false" style="margin-top: 14px">
                         <div class="fast-menu-title">Fast Menu</div>
                         <div class="fast-menu-row">
                             <div class="menu-item">
