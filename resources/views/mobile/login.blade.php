@@ -34,7 +34,7 @@
 
         /* Blue hero */
         .header-hero{
-            background: #0e8549;
+            background: #004b4c;
             padding: 22px 16px 14px 16px;
             color: #fff;
             position: relative;
@@ -103,7 +103,7 @@
 
         .btn-row{ margin-top:8px }
         .btn-primary-pill{
-            display:block; width:100%; background:linear-gradient(90deg,#1e88ff,#0d6efd); color:#fff; border:none;
+            display:block; width:100%; background:#004b4c; color:#fff; border:none;
             padding:12px 18px; border-radius:28px; font-weight:600; font-size:15px; box-shadow:0 8px 18px rgba(13,110,253,0.12);
         }
 
