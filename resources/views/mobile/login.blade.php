@@ -158,8 +158,23 @@
 
     .drawer-handle{ width:64px; height:6px; background:#e6eefb; border-radius:6px; margin:8px auto 10px auto }
 
-    /* Fast menu (icon grid) */
-    .fast-menu { display:flex; flex-direction:column; gap:10px; align-items:center; margin-bottom:6px }
+    /* Fast menu (icon grid) - pinned near the bottom of the hero */
+    .fast-menu {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        /* place the fast-menu a bit above the hero button (button bottom is 14px) */
+        bottom: 72px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        margin: 0;
+        width: 100%;
+        max-width: calc(100% - 32px);
+        padding: 0 16px;
+        z-index: 10;
+    }
     .fast-menu-title{ font-size:13px; color:#6b7cae; font-weight:600 }
     .fast-menu-row{ display:flex; gap:12px; justify-content:center; width:100%; padding:4px 6px }
     .menu-item{ display:flex; flex-direction:column; align-items:center; gap:8px; width:20%; min-width:60px; text-align:center }
