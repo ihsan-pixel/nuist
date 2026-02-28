@@ -120,11 +120,24 @@
             .header-hero{ padding:18px 12px 12px 12px }
         }
 
-        /* Collapsed / open states for sliding form */
+    /* Collapsed / open states for sliding form */
         .collapsed-area{ display:flex; justify-content:center; padding:6px 0 }
         .form-fields{ max-height:0; opacity:0; transform:translateY(12px); overflow:hidden; transition:all .45s cubic-bezier(.2,.9,.2,1); }
         .mobile-screen.open .form-fields{ max-height:800px; opacity:1; transform:translateY(0); }
         .mobile-screen.open .collapsed-area{ display:none }
+
+    /* Fast menu (icon grid) */
+    .fast-menu { display:flex; flex-direction:column; gap:10px; align-items:center; margin-bottom:6px }
+    .fast-menu-title{ font-size:13px; color:#6b7cae; font-weight:600 }
+    .fast-menu-row{ display:flex; gap:12px; justify-content:center; width:100%; padding:4px 6px }
+    .menu-item{ display:flex; flex-direction:column; align-items:center; gap:8px; width:20%; min-width:60px; text-align:center }
+    .menu-icon{ width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#f3f8ff; box-shadow:inset 0 -4px 10px rgba(13,110,253,0.03); }
+    .menu-label{ font-size:12px; color:#1b3554 }
+
+    /* Login action row: large blue pill + small circular icon */
+    .login-actions{ display:flex; gap:10px; align-items:center; margin-top:6px }
+    .btn-primary-pill{ flex:1; display:inline-flex; align-items:center; justify-content:center }
+    .btn-icon{ width:46px; height:46px; border-radius:50%; background:linear-gradient(180deg,#fff 0,#cfe2ff 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(13,110,253,0.08); border:none }
     </style>
 @endsection
 
@@ -139,7 +152,7 @@
             <!-- Blue header with illustration (full-bleed) -->
                 <div class="header-hero">
                     <div class="hero-content">
-                        <h2 class="hero-title">Hello!</h2>
+                        <h2 class="hero-title">Halo, Selamat Datang!</h2>
                     </div>
                     <div class="hero-illustration">
                         <img src="{{ asset('images/verification-img.png') }}" alt="illustration"/>
@@ -147,49 +160,64 @@
                 </div>
 
                 <!-- White form card overlapping header (rounded) -->
-                {{-- <div class="bottom-handle" aria-hidden="true"></div> --}}
-                <div class="form-card" id="formCard">
+                <div class="bottom-handle" aria-hidden="true"></div>
+                <div class="form-card">
                     <div class="form-top-spacer"></div>
 
-                    <!-- Collapsed area: shows a single login button initially -->
-                    <div class="collapsed-area" id="collapsedArea">
-                        <button type="button" class="btn-primary-pill open-login-btn" id="openLogin">Masuk</button>
+                    <div class="fast-menu" aria-hidden="false">
+                        <div class="fast-menu-title">Fast Menu</div>
+                        <div class="fast-menu-row">
+                            <div class="menu-item">
+                                <div class="menu-icon"><img src="https://www.svgrepo.com/show/331488/note.svg" alt="note" style="width:22px;height:22px"></div>
+                                <div class="menu-label">Catatan<br/>Kewajiban</div>
+                            </div>
+                            <div class="menu-item">
+                                <div class="menu-icon"><img src="https://www.svgrepo.com/show/443131/wallet.svg" alt="wallet" style="width:22px;height:22px"></div>
+                                <div class="menu-label">BSE/TB</div>
+                            </div>
+                            <div class="menu-item">
+                                <div class="menu-icon"><img src="https://www.svgrepo.com/show/50899/wallet.svg" alt="ewallet" style="width:22px;height:22px"></div>
+                                <div class="menu-label">E-Wallet</div>
+                            </div>
+                            <div class="menu-item">
+                                <div class="menu-icon"><img src="https://www.svgrepo.com/show/349164/data.svg" alt="data" style="width:22px;height:22px"></div>
+                                <div class="menu-label">Pulsa/Data</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Form fields: hidden initially, slide up when open -->
-                    <div class="form-fields" id="formFields" aria-hidden="true">
-                        <form method="POST" action="{{ route('mobile.login.authenticate') }}">
-                            @csrf
+                    <form method="POST" action="{{ route('mobile.login.authenticate') }}">
+                        @csrf
 
-                            <div class="input-wrap">
-                                <input id="email" name="email" type="email" class="pill-input" placeholder="nama@contoh.com" required value="{{ old('email') }}">
-                                @error('email')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
+                        <div class="input-wrap">
+                            <input id="email" name="email" type="email" class="pill-input" placeholder="nikiforov@dribbble.com" required value="{{ old('email') }}">
+                            @error('email')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="input-wrap">
+                            <div class="pill-password">
+                                <input id="password" name="password" type="password" class="pill-input" placeholder="••••••••" required>
+                                <button type="button" id="togglePassword" class="eye-btn" title="Tampilkan kata sandi">&#128065;</button>
                             </div>
+                            @error('password')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                            <div class="input-wrap">
-                                <div class="pill-password">
-                                    <input id="password" name="password" type="password" class="pill-input" placeholder="Kata sandi" required>
-                                    <button type="button" id="togglePassword" class="eye-btn" title="Tampilkan kata sandi">&#128065;</button>
-                                </div>
-                                @error('password')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="login-actions">
+                            <button class="btn-primary-pill" type="submit">Login</button>
+                            <button type="button" class="btn-icon" aria-hidden="true">&rarr;</button>
+                        </div>
 
-                            <div class="btn-row">
-                                <button class="btn-primary-pill" type="submit">Masuk</button>
-                            </div>
+                        <div class="socials">
+                            <a class="social-pill" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G"><span class="social-text">Sign in</span></a>
+                            <a class="social-pill" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F"><span class="social-text">Sign in</span></a>
+                        </div>
 
-                            <div class="socials">
-                                <a class="social-pill" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G"></a>
-                                <a class="social-pill" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F"></a>
-                            </div>
-
-                            <div class="forgot"><a href="{{ route('password.request') }}">Lupa kata sandi?</a></div>
-                        </form>
-                    </div>
+                        <div class="forgot"><a href="{{ route('password.request') }}">Forgot password?</a></div>
+                    </form>
                 </div>
         </div>
     </div>
