@@ -211,10 +211,10 @@
                             <button type="button" class="btn-icon" aria-hidden="true">&rarr;</button>
                         </div>
 
-                        <div class="socials">
+                        {{-- <div class="socials">
                             <a class="social-pill" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G"><span class="social-text">Sign in</span></a>
                             <a class="social-pill" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F"><span class="social-text">Sign in</span></a>
-                        </div>
+                        </div> --}}
 
                         <div class="forgot"><a href="{{ route('password.request') }}">Forgot password?</a></div>
                     </form>
