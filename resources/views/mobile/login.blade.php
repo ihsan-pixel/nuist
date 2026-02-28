@@ -168,9 +168,9 @@
             <!-- Blue header with illustration (full-bleed) -->
                 <div class="header-hero">
                     <div class="hero-content">
-                        {{-- <div class="logo-pill" aria-hidden="true"> --}}
-                            <img src="{{ asset('images/logo1.png') }}" alt="logo" style="align-content: center">
-                        {{-- </div> --}}
+                        <div class="logo-pill" aria-hidden="true" style="align-content: center">
+                            <img src="{{ asset('images/logo1.png') }}" alt="logo">
+                        </div>
                         <h2 class="hero-title">Halo, Selamat Datang!</h2>
                     </div>
                     <div class="hero-illustration">
