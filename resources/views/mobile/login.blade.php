@@ -34,7 +34,7 @@
 
         /* Blue hero */
         .header-hero{
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: #0e8549;
             padding: 22px 16px 14px 16px;
             color: #fff;
             position: relative;
