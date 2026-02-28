@@ -39,7 +39,7 @@
             color: #fff;
             position: relative;
             flex: 0 0 auto;
-            height: 70%;
+            height: 60%;
         }
 
         .hero-title{
