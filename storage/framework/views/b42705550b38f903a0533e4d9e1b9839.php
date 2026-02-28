@@ -1,10 +1,8 @@
-@extends('layouts.master-without-nav')
-
-@section('title')
+<?php $__env->startSection('title'); ?>
     Masuk - Nuist Mobile
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('css')
+<?php $__env->startSection('css'); ?>
     <style>
         /* Mobile login design - match supplied mockup; full-bleed (no margins) */
         html, body { height: 100%; margin: 0; padding: 0; }
@@ -143,13 +141,13 @@
     .btn-primary-pill{ flex:1; display:inline-flex; align-items:center; justify-content:center }
     .btn-icon{ width:46px; height:46px; border-radius:50%; background:linear-gradient(180deg,#fff 0,#cfe2ff 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(13,110,253,0.08); border:none }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('body')
+<?php $__env->startSection('body'); ?>
     <body class="auth-body-bg">
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
     <div class="mobile-auth-bg">
         <div class="mobile-screen" role="main">
@@ -157,12 +155,12 @@
                 <div class="header-hero">
                     <div class="hero-content">
                         <div class="logo-pill" aria-hidden="true">
-                            <img src="{{ asset('images/logo1.png') }}" alt="logo">
+                            <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="logo">
                         </div>
                         <h2 class="hero-title">Halo, Selamat Datang!</h2>
                     </div>
                     <div class="hero-illustration">
-                        <img src="{{ asset('images/verification-img.png') }}" alt="illustration"/>
+                        <img src="<?php echo e(asset('images/verification-img.png')); ?>" alt="illustration"/>
                     </div>
                     <div class="fast-menu" aria-hidden="false">
                         <div class="fast-menu-title">Fast Menu</div>
@@ -193,14 +191,21 @@
                     <div class="form-top-spacer"></div>
 
 
-                    <form method="POST" action="{{ route('mobile.login.authenticate') }}">
-                        @csrf
+                    <form method="POST" action="<?php echo e(route('mobile.login.authenticate')); ?>">
+                        <?php echo csrf_field(); ?>
 
                         <div class="input-wrap">
-                            <input id="email" name="email" type="email" class="pill-input" placeholder="nikiforov@dribbble.com" required value="{{ old('email') }}">
-                            @error('email')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
+                            <input id="email" name="email" type="email" class="pill-input" placeholder="nikiforov@dribbble.com" required value="<?php echo e(old('email')); ?>">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="text-danger small mt-1"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
                         <div class="input-wrap">
@@ -208,9 +213,16 @@
                                 <input id="password" name="password" type="password" class="pill-input" placeholder="••••••••" required>
                                 <button type="button" id="togglePassword" class="eye-btn" title="Tampilkan kata sandi">&#128065;</button>
                             </div>
-                            @error('password')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                <div class="text-danger small mt-1"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
                         <div class="login-actions">
@@ -218,20 +230,17 @@
                             <button type="button" class="btn-icon" aria-hidden="true">&rarr;</button>
                         </div>
 
-                        {{-- <div class="socials">
-                            <a class="social-pill" href="#" title="Google"><img src="https://www.svgrepo.com/show/355037/google.svg" alt="G"><span class="social-text">Sign in</span></a>
-                            <a class="social-pill" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F"><span class="social-text">Sign in</span></a>
-                        </div> --}}
+                        
 
-                        <div class="forgot"><a href="{{ route('password.request') }}">Forgot password?</a></div>
+                        <div class="forgot"><a href="<?php echo e(route('password.request')); ?>">Forgot password?</a></div>
                     </form>
                 </div>
         </div>
     </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
     <script>
         document.addEventListener('DOMContentLoaded', function(){
             // password toggle (works after form is revealed too)
@@ -281,4 +290,6 @@
             }
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/login.blade.php ENDPATH**/ ?>
