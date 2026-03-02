@@ -38,6 +38,16 @@
         .btn-primary-pill{ display:block; width:100%; background: linear-gradient(180deg,#006b67,#004b4c); color:#fff; border:none; padding:12px 18px; border-radius:28px; font-weight:700; box-shadow:0 8px 22px rgba(2,70,64,0.12); transition: transform .12s ease, box-shadow .12s ease }
         .btn-primary-pill:hover{ transform: translateY(-2px); box-shadow:0 12px 30px rgba(2,70,64,0.16) }
 
+    /* Loading overlay and button interaction overrides */
+    #pageLoader{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(3,9,23,0.46); z-index:2200; transition:opacity .28s ease, visibility .28s ease; }
+    #pageLoader.hidden{ opacity:0; visibility:hidden; pointer-events:none }
+    .loader-card{ background:linear-gradient(180deg,#006b67,#004b4c); color:#fff; padding:12px 18px; border-radius:12px; display:flex; gap:12px; align-items:center; box-shadow:0 12px 36px rgba(2,70,64,0.18) }
+    .loader-ring{ width:42px; height:42px; border-radius:50%; border:4px solid rgba(255,255,255,0.18); border-top-color:#fff; animation:loader-spin 1s linear infinite }
+    .loader-text{ font-weight:700; font-size:14px; letter-spacing:0.2px }
+    @keyframes loader-spin{ to { transform:rotate(360deg) } }
+
+    .btn-primary-pill:hover, .btn-primary-pill:active, .btn-primary-pill:focus{ box-shadow:none !important; transform:none !important; }
+
         .muted-center{ text-align:center; color:#6c757d; margin-top:8px; font-size:13px }
 
         .alert-success{ background: #e6f7ef; color:#044d35; padding:10px 12px; border-radius:10px; border:1px solid rgba(4,77,53,0.06) }
@@ -53,6 +63,13 @@
 @section('content')
 
     <div class="auth-background">
+        <!-- Page loader overlay -->
+        <div id="pageLoader" aria-hidden="true" class="hidden">
+            <div class="loader-card" role="status" aria-live="polite">
+                <div class="loader-ring" aria-hidden="true"></div>
+                <div class="loader-text">Memuat...</div>
+            </div>
+        </div>
         <div class="mobile-screen" role="main">
             <div class="header-hero">
                 <div class="logo-pill" aria-hidden="true">
@@ -90,4 +107,18 @@
         </div>
     </div>
 
+@endsection
+
+@section('script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            var pageLoader = document.getElementById('pageLoader');
+            function hideLoader(){ if(!pageLoader) return; pageLoader.classList.add('hidden'); }
+            function showLoader(){ if(!pageLoader) return; pageLoader.classList.remove('hidden'); }
+            setTimeout(hideLoader, 220);
+
+            var forms = document.querySelectorAll('form');
+            forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
+        });
+    </script>
 @endsection

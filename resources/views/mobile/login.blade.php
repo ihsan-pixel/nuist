@@ -240,6 +240,17 @@
     .login-actions{ display:flex; gap:10px; align-items:center; margin-top:6px }
     .btn-primary-pill{ flex:1; display:inline-flex; align-items:center; justify-content:center }
     .btn-icon{ width:46px; height:46px; border-radius:50%; background:linear-gradient(180deg,#fff 0,#e6f5ea 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(14,133,73,0.08); border:none }
+
+    /* Loading overlay (professional, subtle) */
+    #pageLoader{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(3,9,23,0.46); z-index:2200; transition:opacity .28s ease, visibility .28s ease; }
+    #pageLoader.hidden{ opacity:0; visibility:hidden; pointer-events:none }
+    .loader-card{ background:linear-gradient(180deg,#006b67,#004b4c); color:#fff; padding:12px 18px; border-radius:12px; display:flex; gap:12px; align-items:center; box-shadow:0 12px 36px rgba(2,70,64,0.18) }
+    .loader-ring{ width:42px; height:42px; border-radius:50%; border:4px solid rgba(255,255,255,0.18); border-top-color:#fff; animation:loader-spin 1s linear infinite }
+    .loader-text{ font-weight:700; font-size:14px; letter-spacing:0.2px }
+    @keyframes loader-spin{ to { transform:rotate(360deg) } }
+
+    /* Button hover/active: remove elevated shadow when interacting (clean, flat feedback) */
+    .btn-primary-pill:hover, .btn-primary-pill:active, .btn-primary-pill:focus{ box-shadow:none !important; transform:none !important; }
     </style>
 @endsection
 
@@ -250,6 +261,13 @@
 @section('content')
 
     <div class="auth-background">
+        <!-- Page loader overlay -->
+        <div id="pageLoader" aria-hidden="true" class="hidden">
+            <div class="loader-card" role="status" aria-live="polite">
+                <div class="loader-ring" aria-hidden="true"></div>
+                <div class="loader-text">Memuat...</div>
+            </div>
+        </div>
         <div class="mobile-screen" role="main">
             <!-- Blue header with illustration (full-bleed) -->
                 <div class="header-hero">
@@ -371,5 +389,21 @@
             // allow Escape key to close the drawer
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && mobileScreen && mobileScreen.classList.contains('open')) closeDrawer(); });
         });
+
+            // Loader handling: show on form submit, hide after DOM ready
+            document.addEventListener('DOMContentLoaded', function(){
+                var pageLoader = document.getElementById('pageLoader');
+                function hideLoader(){ if(!pageLoader) return; pageLoader.classList.add('hidden'); }
+                function showLoader(){ if(!pageLoader) return; pageLoader.classList.remove('hidden'); }
+
+                // Hide loader shortly after DOM ready for a smooth reveal
+                setTimeout(hideLoader, 220);
+
+                // Attach to any form on this page to show loader on submit (prevents double-submits)
+                var forms = document.querySelectorAll('form');
+                forms.forEach(function(f){
+                    f.addEventListener('submit', function(){ showLoader(); });
+                });
+            });
     </script>
 @endsection
