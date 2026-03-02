@@ -176,7 +176,26 @@ Route::get('/mobile/login', function () {
 
 // Mobile login POST handler (form-based mobile login)
 use App\Http\Controllers\Mobile\MobileAuthController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 Route::post('/mobile/login', [MobileAuthController::class, 'authenticate'])->name('mobile.login.authenticate');
+
+// Mobile forgot password (mobile-optimized view and submit)
+Route::get('/mobile/forgot-password', function () {
+    return view('mobile.forgot-password');
+})->name('mobile.password.request');
+
+Route::post('/mobile/forgot-password', function (Request $request) {
+    $request->validate(['email' => 'required|email']);
+
+    $status = Password::sendResetLink($request->only('email'));
+
+    if ($status === Password::RESET_LINK_SENT) {
+        return back()->with('status', __($status));
+    }
+
+    return back()->withErrors(['email' => __($status)]);
+})->name('mobile.password.email');
 
 // Contact form submission
 Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])->name('landing.sekolah.contact');

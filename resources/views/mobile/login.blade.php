@@ -306,7 +306,7 @@
                             <a class="social-pill" href="#" title="Facebook"><img src="https://www.svgrepo.com/show/303145/facebook.svg" alt="F"><span class="social-text">Sign in</span></a>
                         </div> --}}
 
-                        <div class="forgot"><a href="{{ route('password.request') }}">Forgot password?</a></div>
+                        <div class="forgot"><a href="{{ route('mobile.password.request') }}">Forgot password?</a></div>
                     </form>
                 </div>
         </div>
