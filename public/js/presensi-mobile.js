@@ -1,7 +1,16 @@
-import { Geolocation } from '@capacitor/geolocation';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { PushNotifications } from '@capacitor/push-notifications';
-import { Capacitor } from '@capacitor/core';
+// When the app is served from a remote server (Capacitor server mode),
+// ES module imports won't resolve in the WebView. Use the global
+// `window.Capacitor.Plugins` when available. Otherwise, if you bundle
+// the site into `www` with a bundler, you can replace with imports.
+
+const Capacitor = window.Capacitor || { isNativePlatform: () => false };
+const Plugins = (window.Capacitor && window.Capacitor.Plugins) || {};
+const Geolocation = Plugins.Geolocation;
+const Camera = Plugins.Camera;
+const PushNotifications = Plugins.PushNotifications;
+// For Camera result types on global, some runtimes expose CameraResultType/CameraSource
+const CameraResultType = (window.Capacitor && window.CameraResultType) || { Base64: 'base64', Uri: 'uri' };
+const CameraSource = (window.Capacitor && window.CameraSource) || { Camera: 'CAMERA', Prompt: 'PROMPT' };
 
 // Production-ready presensi mobile helper
 // Usage: include this script in your Blade (type=module)
@@ -127,6 +136,7 @@ window.absenMobile = async function absenMobile(options = {}) {
 
   try {
     // 1) Get reliable location (multiple readings)
+    if (!Geolocation) throw new Error('Geolocation plugin not available');
     const lokasi = await getLocation();
 
     // Optionally confirm location with user UI here (omitted)
