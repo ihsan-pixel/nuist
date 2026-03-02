@@ -161,7 +161,7 @@
             outline: none;
             transition: box-shadow .15s ease, transform .08s ease;
         }
-        .pill-input::placeholder{ color: #0e8549 }
+        .pill-input::placeholder{ color: #bee8d3 }
         .pill-input:focus{
             box-shadow: 0 6px 18px rgba(16,88,236,0.12);
             transform: translateY(-1px);
@@ -280,7 +280,7 @@
                         @csrf
 
                         <div class="input-wrap">
-                            <input id="email" name="email" type="email" class="pill-input" placeholder="contoh@gmail.com" required value="{{ old('email') }}">
+                            <input id="email" name="email" type="email" class="pill-input" placeholder="masukan email" required value="{{ old('email') }}">
                             @error('email')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -288,7 +288,7 @@
 
                         <div class="input-wrap">
                             <div class="pill-password">
-                                <input id="password" name="password" type="password" class="pill-input" placeholder="password" required>
+                                <input id="password" name="password" type="password" class="pill-input" placeholder="masukan password" required>
                                 <button type="button" id="togglePassword" class="eye-btn" title="Tampilkan kata sandi">&#128065;</button>
                             </div>
                             @error('password')
