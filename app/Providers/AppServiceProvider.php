@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use App\Models\DevelopmentHistory;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Auth\Notifications\ResetPassword;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -36,6 +37,14 @@ class AppServiceProvider extends ServiceProvider
             $settings = \App\Models\AppSetting::getSettings();
             $view->with('app_name', $settings->app_name)
                  ->with('app_version', $settings->app_version);
+        });
+
+        // Use mobile reset-password route in password reset emails so users open mobile-optimized page
+        ResetPassword::createUrlUsing(function ($notifiable, $token) {
+            return url(route('mobile.password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
         });
     }
 
