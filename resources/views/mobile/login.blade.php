@@ -17,6 +17,54 @@
             margin: 0;
         }
 
+        /* Decorative auth background shapes (top & bottom) */
+        .auth-background {
+            min-height: 100vh;
+            background: #f5f5f5;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Shape atas */
+        .auth-background::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #0e8549, #006b3f);
+            border-bottom-left-radius: 60px;
+            border-bottom-right-radius: 120px;
+            z-index: 0;
+        }
+
+        /* Shape bawah */
+        .auth-background::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: -50px;
+            width: 150%;
+            height: 200px;
+            background: linear-gradient(135deg, #0e8549, #006b3f);
+            border-top-right-radius: 120px;
+            border-top-left-radius: 60px;
+            z-index: 0;
+        }
+
+        /* Optional smoother clip-path variant (uncomment to use)
+        .auth-background::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #0e8549, #006b3f);
+            clip-path: ellipse(100% 80% at 50% 0%);
+        }
+        */
+
         /* full-bleed container (no centered wrapper) */
         .mobile-screen {
             width: 100vw;
@@ -28,6 +76,7 @@
             background: transparent;
             box-shadow: none;
             position: relative;
+            z-index: 1;
             display: flex;
             flex-direction: column;
         }
@@ -206,7 +255,7 @@
 
 @section('content')
 
-    <div class="mobile-auth-bg">
+    <div class="auth-background">
         <div class="mobile-screen" role="main">
             <!-- Blue header with illustration (full-bleed) -->
                 <div class="header-hero">
