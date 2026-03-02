@@ -192,8 +192,12 @@
         .mobile-screen.open .form-fields{ max-height:800px; opacity:1; transform:translateY(0); }
         .mobile-screen.open .collapsed-area{ display:none }
 
-    /* Hero login button (now in flow under fast-menu) */
+    /* Hero login button anchored to bottom of hero */
         .hero-login-white{
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 14px;
             background: #fff;
             color: #004b4c;
             border-radius: 999px;
@@ -203,7 +207,6 @@
             box-shadow: 0 8px 20px rgba(9,30,66,0.08);
             cursor: pointer;
             min-width: 200px;
-            margin-top: 20px;
             z-index: 20;
             display: inline-block;
         }
@@ -217,23 +220,7 @@
 
     .drawer-handle{ width:64px; height:6px; background:#e6eefb; border-radius:6px; margin:8px auto 10px auto }
 
-    /* Fast menu (icon grid) - flow layout under hero content (no absolute positioning) */
-    .fast-menu {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-        width: 100%;
-        max-width: calc(100% - 32px);
-        margin-top: 20px;
-        padding: 0 16px;
-        z-index: 10;
-    }
-    .fast-menu-title{ font-size:13px; color:#ffffff; font-weight:600 }
-    .fast-menu-row{ display:flex; gap:12px; justify-content:center; width:100%; padding:4px 6px }
-    .menu-item{ display:flex; flex-direction:column; align-items:center; gap:8px; width:20%; min-width:60px; text-align:center }
-    .menu-icon{ width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#f3f8ff; box-shadow:inset 0 -4px 10px rgba(13,110,253,0.03); }
-    .menu-label{ font-size:12px; color:#ffffff }
+    /* Fast menu removed — layout simplified (menu HTML removed) */
 
     /* Login action row: large green pill + small circular icon */
     .login-actions{ display:flex; gap:10px; align-items:center; margin-top:6px }
@@ -261,27 +248,7 @@
                     <div class="hero-illustration">
                         <img src="{{ asset('images/verification-img.png') }}" alt="illustration"/>
                     </div>
-                    <div class="fast-menu" aria-hidden="false">
-                        <div class="fast-menu-title">Fast Menu</div>
-                        <div class="fast-menu-row">
-                            <div class="menu-item">
-                                <div class="menu-icon"><img src="{{ asset('images/fingerprint.png') }}" alt="note" style="width:22px;height:22px"></div>
-                                <div class="menu-label">Presensi</div>
-                            </div>
-                            <div class="menu-item">
-                                <div class="menu-icon"><img src="https://www.svgrepo.com/show/443131/wallet.svg" alt="wallet" style="width:22px;height:22px"></div>
-                                <div class="menu-label">Presensi Mengajar</div>
-                            </div>
-                            <div class="menu-item">
-                                <div class="menu-icon"><img src="https://www.svgrepo.com/show/50899/wallet.svg" alt="ewallet" style="width:22px;height:22px"></div>
-                                <div class="menu-label">Izin</div>
-                            </div>
-                            <div class="menu-item">
-                                <div class="menu-icon"><img src="https://www.svgrepo.com/show/349164/data.svg" alt="data" style="width:22px;height:22px"></div>
-                                <div class="menu-label">Jadwal Mengajar</div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- fast-menu removed: navigation/actions removed for simplified auth screen -->
                     <!-- White login button placed under Fast Menu (visible on hero) -->
                     <button id="openLogin" class="hero-login-white" aria-expanded="false" aria-controls="loginDrawer">Login</button>
                 </div>
