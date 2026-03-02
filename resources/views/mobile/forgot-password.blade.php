@@ -10,8 +10,6 @@
         html, body { height: 100%; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
         .mobile-auth-bg { height: 100vh; width: 100vw; background: #f2f6fb; }
         .auth-background { min-height: 100vh; background: #f5f5f5; position: relative; overflow: visible; }
-        .auth-background::before{ content: ""; position:absolute; top:0; left:0; width:100%; height:420px; background:#004b4c; border-bottom-left-radius:200px; border-bottom-right-radius:200px; z-index:0 }
-        .auth-background::after{ content: ""; position:absolute; bottom:-80px; left:0; width:100%; height:220px; background:#004b4c; border-top-left-radius:200px; border-top-right-radius:200px; z-index:0 }
 
         /* Decorative shapes remain behind everything (z-index:0) */
         .auth-background::before{ content: ""; position:absolute; top:0; left:0; width:100%; height:420px; background:#004b4c; border-bottom-left-radius:200px; border-bottom-right-radius:200px; z-index:0 }
