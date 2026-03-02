@@ -80,22 +80,32 @@
             flex-direction: column;
         }
 
-        /* Hero (transparent so auth-background shapes show) - use flex layout so children push each other */
+        /* Hero (transparent so auth-background shapes show) - use flex layout so children push each other
+           and allow illustration to center between title and login button */
         .header-hero{
             background: transparent; /* let auth-background shapes be visible */
-            padding: 120px 16px 40px 16px;
+            /* top padding gives space for logo/title, bottom padding reserves area for fixed login button */
+            padding: 120px 16px 140px 16px;
             color: #fff;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
+            min-height: calc(100vh - 96px); /* reserve space so hero content sits above fixed button */
         }
+
+        /* hero content (title/logo) stays at the top of the hero */
+        .hero-content{ width:100%; display:flex; justify-content:center; flex:0 0 auto; }
+
+        /* make illustration take available space and center vertically between title and bottom */
+        .hero-illustration{ flex: 1 1 auto; display:flex; align-items:center; justify-content:center; margin-top: 0 }
+        .hero-illustration img{ max-width:80%; max-height:100%; height:auto; display:block }
 
         .hero-title{
             text-align:center;
             font-size:16px;
-            margin: 50px 0 4px 0;
+            margin: 0 0 8px 0;
             font-weight:500;
         }
 
