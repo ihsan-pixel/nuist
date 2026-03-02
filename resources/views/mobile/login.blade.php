@@ -105,7 +105,7 @@
         .hero-title{
             text-align:center;
             font-size:16px;
-            margin: 0 0 8px 0;
+            margin: 50px 0 8px 0;
             font-weight:500;
         }
 
