@@ -100,7 +100,7 @@
 
         /* make illustration take available space and center vertically between title and bottom */
         .hero-illustration{ flex: 1 1 auto; display:flex; align-items:center; justify-content:center; margin-top: 0 }
-        .hero-illustration img{ max-width:80%; max-height:100%; height:auto; display:block }
+        .hero-illustration img{ max-width:100%; max-height:100%; height:auto; display:block }
 
         .hero-title{
             text-align:center;
@@ -109,8 +109,8 @@
             font-weight:500;
         }
 
-        .hero-illustration{ display:flex; justify-content:center}
-        .hero-illustration img{ width:100%; max-width:260px; height:auto; display:block }
+        /* .hero-illustration{ display:flex; justify-content:center}
+        .hero-illustration img{ width:100%; max-width:260px; height:auto; display:block } */
 
     /* logo pill top-right */
     .logo-pill{
