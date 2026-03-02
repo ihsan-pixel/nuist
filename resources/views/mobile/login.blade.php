@@ -33,7 +33,7 @@
             left: 0;
             width: 100%;
             height: 420px;
-            background: linear-gradient(135deg, #004b4c, #0e8549);
+            background: #004b4c;
             border-bottom-left-radius: 200px;
             border-bottom-right-radius: 200px;
             z-index: 0;
@@ -47,7 +47,7 @@
             left: 0;
             width: 100%;
             height: 220px;
-            background: linear-gradient(135deg, #004b4c, #0e8549);
+            background: #004b4c;
             border-top-left-radius: 200px;
             border-top-right-radius: 200px;
             z-index: 0;
