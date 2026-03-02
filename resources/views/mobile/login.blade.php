@@ -192,12 +192,12 @@
         .mobile-screen.open .form-fields{ max-height:800px; opacity:1; transform:translateY(0); }
         .mobile-screen.open .collapsed-area{ display:none }
 
-    /* Hero login button anchored to bottom of hero */
+    /* Hero login button: fixed to viewport bottom, safe-area aware; hidden when drawer opens */
         .hero-login-white{
-            position: absolute;
+            position: fixed;
             left: 50%;
             transform: translateX(-50%);
-            bottom: 14px;
+            bottom: max(env(safe-area-inset-bottom), 16px);
             background: #fff;
             color: #004b4c;
             border-radius: 999px;
@@ -206,10 +206,14 @@
             border: none;
             box-shadow: 0 8px 20px rgba(9,30,66,0.08);
             cursor: pointer;
-            min-width: 200px;
-            z-index: 20;
+            min-width: calc(100% - 48px);
+            max-width: 420px;
+            z-index: 1200; /* above drawer */
             display: inline-block;
         }
+
+        /* hide fixed button when the screen is open (drawer visible) to avoid overlap */
+        .mobile-screen.open .hero-login-white{ display: none }
 
     /* Drawer/backdrop for mobile form */
     .drawer-backdrop{ position:fixed; inset:0; background:rgba(3,9,23,0.45); opacity:0; pointer-events:none; transition:opacity .28s ease; z-index:1000 }
