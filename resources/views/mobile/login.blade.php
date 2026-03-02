@@ -260,7 +260,7 @@
                         <h4 class="hero-title">Halo, Selamat Datang!</h4>
                     </div>
                     <div class="hero-illustration">
-                        <img src="{{ asset('images/verification-img.png') }}" alt="illustration"/>
+                        <img src="{{ asset('images/illustration1.png') }}" alt="illustration"/>
                     </div>
                     <!-- fast-menu removed: navigation/actions removed for simplified auth screen -->
                     <!-- White login button placed under Fast Menu (visible on hero) -->
