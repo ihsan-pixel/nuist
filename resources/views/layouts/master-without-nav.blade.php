@@ -51,4 +51,32 @@
     {{-- Scripts section --}}
     @yield('scripts')
 
+    <script>
+        // If the app is running as a PWA (installed / standalone), prefer the mobile login page.
+        document.addEventListener('DOMContentLoaded', function(){
+            function isPWA() {
+                try {
+                    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+                        || window.navigator.standalone === true;
+                } catch (e) { return false; }
+            }
+
+            if (!isPWA()) return;
+
+            var path = window.location.pathname || '/';
+            var qs = window.location.search || '';
+
+            // Redirect common login routes to the mobile login when in PWA context
+            var loginPaths = ['/login', '/index', '/mobile-app', '/auth-login', '/auth-login-2', '/talenta/login'];
+            for (var i=0;i<loginPaths.length;i++){
+                if (path === loginPaths[i] || path.indexOf(loginPaths[i]) === 0) {
+                    // avoid redirect loops if we're already on mobile login
+                    if (path === '/mobile/login') return;
+                    window.location.replace('/mobile/login' + qs);
+                    return;
+                }
+            }
+        });
+    </script>
+
 </html>
