@@ -80,12 +80,16 @@
             flex-direction: column;
         }
 
-        /* Hero (transparent so auth-background shapes show) */
+        /* Hero (transparent so auth-background shapes show) - use flex layout so children push each other */
         .header-hero{
             background: transparent; /* let auth-background shapes be visible */
-            padding-top: 120px;
+            padding: 120px 16px 40px 16px;
             color: #fff;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .hero-title{
@@ -188,23 +192,20 @@
         .mobile-screen.open .form-fields{ max-height:800px; opacity:1; transform:translateY(0); }
         .mobile-screen.open .collapsed-area{ display:none }
 
-    /* Hero login button (white, placed under fast-menu) */
+    /* Hero login button (now in flow under fast-menu) */
         .hero-login-white{
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 14px;
-            display: block;
             background: #fff;
             color: #004b4c;
             border-radius: 999px;
-            padding: 10px 18px;
+            padding: 12px 24px;
             font-weight: 700;
             border: none;
             box-shadow: 0 8px 20px rgba(9,30,66,0.08);
             cursor: pointer;
-            min-width: 160px;
+            min-width: 200px;
+            margin-top: 20px;
             z-index: 20;
+            display: inline-block;
         }
 
     /* Drawer/backdrop for mobile form */
@@ -216,20 +217,15 @@
 
     .drawer-handle{ width:64px; height:6px; background:#e6eefb; border-radius:6px; margin:8px auto 10px auto }
 
-    /* Fast menu (icon grid) - pinned near the bottom of the hero */
+    /* Fast menu (icon grid) - flow layout under hero content (no absolute positioning) */
     .fast-menu {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        /* place the fast-menu a bit above the hero button (button bottom is 14px) */
-        bottom: 72px;
         display: flex;
         flex-direction: column;
         gap: 10px;
         align-items: center;
-        margin: 0;
         width: 100%;
         max-width: calc(100% - 32px);
+        margin-top: 20px;
         padding: 0 16px;
         z-index: 10;
     }
@@ -239,10 +235,10 @@
     .menu-icon{ width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#f3f8ff; box-shadow:inset 0 -4px 10px rgba(13,110,253,0.03); }
     .menu-label{ font-size:12px; color:#ffffff }
 
-    /* Login action row: large blue pill + small circular icon */
+    /* Login action row: large green pill + small circular icon */
     .login-actions{ display:flex; gap:10px; align-items:center; margin-top:6px }
     .btn-primary-pill{ flex:1; display:inline-flex; align-items:center; justify-content:center }
-    .btn-icon{ width:46px; height:46px; border-radius:50%; background:linear-gradient(180deg,#fff 0,#cfe2ff 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(13,110,253,0.08); border:none }
+    .btn-icon{ width:46px; height:46px; border-radius:50%; background:linear-gradient(180deg,#fff 0,#e6f5ea 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(14,133,73,0.08); border:none }
     </style>
 @endsection
 
