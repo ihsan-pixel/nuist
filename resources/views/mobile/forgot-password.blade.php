@@ -31,6 +31,10 @@
         .pill-input{ width:100%; border-radius:28px; padding:14px 18px; border:none; background:#f6f9ff; font-size:15px; color:#0e8549; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6) }
         .pill-input::placeholder{ color: rgba(14,133,73,0.35) }
 
+    /* spacing: ensure inputs and action buttons don't stick together */
+    .input-wrap{ margin-bottom:12px }
+    .btn-row{ margin-top:12px }
+
         .btn-primary-pill{ display:block; width:100%; background: linear-gradient(180deg,#006b67,#004b4c); color:#fff; border:none; padding:12px 18px; border-radius:28px; font-weight:700; box-shadow:0 8px 22px rgba(2,70,64,0.12); transition: transform .12s ease, box-shadow .12s ease }
         .btn-primary-pill:hover{ transform: translateY(-2px); box-shadow:0 12px 30px rgba(2,70,64,0.16) }
 
