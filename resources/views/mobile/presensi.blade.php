@@ -797,6 +797,77 @@ window.addEventListener('load', function() {
     }
     const pulangStartSeconds = timeStringToSeconds(pulangStartStr);
 
+    // --- Notification helpers: request permission and show a local notification ---
+    async function requestNotificationPermissionOnStart() {
+        try {
+            // If running on Capacitor native, prefer LocalNotifications plugin
+            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                try {
+                    const { LocalNotifications } = window.Capacitor.Plugins || {};
+                    if (LocalNotifications && LocalNotifications.requestPermissions) {
+                        await LocalNotifications.requestPermissions();
+                        console.log('Capacitor LocalNotifications: permission requested');
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Capacitor LocalNotifications request failed:', e);
+                }
+            }
+
+            // Fallback to Web Notification API
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    await Notification.requestPermission();
+                    console.log('Browser Notification permission requested');
+                }
+            }
+        } catch (err) {
+            console.warn('Notification permission request error:', err);
+        }
+    }
+
+    // Prompt the user for notification permission on load (native first, then web fallback)
+    try {
+        requestNotificationPermissionOnStart();
+    } catch (e) {
+        console.warn('Request notification permission invocation failed:', e);
+    }
+
+    async function showLocalNotification(title, body) {
+        try {
+            // Use Capacitor LocalNotifications when available
+            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                try {
+                    const { LocalNotifications } = window.Capacitor.Plugins || {};
+                    if (LocalNotifications && LocalNotifications.schedule) {
+                        const id = Date.now() % 2147483647;
+                        await LocalNotifications.schedule({
+                            notifications: [
+                                {
+                                    id: id,
+                                    title: title,
+                                    body: body,
+                                    // no schedule -> immediate
+                                }
+                            ]
+                        });
+                        console.log('Capacitor LocalNotifications scheduled');
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Capacitor LocalNotifications schedule failed:', e);
+                }
+            }
+
+            // Web Notification fallback
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { body: body });
+            }
+        } catch (err) {
+            console.warn('showLocalNotification error:', err);
+        }
+    }
+
 
 
     // Map variables

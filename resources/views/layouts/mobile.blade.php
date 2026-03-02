@@ -636,7 +636,7 @@
             } else {
                 console.log('Success message element not found');
             }
-            
+
             // Page loader handling: show on form submit, same-origin link navigation, and full unloads; hide after pageshow
             var pageLoader = document.getElementById('pageLoader');
             function hideLoader(){ if(!pageLoader) return; pageLoader.classList.add('hidden'); }
