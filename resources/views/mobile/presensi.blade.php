@@ -5,6 +5,7 @@
 
 @section('content')
 <div class="container py-3" style="max-width: 420px; margin: auto;">
+    <meta name="presensi-endpoint" content="{{ route('mobile.presensi.store') }}">
     <style>
         body {
             background: #f8f9fb;
@@ -1759,4 +1760,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 @endif
 </script>
+
+<script type="module" src="/js/presensi-mobile.js"></script>
+
 @endsection
