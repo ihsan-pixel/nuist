@@ -26,7 +26,7 @@
         .hero-sub{ color: rgba(255,255,255,0.9); text-align:center; max-width:320px; font-size:13px }
 
         /* White form card overlapping hero: make sure it is frontmost */
-        .form-card{ background:#fff; border-top-left-radius:18px; border-top-right-radius:18px; margin-top: 0px; padding:20px 16px; box-shadow: 0 10px 30px rgba(8,40,80,0.12); display:flex; flex-direction:column; gap:12px; position:relative; z-index:4; margin-bottom:0; flex-shrink:0 }
+        .form-card{ background:#fff; border-top-left-radius:18px; border-top-right-radius:18px; margin-top: 0px; padding:20px 16px; box-shadow: 0 10px 30px rgba(8,40,80,0.12); display:flex; flex-direction:column; gap:12px; position:relative; z-index:4; margin-bottom: -50; flex-shrink:0 }
 
         .pill-input{ width:100%; border-radius:28px; padding:14px 18px; border:none; background:#f6f9ff; font-size:15px; color:#0e8549; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6) }
         .pill-input::placeholder{ color: rgba(14,133,73,0.35) }
