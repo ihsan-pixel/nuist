@@ -247,7 +247,7 @@
                         <div class="logo-pill" aria-hidden="true">
                             <img src="{{ asset('images/logo1.png') }}" alt="logo">
                         </div>
-                        <h2 class="hero-title">Halo, Selamat Datang!</h2>
+                        <h4 class="hero-title">Halo, Selamat Datang!</h4>
                     </div>
                     <div class="hero-illustration">
                         <img src="{{ asset('images/verification-img.png') }}" alt="illustration"/>
