@@ -79,6 +79,12 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        // If the user logged out from a mobile page, send them to the mobile login
+        $referer = $request->headers->get('referer', '');
+        if ($referer && strpos($referer, '/mobile') !== false) {
+            return redirect()->route('mobile.login');
+        }
+
         return redirect('/login');
     }
 
