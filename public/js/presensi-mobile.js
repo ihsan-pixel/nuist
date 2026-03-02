@@ -84,6 +84,37 @@ async function registerPushIfNeeded() {
   }
 }
 
+// Initialize/ensure common permissions when the app opens (production-safe)
+export async function initPermissions() {
+  if (!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform())) {
+    return; // skip kalau bukan di app
+  }
+
+  try {
+    // LOCATION
+    const locPerm = await Geolocation.checkPermissions();
+    if (locPerm.location !== 'granted') {
+      await Geolocation.requestPermissions();
+    }
+
+    // CAMERA
+    const camPerm = await Camera.checkPermissions();
+    if (camPerm.camera !== 'granted') {
+      await Camera.requestPermissions();
+    }
+
+    // NOTIFICATION
+    const pushPerm = await PushNotifications.checkPermissions();
+    if (pushPerm.receive !== 'granted') {
+      await PushNotifications.requestPermissions();
+    }
+
+    console.log('Permissions initialized');
+  } catch (err) {
+    console.warn('Permission init error', err);
+  }
+}
+
 // Main entry called by button
 window.absenMobile = async function absenMobile(options = {}) {
   // Best-effort guard: only run on native platforms
@@ -145,6 +176,15 @@ window.absenMobile = async function absenMobile(options = {}) {
 
 // Export helper for optional push registration (call on login success)
 window.registerPushIfNeeded = registerPushIfNeeded;
+
+// Init permissions when DOM is ready (best-effort)
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    initPermissions();
+  } catch (e) {
+    console.warn('initPermissions call failed', e);
+  }
+});
 
 export default {
   absenMobile,
