@@ -178,6 +178,8 @@ Route::get('/mobile/login', function () {
 use App\Http\Controllers\Mobile\MobileAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 Route::post('/mobile/login', [MobileAuthController::class, 'authenticate'])->name('mobile.login.authenticate');
 
 // Mobile forgot password (mobile-optimized view and submit)
@@ -196,6 +198,34 @@ Route::post('/mobile/forgot-password', function (Request $request) {
 
     return back()->withErrors(['email' => __($status)]);
 })->name('mobile.password.email');
+
+// Mobile reset password routes (show form + process reset)
+Route::get('/mobile/reset-password/{token}', function ($token) {
+    return view('mobile.reset-password', ['token' => $token, 'email' => request()->query('email')]);
+})->name('mobile.password.reset');
+
+Route::post('/mobile/reset-password', function (Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|confirmed|min:8',
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->password = Hash::make($password);
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+        }
+    );
+
+    if ($status === Password::PASSWORD_RESET) {
+        return redirect()->route('mobile.login')->with('status', __($status));
+    }
+
+    return back()->withErrors(['email' => [__($status)]]);
+})->name('mobile.password.update');
 
 // Contact form submission
 Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])->name('landing.sekolah.contact');
