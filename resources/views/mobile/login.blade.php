@@ -206,7 +206,7 @@
             border: none;
             box-shadow: 0 8px 20px rgba(9,30,66,0.08);
             cursor: pointer;
-            min-width: calc(100% - 48px);
+            min-width: 200px;
             max-width: 360px;
             z-index: 1200; /* above drawer */
             display: inline-block;
