@@ -51,7 +51,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'password_changed',
         'last_seen',
         'jabatan',
-        'fcm_token',
     ];
 
     /**

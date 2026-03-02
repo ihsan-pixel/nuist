@@ -49,23 +49,6 @@ class NotificationController extends Controller
         return response()->json(['count' => $count]);
     }
 
-    /**
-     * Save FCM token for the authenticated user.
-     * Expects JSON { token: '...' }
-     */
-    public function saveToken(Request $request)
-    {
-        $request->validate([
-            'token' => 'required|string',
-        ]);
-
-        $user = Auth::user();
-        $user->fcm_token = $request->token;
-        $user->save();
-
-        return response()->json(['success' => true]);
-    }
-
     public static function createNotification($userId, $type, $title, $message, $data = null)
     {
         return Notification::create([
