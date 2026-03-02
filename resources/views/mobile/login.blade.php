@@ -32,10 +32,10 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 360px;
+            height: 420px;
             background: linear-gradient(135deg, #004b4c, #0e8549);
-            border-bottom-left-radius: 80px;
-            border-bottom-right-radius: 160px;
+            border-bottom-left-radius: 200px;
+            border-bottom-right-radius: 200px;
             z-index: 0;
         }
 
@@ -43,13 +43,13 @@
         .auth-background::after {
             content: "";
             position: absolute;
-            bottom: 0;
-            left: -50px;
-            width: 150%;
-            height: 200px;
-            background: linear-gradient(135deg, #0e8549, #006b3f);
-            border-top-right-radius: 120px;
-            border-top-left-radius: 60px;
+            bottom: -80px;
+            left: 0;
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #004b4c, #0e8549);
+            border-top-left-radius: 200px;
+            border-top-right-radius: 200px;
             z-index: 0;
         }
 
@@ -69,8 +69,7 @@
         .mobile-screen {
             width: 100vw;
             max-width: 100vw;
-            height: 100vh;
-            max-height: 100vh;
+            min-height: 100vh; /* allow content to grow without locking exact viewport height */
             border-radius: 0;
             overflow: hidden;
             background: transparent;
@@ -84,7 +83,7 @@
         /* Hero (transparent so auth-background shapes show) */
         .header-hero{
             background: transparent; /* let auth-background shapes be visible */
-            padding: 40px 16px 120px 16px;
+            padding-top: 120px;
             color: #fff;
             position: relative;
         }
