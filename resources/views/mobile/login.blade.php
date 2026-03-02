@@ -197,7 +197,7 @@
             position: fixed;
             left: 50%;
             transform: translateX(-50%);
-            bottom: 14px;
+            bottom: max(env(safe-area-inset-bottom), 16px);
             background: #fff;
             color: #004b4c;
             border-radius: 999px;
@@ -207,7 +207,7 @@
             box-shadow: 0 8px 20px rgba(9,30,66,0.08);
             cursor: pointer;
             min-width: calc(100% - 48px);
-            max-width: 420px;
+            max-width: 360px;
             z-index: 1200; /* above drawer */
             display: inline-block;
         }
