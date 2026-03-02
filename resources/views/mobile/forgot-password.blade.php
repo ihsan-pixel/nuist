@@ -117,8 +117,29 @@
             function showLoader(){ if(!pageLoader) return; pageLoader.classList.remove('hidden'); }
             setTimeout(hideLoader, 220);
 
+            // Form submits
             var forms = document.querySelectorAll('form');
             forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
+
+            // Link navigation (same-origin)
+            document.querySelectorAll('a[href]').forEach(function(a){
+                try{
+                    var href = a.getAttribute('href') || '';
+                    if(!href || href.indexOf('#') === 0) return;
+                    if(href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) return;
+                    if(a.target && a.target !== '' && a.target !== '_self') return;
+                    a.addEventListener('click', function(e){
+                        if(e.defaultPrevented) return;
+                        if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                        if(e.button && e.button !== 0) return;
+                        try{ var url = new URL(href, location.href); if(url.origin !== location.origin) return; }catch(err){ return; }
+                        showLoader();
+                    });
+                }catch(err){}
+            });
+
+            window.addEventListener('beforeunload', function(){ showLoader(); });
+            window.addEventListener('pageshow', function(){ hideLoader(); });
         });
     </script>
 @endsection

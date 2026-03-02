@@ -390,7 +390,7 @@
             document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && mobileScreen && mobileScreen.classList.contains('open')) closeDrawer(); });
         });
 
-            // Loader handling: show on form submit, hide after DOM ready
+            // Loader handling: show on form submit, link navigation, and full-page unloads; hide after page show
             document.addEventListener('DOMContentLoaded', function(){
                 var pageLoader = document.getElementById('pageLoader');
                 function hideLoader(){ if(!pageLoader) return; pageLoader.classList.add('hidden'); }
@@ -399,11 +399,41 @@
                 // Hide loader shortly after DOM ready for a smooth reveal
                 setTimeout(hideLoader, 220);
 
-                // Attach to any form on this page to show loader on submit (prevents double-submits)
+                // Show loader on form submits
                 var forms = document.querySelectorAll('form');
-                forms.forEach(function(f){
-                    f.addEventListener('submit', function(){ showLoader(); });
-                });
+                forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
+
+                // Show loader when clicking same-origin navigation links (prevents flash when leaving)
+                function bindNavLinks(){
+                    document.querySelectorAll('a[href]').forEach(function(a){
+                        try{
+                            var href = a.getAttribute('href') || '';
+                            if(!href || href.indexOf('#') === 0) return; // anchor only
+                            if(href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) return;
+                            if(a.target && a.target !== '' && a.target !== '_self') return; // external target
+                            a.addEventListener('click', function(e){
+                                // allow modifier keys and non-left clicks to proceed as normal
+                                if(e.defaultPrevented) return;
+                                if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                                if(e.button && e.button !== 0) return;
+                                // check same-origin
+                                try{
+                                    var url = new URL(href, location.href);
+                                    if(url.origin !== location.origin) return;
+                                }catch(err){ return; }
+                                showLoader();
+                            });
+                        }catch(err){ /* ignore individual link errors */ }
+                    });
+                }
+
+                bindNavLinks();
+
+                // Show loader for full unloads (fallback for some navigations)
+                window.addEventListener('beforeunload', function(){ showLoader(); });
+
+                // When returning via bfcache/pageshow, hide loader
+                window.addEventListener('pageshow', function(e){ hideLoader(); });
             });
     </script>
 @endsection
