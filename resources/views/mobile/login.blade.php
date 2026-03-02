@@ -99,7 +99,7 @@
         .hero-content{ width:100%; display:flex; justify-content:center; flex:0 0 auto; }
 
         /* make illustration take available space and center vertically between title and bottom */
-        .hero-illustration{ flex: 1 1 auto; display:flex; align-items:center; justify-content:center; margin-top: 0 }
+        .hero-illustration{ flex: 1 1 auto; display:flex; align-items:center; justify-content:center; margin-top: -20% }
         .hero-illustration img{ max-width:100%; max-height:100%; height:auto; display:block }
 
         .hero-title{
