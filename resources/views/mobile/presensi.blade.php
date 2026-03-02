@@ -800,13 +800,14 @@ window.addEventListener('load', function() {
     // --- Notification helpers: request permission and show a local notification ---
     async function requestNotificationPermissionOnStart() {
         try {
-            // If running on Capacitor native, prefer LocalNotifications plugin
-            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            const isNative = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
+
+            if (isNative) {
                 try {
-                    const { LocalNotifications } = window.Capacitor.Plugins || {};
+                    const LocalNotifications = window.Capacitor?.Plugins?.LocalNotifications;
                     if (LocalNotifications && LocalNotifications.requestPermissions) {
-                        await LocalNotifications.requestPermissions();
-                        console.log('Capacitor LocalNotifications: permission requested');
+                        const perm = await LocalNotifications.requestPermissions();
+                        console.log('Capacitor LocalNotifications.requestPermissions ->', perm);
                         return;
                     }
                 } catch (e) {
@@ -817,8 +818,10 @@ window.addEventListener('load', function() {
             // Fallback to Web Notification API
             if ('Notification' in window) {
                 if (Notification.permission === 'default') {
-                    await Notification.requestPermission();
-                    console.log('Browser Notification permission requested');
+                    const p = await Notification.requestPermission();
+                    console.log('Browser Notification permission ->', p);
+                } else {
+                    console.log('Browser Notification permission already:', Notification.permission);
                 }
             }
         } catch (err) {
@@ -835,23 +838,35 @@ window.addEventListener('load', function() {
 
     async function showLocalNotification(title, body) {
         try {
-            // Use Capacitor LocalNotifications when available
-            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+            const isNative = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
+
+            // Use Capacitor LocalNotifications when available (native)
+            if (isNative) {
                 try {
-                    const { LocalNotifications } = window.Capacitor.Plugins || {};
-                    if (LocalNotifications && LocalNotifications.schedule) {
+                    const LocalNotifications = window.Capacitor?.Plugins?.LocalNotifications;
+                    if (LocalNotifications) {
+                        // Create Android channel if API available (safer for Android 8+)
+                        if (LocalNotifications.createChannel) {
+                            try {
+                                await LocalNotifications.createChannel({
+                                    id: 'nuist-channel',
+                                    name: 'Nuist Notifications',
+                                    importance: 5,
+                                    description: 'Notifikasi dari aplikasi Nuist'
+                                });
+                                console.log('LocalNotifications: channel nuist-channel created');
+                            } catch (chErr) {
+                                console.warn('LocalNotifications.createChannel failed:', chErr);
+                            }
+                        }
+
                         const id = Date.now() % 2147483647;
-                        await LocalNotifications.schedule({
-                            notifications: [
-                                {
-                                    id: id,
-                                    title: title,
-                                    body: body,
-                                    // no schedule -> immediate
-                                }
-                            ]
-                        });
-                        console.log('Capacitor LocalNotifications scheduled');
+                        // include channelId for Android when supported
+                        const notif = { id: id, title: title, body: body };
+                        if (window.Capacitor.getPlatform() === 'android') notif.channelId = 'nuist-channel';
+
+                        await LocalNotifications.schedule({ notifications: [notif] });
+                        console.log('Capacitor LocalNotifications scheduled ->', notif);
                         return;
                     }
                 } catch (e) {
@@ -862,6 +877,9 @@ window.addEventListener('load', function() {
             // Web Notification fallback
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification(title, { body: body });
+                console.log('Web Notification shown');
+            } else {
+                console.log('Web Notification not shown: permission=', (window.Notification && Notification.permission));
             }
         } catch (err) {
             console.warn('showLocalNotification error:', err);
