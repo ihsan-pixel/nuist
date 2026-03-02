@@ -12,18 +12,9 @@
             height: 100vh;
             width: 100vw;
             display:block;
-            /* layered green background: pale base + soft radial accents + faint diagonal texture */
-            background-color: #eaf9f0; /* pale mint */
-            background-image:
-                radial-gradient(circle at 10% 20%, rgba(2,86,61,0.06) 0 8%, transparent 24%),
-                radial-gradient(circle at 90% 80%, rgba(13,110,53,0.04) 0 10%, transparent 30%),
-                linear-gradient(120deg, rgba(6,120,75,0.03), rgba(2,80,60,0.03)),
-                repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 8px);
-            background-blend-mode: overlay, overlay, normal, normal;
-            background-size: cover;
+            background: #f2f6fb;
             padding: 0;
             margin: 0;
-            overflow: hidden;
         }
 
         /* full-bleed container (no centered wrapper) */
@@ -41,30 +32,14 @@
             flex-direction: column;
         }
 
-        /* Green hero with subtle texture overlay (not a flat or trivial gradient) */
+        /* Blue hero */
         .header-hero{
-            background: linear-gradient(180deg, #0b6b3f 0%, #0f7a45 36%, #074033 100%);
+            background: #004b4c;
             padding: 22px 16px 80px 16px;
             color: #fff;
             position: relative;
             flex: 0 0 auto;
             height: 100%;
-            overflow: hidden;
-        }
-
-        /* soft highlights/texture on the hero to avoid a plain gradient */
-        .header-hero::before{
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background-image:
-                radial-gradient(circle at 15% 10%, rgba(255,255,255,0.06) 0 12%, transparent 28%),
-                radial-gradient(circle at 85% 70%, rgba(255,255,255,0.03) 0 18%, transparent 40%),
-                linear-gradient(45deg, rgba(255,255,255,0.02) 0, rgba(0,0,0,0.02) 100%);
-            mix-blend-mode: overlay;
-            opacity: 0.95;
-            transform: translateZ(0);
         }
 
         .hero-title{
@@ -101,7 +76,7 @@
             border-top-right-radius: 22px;
             margin-top: -18px;
             padding: 22px 16px 18px 16px;
-            box-shadow: 0 -10px 30px rgba(14,133,73,0.12);
+            box-shadow: 0 -6px 18px #0e8549;
             flex: 1 1 auto;
             overflow: auto;
             display: flex;
@@ -120,7 +95,7 @@
             border-radius: 28px;
             padding: 14px 18px;
             border: none;
-            background: #f7fbf8;
+            background: #f3f7ff;
             font-size: 15px;
             color: #0e8549;
             outline: none;
@@ -128,7 +103,7 @@
         }
         .pill-input::placeholder{ color: #0e8549 }
         .pill-input:focus{
-            box-shadow: 0 6px 18px rgba(14,133,73,0.12);
+            box-shadow: 0 6px 18px rgba(16,88,236,0.12);
             transform: translateY(-1px);
         }
 
@@ -140,19 +115,19 @@
 
         .btn-row{ margin-top:8px }
         .btn-primary-pill{
-            display:block; width:100%; background:#0b6b3f; color:#fff; border:none;
-            padding:12px 18px; border-radius:28px; font-weight:600; font-size:15px; box-shadow:0 8px 18px rgba(14,133,73,0.12);
+            display:block; width:100%; background:#004b4c; color:#fff; border:none;
+            padding:12px 18px; border-radius:28px; font-weight:600; font-size:15px; box-shadow:0 8px 18px rgba(13,110,253,0.12);
         }
 
         .socials{ display:flex; gap:12px; justify-content:center; margin-top:14px }
         /* make social pills smaller and consistent */
         .social-pill{ display:inline-flex; align-items:center; justify-content:center; height:40px; min-width:110px; gap:8px;
-            border-radius:22px; border:1px solid rgba(14,133,73,0.06); padding:6px 10px; text-decoration:none; color:#23374a; background:#fff }
+            border-radius:22px; border:1px solid rgba(13,110,253,0.08); padding:6px 10px; text-decoration:none; color:#23374a; background:#fff }
         .social-pill img{ width:18px; height:18px }
 
         .forgot{ text-align:center; margin-top:12px; color:#6c757d }
 
-    .bottom-handle{ width:60px; height:6px; background:rgba(255,255,255,0.7); border-radius:4px; position:absolute; left:50%; transform:translateX(-50%); bottom:10px }
+    .bottom-handle{ width:60px; height:6px; background:#e6eefb; border-radius:4px; position:absolute; left:50%; transform:translateX(-50%); bottom:10px }
 
         @media (max-width:380px){
             .mobile-screen{ max-width: 100vw; width: 100vw }
@@ -175,12 +150,12 @@
             bottom: 14px;
             display: block;
             background: #fff;
-            color: #0b6b3f;
+            color: #004b4c;
             border-radius: 999px;
             padding: 10px 18px;
             font-weight: 700;
             border: none;
-            box-shadow: 0 8px 20px rgba(7,42,28,0.08);
+            box-shadow: 0 8px 20px rgba(9,30,66,0.08);
             cursor: pointer;
             min-width: 160px;
             z-index: 20;
@@ -193,7 +168,7 @@
     .form-card.drawer{ position:fixed; left:0; right:0; bottom:0; margin:0; border-top-left-radius:18px; border-top-right-radius:18px; transform:translateY(110%); transition:transform .45s cubic-bezier(.2,.9,.2,1); z-index:1100; max-height:86vh; overflow:auto; box-shadow: 0 -18px 30px rgba(9,30,66,0.12) }
     .mobile-screen.open .form-card.drawer{ transform:translateY(0) }
 
-    .drawer-handle{ width:64px; height:6px; background:rgba(0,0,0,0.06); border-radius:6px; margin:8px auto 10px auto }
+    .drawer-handle{ width:64px; height:6px; background:#e6eefb; border-radius:6px; margin:8px auto 10px auto }
 
     /* Fast menu (icon grid) - pinned near the bottom of the hero */
     .fast-menu {
@@ -215,13 +190,13 @@
     .fast-menu-title{ font-size:13px; color:#ffffff; font-weight:600 }
     .fast-menu-row{ display:flex; gap:12px; justify-content:center; width:100%; padding:4px 6px }
     .menu-item{ display:flex; flex-direction:column; align-items:center; gap:8px; width:20%; min-width:60px; text-align:center }
-    .menu-icon{ width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#f3f8f6; box-shadow:inset 0 -4px 10px rgba(14,133,73,0.03); }
+    .menu-icon{ width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#f3f8ff; box-shadow:inset 0 -4px 10px rgba(13,110,253,0.03); }
     .menu-label{ font-size:12px; color:#ffffff }
 
-    /* Login action row: large green pill + small circular icon */
+    /* Login action row: large blue pill + small circular icon */
     .login-actions{ display:flex; gap:10px; align-items:center; margin-top:6px }
     .btn-primary-pill{ flex:1; display:inline-flex; align-items:center; justify-content:center }
-    .btn-icon{ width:46px; height:46px; border-radius:50%; background:linear-gradient(180deg,#fff 0,#e6f5ea 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(14,133,73,0.08); border:none }
+    .btn-icon{ width:46px; height:46px; border-radius:50%; background:linear-gradient(180deg,#fff 0,#cfe2ff 100%); display:inline-flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(13,110,253,0.08); border:none }
     </style>
 @endsection
 
