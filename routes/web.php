@@ -132,6 +132,11 @@ Route::get('/csrf-token', function () {
     return response()->json(['token' => csrf_token()]);
 });
 
+// Save FCM token from client (Capacitor / mobile app)
+Route::post('/save-token', [App\Http\Controllers\NotificationController::class, 'saveToken'])
+    ->middleware('auth')
+    ->name('save-token');
+
 // Foto routes for accessing images from nuist folder
 Route::get('/foto/{type}/{id}', [App\Http\Controllers\FotoController::class, 'show'])->name('foto.show');
 
