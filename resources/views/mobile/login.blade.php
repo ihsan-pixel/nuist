@@ -106,7 +106,7 @@
             text-align:center;
             font-size:14px;
             margin: 50px 0 8px 0;
-            font-weight:500;
+            font-weight:300;
         }
 
         /* .hero-illustration{ display:flex; justify-content:center}
