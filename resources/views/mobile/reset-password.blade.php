@@ -59,7 +59,7 @@
                     <img src="{{ asset('images/logo1.png') }}" alt="logo">
                 </div>
                 <h4 class="hero-title">Reset Kata Sandi</h4>
-                <p class="hero-sub">Masukkan kata sandi baru Anda. Gunakan kata sandi kuat dan simpan baik-baik.</p>
+                <p class="hero-sub">Masukkan kata sandi baru Anda. Gunakan kata sandi kuat dan simpan.</p>
             </div>
 
             <div class="form-card">
