@@ -32,10 +32,10 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 280px;
-            background: linear-gradient(135deg, #0e8549, #006b3f);
-            border-bottom-left-radius: 60px;
-            border-bottom-right-radius: 120px;
+            height: 360px;
+            background: linear-gradient(135deg, #004b4c, #0e8549);
+            border-bottom-left-radius: 80px;
+            border-bottom-right-radius: 160px;
             z-index: 0;
         }
 
@@ -81,14 +81,12 @@
             flex-direction: column;
         }
 
-        /* Blue hero */
+        /* Hero (transparent so auth-background shapes show) */
         .header-hero{
-            background: #004b4c;
-            padding: 22px 16px 80px 16px;
+            background: transparent; /* let auth-background shapes be visible */
+            padding: 40px 16px 120px 16px;
             color: #fff;
             position: relative;
-            flex: 0 0 auto;
-            height: 100%;
         }
 
         .hero-title{
