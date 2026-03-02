@@ -197,7 +197,7 @@
             position: fixed;
             left: 50%;
             transform: translateX(-50%);
-            bottom: max(env(safe-area-inset-bottom), 16px);
+            bottom: max(env(safe-area-inset-bottom), 14px);
             background: #fff;
             color: #004b4c;
             border-radius: 999px;
