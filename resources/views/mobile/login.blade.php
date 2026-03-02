@@ -104,7 +104,7 @@
 
         .hero-title{
             text-align:center;
-            font-size:16px;
+            font-size:14px;
             margin: 50px 0 8px 0;
             font-weight:500;
         }
@@ -257,7 +257,7 @@
                         <div class="logo-pill" aria-hidden="true">
                             <img src="{{ asset('images/logo1.png') }}" alt="logo">
                         </div>
-                        <h4 class="hero-title">Halo, Selamat Datang!</h4>
+                        <h4 class="hero-title">Halo, Selamat Datang di Nuist Mobile!</h4>
                     </div>
                     <div class="hero-illustration">
                         <img src="{{ asset('images/illustration.png') }}" alt="illustration"/>
