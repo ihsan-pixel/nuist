@@ -174,6 +174,9 @@ Route::get('/mobile/login', function () {
     return view('mobile.login');
 })->name('mobile.login');
 
+// Bundled APK entry (Plan B) - serves a local view that will be bundled into the APK
+Route::view('/mobile-app', 'mobile.index')->name('mobile.app');
+
 // Mobile login POST handler (form-based mobile login)
 use App\Http\Controllers\Mobile\MobileAuthController;
 use Illuminate\Http\Request;
