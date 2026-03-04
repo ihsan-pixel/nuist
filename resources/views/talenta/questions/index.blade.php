@@ -7,8 +7,8 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 @include('talenta.partials.styles')
-@include('talenta.partials.hero')
-@include('talenta.navbar')
+{{-- @include('talenta.partials.hero')
+@include('talenta.navbar') --}}
 
 <section class="section-clean">
 <div class="container">
@@ -73,7 +73,7 @@
                             $cats = ['layanan','tata_kelola','jumlah_siswa','jumlah_penghasilan','jumlah_prestasi','jumlah_talenta'];
                         @endphp
                         @foreach($cats as $cat)
-                            <li class="mb-1 text-capitalize">{{ str_replace('_',' ', $cat) }}: <strong>{{ \\App\\Models\\Question::where('kategori', $cat)->count() }}</strong></li>
+                            <li class="mb-1 text-capitalize">{{ str_replace('_',' ', $cat) }}: <strong>{{ \App\Models\Question::where('kategori', $cat)->count() }}</strong></li>
                         @endforeach
                     </ul>
                     <p class="small text-muted">Gunakan tombol Tambah Soal untuk menambah pertanyaan baru.</p>
