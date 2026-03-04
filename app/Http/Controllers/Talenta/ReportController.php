@@ -16,7 +16,7 @@ class ReportController extends Controller
     // Super admin: lihat semua hasil
     public function index()
     {
-        $this->authorize('viewAny', SchoolScore::class);
+        // route already guarded by role:super_admin, so just load the scores
         $scores = SchoolScore::with('school')->paginate(30);
         return view('talenta.results.index', compact('scores'));
     }
