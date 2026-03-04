@@ -387,6 +387,7 @@
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
                     <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
+                    <li><a href="{{ route('talenta.assessment.fill') }}" class="{{ request()->routeIs('talenta.assessment.fill') ? 'active' : '' }}">Isi Assessment</a></li>
                 @else
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
@@ -405,8 +406,8 @@
                     <a href="{{ route('talenta.schoollevel.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">School Level</a> --}}
                     {{-- <a href="{{ route('talenta.users.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Users</a> --}}
                 @elseif(Auth::check() && Auth::user()->role === 'tenaga_pendidik')
-                    <a href="{{ route('talenta.assessment.fill') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Isi Assessment</a>
-                    <a href="{{ route('talenta.assessment.myresults') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil Saya</a>
+                    {{-- <a href="{{ route('talenta.assessment.fill') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Isi Assessment</a>
+                    <a href="{{ route('talenta.assessment.myresults') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil Saya</a> --}}
                 @elseif(Auth::check() && Auth::user()->role === 'pemateri')
                     <a href="{{ route('talenta.rekap.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Rekap</a>
                 @endif
