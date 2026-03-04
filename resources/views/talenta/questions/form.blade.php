@@ -7,8 +7,8 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 @include('talenta.partials.styles')
-@include('talenta.partials.hero')
-@include('talenta.navbar')
+{{-- @include('talenta.partials.hero') --}}
+{{-- @include('talenta.navbar') --}}
 
 <section class="section-clean">
 <div class="container">
