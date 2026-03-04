@@ -42,6 +42,34 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account/dashboard', [App\Http\Controllers\AccountSettingController::class, 'dashboard'])->name('account.dashboard');
 });
 
+// Talenta - School Level Assessment routes
+Route::middleware(['auth'])->prefix('talenta')->name('talenta.')->group(function () {
+    // Super Admin: manage questions, view results
+    Route::middleware(['role:super_admin'])->group(function () {
+        Route::get('/admin/dashboard', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('admin.dashboard');
+    Route::resource('questions', App\Http\Controllers\Talenta\QuestionController::class);
+        // results and schoollevel
+        Route::get('/results', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('results.index');
+        Route::get('/schoollevel', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('schoollevel.index');
+        Route::get('/users', function () { return view('talenta.admin.users'); })->name('users.index');
+    });
+
+    // Tenaga Pendidik: fill assessment and view own result
+    Route::middleware(['role:tenaga_pendidik'])->group(function () {
+        Route::get('/dashboard', function () { return view('talenta.dashboard'); })->name('dashboard');
+        Route::get('/assessment/fill', [App\Http\Controllers\Talenta\AssessmentController::class, 'fill'])->name('assessment.fill');
+        Route::post('/assessment', [App\Http\Controllers\Talenta\AssessmentController::class, 'store'])->name('assessment.store');
+        Route::get('/assessment/results', [App\Http\Controllers\Talenta\AssessmentController::class, 'myResults'])->name('assessment.myresults');
+    });
+
+    // Pemateri: rekap and detail
+    Route::middleware(['role:pemateri'])->group(function () {
+        Route::get('/dashboard', function () { return view('talenta.dashboard'); })->name('dashboard');
+        Route::get('/rekap', [App\Http\Controllers\Talenta\ReportController::class, 'rekap'])->name('rekap.index');
+        Route::get('/rekap/{score}', [App\Http\Controllers\Talenta\ReportController::class, 'detail'])->name('rekap.detail');
+    });
+});
+
 Route::middleware(['auth'])->group(function () {
     // Presensi Admin routes - authorization handled by controller
     Route::get('/presensi-admin/settings', [PresensiAdminController::class, 'settings'])->name('presensi_admin.settings');

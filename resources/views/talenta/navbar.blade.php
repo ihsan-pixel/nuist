@@ -373,25 +373,21 @@
         <div class="nav-left">
             <img src="{{ asset('images/tpt logo.png') }}" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
-                @if(Auth::user()->role === 'pemateri')
-                    <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
-                    <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
-                    <li><a href="{{ route('talenta.penilaian-tugas') }}" class="{{ request()->routeIs('talenta.penilaian-tugas') ? 'active' : '' }}">Data Penilaian Tugas</a></li>
-                @elseif(Auth::user()->role === 'fasilitator')
-                    <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
-                    <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
-                    <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
-                    <li><a href="{{ route('talenta.penilaian-tugas') }}" class="{{ request()->routeIs('talenta.penilaian-tugas') ? 'active' : '' }}">Data Penilaian Tugas</a></li>
+                @if(Auth::user()->role === 'super_admin')
+                    <li><a href="{{ route('talenta.admin.dashboard') }}" class="{{ request()->routeIs('talenta.admin.dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                    <li><a href="{{ route('talenta.questions.index') }}" class="{{ request()->routeIs('talenta.questions.*') ? 'active' : '' }}">Manajemen Soal</a></li>
+                    <li><a href="{{ route('talenta.results.index') }}" class="{{ request()->routeIs('talenta.results.*') ? 'active' : '' }}">Hasil Assessment</a></li>
+                    <li><a href="{{ route('talenta.schoollevel.index') }}" class="{{ request()->routeIs('talenta.schoollevel.*') ? 'active' : '' }}">School Level</a></li>
+                    <li><a href="{{ route('talenta.users.index') }}" class="{{ request()->routeIs('talenta.users.*') ? 'active' : '' }}">Users</a></li>
                 @elseif(Auth::user()->role === 'tenaga_pendidik')
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
-                    <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
-                    <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
-                    <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
+                    <li><a href="{{ route('talenta.assessment.fill') }}" class="{{ request()->routeIs('talenta.assessment.*') ? 'active' : '' }}">Isi Assessment</a></li>
+                    <li><a href="{{ route('talenta.assessment.myresults') }}" class="{{ request()->routeIs('talenta.assessment.myresults') ? 'active' : '' }}">Hasil Saya</a></li>
+                @elseif(Auth::user()->role === 'pemateri')
+                    <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                    <li><a href="{{ route('talenta.rekap.index') }}" class="{{ request()->routeIs('talenta.rekap.*') ? 'active' : '' }}">Rekap School Level</a></li>
                 @else
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
-                    <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
-                    <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
-                    <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
                 @endif
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
