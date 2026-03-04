@@ -78,6 +78,51 @@
 </section>
 
 @include('talenta.partials.scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionBlocks = document.querySelectorAll('.question-block');
+    const totalCountEl = document.getElementById('totalCount');
+    const answeredCountEl = document.getElementById('answeredCount');
+    const answeredProgress = document.getElementById('answeredProgress');
+    const form = document.getElementById('assessmentForm');
+
+    const total = questionBlocks.length;
+    if (totalCountEl) totalCountEl.textContent = total;
+
+    function update() {
+        let answered = 0;
+        questionBlocks.forEach(qb => {
+            const qid = qb.dataset.qid;
+            const checked = qb.querySelector(`input[name="answers[${qid}]"]:checked`);
+            if (checked) answered++;
+        });
+        if (answeredCountEl) answeredCountEl.textContent = answered;
+        const pct = total ? Math.round((answered / total) * 100) : 0;
+        if (answeredProgress) {
+            answeredProgress.style.width = pct + '%';
+            answeredProgress.setAttribute('aria-valuenow', pct);
+        }
+    }
+
+    questionBlocks.forEach(qb => {
+        qb.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', update));
+    });
+
+    update();
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const answered = parseInt(answeredCountEl.textContent || 0, 10);
+            if (answered < total) {
+                e.preventDefault();
+                if (confirm(`Masih ada ${total - answered} pertanyaan yang belum dijawab. Lanjutkan dan kirim jawaban?`)) {
+                    form.submit();
+                }
+            }
+        });
+    }
+});
+</script>
 @include('landing.footer')
 
 @endsection
