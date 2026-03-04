@@ -392,6 +392,9 @@
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
                     <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
+                    <li><a href="{{ route('talenta.questions.index') }}" class="{{ request()->routeIs('talenta.questions.index') ? 'active' : '' }}">Soal</a></li>
+                    <li><a href="{{ route('talenta.results.index') }}" class="{{ request()->routeIs('talenta.results.index') ? 'active' : '' }}">Hasil</a></li>
+                    <li><a href="{{ route('talenta.schoollevel.index') }}" class="{{ request()->routeIs('talenta.schoollevel.index') ? 'active' : '' }}">School Level</a></li>
                 @endif
             </ul>
             <!-- Role-specific quick action buttons (added without removing existing menu) -->
@@ -400,7 +403,7 @@
                     <a href="{{ route('talenta.questions.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Soal</a>
                     <a href="{{ route('talenta.results.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil</a>
                     <a href="{{ route('talenta.schoollevel.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">School Level</a>
-                    <a href="{{ route('talenta.users.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Users</a>
+                    {{-- <a href="{{ route('talenta.users.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Users</a> --}}
                 @elseif(Auth::check() && Auth::user()->role === 'tenaga_pendidik')
                     <a href="{{ route('talenta.assessment.fill') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Isi Assessment</a>
                     <a href="{{ route('talenta.assessment.myresults') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil Saya</a>
