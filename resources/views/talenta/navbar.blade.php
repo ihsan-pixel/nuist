@@ -377,6 +377,7 @@
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.penilaian-tugas') }}" class="{{ request()->routeIs('talenta.penilaian-tugas') ? 'active' : '' }}">Data Penilaian Tugas</a></li>
+                    <li><a href="{{ route('talenta.rekap.index') }}" class="{{ request()->routeIs('talenta.rekap.index') ? 'active' : '' }}">Rekap Assessment</a></li>
                 @elseif(Auth::user()->role === 'fasilitator')
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
@@ -395,7 +396,7 @@
                     <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
                     <li><a href="{{ route('talenta.questions.index') }}" class="{{ request()->routeIs('talenta.questions.index') ? 'active' : '' }}">Soal</a></li>
                     <li><a href="{{ route('talenta.results.index') }}" class="{{ request()->routeIs('talenta.results.index') ? 'active' : '' }}">Hasil</a></li>
-                    <li><a href="{{ route('talenta.schoollevel.index') }}" class="{{ request()->routeIs('talenta.schoollevel.index') ? 'active' : '' }}">School Level</a></li>
+                    {{-- <li><a href="{{ route('talenta.schoollevel.index') }}" class="{{ request()->routeIs('talenta.schoollevel.index') ? 'active' : '' }}">School Level</a></li> --}}
                 @endif
             </ul>
             <!-- Role-specific quick action buttons (added without removing existing menu) -->
@@ -409,7 +410,7 @@
                     {{-- <a href="{{ route('talenta.assessment.fill') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Isi Assessment</a>
                     <a href="{{ route('talenta.assessment.myresults') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil Saya</a> --}}
                 @elseif(Auth::check() && Auth::user()->role === 'pemateri')
-                    <a href="{{ route('talenta.rekap.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Rekap</a>
+                    {{-- <a href="{{ route('talenta.rekap.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Rekap</a> --}}
                 @endif
             </div>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
