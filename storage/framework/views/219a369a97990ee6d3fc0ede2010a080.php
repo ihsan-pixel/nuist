@@ -329,6 +329,18 @@
 </head>
 
 <body data-layout-mode="light" class="mobile-layout">
+    <!-- Global page loader (used for navigation & form submits) -->
+    <div id="pageLoader" aria-hidden="true" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(3,9,23,0.46);z-index:2200;transition:opacity .28s ease, visibility .28s ease;">
+        <div class="loader-card" role="status" aria-live="polite" style="background:linear-gradient(180deg,#006b67,#004b4c);color:#fff;padding:12px 18px;border-radius:12px;display:flex;gap:12px;align-items:center;box-shadow:0 12px 36px rgba(2,70,64,0.18);">
+            <div class="loader-ring" aria-hidden="true" style="width:42px;height:42px;border-radius:50%;border:4px solid rgba(255,255,255,0.18);border-top-color:#fff;animation:loader-spin 1s linear infinite"></div>
+            <div class="loader-text" style="font-weight:700;font-size:14px;letter-spacing:0.2px">Memuat...</div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes loader-spin{ to { transform:rotate(360deg) } }
+        #pageLoader.hidden{ opacity:0; visibility:hidden; pointer-events:none }
+    </style>
     <!-- Offline indicator -->
     <div id="offline-indicator" class="offline-indicator">
         <i class="bx bx-wifi-off me-1"></i>
@@ -612,6 +624,50 @@
             } else {
                 console.log('Success message element not found');
             }
+
+            // Page loader handling: show on form submit, same-origin link navigation, and full unloads; hide after pageshow
+            var pageLoader = document.getElementById('pageLoader');
+            function hideLoader(){ if(!pageLoader) return; pageLoader.classList.add('hidden'); }
+            function showLoader(){ if(!pageLoader) return; pageLoader.classList.remove('hidden'); }
+
+            // Hide loader shortly after DOM ready for a smooth reveal
+            setTimeout(hideLoader, 220);
+
+            // Show loader on form submits
+            var forms = document.querySelectorAll('form');
+            forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
+
+            // Show loader when clicking same-origin navigation links (prevents flash when leaving)
+            function bindNavLinks(){
+                document.querySelectorAll('a[href]').forEach(function(a){
+                    try{
+                        var href = a.getAttribute('href') || '';
+                        if(!href || href.indexOf('#') === 0) return; // anchor only
+                        if(href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) return;
+                        if(a.target && a.target !== '' && a.target !== '_self') return; // external target
+                        a.addEventListener('click', function(e){
+                            // allow modifier keys and non-left clicks to proceed as normal
+                            if(e.defaultPrevented) return;
+                            if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                            if(e.button && e.button !== 0) return;
+                            // check same-origin
+                            try{
+                                var url = new URL(href, location.href);
+                                if(url.origin !== location.origin) return;
+                            }catch(err){ return; }
+                            showLoader();
+                        });
+                    }catch(err){ /* ignore individual link errors */ }
+                });
+            }
+
+            bindNavLinks();
+
+            // Show loader for full unloads (fallback for some navigations)
+            window.addEventListener('beforeunload', function(){ showLoader(); });
+
+            // When returning via bfcache/pageshow, hide loader
+            window.addEventListener('pageshow', function(e){ hideLoader(); });
         });
     </script>
     <script>

@@ -3,6 +3,7 @@
 
 <?php $__env->startSection('content'); ?>
 <div class="container py-3" style="max-width: 420px; margin: auto;">
+    <meta name="presensi-endpoint" content="<?php echo e(route('mobile.presensi.store')); ?>">
     <style>
         body {
             background: #f8f9fb;
@@ -794,6 +795,95 @@ window.addEventListener('load', function() {
         return null;
     }
     const pulangStartSeconds = timeStringToSeconds(pulangStartStr);
+
+    // --- Notification helpers: request permission and show a local notification ---
+    async function requestNotificationPermissionOnStart() {
+        try {
+            const isNative = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
+
+            if (isNative) {
+                try {
+                    const LocalNotifications = window.Capacitor?.Plugins?.LocalNotifications;
+                    if (LocalNotifications && LocalNotifications.requestPermissions) {
+                        const perm = await LocalNotifications.requestPermissions();
+                        console.log('Capacitor LocalNotifications.requestPermissions ->', perm);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Capacitor LocalNotifications request failed:', e);
+                }
+            }
+
+            // Fallback to Web Notification API
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    const p = await Notification.requestPermission();
+                    console.log('Browser Notification permission ->', p);
+                } else {
+                    console.log('Browser Notification permission already:', Notification.permission);
+                }
+            }
+        } catch (err) {
+            console.warn('Notification permission request error:', err);
+        }
+    }
+
+    // Prompt the user for notification permission on load (native first, then web fallback)
+    try {
+        requestNotificationPermissionOnStart();
+    } catch (e) {
+        console.warn('Request notification permission invocation failed:', e);
+    }
+
+    async function showLocalNotification(title, body) {
+        try {
+            const isNative = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
+
+            // Use Capacitor LocalNotifications when available (native)
+            if (isNative) {
+                try {
+                    const LocalNotifications = window.Capacitor?.Plugins?.LocalNotifications;
+                    if (LocalNotifications) {
+                        // Create Android channel if API available (safer for Android 8+)
+                        if (LocalNotifications.createChannel) {
+                            try {
+                                await LocalNotifications.createChannel({
+                                    id: 'nuist-channel',
+                                    name: 'Nuist Notifications',
+                                    importance: 5,
+                                    description: 'Notifikasi dari aplikasi Nuist'
+                                });
+                                console.log('LocalNotifications: channel nuist-channel created');
+                            } catch (chErr) {
+                                console.warn('LocalNotifications.createChannel failed:', chErr);
+                            }
+                        }
+
+                        const id = Date.now() % 2147483647;
+                        // include channelId for Android when supported
+                        const notif = { id: id, title: title, body: body };
+                        if (window.Capacitor.getPlatform() === 'android') notif.channelId = 'nuist-channel';
+
+                        await LocalNotifications.schedule({ notifications: [notif] });
+                        console.log('Capacitor LocalNotifications scheduled ->', notif);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Capacitor LocalNotifications schedule failed:', e);
+                }
+            }
+
+            // Web Notification fallback
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { body: body });
+                console.log('Web Notification shown');
+            } else {
+                console.log('Web Notification not shown: permission=', (window.Notification && Notification.permission));
+            }
+        } catch (err) {
+            console.warn('showLocalNotification error:', err);
+        }
+    }
 
 
 
@@ -1758,6 +1848,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 <?php endif; ?>
 </script>
+
+<script type="module" src="/js/presensi-mobile.js"></script>
+
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/presensi.blade.php ENDPATH**/ ?>

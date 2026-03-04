@@ -394,6 +394,20 @@
                     <li><a href="<?php echo e(route('talenta.tugas-level-1')); ?>" class="<?php echo e(request()->routeIs('talenta.tugas-level-1') ? 'active' : ''); ?>">Tugas</a></li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </ul>
+            <!-- Role-specific quick action buttons (added without removing existing menu) -->
+            <div class="role-actions" style="display:flex; gap:8px; align-items:center; margin-left:12px; margin-top:20px;">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::check() && Auth::user()->role === 'super_admin'): ?>
+                    <a href="<?php echo e(route('talenta.questions.index')); ?>" class="btn-primary" style="padding:8px 14px; font-size:14px;">Soal</a>
+                    <a href="<?php echo e(route('talenta.results.index')); ?>" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil</a>
+                    <a href="<?php echo e(route('talenta.schoollevel.index')); ?>" class="btn-primary" style="padding:8px 14px; font-size:14px;">School Level</a>
+                    <a href="<?php echo e(route('talenta.users.index')); ?>" class="btn-primary" style="padding:8px 14px; font-size:14px;">Users</a>
+                <?php elseif(Auth::check() && Auth::user()->role === 'tenaga_pendidik'): ?>
+                    <a href="<?php echo e(route('talenta.assessment.fill')); ?>" class="btn-primary" style="padding:8px 14px; font-size:14px;">Isi Assessment</a>
+                    <a href="<?php echo e(route('talenta.assessment.myresults')); ?>" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil Saya</a>
+                <?php elseif(Auth::check() && Auth::user()->role === 'pemateri'): ?>
+                    <a href="<?php echo e(route('talenta.rekap.index')); ?>" class="btn-primary" style="padding:8px 14px; font-size:14px;">Rekap</a>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>
                 <span></span>
@@ -401,7 +415,7 @@
             </div>
         </div>
         <div class="user-profile">
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::check()): ?>
+            <?php if(Auth::check()): ?>
                 <?php if(Auth::user()->avatar): ?>
                     <div class="profile-avatar" onclick="toggleProfileMenu()">
                         <img src="<?php echo e(asset('storage/' . Auth::user()->avatar)); ?>" alt="Profile">

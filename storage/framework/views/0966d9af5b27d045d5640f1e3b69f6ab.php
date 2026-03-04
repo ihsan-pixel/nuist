@@ -1,0 +1,152 @@
+<?php $__env->startSection('title'); ?>
+    Lupa Password - Nuist Mobile
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('css'); ?>
+    <style>
+        /* Reuse mobile login styles (trimmed) to keep visual parity but fix stacking and polish UI */
+        html, body { height: 100%; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+        .mobile-auth-bg { height: 100vh; width: 100vw; background: #f2f6fb; }
+        .auth-background { min-height: 100vh; background: #f5f5f5; position: relative; overflow: visible; }
+
+        /* Decorative shapes remain behind everything (z-index:0) */
+        .auth-background::before{ content: ""; position:absolute; top:0; left:0; width:100%; height:420px; background:#004b4c; border-bottom-left-radius:200px; border-bottom-right-radius:200px; z-index:0 }
+        .auth-background::after{ content: ""; position:absolute; bottom:-80px; left:0; width:100%; height:220px; background:#004b4c; border-top-left-radius:200px; border-top-right-radius:200px; z-index:0 }
+
+        /* Ensure mobile-screen creates a new stacking context above pseudo-elements */
+    .mobile-screen{ width:100vw; max-width:100vw; min-height:100vh; display:flex; flex-direction:column; position:relative; z-index:1; justify-content:space-between; padding-bottom: max(env(safe-area-inset-bottom), 16px); }
+
+        /* Header hero sits visually above background shapes */
+        .header-hero{ background:transparent; padding:110px 18px 28px 18px; color:#fff; display:flex; flex-direction:column; align-items:center; gap:12px; position:relative; z-index:2 }
+        .logo-pill{ position: absolute; top: 16px; left: 50%; transform: translateX(-50%); background:#ffffff; padding:8px 16px; border-radius:12px; box-shadow:0 6px 18px rgba(14,42,120,0.06); display:inline-flex; z-index:3 }
+        .logo-pill img{ width:56px; height:auto }
+        .hero-title{ text-align:center; font-size:18px; margin: 150px 0 4px 0; font-weight:700; color:#fff }
+        .hero-sub{ color: rgba(255,255,255,0.9); text-align:center; max-width:320px; font-size:13px }
+
+        /* White form card overlapping hero: make sure it is frontmost */
+    .form-card{ background:#fff; border-top-left-radius:18px; border-top-right-radius:18px; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; margin-top: 0px; padding:20px 16px; box-shadow: 0 10px 30px rgba(8,40,80,0.12); display:flex; flex-direction:column; gap:12px; position:relative; z-index:4; margin-bottom:0; flex-shrink:0 }
+
+        .pill-input{ width:100%; border-radius:28px; padding:14px 18px; border:none; background:#f6f9ff; font-size:15px; color:#0e8549; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6) }
+        .pill-input::placeholder{ color: rgba(14,133,73,0.35) }
+
+    /* spacing: ensure inputs and action buttons don't stick together */
+    .input-wrap{ margin-bottom:12px }
+    .btn-row{ margin-top:12px }
+
+        .btn-primary-pill{ display:block; width:100%; background: linear-gradient(180deg,#006b67,#004b4c); color:#fff; border:none; padding:12px 18px; border-radius:28px; font-weight:700; box-shadow:0 8px 22px rgba(2,70,64,0.12); transition: transform .12s ease, box-shadow .12s ease }
+        .btn-primary-pill:hover{ transform: translateY(-2px); box-shadow:0 12px 30px rgba(2,70,64,0.16) }
+
+    /* Loading overlay and button interaction overrides */
+    #pageLoader{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(3,9,23,0.46); z-index:2200; transition:opacity .28s ease, visibility .28s ease; }
+    #pageLoader.hidden{ opacity:0; visibility:hidden; pointer-events:none }
+    .loader-card{ background:linear-gradient(180deg,#006b67,#004b4c); color:#fff; padding:12px 18px; border-radius:12px; display:flex; gap:12px; align-items:center; box-shadow:0 12px 36px rgba(2,70,64,0.18) }
+    .loader-ring{ width:42px; height:42px; border-radius:50%; border:4px solid rgba(255,255,255,0.18); border-top-color:#fff; animation:loader-spin 1s linear infinite }
+    .loader-text{ font-weight:700; font-size:14px; letter-spacing:0.2px }
+    @keyframes loader-spin{ to { transform:rotate(360deg) } }
+
+    .btn-primary-pill:hover, .btn-primary-pill:active, .btn-primary-pill:focus{ box-shadow:none !important; transform:none !important; }
+
+        .muted-center{ text-align:center; color:#6c757d; margin-top:8px; font-size:13px }
+
+        .alert-success{ background: #e6f7ef; color:#044d35; padding:10px 12px; border-radius:10px; border:1px solid rgba(4,77,53,0.06) }
+
+        @media (max-width:380px){ .pill-input{ padding:12px 14px } .btn-primary-pill{ padding:10px 14px } .header-hero{ padding:18px 12px 12px 12px } }
+    </style>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('body'); ?>
+    <body class="auth-body-bg">
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
+
+    <div class="auth-background">
+        <!-- Page loader overlay -->
+        <div id="pageLoader" aria-hidden="true" class="hidden">
+            <div class="loader-card" role="status" aria-live="polite">
+                <div class="loader-ring" aria-hidden="true"></div>
+                <div class="loader-text">Memuat...</div>
+            </div>
+        </div>
+        <div class="mobile-screen" role="main">
+            <div class="header-hero">
+                <div class="logo-pill" aria-hidden="true">
+                    <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="logo">
+                </div>
+                <h4 class="hero-title">Lupa Kata Sandi</h4>
+                <p style="color:rgba(255,255,255,0.9); text-align:center; max-width:320px; font-size:13px">Masukkan alamat email akun Anda. Kami akan mengirimkan tautan untuk mereset kata sandi.</p>
+            </div>
+
+            <div class="form-card">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?>
+                    <div class="alert alert-success" role="alert"><?php echo e(session('status')); ?></div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <form method="POST" action="<?php echo e(route('mobile.password.email')); ?>">
+                    <?php echo csrf_field(); ?>
+
+                    <div class="input-wrap">
+                        <input id="email" name="email" type="email" class="pill-input" placeholder="contoh@gmail.com" required value="<?php echo e(old('email')); ?>">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="text-danger small mt-1"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="submit" class="btn-primary-pill">Kirim tautan reset</button>
+                    </div>
+
+                    <div class="muted-center">
+                        <a href="<?php echo e(route('mobile.login')); ?>">Kembali ke Login</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('script'); ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            var pageLoader = document.getElementById('pageLoader');
+            function hideLoader(){ if(!pageLoader) return; pageLoader.classList.add('hidden'); }
+            function showLoader(){ if(!pageLoader) return; pageLoader.classList.remove('hidden'); }
+            setTimeout(hideLoader, 220);
+
+            // Form submits
+            var forms = document.querySelectorAll('form');
+            forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
+
+            // Link navigation (same-origin)
+            document.querySelectorAll('a[href]').forEach(function(a){
+                try{
+                    var href = a.getAttribute('href') || '';
+                    if(!href || href.indexOf('#') === 0) return;
+                    if(href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) return;
+                    if(a.target && a.target !== '' && a.target !== '_self') return;
+                    a.addEventListener('click', function(e){
+                        if(e.defaultPrevented) return;
+                        if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                        if(e.button && e.button !== 0) return;
+                        try{ var url = new URL(href, location.href); if(url.origin !== location.origin) return; }catch(err){ return; }
+                        showLoader();
+                    });
+                }catch(err){}
+            });
+
+            window.addEventListener('beforeunload', function(){ showLoader(); });
+            window.addEventListener('pageshow', function(){ hideLoader(); });
+        });
+    </script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/forgot-password.blade.php ENDPATH**/ ?>

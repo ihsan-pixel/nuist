@@ -10,13 +10,13 @@
         <div class="progress-container">
             <div class="progress-info">
                 <span class="progress-text">Progress Penyelesaian Tugas</span>
-                <span class="progress-percentage">{{ $progressPercentage }}%</span>
+                <span class="progress-percentage">{{ $progressPercentage ?? 0 }}%</span>
             </div>
             <div class="progress-bar">
-                <div class="progress-fill" style="width: {{ $progressPercentage }}%"></div>
+                <div class="progress-fill" style="width: {{ $progressPercentage ?? 0 }}%"></div>
             </div>
             <div class="progress-info" style="margin-top: 5px; font-size: 12px;">
-                <span>{{ $completedTasks }} dari {{ $totalTasks }} tugas selesai</span>
+                <span>{{ $completedTasks ?? 0 }} dari {{ $totalTasks ?? 0 }} tugas selesai</span>
             </div>
         </div>
     </div>
