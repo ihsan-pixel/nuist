@@ -24,7 +24,7 @@ class ReportController extends Controller
     // Pemateri: rekap
     public function rekap()
     {
-        $this->middleware('role:pemateri');
+        // route already guarded by role:pemateri in routes/web.php
         $scores = SchoolScore::with('school')->paginate(30);
         return view('talenta.rekap.index', compact('scores'));
     }
