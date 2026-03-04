@@ -400,9 +400,9 @@
             <!-- Role-specific quick action buttons (added without removing existing menu) -->
             <div class="role-actions" style="display:flex; gap:8px; align-items:center; margin-left:12px; margin-top:20px;">
                 @if(Auth::check() && Auth::user()->role === 'super_admin')
-                    <a href="{{ route('talenta.questions.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Soal</a>
+                    {{-- <a href="{{ route('talenta.questions.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Soal</a>
                     <a href="{{ route('talenta.results.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil</a>
-                    <a href="{{ route('talenta.schoollevel.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">School Level</a>
+                    <a href="{{ route('talenta.schoollevel.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">School Level</a> --}}
                     {{-- <a href="{{ route('talenta.users.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Users</a> --}}
                 @elseif(Auth::check() && Auth::user()->role === 'tenaga_pendidik')
                     <a href="{{ route('talenta.assessment.fill') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Isi Assessment</a>
