@@ -11,10 +11,10 @@
 
 <!-- Back button (no navbar) -->
 <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
-    <button onclick="window.location.href='{{ route('talenta.dashboard') }}'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #0f172a;">
+    <button onclick="window.location.href='{{ route('talenta.dashboard') }}'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #0f172a; margin-top: 20px;">
         <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
     </button>
-    <span class="fw-bold" style="color: #0f172a; font-size: 14px;">Kembali</span>
+    <span class="fw-bold" style="color: #0f172a; font-size: 14px; margin-top: 20px">Kembali</span>
 </div>
 
 <section class="section-clean">
@@ -42,7 +42,7 @@
                                     <th>Jumlah Talenta</th>
                                     <th>Total Skor</th>
                                     <th>Level</th>
-                                    <th style="width:120px">Aksi</th>
+                                    {{-- <th style="width:120px">Aksi</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
@@ -57,9 +57,9 @@
                                     <td>{{ $s->jumlah_talenta }}</td>
                                     <td>{{ $s->total_skor }}</td>
                                     <td>{{ $s->level_sekolah }}</td>
-                                    <td>
+                                    {{-- <td>
                                         <a href="{{ route('talenta.rekap.detail', $s->id) }}" class="btn btn-sm btn-info">Detail</a>
-                                    </td>
+                                    </td> --}}
                                 </tr>
                                 @endforeach
                             </tbody>
