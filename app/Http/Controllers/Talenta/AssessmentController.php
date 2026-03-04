@@ -18,8 +18,13 @@ class AssessmentController extends Controller
 
     public function fill()
     {
+        $user = auth()->user();
         $questions = Question::orderBy('kategori')->get();
-        return view('talenta.assessment.fill', compact('questions'));
+
+        // load existing answers for this user to prefill the form
+        $existingAnswers = Answer::where('user_id', $user->id)->pluck('jawaban', 'question_id')->toArray();
+
+        return view('talenta.assessment.fill', compact('questions', 'existingAnswers'));
     }
 
     public function store(Request $request)
@@ -54,7 +59,7 @@ class AssessmentController extends Controller
             );
         });
 
-        return redirect()->route('talenta.assessment.myresults')->with('success','Jawaban disimpan dan skor dihitung');
+        return redirect()->route('talenta.assessment.fill')->with('success','Jawaban disimpan dan skor dihitung');
     }
 
     public function myResults(Request $request)

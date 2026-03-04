@@ -22,6 +22,10 @@
         <h2 class="section-title">Isi Assessment - School Level</h2>
         <p class="section-subtitle">Jawab pertanyaan berikut untuk menghitung skor School Level sekolah Anda.</p>
 
+        @if(session('success'))
+            <div class="alert alert-success mt-3">{{ session('success') }}</div>
+        @endif
+
         <form id="assessmentForm" method="POST" action="{{ route('talenta.assessment.store') }}">
             @csrf
 
@@ -39,11 +43,11 @@
                                         <label class="form-label fw-semibold">{{ $q->pertanyaan }}</label>
                                         <div class="d-flex gap-3 align-items-center">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_ya" value="Ya" {{ $loop->first ? 'required' : '' }}>
+                                                <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_ya" value="Ya" required @if(isset($existingAnswers[$q->id]) && strtolower($existingAnswers[$q->id]) == 'ya') checked @endif>
                                                 <label class="form-check-label" for="answer_{{ $q->id }}_ya">Ya</label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_tidak" value="Tidak">
+                                                <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_tidak" value="Tidak" @if(isset($existingAnswers[$q->id]) && strtolower($existingAnswers[$q->id]) == 'tidak') checked @endif>
                                                 <label class="form-check-label" for="answer_{{ $q->id }}_tidak">Tidak</label>
                                             </div>
                                         </div>
