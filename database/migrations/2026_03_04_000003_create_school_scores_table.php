@@ -9,7 +9,8 @@ return new class extends Migration {
     {
         Schema::create('school_scores', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_id')->nullable()->constrained('madrasah')->nullOnDelete();
+            // reference the existing madrasahs table (plural) used elsewhere in the project
+            $table->foreignId('school_id')->nullable()->constrained('madrasahs')->nullOnDelete();
             $table->integer('layanan')->default(0);
             $table->integer('tata_kelola')->default(0);
             $table->integer('jumlah_siswa')->default(0);
