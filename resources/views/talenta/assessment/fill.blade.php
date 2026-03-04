@@ -7,7 +7,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 @include('talenta.partials.styles')
-@include('talenta.partials.hero')
+{{-- @include('talenta.partials.hero') --}}
 
 <!-- Back button (no navbar) -->
 <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
