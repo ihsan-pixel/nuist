@@ -8,6 +8,7 @@
 
 @include('talenta.partials.styles')
 @include('talenta.partials.hero')
+@include('talenta.navbar')
 
 <section class="section-clean">
     <div class="container">
