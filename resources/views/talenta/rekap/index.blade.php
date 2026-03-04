@@ -48,7 +48,10 @@
                             <tbody>
                                 @foreach($scores as $s)
                                 <tr>
-                                    <td>{{ optional($s->school)->nama ?? 'N/A' }}</td>
+                                    <td>
+                                        {{ optional($s->school)->nama ?? 'N/A' }}
+                                        <div class="small text-muted">Pengirim: {{ optional($s->submittedBy)->name ?? '-' }}</div>
+                                    </td>
                                     <td>{{ $s->layanan }}</td>
                                     <td>{{ $s->tata_kelola }}</td>
                                     <td>{{ $s->jumlah_siswa }}</td>

@@ -55,7 +55,7 @@ class AssessmentController extends Controller
             $total = array_sum($scores);
             SchoolScore::updateOrCreate(
                 ['school_id' => optional($user->madrasah)->id ?? null],
-                array_merge($scores, ['total_skor' => $total, 'level_sekolah' => $this->determineLevel($total)])
+                array_merge($scores, ['total_skor' => $total, 'level_sekolah' => $this->determineLevel($total), 'submitted_by' => $user->id])
             );
         });
 
