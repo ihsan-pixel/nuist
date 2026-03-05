@@ -23,6 +23,61 @@
         <div class="col-lg-9">
             <h2 class="mb-3">Rekap School Level</h2>
 
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h6 class="mb-1">Rata-rata Struktur</h6>
+                            <h3 class="mb-0">{{ $avgStruktur ?? 0 }}</h3>
+                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} sekolah</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h6 class="mb-1">Rata-rata Kompetensi</h6>
+                            <h3 class="mb-0">{{ $avgKompetensi ?? 0 }}</h3>
+                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} sekolah</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h6 class="mb-1">Rata-rata Perilaku</h6>
+                            <h3 class="mb-0">{{ $avgPerilaku ?? 0 }}</h3>
+                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} sekolah</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h6 class="mb-1">Rata-rata Keterpaduan</h6>
+                            <h3 class="mb-0">{{ $avgKeterpaduan ?? 0 }}</h3>
+                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} sekolah</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Distribusi Level</h6>
+                                <div class="small text-muted">A: <strong>{{ $levelCounts['A'] ?? 0 }}</strong> &nbsp; B: <strong>{{ $levelCounts['B'] ?? 0 }}</strong> &nbsp; C: <strong>{{ $levelCounts['C'] ?? 0 }}</strong> &nbsp; D: <strong>{{ $levelCounts['D'] ?? 0 }}</strong></div>
+                            </div>
+                            <div>
+                                <a href="#" class="btn btn-outline-secondary btn-sm">Export CSV</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif

@@ -26,7 +26,22 @@ class ReportController extends Controller
     {
         // route already guarded by role:pemateri in routes/web.php
         $scores = SchoolScore::with('school')->paginate(30);
-        return view('talenta.rekap.index', compact('scores'));
+
+        // summary aggregates for the rekap view
+        $totalSchools = SchoolScore::count();
+        $avgStruktur = (float) number_format(SchoolScore::avg('struktur') ?? 0, 2);
+        $avgKompetensi = (float) number_format(SchoolScore::avg('kompetensi') ?? 0, 2);
+        $avgPerilaku = (float) number_format(SchoolScore::avg('perilaku') ?? 0, 2);
+        $avgKeterpaduan = (float) number_format(SchoolScore::avg('keterpaduan') ?? 0, 2);
+
+        $levelCounts = [
+            'A' => SchoolScore::where('level_sekolah', 'A')->count(),
+            'B' => SchoolScore::where('level_sekolah', 'B')->count(),
+            'C' => SchoolScore::where('level_sekolah', 'C')->count(),
+            'D' => SchoolScore::where('level_sekolah', 'D')->count(),
+        ];
+
+        return view('talenta.rekap.index', compact('scores', 'totalSchools', 'avgStruktur', 'avgKompetensi', 'avgPerilaku', 'avgKeterpaduan', 'levelCounts'));
     }
 
     public function detail(SchoolScore $score)
