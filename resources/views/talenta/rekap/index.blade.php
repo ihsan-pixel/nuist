@@ -29,7 +29,7 @@
                         <div class="card-body">
                             <h6 class="mb-1">Rata-rata Struktur</h6>
                             <h3 class="mb-0">{{ $avgStruktur ?? 0 }}</h3>
-                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} sekolah</p>
+                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} Talenta</p>
                         </div>
                     </div>
                 </div>
@@ -38,7 +38,7 @@
                         <div class="card-body">
                             <h6 class="mb-1">Rata-rata Kompetensi</h6>
                             <h3 class="mb-0">{{ $avgKompetensi ?? 0 }}</h3>
-                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} sekolah</p>
+                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} Talenta</p>
                         </div>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                         <div class="card-body">
                             <h6 class="mb-1">Rata-rata Perilaku</h6>
                             <h3 class="mb-0">{{ $avgPerilaku ?? 0 }}</h3>
-                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} sekolah</p>
+                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} Talenta</p>
                         </div>
                     </div>
                 </div>
@@ -56,13 +56,13 @@
                         <div class="card-body">
                             <h6 class="mb-1">Rata-rata Keterpaduan</h6>
                             <h3 class="mb-0">{{ $avgKeterpaduan ?? 0 }}</h3>
-                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} sekolah</p>
+                            <p class="small text-muted mb-0">dari {{ $totalSchools ?? 0 }} Talenta</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row mb-3">
+            {{-- <div class="row mb-3">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body d-flex align-items-center justify-content-between">
@@ -76,7 +76,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
