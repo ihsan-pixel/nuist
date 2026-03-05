@@ -18,7 +18,7 @@
 <body>
     <div class="header">
         <h2>Rekap Jawaban - {{ optional($score->school)->nama ?? 'Sekolah' }}</h2>
-        <div class="small">Pengirim: {{ optional($score->submittedBy)->name ?? '-' }} &nbsp; | &nbsp; ID Sekolah: {{ $score->school_id ?? '-' }}</div>
+        <div class="small">Pengirim: {{ optional($score->submittedBy)->name ?? '-' }} &nbsp; | &nbsp; Sekolah: {{ optional($score->school)->nama ?? '-' }}</div>
     </div>
 
     <div class="meta">
