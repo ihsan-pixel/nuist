@@ -41,15 +41,16 @@
                                 @foreach($qs as $q)
                                     <div class="mb-3 question-block" data-qid="{{ $q->id }}">
                                         <label class="form-label fw-semibold">{{ $q->pertanyaan }}</label>
-                                        <div class="d-flex gap-3 align-items-center">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_ya" value="Ya" required @if(isset($existingAnswers[$q->id]) && strtolower($existingAnswers[$q->id]) == 'ya') checked @endif>
-                                                <label class="form-check-label" for="answer_{{ $q->id }}_ya">Ya</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_tidak" value="Tidak" @if(isset($existingAnswers[$q->id]) && strtolower($existingAnswers[$q->id]) == 'tidak') checked @endif>
-                                                <label class="form-check-label" for="answer_{{ $q->id }}_tidak">Tidak</label>
-                                            </div>
+                                        <div class="d-flex flex-column gap-2">
+                                            @php
+                                                $choices = $q->choice_texts ?? ['A'=>'A','B'=>'B','C'=>'C','D'=>'D','E'=>'E'];
+                                            @endphp
+                                            @foreach(['A','B','C','D','E'] as $letter)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_{{ $letter }}" value="{{ $letter }}" required @if(isset($existingAnswers[$q->id]) && strtoupper($existingAnswers[$q->id]) == $letter) checked @endif>
+                                                    <label class="form-check-label" for="answer_{{ $q->id }}_{{ $letter }}"><strong>{{ $letter }}.</strong> {{ $choices[$letter] ?? $letter }}</label>
+                                                </div>
+                                            @endforeach
                                         </div>
                                     </div>
                                 @endforeach

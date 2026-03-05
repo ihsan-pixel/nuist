@@ -12,7 +12,10 @@ class SchoolScore extends Model
     protected $table = 'school_scores';
 
     protected $fillable = [
-        'school_id','submitted_by','layanan','tata_kelola','jumlah_siswa','jumlah_penghasilan','jumlah_prestasi','jumlah_talenta','total_skor','level_sekolah'
+        'school_id','submitted_by',
+        // new per-dimension columns (keep old fields for backward compatibility)
+        'struktur','kompetensi','perilaku','keterpaduan',
+        'layanan','tata_kelola','jumlah_siswa','jumlah_penghasilan','jumlah_prestasi','jumlah_talenta','total_skor','level_sekolah'
     ];
 
     public function school()

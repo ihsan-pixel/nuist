@@ -19,40 +19,60 @@ class AssessmentController extends Controller
     public function fill()
     {
         $user = auth()->user();
-        $questions = Question::orderBy('kategori')->get();
+    $questions = Question::orderBy('kategori')->get();
 
-        // load existing answers for this user to prefill the form
-        $existingAnswers = Answer::where('user_id', $user->id)->pluck('jawaban', 'question_id')->toArray();
+    // load existing answers for this user to prefill the form (jawaban stores the letter A/B/C/D/E)
+    $existingAnswers = Answer::where('user_id', $user->id)->pluck('jawaban', 'question_id')->toArray();
 
-        return view('talenta.assessment.fill', compact('questions', 'existingAnswers'));
+    return view('talenta.assessment.fill', compact('questions', 'existingAnswers'));
     }
 
     public function store(Request $request)
     {
         $user = $request->user();
+
         $answers = $request->input('answers', []);
 
-        DB::transaction(function () use ($answers, $user) {
+        // categories / dimensions used in the instrument
+        $dimensions = [
+            'Struktur' => 'struktur',
+            'Kompetensi' => 'kompetensi',
+            'Perilaku' => 'perilaku',
+            'Keterpaduan' => 'keterpaduan',
+        ];
+
+        DB::transaction(function () use ($answers, $user, $dimensions) {
             foreach ($answers as $questionId => $jawaban) {
                 $q = Question::find($questionId);
                 if (!$q) continue;
-                $skor = (strtolower($jawaban) === 'ya') ? $q->skor_ya : $q->skor_tidak;
+
+                // determine numeric score from question's choice_scores mapping
+                $map = $q->choice_scores ?? null;
+                $skor = null;
+                if (is_array($map) && isset($map[strtoupper($jawaban)])) {
+                    $skor = (int) $map[strtoupper($jawaban)];
+                }
+
+                // fallback: if map missing, leave skor 0
+                $skor = $skor ?? 0;
+
                 Answer::updateOrCreate(
                     ['user_id' => $user->id, 'question_id' => $q->id],
-                    ['jawaban' => $jawaban, 'skor' => $skor]
+                    ['jawaban' => strtoupper($jawaban), 'skor' => $skor]
                 );
             }
 
-            // hitung skor per kategori dan simpan ke school_scores (simple aggregate)
-            $categories = ['layanan','tata_kelola','jumlah_siswa','jumlah_penghasilan','jumlah_prestasi','jumlah_talenta'];
+            // aggregate per-dimension
             $scores = [];
-            foreach ($categories as $cat) {
-                $catQuestions = Question::where('kategori', $cat)->pluck('id');
-                $sum = Answer::where('user_id', $user->id)->whereIn('question_id', $catQuestions)->sum('skor');
-                $scores[$cat] = $sum;
+            foreach ($dimensions as $label => $column) {
+                $questionIds = Question::where('kategori', $label)->pluck('id');
+                $sum = Answer::where('user_id', $user->id)->whereIn('question_id', $questionIds)->sum('skor');
+                $scores[$column] = $sum;
             }
 
             $total = array_sum($scores);
+
+            // persist aggregated score to school_scores
             SchoolScore::updateOrCreate(
                 ['school_id' => optional($user->madrasah)->id ?? null],
                 array_merge($scores, ['total_skor' => $total, 'level_sekolah' => $this->determineLevel($total), 'submitted_by' => $user->id])

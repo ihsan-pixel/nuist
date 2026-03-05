@@ -9,7 +9,12 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['kategori','pertanyaan','skor_ya','skor_tidak'];
+    protected $fillable = ['kategori','pertanyaan','skor_ya','skor_tidak','choice_scores'];
+
+    protected $casts = [
+        'choice_scores' => 'array',
+        'choice_texts' => 'array',
+    ];
 
     public function answers()
     {
