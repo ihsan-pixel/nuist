@@ -67,6 +67,7 @@ Route::middleware(['auth'])->prefix('talenta')->name('talenta.')->group(function
         Route::get('/dashboard', function () { return view('talenta.dashboard'); })->name('dashboard');
         Route::get('/rekap', [App\Http\Controllers\Talenta\ReportController::class, 'rekap'])->name('rekap.index');
         Route::get('/rekap/{score}', [App\Http\Controllers\Talenta\ReportController::class, 'detail'])->name('rekap.detail');
+        Route::get('/rekap/{score}/pdf', [App\Http\Controllers\Talenta\ReportController::class, 'pdf'])->name('rekap.pdf');
     });
 });
 

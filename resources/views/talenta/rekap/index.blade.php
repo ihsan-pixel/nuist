@@ -112,7 +112,7 @@
                                     <td>{{ $s->total_skor }}</td>
                                     <td>{{ $s->level_sekolah }}</td>
                                     <td>
-                                        <a href="{{ route('talenta.rekap.detail', $s->id) }}" class="btn btn-sm btn-info">Detail</a>
+                                        <a href="{{ route('talenta.rekap.pdf', $s->id) }}" target="_blank" class="btn btn-sm btn-secondary">PDF View</a>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -137,7 +137,7 @@
                         <li class="mb-1">C: <strong>{{ \App\Models\SchoolScore::where('level_sekolah','C')->count() }}</strong></li>
                         <li class="mb-1">D: <strong>{{ \App\Models\SchoolScore::where('level_sekolah','D')->count() }}</strong></li>
                     </ul>
-                    <p class="small text-muted">Klik Detail untuk melihat rekap lengkap per sekolah.</p>
+                    <p class="small text-muted">Gunakan tombol <strong>PDF View</strong> untuk melihat rekap lengkap per sekolah dan mencetaknya.</p>
                 </div>
             </div>
         </div>

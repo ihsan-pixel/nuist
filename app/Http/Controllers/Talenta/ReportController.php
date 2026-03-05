@@ -66,4 +66,28 @@ class ReportController extends Controller
 
         return view('talenta.rekap.detail', compact('score', 'answers'));
     }
+
+    /**
+     * PDF / printable view of a school's rekap (per-question answers)
+     */
+    public function pdf(SchoolScore $score)
+    {
+        // reuse detail-loading logic
+        $answers = [];
+        if ($score->submitted_by) {
+            $answers = \App\Models\Answer::with('question')->where('user_id', $score->submitted_by)->get();
+        }
+
+        if (empty($answers) || $answers->isEmpty()) {
+            $userIds = \App\Models\User::where('madrasah_id', $score->school_id)->pluck('id');
+            $answers = \App\Models\Answer::with('question')->whereIn('user_id', $userIds)->get();
+        }
+
+        $answers->each(function ($a) {
+            $letter = strtoupper($a->jawaban ?? '');
+            $a->choice_text = isset($a->question->choice_texts[$letter]) ? $a->question->choice_texts[$letter] : null;
+        });
+
+        return view('talenta.rekap.pdf', compact('score', 'answers'));
+    }
 }
