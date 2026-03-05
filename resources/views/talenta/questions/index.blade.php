@@ -54,11 +54,11 @@
                                         @php $texts = $q->choice_texts ?? []; $scores = $q->choice_scores ?? []; @endphp
                                         <ul class="mb-0 small">
                                             @foreach(['A','B','C','D','E'] as $letter)
-                                                <li><strong>{{ $letter }}</strong>. {{ 
-                                                    
+                                                <li><strong>{{ $letter }}</strong>. {{
+
                                                     (
-                                                        isset($texts[$letter]) ? 
-                                                            \Illuminate\Support\Str::limit($texts[$letter], 60) : '-' 
+                                                        isset($texts[$letter]) ?
+                                                            \Illuminate\Support\Str::limit($texts[$letter], 60) : '-'
                                                     )
                                                 }} <span class="text-muted">({{ $scores[$letter] ?? '-' }})</span></li>
                                             @endforeach
@@ -88,12 +88,12 @@
                     <h6 class="mb-2">Statistik Soal</h6>
                     <p class="small text-muted mb-2">Total Soal: <strong>{{ $questions->total() ?? $questions->count() }}</strong></p>
                     <ul class="list-unstyled small">
-                        @php
-                            $cats = ['layanan','tata_kelola','jumlah_siswa','jumlah_penghasilan','jumlah_prestasi','jumlah_talenta'];
-                        @endphp
-                        @foreach($cats as $cat)
-                            <li class="mb-1 text-capitalize">{{ str_replace('_',' ', $cat) }}: <strong>{{ \App\Models\Question::where('kategori', $cat)->count() }}</strong></li>
-                        @endforeach
+                            @php
+                                $cats = ['Struktur','Kompetensi','Perilaku','Keterpaduan'];
+                            @endphp
+                            @foreach($cats as $cat)
+                                <li class="mb-1">{{ $cat }}: <strong>{{ \App\Models\Question::where('kategori', $cat)->count() }}</strong></li>
+                            @endforeach
                     </ul>
                     <p class="small text-muted">Gunakan tombol Tambah Soal untuk menambah pertanyaan baru.</p>
                 </div>

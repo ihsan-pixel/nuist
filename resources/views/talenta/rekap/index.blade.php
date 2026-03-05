@@ -34,12 +34,10 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Nama Sekolah</th>
-                                    <th>Layanan</th>
-                                    <th>Tata Kelola</th>
-                                    <th>Jumlah Siswa</th>
-                                    <th>Jumlah Penghasilan</th>
-                                    <th>Jumlah Prestasi</th>
-                                    <th>Jumlah Talenta</th>
+                                    <th>Struktur</th>
+                                    <th>Kompetensi</th>
+                                    <th>Perilaku</th>
+                                    <th>Keterpaduan</th>
                                     <th>Total Nilai</th>
                                     <th>Level</th>
                                     <th style="width:120px">Aksi</th>
@@ -52,12 +50,10 @@
                                         {{ optional($s->school)->nama ?? 'N/A' }}
                                         <div class="small text-muted">Pengirim: {{ optional($s->submittedBy)->name ?? '-' }}</div>
                                     </td>
-                                    <td>{{ $s->layanan }}</td>
-                                    <td>{{ $s->tata_kelola }}</td>
-                                    <td>{{ $s->jumlah_siswa }}</td>
-                                    <td>{{ $s->jumlah_penghasilan }}</td>
-                                    <td>{{ $s->jumlah_prestasi }}</td>
-                                    <td>{{ $s->jumlah_talenta }}</td>
+                                    <td>{{ $s->struktur ?? $s->layanan ?? 0 }}</td>
+                                    <td>{{ $s->kompetensi ?? $s->tata_kelola ?? 0 }}</td>
+                                    <td>{{ $s->perilaku ?? $s->jumlah_siswa ?? 0 }}</td>
+                                    <td>{{ $s->keterpaduan ?? $s->jumlah_penghasilan ?? 0 }}</td>
                                     <td>{{ $s->total_skor }}</td>
                                     <td>{{ $s->level_sekolah }}</td>
                                     <td>

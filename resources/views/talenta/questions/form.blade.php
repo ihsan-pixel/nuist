@@ -94,16 +94,14 @@
             <div class="card shadow-sm border-0 sticky-top" style="top:90px;">
                 <div class="card-body">
                     <h6 class="mb-2">Panduan</h6>
-                    <p class="small text-muted">Masukkan pertanyaan sesuai kategori. Skor Ya / Tidak akan digunakan untuk perhitungan School Level.</p>
+                    <p class="small text-muted">Masukkan pertanyaan sesuai dimensi. Pilihan A..E dan skor numeric akan digunakan untuk perhitungan School Level.</p>
                     <hr>
                     <p class="small text-muted mb-0">Kategori yang tersedia:</p>
                     <ul class="small">
-                        <li>Layanan</li>
-                        <li>Tata Kelola</li>
-                        <li>Jumlah Siswa</li>
-                        <li>Jumlah Penghasilan</li>
-                        <li>Jumlah Prestasi</li>
-                        <li>Jumlah Talenta</li>
+                        <li>Struktur</li>
+                        <li>Kompetensi</li>
+                        <li>Perilaku</li>
+                        <li>Keterpaduan</li>
                     </ul>
                 </div>
             </div>
