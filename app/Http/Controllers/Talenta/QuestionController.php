@@ -29,11 +29,21 @@ class QuestionController extends Controller
         $data = $request->validate([
             'kategori' => 'required|string',
             'pertanyaan' => 'required|string',
-            'skor_ya' => 'required|integer',
-            'skor_tidak' => 'required|integer',
+            'choice_texts' => 'nullable|array',
+            'choice_scores' => 'nullable|array',
+            'choice_scores.A' => 'nullable|integer',
+            'choice_scores.B' => 'nullable|integer',
+            'choice_scores.C' => 'nullable|integer',
+            'choice_scores.D' => 'nullable|integer',
+            'choice_scores.E' => 'nullable|integer',
         ]);
 
-        Question::create($data);
+        Question::create([
+            'kategori' => $data['kategori'],
+            'pertanyaan' => $data['pertanyaan'],
+            'choice_texts' => $data['choice_texts'] ?? null,
+            'choice_scores' => $data['choice_scores'] ?? null,
+        ]);
         return redirect()->route('talenta.questions.index')->with('success','Soal berhasil disimpan');
     }
 
@@ -47,11 +57,21 @@ class QuestionController extends Controller
         $data = $request->validate([
             'kategori' => 'required|string',
             'pertanyaan' => 'required|string',
-            'skor_ya' => 'required|integer',
-            'skor_tidak' => 'required|integer',
+            'choice_texts' => 'nullable|array',
+            'choice_scores' => 'nullable|array',
+            'choice_scores.A' => 'nullable|integer',
+            'choice_scores.B' => 'nullable|integer',
+            'choice_scores.C' => 'nullable|integer',
+            'choice_scores.D' => 'nullable|integer',
+            'choice_scores.E' => 'nullable|integer',
         ]);
 
-        $question->update($data);
+        $question->update([
+            'kategori' => $data['kategori'],
+            'pertanyaan' => $data['pertanyaan'],
+            'choice_texts' => $data['choice_texts'] ?? $question->choice_texts,
+            'choice_scores' => $data['choice_scores'] ?? $question->choice_scores,
+        ]);
         return redirect()->route('talenta.questions.index')->with('success','Soal berhasil diperbarui');
     }
 

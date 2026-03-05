@@ -48,10 +48,10 @@
                         @if(isset($question) && $question->id) @method('PUT') @endif
 
                         <div class="mb-3">
-                            <label class="form-label">Kategori</label>
+                            <label class="form-label">Dimensi / Kategori</label>
                             <select name="kategori" class="form-select">
-                                @foreach(['layanan','tata_kelola','jumlah_siswa','jumlah_penghasilan','jumlah_prestasi','jumlah_talenta'] as $cat)
-                                    <option value="{{ $cat }}" {{ (old('kategori', $question->kategori ?? '') == $cat) ? 'selected' : '' }}>{{ str_replace('_',' ', $cat) }}</option>
+                                @foreach(['Struktur','Kompetensi','Perilaku','Keterpaduan'] as $cat)
+                                    <option value="{{ $cat }}" {{ (old('kategori', $question->kategori ?? '') == $cat) ? 'selected' : '' }}>{{ $cat }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -62,14 +62,23 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Skor Ya</label>
-                                <input type="number" name="skor_ya" class="form-control" value="{{ old('skor_ya', $question->skor_ya ?? 1) }}">
+                            <div class="col-12 mb-3">
+                                <p class="small text-muted mb-2">Definisikan teks untuk pilihan A..E dan skor numeric untuk masing-masing pilihan. Contoh: A => teks, skor => 3</p>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Skor Tidak</label>
-                                <input type="number" name="skor_tidak" class="form-control" value="{{ old('skor_tidak', $question->skor_tidak ?? 0) }}">
-                            </div>
+                            @php
+                                $existing_texts = old('choice_texts', $question->choice_texts ?? []);
+                                $existing_scores = old('choice_scores', $question->choice_scores ?? []);
+                            @endphp
+                            @foreach(['A','B','C','D','E'] as $letter)
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Pilihan {{ $letter }} - Teks</label>
+                                    <input type="text" name="choice_texts[{{ $letter }}]" class="form-control" value="{{ $existing_texts[$letter] ?? '' }}" placeholder="Teks jawaban untuk {{ $letter }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Pilihan {{ $letter }} - Skor</label>
+                                    <input type="number" name="choice_scores[{{ $letter }}]" class="form-control" value="{{ $existing_scores[$letter] ?? '' }}" placeholder="Skor numeric untuk {{ $letter }}">
+                                </div>
+                            @endforeach
                         </div>
 
                         <div class="d-flex justify-content-end">

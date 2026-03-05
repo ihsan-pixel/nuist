@@ -38,10 +38,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width:60px">No</th>
-                                    <th>Kategori</th>
+                                    <th>Dimensi</th>
                                     <th>Pertanyaan</th>
-                                    <th style="width:100px">Skor Ya</th>
-                                    <th style="width:110px">Skor Tidak</th>
+                                    <th>Opsi (A..E)</th>
                                     <th style="width:160px">Aksi</th>
                                 </tr>
                             </thead>
@@ -49,10 +48,22 @@
                                 @foreach($questions as $q)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td class="text-capitalize">{{ str_replace('_',' ', $q->kategori) }}</td>
-                                    <td>{{ $q->pertanyaan }}</td>
-                                    <td>{{ $q->skor_ya }}</td>
-                                    <td>{{ $q->skor_tidak }}</td>
+                                    <td>{{ $q->kategori }}</td>
+                                    <td style="max-width:480px">{{ $q->pertanyaan }}</td>
+                                    <td>
+                                        @php $texts = $q->choice_texts ?? []; $scores = $q->choice_scores ?? []; @endphp
+                                        <ul class="mb-0 small">
+                                            @foreach(['A','B','C','D','E'] as $letter)
+                                                <li><strong>{{ $letter }}</strong>. {{ 
+                                                    
+                                                    (
+                                                        isset($texts[$letter]) ? 
+                                                            \Illuminate\Support\Str::limit($texts[$letter], 60) : '-' 
+                                                    )
+                                                }} <span class="text-muted">({{ $scores[$letter] ?? '-' }})</span></li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
                                     <td>
                                         <a href="{{ route('talenta.questions.edit', $q) }}" class="btn btn-sm btn-outline-warning me-1">Edit</a>
                                         <form action="{{ route('talenta.questions.destroy', $q) }}" method="POST" style="display:inline-block">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Hapus</button></form>
