@@ -88,6 +88,30 @@ class ReportController extends Controller
             $a->choice_text = isset($a->question->choice_texts[$letter]) ? $a->question->choice_texts[$letter] : null;
         });
 
-        return view('talenta.rekap.pdf', compact('score', 'answers'));
+        // compute per-dimension distribution (counts and percentages for A..E)
+        $dimensions = ['Struktur','Kompetensi','Perilaku','Keterpaduan'];
+        $dimensionStats = [];
+        foreach ($dimensions as $dim) {
+            $qIds = \App\Models\Question::where('kategori', $dim)->pluck('id')->toArray();
+            $ansForDim = $answers->filter(function ($a) use ($qIds) {
+                return in_array($a->question_id, $qIds);
+            });
+            $total = $ansForDim->count();
+            $counts = [];
+            foreach (['A','B','C','D','E'] as $letter) {
+                $counts[$letter] = $ansForDim->where('jawaban', strtoupper($letter))->count();
+            }
+            $percents = [];
+            foreach ($counts as $letter => $cnt) {
+                $percents[$letter] = $total ? round(($cnt / $total) * 100, 2) : 0;
+            }
+            $dimensionStats[$dim] = [
+                'total_answers' => $total,
+                'counts' => $counts,
+                'percents' => $percents,
+            ];
+        }
+
+        return view('talenta.rekap.pdf', compact('score', 'answers', 'dimensionStats'));
     }
 }

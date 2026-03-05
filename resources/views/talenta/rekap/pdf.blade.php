@@ -23,34 +23,35 @@
 
     <div class="meta">
         <table style="margin-bottom:12px;">
-            <tr>
-                <th style="width:40%">Dimensi</th>
-                <th style="width:15%">Skor</th>
-            </tr>
-            <tr>
-                <td>Struktur</td>
-                <td class="score">{{ $score->struktur ?? $score->layanan ?? 0 }}</td>
-            </tr>
-            <tr>
-                <td>Kompetensi</td>
-                <td class="score">{{ $score->kompetensi ?? $score->tata_kelola ?? 0 }}</td>
-            </tr>
-            <tr>
-                <td>Perilaku</td>
-                <td class="score">{{ $score->perilaku ?? $score->jumlah_siswa ?? 0 }}</td>
-            </tr>
-            <tr>
-                <td>Keterpaduan</td>
-                <td class="score">{{ $score->keterpaduan ?? $score->jumlah_penghasilan ?? 0 }}</td>
-            </tr>
-            <tr>
-                <th>Total</th>
-                <th class="score">{{ $score->total_skor }}</th>
-            </tr>
-            <tr>
-                <th>Level Sekolah</th>
-                <th class="score">{{ $score->level_sekolah }}</th>
-            </tr>
+            <thead>
+                <tr>
+                    <th>Dimensi</th>
+                    <th style="width:80px; text-align:center">Total Jawaban</th>
+                    <th style="width:100px; text-align:center">A (cnt / %)</th>
+                    <th style="width:100px; text-align:center">B (cnt / %)</th>
+                    <th style="width:100px; text-align:center">C (cnt / %)</th>
+                    <th style="width:100px; text-align:center">D (cnt / %)</th>
+                    <th style="width:100px; text-align:center">E (cnt / %)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($dimensionStats as $dim => $stat)
+                    <tr>
+                        <td>{{ $dim }}</td>
+                        <td class="score" style="text-align:center">{{ $stat['total_answers'] }}</td>
+                        <td style="text-align:center">{{ $stat['counts']['A'] ?? 0 }} / {{ $stat['percents']['A'] ?? 0 }}%</td>
+                        <td style="text-align:center">{{ $stat['counts']['B'] ?? 0 }} / {{ $stat['percents']['B'] ?? 0 }}%</td>
+                        <td style="text-align:center">{{ $stat['counts']['C'] ?? 0 }} / {{ $stat['percents']['C'] ?? 0 }}%</td>
+                        <td style="text-align:center">{{ $stat['counts']['D'] ?? 0 }} / {{ $stat['percents']['D'] ?? 0 }}%</td>
+                        <td style="text-align:center">{{ $stat['counts']['E'] ?? 0 }} / {{ $stat['percents']['E'] ?? 0 }}%</td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <th>Total</th>
+                    <th class="score" style="text-align:center">{{ array_sum(array_column($dimensionStats, 'total_answers')) }}</th>
+                    <th colspan="5" class="small" style="text-align:left">Total Skor: <strong>{{ $score->total_skor }}</strong> &nbsp; | &nbsp; Level: <strong>{{ $score->level_sekolah }}</strong></th>
+                </tr>
+            </tbody>
         </table>
     </div>
 
