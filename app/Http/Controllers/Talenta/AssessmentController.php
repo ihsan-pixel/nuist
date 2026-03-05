@@ -19,7 +19,8 @@ class AssessmentController extends Controller
     public function fill()
     {
         $user = auth()->user();
-    $questions = Question::orderBy('kategori')->get();
+    // load questions ordered by id so the fill view shows questions in id order
+    $questions = Question::orderBy('id')->get();
 
     // load existing answers for this user to prefill the form (jawaban stores the letter A/B/C/D/E)
     $existingAnswers = Answer::where('user_id', $user->id)->pluck('jawaban', 'question_id')->toArray();

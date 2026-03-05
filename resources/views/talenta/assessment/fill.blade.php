@@ -32,31 +32,40 @@
             <div class="row">
                 <div class="col-12 col-lg-9">
 
-                    @foreach($questions->groupBy('kategori') as $kategori => $qs)
-                        <div class="card shadow-sm mb-4 border-0">
-                            <div class="card-header bg-white">
-                                <h5 class="mb-0" style="text-transform: capitalize;">{{ str_replace('_',' ', $kategori) }}</h5>
-                            </div>
-                            <div class="card-body">
-                                @foreach($qs as $q)
-                                    <div class="mb-3 question-block" data-qid="{{ $q->id }}">
-                                        <label class="form-label fw-semibold">{{ $q->pertanyaan }}</label>
-                                        <div class="d-flex flex-column gap-2">
-                                            @php
-                                                $choices = $q->choice_texts ?? ['A'=>'A','B'=>'B','C'=>'C','D'=>'D','E'=>'E'];
-                                            @endphp
-                                            @foreach(['A','B','C','D','E'] as $letter)
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_{{ $letter }}" value="{{ $letter }}" required @if(isset($existingAnswers[$q->id]) && strtoupper($existingAnswers[$q->id]) == $letter) checked @endif>
-                                                    <label class="form-check-label" for="answer_{{ $q->id }}_{{ $letter }}"><strong>{{ $letter }}.</strong> {{ $choices[$letter] ?? $letter }}</label>
-                                                </div>
-                                            @endforeach
-                                        </div>
+                    @php $currentKategori = null; $cardOpen = false; @endphp
+                    @foreach($questions as $q)
+                        @if($currentKategori !== $q->kategori)
+                            @if($cardOpen)
+                                </div>
+                                </div>
+                            @endif
+                            <div class="card shadow-sm mb-4 border-0">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0" style="text-transform: capitalize;">{{ str_replace('_',' ', $q->kategori) }}</h5>
+                                </div>
+                                <div class="card-body">
+                            @php $cardOpen = true; $currentKategori = $q->kategori; @endphp
+                        @endif
+
+                        <div class="mb-3 question-block" data-qid="{{ $q->id }}">
+                            <label class="form-label fw-semibold">{{ $q->pertanyaan }}</label>
+                            <div class="d-flex flex-column gap-2">
+                                @php
+                                    $choices = $q->choice_texts ?? ['A'=>'A','B'=>'B','C'=>'C','D'=>'D','E'=>'E'];
+                                @endphp
+                                @foreach(['A','B','C','D','E'] as $letter)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="answers[{{ $q->id }}]" id="answer_{{ $q->id }}_{{ $letter }}" value="{{ $letter }}" required @if(isset($existingAnswers[$q->id]) && strtoupper($existingAnswers[$q->id]) == $letter) checked @endif>
+                                        <label class="form-check-label" for="answer_{{ $q->id }}_{{ $letter }}"><strong>{{ $letter }}.</strong> {{ $choices[$letter] ?? $letter }}</label>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
                     @endforeach
+                    @if($cardOpen)
+                        </div>
+                        </div>
+                    @endif
 
                     <div class="d-flex justify-content-center mt-3">
                         <button id="submitBtn" type="submit" class="btn btn-primary btn-lg px-5">Simpan Jawaban</button>
