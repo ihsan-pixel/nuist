@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rekap Jawaban - {{ optional($score->school)->nama ?? 'Sekolah' }}</title>
+    <title>Rekap Jawaban Instrumen Deteksi Model Layanan Sekolah- {{ optional($score->school)->nama ?? 'Sekolah' }}</title>
     <style>
         body { font-family: Arial, Helvetica, sans-serif; color: #111; }
         .header { text-align: center; margin-bottom: 18px; }

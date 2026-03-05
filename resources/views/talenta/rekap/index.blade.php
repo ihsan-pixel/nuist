@@ -21,7 +21,7 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-9">
-            <h2 class="mb-3">Rekap School Level</h2>
+            <h2 class="mb-3">Rekap Instrumen Deteksi Model Layanan Sekolah</h2>
 
             <div class="row g-3 mb-3">
                 <div class="col-md-3">
