@@ -19,8 +19,8 @@
 
 <section class="section-clean">
     <div class="container">
-        <h2 class="section-title">Isi Assessment - School Level</h2>
-        <p class="section-subtitle">Jawab pertanyaan berikut untuk menghitung skor School Level sekolah Anda.</p>
+        <h2 class="section-title">Instrumen Deteksi Model Layanan Sekolah</h2>
+        <p class="section-subtitle">Jawab pertanyaan berikut sesuai pada sekolah Anda!</p>
 
         @if(session('success'))
             <div class="alert alert-success mt-3">{{ session('success') }}</div>
