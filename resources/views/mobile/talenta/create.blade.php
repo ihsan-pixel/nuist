@@ -804,7 +804,7 @@
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="form-group required">
+                    <div class="form-group">
                         <label>Riwayat Jabatan Guru</label>
                         <input type="text" name="riwayat_jabatan_pemula" value="{{ old('riwayat_jabatan_pemula') }}" placeholder="(1) Jelaskan Riwayat Jabatan Guru :">
                         <input type="text" name="riwayat_jabatan_terampil" value="{{ old('riwayat_jabatan_terampil') }}" placeholder="(2) Jelaskan Riwayat Jabatan Guru :" style="margin-top: 8px;">
