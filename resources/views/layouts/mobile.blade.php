@@ -608,7 +608,15 @@
             // Derive the effective disable flag: server-side route check (authoritative)
             // plus any per-page override (older pages may set window.DISABLE_PAGE_LOADER).
             var __DISABLE_PAGE_LOADER_SERVER = @json(request()->routeIs('mobile.kelola-izin'));
+            // Ensure per-page flag is reset on initial load unless server says otherwise.
+            if (!__DISABLE_PAGE_LOADER_SERVER) {
+                // force false to avoid leftover true from previous navigation (SPA/bfcache)
+                window.DISABLE_PAGE_LOADER = false;
+            }
             var __DISABLE_PAGE_LOADER = __DISABLE_PAGE_LOADER_SERVER || !!window.DISABLE_PAGE_LOADER;
+
+            // Debugging: print effective values so we can trace why loader is disabled
+            console.debug('DISABLE_PAGE_LOADER server:', __DISABLE_PAGE_LOADER_SERVER, 'window flag:', !!window.DISABLE_PAGE_LOADER, 'effective:', __DISABLE_PAGE_LOADER, 'path:', location.pathname);
 
             if (!__DISABLE_PAGE_LOADER) {
                 const buttons = document.querySelectorAll('.btn');
@@ -693,8 +701,15 @@
                 window.addEventListener('beforeunload', function(){ showLoader(); });
             }
 
-            // When returning via bfcache/pageshow, hide loader
-            window.addEventListener('pageshow', function(e){ hideLoader(); });
+            // When returning via bfcache/pageshow, hide loader and restore server-side flag
+            window.addEventListener('pageshow', function(e){
+                hideLoader();
+                try {
+                    // Reset per-page global flag to match server route for safety
+                    window.DISABLE_PAGE_LOADER = __DISABLE_PAGE_LOADER_SERVER;
+                    console.debug('pageshow reset DISABLE_PAGE_LOADER to', window.DISABLE_PAGE_LOADER);
+                } catch (err) { /* ignore */ }
+            });
         });
     </script>
     <script>
