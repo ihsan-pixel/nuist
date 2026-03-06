@@ -5,6 +5,8 @@
 
 @section('content')
 <div class="container py-3" style="max-width: 420px; margin: auto;">
+    {{-- Disable global page loader for this page to avoid overlay when approving/rejecting izin --}}
+    <script>window.DISABLE_PAGE_LOADER = true;</script>
     <style>
         .izin-card {
             background: #fff;

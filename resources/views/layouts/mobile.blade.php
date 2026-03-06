@@ -600,15 +600,17 @@
             });
 
             // Add loading states to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function() {
-                    if (this.form || this.getAttribute('href') === '#') {
-                        this.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Loading...';
-                        this.disabled = true;
-                    }
+            if (!window.DISABLE_PAGE_LOADER) {
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        if (this.form || this.getAttribute('href') === '#') {
+                            this.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Loading...';
+                            this.disabled = true;
+                        }
+                    });
                 });
-            });
+            }
 
             // Update notification badge on page load
             updateNotificationBadge();
@@ -646,12 +648,13 @@
             setTimeout(hideLoader, 220);
 
             // Show loader on form submits
-            var forms = document.querySelectorAll('form');
-            forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
+            function bindLoaderBindings(){
+                var forms = document.querySelectorAll('form');
+                forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
 
-            // Show loader when clicking same-origin navigation links (prevents flash when leaving)
-            function bindNavLinks(){
-                document.querySelectorAll('a[href]').forEach(function(a){
+                // Show loader when clicking same-origin navigation links (prevents flash when leaving)
+                function bindNavLinks(){
+                    document.querySelectorAll('a[href]').forEach(function(a){
                     try{
                         var href = a.getAttribute('href') || '';
                         if(!href || href.indexOf('#') === 0) return; // anchor only
@@ -673,10 +676,12 @@
                 });
             }
 
-            bindNavLinks();
-
-            // Show loader for full unloads (fallback for some navigations)
-            window.addEventListener('beforeunload', function(){ showLoader(); });
+            // Only bind loader behavior if not disabled by the page
+            if (!window.DISABLE_PAGE_LOADER) {
+                bindLoaderBindings();
+                // Show loader for full unloads (fallback for some navigations)
+                window.addEventListener('beforeunload', function(){ showLoader(); });
+            }
 
             // When returning via bfcache/pageshow, hide loader
             window.addEventListener('pageshow', function(e){ hideLoader(); });
