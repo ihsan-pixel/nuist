@@ -282,7 +282,9 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const isApprove = this.action.includes('approve');
+            // capture explicit reference to the form to avoid any `this` scoping issues
+            const formEl = this;
+            const isApprove = formEl.action.includes('approve');
             const confirmMessage = isApprove ?
                 'Apakah Anda yakin ingin menyetujui pengajuan izin ini?' :
                 'Apakah Anda yakin ingin menolak pengajuan izin ini?';
@@ -297,16 +299,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: isApprove ? 'Ya, Setujui' : 'Ya, Tolak',
                 cancelButtonText: 'Batal'
-            }).then((result) => {
+            }).then(function(result) {
                 if (result.isConfirmed) {
                     // Show loading state
-                    const button = this.querySelector('button');
-                    const originalText = button.innerHTML;
-                    button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i>';
-                    button.disabled = true;
+                    const button = formEl.querySelector('button');
+                    if (button) {
+                        // store original text in data attribute in case you want to restore later
+                        button.setAttribute('data-original-text', button.innerHTML);
+                        button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i>';
+                        button.disabled = true;
+                    }
 
-                    // Submit form
-                    this.submit();
+                    // Submit form via the captured reference
+                    formEl.submit();
                 }
             });
         });
