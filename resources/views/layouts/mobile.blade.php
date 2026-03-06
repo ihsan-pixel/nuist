@@ -329,6 +329,11 @@
 </head>
 
 <body data-layout-mode="light" class="mobile-layout">
+    <script>
+        // Disable the global page loader only for the mobile "kelola izin" route
+        // This sets a global flag read by the loader binding code below.
+        window.DISABLE_PAGE_LOADER = @json(request()->routeIs('mobile.kelola-izin'));
+    </script>
     <!-- Global page loader (used for navigation & form submits) -->
     <div id="pageLoader" aria-hidden="true" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(3,9,23,0.46);z-index:2200;transition:opacity .28s ease, visibility .28s ease;">
         <div class="loader-card" role="status" aria-live="polite" style="background:linear-gradient(180deg,#006b67,#004b4c);color:#fff;padding:12px 18px;border-radius:12px;display:flex;gap:12px;align-items:center;box-shadow:0 12px 36px rgba(2,70,64,0.18);">
