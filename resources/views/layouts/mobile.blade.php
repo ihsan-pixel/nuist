@@ -605,7 +605,12 @@
             });
 
             // Add loading states to buttons
-            if (!window.DISABLE_PAGE_LOADER) {
+            // Derive the effective disable flag: server-side route check (authoritative)
+            // plus any per-page override (older pages may set window.DISABLE_PAGE_LOADER).
+            var __DISABLE_PAGE_LOADER_SERVER = @json(request()->routeIs('mobile.kelola-izin'));
+            var __DISABLE_PAGE_LOADER = __DISABLE_PAGE_LOADER_SERVER || !!window.DISABLE_PAGE_LOADER;
+
+            if (!__DISABLE_PAGE_LOADER) {
                 const buttons = document.querySelectorAll('.btn');
                 buttons.forEach(button => {
                     button.addEventListener('click', function() {
@@ -681,8 +686,8 @@
                 });
             }
 
-            // Only bind loader behavior if not disabled by the page
-            if (!window.DISABLE_PAGE_LOADER) {
+            // Only bind loader behavior if not disabled (server-route or per-page)
+            if (!__DISABLE_PAGE_LOADER) {
                 bindLoaderBindings();
                 // Show loader for full unloads (fallback for some navigations)
                 window.addEventListener('beforeunload', function(){ showLoader(); });
