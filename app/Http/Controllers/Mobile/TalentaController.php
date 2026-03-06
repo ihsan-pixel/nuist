@@ -160,10 +160,10 @@ class TalentaController extends Controller
             'gty_tanggal' => 'required|string|max:50',
             'gty_sk' => 'nullable|file|mimes:pdf|max:10240',
             'masa_kerja_lpmnu' => 'required|integer|min:0',
-            'riwayat_jabatan_pemula' => 'required|string|max:100',
-            'riwayat_jabatan_terampil' => 'required|string|max:100',
-            'riwayat_jabatan_mahir' => 'required|string|max:100',
-            'riwayat_jabatan_ahli' => 'required|string|max:100',
+            'riwayat_jabatan_pemula' => 'nullable|string|max:100',
+            'riwayat_jabatan_terampil' => 'nullable|string|max:100',
+            'riwayat_jabatan_mahir' => 'nullable|string|max:100',
+            'riwayat_jabatan_ahli' => 'nullable|string|max:100',
 
             // File attachments
             'lampiran_step_1' => 'nullable|file|mimes:pdf|max:10240',
