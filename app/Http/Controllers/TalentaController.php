@@ -551,7 +551,10 @@ class TalentaController extends Controller
         if ($pemateri) {
             $materiModels = $pemateri->materis()->get();
         } else {
-            $materiModels = $fasilitator->materis()->get();
+            // For fasilitator users, allow access to ALL published materi so they can view
+            // and (optionally) assess tasks across all materi. Use published set to avoid
+            // exposing drafts or inactive materi.
+            $materiModels = \App\Models\TalentaMateri::where('status', \App\Models\TalentaMateri::STATUS_PUBLISHED)->get();
         }
 
         // If a specific materi_id is provided, make sure the current user actually teaches it
@@ -589,6 +592,8 @@ class TalentaController extends Controller
             'tugas' => $tugas,
             'materis' => $materiModels,
             'selected_materi_id' => $selectedMateriId,
+            // pass whether current user is a pemateri so blade can show/hide grading UI
+            'isPemateri' => (bool) $pemateri,
         ]);
     }
 
@@ -606,22 +611,24 @@ class TalentaController extends Controller
         try {
             $tugas = TugasTalentaLevel1::findOrFail($request->tugas_id);
 
-            // Check if the logged-in pemateri has access to this task
-            $pemateri = TalentaPemateri::where('user_id', Auth::id())->first();
-            if (!$pemateri) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda tidak memiliki akses sebagai pemateri.',
-                ], 403);
-            }
+                // Only pemateri users may save nilai. Fasilitator users can view all tugas
+                // but are not permitted to assign scores.
+                $pemateri = TalentaPemateri::where('user_id', Auth::id())->first();
+                if (!$pemateri) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hanya pemateri yang dapat memberikan nilai.',
+                    ], 403);
+                }
 
-            $materiSlugs = $pemateri->materis()->pluck('slug');
-            if (!$materiSlugs->contains($tugas->area)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda tidak memiliki akses untuk menilai tugas ini.',
-                ], 403);
-            }
+                // Ensure the tugas area belongs to one of pemateri's materi
+                $materiSlugs = $pemateri->materis()->pluck('slug');
+                if (!$materiSlugs->contains($tugas->area)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda tidak memiliki akses untuk menilai tugas ini.',
+                    ], 403);
+                }
 
             // If this tugas belongs to a kelompok, apply the same nilai to all tugas
             // records for that kelompok (same area & jenis_tugas). Otherwise, update only this tugas.
