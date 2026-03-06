@@ -806,7 +806,7 @@
                     </div>
                     <div class="form-group required">
                         <label>Riwayat Jabatan Guru</label>
-                        <input type="text" name="riwayat_jabatan_pemula" value="{{ old('riwayat_jabatan_pemula') }}" placeholder="(1) Jelaskan Riwayat Jabatan Guru :" required>
+                        <input type="text" name="riwayat_jabatan_pemula" value="{{ old('riwayat_jabatan_pemula') }}" placeholder="(1) Jelaskan Riwayat Jabatan Guru :">
                         <input type="text" name="riwayat_jabatan_terampil" value="{{ old('riwayat_jabatan_terampil') }}" placeholder="(2) Jelaskan Riwayat Jabatan Guru :" style="margin-top: 8px;">
                         <input type="text" name="riwayat_jabatan_mahir" value="{{ old('riwayat_jabatan_mahir') }}" placeholder="(3) Jelaskan Riwayat Jabatan Guru :" style="margin-top: 8px;">
                         <input type="text" name="riwayat_jabatan_ahli" value="{{ old('riwayat_jabatan_ahli') }}" placeholder="(4) Jelaskan Riwayat Jabatan Guru :" style="margin-top: 8px;">
