@@ -657,58 +657,90 @@
                 console.log('Success message element not found');
             }
 
-            // Page loader handling: show on form submit, same-origin link navigation, and full unloads; hide after pageshow
+            // ===============================
+            // GLOBAL PAGE LOADER
+            // ===============================
+
             var pageLoader = document.getElementById('pageLoader');
-            function hideLoader(){ if(!pageLoader) return; pageLoader.classList.add('hidden'); }
-            function showLoader(){ if(!pageLoader) return; pageLoader.classList.remove('hidden'); }
 
-            // Hide loader shortly after DOM ready for a smooth reveal
-            setTimeout(hideLoader, 220);
+            function showLoader(){
+                if(!pageLoader) return;
+                if(window.DISABLE_PAGE_LOADER) return;
+                pageLoader.classList.remove('hidden');
+            }
 
-            // Show loader on form submits
+            function hideLoader(){
+                if(!pageLoader) return;
+                pageLoader.classList.add('hidden');
+            }
+
+
+            // tampilkan loader saat pertama load
+            if(!window.DISABLE_PAGE_LOADER){
+                showLoader();
+            }
+
+            window.addEventListener('load', function(){
+                setTimeout(hideLoader, 300);
+            });
+
+
+            // ===============================
+            // BIND NAVIGATION
+            // ===============================
+
             function bindLoaderBindings(){
-                var forms = document.querySelectorAll('form');
-                forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
 
-                // Show loader when clicking same-origin navigation links (prevents flash when leaving)
-                function bindNavLinks(){
-                    document.querySelectorAll('a[href]').forEach(function(a){
-                    try{
-                        var href = a.getAttribute('href') || '';
-                        if(!href || href.indexOf('#') === 0) return; // anchor only
-                        if(href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) return;
-                        if(a.target && a.target !== '' && a.target !== '_self') return; // external target
-                        a.addEventListener('click', function(e){
-                            // allow modifier keys and non-left clicks to proceed as normal
-                            if(e.defaultPrevented) return;
-                            if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-                            if(e.button && e.button !== 0) return;
-                            // check same-origin
-                            try{
-                                var url = new URL(href, location.href);
-                                if(url.origin !== location.origin) return;
-                            }catch(err){ return; }
-                            showLoader();
-                        });
-                    }catch(err){ /* ignore individual link errors */ }
+                if(window.DISABLE_PAGE_LOADER) return;
+
+                // FORM SUBMIT
+                document.querySelectorAll('form').forEach(function(form){
+                    form.addEventListener('submit', function(){
+                        showLoader();
+                    });
                 });
+
+                // LINK NAVIGATION
+                document.querySelectorAll('a[href]').forEach(function(link){
+
+                    var href = link.getAttribute('href');
+
+                    if(!href) return;
+                    if(href.startsWith('#')) return;
+                    if(href.startsWith('mailto:')) return;
+                    if(href.startsWith('tel:')) return;
+
+                    link.addEventListener('click', function(e){
+
+                        if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+                        try{
+                            var url = new URL(href, location.href);
+                            if(url.origin !== location.origin) return;
+                        }catch(err){
+                            return;
+                        }
+
+                        showLoader();
+
+                    });
+
+                });
+
             }
 
-            // Only bind loader behavior if not disabled (server-route or per-page)
-            if (!__DISABLE_PAGE_LOADER) {
-                bindLoaderBindings();
-                // Show loader for full unloads (fallback for some navigations)
-                window.addEventListener('beforeunload', function(){ showLoader(); });
-            }
+            bindLoaderBindings();
 
-            // When returning via bfcache/pageshow, hide loader and restore server-side flag
-            window.addEventListener('pageshow', function(e){
+
+            // fallback ketika reload
+            window.addEventListener('beforeunload', function(){
+                showLoader();
+            });
+
+
+            // ketika halaman kembali dari cache
+            window.addEventListener('pageshow', function(){
                 hideLoader();
-                try {
-                    // Reset per-page global flag to match server route for safety
-                    window.DISABLE_PAGE_LOADER = __DISABLE_PAGE_LOADER_SERVER;
-                    console.debug('pageshow reset DISABLE_PAGE_LOADER to', window.DISABLE_PAGE_LOADER);
-                } catch (err) { /* ignore */ }
             });
         });
     </script>
