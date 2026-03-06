@@ -40,13 +40,32 @@
     </div>
 
     <!-- Error Messages -->
+    <!-- Error Messages -->
+    {{-- Pesan kesalahan dari controller (mis. gagal menyimpan ke database) --}}
+    @if (session('error') || session('db_error'))
+        <div class="alert alert-danger" role="alert" style="margin-bottom: 16px;">
+            <strong>Gagal menyimpan data ke database.</strong>
+            <div style="margin-top:6px;">
+                @if (session('error'))
+                    {{ session('error') }}
+                @elseif (session('db_error'))
+                    {{ session('db_error') }}
+                @endif
+            </div>
+            <div style="margin-top:8px; font-size:0.95em; color:#6c757d;">Silakan periksa data yang diisi, perbaiki jika perlu, lalu coba lagi. Jika masalah berlanjut, hubungi administrator sistem.</div>
+        </div>
+    @endif
+
+    {{-- Tampilkan pesan validasi (error dari validator) dengan header bahasa Indonesia --}}
     @if ($errors->any())
-        <div class="error-container">
+        <div class="error-container" style="margin-bottom:16px;">
+            <strong style="display:block; margin-bottom:8px;">Terjadi kesalahan saat mengirim data:</strong>
             <ul class="error-list">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
+            <div style="margin-top:8px; font-size:0.95em; color:#6c757d;">Periksa kolom yang bertanda merah atau pesan di atas, lalu perbaiki input Anda.</div>
         </div>
     @endif
 
