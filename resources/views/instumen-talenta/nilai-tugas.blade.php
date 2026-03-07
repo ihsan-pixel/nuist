@@ -39,13 +39,11 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Tugas ID</th>
                                     <th>Peserta / User</th>
                                     <th>Kelompok</th>
                                     <th>Area</th>
                                     <th>Penilai</th>
                                     <th>Nilai</th>
-                                    <th>Catatan</th>
                                     <th>Waktu</th>
                                 </tr>
                             </thead>
@@ -53,7 +51,6 @@
                                 @forelse($nilai ?? [] as $n)
                                     <tr>
                                         <td>{{ $n->id }}</td>
-                                        <td>{{ $n->tugas->id ?? '-' }}</td>
                                         <td>
                                             @if(isset($n->tugas->user))
                                                 {{ $n->tugas->user->name }}<br>
@@ -66,12 +63,11 @@
                                         <td>{{ $n->tugas->area ?? '-' }}</td>
                                         <td>{{ $n->penilai->name ?? '-' }}</td>
                                         <td>{{ $n->nilai ?? '-' }}</td>
-                                        <td>-</td>
                                         <td>{{ optional($n->created_at)->format('Y-m-d H:i') ?? '-' }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">Belum ada data nilai tugas.</td>
+                                        <td colspan="8" class="text-center">Belum ada data nilai tugas.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
