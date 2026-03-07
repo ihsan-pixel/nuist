@@ -60,7 +60,7 @@
                                             <td>
                                                 @if(isset($n->tugas->user))
                                                     {{ $n->tugas->user->name }}<br>
-                                                    <small class="text-muted">{{ $n->tugas->user->email ?? '-' }}</small>
+                                                    <small class="text-muted">{{ $n->tugas->user->madrasah->name ?? '-' }}</small>
                                                 @else
                                                     -
                                                 @endif
