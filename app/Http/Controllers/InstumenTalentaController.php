@@ -1012,9 +1012,29 @@ class InstumenTalentaController extends Controller
         return view('instumen-talenta.instrumen-penilaian-teknis', compact('teknis_details'));
     }
 
-    public function nilaiTugas()
+    public function nilaiTugas(Request $request)
     {
-        return view('instumen-talenta.nilai-tugas');
+        // Load nilai tugas with relations for display
+        $query = \App\Models\TugasNilai::with(['tugas.user', 'tugas.kelompok', 'penilai']);
+
+        // Optional filter by area (area is a field on tugas_talenta_level1)
+        if ($request->filled('area')) {
+            $area = $request->query('area');
+            $query->whereHas('tugas', function ($q) use ($area) {
+                $q->where('area', $area);
+            });
+        }
+
+        $nilai = $query->orderBy('id', 'desc')->get();
+
+        // provide areas for optional filter UI (reused from uploadTugas)
+        $areas = \App\Models\TugasTalentaLevel1::select('area')
+            ->whereNotNull('area')
+            ->distinct()
+            ->orderBy('area')
+            ->pluck('area');
+
+        return view('instumen-talenta.nilai-tugas', compact('nilai', 'areas'));
     }
 
     public function uploadSertifikat()
