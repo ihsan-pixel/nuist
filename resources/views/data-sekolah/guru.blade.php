@@ -377,7 +377,7 @@
                         <div class="stats-icon bg-primary">
                             <i class="bx bx-buildings"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Total Sekolah</p>
                             <h5 class="mb-0">{{ count($data) > 0 ? count($data) / 4 : 0 }}</h5>
                         </div>
@@ -393,7 +393,7 @@
                         <div class="stats-icon bg-success">
                             <i class="bx bx-user"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Total Guru (2023-2026)</p>
                             <h5 class="mb-0">{{ collect($data)->sum('total_guru') }}</h5>
                         </div>
@@ -409,7 +409,7 @@
                         <div class="stats-icon bg-info">
                             <i class="bx bx-user-check"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Rata-rata per Tahun</p>
                             <h5 class="mb-0">{{ count($data) > 0 ? round(collect($data)->sum('total_guru') / 4) : 0 }}</h5>
                         </div>
@@ -425,7 +425,7 @@
                         <div class="stats-icon bg-warning">
                             <i class="bx bx-calendar"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Periode</p>
                             <h5 class="mb-0">2023-2026</h5>
                         </div>
@@ -444,7 +444,7 @@
                         <div class="stats-icon bg-primary">
                             <i class="bx bx-buildings"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Total Sekolah</p>
                             <h5 class="mb-0">{{ count($data) }}</h5>
                         </div>
@@ -460,7 +460,7 @@
                         <div class="stats-icon bg-success">
                             <i class="bx bx-user"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Total Guru {{ $tahun }}</p>
                             <h5 class="mb-0">{{ collect($data)->sum('total_guru') }}</h5>
                         </div>
@@ -476,7 +476,7 @@
                         <div class="stats-icon bg-info">
                             <i class="bx bx-user-check"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Total Status Kepegawaian {{ $tahun }}</p>
                             <h5 class="mb-0">{{ collect($data)->sum('total_guru') }}</h5>
                         </div>
@@ -492,7 +492,7 @@
                         <div class="stats-icon bg-warning">
                             <i class="bx bx-calendar"></i>
                         </div>
-                        <div class="flex-grow-1 ms-3">
+                        <div class="grow ms-3">
                             <p class="text-muted mb-2">Tahun</p>
                             <h5 class="mb-0">{{ $tahun }}</h5>
                         </div>

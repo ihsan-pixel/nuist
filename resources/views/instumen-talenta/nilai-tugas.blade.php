@@ -38,7 +38,7 @@
                         <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100 table-sm">
                             <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th>No</th>
                                     <th>Peserta / User</th>
                                     <th>Kelompok</th>
                                     <th>Area</th>
