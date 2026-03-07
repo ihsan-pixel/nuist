@@ -41,6 +41,7 @@
                                     <th>No</th>
                                     <th>Peserta / User</th>
                                     <th>Kelompok</th>
+                                    <th>Jenis Tugas</th>
                                     <th>Area</th>
                                     <th>Penilai</th>
                                     <th>Nilai</th>
@@ -50,7 +51,7 @@
                             <tbody>
                                 @if(empty($nilai) || ($nilai instanceof \Illuminate\Support\Collection && $nilai->isEmpty()))
                                     <tr>
-                                        <td colspan="7" class="text-center">Belum ada data nilai tugas.</td>
+                                        <td colspan="8" class="text-center">Belum ada data nilai tugas.</td>
                                     </tr>
                                 @else
                                     @foreach($nilai as $index => $n)
@@ -65,6 +66,17 @@
                                                 @endif
                                             </td>
                                             <td>{{ $n->tugas->kelompok->nama_kelompok ?? '-' }}</td>
+                                            <td>
+                                                @php
+                                                    $jenis = $n->tugas->jenis_tugas ?? null;
+                                                    $jenisLabel = '-';
+                                                    if ($jenis === 'on_site') $jenisLabel = 'Tugas Onsite';
+                                                    elseif ($jenis === 'terstruktur') $jenisLabel = 'Tugas Terstruktur';
+                                                    elseif ($jenis === 'kelompok') $jenisLabel = 'Tugas Kelompok';
+                                                    elseif (!empty($jenis)) $jenisLabel = ucfirst($jenis);
+                                                @endphp
+                                                {{ $jenisLabel }}
+                                            </td>
                                             <td>{{ $n->tugas->area ?? '-' }}</td>
                                             <td>{{ $n->penilai->name ?? '-' }}</td>
                                             <td>{{ $n->nilai ?? '-' }}</td>
