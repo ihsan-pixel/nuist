@@ -48,28 +48,30 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($nilai ?? [] as $n)
+                                @if(empty($nilai) || ($nilai instanceof \Illuminate\Support\Collection && $nilai->isEmpty()))
                                     <tr>
-                                        <td>{{ $n->id }}</td>
-                                        <td>
-                                            @if(isset($n->tugas->user))
-                                                {{ $n->tugas->user->name }}<br>
-                                                <small class="text-muted">{{ $n->tugas->user->email ?? '-' }}</small>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>{{ $n->tugas->kelompok->nama_kelompok ?? '-' }}</td>
-                                        <td>{{ $n->tugas->area ?? '-' }}</td>
-                                        <td>{{ $n->penilai->name ?? '-' }}</td>
-                                        <td>{{ $n->nilai ?? '-' }}</td>
-                                        <td>{{ optional($n->created_at)->format('Y-m-d H:i') ?? '-' }}</td>
+                                        <td colspan="7" class="text-center">Belum ada data nilai tugas.</td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center">Belum ada data nilai tugas.</td>
-                                    </tr>
-                                @endforelse
+                                @else
+                                    @foreach($nilai as $index => $n)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>
+                                                @if(isset($n->tugas->user))
+                                                    {{ $n->tugas->user->name }}<br>
+                                                    <small class="text-muted">{{ $n->tugas->user->email ?? '-' }}</small>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>{{ $n->tugas->kelompok->nama_kelompok ?? '-' }}</td>
+                                            <td>{{ $n->tugas->area ?? '-' }}</td>
+                                            <td>{{ $n->penilai->name ?? '-' }}</td>
+                                            <td>{{ $n->nilai ?? '-' }}</td>
+                                            <td>{{ optional($n->created_at)->format('Y-m-d H:i') ?? '-' }}</td>
+                                        </tr>
+                                    @endforeach
+                                @endif
                             </tbody>
                         </table>
                     </div>
