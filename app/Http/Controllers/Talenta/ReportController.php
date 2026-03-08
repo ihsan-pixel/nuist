@@ -56,8 +56,10 @@ class ReportController extends Controller
 
     // For each peserta, compute averages and weighted total so the view only renders values.
     // We're operating on a Collection (not a paginator), so transform the collection directly.
-    $pesertaList->transform(function ($p) {
+        $pesertaList->transform(function ($p) {
+            // ensure we have a collection of raw penilaian records
             $pen = collect($p->penilaian ?? []);
+            $kelompokIds = [];
 
             $avgUjian = $pen->avg('nilai_ujian') ?: 0; // 0..100
             // Try to compute kelompok score from tugas_nilai (shared kelompok tasks)
@@ -101,6 +103,23 @@ class ReportController extends Controller
             } catch (\Throwable $e) {
                 $avgTerstruktur = $pen->avg('tugas') ?: 0;
             }
+            // Attach raw tugas_nilai records (do not average) so the view/modal can display
+            // every source nilai for this peserta (including kelompok tasks shared by kelompok_id).
+            try {
+                $rawTugasNilai = \App\Models\TugasNilai::with(['tugas', 'penilai', 'tugas.kelompok'])
+                    ->whereHas('tugas', function ($q) use ($p, $kelompokIds) {
+                        $q->where('user_id', $p->user_id);
+                        if (!empty($kelompokIds)) {
+                            $q->orWhereIn('kelompok_id', $kelompokIds);
+                        }
+                    })->get();
+            } catch (\Throwable $e) {
+                $rawTugasNilai = collect();
+            }
+
+            // expose raw penilaian and raw tugas_nilai on the peserta model for modal display
+            $p->raw_penilaian = $pen; // collection of TalentaPenilaianPeserta
+            $p->raw_tugas_nilai = $rawTugasNilai; // collection of TugasNilai
 
             // Compute total based on raw column values so maximum is 100.
             // avgUjian is 0..100. Other components may be 1..5 (penilaian) or 0..100 (tugas_nilai).

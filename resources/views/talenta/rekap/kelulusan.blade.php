@@ -60,7 +60,11 @@
                                     <td>{{ number_format($peserta->avg_kelompok ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kehadiran ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kedisiplinan ?? 0, 2) }}</td>
-                                    <td><strong>{{ number_format($peserta->total_score ?? 0, 2) }}</strong></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detail-peserta-{{ $peserta->id }}">
+                                            {{ number_format($peserta->total_score ?? 0, 2) }}
+                                        </button>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -69,6 +73,88 @@
                 </div>
             </div>
         </div>
+
+        {{-- Render modals for each peserta (raw data details) --}}
+        @foreach($pesertaList as $peserta)
+            <div class="modal fade" id="detail-peserta-{{ $peserta->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Detail Nilai: {{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <h6>Penilaian (raw entries)</h6>
+                            <div class="table-responsive mb-3">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Materi / Keterangan</th>
+                                            <th>Nilai Ujian</th>
+                                            <th>Praktik</th>
+                                            <th>Tugas</th>
+                                            <th>Partisipasi</th>
+                                            <th>Kehadiran</th>
+                                            <th>Disiplin / Sikap</th>
+                                            <th>Tanggal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($peserta->raw_penilaian ?? collect() as $pen)
+                                            <tr>
+                                                <td>{{ $pen->materi ?? ($pen->keterangan ?? '—') }}</td>
+                                                <td>{{ number_format($pen->nilai_ujian ?? 0, 2) }}</td>
+                                                <td>{{ number_format($pen->praktik ?? 0, 2) }}</td>
+                                                <td>{{ number_format($pen->tugas ?? 0, 2) }}</td>
+                                                <td>{{ number_format($pen->partisipasi ?? 0, 2) }}</td>
+                                                <td>{{ number_format($pen->kehadiran ?? 0, 2) }}</td>
+                                                <td>{{ number_format($pen->disiplin ?? ($pen->sikap ?? 0), 2) }}</td>
+                                                <td>{{ optional($pen->created_at)->format('Y-m-d') ?? '-' }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr><td colspan="8" class="text-center">Belum ada penilaian</td></tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h6>Tugas & Nilai Tugas (raw entries)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Area</th>
+                                            <th>Jenis</th>
+                                            <th>Kelompok</th>
+                                            <th>Nilai</th>
+                                            <th>Penilai</th>
+                                            <th>Tanggal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($peserta->raw_tugas_nilai ?? collect() as $tn)
+                                            <tr>
+                                                <td>{{ $tn->tugas->area ?? '-' }}</td>
+                                                <td>{{ $tn->tugas->jenis_tugas ?? '-' }}</td>
+                                                <td>{{ $tn->tugas->kelompok->nama_kelompok ?? ($tn->tugas->user->name ?? '-') }}</td>
+                                                <td>{{ number_format($tn->nilai ?? 0, 2) }}</td>
+                                                <td>{{ $tn->penilai->name ?? '-' }}</td>
+                                                <td>{{ optional($tn->created_at)->format('Y-m-d') ?? '-' }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr><td colspan="6" class="text-center">Belum ada nilai tugas</td></tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
 
         {{-- <div class="col-lg-3">
             <div class="card shadow-sm border-0 sticky-top" style="top:90px;">
