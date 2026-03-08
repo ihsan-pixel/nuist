@@ -48,6 +48,8 @@ Route::middleware(['auth'])->prefix('talenta')->name('talenta.')->group(function
     Route::middleware(['role:super_admin'])->group(function () {
         Route::get('/admin/dashboard', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('admin.dashboard');
     Route::resource('questions', App\Http\Controllers\Talenta\QuestionController::class);
+        // Rekap Kelulusan (Super Admin)
+        Route::get('/rekap-kelulusan', [App\Http\Controllers\Talenta\ReportController::class, 'rekapKelulusan'])->name('rekap.kelulusan');
         // results and schoollevel
         Route::get('/results', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('results.index');
         Route::get('/schoollevel', [App\Http\Controllers\Talenta\ReportController::class, 'index'])->name('schoollevel.index');

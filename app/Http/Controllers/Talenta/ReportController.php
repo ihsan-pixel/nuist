@@ -44,6 +44,18 @@ class ReportController extends Controller
         return view('talenta.rekap.index', compact('scores', 'totalSchools', 'avgStruktur', 'avgKompetensi', 'avgPerilaku', 'avgKeterpaduan', 'levelCounts'));
     }
 
+    /**
+     * Super Admin view: Rekap Kelulusan
+     * Shows high-level components used for final passing score.
+     */
+    public function rekapKelulusan()
+    {
+        $scores = SchoolScore::with('school')->paginate(30);
+
+        // pass through to a dedicated blade for super_admin
+        return view('talenta.rekap.kelulusan', compact('scores'));
+    }
+
     public function detail(SchoolScore $score)
     {
         // Try to load answers submitted by the recorded submitter first

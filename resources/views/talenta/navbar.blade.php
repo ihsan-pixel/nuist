@@ -389,6 +389,12 @@
                     <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
                     <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
                     <li><a href="{{ route('talenta.assessment.fill') }}" class="{{ request()->routeIs('talenta.assessment.fill') ? 'active' : '' }}">Instrumen Model Layanan</a></li>
+                @elseif(Auth::user()->role === 'super_admin')
+                    <li><a href="{{ route('talenta.admin.dashboard') }}" class="{{ request()->routeIs('talenta.admin.dashboard') ? 'active' : '' }}">Dashboard</a></li>
+                    <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
+                    <li><a href="{{ route('talenta.questions.index') }}" class="{{ request()->routeIs('talenta.questions.index') ? 'active' : '' }}">Soal</a></li>
+                    <li><a href="{{ route('talenta.results.index') }}" class="{{ request()->routeIs('talenta.results.index') ? 'active' : '' }}">Hasil</a></li>
+                    <li><a href="{{ route('talenta.rekap.kelulusan') }}" class="{{ request()->routeIs('talenta.rekap.kelulusan') ? 'active' : '' }}">Rekap Kelulusan</a></li>
                 @else
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
