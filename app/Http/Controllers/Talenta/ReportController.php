@@ -50,10 +50,10 @@ class ReportController extends Controller
      */
     public function rekapKelulusan()
     {
-        $scores = SchoolScore::with('school')->paginate(30);
+        // Load peserta list with penilaian (may be empty). We show peserta even if no penilaian exists.
+        $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian'])->paginate(30);
 
-        // pass through to a dedicated blade for super_admin
-        return view('talenta.rekap.kelulusan', compact('scores'));
+        return view('talenta.rekap.kelulusan', compact('pesertaList'));
     }
 
     public function detail(SchoolScore $score)

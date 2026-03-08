@@ -41,6 +41,14 @@ class TalentaPeserta extends Model
     }
 
     /**
+     * Penilaian records for this peserta (multiple materi).
+     */
+    public function penilaian()
+    {
+        return $this->hasMany(\App\Models\TalentaPenilaianPeserta::class, 'talenta_peserta_id');
+    }
+
+    /**
      * Get user's name (accessor).
      */
     public function getNamaAttribute()

@@ -35,7 +35,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width:60px">No</th>
-                                    <th>Sekolah</th>
+                                    <th>Nama Peserta</th>
+                                    <th>Asal Sekolah</th>
+                                    <th>Kode Peserta</th>
                                     <th style="width:110px">Nilai Ujian<br><small class="text-muted">(50%)</small></th>
                                     <th style="width:110px">Nilai On site<br><small class="text-muted">(10%)</small></th>
                                     <th style="width:110px">Nilai Terstruktur<br><small class="text-muted">(10%)</small></th>
@@ -46,20 +48,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($scores as $score)
+                                @foreach($pesertaList as $peserta)
                                 @php
-                                    $ujian = $score->ujian ?? $score->nilai_ujian ?? 0;
-                                    $onsite = $score->onsite ?? 0;
-                                    $terstruktur = $score->terstruktur ?? 0;
-                                    $kelompok = $score->kelompok ?? 0;
-                                    $kehadiran = $score->kehadiran ?? 0;
-                                    $kedisiplinan = $score->kedisiplinan ?? 0;
-                                    // assume component values are in percentage (0..100)
+                                    // aggregate penilaian (may have multiple materi). Take average where applicable.
+                                    $pen = $peserta->penilaian ?? collect();
+                                    $ujian = $pen->avg('nilai_ujian') ?? 0;
+                                    // mapping: praktik -> onsite, tugas -> terstruktur, partisipasi -> kelompok, kehadiran -> kehadiran, disiplin -> kedisiplinan
+                                    $onsite = $pen->avg('praktik') ?? 0;
+                                    $terstruktur = $pen->avg('tugas') ?? 0;
+                                    $kelompok = $pen->avg('partisipasi') ?? 0;
+                                    $kehadiran = $pen->avg('kehadiran') ?? 0;
+                                    $kedisiplinan = $pen->avg('disiplin') ?? $pen->avg('sikap') ?? 0;
                                     $total = ($ujian * 0.5) + ($onsite * 0.1) + ($terstruktur * 0.1) + ($kelompok * 0.1) + ($kehadiran * 0.1) + ($kedisiplinan * 0.1);
                                 @endphp
                                 <tr>
-                                    <td>{{ $loop->iteration + (($scores->currentPage() - 1) * $scores->perPage()) }}</td>
-                                    <td>{{ optional($score->school)->nama ?? ('Sekolah #' . $score->school_id) }}</td>
+                                    <td>{{ $loop->iteration + (($pesertaList->currentPage() - 1) * $pesertaList->perPage()) }}</td>
+                                    <td>{{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</td>
+                                    <td>{{ $peserta->namaMadrasah ?? $peserta->asal_sekolah ?? '—' }}</td>
+                                    <td>{{ $peserta->kode_peserta ?? '—' }}</td>
                                     <td>{{ number_format(floatval($ujian), 2) }}%</td>
                                     <td>{{ number_format(floatval($onsite), 2) }}%</td>
                                     <td>{{ number_format(floatval($terstruktur), 2) }}%</td>
