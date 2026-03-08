@@ -95,7 +95,7 @@
                     </div>
 
 
-                    <div class="modal-body">
+                    <div class="modal-body" style="max-height:70vh; overflow:auto;">
 
                         <!-- INFO PESERTA -->
                         <div class="card border-0 shadow-sm mb-4">
