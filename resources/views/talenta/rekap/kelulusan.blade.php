@@ -69,13 +69,13 @@
                 </div>
             </div>
 
-            <div class="mt-3">
+            {{-- <div class="mt-3">
                 {{ $pesertaList->links() }}
-            </div>
+            </div> --}}
 
         </div>
 
-        <div class="col-lg-3">
+        {{-- <div class="col-lg-3">
             <div class="card shadow-sm border-0 sticky-top" style="top:90px;">
                 <div class="card-body">
                     <h6 class="mb-2">Petunjuk</h6>
@@ -90,7 +90,7 @@
                     </ul>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 </div>
 </section>
