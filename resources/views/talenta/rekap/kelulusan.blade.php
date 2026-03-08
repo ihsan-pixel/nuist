@@ -82,7 +82,7 @@
             </div>
 
             <div class="mt-3">
-                {{ $scores->links() }}
+                {{ $pesertaList->links() }}
             </div>
 
         </div>
