@@ -130,10 +130,28 @@ class ReportController extends Controller
                 $rawTugasUploads = collect();
             }
 
+            // Penilaian yang diberikan oleh peserta kepada fasilitator (jika ada)
+            try {
+                $penByPesertaFasilitator = \App\Models\TalentaPenilaianFasilitator::with('fasilitator')
+                    ->where('user_id', $p->user_id)->get();
+            } catch (\Throwable $e) {
+                $penByPesertaFasilitator = collect();
+            }
+
+            // Penilaian yang diberikan oleh peserta kepada pemateri/trainer (jika ada)
+            try {
+                $penByPesertaPemateri = \App\Models\TalentaPenilaianTrainer::with('pemateri')
+                    ->where('user_id', $p->user_id)->get();
+            } catch (\Throwable $e) {
+                $penByPesertaPemateri = collect();
+            }
+
             // expose raw penilaian and raw tugas_nilai on the peserta model for modal display
             $p->raw_penilaian = $pen; // collection of TalentaPenilaianPeserta
             $p->raw_tugas_nilai = $rawTugasNilai; // collection of TugasNilai
             $p->raw_tugas_uploads = $rawTugasUploads; // collection of TugasTalentaLevel1
+            $p->penilaian_by_peserta_fasilitator = $penByPesertaFasilitator;
+            $p->penilaian_by_peserta_pemateri = $penByPesertaPemateri;
 
             // Compute total based on raw column values so maximum is 100.
             // avgUjian is 0..100. Other components may be 1..5 (penilaian) or 0..100 (tugas_nilai).

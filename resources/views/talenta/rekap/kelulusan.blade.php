@@ -333,6 +333,122 @@
 
             </div>
 
+                <!-- INSTRUMEN PENILAIAN TERHADAP PESERTA -->
+                <div class="card border mt-4">
+                    <div class="card-header bg-light fw-semibold">Instrumen Penilaian terhadap Peserta</div>
+                    <div class="card-body p-3">
+                        @php $penilaian = $peserta->raw_penilaian ?? collect(); @endphp
+                        @if($penilaian->isEmpty())
+                            <div class="text-muted small">Belum ada instrumen penilaian untuk peserta ini.</div>
+                        @else
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Materi</th>
+                                            <th>Praktik</th>
+                                            <th>Tugas</th>
+                                            <th>Partisipasi</th>
+                                            <th>Kehadiran</th>
+                                            <th>Disiplin</th>
+                                            <th>Tanggal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($penilaian as $pi)
+                                            <tr>
+                                                <td class="small">{{ optional($pi->materi)->judul_materi ?? ($pi->keterangan ?? '-') }}</td>
+                                                <td>{{ $pi->praktik ?? '-' }}</td>
+                                                <td>{{ $pi->tugas ?? '-' }}</td>
+                                                <td>{{ $pi->partisipasi ?? '-' }}</td>
+                                                <td>{{ $pi->kehadiran ?? '-' }}</td>
+                                                <td>{{ $pi->disiplin ?? ($pi->sikap ?? '-') }}</td>
+                                                <td class="small text-muted">{{ optional($pi->created_at)->format('d M Y') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- PENILAIAN OLEH PESERTA (KE PEMATERI & KE FASILITATOR) -->
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <div class="card border">
+                            <div class="card-header bg-light fw-semibold">Penilaian oleh Peserta - Pemateri</div>
+                            <div class="card-body p-3">
+                                @php $pemateriRatings = $peserta->penilaian_by_peserta_pemateri ?? collect(); @endphp
+                                @if($pemateriRatings->isEmpty())
+                                    <div class="text-muted small">Belum ada penilaian pemateri oleh peserta ini.</div>
+                                @else
+                                    <div class="table-responsive">
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Pemateri</th>
+                                                    <th>Kualitas Materi</th>
+                                                    <th>Penyampaian</th>
+                                                    <th>Umpan Balik</th>
+                                                    <th>Tanggal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($pemateriRatings as $pr)
+                                                    <tr>
+                                                        <td class="small">{{ optional($pr->pemateri)->nama ?? '-' }}</td>
+                                                        <td>{{ $pr->kualitas_materi ?? '-' }}</td>
+                                                        <td>{{ $pr->penyampaian ?? '-' }}</td>
+                                                        <td>{{ $pr->umpan_balik ?? '-' }}</td>
+                                                        <td class="small text-muted">{{ optional($pr->created_at)->format('d M Y') }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border">
+                            <div class="card-header bg-light fw-semibold">Penilaian oleh Peserta - Fasilitator</div>
+                            <div class="card-body p-3">
+                                @php $fasilitatorRatings = $peserta->penilaian_by_peserta_fasilitator ?? collect(); @endphp
+                                @if($fasilitatorRatings->isEmpty())
+                                    <div class="text-muted small">Belum ada penilaian fasilitator oleh peserta ini.</div>
+                                @else
+                                    <div class="table-responsive">
+                                        <table class="table table-sm mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fasilitator</th>
+                                                    <th>Pendampingan</th>
+                                                    <th>Respons</th>
+                                                    <th>Koordinasi</th>
+                                                    <th>Tanggal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($fasilitatorRatings as $fr)
+                                                    <tr>
+                                                        <td class="small">{{ optional($fr->fasilitator)->nama ?? '-' }}</td>
+                                                        <td>{{ $fr->pendampingan ?? '-' }}</td>
+                                                        <td>{{ $fr->respons ?? '-' }}</td>
+                                                        <td>{{ $fr->koordinasi ?? '-' }}</td>
+                                                        <td class="small text-muted">{{ optional($fr->created_at)->format('d M Y') }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">
