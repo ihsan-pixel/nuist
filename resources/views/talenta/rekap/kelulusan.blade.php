@@ -122,135 +122,72 @@
                         </div>
 
 
-                        <!-- PENILAIAN -->
-                        <div class="card border-0 shadow-sm mb-4">
-
-                            <div class="card-header bg-white fw-semibold">
-                                Penilaian Materi
+                        <!-- RINGKASAN PENILAIAN -->
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body small">
+                                <div class="row">
+                                    <div class="col-md-4 mb-2"><strong>Ujian:</strong> {{ number_format($peserta->avg_ujian ?? 0,2) }}</div>
+                                    <div class="col-md-4 mb-2"><strong>On site:</strong> {{ number_format($peserta->avg_onsite ?? 0,2) }}</div>
+                                    <div class="col-md-4 mb-2"><strong>Terstruktur:</strong> {{ number_format($peserta->avg_terstruktur ?? 0,2) }}</div>
+                                    <div class="col-md-4 mb-2"><strong>Kelompok:</strong> {{ number_format($peserta->avg_kelompok ?? 0,2) }}</div>
+                                    <div class="col-md-4 mb-2"><strong>Kehadiran:</strong> {{ number_format($peserta->avg_kehadiran ?? 0,2) }}</div>
+                                    <div class="col-md-4 mb-2"><strong>Kedisiplinan:</strong> {{ number_format($peserta->avg_kedisiplinan ?? 0,2) }}</div>
+                                </div>
                             </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-striped table-sm align-middle mb-0">
-
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Materi</th>
-                                            <th>Ujian</th>
-                                            <th>Praktik</th>
-                                            <th>Tugas</th>
-                                            <th>Partisipasi</th>
-                                            <th>Kehadiran</th>
-                                            <th>Disiplin</th>
-                                            <th>Tanggal</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-
-                                        @forelse($peserta->raw_penilaian ?? collect() as $pen)
-
-                                        <tr>
-                                            <td>{{ $pen->materi ?? ($pen->keterangan ?? '-') }}</td>
-
-                                            <td>{{ number_format($pen->nilai_ujian ?? 0,2) }}</td>
-
-                                            <td>{{ number_format($pen->praktik ?? 0,2) }}</td>
-
-                                            <td>{{ number_format($pen->tugas ?? 0,2) }}</td>
-
-                                            <td>{{ number_format($pen->partisipasi ?? 0,2) }}</td>
-
-                                            <td>{{ number_format($pen->kehadiran ?? 0,2) }}</td>
-
-                                            <td>{{ number_format($pen->disiplin ?? ($pen->sikap ?? 0),2) }}</td>
-
-                                            <td>
-                                                {{ optional($pen->created_at)->format('d M Y') ?? '-' }}
-                                            </td>
-                                        </tr>
-
-                                        @empty
-
-                                        <tr>
-                                            <td colspan="8" class="text-center text-muted py-4">
-                                                Belum ada penilaian
-                                            </td>
-                                        </tr>
-
-                                        @endforelse
-
-                                    </tbody>
-
-                                </table>
-                            </div>
-
                         </div>
 
-
-                        <!-- NILAI TUGAS -->
+                        <!-- TUGAS UPLOAD PER MATERI -->
                         <div class="card border-0 shadow-sm">
-
-                            <div class="card-header bg-white fw-semibold">
-                                Nilai Tugas
+                            <div class="card-header bg-white fw-semibold">Tugas yang diupload (per materi/area)</div>
+                            <div class="card-body p-0">
+                                @php $tasksByArea = ($peserta->raw_tugas_uploads ?? collect())->groupBy('area'); @endphp
+                                @if($tasksByArea->isEmpty())
+                                    <div class="p-3 text-muted">Belum ada tugas yang diupload.</div>
+                                @else
+                                    @foreach($tasksByArea as $area => $tasks)
+                                        <div class="p-3 border-bottom">
+                                            <h6 class="mb-2">{{ $area }}</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Jenis</th>
+                                                            <th>Kelompok / Pengupload</th>
+                                                            <th>File</th>
+                                                            <th>Nilai (avg)</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($tasks as $t)
+                                                            <tr>
+                                                                <td>{{ ucfirst($t->jenis_tugas ?? '-') }}</td>
+                                                                <td>{{ $t->kelompok->nama_kelompok ?? ($t->user->name ?? '-') }}</td>
+                                                                <td>
+                                                                    @if(!empty($t->file_path))
+                                                                        <a href="{{ asset($t->file_path) }}" target="_blank">Lihat file</a>
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if(isset($t->nilai) && $t->nilai->count())
+                                                                        @php $avg = $t->nilai->avg('nilai'); @endphp
+                                                                        {{ number_format($avg,2) }}
+                                                                    @else
+                                                                        <span class="text-muted">Belum dinilai</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ ucfirst($t->status ?? '—') }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
                             </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-striped table-sm align-middle mb-0">
-
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Area</th>
-                                            <th>Jenis</th>
-                                            <th>Kelompok</th>
-                                            <th>Nilai</th>
-                                            <th>Penilai</th>
-                                            <th>Tanggal</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-
-                                        @forelse($peserta->raw_tugas_nilai ?? collect() as $tn)
-
-                                        <tr>
-
-                                            <td>{{ $tn->tugas->area ?? '-' }}</td>
-
-                                            <td>{{ $tn->tugas->jenis_tugas ?? '-' }}</td>
-
-                                            <td>
-                                                {{ $tn->tugas->kelompok->nama_kelompok ?? ($tn->tugas->user->name ?? '-') }}
-                                            </td>
-
-                                            <td>
-                                                <span class="badge bg-primary">
-                                                    {{ number_format($tn->nilai ?? 0,2) }}
-                                                </span>
-                                            </td>
-
-                                            <td>{{ $tn->penilai->name ?? '-' }}</td>
-
-                                            <td>
-                                                {{ optional($tn->created_at)->format('d M Y') ?? '-' }}
-                                            </td>
-
-                                        </tr>
-
-                                        @empty
-
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted py-4">
-                                                Belum ada nilai tugas
-                                            </td>
-                                        </tr>
-
-                                        @endforelse
-
-                                    </tbody>
-
-                                </table>
-                            </div>
-
                         </div>
 
                     </div>

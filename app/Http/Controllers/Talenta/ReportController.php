@@ -117,9 +117,23 @@ class ReportController extends Controller
                 $rawTugasNilai = collect();
             }
 
+            // Also load tugas uploads (may exist even if no nilai has been given yet).
+            try {
+                $rawTugasUploads = \App\Models\TugasTalentaLevel1::with(['nilai', 'kelompok'])
+                    ->where(function ($q) use ($p, $kelompokIds) {
+                        $q->where('user_id', $p->user_id);
+                        if (!empty($kelompokIds)) {
+                            $q->orWhereIn('kelompok_id', $kelompokIds);
+                        }
+                    })->get();
+            } catch (\Throwable $e) {
+                $rawTugasUploads = collect();
+            }
+
             // expose raw penilaian and raw tugas_nilai on the peserta model for modal display
             $p->raw_penilaian = $pen; // collection of TalentaPenilaianPeserta
             $p->raw_tugas_nilai = $rawTugasNilai; // collection of TugasNilai
+            $p->raw_tugas_uploads = $rawTugasUploads; // collection of TugasTalentaLevel1
 
             // Compute total based on raw column values so maximum is 100.
             // avgUjian is 0..100. Other components may be 1..5 (penilaian) or 0..100 (tugas_nilai).
