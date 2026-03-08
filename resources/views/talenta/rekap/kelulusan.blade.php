@@ -16,7 +16,7 @@
 
 <!-- Back button (no navbar) -->
 <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
-    <button onclick="window.location.href='{{ route('talenta.admin.dashboard') }}'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #0f172a; margin-top: 20px;">
+    <button onclick="window.location.href='{{ route('talenta.dashboard') }}'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #0f172a; margin-top: 20px;">
         <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
     </button>
     <span class="fw-bold" style="color: #0f172a; font-size: 14px; margin-top: 20px">Kembali</span>
