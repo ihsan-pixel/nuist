@@ -8,6 +8,12 @@
 
 @include('talenta.partials.styles')
 
+<style>
+    /* clickable row styling for professional look */
+    .clickable-row { cursor: pointer; }
+    .clickable-row:hover { background-color: #f8f9fa; }
+</style>
+
 <!-- Back button (no navbar) -->
 <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
     <button onclick="window.location.href='{{ route('talenta.admin.dashboard') }}'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #0f172a; margin-top: 20px;">
@@ -49,7 +55,7 @@
                             </thead>
                             <tbody>
                                 @foreach($pesertaList as $peserta)
-                                <tr>
+                                <tr data-bs-toggle="modal" data-bs-target="#detail-peserta-{{ $peserta->id }}" class="clickable-row" tabindex="0">
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</td>
                                     <td>{{ $peserta->namaMadrasah ?? $peserta->asal_sekolah ?? '—' }}</td>
@@ -61,9 +67,7 @@
                                     <td>{{ number_format($peserta->avg_kehadiran ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kedisiplinan ?? 0, 2) }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detail-peserta-{{ $peserta->id }}">
-                                            {{ number_format($peserta->total_score ?? 0, 2) }}
-                                        </button>
+                                        <span class="fw-semibold">{{ number_format($peserta->total_score ?? 0, 2) }}</span>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -484,5 +488,24 @@
 
 @include('talenta.partials.scripts')
 @include('landing.footer')
+
+<script>
+    // Allow opening modal via keyboard (Enter) for accessible rows
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.clickable-row').forEach(function (row) {
+            row.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    row.click();
+                }
+            });
+        });
+
+        // Prevent accidental modal opening when clicking interactive controls inside a row
+        document.querySelectorAll('.clickable-row a, .clickable-row button').forEach(function (el) {
+            el.addEventListener('click', function (ev) { ev.stopPropagation(); });
+        });
+    });
+</script>
 
 @endsection
