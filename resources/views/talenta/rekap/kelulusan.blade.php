@@ -72,25 +72,27 @@
                                 </tr>
                                 @endforeach
                             </tbody>
-                                            <tfoot>
-                                                @php
-                                                    $avgPraktik = $penilaian->avg('praktik') ?: 0;
-                                                    $avgTugas = $penilaian->avg('tugas') ?: 0;
-                                                    $avgPart = $penilaian->avg('partisipasi') ?: 0;
-                                                    $avgKehadiran = $penilaian->avg('kehadiran') ?: 0;
-                                                    $avgDisiplin = $penilaian->map(function($x){ return $x->disiplin ?? $x->sikap ?? null; })->filter()->avg() ?: 0;
-                                                @endphp
-                                                <tr class="table-secondary">
-                                                    <td class="fw-semibold">Rata-rata</td>
-                                                    <td></td>
-                                                    <td>{{ number_format($avgPraktik,2) }}</td>
-                                                    <td>{{ number_format($avgTugas,2) }}</td>
-                                                    <td>{{ number_format($avgPart,2) }}</td>
-                                                    <td>{{ number_format($avgKehadiran,2) }}</td>
-                                                    <td>{{ number_format($avgDisiplin,2) }}</td>
-                                                    <td></td>
-                                                </tr>
-                                            </tfoot>
+                            <tfoot>
+                                @php
+                                    $avgUjian = $pesertaList->avg('avg_ujian') ?: 0;
+                                    $avgOnsite = $pesertaList->avg('avg_onsite') ?: 0;
+                                    $avgTerstruktur = $pesertaList->avg('avg_terstruktur') ?: 0;
+                                    $avgKelompok = $pesertaList->avg('avg_kelompok') ?: 0;
+                                    $avgKehadiran = $pesertaList->avg('avg_kehadiran') ?: 0;
+                                    $avgKedisiplinan = $pesertaList->avg('avg_kedisiplinan') ?: 0;
+                                    $avgTotal = $pesertaList->avg('total_score') ?: 0;
+                                @endphp
+                                <tr class="table-secondary">
+                                    <td class="fw-semibold" colspan="4">Rata-rata</td>
+                                    <td>{{ number_format($avgUjian,2) }}</td>
+                                    <td>{{ number_format($avgOnsite,2) }}</td>
+                                    <td>{{ number_format($avgTerstruktur,2) }}</td>
+                                    <td>{{ number_format($avgKelompok,2) }}</td>
+                                    <td>{{ number_format($avgKehadiran,2) }}</td>
+                                    <td>{{ number_format($avgKedisiplinan,2) }}</td>
+                                    <td>{{ number_format($avgTotal,2) }}</td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
