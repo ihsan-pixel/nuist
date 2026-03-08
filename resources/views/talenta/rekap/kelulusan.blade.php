@@ -72,7 +72,7 @@
                                 </tr>
                                 @endforeach
                             </tbody>
-                            <tfoot>
+                            {{-- <tfoot>
                                 @php
                                     $avgUjian = $pesertaList->avg('avg_ujian') ?: 0;
                                     $avgOnsite = $pesertaList->avg('avg_onsite') ?: 0;
@@ -92,7 +92,7 @@
                                     <td>{{ number_format($avgKedisiplinan,2) }}</td>
                                     <td>{{ number_format($avgTotal,2) }}</td>
                                 </tr>
-                            </tfoot>
+                            </tfoot> --}}
                         </table>
                     </div>
                 </div>
@@ -126,14 +126,14 @@
                             <div class="card-body">
                                 <div class="row">
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-4" style="text-align: center">
                                         <div class="small text-muted">Nama Peserta</div>
                                         <div class="fw-semibold">
                                             {{ $peserta->nama ?? ($peserta->user->name ?? '-') }}
                                         </div>
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-4" style="text-align: center">
                                         <div class="small text-muted">Asal Sekolah</div>
                                         <div class="fw-semibold">
                                             {{ $peserta->namaMadrasah ?? $peserta->asal_sekolah ?? '-' }}
@@ -141,7 +141,7 @@
                                     </div>
 
                                     <div class="col-md-4">
-                                        <div class="small text-muted">Kode Peserta</div>
+                                        <div class="small text-muted" style="text-align: center">Kode Peserta</div>
                                         <div class="fw-semibold">
                                             {{ $peserta->kode_peserta ?? '-' }}
                                         </div>
