@@ -38,13 +38,13 @@
                                     <th>Nama Peserta</th>
                                     <th>Asal Sekolah</th>
                                     <th>Kode Peserta</th>
-                                    <th style="width:110px">Nilai Ujian<br><small class="text-muted">(50%)</small></th>
-                                    <th style="width:110px">Nilai On site<br><small class="text-muted">(10%)</small></th>
-                                    <th style="width:110px">Nilai Terstruktur<br><small class="text-muted">(10%)</small></th>
-                                    <th style="width:110px">Nilai Kelompok<br><small class="text-muted">(10%)</small></th>
-                                    <th style="width:110px">Nilai Kehadiran<br><small class="text-muted">(10%)</small></th>
-                                    <th style="width:110px">Nilai Kedisiplinan<br><small class="text-muted">(10%)</small></th>
-                                    <th style="width:120px">Total (Weighted)</th>
+                                    <th style="width:120px">Nilai Ujian<br><small class="text-muted">(rata-rata)</small></th>
+                                    <th style="width:120px">Nilai On site<br><small class="text-muted">(rata-rata)</small></th>
+                                    <th style="width:120px">Nilai Terstruktur<br><small class="text-muted">(rata-rata)</small></th>
+                                    <th style="width:120px">Nilai Kelompok<br><small class="text-muted">(rata-rata)</small></th>
+                                    <th style="width:120px">Nilai Kehadiran<br><small class="text-muted">(rata-rata)</small></th>
+                                    <th style="width:120px">Nilai Kedisiplinan<br><small class="text-muted">(rata-rata)</small></th>
+                                    <th style="width:150px">Total (Weighted, skala 0-5)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -66,13 +66,18 @@
                                     <td>{{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</td>
                                     <td>{{ $peserta->namaMadrasah ?? $peserta->asal_sekolah ?? '—' }}</td>
                                     <td>{{ $peserta->kode_peserta ?? '—' }}</td>
-                                    <td>{{ number_format(floatval($ujian), 2) }}%</td>
-                                    <td>{{ number_format(floatval($onsite), 2) }}%</td>
-                                    <td>{{ number_format(floatval($terstruktur), 2) }}%</td>
-                                    <td>{{ number_format(floatval($kelompok), 2) }}%</td>
-                                    <td>{{ number_format(floatval($kehadiran), 2) }}%</td>
-                                    <td>{{ number_format(floatval($kedisiplinan), 2) }}%</td>
-                                    <td><strong>{{ number_format($total, 2) }}%</strong></td>
+                                    {{-- Show raw averages: ujian (0-100), others (1-5). Compute total on 0-5 scale by normalizing ujian to 0-5 (divide by 20). --}}
+                                    <td>{{ number_format(floatval($ujian), 2) }}</td>
+                                    <td>{{ number_format(floatval($onsite), 2) }}</td>
+                                    <td>{{ number_format(floatval($terstruktur), 2) }}</td>
+                                    <td>{{ number_format(floatval($kelompok), 2) }}</td>
+                                    <td>{{ number_format(floatval($kehadiran), 2) }}</td>
+                                    <td>{{ number_format(floatval($kedisiplinan), 2) }}</td>
+                                    @php
+                                        $ujian_norm = floatval($ujian) / 20.0; // convert 0-100 -> 0-5
+                                        $total_score = ($ujian_norm * 0.5) + ($onsite * 0.1) + ($terstruktur * 0.1) + ($kelompok * 0.1) + ($kehadiran * 0.1) + ($kedisiplinan * 0.1);
+                                    @endphp
+                                    <td><strong>{{ number_format($total_score, 2) }}</strong></td>
                                 </tr>
                                 @endforeach
                             </tbody>
