@@ -58,11 +58,28 @@ class ReportController extends Controller
             $pen = collect($p->penilaian ?? []);
 
             $avgUjian = $pen->avg('nilai_ujian') ?: 0; // 0..100
-            $avgOnsite = $pen->avg('praktik') ?: 0; // 1..5
-            $avgTerstruktur = $pen->avg('tugas') ?: 0; // 1..5
             $avgKelompok = $pen->avg('partisipasi') ?: 0; // 1..5
             $avgKehadiran = $pen->avg('kehadiran') ?: 0; // 1..5
             $avgKedisiplinan = $pen->avg('disiplin') ?: $pen->avg('sikap') ?: 0; // 1..5 fallback
+
+            // For Onsite and Terstruktur we take the average from the tugas_nilai table
+            // (TugasTalentaLevel1 -> nilai relationship). Use the TugasNilai model.
+            try {
+                $avgOnsite = (float) \App\Models\TugasNilai::whereHas('tugas', function ($q) use ($p) {
+                    $q->where('user_id', $p->user_id)->where('jenis_tugas', 'on_site');
+                })->avg('nilai') ?: 0;
+            } catch (\Throwable $e) {
+                // If anything goes wrong (missing table/model), fallback to penilaian field
+                $avgOnsite = $pen->avg('praktik') ?: 0;
+            }
+
+            try {
+                $avgTerstruktur = (float) \App\Models\TugasNilai::whereHas('tugas', function ($q) use ($p) {
+                    $q->where('user_id', $p->user_id)->where('jenis_tugas', 'terstruktur');
+                })->avg('nilai') ?: 0;
+            } catch (\Throwable $e) {
+                $avgTerstruktur = $pen->avg('tugas') ?: 0;
+            }
 
             // Normalize ujian 0..100 -> 0..5 for weighted calculation
             $ujianNorm = $avgUjian / 20.0;
