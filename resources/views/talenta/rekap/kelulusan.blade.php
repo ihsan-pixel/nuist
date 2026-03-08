@@ -38,13 +38,13 @@
                                     <th>Nama Peserta</th>
                                     <th>Asal Sekolah</th>
                                     <th>Kode Peserta</th>
-                                    <th style="width:120px">Nilai Ujian</th>
-                                    <th style="width:120px">Nilai On site</th>
-                                    <th style="width:120px">Nilai Terstruktur</th>
-                                    <th style="width:120px">Nilai Kelompok</th>
-                                    <th style="width:120px">Nilai Kehadiran</th>
-                                    <th style="width:120px">Nilai Kedisiplinan</th>
-                                    <th style="width:150px">Total (Weighted, skala 0-5)</th>
+                                    <th style="width:120px">Ujian</th>
+                                    <th style="width:120px">On site</th>
+                                    <th style="width:120px">Terstruktur</th>
+                                    <th style="width:120px">Kelompok</th>
+                                    <th style="width:120px">Kehadiran</th>
+                                    <th style="width:120px">Kedisiplinan</th>
+                                    <th style="width:150px">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
