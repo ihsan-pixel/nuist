@@ -171,8 +171,14 @@
                                                                     @endif
                                                                 </td>
                                                                 <td>
-                                                                    @if(isset($t->nilai) && $t->nilai->count())
-                                                                        @php $avg = $t->nilai->avg('nilai'); @endphp
+                                                                    @php
+                                                                        // prefer using the controller-loaded raw_tugas_nilai collection
+                                                                        // because some nilai rows may not be eager-loaded on the tugas model
+                                                                        $nilaiRows = ($peserta->raw_tugas_nilai ?? collect())->where('tugas_talenta_level1_id', $t->id);
+                                                                    @endphp
+
+                                                                    @if($nilaiRows->isNotEmpty())
+                                                                        @php $avg = $nilaiRows->avg('nilai'); @endphp
                                                                         {{ number_format($avg,2) }}
                                                                     @else
                                                                         <span class="text-muted">Belum dinilai</span>
