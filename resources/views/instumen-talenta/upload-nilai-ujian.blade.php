@@ -138,9 +138,9 @@ $(document).ready(function () {
                         </table>
                     </div>
 
-                    <div class="mt-3">
+                    {{-- <div class="mt-3">
                         {{ $entries->links() }}
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
