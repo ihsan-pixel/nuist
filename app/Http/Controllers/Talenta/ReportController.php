@@ -58,7 +58,14 @@ class ReportController extends Controller
             $pen = collect($p->penilaian ?? []);
 
             $avgUjian = $pen->avg('nilai_ujian') ?: 0; // 0..100
-            $avgKelompok = $pen->avg('partisipasi') ?: 0; // 1..5
+            // Try to compute kelompok score from tugas_nilai (tugas with jenis 'kelompok')
+            try {
+                $avgKelompok = (float) \App\Models\TugasNilai::whereHas('tugas', function ($q) use ($p) {
+                    $q->where('user_id', $p->user_id)->where('jenis_tugas', 'kelompok');
+                })->avg('nilai') ?: 0;
+            } catch (\Throwable $e) {
+                $avgKelompok = $pen->avg('partisipasi') ?: 0; // 1..5 fallback
+            }
             $avgKehadiran = $pen->avg('kehadiran') ?: 0; // 1..5
             $avgKedisiplinan = $pen->avg('disiplin') ?: $pen->avg('sikap') ?: 0; // 1..5 fallback
 
