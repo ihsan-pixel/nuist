@@ -675,7 +675,11 @@ class InstumenTalentaController extends Controller
      */
     public function uploadNilaiUjian(Request $request)
     {
-        $entries = TalentaPenilaianPeserta::with(['peserta.user'])->orderBy('id', 'desc')->paginate(50);
+        // Order by talenta_peserta_id so the table is grouped/sorted by peserta
+        $entries = TalentaPenilaianPeserta::with(['peserta.user'])
+            ->orderBy('talenta_peserta_id', 'asc')
+            ->orderBy('id', 'desc')
+            ->paginate(50);
 
         return view('instumen-talenta.upload-nilai-ujian', compact('entries'));
     }
