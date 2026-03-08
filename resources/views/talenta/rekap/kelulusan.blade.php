@@ -76,52 +76,128 @@
 
         {{-- Render modals for each peserta (raw data details) --}}
         @foreach($pesertaList as $peserta)
-            <div class="modal fade" id="detail-peserta-{{ $peserta->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Detail Nilai: {{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal fade" id="detail-peserta-{{ $peserta->id }}" tabindex="-1">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content border-0 shadow">
+
+                    <div class="modal-header bg-light">
+                        <div>
+                            <h5 class="modal-title fw-bold">
+                                Detail Nilai Peserta
+                            </h5>
+                            <small class="text-muted">
+                                {{ $peserta->nama ?? ($peserta->user->name ?? '-') }}
+                                • {{ $peserta->kode_peserta ?? '-' }}
+                            </small>
                         </div>
-                        <div class="modal-body">
-                            <h6>Penilaian (raw entries)</h6>
-                            <div class="table-responsive mb-3">
-                                <table class="table table-sm">
-                                    <thead>
+
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+
+                    <div class="modal-body">
+
+                        <!-- INFO PESERTA -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <div class="row text-sm">
+
+                                    <div class="col-md-4 mb-2">
+                                        <strong>Nama Peserta</strong><br>
+                                        {{ $peserta->nama ?? ($peserta->user->name ?? '-') }}
+                                    </div>
+
+                                    <div class="col-md-4 mb-2">
+                                        <strong>Asal Sekolah</strong><br>
+                                        {{ $peserta->namaMadrasah ?? $peserta->asal_sekolah ?? '-' }}
+                                    </div>
+
+                                    <div class="col-md-4 mb-2">
+                                        <strong>Kode Peserta</strong><br>
+                                        {{ $peserta->kode_peserta ?? '-' }}
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- PENILAIAN -->
+                        <div class="card border-0 shadow-sm mb-4">
+
+                            <div class="card-header bg-white fw-semibold">
+                                Penilaian Materi
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-striped table-sm align-middle mb-0">
+
+                                    <thead class="table-light">
                                         <tr>
-                                            <th>Materi / Keterangan</th>
-                                            <th>Nilai Ujian</th>
+                                            <th>Materi</th>
+                                            <th>Ujian</th>
                                             <th>Praktik</th>
                                             <th>Tugas</th>
                                             <th>Partisipasi</th>
                                             <th>Kehadiran</th>
-                                            <th>Disiplin / Sikap</th>
+                                            <th>Disiplin</th>
                                             <th>Tanggal</th>
                                         </tr>
                                     </thead>
+
                                     <tbody>
+
                                         @forelse($peserta->raw_penilaian ?? collect() as $pen)
-                                            <tr>
-                                                <td>{{ $pen->materi ?? ($pen->keterangan ?? '—') }}</td>
-                                                <td>{{ number_format($pen->nilai_ujian ?? 0, 2) }}</td>
-                                                <td>{{ number_format($pen->praktik ?? 0, 2) }}</td>
-                                                <td>{{ number_format($pen->tugas ?? 0, 2) }}</td>
-                                                <td>{{ number_format($pen->partisipasi ?? 0, 2) }}</td>
-                                                <td>{{ number_format($pen->kehadiran ?? 0, 2) }}</td>
-                                                <td>{{ number_format($pen->disiplin ?? ($pen->sikap ?? 0), 2) }}</td>
-                                                <td>{{ optional($pen->created_at)->format('Y-m-d') ?? '-' }}</td>
-                                            </tr>
+
+                                        <tr>
+                                            <td>{{ $pen->materi ?? ($pen->keterangan ?? '-') }}</td>
+
+                                            <td>{{ number_format($pen->nilai_ujian ?? 0,2) }}</td>
+
+                                            <td>{{ number_format($pen->praktik ?? 0,2) }}</td>
+
+                                            <td>{{ number_format($pen->tugas ?? 0,2) }}</td>
+
+                                            <td>{{ number_format($pen->partisipasi ?? 0,2) }}</td>
+
+                                            <td>{{ number_format($pen->kehadiran ?? 0,2) }}</td>
+
+                                            <td>{{ number_format($pen->disiplin ?? ($pen->sikap ?? 0),2) }}</td>
+
+                                            <td>
+                                                {{ optional($pen->created_at)->format('d M Y') ?? '-' }}
+                                            </td>
+                                        </tr>
+
                                         @empty
-                                            <tr><td colspan="8" class="text-center">Belum ada penilaian</td></tr>
+
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted py-4">
+                                                Belum ada penilaian
+                                            </td>
+                                        </tr>
+
                                         @endforelse
+
                                     </tbody>
+
                                 </table>
                             </div>
 
-                            <h6>Tugas & Nilai Tugas (raw entries)</h6>
+                        </div>
+
+
+                        <!-- NILAI TUGAS -->
+                        <div class="card border-0 shadow-sm">
+
+                            <div class="card-header bg-white fw-semibold">
+                                Nilai Tugas
+                            </div>
+
                             <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
+                                <table class="table table-striped table-sm align-middle mb-0">
+
+                                    <thead class="table-light">
                                         <tr>
                                             <th>Area</th>
                                             <th>Jenis</th>
@@ -131,29 +207,64 @@
                                             <th>Tanggal</th>
                                         </tr>
                                     </thead>
+
                                     <tbody>
+
                                         @forelse($peserta->raw_tugas_nilai ?? collect() as $tn)
-                                            <tr>
-                                                <td>{{ $tn->tugas->area ?? '-' }}</td>
-                                                <td>{{ $tn->tugas->jenis_tugas ?? '-' }}</td>
-                                                <td>{{ $tn->tugas->kelompok->nama_kelompok ?? ($tn->tugas->user->name ?? '-') }}</td>
-                                                <td>{{ number_format($tn->nilai ?? 0, 2) }}</td>
-                                                <td>{{ $tn->penilai->name ?? '-' }}</td>
-                                                <td>{{ optional($tn->created_at)->format('Y-m-d') ?? '-' }}</td>
-                                            </tr>
+
+                                        <tr>
+
+                                            <td>{{ $tn->tugas->area ?? '-' }}</td>
+
+                                            <td>{{ $tn->tugas->jenis_tugas ?? '-' }}</td>
+
+                                            <td>
+                                                {{ $tn->tugas->kelompok->nama_kelompok ?? ($tn->tugas->user->name ?? '-') }}
+                                            </td>
+
+                                            <td>
+                                                <span class="badge bg-primary">
+                                                    {{ number_format($tn->nilai ?? 0,2) }}
+                                                </span>
+                                            </td>
+
+                                            <td>{{ $tn->penilai->name ?? '-' }}</td>
+
+                                            <td>
+                                                {{ optional($tn->created_at)->format('d M Y') ?? '-' }}
+                                            </td>
+
+                                        </tr>
+
                                         @empty
-                                            <tr><td colspan="6" class="text-center">Belum ada nilai tugas</td></tr>
+
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                Belum ada nilai tugas
+                                            </td>
+                                        </tr>
+
                                         @endforelse
+
                                     </tbody>
+
                                 </table>
                             </div>
+
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                        </div>
+
                     </div>
+
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Tutup
+                        </button>
+                    </div>
+
                 </div>
             </div>
+        </div>
         @endforeach
 
         {{-- <div class="col-lg-3">
