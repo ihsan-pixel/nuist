@@ -343,6 +343,7 @@
                                         <table class="table table-sm mb-0">
                                             <thead>
                                                 <tr>
+                                                    <th>Fasilitator</th>
                                                     <th>Materi</th>
                                                     <th>Praktik</th>
                                                     <th>Tugas</th>
@@ -355,6 +356,7 @@
                                             <tbody>
                                                 @foreach($penilaian as $pi)
                                                     <tr>
+                                                        <td class="small">{{ $pi->user->name ?? '-' }}</td>
                                                         <td class="small">{{ optional($pi->materi)->judul_materi ?? ($pi->keterangan ?? '-') }}</td>
                                                         <td>{{ $pi->praktik ?? '-' }}</td>
                                                         <td>{{ $pi->tugas ?? '-' }}</td>
