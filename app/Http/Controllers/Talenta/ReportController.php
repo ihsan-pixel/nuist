@@ -114,8 +114,8 @@ class ReportController extends Controller
             $onsitePercent = $scaleIfSmall($avgOnsite);
             $terstrukturPercent = $scaleIfSmall($avgTerstruktur);
             $kelompokPercent = $scaleIfSmall($avgKelompok);
-            $kehadiranPercent = $scaleIfSmall($avgKehadiran);
-            $kedisiplinanPercent = $scaleIfSmall($avgKedisiplinan);
+            $kehadiranPercent = $avgKehadiran;
+            $kedisiplinanPercent = $avgKedisiplinan;
 
             // Weighted total (0..100): ujian 50%, others 10% each
             $totalPercent = ($avgUjian * 0.5)
