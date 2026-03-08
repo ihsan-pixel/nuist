@@ -17,7 +17,7 @@ class ReportController extends Controller
     public function index()
     {
         // route already guarded by role:super_admin, so just load the scores
-        $scores = SchoolScore::with('school')->paginate(30);
+        $scores = SchoolScore::with('school')->paginate(60);
         return view('talenta.results.index', compact('scores'));
     }
 
@@ -25,7 +25,7 @@ class ReportController extends Controller
     public function rekap()
     {
         // route already guarded by role:pemateri in routes/web.php
-        $scores = SchoolScore::with('school')->paginate(30);
+        $scores = SchoolScore::with('school')->paginate(60);
 
         // summary aggregates for the rekap view
         $totalSchools = SchoolScore::count();
@@ -51,7 +51,7 @@ class ReportController extends Controller
     public function rekapKelulusan()
     {
         // Load peserta list with penilaian (may be empty). We show peserta even if no penilaian exists.
-        $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian']);
+        $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian'])->paginate(60);
 
         // For each peserta, compute averages and weighted total so the view only renders values.
         $pesertaList->getCollection()->transform(function ($p) {
