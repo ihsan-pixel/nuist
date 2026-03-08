@@ -51,7 +51,7 @@ class ReportController extends Controller
     public function rekapKelulusan()
     {
         // Load peserta list with penilaian (may be empty). We show peserta even if no penilaian exists.
-        $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian'])->paginate(30);
+        $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian']);
 
         // For each peserta, compute averages and weighted total so the view only renders values.
         $pesertaList->getCollection()->transform(function ($p) {
