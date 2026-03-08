@@ -101,7 +101,7 @@
 
         @foreach($pesertaList as $peserta)
         <div class="modal fade" id="detail-peserta-{{ $peserta->id }}" tabindex="-1">
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-dialog modal-xxl modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow-sm">
 
                     <!-- HEADER -->
