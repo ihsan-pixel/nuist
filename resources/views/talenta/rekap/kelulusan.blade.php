@@ -155,7 +155,7 @@
                                                             <th>Kelompok / Pengupload</th>
                                                             <th>File</th>
                                                             <th>Nilai (avg)</th>
-                                                            <th>Status</th>
+                                                            <th>Rincian</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -184,7 +184,45 @@
                                                                         <span class="text-muted">Belum dinilai</span>
                                                                     @endif
                                                                 </td>
-                                                                <td>{{ ucfirst($t->status ?? '—') }}</td>
+                                                                <td>
+                                                                    @php $rId = 'rincian-'.$peserta->id.'-'.$t->id; @endphp
+                                                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#{{ $rId }}" aria-expanded="false" aria-controls="{{ $rId }}">
+                                                                        Rincian
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr class="collapse" id="{{ $rId }}">
+                                                                <td colspan="5" class="bg-light">
+                                                                    @php
+                                                                        $nilaiRowsForThis = ($peserta->raw_tugas_nilai ?? collect())->where('tugas_talenta_level1_id', $t->id);
+                                                                    @endphp
+
+                                                                    @if($nilaiRowsForThis->isEmpty())
+                                                                        <div class="small text-muted p-2">Belum ada nilai untuk tugas ini.</div>
+                                                                    @else
+                                                                        <div class="small p-2">
+                                                                            <table class="table table-sm mb-0">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th>Penilai</th>
+                                                                                        <th>Nilai</th>
+                                                                                        <th>Tanggal</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    @foreach($nilaiRowsForThis as $nr)
+                                                                                        <tr>
+                                                                                            <td>{{ $nr->penilai->name ?? '—' }}</td>
+                                                                                            <td>{{ number_format($nr->nilai ?? 0,2) }}</td>
+                                                                                            <td>{{ optional($nr->created_at)->format('d M Y H:i') ?? '-' }}</td>
+                                                                                        </tr>
+                                                                                    @endforeach
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    @endif
+                                                                </td>
                                                             </tr>
                                                         @endforeach
                                                     </tbody>
