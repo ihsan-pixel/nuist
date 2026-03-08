@@ -24,6 +24,8 @@ use App\Exports\Instumen\PesertaAllExport;
 use App\Models\TugasTalentaLevel1;
 use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
+use App\Models\TalentaPenilaianPeserta;
+use Illuminate\Support\Facades\Auth;
 
 class InstumenTalentaController extends Controller
 {
@@ -659,13 +661,98 @@ class InstumenTalentaController extends Controller
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ]);
         } catch (\Throwable $e) {
-            \Log::error('downloadTugas error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            Log::error('downloadTugas error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             $msg = 'Gagal menghasilkan PDF: ' . $e->getMessage();
             if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
                 return response($msg, 500)->header('Content-Type', 'text/plain');
             }
             return redirect()->back()->with('error', $msg);
         }
+    }
+
+    /**
+     * Show page to upload nilai ujian and list existing nilai.
+     */
+    public function uploadNilaiUjian(Request $request)
+    {
+        $entries = TalentaPenilaianPeserta::with(['peserta.user'])->orderBy('id', 'desc')->paginate(50);
+
+        return view('instumen-talenta.upload-nilai-ujian', compact('entries'));
+    }
+
+    /**
+     * Import CSV file with columns: kode_peserta, nilai_ujian
+     */
+    public function importNilaiUjian(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $path = $request->file('file')->getRealPath();
+        $handle = fopen($path, 'r');
+        if ($handle === false) {
+            return redirect()->back()->with('error', 'Gagal membuka file.');
+        }
+
+        $header = null;
+        $rowCount = 0;
+        while (($row = fgetcsv($handle, 0, ',')) !== false) {
+            if (!$header) {
+                $header = array_map('strtolower', $row);
+                continue;
+            }
+
+            $data = array_combine($header, $row);
+            if (!$data) continue;
+
+            $kode = $data['kode_peserta'] ?? ($data['kode'] ?? null) ;
+            $nilaiRaw = $data['nilai_ujian'] ?? ($data['nilai'] ?? null);
+            if (empty($kode) || $nilaiRaw === null) continue;
+
+            $nilai = (int) filter_var($nilaiRaw, FILTER_SANITIZE_NUMBER_INT);
+            if ($nilai < 0) $nilai = 0;
+            if ($nilai > 100) $nilai = 100;
+
+            $peserta = \App\Models\TalentaPeserta::where('kode_peserta', $kode)->first();
+            if (!$peserta) continue;
+
+            $keterangan = ($nilai >= 70) ? 'Lulus' : 'Tidak Lulus';
+
+            // update or create penilaian for the importing user
+            TalentaPenilaianPeserta::updateOrCreate(
+                ['talenta_peserta_id' => $peserta->id, 'user_id' => Auth::id() ?? 0],
+                ['nilai_ujian' => $nilai, 'keterangan' => $keterangan]
+            );
+
+            $rowCount++;
+        }
+
+        fclose($handle);
+
+        return redirect()->back()->with('success', "Import selesai. Baris diproses: {$rowCount}");
+    }
+
+    public function updateNilaiUjian(Request $request, $id)
+    {
+        $request->validate([
+            'nilai_ujian' => 'required|integer|min:0|max:100',
+        ]);
+
+        $entry = TalentaPenilaianPeserta::findOrFail($id);
+        $nilai = (int) $request->nilai_ujian;
+        $entry->nilai_ujian = $nilai;
+        $entry->keterangan = ($nilai >= 70) ? 'Lulus' : 'Tidak Lulus';
+        $entry->save();
+
+        return redirect()->back()->with('success', 'Nilai berhasil diupdate.');
+    }
+
+    public function deleteNilaiUjian(Request $request, $id)
+    {
+        $entry = TalentaPenilaianPeserta::findOrFail($id);
+        $entry->delete();
+        return redirect()->back()->with('success', 'Entry nilai ujian dihapus.');
     }
 
     public function instrumenPenilaian(\Illuminate\Http\Request $request)

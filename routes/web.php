@@ -630,6 +630,12 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     Route::get('/instrumen-penilaian/peserta/export/{evaluatorId}', [App\Http\Controllers\InstumenTalentaController::class, 'exportPeserta'])->name('instrumen-penilaian.peserta.export');
     Route::get('/instrumen-penilaian/peserta/export-all', [App\Http\Controllers\InstumenTalentaController::class, 'exportPesertaAll'])->name('instrumen-penilaian.peserta.export_all');
 
+    // Upload Nilai Ujian (CSV import + CRUD)
+    Route::get('/upload-nilai-ujian', [App\Http\Controllers\InstumenTalentaController::class, 'uploadNilaiUjian'])->name('upload-nilai-ujian')->middleware(['role:super_admin,admin']);
+    Route::post('/import-nilai-ujian', [App\Http\Controllers\InstumenTalentaController::class, 'importNilaiUjian'])->name('import-nilai-ujian')->middleware(['role:super_admin,admin']);
+    Route::post('/update-nilai-ujian/{id}', [App\Http\Controllers\InstumenTalentaController::class, 'updateNilaiUjian'])->name('update-nilai-ujian')->middleware(['role:super_admin,admin']);
+    Route::post('/delete-nilai-ujian/{id}', [App\Http\Controllers\InstumenTalentaController::class, 'deleteNilaiUjian'])->name('delete-nilai-ujian')->middleware(['role:super_admin,admin']);
+
     // Create User for Pemateri
     Route::post('/create-user-pemateri', [App\Http\Controllers\InstumenTalentaController::class, 'createUserForPemateri'])->name('create-user-pemateri')->middleware(['role:super_admin,admin']);
 
