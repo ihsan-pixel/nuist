@@ -58,12 +58,24 @@ class ReportController extends Controller
             $pen = collect($p->penilaian ?? []);
 
             $avgUjian = $pen->avg('nilai_ujian') ?: 0; // 0..100
-            // Try to compute kelompok score from tugas_nilai (tugas with jenis 'kelompok')
+            // Try to compute kelompok score from tugas_nilai (shared kelompok tasks)
             try {
-                $avgKelompok = (float) \App\Models\TugasNilai::whereHas('tugas', function ($q) use ($p) {
-                    $q->where('user_id', $p->user_id)->where('jenis_tugas', 'kelompok');
-                })->avg('nilai') ?: 0;
+                // Find kelompok ids that this peserta (user) belongs to. Members of the same
+                // kelompok should inherit the same kelompok tugas scores.
+                $kelompokIds = \App\Models\TalentaKelompok::whereHas('users', function ($q) use ($p) {
+                    $q->where('users.id', $p->user_id);
+                })->pluck('id')->toArray();
+
+                if (!empty($kelompokIds)) {
+                    $avgKelompok = (float) \App\Models\TugasNilai::whereHas('tugas', function ($q) use ($kelompokIds) {
+                        $q->whereIn('kelompok_id', $kelompokIds)->where('jenis_tugas', 'kelompok');
+                    })->avg('nilai') ?: 0;
+                } else {
+                    // no kelompok assigned -> fallback to per-peserta penilaian
+                    $avgKelompok = $pen->avg('partisipasi') ?: 0;
+                }
             } catch (\Throwable $e) {
+                // anything goes wrong (missing table/model), fallback to penilaian field
                 $avgKelompok = $pen->avg('partisipasi') ?: 0; // 1..5 fallback
             }
             $avgKehadiran = $pen->avg('kehadiran') ?: 0; // 1..5
