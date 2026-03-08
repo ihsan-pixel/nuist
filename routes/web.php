@@ -68,6 +68,8 @@ Route::middleware(['auth'])->prefix('talenta')->name('talenta.')->group(function
     Route::middleware(['role:pemateri'])->group(function () {
         Route::get('/dashboard', function () { return view('talenta.dashboard'); })->name('dashboard');
         Route::get('/rekap', [App\Http\Controllers\Talenta\ReportController::class, 'rekap'])->name('rekap.index');
+        // Allow pemateri to view full rekap kelulusan (same controller, different route name)
+        Route::get('/rekap-kelulusan', [App\Http\Controllers\Talenta\ReportController::class, 'rekapKelulusan'])->name('rekap.kelulusan.pemateri');
         Route::get('/rekap/{score}', [App\Http\Controllers\Talenta\ReportController::class, 'detail'])->name('rekap.detail');
         Route::get('/rekap/{score}/pdf', [App\Http\Controllers\Talenta\ReportController::class, 'pdf'])->name('rekap.pdf');
     });
