@@ -53,6 +53,34 @@ class ReportController extends Controller
         // Load peserta list with penilaian (may be empty). We show peserta even if no penilaian exists.
         $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian'])->paginate(30);
 
+        // For each peserta, compute averages and weighted total so the view only renders values.
+        $pesertaList->getCollection()->transform(function ($p) {
+            $pen = collect($p->penilaian ?? []);
+
+            $avgUjian = $pen->avg('nilai_ujian') ?: 0; // 0..100
+            $avgOnsite = $pen->avg('praktik') ?: 0; // 1..5
+            $avgTerstruktur = $pen->avg('tugas') ?: 0; // 1..5
+            $avgKelompok = $pen->avg('partisipasi') ?: 0; // 1..5
+            $avgKehadiran = $pen->avg('kehadiran') ?: 0; // 1..5
+            $avgKedisiplinan = $pen->avg('disiplin') ?: $pen->avg('sikap') ?: 0; // 1..5 fallback
+
+            // Normalize ujian 0..100 -> 0..5 for weighted calculation
+            $ujianNorm = $avgUjian / 20.0;
+
+            $total = ($ujianNorm * 0.5) + ($avgOnsite * 0.1) + ($avgTerstruktur * 0.1) + ($avgKelompok * 0.1) + ($avgKehadiran * 0.1) + ($avgKedisiplinan * 0.1);
+
+            // attach computed values onto the model instance for easy use in the view
+            $p->avg_ujian = round((float) $avgUjian, 2);
+            $p->avg_onsite = round((float) $avgOnsite, 2);
+            $p->avg_terstruktur = round((float) $avgTerstruktur, 2);
+            $p->avg_kelompok = round((float) $avgKelompok, 2);
+            $p->avg_kehadiran = round((float) $avgKehadiran, 2);
+            $p->avg_kedisiplinan = round((float) $avgKedisiplinan, 2);
+            $p->total_score = round((float) $total, 2);
+
+            return $p;
+        });
+
         return view('talenta.rekap.kelulusan', compact('pesertaList'));
     }
 
