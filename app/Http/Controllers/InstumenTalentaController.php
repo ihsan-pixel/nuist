@@ -675,50 +675,9 @@ class InstumenTalentaController extends Controller
      */
     public function uploadNilaiUjian(Request $request)
     {
-        // We'll show one row per peserta using the latest penilaian for each peserta.
-        // Load TalentaPeserta ordered by their id (database order) together with the latest penilaian.
-        $entries = \App\Models\TalentaPeserta::with(['user', 'latestPenilaian'])
-            ->orderBy('id', 'asc')
-            ->paginate(50);
+        $entries = TalentaPenilaianPeserta::with(['peserta.user'])->orderBy('id', 'desc')->paginate(50);
 
         return view('instumen-talenta.upload-nilai-ujian', compact('entries'));
-    }
-
-    /**
-     * Save (create/update) nilai ujian for a peserta. This accepts peserta id and creates or updates
-     * the penilaian record for the current authenticated user (or user_id = 0 if none).
-     */
-    public function saveNilaiUjianForPeserta(Request $request, $pesertaId)
-    {
-        $request->validate([
-            'nilai_ujian' => 'required|integer|min:0|max:100',
-        ]);
-
-        $peserta = \App\Models\TalentaPeserta::findOrFail($pesertaId);
-
-        $userId = Auth::id() ?? 0;
-
-        // Try to get the latest penilaian for this peserta by this user
-        $penilaian = TalentaPenilaianPeserta::where('talenta_peserta_id', $peserta->id)
-            ->where('user_id', $userId)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $nilai = (int) $request->input('nilai_ujian');
-        $keterangan = ($nilai >= 70) ? 'Lulus' : 'Tidak Lulus';
-
-        if ($penilaian) {
-            $penilaian->update(['nilai_ujian' => $nilai, 'keterangan' => $keterangan]);
-        } else {
-            TalentaPenilaianPeserta::create([
-                'talenta_peserta_id' => $peserta->id,
-                'user_id' => $userId,
-                'nilai_ujian' => $nilai,
-                'keterangan' => $keterangan,
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Nilai ujian disimpan untuk peserta ' . ($peserta->kode_peserta ?? $peserta->id));
     }
 
     /**

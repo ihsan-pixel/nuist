@@ -41,23 +41,6 @@ class TalentaPeserta extends Model
     }
 
     /**
-     * Penilaian entries for this peserta.
-     */
-    public function penilaian()
-    {
-        return $this->hasMany(\App\Models\TalentaPenilaianPeserta::class, 'talenta_peserta_id');
-    }
-
-    /**
-     * Latest penilaian (one) for display convenience.
-     */
-    public function latestPenilaian()
-    {
-        // requires Laravel 8+ latestOfMany support
-        return $this->hasOne(\App\Models\TalentaPenilaianPeserta::class, 'talenta_peserta_id')->latestOfMany();
-    }
-
-    /**
      * Get user's name (accessor).
      */
     public function getNamaAttribute()
