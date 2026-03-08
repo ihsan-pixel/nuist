@@ -331,8 +331,6 @@
                             </div>
                         </div>
 
-                    </div>
-
                         <!-- INSTRUMEN PENILAIAN TERHADAP PESERTA -->
                         <div class="card border mt-4">
                             <div class="card-header bg-light fw-semibold">Instrumen Penilaian terhadap Peserta</div>
@@ -449,6 +447,7 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
                     <div class="modal-footer">
                         <button class="btn btn-secondary" data-bs-dismiss="modal">
