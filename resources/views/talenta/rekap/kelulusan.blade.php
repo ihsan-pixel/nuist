@@ -94,7 +94,7 @@
             </div>
 
 
-            <div class="modal-body">
+            <div class="modal-body" style="max-height:70vh; overflow:auto;">
 
                 <!-- PROFIL PESERTA -->
                 <div class="card border mb-4">
