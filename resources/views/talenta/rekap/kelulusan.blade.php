@@ -12,6 +12,14 @@
     /* clickable row styling for professional look */
     .clickable-row { cursor: pointer; }
     .clickable-row:hover { background-color: #f8f9fa; }
+    /* wider modal for Rekap Kelulusan */
+    .modal-dialog.modal-wide {
+        max-width: 1400px;
+        width: 100%;
+    }
+    @media (max-width: 1400px) {
+        .modal-dialog.modal-wide { max-width: 95%; }
+    }
 </style>
 
 <!-- Back button (no navbar) -->
@@ -101,7 +109,7 @@
 
         @foreach($pesertaList as $peserta)
         <div class="modal fade" id="detail-peserta-{{ $peserta->id }}" tabindex="-1">
-            <div class="modal-dialog modal-xxl modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable modal-wide">
                 <div class="modal-content border-0 shadow-sm">
 
                     <!-- HEADER -->
