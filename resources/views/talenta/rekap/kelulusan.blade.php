@@ -72,6 +72,25 @@
                                 </tr>
                                 @endforeach
                             </tbody>
+                                            <tfoot>
+                                                @php
+                                                    $avgPraktik = $penilaian->avg('praktik') ?: 0;
+                                                    $avgTugas = $penilaian->avg('tugas') ?: 0;
+                                                    $avgPart = $penilaian->avg('partisipasi') ?: 0;
+                                                    $avgKehadiran = $penilaian->avg('kehadiran') ?: 0;
+                                                    $avgDisiplin = $penilaian->map(function($x){ return $x->disiplin ?? $x->sikap ?? null; })->filter()->avg() ?: 0;
+                                                @endphp
+                                                <tr class="table-secondary">
+                                                    <td class="fw-semibold">Rata-rata</td>
+                                                    <td></td>
+                                                    <td>{{ number_format($avgPraktik,2) }}</td>
+                                                    <td>{{ number_format($avgTugas,2) }}</td>
+                                                    <td>{{ number_format($avgPart,2) }}</td>
+                                                    <td>{{ number_format($avgKehadiran,2) }}</td>
+                                                    <td>{{ number_format($avgDisiplin,2) }}</td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
                         </table>
                     </div>
                 </div>
