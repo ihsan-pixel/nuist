@@ -50,7 +50,7 @@
                             <tbody>
                                 @foreach($pesertaList as $peserta)
                                 <tr>
-                                    <td>{{ $loop->iteration + (($pesertaList->currentPage() - 1) * $pesertaList->perPage()) }}</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</td>
                                     <td>{{ $peserta->namaMadrasah ?? $peserta->asal_sekolah ?? '—' }}</td>
                                     <td>{{ $peserta->kode_peserta ?? '—' }}</td>

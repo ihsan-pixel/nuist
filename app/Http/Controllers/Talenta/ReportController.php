@@ -17,7 +17,7 @@ class ReportController extends Controller
     public function index()
     {
         // route already guarded by role:super_admin, so just load the scores
-        $scores = SchoolScore::with('school')->paginate(60);
+        $scores = SchoolScore::with('school')->paginate(30);
         return view('talenta.results.index', compact('scores'));
     }
 
@@ -25,7 +25,7 @@ class ReportController extends Controller
     public function rekap()
     {
         // route already guarded by role:pemateri in routes/web.php
-        $scores = SchoolScore::with('school')->paginate(60);
+        $scores = SchoolScore::with('school')->paginate(30);
 
         // summary aggregates for the rekap view
         $totalSchools = SchoolScore::count();
@@ -50,11 +50,13 @@ class ReportController extends Controller
      */
     public function rekapKelulusan()
     {
-        // Load peserta list with penilaian (may be empty). We show peserta even if no penilaian exists.
-        $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian'])->paginate(60);
+    // Load peserta list with penilaian (may be empty). We show peserta even if no penilaian exists.
+    // Use get() to return the full collection (no pagination) as requested.
+    $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian'])->orderBy('id', 'asc')->get();
 
-        // For each peserta, compute averages and weighted total so the view only renders values.
-        $pesertaList->getCollection()->transform(function ($p) {
+    // For each peserta, compute averages and weighted total so the view only renders values.
+    // We're operating on a Collection (not a paginator), so transform the collection directly.
+    $pesertaList->transform(function ($p) {
             $pen = collect($p->penilaian ?? []);
 
             $avgUjian = $pen->avg('nilai_ujian') ?: 0; // 0..100
