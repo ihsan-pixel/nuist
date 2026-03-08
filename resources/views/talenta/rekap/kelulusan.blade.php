@@ -34,17 +34,17 @@
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:60px">No</th>
+                                    <th style="width:30px">No</th>
                                     <th>Nama Peserta</th>
                                     <th>Asal Sekolah</th>
                                     <th>Kode Peserta</th>
-                                    <th style="width:120px">Ujian</th>
-                                    <th style="width:120px">On site</th>
-                                    <th style="width:120px">Terstruktur</th>
-                                    <th style="width:120px">Kelompok</th>
-                                    <th style="width:120px">Kehadiran</th>
-                                    <th style="width:120px">Kedisiplinan</th>
-                                    <th style="width:150px">Total</th>
+                                    <th style="width:100px">Ujian</th>
+                                    <th style="width:100px">On site</th>
+                                    <th style="width:100px">Terstruktur</th>
+                                    <th style="width:100px">Kelompok</th>
+                                    <th style="width:100px">Kehadiran</th>
+                                    <th style="width:100px">Kedisiplinan</th>
+                                    <th style="width:100px">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
