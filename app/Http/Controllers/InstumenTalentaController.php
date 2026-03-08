@@ -675,7 +675,8 @@ class InstumenTalentaController extends Controller
      */
     public function uploadNilaiUjian(Request $request)
     {
-        // Order by talenta_peserta_id so the table is grouped/sorted by peserta
+        // Order by the related TalentaPeserta id (talenta_peserta_id) so rows are grouped/sorted
+        // according to the peserta's id in the talenta_peserta table.
         $entries = TalentaPenilaianPeserta::with(['peserta.user'])
             ->orderBy('talenta_peserta_id', 'asc')
             ->orderBy('id', 'desc')
