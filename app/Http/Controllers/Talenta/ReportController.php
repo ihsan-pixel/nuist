@@ -102,10 +102,28 @@ class ReportController extends Controller
                 $avgTerstruktur = $pen->avg('tugas') ?: 0;
             }
 
-            // Normalize ujian 0..100 -> 0..5 for weighted calculation
-            $ujianNorm = $avgUjian / 20.0;
+            // Compute total based on raw column values so maximum is 100.
+            // avgUjian is 0..100. Other components may be 1..5 (penilaian) or 0..100 (tugas_nilai).
+            // Convert any 1..5 scale to 0..100 by multiplying by 20.
+            $scaleIfSmall = function ($v) {
+                $v = (float) $v;
+                if ($v <= 5) return $v * 20.0; // assume 1..5 -> scale to 0..100
+                return $v; // already 0..100
+            };
 
-            $total = ($ujianNorm * 0.5) + ($avgOnsite * 0.1) + ($avgTerstruktur * 0.1) + ($avgKelompok * 0.1) + ($avgKehadiran * 0.1) + ($avgKedisiplinan * 0.1);
+            $onsitePercent = $scaleIfSmall($avgOnsite);
+            $terstrukturPercent = $scaleIfSmall($avgTerstruktur);
+            $kelompokPercent = $scaleIfSmall($avgKelompok);
+            $kehadiranPercent = $scaleIfSmall($avgKehadiran);
+            $kedisiplinanPercent = $scaleIfSmall($avgKedisiplinan);
+
+            // Weighted total (0..100): ujian 50%, others 10% each
+            $totalPercent = ($avgUjian * 0.5)
+                + ($onsitePercent * 0.1)
+                + ($terstrukturPercent * 0.1)
+                + ($kelompokPercent * 0.1)
+                + ($kehadiranPercent * 0.1)
+                + ($kedisiplinanPercent * 0.1);
 
             // attach computed values onto the model instance for easy use in the view
             $p->avg_ujian = round((float) $avgUjian, 2);
@@ -114,11 +132,10 @@ class ReportController extends Controller
             $p->avg_kelompok = round((float) $avgKelompok, 2);
             $p->avg_kehadiran = round((float) $avgKehadiran, 2);
             $p->avg_kedisiplinan = round((float) $avgKedisiplinan, 2);
-            $p->total_score = round((float) $total, 2);
-            // Also expose total as a percentage (0..100) using the weights described in the view:
-            // ujian is already 0..100 mapped into the 0..5 scale above; multiplying the 0..5 total by 20
-            // gives a 0..100 percentage consistent with the listed weights.
-            $p->total_percentage = round((float) $total * 20, 2);
+            // total out of 100 as requested (decimal)
+            $p->total_score = round((float) $totalPercent, 2);
+            // keep legacy 0..5 aggregate available if needed
+            $p->total_score_05 = round((float) (($avgUjian / 20.0) * 0.5 + ($avgOnsite * 0.1) + ($avgTerstruktur * 0.1) + ($avgKelompok * 0.1) + ($avgKehadiran * 0.1) + ($avgKedisiplinan * 0.1)), 2);
 
             return $p;
         });
