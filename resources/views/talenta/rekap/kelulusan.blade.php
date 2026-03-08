@@ -60,7 +60,7 @@
                                     <td>{{ number_format($peserta->avg_kelompok ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kehadiran ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kedisiplinan ?? 0, 2) }}</td>
-                                    <td><strong>{{ number_format($peserta->total_score ?? 0, 2) }}</strong></td>
+                                    <td><strong>{{ isset($peserta->total_percentage) ? number_format($peserta->total_percentage, 2) : number_format(($peserta->total_score ?? 0) * 20, 2) }}%</strong></td>
                                 </tr>
                                 @endforeach
                             </tbody>

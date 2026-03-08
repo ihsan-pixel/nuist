@@ -115,6 +115,10 @@ class ReportController extends Controller
             $p->avg_kehadiran = round((float) $avgKehadiran, 2);
             $p->avg_kedisiplinan = round((float) $avgKedisiplinan, 2);
             $p->total_score = round((float) $total, 2);
+            // Also expose total as a percentage (0..100) using the weights described in the view:
+            // ujian is already 0..100 mapped into the 0..5 scale above; multiplying the 0..5 total by 20
+            // gives a 0..100 percentage consistent with the listed weights.
+            $p->total_percentage = round((float) $total * 20, 2);
 
             return $p;
         });
