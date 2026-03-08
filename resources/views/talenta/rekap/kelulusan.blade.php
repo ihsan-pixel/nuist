@@ -422,35 +422,40 @@
                                 <div class="card border">
                                     <div class="card-header bg-light fw-semibold">Penilaian oleh Peserta - Pemateri</div>
                                     <div class="card-body p-3">
-                                        @php $pemateriRatings = $peserta->penilaian_by_peserta_pemateri ?? collect(); @endphp
-                                        @if($pemateriRatings->isEmpty())
-                                            <div class="text-muted small">Belum ada penilaian pemateri oleh peserta ini.</div>
-                                        @else
-                                            <div class="table-responsive">
-                                                <table class="table table-sm mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Pemateri</th>
-                                                            <th>Kualitas Materi</th>
-                                                            <th>Penyampaian</th>
-                                                            <th>Umpan Balik</th>
-                                                            <th>Tanggal</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach($pemateriRatings as $pr)
-                                                            <tr>
-                                                                <td class="small">{{ optional($pr->pemateri)->nama ?? '-' }}</td>
-                                                                <td>{{ $pr->kualitas_materi ?? '-' }}</td>
-                                                                <td>{{ $pr->penyampaian ?? '-' }}</td>
-                                                                <td>{{ $pr->umpan_balik ?? '-' }}</td>
-                                                                <td class="small text-muted">{{ optional($pr->created_at)->format('d M Y') }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        @endif
+                                                @php
+                                                    $pemateriRatings = $peserta->penilaian_by_peserta_pemateri ?? collect();
+                                                    $pemateriFirst = $pemateriRatings->first();
+                                                    // exclude foreign keys that are not useful to display
+                                                    $pemateriCols = $pemateriFirst ? array_filter($pemateriFirst->getFillable(), function($c){ return !in_array($c, ['talenta_pemateri_id','user_id']); }) : [];
+                                                @endphp
+                                                @if($pemateriRatings->isEmpty())
+                                                    <div class="text-muted small">Belum ada penilaian pemateri oleh peserta ini.</div>
+                                                @else
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm mb-0 align-middle">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Pemateri</th>
+                                                                    @foreach($pemateriCols as $col)
+                                                                        <th>{{ ucwords(str_replace('_', ' ', $col)) }}</th>
+                                                                    @endforeach
+                                                                    <th>Tanggal</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach($pemateriRatings as $pr)
+                                                                    <tr>
+                                                                        <td class="small">{{ optional($pr->pemateri)->nama ?? '-' }}</td>
+                                                                        @foreach($pemateriCols as $col)
+                                                                            <td>{{ $pr->{$col} ?? '-' }}</td>
+                                                                        @endforeach
+                                                                        <td class="small text-muted">{{ optional($pr->created_at)->format('d M Y') }}</td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @endif
                                     </div>
                                 </div>
                             </div>
@@ -459,35 +464,39 @@
                                 <div class="card border">
                                     <div class="card-header bg-light fw-semibold">Penilaian oleh Peserta - Fasilitator</div>
                                     <div class="card-body p-3">
-                                        @php $fasilitatorRatings = $peserta->penilaian_by_peserta_fasilitator ?? collect(); @endphp
-                                        @if($fasilitatorRatings->isEmpty())
-                                            <div class="text-muted small">Belum ada penilaian fasilitator oleh peserta ini.</div>
-                                        @else
-                                            <div class="table-responsive">
-                                                <table class="table table-sm mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Fasilitator</th>
-                                                            <th>Pendampingan</th>
-                                                            <th>Respons</th>
-                                                            <th>Koordinasi</th>
-                                                            <th>Tanggal</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach($fasilitatorRatings as $fr)
+                                            @php
+                                                $fasilitatorRatings = $peserta->penilaian_by_peserta_fasilitator ?? collect();
+                                                $fasilitatorFirst = $fasilitatorRatings->first();
+                                                $fasilitatorCols = $fasilitatorFirst ? array_filter($fasilitatorFirst->getFillable(), function($c){ return !in_array($c, ['talenta_fasilitator_id','user_id']); }) : [];
+                                            @endphp
+                                            @if($fasilitatorRatings->isEmpty())
+                                                <div class="text-muted small">Belum ada penilaian fasilitator oleh peserta ini.</div>
+                                            @else
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm mb-0 align-middle">
+                                                        <thead>
                                                             <tr>
-                                                                <td class="small">{{ optional($fr->fasilitator)->nama ?? '-' }}</td>
-                                                                <td>{{ $fr->pendampingan ?? '-' }}</td>
-                                                                <td>{{ $fr->respons ?? '-' }}</td>
-                                                                <td>{{ $fr->koordinasi ?? '-' }}</td>
-                                                                <td class="small text-muted">{{ optional($fr->created_at)->format('d M Y') }}</td>
+                                                                <th>Fasilitator</th>
+                                                                @foreach($fasilitatorCols as $col)
+                                                                    <th>{{ ucwords(str_replace('_', ' ', $col)) }}</th>
+                                                                @endforeach
+                                                                <th>Tanggal</th>
                                                             </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        @endif
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach($fasilitatorRatings as $fr)
+                                                                <tr>
+                                                                    <td class="small">{{ optional($fr->fasilitator)->nama ?? '-' }}</td>
+                                                                    @foreach($fasilitatorCols as $col)
+                                                                        <td>{{ $fr->{$col} ?? '-' }}</td>
+                                                                    @endforeach
+                                                                    <td class="small text-muted">{{ optional($fr->created_at)->format('d M Y') }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            @endif
                                     </div>
                                 </div>
                             </div>
