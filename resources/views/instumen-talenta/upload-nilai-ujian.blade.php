@@ -113,24 +113,29 @@ $(document).ready(function () {
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($entries as $entry)
+                                @foreach($entries as $peserta)
+                                    @php $pen = $peserta->latestPenilaian ?? null; @endphp
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $entry->peserta->kode_peserta ?? '-' }}</td>
-                                        <td>{{ $entry->peserta->user->name ?? '-' }}</td>
+                                        <td>{{ $peserta->kode_peserta ?? '-' }}</td>
+                                        <td>{{ $peserta->user->name ?? '-' }}</td>
                                         <td>
-                                            <form action="{{ route('instumen-talenta.update-nilai-ujian', $entry->id) }}" method="post" class="d-flex">
+                                            <form action="{{ route('instumen-talenta.save-nilai-ujian', $peserta->id) }}" method="post" class="d-flex">
                                                 @csrf
-                                                <input type="number" name="nilai_ujian" value="{{ $entry->nilai_ujian ?? '' }}" min="0" max="100" class="form-control form-control-sm me-2" style="width:110px">
+                                                <input type="number" name="nilai_ujian" value="{{ $pen->nilai_ujian ?? '' }}" min="0" max="100" class="form-control form-control-sm me-2" style="width:110px">
                                                 <button class="btn btn-sm btn-success">Simpan</button>
                                             </form>
                                         </td>
-                                        <td>{{ $entry->keterangan ?? '-' }}</td>
+                                        <td>{{ $pen->keterangan ?? '-' }}</td>
                                         <td>
-                                            <form action="{{ route('instumen-talenta.delete-nilai-ujian', $entry->id) }}" method="post" onsubmit="return confirm('Hapus entry ini?');">
+                                            @if($pen)
+                                            <form action="{{ route('instumen-talenta.delete-nilai-ujian', $pen->id) }}" method="post" onsubmit="return confirm('Hapus entry ini?');">
                                                 @csrf
                                                 <button class="btn btn-sm btn-danger">Hapus</button>
                                             </form>
+                                            @else
+                                            <span class="text-muted">-</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
