@@ -80,157 +80,155 @@
             <div class="modal-dialog modal-xl modal-dialog-scrollable">
                 <div class="modal-content border-0 shadow">
 
-                    <div class="modal-header bg-light">
-                        <div>
-                            <h5 class="modal-title fw-bold">
-                                Detail Nilai Peserta
-                            </h5>
-                            <small class="text-muted">
-                                {{ $peserta->nama ?? ($peserta->user->name ?? '-') }}
-                                • {{ $peserta->kode_peserta ?? '-' }}
-                            </small>
+                    <div class="modal-header border-0 bg-primary text-white">
+                        <div class="d-flex align-items-center w-100">
+                            <div class="me-3">
+                                <span class="avatar rounded-circle bg-white text-primary d-inline-flex align-items-center justify-content-center" style="width:44px;height:44px;font-weight:700;">
+                                    {{ strtoupper(substr(($peserta->nama ?? ($peserta->user->name ?? '-')),0,1)) }}
+                                </span>
+                            </div>
+                            <div class="grow">
+                                <h5 class="modal-title mb-0 text-white">Detail Nilai Peserta</h5>
+                                <div class="small text-white-50">{{ $peserta->nama ?? ($peserta->user->name ?? '-') }} • {{ $peserta->kode_peserta ?? '-' }}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-white-50">Total: <span class="badge bg-light text-dark">{{ number_format($peserta->total_score ?? 0,2) }}</span></div>
+                                <button type="button" class="btn btn-sm btn-light mt-2" data-bs-dismiss="modal">Tutup</button>
+                            </div>
                         </div>
-
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
 
-                    <div class="modal-body" style="max-height:70vh; overflow:auto;">
+                    <div class="modal-body" style="max-height:72vh; overflow:auto;">
 
-                        <!-- INFO PESERTA -->
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-body">
-                                <div class="row text-sm">
-
-                                    <div class="col-md-4 mb-2">
-                                        <strong>Nama Peserta</strong><br>
-                                        {{ $peserta->nama ?? ($peserta->user->name ?? '-') }}
+                        <div class="row g-3">
+                            <div class="col-lg-4">
+                                <div class="card border-0 shadow-sm mb-3">
+                                    <div class="card-body">
+                                        <h6 class="mb-3">Ringkasan Penilaian</h6>
+                                        <ul class="list-group list-group-flush small">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <div>Ujian</div>
+                                                <div><span class="fw-semibold">{{ number_format($peserta->avg_ujian ?? 0,2) }}</span></div>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <div>On site</div>
+                                                <div>{{ number_format($peserta->avg_onsite ?? 0,2) }}</div>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <div>Terstruktur</div>
+                                                <div>{{ number_format($peserta->avg_terstruktur ?? 0,2) }}</div>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <div>Kelompok</div>
+                                                <div>{{ number_format($peserta->avg_kelompok ?? 0,2) }}</div>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <div>Kehadiran</div>
+                                                <div>{{ number_format($peserta->avg_kehadiran ?? 0,2) }}</div>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                                <div>Kedisiplinan</div>
+                                                <div>{{ number_format($peserta->avg_kedisiplinan ?? 0,2) }}</div>
+                                            </li>
+                                        </ul>
                                     </div>
-
-                                    <div class="col-md-4 mb-2">
-                                        <strong>Asal Sekolah</strong><br>
-                                        {{ $peserta->namaMadrasah ?? $peserta->asal_sekolah ?? '-' }}
-                                    </div>
-
-                                    <div class="col-md-4 mb-2">
-                                        <strong>Kode Peserta</strong><br>
-                                        {{ $peserta->kode_peserta ?? '-' }}
-                                    </div>
-
                                 </div>
+                                <div class="text-center small text-muted">Data diambil dari penilaian dan tugas terkait.</div>
                             </div>
-                        </div>
 
+                            <div class="col-lg-8">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body p-0">
+                                        <h6 class="px-3 pt-3">Tugas yang diupload (per materi)</h6>
+                                        <div class="p-3">
+                                            @php $tasksByArea = ($peserta->raw_tugas_uploads ?? collect())->groupBy('area'); @endphp
+                                            @if($tasksByArea->isEmpty())
+                                                <div class="text-muted">Belum ada tugas yang diupload.</div>
+                                            @else
+                                                @foreach($tasksByArea as $area => $tasks)
+                                                    <div class="mb-3">
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <strong>{{ $area }}</strong>
+                                                            <span class="small text-muted">{{ $tasks->count() }} tugas</span>
+                                                        </div>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-sm align-middle mb-0">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th style="width:30%">Tipe</th>
+                                                                        <th style="width:30%">Pengupload</th>
+                                                                        <th style="width:20%">File</th>
+                                                                        <th style="width:10%">Nilai</th>
+                                                                        <th style="width:10%">Aksi</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach($tasks as $t)
+                                                                        <tr>
+                                                                            <td>{{ ucfirst($t->jenis_tugas ?? '-') }}</td>
+                                                                            <td class="small text-muted">{{ $t->kelompok->nama_kelompok ?? ($t->user->name ?? '-') }}</td>
+                                                                            <td>
+                                                                                @if(!empty($t->file_path))
+                                                                                    <a class="btn btn-sm btn-outline-primary" href="{{ asset($t->file_path) }}" target="_blank">Lihat</a>
+                                                                                @else
+                                                                                    <span class="text-muted">-</span>
+                                                                                @endif
+                                                                            </td>
+                                                                            <td>
+                                                                                @php $nilaiRows = ($peserta->raw_tugas_nilai ?? collect())->where('tugas_talenta_level1_id', $t->id); @endphp
+                                                                                @if($nilaiRows->isNotEmpty())
+                                                                                    @php $avg = $nilaiRows->avg('nilai'); @endphp
+                                                                                    <span class="badge bg-success">{{ number_format($avg,0) }}</span>
+                                                                                @else
+                                                                                    <span class="text-muted small">Belum</span>
+                                                                                @endif
+                                                                            </td>
+                                                                            <td>
+                                                                                @php $rId = 'rincian-'.$peserta->id.'-'.$t->id; @endphp
+                                                                                <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#{{ $rId }}" aria-expanded="false" aria-controls="{{ $rId }}">Rincian</button>
+                                                                            </td>
+                                                                        </tr>
 
-                        <!-- RINGKASAN PENILAIAN -->
-                        <div class="card border-0 shadow-sm mb-3">
-                            <div class="card-body small">
-                                <div class="row">
-                                    <div class="col-md-4 mb-2"><strong>Ujian:</strong> {{ number_format($peserta->avg_ujian ?? 0,2) }}</div>
-                                    <div class="col-md-4 mb-2"><strong>On site:</strong> {{ number_format($peserta->avg_onsite ?? 0,2) }}</div>
-                                    <div class="col-md-4 mb-2"><strong>Terstruktur:</strong> {{ number_format($peserta->avg_terstruktur ?? 0,2) }}</div>
-                                    <div class="col-md-4 mb-2"><strong>Kelompok:</strong> {{ number_format($peserta->avg_kelompok ?? 0,2) }}</div>
-                                    <div class="col-md-4 mb-2"><strong>Kehadiran:</strong> {{ number_format($peserta->avg_kehadiran ?? 0,2) }}</div>
-                                    <div class="col-md-4 mb-2"><strong>Kedisiplinan:</strong> {{ number_format($peserta->avg_kedisiplinan ?? 0,2) }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TUGAS UPLOAD PER MATERI -->
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-header bg-white fw-semibold">Tugas yang diupload (per materi/area)</div>
-                            <div class="card-body p-0">
-                                @php $tasksByArea = ($peserta->raw_tugas_uploads ?? collect())->groupBy('area'); @endphp
-                                @if($tasksByArea->isEmpty())
-                                    <div class="p-3 text-muted">Belum ada tugas yang diupload.</div>
-                                @else
-                                    @foreach($tasksByArea as $area => $tasks)
-                                        <div class="p-3 border-bottom">
-                                            <h6 class="mb-2">{{ $area }}</h6>
-                                            <div class="table-responsive">
-                                                <table class="table table-sm mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Jenis</th>
-                                                            <th>Kelompok / Pengupload</th>
-                                                            <th>File</th>
-                                                            <th>Nilai (avg)</th>
-                                                            <th>Rincian</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach($tasks as $t)
-                                                            <tr>
-                                                                <td>{{ ucfirst($t->jenis_tugas ?? '-') }}</td>
-                                                                <td>{{ $t->kelompok->nama_kelompok ?? ($t->user->name ?? '-') }}</td>
-                                                                <td>
-                                                                    @if(!empty($t->file_path))
-                                                                        <a href="{{ asset($t->file_path) }}" target="_blank">Lihat file</a>
-                                                                    @else
-                                                                        -
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    @php
-                                                                        // prefer using the controller-loaded raw_tugas_nilai collection
-                                                                        // because some nilai rows may not be eager-loaded on the tugas model
-                                                                        $nilaiRows = ($peserta->raw_tugas_nilai ?? collect())->where('tugas_talenta_level1_id', $t->id);
-                                                                    @endphp
-
-                                                                    @if($nilaiRows->isNotEmpty())
-                                                                        @php $avg = $nilaiRows->avg('nilai'); @endphp
-                                                                        {{ number_format($avg,2) }}
-                                                                    @else
-                                                                        <span class="text-muted">Belum dinilai</span>
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    @php $rId = 'rincian-'.$peserta->id.'-'.$t->id; @endphp
-                                                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#{{ $rId }}" aria-expanded="false" aria-controls="{{ $rId }}">
-                                                                        Rincian
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-
-                                                            <tr class="collapse" id="{{ $rId }}">
-                                                                <td colspan="5" class="bg-light">
-                                                                    @php
-                                                                        $nilaiRowsForThis = ($peserta->raw_tugas_nilai ?? collect())->where('tugas_talenta_level1_id', $t->id);
-                                                                    @endphp
-
-                                                                    @if($nilaiRowsForThis->isEmpty())
-                                                                        <div class="small text-muted p-2">Belum ada nilai untuk tugas ini.</div>
-                                                                    @else
-                                                                        <div class="small p-2">
-                                                                            <table class="table table-sm mb-0">
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th>Penilai</th>
-                                                                                        <th>Nilai</th>
-                                                                                        <th>Tanggal</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>
-                                                                                    @foreach($nilaiRowsForThis as $nr)
-                                                                                        <tr>
-                                                                                            <td>{{ $nr->penilai->name ?? '—' }}</td>
-                                                                                            <td>{{ number_format($nr->nilai ?? 0,2) }}</td>
-                                                                                            <td>{{ optional($nr->created_at)->format('d M Y H:i') ?? '-' }}</td>
-                                                                                        </tr>
-                                                                                    @endforeach
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                                        <tr class="collapse" id="{{ $rId }}">
+                                                                            <td colspan="5" class="bg-light">
+                                                                                @php $nilaiRowsForThis = ($peserta->raw_tugas_nilai ?? collect())->where('tugas_talenta_level1_id', $t->id); @endphp
+                                                                                @if($nilaiRowsForThis->isEmpty())
+                                                                                    <div class="small text-muted p-2">Belum ada nilai untuk tugas ini.</div>
+                                                                                @else
+                                                                                    <div class="p-2">
+                                                                                        <table class="table table-borderless table-sm mb-0">
+                                                                                            <thead>
+                                                                                                <tr>
+                                                                                                    <th>Penilai</th>
+                                                                                                    <th>Nilai</th>
+                                                                                                    <th>Tanggal</th>
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                                @foreach($nilaiRowsForThis as $nr)
+                                                                                                    <tr>
+                                                                                                        <td class="small">{{ $nr->penilai->name ?? '—' }}</td>
+                                                                                                        <td><span class="fw-semibold">{{ number_format($nr->nilai ?? 0,0) }}</span></td>
+                                                                                                        <td class="small text-muted">{{ optional($nr->created_at)->format('d M Y H:i') ?? '-' }}</td>
+                                                                                                    </tr>
+                                                                                                @endforeach
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                @endif
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @endif
                                         </div>
-                                    @endforeach
-                                @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
