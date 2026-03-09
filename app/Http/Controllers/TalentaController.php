@@ -571,13 +571,16 @@ class TalentaController extends Controller
         $materiSlugs = $materiModels->pluck('slug')->toArray();
 
         // Special case: user ID 2472 may access ALL uploaded tugas regardless of materi
-        if (Auth::id() === 2472) {
-            $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
-                ->join('talenta_peserta', 'tugas_talenta_level1.user_id', '=', 'talenta_peserta.user_id')
-                ->orderBy('talenta_peserta.id', 'asc') // urut berdasarkan id talenta peserta
-                ->select('tugas_talenta_level1.*') // penting
-                ->get();
-        } else {
+        // if
+        // (Auth::id() === 2472) {
+        //     $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
+        //         ->join('talenta_peserta', 'tugas_talenta_level1.user_id', '=', 'talenta_peserta.user_id')
+        //         ->orderBy('talenta_peserta.id', 'asc') // urut berdasarkan id talenta peserta
+        //         ->select('tugas_talenta_level1.*') // penting
+        //         ->get();
+        // } else
+
+        // {
             // Get tasks related to the user's materi(s)
             $tugas = TugasTalentaLevel1::with(['user.madrasah', 'nilai'])
                 ->whereIn('area', $materiSlugs)
@@ -585,7 +588,7 @@ class TalentaController extends Controller
                 ->orderBy('talenta_peserta.id', 'asc') // urut berdasarkan id talenta peserta
                 ->select('tugas_talenta_level1.*') // penting
                 ->get();
-        }
+        // }
 
         // Pass materi list to the view so UI can present selection if needed
         return view('talenta.penilaian-tugas', [
