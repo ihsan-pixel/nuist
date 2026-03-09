@@ -184,7 +184,7 @@
                                     </div>
 
                                     <div class="col-md-4" style="text-align: center">
-                                        <div class="small text-muted" style="text-align: center">Kode Peserta</div>
+                                        <div class="small text-muted" style="text-align: center">Kode</div>
                                         <div class="fw-semibold">
                                             {{ $peserta->kode_peserta ?? '-' }}
                                         </div>
