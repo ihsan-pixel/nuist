@@ -33,7 +33,7 @@
 <section class="section-clean">
 <div class="container">
     <div class="row">
-        <div class="col-lg-12">
+    <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="mb-0">Rekap Nilai</h2>
             </div>
@@ -102,6 +102,41 @@
                                 </tr>
                             </tfoot> --}}
                         </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card shadow-sm border-0 sticky-top" style="top:90px;">
+                <div class="card-body">
+                    <h6 class="mb-2">Perhitungan Kelulusan</h6>
+                    <p class="small text-muted mb-2">Ringkasan bobot dan aturan perhitungan nilai akhir.</p>
+                    <ul class="list-unstyled small mb-3">
+                        <li><strong>Ujian:</strong> 50%</li>
+                        <li><strong>On site:</strong> 10%</li>
+                        <li><strong>Terstruktur:</strong> 10%</li>
+                        <li><strong>Kelompok:</strong> 10%</li>
+                        <li><strong>Kehadiran:</strong> 10%</li>
+                        <li><strong>Kedisiplinan:</strong> 10%</li>
+                    </ul>
+
+                    <div class="small mb-2"><strong>Rumus:</strong></div>
+                    <div class="small text-muted mb-3">Total = Ujian * 0.5 + OnSite * 0.1 + Terstruktur * 0.1 + Kelompok * 0.1 + Kehadiran * 0.1 + Kedisiplinan * 0.1</div>
+
+                    <div class="small mb-2"><strong>Konversi skala:</strong></div>
+                    <div class="small text-muted mb-2">Ujian: 0–100 (langsung). Nilai instrumen/tugas: 1–5 (ditampilkan 0–5) dikonversi ke 0–100 untuk perhitungan Total.</div>
+                    <div class="small text-muted mb-3">Contoh: 1 → 0, 3 → 50, 5 → 100</div>
+
+                    <div class="small mb-2"><strong>Sumber data:</strong></div>
+                    <ul class="list-unstyled small text-muted">
+                        <li>- Nilai ujian (upload / CSV)</li>
+                        <li>- Nilai tugas (tabel <code>tugas_nilai</code>)</li>
+                        <li>- Instrumen penilaian fasilitator / pemateri</li>
+                    </ul>
+
+                    <div class="mt-3">
+                        <a href="#" class="btn btn-sm btn-outline-primary">Dokumentasi Perhitungan</a>
                     </div>
                 </div>
             </div>
