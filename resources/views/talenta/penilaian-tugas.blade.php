@@ -773,7 +773,7 @@
                                         @else
                                             <span class="text-muted">Tidak ada file</span>
                                         @endif
-                                        @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                        {{-- @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
                                             @php
                                                 $displayName = $tugasItem->kelompok->nama_kelompok ?? ($tugasItem->user->name ?? 'N/A');
                                             @endphp
@@ -786,7 +786,7 @@
                                                     <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
                                                 @endif
                                             </button>
-                                        @endif
+                                        @endif --}}
                                     </td>
                                 </tr>
                             @endforeach
