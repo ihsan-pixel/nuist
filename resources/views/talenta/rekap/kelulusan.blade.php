@@ -132,7 +132,7 @@
                     <ul class="list-unstyled small text-muted">
                         <li>- Nilai ujian (Hasil Nilai Ujian Akhir)</li>
                         <li>- Nilai tugas (Hasil Penilaian Tugas dari Pemateri)</li>
-                        <li>- Instrumen penilaian fasilitator / pemateri</li>
+                        <li>- Instrumen penilaian dari fasilitator terhadap peserta</li>
                     </ul>
 
                     {{-- <div class="mt-3">
