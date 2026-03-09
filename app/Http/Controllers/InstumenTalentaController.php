@@ -27,6 +27,9 @@ use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
 use App\Models\TalentaPenilaianPeserta;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+// TalentaKelompok and TalentaPeserta already imported above
 
 class InstumenTalentaController extends Controller
 {
@@ -698,6 +701,99 @@ class InstumenTalentaController extends Controller
             }
             return redirect()->back()->with('error', 'Gagal menghasilkan file Excel: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Show page listing peserta who haven't uploaded tugas, with filters and pagination.
+     */
+    public function belumUploadTugas(Request $request)
+    {
+        $request->validate([
+            'area' => 'nullable|string',
+            'jenis_tugas' => 'nullable|in:on_site,terstruktur,kelompok',
+        ]);
+
+        $jenis = $request->query('jenis_tugas', 'on_site');
+        $area = $request->query('area', null);
+
+        $rows = collect();
+
+        if ($jenis === 'kelompok') {
+            // kelompok tasks: find kelompok that have NOT uploaded
+            $submittedKelompokIds = TugasTalentaLevel1::where('jenis_tugas', 'kelompok')
+                ->when($area, fn($q) => $q->where('area', $area))
+                ->whereNotNull('kelompok_id')
+                ->pluck('kelompok_id')
+                ->unique()
+                ->filter();
+
+            $kelompoks = TalentaKelompok::with('users')
+                ->when($submittedKelompokIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $submittedKelompokIds))
+                ->get();
+
+            foreach ($kelompoks as $kelompok) {
+                foreach ($kelompok->users as $user) {
+                    $peserta = TalentaPeserta::where('user_id', $user->id)->first();
+                    $rows->push((object)[
+                        'kode_peserta' => $peserta->kode_peserta ?? '',
+                        'nama' => $user->name ?? '',
+                        'email' => $user->email ?? '',
+                        'kelompok' => $kelompok->nama_kelompok ?? '',
+                        'asal' => $peserta ? ($peserta->nama_madrasah ?? $peserta->asal_sekolah) : '',
+                        'area' => $area ?? '',
+                        'keterangan' => 'Kelompok belum mengunggah tugas'
+                    ]);
+                }
+            }
+        } else {
+            // individual tasks
+            $submittedUserIds = TugasTalentaLevel1::where('jenis_tugas', $jenis)
+                ->when($area, fn($q) => $q->where('area', $area))
+                ->whereNotNull('user_id')
+                ->pluck('user_id')
+                ->unique()
+                ->filter();
+
+            $pesertas = TalentaPeserta::with('user','madrasah')
+                ->when($submittedUserIds->isNotEmpty(), fn($q) => $q->whereNotIn('user_id', $submittedUserIds))
+                ->get();
+
+            foreach ($pesertas as $peserta) {
+                $rows->push((object)[
+                    'kode_peserta' => $peserta->kode_peserta ?? '',
+                    'nama' => $peserta->user->name ?? '',
+                    'email' => $peserta->user->email ?? '',
+                    'kelompok' => '',
+                    'asal' => $peserta->nama_madrasah ?? $peserta->asal_sekolah ?? '',
+                    'area' => $area ?? '',
+                    'keterangan' => 'Belum mengunggah tugas'
+                ]);
+            }
+        }
+
+        // Simple pagination
+        $perPage = 50;
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $total = $rows->count();
+        $results = $rows->forPage($page, $perPage)->values();
+        $paginator = new LengthAwarePaginator($results, $total, $perPage, $page, [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]);
+
+        // areas for filter list (same as uploadTugas)
+        $areas = TugasTalentaLevel1::select('area')
+            ->whereNotNull('area')
+            ->distinct()
+            ->orderBy('area')
+            ->pluck('area');
+
+        return view('instumen-talenta.belum-upload-tugas', [
+            'rows' => $paginator,
+            'areas' => $areas,
+            'selectedArea' => $area,
+            'selectedJenis' => $jenis,
+        ]);
     }
 
     /**
