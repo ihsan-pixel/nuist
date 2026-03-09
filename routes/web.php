@@ -376,6 +376,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kelengkapan', [App\Http\Controllers\InstumenTalentaController::class, 'kelengkapan'])->name('kelengkapan');
         Route::get('/upload-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'uploadTugas'])->name('upload-tugas');
     Route::post('/download-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'downloadTugas'])->name('download-tugas');
+    // Download peserta yang BELUM upload tugas (Excel)
+    Route::get('/download-tugas-belum', [App\Http\Controllers\InstumenTalentaController::class, 'downloadTugasBelum'])->name('download-tugas-belum');
         Route::get('/instrumen-penilaian', [App\Http\Controllers\InstumenTalentaController::class, 'instrumenPenilaian'])->name('instrumen-penilaian');
         Route::get('/nilai-tugas', [App\Http\Controllers\InstumenTalentaController::class, 'nilaiTugas'])->name('nilai-tugas');
         Route::get('/upload-sertifikat', [App\Http\Controllers\InstumenTalentaController::class, 'uploadSertifikat'])->name('upload-sertifikat');

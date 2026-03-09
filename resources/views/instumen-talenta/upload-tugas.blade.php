@@ -16,8 +16,13 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-end mb-3">
-                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#downloadTugasModal">
+                        <button class="btn btn-sm btn-success me-2" data-bs-toggle="modal" data-bs-target="#downloadTugasModal">
                             <i class="fas fa-file-download me-1"></i> Download Semua File
+                        </button>
+
+                        <!-- Button: Download peserta yang BELUM upload tugas -->
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#downloadBelumModal">
+                            <i class="fas fa-file-export me-1"></i> Download Peserta Belum Upload
                         </button>
                     </div>
                     {{-- Area navigation buttons --}}
@@ -151,6 +156,49 @@
         <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('downloadTugasForm');
+
+        <!-- Modal: Download Peserta yang Belum Upload -->
+        @section('modals')
+        <!-- placed outside main content so markup stays tidy -->
+        <div class="modal fade" id="downloadBelumModal" tabindex="-1" aria-labelledby="downloadBelumModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="downloadBelumForm" method="GET" action="{{ route('instumen-talenta.download-tugas-belum') }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="downloadBelumModalLabel">Download Peserta yang Belum Upload Tugas</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="areaBelumSelect" class="form-label">Pilih Area (opsional)</label>
+                                <select id="areaBelumSelect" name="area" class="form-select">
+                                    <option value="">-- Semua Area --</option>
+                                    @if(isset($areas))
+                                        @foreach($areas as $area)
+                                            <option value="{{ $area }}">{{ $area }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="jenisBelumSelect" class="form-label">Jenis Tugas</label>
+                                <select id="jenisBelumSelect" name="jenis_tugas" class="form-select" required>
+                                    <option value="on_site">Tugas Onsite</option>
+                                    <option value="terstruktur">Tugas Terstruktur</option>
+                                    <option value="kelompok">Tugas Kelompok</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Download Excel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endsection
             const modalEl = document.getElementById('downloadTugasModal');
             const bootstrapModal = modalEl ? bootstrap.Modal.getOrCreateInstance(modalEl) : null;
 

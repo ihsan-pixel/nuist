@@ -21,6 +21,7 @@ use App\Exports\Instumen\TeknisSheetExport;
 use App\Exports\Instumen\TeknisAllExport;
 use App\Exports\Instumen\PesertaSheetExport;
 use App\Exports\Instumen\PesertaAllExport;
+use App\Exports\Instumen\BelumUploadExport;
 use App\Models\TugasTalentaLevel1;
 use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
@@ -667,6 +668,35 @@ class InstumenTalentaController extends Controller
                 return response($msg, 500)->header('Content-Type', 'text/plain');
             }
             return redirect()->back()->with('error', $msg);
+        }
+    }
+
+    /**
+     * Download Excel of peserta who have NOT uploaded tugas for given jenis_tugas and optional area.
+     * Query params (GET): area (optional), jenis_tugas (required)
+     */
+    public function downloadTugasBelum(Request $request)
+    {
+        $validated = $request->validate([
+            'area' => 'nullable|string',
+            'jenis_tugas' => 'required|in:on_site,terstruktur,kelompok',
+        ]);
+
+        $jenis = $validated['jenis_tugas'];
+        $area = $validated['area'] ?? null;
+
+        // Prepare filename
+        $labelArea = $area ?? 'semua-area';
+        $filename = 'belum_upload_tugas_' . $jenis . '_' . preg_replace('/[^A-Za-z0-9\-]/', '_', $labelArea) . '_' . date('Ymd_His') . '.xlsx';
+
+        try {
+            return Excel::download(new BelumUploadExport($jenis, $area), $filename);
+        } catch (\Throwable $e) {
+            Log::error('downloadTugasBelum error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response('Gagal menghasilkan file Excel: ' . $e->getMessage(), 500)->header('Content-Type', 'text/plain');
+            }
+            return redirect()->back()->with('error', 'Gagal menghasilkan file Excel: ' . $e->getMessage());
         }
     }
 
