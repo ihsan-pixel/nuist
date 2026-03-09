@@ -754,12 +754,12 @@
                                     <td>
                                         @if($currentUserNilai)
                                             <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        @else
+                                        {{-- @else
                                             @if(Auth::id() === 2472 && $averageNilai)
                                                 <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
                                             @else
                                                 <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif
+                                            @endif --}}
                                         @endif
                                     </td>
                                     <td>
