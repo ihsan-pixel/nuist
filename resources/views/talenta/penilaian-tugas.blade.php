@@ -603,12 +603,12 @@
                                     <td>
                                         @if($currentUserNilai)
                                             <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        @else
+                                        {{-- @else
                                             @if(Auth::id() === 2472 && $averageNilai)
                                                 <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
                                             @else
                                                 <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif
+                                            @endif --}}
                                         @endif
                                     </td>
                                     <td>
@@ -622,7 +622,7 @@
                                         @else
                                             <span class="text-muted">Tidak ada file</span>
                                         @endif
-                                        @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                        {{-- @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
                                             <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
                                                 <i class="bi bi-star"></i> Nilai
                                                 @if($currentUserNilai)
@@ -632,7 +632,7 @@
                                                     <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
                                                 @endif
                                             </button>
-                                        @endif
+                                        @endif --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -678,12 +678,12 @@
                                     <td>
                                         @if($currentUserNilai)
                                             <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        @else
+                                        {{-- @else
                                             @if(Auth::id() === 2472 && $averageNilai)
                                                 <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
                                             @else
                                                 <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif
+                                            @endif --}}
                                         @endif
                                     </td>
                                     <td>
@@ -697,7 +697,7 @@
                                         @else
                                             <span class="text-muted">Tidak ada file</span>
                                         @endif
-                                        @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                        {{-- @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
                                             <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
                                                 <i class="bi bi-star"></i> Nilai
                                                 @if($currentUserNilai)
@@ -707,7 +707,7 @@
                                                     <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
                                                 @endif
                                             </button>
-                                        @endif
+                                        @endif --}}
                                     </td>
                                 </tr>
                             @endforeach
