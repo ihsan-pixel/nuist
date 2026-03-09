@@ -594,9 +594,11 @@
                                     <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                                     <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
                                     @php
-                                        $nilaiCollection = $tugasItem->nilai ?? collect();
-                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
-                                        $averageNilai = $nilaiCollection->avg('nilai');
+                                        // nilai_saya accessor returns the TugasNilai model for the
+                                        // currently authenticated penilai (or null)
+                                        $currentUserNilai = $tugasItem->nilai_saya ?? null;
+                                        // compute average from all nilai records if present
+                                        $averageNilai = $tugasItem->nilai ? $tugasItem->nilai->avg('nilai') : null;
                                     @endphp
                                     <td>
                                         @if($currentUserNilai)
@@ -670,9 +672,8 @@
                                     <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                                     <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
                                     @php
-                                        $nilaiCollection = $tugasItem->nilai ?? collect();
-                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
-                                        $averageNilai = $nilaiCollection->avg('nilai');
+                                        $currentUserNilai = $tugasItem->nilai_saya ?? null;
+                                        $averageNilai = $tugasItem->nilai ? $tugasItem->nilai->avg('nilai') : null;
                                     @endphp
                                     <td>
                                         @if($currentUserNilai)
@@ -747,9 +748,8 @@
                                     <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                                     <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
                                     @php
-                                        $nilaiCollection = $tugasItem->nilai ?? collect();
-                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
-                                        $averageNilai = $nilaiCollection->avg('nilai');
+                                        $currentUserNilai = $tugasItem->nilai_saya ?? null;
+                                        $averageNilai = $tugasItem->nilai ? $tugasItem->nilai->avg('nilai') : null;
                                     @endphp
                                     <td>
                                         @if($currentUserNilai)
