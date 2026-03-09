@@ -125,19 +125,19 @@
                     <div class="small text-muted mb-3">Total = Ujian * 0.5 + OnSite * 0.1 + Terstruktur * 0.1 + Kelompok * 0.1 + Kehadiran * 0.1 + Kedisiplinan * 0.1</div>
 
                     <div class="small mb-2"><strong>Konversi skala:</strong></div>
-                    <div class="small text-muted mb-2">Ujian: 0–100 (langsung). Nilai instrumen/tugas: 1–5 (ditampilkan 0–5) dikonversi ke 0–100 untuk perhitungan Total.</div>
+                    <div class="small text-muted mb-2">Ujian: 0–100 (Nilai Ujian). Nilai instrumen/tugas: 1–5 (ditampilkan 0–5) dikonversi ke 0–100 untuk perhitungan Total.</div>
                     <div class="small text-muted mb-3">Contoh: 1 → 0, 3 → 50, 5 → 100</div>
 
                     <div class="small mb-2"><strong>Sumber data:</strong></div>
                     <ul class="list-unstyled small text-muted">
-                        <li>- Nilai ujian (upload / CSV)</li>
-                        <li>- Nilai tugas (tabel <code>tugas_nilai</code>)</li>
+                        <li>- Nilai ujian (Hasil Nilai Ujian Akhir)</li>
+                        <li>- Nilai tugas (Hasil Penilaian Tugas dari Pemateri)</li>
                         <li>- Instrumen penilaian fasilitator / pemateri</li>
                     </ul>
 
-                    <div class="mt-3">
+                    {{-- <div class="mt-3">
                         <a href="#" class="btn btn-sm btn-outline-primary">Dokumentasi Perhitungan</a>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
