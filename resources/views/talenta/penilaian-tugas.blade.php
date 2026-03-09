@@ -594,21 +594,19 @@
                                     <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                                     <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
                                     @php
-                                        // nilai_saya accessor returns the TugasNilai model for the
-                                        // currently authenticated penilai (or null)
-                                        $currentUserNilai = $tugasItem->nilai_saya ?? null;
-                                        // compute average from all nilai records if present
-                                        $averageNilai = $tugasItem->nilai ? $tugasItem->nilai->avg('nilai') : null;
+                                        $nilaiCollection = $tugasItem->nilai ?? collect();
+                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
+                                        $averageNilai = $nilaiCollection->avg('nilai');
                                     @endphp
                                     <td>
                                         @if($currentUserNilai)
                                             <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        {{-- @else
+                                        @else
                                             @if(Auth::id() === 2472 && $averageNilai)
                                                 <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
                                             @else
                                                 <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif --}}
+                                            @endif
                                         @endif
                                     </td>
                                     <td>
@@ -622,7 +620,7 @@
                                         @else
                                             <span class="text-muted">Tidak ada file</span>
                                         @endif
-                                        {{-- @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                        @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
                                             <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
                                                 <i class="bi bi-star"></i> Nilai
                                                 @if($currentUserNilai)
@@ -632,7 +630,7 @@
                                                     <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
                                                 @endif
                                             </button>
-                                        @endif --}}
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -672,18 +670,19 @@
                                     <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                                     <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
                                     @php
-                                        $currentUserNilai = $tugasItem->nilai_saya ?? null;
-                                        $averageNilai = $tugasItem->nilai ? $tugasItem->nilai->avg('nilai') : null;
+                                        $nilaiCollection = $tugasItem->nilai ?? collect();
+                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
+                                        $averageNilai = $nilaiCollection->avg('nilai');
                                     @endphp
                                     <td>
                                         @if($currentUserNilai)
                                             <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        {{-- @else
+                                        @else
                                             @if(Auth::id() === 2472 && $averageNilai)
                                                 <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
                                             @else
                                                 <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif --}}
+                                            @endif
                                         @endif
                                     </td>
                                     <td>
@@ -697,7 +696,7 @@
                                         @else
                                             <span class="text-muted">Tidak ada file</span>
                                         @endif
-                                        {{-- @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                        @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
                                             <button type="button" class="action-btn btn-nilai" onclick="openNilaiModal({{ $tugasItem->id }}, '{{ $tugasItem->user->name }}', '{{ $tugasItem->area }}', {{ $currentUserNilai ? $currentUserNilai->nilai : 'null' }}, {{ (Auth::id() === 2472 && $averageNilai) ? number_format($averageNilai, 1) : 'null' }})">
                                                 <i class="bi bi-star"></i> Nilai
                                                 @if($currentUserNilai)
@@ -707,7 +706,7 @@
                                                     <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
                                                 @endif
                                             </button>
-                                        @endif --}}
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -748,18 +747,19 @@
                                     <td>{{ ucwords(str_replace('_', ' ', $tugasItem->jenis_tugas)) }}</td>
                                     <td>{{ $tugasItem->submitted_at ? $tugasItem->submitted_at->format('d M Y H:i') : 'N/A' }}</td>
                                     @php
-                                        $currentUserNilai = $tugasItem->nilai_saya ?? null;
-                                        $averageNilai = $tugasItem->nilai ? $tugasItem->nilai->avg('nilai') : null;
+                                        $nilaiCollection = $tugasItem->nilai ?? collect();
+                                        $currentUserNilai = $nilaiCollection->where('penilai_id', Auth::id())->first();
+                                        $averageNilai = $nilaiCollection->avg('nilai');
                                     @endphp
                                     <td>
                                         @if($currentUserNilai)
                                             <span class="badge bg-success">{{ $currentUserNilai->nilai }}</span>
-                                        {{-- @else
+                                        @else
                                             @if(Auth::id() === 2472 && $averageNilai)
                                                 <span class="text-muted">Rata-rata: {{ number_format($averageNilai, 1) }}</span>
                                             @else
                                                 <span class="text-muted">Belum dinilai oleh Anda</span>
-                                            @endif --}}
+                                            @endif
                                         @endif
                                     </td>
                                     <td>
@@ -773,7 +773,7 @@
                                         @else
                                             <span class="text-muted">Tidak ada file</span>
                                         @endif
-                                        {{-- @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
+                                        @if(Auth::id() === 2472 || in_array($tugasItem->area, $allowedAreas, true))
                                             @php
                                                 $displayName = $tugasItem->kelompok->nama_kelompok ?? ($tugasItem->user->name ?? 'N/A');
                                             @endphp
@@ -786,7 +786,7 @@
                                                     <br><small>Rata-rata: {{ number_format($averageNilai, 1) }}</small>
                                                 @endif
                                             </button>
-                                        @endif --}}
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
