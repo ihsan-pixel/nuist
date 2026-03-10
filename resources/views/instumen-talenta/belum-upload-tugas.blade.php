@@ -26,6 +26,7 @@
                 <div class="col-auto">
                     <label class="form-label">Jenis Tugas</label>
                     <select name="jenis_tugas" class="form-select">
+                        <option value="" {{ empty($selectedJenis) ? 'selected' : '' }}>-- Semua Tugas --</option>
                         <option value="on_site" {{ ($selectedJenis == 'on_site') ? 'selected' : '' }}>Tugas Onsite</option>
                         <option value="terstruktur" {{ ($selectedJenis == 'terstruktur') ? 'selected' : '' }}>Tugas Terstruktur</option>
                         <option value="kelompok" {{ ($selectedJenis == 'kelompok') ? 'selected' : '' }}>Tugas Kelompok</option>
