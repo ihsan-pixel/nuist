@@ -713,61 +713,71 @@ class InstumenTalentaController extends Controller
             'jenis_tugas' => 'nullable|in:on_site,terstruktur,kelompok',
         ]);
 
-        $jenis = $request->query('jenis_tugas', 'on_site');
+        $jenis = $request->query('jenis_tugas', null);
         $area = $request->query('area', null);
 
         $rows = collect();
 
-        if ($jenis === 'kelompok') {
-            // kelompok tasks: find kelompok that have NOT uploaded
-            $submittedKelompokIds = TugasTalentaLevel1::where('jenis_tugas', 'kelompok')
-                ->when($area, fn($q) => $q->where('area', $area))
-                ->whereNotNull('kelompok_id')
-                ->pluck('kelompok_id')
-                ->unique()
-                ->filter();
+        $jenisList = [];
+        if (empty($jenis)) {
+            // no filter: collect all jenis
+            $jenisList = ['on_site', 'terstruktur', 'kelompok'];
+        } else {
+            $jenisList = [$jenis];
+        }
 
-            $kelompoks = TalentaKelompok::with('users')
-                ->when($submittedKelompokIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $submittedKelompokIds))
-                ->get();
+        foreach ($jenisList as $j) {
+            if ($j === 'kelompok') {
+                // kelompok tasks: find kelompok that have NOT uploaded
+                $submittedKelompokIds = TugasTalentaLevel1::where('jenis_tugas', 'kelompok')
+                    ->when($area, fn($q) => $q->where('area', $area))
+                    ->whereNotNull('kelompok_id')
+                    ->pluck('kelompok_id')
+                    ->unique()
+                    ->filter();
 
-            foreach ($kelompoks as $kelompok) {
-                foreach ($kelompok->users as $user) {
-                    $peserta = TalentaPeserta::where('user_id', $user->id)->first();
+                $kelompoks = TalentaKelompok::with('users')
+                    ->when($submittedKelompokIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $submittedKelompokIds))
+                    ->get();
+
+                foreach ($kelompoks as $kelompok) {
+                    foreach ($kelompok->users as $user) {
+                        $peserta = TalentaPeserta::where('user_id', $user->id)->first();
+                        $rows->push((object)[
+                            'kode_peserta' => $peserta->kode_peserta ?? '',
+                            'nama' => $user->name ?? '',
+                            'email' => $user->email ?? '',
+                            'kelompok' => $kelompok->nama_kelompok ?? '',
+                            'asal' => $peserta ? ($peserta->nama_madrasah ?? $peserta->asal_sekolah) : '',
+                            'area' => $area ?? '',
+                            'keterangan' => 'Kelompok belum mengunggah tugas'
+                        ]);
+                    }
+                }
+            } else {
+                // individual tasks
+                $submittedUserIds = TugasTalentaLevel1::where('jenis_tugas', $j)
+                    ->when($area, fn($q) => $q->where('area', $area))
+                    ->whereNotNull('user_id')
+                    ->pluck('user_id')
+                    ->unique()
+                    ->filter();
+
+                $pesertas = TalentaPeserta::with('user','madrasah')
+                    ->when($submittedUserIds->isNotEmpty(), fn($q) => $q->whereNotIn('user_id', $submittedUserIds))
+                    ->get();
+
+                foreach ($pesertas as $peserta) {
                     $rows->push((object)[
                         'kode_peserta' => $peserta->kode_peserta ?? '',
-                        'nama' => $user->name ?? '',
-                        'email' => $user->email ?? '',
-                        'kelompok' => $kelompok->nama_kelompok ?? '',
-                        'asal' => $peserta ? ($peserta->nama_madrasah ?? $peserta->asal_sekolah) : '',
+                        'nama' => $peserta->user->name ?? '',
+                        'email' => $peserta->user->email ?? '',
+                        'kelompok' => '',
+                        'asal' => $peserta->nama_madrasah ?? $peserta->asal_sekolah ?? '',
                         'area' => $area ?? '',
-                        'keterangan' => 'Kelompok belum mengunggah tugas'
+                        'keterangan' => 'Belum mengunggah tugas (' . $j . ')'
                     ]);
                 }
-            }
-        } else {
-            // individual tasks
-            $submittedUserIds = TugasTalentaLevel1::where('jenis_tugas', $jenis)
-                ->when($area, fn($q) => $q->where('area', $area))
-                ->whereNotNull('user_id')
-                ->pluck('user_id')
-                ->unique()
-                ->filter();
-
-            $pesertas = TalentaPeserta::with('user','madrasah')
-                ->when($submittedUserIds->isNotEmpty(), fn($q) => $q->whereNotIn('user_id', $submittedUserIds))
-                ->get();
-
-            foreach ($pesertas as $peserta) {
-                $rows->push((object)[
-                    'kode_peserta' => $peserta->kode_peserta ?? '',
-                    'nama' => $peserta->user->name ?? '',
-                    'email' => $peserta->user->email ?? '',
-                    'kelompok' => '',
-                    'asal' => $peserta->nama_madrasah ?? $peserta->asal_sekolah ?? '',
-                    'area' => $area ?? '',
-                    'keterangan' => 'Belum mengunggah tugas'
-                ]);
             }
         }
 
