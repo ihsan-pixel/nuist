@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\User;
 
 class TalentaPemateri extends Model
 {
@@ -25,5 +27,13 @@ class TalentaPemateri extends Model
             'talenta_pemateri_id',
             'talenta_materi_id'
         );
+    }
+
+    /**
+     * Pemateri mungkin terhubung ke user (user_id).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
