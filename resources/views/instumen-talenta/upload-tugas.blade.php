@@ -20,6 +20,11 @@
                             <i class="fas fa-file-download me-1"></i> Download Semua File
                         </button>
 
+                        <!-- Quick link to page listing peserta who haven't uploaded -->
+                        <a href="{{ route('instumen-talenta.belum-upload-tugas') }}" class="btn btn-sm btn-warning me-2" aria-label="Lihat Peserta Belum Upload">
+                            <i class="fas fa-list me-1"></i> Lihat Peserta Belum Upload
+                        </a>
+
                         <!-- Button: Download peserta yang BELUM upload tugas -->
                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#downloadBelumModal">
                             <i class="fas fa-file-export me-1"></i> Download Peserta Belum Upload
