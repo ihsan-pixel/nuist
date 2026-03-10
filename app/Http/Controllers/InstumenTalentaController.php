@@ -1284,7 +1284,7 @@ class InstumenTalentaController extends Controller
             ]);
         }
 
-        return view('instumen-talenta.nilai-tugas', compact('nilai', 'areas'));
+    return view('instumen-talenta.nilai-tugas', compact('nilai', 'areas', 'pemateri_status'));
     }
 
     public function uploadSertifikat()
