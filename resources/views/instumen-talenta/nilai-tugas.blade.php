@@ -91,6 +91,68 @@
             </div>
         </div>
     </div>
+    {{-- Pemateri: status penilaian (sudah / belum) --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong>Status Penilaian Pemateri</strong>
+                            <div class="small text-muted">Menampilkan pemateri yang sudah/ belum memasukkan nilai tugas (sesuai filter area jika dipilih).</div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Pemateri</th>
+                                    <th>Materi yang diampu</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Jumlah Entri Nilai</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if(empty($pemateri_status) || ($pemateri_status instanceof \Illuminate\Support\Collection && $pemateri_status->isEmpty()))
+                                    <tr>
+                                        <td colspan="5" class="text-center">Tidak ada data pemateri.</td>
+                                    </tr>
+                                @else
+                                    @foreach($pemateri_status as $i => $ps)
+                                        @php $pem = $ps['pemateri']; $materis = $ps['materis']; @endphp
+                                        <tr>
+                                            <td>{{ $i + 1 }}</td>
+                                            <td>{{ $pem->nama ?? ($pem->user->name ?? '-') }}</td>
+                                            <td>
+                                                @if($materis && $materis->isNotEmpty())
+                                                    @foreach($materis as $m)
+                                                        <div>{{ $m->judul_materi ?? ($m->kode_materi ?? '-') }}</div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="text-muted">-</div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($ps['status'] === 'sudah')
+                                                    <span class="badge bg-success">Sudah</span>
+                                                @else
+                                                    <span class="badge bg-warning text-dark">Belum</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">{{ $ps['count'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @endsection

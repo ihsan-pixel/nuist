@@ -1257,6 +1257,33 @@ class InstumenTalentaController extends Controller
             ->orderBy('area')
             ->pluck('area');
 
+        // --- Pemateri: apakah sudah/ belum memberikan penilaian (opsional per area) ---
+        $pemateri_status = collect();
+        $pemateris = \App\Models\TalentaPemateri::with('materis', 'user')->get();
+        foreach ($pemateris as $pemateri) {
+            $penilaiId = $pemateri->user_id;
+            // jika tidak ada user terkait, anggap belum
+            if (empty($penilaiId)) {
+                $count = 0;
+            } else {
+                $tugasQuery = \App\Models\TugasNilai::where('penilai_id', $penilaiId)
+                    ->whereHas('tugas', function ($q) use ($request) {
+                        if ($request->filled('area')) {
+                            $q->where('area', $request->query('area'));
+                        }
+                    });
+
+                $count = $tugasQuery->count();
+            }
+
+            $pemateri_status->push([
+                'pemateri' => $pemateri,
+                'materis' => $pemateri->materis ?? collect(),
+                'count' => $count,
+                'status' => $count > 0 ? 'sudah' : 'belum',
+            ]);
+        }
+
         return view('instumen-talenta.nilai-tugas', compact('nilai', 'areas'));
     }
 
