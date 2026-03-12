@@ -985,6 +985,7 @@ class InstumenTalentaController extends Controller
     {
         // Load peserta and related user
         $pesertas = TalentaPeserta::with('user')->orderBy('id')->get();
+        $pesertasById = $pesertas->keyBy('id');
 
         // Load list of materi for navigation
         $materis = TalentaMateri::orderBy('tanggal_materi', 'asc')->get();
@@ -1144,9 +1145,9 @@ class InstumenTalentaController extends Controller
             $user = $entries->first()->user;
             // group by peserta
             $by_peserta = collect();
-            $groups = $entries->groupBy('talenta_peserta_id');
+            $groups = $entries->groupBy('talenta_peserta_id')->sortKeys();
             foreach ($groups as $pesertaId => $group) {
-                $pesertaModel = TalentaPeserta::find($pesertaId);
+                $pesertaModel = $pesertasById->get($pesertaId);
                 $scores = [];
                 foreach ($fields_peserta as $f) {
                     $scores[$f] = $group->avg($f) !== null ? round($group->avg($f), 2) : null;
@@ -1162,7 +1163,7 @@ class InstumenTalentaController extends Controller
             $evaluator_details->push([
                 'evaluator_id' => $evaluatorId,
                 'evaluator' => $user,
-                'by_peserta' => $by_peserta,
+                'by_peserta' => $by_peserta->sortBy('peserta_id')->values(),
             ]);
         }
 
