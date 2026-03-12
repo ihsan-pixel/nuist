@@ -183,11 +183,13 @@
 
                     <div class="mb-3">
                         <label for="jenisBelumSelect" class="form-label">Jenis Tugas</label>
-                        <select id="jenisBelumSelect" name="jenis_tugas" class="form-select" required>
+                        <select id="jenisBelumSelect" name="jenis_tugas" class="form-select">
+                            <option value="">Semua Jenis Tugas</option>
                             <option value="on_site">Tugas Onsite</option>
                             <option value="terstruktur">Tugas Terstruktur</option>
                             <option value="kelompok">Tugas Kelompok</option>
                         </select>
+                        <div class="form-text">Pilih kosong untuk mengunduh rekap lengkap seperti tampilan halaman peserta belum upload.</div>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -682,15 +682,16 @@ class InstumenTalentaController extends Controller
     {
         $validated = $request->validate([
             'area' => 'nullable|string',
-            'jenis_tugas' => 'required|in:on_site,terstruktur,kelompok',
+            'jenis_tugas' => 'nullable|in:on_site,terstruktur,kelompok',
         ]);
 
-        $jenis = $validated['jenis_tugas'];
+        $jenis = $validated['jenis_tugas'] ?? null;
         $area = $validated['area'] ?? null;
 
         // Prepare filename
         $labelArea = $area ?? 'semua-area';
-        $filename = 'belum_upload_tugas_' . $jenis . '_' . preg_replace('/[^A-Za-z0-9\-]/', '_', $labelArea) . '_' . date('Ymd_His') . '.xlsx';
+        $labelJenis = $jenis ?? 'semua-jenis';
+        $filename = 'rekap_belum_upload_tugas_' . $labelJenis . '_' . preg_replace('/[^A-Za-z0-9\-]/', '_', $labelArea) . '_' . date('Ymd_His') . '.xlsx';
 
         try {
             return Excel::download(new BelumUploadExport($jenis, $area), $filename);
