@@ -13,28 +13,7 @@
 
     <div class="row mb-3">
         <div class="col-12">
-            <form method="GET" action="{{ route('instumen-talenta.belum-upload-tugas') }}" class="row gy-2 gx-2 align-items-end">
-                <div class="col-auto">
-                    <label class="form-label">Area</label>
-                    <select name="area" class="form-select">
-                        <option value="">-- Semua Area --</option>
-                        @foreach($areas as $a)
-                            <option value="{{ $a }}" {{ ($selectedArea == $a) ? 'selected' : '' }}>{{ $a }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <label class="form-label">Jenis Tugas</label>
-                    <select name="jenis_tugas" class="form-select">
-                        <option value="" {{ empty($selectedJenis) ? 'selected' : '' }}>-- Semua Tugas --</option>
-                        <option value="on_site" {{ ($selectedJenis == 'on_site') ? 'selected' : '' }}>Tugas Onsite</option>
-                        <option value="terstruktur" {{ ($selectedJenis == 'terstruktur') ? 'selected' : '' }}>Tugas Terstruktur</option>
-                        <option value="kelompok" {{ ($selectedJenis == 'kelompok') ? 'selected' : '' }}>Tugas Kelompok</option>
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-primary">Filter</button>
-                </div>
+            <form class="row gy-2 gx-2 align-items-end">
                 <div class="col-auto">
                     <a href="{{ route('instumen-talenta.upload-tugas', ['area' => $selectedArea]) }}" class="btn btn-outline-secondary">Kembali ke Upload Tugas</a>
                 </div>
