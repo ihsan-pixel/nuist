@@ -636,13 +636,16 @@ class InstumenTalentaController extends Controller
                     $pdf->SetFillColor(255, 255, 255);
                     $pdf->Rect(5, 5, $tplW - 10, 10, 'F');
                     $pdf->SetXY(6, 6);
-                    $pdf->Cell(40, 4, 'Nama Peserta', 0, 0, 'L');
-                    $pdf->Cell(5, 4, ':', 0, 0, 'L');
-                    $pdf->Cell(0, 4, $nama ?? '-', 0, 1, 'L');
 
-                    $pdf->Cell(40, 4, 'Kode Peserta', 0, 0, 'L');
-                    $pdf->Cell(5, 4, ':', 0, 0, 'L');
-                    $pdf->Cell(0, 4, $kode ?? '-', 0, 1, 'L');
+                    $pdf->SetFont('Helvetica', 'B', 10);
+
+                    $pdf->Cell(35, 5, 'Nama Peserta', 0, 0, 'L');
+                    $pdf->Cell(5, 5, ':', 0, 0, 'C');
+                    $pdf->Cell(0, 5, $nama ?? '-', 0, 1, 'L');
+
+                    $pdf->Cell(35, 5, 'Kode Peserta', 0, 0, 'L');
+                    $pdf->Cell(5, 5, ':', 0, 0, 'C');
+                    $pdf->Cell(0, 5, $kode ?? '-', 0, 1, 'L');
                     $mergedPages++;
                 }
             }
