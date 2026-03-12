@@ -716,112 +716,151 @@ class InstumenTalentaController extends Controller
         $jenis = $request->query('jenis_tugas', null);
         $area = $request->query('area', null);
 
-        $rows = collect();
-
-        $jenisList = [];
-        if (empty($jenis)) {
-            // no filter: collect all jenis
-            $jenisList = ['on_site', 'terstruktur', 'kelompok'];
-        } else {
-            $jenisList = [$jenis];
-        }
-
-    foreach ($jenisList as $j) {
-            if ($j === 'kelompok') {
-                // kelompok tasks: find kelompok that have NOT uploaded
-                $submittedKelompokIds = TugasTalentaLevel1::where('jenis_tugas', 'kelompok')
-                    ->when($area, fn($q) => $q->where('area', $area))
-                    ->whereNotNull('kelompok_id')
-                    ->pluck('kelompok_id')
-                    ->unique()
-                    ->filter();
-
-                $kelompoks = TalentaKelompok::with('users')
-                    ->when($submittedKelompokIds->isNotEmpty(), fn($q) => $q->whereNotIn('id', $submittedKelompokIds))
-                    ->get();
-
-                foreach ($kelompoks as $kelompok) {
-                    foreach ($kelompok->users as $user) {
-                        $peserta = TalentaPeserta::where('user_id', $user->id)->first();
-                        $rows->push((object)[
-                            'kode_peserta' => $peserta->kode_peserta ?? '',
-                            'nama' => $user->name ?? '',
-                            'email' => $user->email ?? '',
-                            'kelompok' => $kelompok->nama_kelompok ?? '',
-                            'asal' => $peserta ? ($peserta->nama_madrasah ?? $peserta->asal_sekolah) : '',
-                            'area' => $area ?? '',
-                            'keterangan' => 'Kelompok belum mengunggah tugas',
-                            // helper fields for status lookup in view
-                            'user_id' => $user->id ?? null,
-                            'kelompok_id' => $kelompok->id ?? null,
-                            'peserta_id' => $peserta->id ?? null,
-                            'jenis' => $j,
-                        ]);
-                    }
-                }
-            } else {
-                // individual tasks
-                $submittedUserIds = TugasTalentaLevel1::where('jenis_tugas', $j)
-                    ->when($area, fn($q) => $q->where('area', $area))
-                    ->whereNotNull('user_id')
-                    ->pluck('user_id')
-                    ->unique()
-                    ->filter();
-
-                $pesertas = TalentaPeserta::with('user','madrasah')
-                    ->when($submittedUserIds->isNotEmpty(), fn($q) => $q->whereNotIn('user_id', $submittedUserIds))
-                    ->get();
-
-                foreach ($pesertas as $peserta) {
-                    $rows->push((object)[
-                        'kode_peserta' => $peserta->kode_peserta ?? '',
-                        'nama' => $peserta->user->name ?? '',
-                        'email' => $peserta->user->email ?? '',
-                        'kelompok' => '',
-                        'asal' => $peserta->nama_madrasah ?? $peserta->asal_sekolah ?? '',
-                        'area' => $area ?? '',
-                        'keterangan' => 'Belum mengunggah tugas (' . $j . ')',
-                        // helper fields for status lookup in view
-                        'user_id' => $peserta->user->id ?? null,
-                        'kelompok_id' => null,
-                        'peserta_id' => $peserta->id ?? null,
-                        'jenis' => $j,
-                    ]);
-                }
-            }
-        }
-
-        // Prepare materi columns and status map: quick lookup which user/kelompok already submitted per area (materi slug)
         $materis = TalentaMateri::where('status', TalentaMateri::STATUS_PUBLISHED)
             ->where('level_materi', TalentaMateri::LEVEL_1)
+            ->when($area, fn($query) => $query->where('slug', $area))
             ->orderBy('id')
             ->get();
 
         $materiSlugs = $materis->pluck('slug')->toArray();
 
-        $userIds = $rows->pluck('user_id')->filter()->unique()->values()->all();
-        $kelompokIds = $rows->pluck('kelompok_id')->filter()->unique()->values()->all();
-        $jenisValues = $rows->pluck('jenis')->filter()->unique()->values()->all();
+        $jenisList = empty($jenis)
+            ? ['on_site', 'terstruktur', 'kelompok']
+            : [$jenis];
 
-        $existingTugas = TugasTalentaLevel1::whereIn('area', $materiSlugs)
-            ->when(!empty($userIds) || !empty($kelompokIds), function($q) use ($userIds, $kelompokIds) {
-                $q->where(function($q2) use ($userIds, $kelompokIds) {
-                    if (!empty($userIds)) $q2->whereIn('user_id', $userIds);
-                    if (!empty($kelompokIds)) $q2->orWhereIn('kelompok_id', $kelompokIds);
-                });
-            })
-            ->when(!empty($jenisValues), fn($q) => $q->whereIn('jenis_tugas', $jenisValues))
+        $pesertas = TalentaPeserta::with(['user.madrasah'])
+            ->orderBy('kode_peserta')
             ->get();
 
-        $statusMap = [];
-        foreach ($existingTugas as $t) {
-            if (!empty($t->user_id)) {
-                $statusMap['user:' . $t->user_id . ':' . $t->area . ':' . $t->jenis_tugas] = true;
+        $kelompokByUser = [];
+        $allKelompokIds = [];
+        TalentaKelompok::with('users:id')
+            ->get()
+            ->each(function ($kelompok) use (&$kelompokByUser, &$allKelompokIds) {
+                foreach ($kelompok->users as $user) {
+                    $kelompokByUser[$user->id] = $kelompokByUser[$user->id] ?? [];
+                    $kelompokByUser[$user->id][] = [
+                        'id' => $kelompok->id,
+                        'nama' => $kelompok->nama_kelompok,
+                    ];
+                    $allKelompokIds[$kelompok->id] = $kelompok->id;
+                }
+            });
+
+        $userIds = $pesertas->pluck('user_id')->filter()->unique()->values()->all();
+        $kelompokIds = array_values($allKelompokIds);
+
+        $existingTugas = TugasTalentaLevel1::query()
+            ->when(!empty($materiSlugs), fn($query) => $query->whereIn('area', $materiSlugs))
+            ->when(!empty($jenisList), fn($query) => $query->whereIn('jenis_tugas', $jenisList))
+            ->where(function ($query) use ($userIds, $kelompokIds) {
+                if (!empty($userIds)) {
+                    $query->whereIn('user_id', $userIds);
+                }
+
+                if (!empty($kelompokIds)) {
+                    $query->orWhereIn('kelompok_id', $kelompokIds);
+                }
+            })
+            ->get();
+
+        $userSubmissionMap = [];
+        $kelompokSubmissionMap = [];
+        foreach ($existingTugas as $tugas) {
+            if (!empty($tugas->user_id)) {
+                $userSubmissionMap[$tugas->user_id][$tugas->area][$tugas->jenis_tugas] = true;
             }
-            if (!empty($t->kelompok_id)) {
-                $statusMap['kelompok:' . $t->kelompok_id . ':' . $t->area . ':' . $t->jenis_tugas] = true;
+
+            if (!empty($tugas->kelompok_id)) {
+                $kelompokSubmissionMap[$tugas->kelompok_id][$tugas->area][$tugas->jenis_tugas] = true;
             }
         }
+
+        $jenisLabels = [
+            'on_site' => 'On Site',
+            'terstruktur' => 'Terstruktur',
+            'kelompok' => 'Kelompok',
+        ];
+
+        $rows = collect();
+        foreach ($pesertas as $peserta) {
+            $user = $peserta->user;
+            if (!$user) {
+                continue;
+            }
+
+            $kelompokEntries = collect($kelompokByUser[$user->id] ?? []);
+            $kelompokNames = $kelompokEntries->pluck('nama')->filter()->unique()->values();
+            $kelompokIdsForUser = $kelompokEntries->pluck('id')->filter()->unique()->values();
+
+            $missingMateriCount = 0;
+            $missingTaskCount = 0;
+            $statusPerMateri = [];
+            $missingSummary = [];
+
+            foreach ($materis as $materi) {
+                $missingJenis = [];
+                $doneJenis = [];
+
+                foreach ($jenisList as $jenisTugas) {
+                    $isUploaded = false;
+                    $missingLabel = $jenisLabels[$jenisTugas] ?? $jenisTugas;
+
+                    if ($jenisTugas === 'kelompok') {
+                        if ($kelompokIdsForUser->isNotEmpty()) {
+                            foreach ($kelompokIdsForUser as $kelompokId) {
+                                if (!empty($kelompokSubmissionMap[$kelompokId][$materi->slug][$jenisTugas])) {
+                                    $isUploaded = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            $missingLabel = 'Kelompok belum ditetapkan';
+                        }
+                    } else {
+                        $isUploaded = !empty($userSubmissionMap[$user->id][$materi->slug][$jenisTugas]);
+                    }
+
+                    if ($isUploaded) {
+                        $doneJenis[] = $jenisLabels[$jenisTugas] ?? $jenisTugas;
+                    } else {
+                        $missingJenis[] = $missingLabel;
+                    }
+                }
+
+                $missingTaskCount += count($missingJenis);
+                if (!empty($missingJenis)) {
+                    $missingMateriCount++;
+                    $missingSummary[] = ($materi->kode_materi ?? ('M-' . $materi->id)) . ': ' . implode(', ', $missingJenis);
+                }
+
+                $statusPerMateri[$materi->id] = [
+                    'missing' => $missingJenis,
+                    'done' => $doneJenis,
+                    'is_complete' => empty($missingJenis),
+                ];
+            }
+
+            if ($missingTaskCount === 0) {
+                continue;
+            }
+
+            $rows->push((object) [
+                'kode_peserta' => $peserta->kode_peserta ?? '-',
+                'nama' => $user->name ?? '-',
+                'email' => $user->email ?? '-',
+                'sekolah' => $peserta->nama_madrasah ?? $peserta->asal_sekolah ?? '-',
+                'kelompok' => $kelompokNames->isNotEmpty() ? $kelompokNames->implode(', ') : '-',
+                'status_per_materi' => $statusPerMateri,
+                'missing_materi_count' => $missingMateriCount,
+                'missing_task_count' => $missingTaskCount,
+                'missing_summary' => $missingSummary,
+            ]);
+        }
+
+        $rows = $rows->sortBy(function ($row) {
+            return sprintf('%05d_%s', 99999 - $row->missing_task_count, strtolower($row->nama));
+        })->values();
 
         // Simple pagination
         $perPage = 50;
@@ -846,7 +885,13 @@ class InstumenTalentaController extends Controller
             'selectedArea' => $area,
             'selectedJenis' => $jenis,
             'materis' => $materis,
-            'statusMap' => $statusMap,
+            'jenisLabels' => $jenisLabels,
+            'summary' => [
+                'total_peserta' => $pesertas->count(),
+                'belum_lengkap' => $total,
+                'total_materi' => $materis->count(),
+                'filter_jenis' => empty($jenis) ? 'Semua Jenis Tugas' : ($jenisLabels[$jenis] ?? $jenis),
+            ],
         ]);
     }
 
