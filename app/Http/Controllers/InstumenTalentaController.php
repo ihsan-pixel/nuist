@@ -639,11 +639,15 @@ class InstumenTalentaController extends Controller
 
                     $pdf->SetFont('Helvetica', 'B', 10);
 
-                    $pdf->Cell(35, 5, 'Nama Peserta', 0, 0, 'L');
+                    $pdf->SetY(6);
+                    $pdf->SetX(10);
+
+                    $pdf->Cell(40, 5, 'Nama Peserta', 0, 0, 'L');
                     $pdf->Cell(5, 5, ':', 0, 0, 'C');
                     $pdf->Cell(0, 5, $nama ?? '-', 0, 1, 'L');
 
-                    $pdf->Cell(35, 5, 'Kode Peserta', 0, 0, 'L');
+                    $pdf->SetX(10);
+                    $pdf->Cell(40, 5, 'Kode Peserta', 0, 0, 'L');
                     $pdf->Cell(5, 5, ':', 0, 0, 'C');
                     $pdf->Cell(0, 5, $kode ?? '-', 0, 1, 'L');
                     $mergedPages++;
