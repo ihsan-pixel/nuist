@@ -2,34 +2,75 @@
 
 namespace App\Exports\Instumen;
 
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use App\Models\TalentaPenilaianFasilitator;
 use App\Models\TalentaFasilitator;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class FasilitatorAllExport implements WithMultipleSheets
+class FasilitatorAllExport implements FromCollection, WithHeadings
 {
-    public function sheets(): array
+    public function headings(): array
     {
-        $sheets = [];
-        $fasilitators = TalentaFasilitator::all();
-        foreach ($fasilitators as $f) {
-            $sheets[] = new FasilitatorSheetWithTitle($f->id, $f->nama ?? 'Fasilitator_'.$f->id);
+        return [
+            'Kode Fasilitator',
+            'Fasilitator',
+            'Evaluator',
+            'Fasilitasi',
+            'Pendampingan',
+            'Respons',
+            'Koordinasi',
+            'Monitoring',
+            'Waktu',
+            'Entri Count',
+        ];
+    }
+
+    public function collection(): Collection
+    {
+        $fasilitators = TalentaFasilitator::orderBy('nama')->get();
+        $rows = collect();
+
+        foreach ($fasilitators as $fasilitator) {
+            $entries = TalentaPenilaianFasilitator::with('user')
+                ->where('talenta_fasilitator_id', $fasilitator->id)
+                ->get()
+                ->groupBy('user_id');
+
+            if ($entries->isEmpty()) {
+                $rows->push([
+                    $fasilitator->kode_fasilitator ?? '-',
+                    $fasilitator->nama ?? 'Fasilitator ID:' . $fasilitator->id,
+                    '-',
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    0,
+                ]);
+
+                continue;
+            }
+
+            foreach ($entries as $userId => $group) {
+                $user = $group->first()->user;
+                $rows->push([
+                    $fasilitator->kode_fasilitator ?? '-',
+                    $fasilitator->nama ?? 'Fasilitator ID:' . $fasilitator->id,
+                    $user ? $user->name : 'User ID:' . $userId,
+                    round($group->avg('fasilitasi'), 2),
+                    round($group->avg('pendampingan'), 2),
+                    round($group->avg('respons'), 2),
+                    round($group->avg('koordinasi'), 2),
+                    round($group->avg('monitoring'), 2),
+                    round($group->avg('waktu'), 2),
+                    $group->count(),
+                ]);
+            }
         }
-        return $sheets;
-    }
-}
 
-class FasilitatorSheetWithTitle extends FasilitatorSheetExport implements \Maatwebsite\Excel\Concerns\WithTitle
-{
-    protected $title;
-
-    public function __construct($fasilitatorId, $title)
-    {
-        parent::__construct($fasilitatorId);
-        $this->title = substr($title, 0, 31);
-    }
-
-    public function title(): string
-    {
-        return $this->title;
+        return $rows;
     }
 }
