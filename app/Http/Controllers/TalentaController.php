@@ -26,6 +26,8 @@ use App\Models\Soal;
 
 class TalentaController extends Controller
 {
+    private const TUGAS_LEVEL_1_SUBMISSION_CLOSED = true;
+
     /* =========================
      * AUTH
      * ========================= */
@@ -116,6 +118,8 @@ class TalentaController extends Controller
      * ========================= */
     public function tugasLevel1()
     {
+        $submissionClosed = self::TUGAS_LEVEL_1_SUBMISSION_CLOSED;
+
         $materiLevel1 = TalentaMateri::where('level_materi', TalentaMateri::LEVEL_1)
             ->where('status', TalentaMateri::STATUS_PUBLISHED)
             ->get();
@@ -221,7 +225,7 @@ class TalentaController extends Controller
             $soalsByArea = [];
         }
 
-        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks', 'existingTasks', 'soalsByArea'));
+        return view('talenta.tugas-level-1', compact('materiLevel1', 'areaConfig', 'progressPercentage', 'completedTasks', 'totalTasks', 'existingTasks', 'soalsByArea', 'submissionClosed'));
     }
 
     /* =========================
@@ -235,6 +239,13 @@ class TalentaController extends Controller
                 'success' => false,
                 'message' => 'Sesi telah berakhir. Silakan login kembali.',
             ], 401);
+        }
+
+        if (self::TUGAS_LEVEL_1_SUBMISSION_CLOSED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batas waktu pengiriman tugas telah berakhir untuk semua materi.',
+            ], 403);
         }
 
         Log::info('simpanTugasLevel1 called', [

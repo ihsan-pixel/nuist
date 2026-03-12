@@ -2,11 +2,12 @@
      class="area-content {{ $first ? 'active' : '' }}">
 
     {{-- WARNING --}}
-    @if($materi->tanggal_materi > now())
+    @if(($submissionClosed ?? false) || $materi->tanggal_materi > now())
 
         @include('talenta.partials.warning', [
             'nama' => $config['name'],
-            'tanggal' => $materi->tanggal_materi
+            'tanggal' => $materi->tanggal_materi,
+            'submissionClosed' => $submissionClosed ?? false
         ])
 
     @else
