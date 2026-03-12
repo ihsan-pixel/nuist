@@ -533,7 +533,7 @@ class InstumenTalentaController extends Controller
         }
 
         // Query files
-        $query = TugasTalentaLevel1::with('user')
+        $query = TugasTalentaLevel1::with(['user', 'kelompok'])
             ->whereNotNull('file_path')
             ->where('jenis_tugas', $validated['jenis_tugas']);
 
@@ -627,7 +627,11 @@ class InstumenTalentaController extends Controller
                     $pdf->useTemplate($tplId, 0, 0, $tplW, $tplH, true);
 
                     // Add header (Nama Peserta & Kode Peserta) at top of each participant's pages
-                    $nama = $item->user->name ?? ($item->kelompok->nama_kelompok ?? 'N/A');
+                    $isKelompok = $validated['jenis_tugas'] === 'kelompok';
+                    $namaLabel = $isKelompok ? 'Nama Kelompok' : 'Nama Peserta';
+                    $nama = $isKelompok
+                        ? ($item->kelompok->nama_kelompok ?? '-')
+                        : ($item->user->name ?? ($item->kelompok->nama_kelompok ?? '-'));
                     $kode = $item->user && isset($item->user->id) ? (\App\Models\TalentaPeserta::where('user_id', $item->user->id)->pluck('kode_peserta')->first() ?? '') : '';
 
                     $pdf->SetFont('Helvetica', 'B', 10);
@@ -641,7 +645,7 @@ class InstumenTalentaController extends Controller
 
                     $pdf->SetXY(10,8);
 
-                    $pdf->Cell(45,5,'Nama Peserta',0,0,'L');
+                    $pdf->Cell(45,5,$namaLabel,0,0,'L');
                     $pdf->Cell(5,5,':',0,0,'L');
                     $pdf->Cell(120,5,$nama ?? '-',0,1,'L');
 
