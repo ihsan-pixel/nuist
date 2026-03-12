@@ -58,6 +58,16 @@
                                         <th>Kelompok</th>
                                         <th>Asal Sekolah / Madrasah</th>
                                         <th>Area</th>
+                                        {{-- dynamic materi columns --}}
+                                        @if(!empty($materis) && $materis->count())
+                                            @foreach($materis as $m)
+                                                <th class="text-center" style="white-space:nowrap">
+                                                    {{ $m->kode_materi ?? ('M-'.$m->id) }}
+                                                    <br>
+                                                    <small class="text-muted">{{ $m->judul_materi }} / {{ $m->slug }}</small>
+                                                </th>
+                                            @endforeach
+                                        @endif
                                         <th>Keterangan</th>
                                     </tr>
                                 </thead>
@@ -71,6 +81,29 @@
                                             <td>{{ $row->kelompok }}</td>
                                             <td>{{ $row->asal }}</td>
                                             <td>{{ $row->area }}</td>
+
+                                            {{-- per-materi status cells --}}
+                                            @if(!empty($materis) && $materis->count())
+                                                @foreach($materis as $m)
+                                                    @php
+                                                        // choose lookup key: prefer kelompok if present, otherwise user
+                                                        if (!empty($row->kelompok_id)) {
+                                                            $key = 'kelompok:' . $row->kelompok_id . ':' . $m->slug . ':' . ($row->jenis ?? '');
+                                                        } else {
+                                                            $key = 'user:' . ($row->user_id ?? '') . ':' . $m->slug . ':' . ($row->jenis ?? '');
+                                                        }
+                                                        $uploaded = !empty($statusMap[$key]);
+                                                    @endphp
+                                                    <td class="text-center">
+                                                        @if($uploaded)
+                                                            <span class="badge bg-success">OK</span>
+                                                        @else
+                                                            <span class="badge bg-danger">BELUM</span>
+                                                        @endif
+                                                    </td>
+                                                @endforeach
+                                            @endif
+
                                             <td>{{ $row->keterangan }}</td>
                                         </tr>
                                     @endforeach

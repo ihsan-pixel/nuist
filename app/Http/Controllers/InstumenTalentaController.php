@@ -726,7 +726,7 @@ class InstumenTalentaController extends Controller
             $jenisList = [$jenis];
         }
 
-        foreach ($jenisList as $j) {
+    foreach ($jenisList as $j) {
             if ($j === 'kelompok') {
                 // kelompok tasks: find kelompok that have NOT uploaded
                 $submittedKelompokIds = TugasTalentaLevel1::where('jenis_tugas', 'kelompok')
@@ -750,7 +750,12 @@ class InstumenTalentaController extends Controller
                             'kelompok' => $kelompok->nama_kelompok ?? '',
                             'asal' => $peserta ? ($peserta->nama_madrasah ?? $peserta->asal_sekolah) : '',
                             'area' => $area ?? '',
-                            'keterangan' => 'Kelompok belum mengunggah tugas'
+                            'keterangan' => 'Kelompok belum mengunggah tugas',
+                            // helper fields for status lookup in view
+                            'user_id' => $user->id ?? null,
+                            'kelompok_id' => $kelompok->id ?? null,
+                            'peserta_id' => $peserta->id ?? null,
+                            'jenis' => $j,
                         ]);
                     }
                 }
@@ -775,9 +780,46 @@ class InstumenTalentaController extends Controller
                         'kelompok' => '',
                         'asal' => $peserta->nama_madrasah ?? $peserta->asal_sekolah ?? '',
                         'area' => $area ?? '',
-                        'keterangan' => 'Belum mengunggah tugas (' . $j . ')'
+                        'keterangan' => 'Belum mengunggah tugas (' . $j . ')',
+                        // helper fields for status lookup in view
+                        'user_id' => $peserta->user->id ?? null,
+                        'kelompok_id' => null,
+                        'peserta_id' => $peserta->id ?? null,
+                        'jenis' => $j,
                     ]);
                 }
+            }
+        }
+
+        // Prepare materi columns and status map: quick lookup which user/kelompok already submitted per area (materi slug)
+        $materis = TalentaMateri::where('status', TalentaMateri::STATUS_PUBLISHED)
+            ->where('level_materi', TalentaMateri::LEVEL_1)
+            ->orderBy('id')
+            ->get();
+
+        $materiSlugs = $materis->pluck('slug')->toArray();
+
+        $userIds = $rows->pluck('user_id')->filter()->unique()->values()->all();
+        $kelompokIds = $rows->pluck('kelompok_id')->filter()->unique()->values()->all();
+        $jenisValues = $rows->pluck('jenis')->filter()->unique()->values()->all();
+
+        $existingTugas = TugasTalentaLevel1::whereIn('area', $materiSlugs)
+            ->when(!empty($userIds) || !empty($kelompokIds), function($q) use ($userIds, $kelompokIds) {
+                $q->where(function($q2) use ($userIds, $kelompokIds) {
+                    if (!empty($userIds)) $q2->whereIn('user_id', $userIds);
+                    if (!empty($kelompokIds)) $q2->orWhereIn('kelompok_id', $kelompokIds);
+                });
+            })
+            ->when(!empty($jenisValues), fn($q) => $q->whereIn('jenis_tugas', $jenisValues))
+            ->get();
+
+        $statusMap = [];
+        foreach ($existingTugas as $t) {
+            if (!empty($t->user_id)) {
+                $statusMap['user:' . $t->user_id . ':' . $t->area . ':' . $t->jenis_tugas] = true;
+            }
+            if (!empty($t->kelompok_id)) {
+                $statusMap['kelompok:' . $t->kelompok_id . ':' . $t->area . ':' . $t->jenis_tugas] = true;
             }
         }
 
@@ -803,6 +845,8 @@ class InstumenTalentaController extends Controller
             'areas' => $areas,
             'selectedArea' => $area,
             'selectedJenis' => $jenis,
+            'materis' => $materis,
+            'statusMap' => $statusMap,
         ]);
     }
 
