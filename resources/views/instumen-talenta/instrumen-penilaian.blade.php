@@ -26,9 +26,9 @@
                 <div class="card-body">
                     <h5 class="card-title">Penilaian Peserta (per materi)</h5>
 
-                    {{-- <div class="mb-2 d-flex justify-content-end">
-                        <a href="{{ route('instumen-talenta.instrumen-penilaian.peserta.export_all', ['materi_id' => $selected_materi_id]) }}" class="btn btn-sm btn-success">Export Semua (Excel)</a>
-                    </div> --}}
+                    <div class="mb-2 d-flex justify-content-end">
+                        <a href="{{ route('instumen-talenta.instrumen-penilaian.peserta.export_all', ['materi_id' => $selected_materi_id]) }}" class="btn btn-sm btn-success">Download Excel</a>
+                    </div>
 
                     {{-- Materi navigation --}}
                     <ul class="nav nav-pills mb-3">
@@ -63,6 +63,7 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>Peserta</th>
+                                            <th>Asal Sekolah</th>
                                             @if($participant_averages->isNotEmpty())
                                                 @foreach(array_keys($participant_averages->first()['scores']) as $field)
                                                     <th class="text-center">{{ ucwords(str_replace('_', ' ', $field)) }}</th>
@@ -77,6 +78,7 @@
                                         @foreach($participant_averages as $pa)
                                             <tr>
                                                 <td>{{ $pa['peserta'] ? ($pa['peserta']->nama ?? ($pa['peserta']->user ? $pa['peserta']->user->name : 'ID:'.$pa['peserta']->id)) : 'ID:'.$pa['peserta']->id }}</td>
+                                                <td>{{ $pa['peserta']?->nama_madrasah ?? $pa['peserta']?->asal_sekolah ?? '-' }}</td>
                                                 @foreach($pa['scores'] as $val)
                                                     <td class="text-center">{{ $val !== null ? $val : '-' }}</td>
                                                 @endforeach
@@ -105,6 +107,7 @@
                                         <thead class="table-light">
                                             <tr>
                                                 <th>Peserta</th>
+                                                <th>Asal Sekolah</th>
                                                 @if($by_peserta->isNotEmpty())
                                                     @foreach(array_keys($by_peserta->first()['scores']) as $field)
                                                         <th class="text-center">{{ ucwords(str_replace('_', ' ', $field)) }}</th>
@@ -119,6 +122,7 @@
                                             @foreach($by_peserta as $bp)
                                                 <tr>
                                                     <td>{{ $bp['peserta'] ? ($bp['peserta']->nama ?? ($bp['peserta']->user ? $bp['peserta']->user->name : 'ID:'.$bp['peserta_id'])) : 'ID:'.$bp['peserta_id'] }}</td>
+                                                    <td>{{ $bp['peserta']?->nama_madrasah ?? $bp['peserta']?->asal_sekolah ?? '-' }}</td>
                                                     @foreach($bp['scores'] as $val)
                                                         <td class="text-center">{{ $val !== null ? $val : '-' }}</td>
                                                     @endforeach

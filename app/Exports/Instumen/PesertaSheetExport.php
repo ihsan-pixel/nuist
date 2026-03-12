@@ -5,7 +5,6 @@ namespace App\Exports\Instumen;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use App\Models\TalentaPenilaianPeserta;
-use App\Models\TalentaPeserta;
 
 class PesertaSheetExport implements FromCollection, WithHeadings
 {
@@ -22,6 +21,7 @@ class PesertaSheetExport implements FromCollection, WithHeadings
     {
         return [
             'Peserta',
+            'Asal Sekolah',
             'Kehadiran',
             'Partisipasi',
             'Disiplin',
@@ -35,7 +35,7 @@ class PesertaSheetExport implements FromCollection, WithHeadings
 
     public function collection()
     {
-        $query = TalentaPenilaianPeserta::with(['peserta','user'])
+        $query = TalentaPenilaianPeserta::with(['peserta.user.madrasah','user'])
             ->where('user_id', $this->evaluatorId);
 
         if ($this->materiId && $this->materiId !== 'all') {
@@ -49,6 +49,7 @@ class PesertaSheetExport implements FromCollection, WithHeadings
             $peserta = $group->first()->peserta;
             $rows->push([
                 $peserta ? ($peserta->nama ?? ($peserta->user?->name ?? 'ID:'.$pesertaId)) : 'ID:'.$pesertaId,
+                $peserta?->nama_madrasah ?? $peserta?->asal_sekolah ?? '-',
                 round($group->avg('kehadiran'),2),
                 round($group->avg('partisipasi'),2),
                 round($group->avg('disiplin'),2),
