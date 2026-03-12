@@ -20,6 +20,7 @@ class PesertaSheetExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'Nomor Peserta',
             'Peserta',
             'Asal Sekolah',
             'Kehadiran',
@@ -48,6 +49,7 @@ class PesertaSheetExport implements FromCollection, WithHeadings
         foreach ($entries as $pesertaId => $group) {
             $peserta = $group->first()->peserta;
             $rows->push([
+                $peserta?->kode_peserta ?? '-',
                 $peserta ? ($peserta->nama ?? ($peserta->user?->name ?? 'ID:'.$pesertaId)) : 'ID:'.$pesertaId,
                 $peserta?->nama_madrasah ?? $peserta?->asal_sekolah ?? '-',
                 round($group->avg('kehadiran'),2),

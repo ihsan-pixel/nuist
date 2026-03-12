@@ -62,6 +62,7 @@
                                 <table class="table table-sm table-bordered">
                                     <thead class="table-light">
                                         <tr>
+                                            <th>Nomor Peserta</th>
                                             <th>Peserta</th>
                                             <th>Asal Sekolah</th>
                                             @if($participant_averages->isNotEmpty())
@@ -77,6 +78,7 @@
                                     <tbody>
                                         @foreach($participant_averages as $pa)
                                             <tr>
+                                                <td>{{ $pa['peserta']?->kode_peserta ?? '-' }}</td>
                                                 <td>{{ $pa['peserta'] ? ($pa['peserta']->nama ?? ($pa['peserta']->user ? $pa['peserta']->user->name : 'ID:'.$pa['peserta']->id)) : 'ID:'.$pa['peserta']->id }}</td>
                                                 <td>{{ $pa['peserta']?->nama_madrasah ?? $pa['peserta']?->asal_sekolah ?? '-' }}</td>
                                                 @foreach($pa['scores'] as $val)
@@ -106,6 +108,7 @@
                                     <table class="table table-sm table-bordered">
                                         <thead class="table-light">
                                             <tr>
+                                                <th>Nomor Peserta</th>
                                                 <th>Peserta</th>
                                                 <th>Asal Sekolah</th>
                                                 @if($by_peserta->isNotEmpty())
@@ -121,6 +124,7 @@
                                         <tbody>
                                             @foreach($by_peserta as $bp)
                                                 <tr>
+                                                    <td>{{ $bp['peserta']?->kode_peserta ?? '-' }}</td>
                                                     <td>{{ $bp['peserta'] ? ($bp['peserta']->nama ?? ($bp['peserta']->user ? $bp['peserta']->user->name : 'ID:'.$bp['peserta_id'])) : 'ID:'.$bp['peserta_id'] }}</td>
                                                     <td>{{ $bp['peserta']?->nama_madrasah ?? $bp['peserta']?->asal_sekolah ?? '-' }}</td>
                                                     @foreach($bp['scores'] as $val)

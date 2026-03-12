@@ -40,6 +40,7 @@ class PesertaRekapSheet implements FromCollection, WithHeadings, WithTitle
     public function headings(): array
     {
         return [
+            'Nomor Peserta',
             'Peserta',
             'Asal Sekolah',
             'Kehadiran',
@@ -67,6 +68,7 @@ class PesertaRekapSheet implements FromCollection, WithHeadings, WithTitle
 
             $entries = $query->get();
             $row = [
+                $peserta->kode_peserta ?? '-',
                 $peserta->nama ?? $peserta->user?->name ?? 'ID:' . $peserta->id,
                 $peserta->nama_madrasah ?? $peserta->asal_sekolah ?? '-',
             ];
@@ -102,6 +104,7 @@ class PesertaDetailFasilitatorSheet implements FromCollection, WithHeadings, Wit
         return [
             'Fasilitator/Evaluator',
             'Email',
+            'Nomor Peserta',
             'Peserta',
             'Asal Sekolah',
             'Kehadiran',
@@ -136,6 +139,7 @@ class PesertaDetailFasilitatorSheet implements FromCollection, WithHeadings, Wit
                 $row = [
                     $evaluator?->name ?? 'User ID:' . $evaluatorId,
                     $evaluator?->email ?? '-',
+                    $peserta?->kode_peserta ?? '-',
                     $peserta?->nama ?? $peserta?->user?->name ?? 'ID:' . $pesertaId,
                     $peserta?->nama_madrasah ?? $peserta?->asal_sekolah ?? '-',
                 ];
