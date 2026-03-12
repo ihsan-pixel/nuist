@@ -533,7 +533,10 @@ class InstumenTalentaController extends Controller
         }
 
         // Query files
+        $tugasTable = (new TugasTalentaLevel1())->getTable();
         $query = TugasTalentaLevel1::with(['user', 'kelompok'])
+            ->leftJoin('talenta_peserta as tp', 'tp.user_id', '=', $tugasTable . '.user_id')
+            ->select($tugasTable . '.*')
             ->whereNotNull('file_path')
             ->where('jenis_tugas', $validated['jenis_tugas']);
 
@@ -541,7 +544,17 @@ class InstumenTalentaController extends Controller
             $query->where('area', $validated['area']);
         }
 
-        $items = $query->orderBy('submitted_at', 'asc')->get();
+        if ($validated['jenis_tugas'] === 'kelompok') {
+            $query->orderBy($tugasTable . '.kelompok_id', 'asc')
+                ->orderBy($tugasTable . '.submitted_at', 'asc');
+        } else {
+            $query->orderByRaw("CASE WHEN tp.kode_peserta IS NULL OR tp.kode_peserta = '' THEN 1 ELSE 0 END")
+                ->orderBy('tp.kode_peserta', 'asc')
+                ->orderBy('tp.id', 'asc')
+                ->orderBy($tugasTable . '.submitted_at', 'asc');
+        }
+
+        $items = $query->get();
 
         if ($items->isEmpty()) {
             $msg = 'Tidak ditemukan file PDF untuk kombinasi yang dipilih.';
@@ -649,10 +662,12 @@ class InstumenTalentaController extends Controller
                     $pdf->Cell(5,5,':',0,0,'L');
                     $pdf->Cell(120,5,$nama ?? '-',0,1,'L');
 
-                    $pdf->SetX(10);
-                    $pdf->Cell(45,5,'Kode Peserta',0,0,'L');
-                    $pdf->Cell(5,5,':',0,0,'L');
-                    $pdf->Cell(120,5,$kode ?? '-',0,1,'L');
+                    if (!$isKelompok) {
+                        $pdf->SetX(10);
+                        $pdf->Cell(45,5,'Kode Peserta',0,0,'L');
+                        $pdf->Cell(5,5,':',0,0,'L');
+                        $pdf->Cell(120,5,$kode ?? '-',0,1,'L');
+                    }
                     $mergedPages++;
                 }
             }
