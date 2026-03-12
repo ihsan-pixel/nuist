@@ -718,9 +718,9 @@
             <button class="tab-btn" data-target="fasilitator-section">
                 <i class="bi bi-person-check"></i> Fasilitator
             </button>
-            <button class="tab-btn" data-target="teknis-section">
+            {{-- <button class="tab-btn" data-target="teknis-section">
                 <i class="bi bi-tools"></i> Tim Teknis
-            </button>
+            </button> --}}
             @if(Auth::user()->role !== 'tenaga_pendidik')
             <button class="tab-btn" data-target="peserta-section">
                 <i class="bi bi-people"></i> Peserta
