@@ -114,9 +114,9 @@
                                         <th style="min-width: 180px;">Kelompok</th>
                                         @foreach($materis as $materi)
                                             <th style="min-width: 220px;">
-                                                <div class="fw-semibold">{{ $materi->kode_materi ?? ('M-' . $materi->id) }}</div>
+                                                {{-- <div class="fw-semibold">{{ $materi->kode_materi ?? ('M-' . $materi->id) }}</div> --}}
                                                 <div class="small text-muted">{{ $materi->judul_materi }}</div>
-                                                <div class="small text-primary">{{ $materi->slug }}</div>
+                                                {{-- <div class="small text-primary">{{ $materi->slug }}</div> --}}
                                             </th>
                                         @endforeach
                                         <th style="min-width: 280px;">Tugas Belum Terinput</th>
