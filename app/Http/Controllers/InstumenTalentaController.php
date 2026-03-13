@@ -22,6 +22,8 @@ use App\Exports\Instumen\TeknisAllExport;
 use App\Exports\Instumen\PesertaSheetExport;
 use App\Exports\Instumen\PesertaAllExport;
 use App\Exports\Instumen\BelumUploadExport;
+use App\Exports\Instumen\NilaiTugasExport;
+use App\Exports\Instumen\StatusPenilaianMateriExport;
 use App\Models\TugasTalentaLevel1;
 use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
@@ -1405,6 +1407,30 @@ class InstumenTalentaController extends Controller
         }
 
     return view('instumen-talenta.nilai-tugas', compact('nilai', 'areas', 'pemateri_status'));
+    }
+
+    public function exportNilaiTugas(Request $request)
+    {
+        $area = $request->query('area');
+        $filename = 'rekap_nilai_tugas';
+
+        if (!empty($area)) {
+            $filename .= '_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $area);
+        }
+
+        return Excel::download(new NilaiTugasExport($area), $filename . '.xlsx');
+    }
+
+    public function exportStatusPenilaianMateri(Request $request)
+    {
+        $area = $request->query('area');
+        $filename = 'status_penilaian_materi';
+
+        if (!empty($area)) {
+            $filename .= '_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $area);
+        }
+
+        return Excel::download(new StatusPenilaianMateriExport($area), $filename . '.xlsx');
     }
 
     public function uploadSertifikat()

@@ -637,6 +637,8 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     // Peserta export endpoints (evaluator-centric)
     Route::get('/instrumen-penilaian/peserta/export/{evaluatorId}', [App\Http\Controllers\InstumenTalentaController::class, 'exportPeserta'])->name('instrumen-penilaian.peserta.export');
     Route::get('/instrumen-penilaian/peserta/export-all', [App\Http\Controllers\InstumenTalentaController::class, 'exportPesertaAll'])->name('instrumen-penilaian.peserta.export_all');
+    Route::get('/nilai-tugas/export', [App\Http\Controllers\InstumenTalentaController::class, 'exportNilaiTugas'])->name('nilai-tugas.export');
+    Route::get('/nilai-tugas/status-penilaian-materi/export', [App\Http\Controllers\InstumenTalentaController::class, 'exportStatusPenilaianMateri'])->name('nilai-tugas.status-penilaian-materi.export');
 
     // Upload Nilai Ujian (CSV import + CRUD)
     Route::get('/upload-nilai-ujian', [App\Http\Controllers\InstumenTalentaController::class, 'uploadNilaiUjian'])->name('upload-nilai-ujian')->middleware(['role:super_admin,admin']);
@@ -822,5 +824,4 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/laporan-akhir-tahun', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'index'])->name('laporan-akhir-tahun.index');
     Route::get('/laporan-akhir-tahun/pdf/{id}', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'pdf'])->name('laporan-akhir-tahun.pdf');
 });
-
 

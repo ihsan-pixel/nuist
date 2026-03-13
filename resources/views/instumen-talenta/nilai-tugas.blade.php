@@ -19,7 +19,10 @@
                         <div>
                             <strong>Daftar Nilai Tugas</strong>
                         </div>
-                        <div>
+                        <div class="d-flex align-items-center" style="gap:.5rem;">
+                            <a href="{{ route('instumen-talenta.nilai-tugas.export', ['area' => request('area')]) }}" class="btn btn-sm btn-success">
+                                Rekap Nilai Tugas (Excel)
+                            </a>
                             <form method="GET" class="d-flex" style="gap:.5rem;">
                                 <select name="area" class="form-select form-select-sm">
                                     <option value="">-- Semua Area --</option>
@@ -98,8 +101,13 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <strong>Status Penilaian Pemateri</strong>
+                            <strong>Status Penilaian Materi</strong>
                             <div class="small text-muted">Menampilkan pemateri yang sudah/ belum memasukkan nilai tugas (sesuai filter area jika dipilih).</div>
+                        </div>
+                        <div>
+                            <a href="{{ route('instumen-talenta.nilai-tugas.status-penilaian-materi.export', ['area' => request('area')]) }}" class="btn btn-sm btn-success">
+                                Export Excel
+                            </a>
                         </div>
                     </div>
 
