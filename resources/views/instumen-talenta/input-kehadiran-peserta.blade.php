@@ -26,6 +26,21 @@
     </div>
 </div>
 
+@if(session('import_errors'))
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-warning">
+                <strong>Beberapa baris gagal diimport:</strong>
+                <ul class="mb-0 mt-2">
+                    @foreach(session('import_errors') as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+@endif
+
 <div class="row">
     <div class="col-lg-5">
         <div class="card">
@@ -137,6 +152,34 @@
                 </form>
             </div>
         </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Import Excel Kehadiran</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a href="{{ route('instumen-talenta.template-kehadiran-peserta') }}" class="btn btn-success">
+                        <i class="fas fa-file-excel me-1"></i> Download Template Excel
+                    </a>
+                </div>
+
+                <form action="{{ route('instumen-talenta.import-kehadiran-peserta') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="file" class="form-label">File Excel / CSV</label>
+                        <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload me-1"></i> Import File
+                    </button>
+                </form>
+
+                <div class="mt-3 text-muted small">
+                    Gunakan sheet <strong>template_import</strong> pada file template. Referensi peserta dan materi tersedia di sheet terpisah.
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="col-lg-7">
@@ -230,6 +273,15 @@ document.addEventListener('DOMContentLoaded', function() {
             title: 'Berhasil!',
             text: '{{ session('success') }}',
             icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            title: 'Perhatian',
+            text: '{{ session('error') }}',
+            icon: 'warning',
             confirmButtonText: 'OK'
         });
     @endif

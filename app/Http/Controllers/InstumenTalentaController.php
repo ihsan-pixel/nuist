@@ -25,6 +25,8 @@ use App\Exports\Instumen\PesertaAllExport;
 use App\Exports\Instumen\BelumUploadExport;
 use App\Exports\Instumen\NilaiTugasExport;
 use App\Exports\Instumen\StatusPenilaianMateriExport;
+use App\Exports\Instumen\TalentaKehadiranTemplateExport;
+use App\Imports\TalentaKehadiranPesertaImport;
 use App\Models\TugasTalentaLevel1;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -211,6 +213,43 @@ class InstumenTalentaController extends Controller
         return redirect()
             ->route('instumen-talenta.input-kehadiran-peserta', $redirectParams)
             ->with('success', 'Data kehadiran peserta berhasil disimpan.');
+    }
+
+    public function downloadTemplateKehadiranPeserta()
+    {
+        return Excel::download(
+            new TalentaKehadiranTemplateExport(),
+            'template-kehadiran-peserta-talenta.xlsx'
+        );
+    }
+
+    public function importKehadiranPeserta(Request $request)
+    {
+        $supportsMateri = Schema::hasColumn('talenta_kehadiran_peserta', 'materi_id');
+
+        if (! $supportsMateri) {
+            return redirect()
+                ->route('instumen-talenta.input-kehadiran-peserta')
+                ->with('error', 'Import membutuhkan kolom materi_id. Jalankan migrate terlebih dahulu.');
+        }
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+
+        $import = new TalentaKehadiranPesertaImport();
+        Excel::import($import, $request->file('file'));
+
+        if ($import->getErrors()) {
+            return redirect()
+                ->route('instumen-talenta.input-kehadiran-peserta')
+                ->with('error', "Import selesai dengan {$import->getProcessedCount()} baris berhasil dan " . count($import->getErrors()) . ' baris gagal.')
+                ->with('import_errors', $import->getErrors());
+        }
+
+        return redirect()
+            ->route('instumen-talenta.input-kehadiran-peserta')
+            ->with('success', "Import kehadiran peserta berhasil. Total baris diproses: {$import->getProcessedCount()}.");
     }
 
     public function deleteKehadiranPeserta(TalentaKehadiranPeserta $kehadiranPeserta)

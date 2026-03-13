@@ -604,6 +604,8 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
     Route::post('/input-peserta', [App\Http\Controllers\InstumenTalentaController::class, 'storePeserta'])->name('store-peserta')->middleware(['role:super_admin,admin']);
     Route::get('/input-kehadiran-peserta', [App\Http\Controllers\InstumenTalentaController::class, 'inputKehadiranPeserta'])->name('input-kehadiran-peserta')->middleware(['role:super_admin,admin']);
     Route::post('/input-kehadiran-peserta', [App\Http\Controllers\InstumenTalentaController::class, 'storeKehadiranPeserta'])->name('store-kehadiran-peserta')->middleware(['role:super_admin,admin']);
+    Route::get('/input-kehadiran-peserta/template', [App\Http\Controllers\InstumenTalentaController::class, 'downloadTemplateKehadiranPeserta'])->name('template-kehadiran-peserta')->middleware(['role:super_admin,admin']);
+    Route::post('/input-kehadiran-peserta/import', [App\Http\Controllers\InstumenTalentaController::class, 'importKehadiranPeserta'])->name('import-kehadiran-peserta')->middleware(['role:super_admin,admin']);
     Route::delete('/input-kehadiran-peserta/{kehadiranPeserta}', [App\Http\Controllers\InstumenTalentaController::class, 'deleteKehadiranPeserta'])->name('delete-kehadiran-peserta')->middleware(['role:super_admin,admin']);
     Route::post('/store-kelompok', [App\Http\Controllers\InstumenTalentaController::class, 'storeKelompok'])->name('store-kelompok')->middleware(['role:super_admin,admin']);
 
