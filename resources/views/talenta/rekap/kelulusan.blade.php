@@ -279,7 +279,11 @@
                                     <th style="width:100px">On site</th>
                                     <th style="width:100px">Terstruktur</th>
                                     <th style="width:100px">Kelompok</th>
-
+                                    <th>Evaluasi Proses</th>
+                                    <th>PI-1</th>
+                                    <th>PI-2</th>
+                                    <th>Skor Tes 1</th>
+                                    <th>Skor Tes 2</th>
                                     <th style="width:100px">Ujian</th>
                                     <th style="width:100px">Kehadiran</th>
                                     <th style="width:100px">Kedisiplinan</th>
@@ -299,6 +303,11 @@
                                     <td>{{ number_format($peserta->avg_onsite ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_terstruktur ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kelompok ?? 0, 2) }}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
 
                                     <td>{{ number_format($peserta->avg_ujian ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kehadiran ?? 0, 2) }}</td>
