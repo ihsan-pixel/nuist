@@ -52,13 +52,15 @@ class ReportController extends Controller
     {
     // Load peserta list with penilaian (may be empty). We show peserta even if no penilaian exists.
     // Use get() to return the full collection (no pagination) as requested.
-    $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian'])->orderBy('id', 'asc')->get();
+    $pesertaList = \App\Models\TalentaPeserta::with(['user.madrasah', 'penilaian', 'kehadiranPeserta'])->orderBy('id', 'asc')->get();
+    $totalMateri = (int) \App\Models\TalentaMateri::count();
 
     // For each peserta, compute averages and weighted total so the view only renders values.
     // We're operating on a Collection (not a paginator), so transform the collection directly.
-        $pesertaList->transform(function ($p) {
+        $pesertaList->transform(function ($p) use ($totalMateri) {
             // ensure we have a collection of raw penilaian records
             $pen = collect($p->penilaian ?? []);
+            $kehadiranRecords = collect($p->kehadiranPeserta ?? []);
             $kelompokIds = [];
 
             $avgUjian = $pen->avg('nilai_ujian') ?: 0; // 0..100
@@ -82,7 +84,34 @@ class ReportController extends Controller
                 // anything goes wrong (missing table/model), fallback to penilaian field
                 $avgKelompok = $pen->avg('partisipasi') ?: 0; // 1..5 fallback
             }
-            $avgKehadiran = $pen->avg('kehadiran') ?: 0; // 1..5
+
+            // Kehadiran diambil dari tabel talenta_kehadiran_peserta.
+            // Default: sesi yang tidak tercatat dianggap hadir.
+            $avgKehadiran = 100;
+            if ($totalMateri > 0) {
+                $sessionStatuses = [];
+
+                foreach ($kehadiranRecords as $record) {
+                    $materiId = $record->materi_id;
+                    foreach ((array) ($record->sesi ?? []) as $sesi) {
+                        $sessionStatuses[$materiId . ':' . $sesi] = $record->status_kehadiran;
+                    }
+                }
+
+                $totalSessions = $totalMateri * 4;
+                $attendedSessions = $totalSessions;
+
+                foreach ($sessionStatuses as $status) {
+                    if (!in_array($status, ['hadir', 'telat'], true)) {
+                        $attendedSessions--;
+                    }
+                }
+
+                $avgKehadiran = $totalSessions > 0
+                    ? round(($attendedSessions / $totalSessions) * 100, 2)
+                    : 100;
+            }
+
             $avgKedisiplinan = $pen->avg('disiplin') ?: $pen->avg('sikap') ?: 0; // 1..5 fallback
 
             // For Onsite and Terstruktur we take the average from the tugas_nilai table
@@ -150,6 +179,7 @@ class ReportController extends Controller
             $p->raw_penilaian = $pen; // collection of TalentaPenilaianPeserta
             $p->raw_tugas_nilai = $rawTugasNilai; // collection of TugasNilai
             $p->raw_tugas_uploads = $rawTugasUploads; // collection of TugasTalentaLevel1
+            $p->raw_kehadiran = $kehadiranRecords; // collection of TalentaKehadiranPeserta
             $p->penilaian_by_peserta_fasilitator = $penByPesertaFasilitator;
             $p->penilaian_by_peserta_pemateri = $penByPesertaPemateri;
 
@@ -166,7 +196,7 @@ class ReportController extends Controller
             $terstrukturPercent = $scaleIfSmall($avgTerstruktur);
             $kelompokPercent = $scaleIfSmall($avgKelompok);
             $kehadiranPercent = $avgKehadiran;
-            $kedisiplinanPercent = $avgKedisiplinan;
+            $kedisiplinanPercent = $scaleIfSmall($avgKedisiplinan);
 
             // Weighted total (0..100): ujian 50%, others 10% each
             $totalPercent = ($avgUjian * 0.5)
@@ -186,7 +216,14 @@ class ReportController extends Controller
             // total out of 100 as requested (decimal)
             $p->total_score = round((float) $totalPercent, 2);
             // keep legacy 0..5 aggregate available if needed
-            $p->total_score_05 = round((float) (($avgUjian / 20.0) * 0.5 + ($avgOnsite * 0.1) + ($avgTerstruktur * 0.1) + ($avgKelompok * 0.1) + ($avgKehadiran * 0.1) + ($avgKedisiplinan * 0.1)), 2);
+            $p->total_score_05 = round((float) (
+                ($avgUjian / 20.0) * 0.5
+                + (($onsitePercent / 20.0) * 0.1)
+                + (($terstrukturPercent / 20.0) * 0.1)
+                + (($kelompokPercent / 20.0) * 0.1)
+                + (($kehadiranPercent / 20.0) * 0.1)
+                + (($kedisiplinanPercent / 20.0) * 0.1)
+            ), 2);
 
             return $p;
         });
