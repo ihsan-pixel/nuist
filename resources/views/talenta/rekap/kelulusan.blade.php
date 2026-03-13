@@ -239,7 +239,7 @@
                                             <div class="col-md-4">
                                                 <div class="rule-item">
                                                     <div class="rule-item-title">Sumber Data</div>
-                                                    <p class="rule-item-text">Ujian akhir, penilaian tugas pemateri, dan fasilitator.</p>
+                                                    <p class="rule-item-text">Ujian akhir, penilaian tugas pemateri, data kehadiran dan fasilitator.</p>
                                                 </div>
                                             </div>
                                         </div>
