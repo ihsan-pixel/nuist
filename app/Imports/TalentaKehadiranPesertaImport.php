@@ -18,6 +18,14 @@ class TalentaKehadiranPesertaImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
+        if ($rows->isEmpty()) {
+            return;
+        }
+
+        if (! $this->looksLikeTemplateSheet($rows->first())) {
+            return;
+        }
+
         foreach ($rows as $index => $row) {
             if ($this->isEmptyRow($row)) {
                 continue;
@@ -26,14 +34,21 @@ class TalentaKehadiranPesertaImport implements ToCollection, WithHeadingRow
             $rowNumber = $index + 2;
 
             try {
-                $tanggal = $this->parseTanggal($row['tanggal'] ?? null);
-                $kodePeserta = trim((string) ($row['kode_peserta'] ?? ''));
-                $materiId = trim((string) ($row['materi_id'] ?? ''));
-                $status = trim((string) ($row['status_kehadiran'] ?? ''));
-                $catatan = trim((string) ($row['catatan'] ?? ''));
+                $tanggalRaw = $this->getRowValue($row, ['tanggal', 'tgl', 'tanggal_kehadiran', 'tanggal_presensi']);
+                $kodePesertaRaw = $this->getRowValue($row, ['kode_peserta', 'kode peserta', 'kodepeserta']);
+                $materiIdRaw = $this->getRowValue($row, ['materi_id', 'materi id', 'id_materi']);
+                $statusRaw = $this->getRowValue($row, ['status_kehadiran', 'status kehadiran', 'status']);
+                $sesiRaw = $this->getRowValue($row, ['sesi', 'session']);
+                $catatanRaw = $this->getRowValue($row, ['catatan', 'keterangan', 'notes']);
+
+                $tanggal = $this->parseTanggal($tanggalRaw);
+                $kodePeserta = trim((string) $kodePesertaRaw);
+                $materiId = trim((string) $materiIdRaw);
+                $status = $this->normalizeStatus($statusRaw);
+                $catatan = trim((string) $catatanRaw);
 
                 if ($tanggal === null) {
-                    $rawTanggal = $row['tanggal'] ?? null;
+                    $rawTanggal = $tanggalRaw;
                     $displayTanggal = is_scalar($rawTanggal) ? (string) $rawTanggal : json_encode($rawTanggal);
                     throw new \Exception('Tanggal tidak terbaca. Nilai yang diterima: ' . ($displayTanggal !== '' ? $displayTanggal : '[kosong]') . '. Gunakan format YYYY-MM-DD atau DD/MM/YYYY.');
                 }
@@ -61,7 +76,7 @@ class TalentaKehadiranPesertaImport implements ToCollection, WithHeadingRow
                     throw new \Exception("materi_id {$materiId} tidak ditemukan.");
                 }
 
-                $sesi = $this->parseSesi($row['sesi'] ?? null);
+                $sesi = $this->parseSesi($sesiRaw);
 
                 TalentaKehadiranPeserta::updateOrCreate(
                     [
@@ -182,5 +197,93 @@ class TalentaKehadiranPesertaImport implements ToCollection, WithHeadingRow
         }
 
         return $sesi->all();
+    }
+
+    protected function normalizeStatus($value): string
+    {
+        $status = strtolower(trim((string) $value));
+        $status = str_replace(['-', '/'], '_', $status);
+        $status = preg_replace('/\s+/', '_', $status);
+
+        return match ($status) {
+            'hadir' => 'hadir',
+            'telat', 'terlambat' => 'telat',
+            'izin', 'ijin' => 'izin',
+            'sakit' => 'sakit',
+            'tidak_hadir', 'tidakhadir', 'alpha', 'alpa', 'absen' => 'tidak_hadir',
+            'lainnya', 'lain', 'other', 'keterangan' => 'lainnya',
+            default => $status,
+        };
+    }
+
+    protected function getRowValue($row, array $aliases)
+    {
+        $items = $row instanceof Collection ? $row->all() : (array) $row;
+        $normalizedItems = [];
+
+        foreach ($items as $key => $value) {
+            $normalizedItems[$this->normalizeKey($key)] = $value;
+        }
+
+        foreach ($aliases as $alias) {
+            $normalizedAlias = $this->normalizeKey($alias);
+            if (array_key_exists($normalizedAlias, $normalizedItems)) {
+                return $normalizedItems[$normalizedAlias];
+            }
+        }
+
+        foreach ($normalizedItems as $key => $value) {
+            foreach ($aliases as $alias) {
+                $normalizedAlias = $this->normalizeKey($alias);
+                if ($normalizedAlias !== '' && str_contains($key, $normalizedAlias)) {
+                    return $value;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected function normalizeKey($key): string
+    {
+        $key = strtolower(trim((string) $key));
+        $key = preg_replace('/\x{00A0}/u', ' ', $key);
+        $key = str_replace(['-', '/', '.'], '_', $key);
+        $key = preg_replace('/\s+/', '_', $key);
+        $key = preg_replace('/[^a-z0-9_]/', '', $key);
+
+        return trim((string) $key, '_');
+    }
+
+    protected function looksLikeTemplateSheet($row): bool
+    {
+        $items = $row instanceof Collection ? $row->all() : (array) $row;
+        $keys = collect(array_keys($items))
+            ->map(fn ($key) => $this->normalizeKey($key))
+            ->filter()
+            ->values()
+            ->all();
+
+        $groups = [
+            ['tanggal', 'tgl', 'tanggal_kehadiran', 'tanggal_presensi'],
+            ['kode_peserta', 'kodepeserta'],
+            ['status_kehadiran', 'status', 'statuskehadiran'],
+        ];
+
+        foreach ($groups as $aliases) {
+            $found = false;
+            foreach ($aliases as $alias) {
+                if (in_array($this->normalizeKey($alias), $keys, true)) {
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (! $found) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
