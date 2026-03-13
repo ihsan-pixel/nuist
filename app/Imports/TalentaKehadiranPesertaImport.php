@@ -33,7 +33,9 @@ class TalentaKehadiranPesertaImport implements ToCollection, WithHeadingRow
                 $catatan = trim((string) ($row['catatan'] ?? ''));
 
                 if ($tanggal === null) {
-                    throw new \Exception('Tanggal wajib diisi dengan format YYYY-MM-DD.');
+                    $rawTanggal = $row['tanggal'] ?? null;
+                    $displayTanggal = is_scalar($rawTanggal) ? (string) $rawTanggal : json_encode($rawTanggal);
+                    throw new \Exception('Tanggal tidak terbaca. Nilai yang diterima: ' . ($displayTanggal !== '' ? $displayTanggal : '[kosong]') . '. Gunakan format YYYY-MM-DD atau DD/MM/YYYY.');
                 }
 
                 if ($kodePeserta === '') {
