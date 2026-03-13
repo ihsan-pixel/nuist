@@ -102,7 +102,7 @@ class ReportController extends Controller
                 $attendedSessions = $totalSessions;
 
                 foreach ($sessionStatuses as $status) {
-                    if (!in_array($status, ['hadir', 'telat'], true)) {
+                    if (!in_array($status, ['hadir', 'telat', 'izin'], true)) {
                         $attendedSessions--;
                     }
                 }
