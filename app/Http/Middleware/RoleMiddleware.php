@@ -9,11 +9,6 @@ use Log;
 
 class RoleMiddleware
 {
-    private function normalizeRole(string $role): string
-    {
-        return preg_replace('/[\s-]+/', '_', trim(strtolower($role)));
-    }
-
     /**
      * Handle an incoming request.
      *
@@ -28,11 +23,11 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        $userRole = $this->normalizeRole(Auth::user()->role);
+        $userRole = trim(strtolower(Auth::user()->role));
         \Log::info('RoleMiddleware raw roles parameter: [' . implode(',', $roles) . ']');
 
         $rolesArray = array_map(function($role) {
-            return $this->normalizeRole($role);
+            return trim(strtolower($role));
         }, $roles);
 
         \Log::info('RoleMiddleware check: User role: [' . $userRole . '], Allowed roles: [' . implode(',', $rolesArray) . '], URL: ' . $request->url());
