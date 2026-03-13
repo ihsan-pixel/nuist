@@ -27,6 +27,7 @@ use App\Exports\Instumen\NilaiTugasExport;
 use App\Exports\Instumen\StatusPenilaianMateriExport;
 use App\Models\TugasTalentaLevel1;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use setasign\Fpdi\Fpdi;
 use App\Models\TalentaPenilaianPeserta;
 use Illuminate\Support\Facades\Auth;
@@ -78,25 +79,33 @@ class InstumenTalentaController extends Controller
 
     public function inputKehadiranPeserta(Request $request)
     {
+        $supportsMateri = Schema::hasColumn('talenta_kehadiran_peserta', 'materi_id');
         $selectedDate = $request->get('tanggal')
             ? Carbon::parse($request->get('tanggal'))->toDateString()
             : now()->toDateString();
-        $selectedMateriId = $request->get('materi_id');
+        $selectedMateriId = $supportsMateri ? $request->get('materi_id') : null;
 
         $pesertas = TalentaPeserta::with(['user.madrasah'])
             ->orderBy('kode_peserta')
             ->get();
         $materis = TalentaMateri::orderBy('tanggal_materi')->orderBy('judul_materi')->get();
 
-        $kehadiranPesertas = TalentaKehadiranPeserta::with(['peserta.user.madrasah', 'materi'])
+        $relations = ['peserta.user.madrasah'];
+        if ($supportsMateri) {
+            $relations[] = 'materi';
+        }
+
+        $kehadiranPesertas = TalentaKehadiranPeserta::with($relations)
             ->when($selectedDate, function ($query) use ($selectedDate) {
                 $query->whereDate('tanggal', $selectedDate);
             })
-            ->when($selectedMateriId, function ($query) use ($selectedMateriId) {
+            ->when($supportsMateri && $selectedMateriId, function ($query) use ($selectedMateriId) {
                 $query->where('materi_id', $selectedMateriId);
             })
             ->orderBy('tanggal', 'desc')
-            ->orderBy('materi_id')
+            ->when($supportsMateri, function ($query) {
+                $query->orderBy('materi_id');
+            })
             ->orderBy('id')
             ->get();
 
@@ -105,7 +114,8 @@ class InstumenTalentaController extends Controller
             'materis',
             'kehadiranPesertas',
             'selectedDate',
-            'selectedMateriId'
+            'selectedMateriId',
+            'supportsMateri'
         ));
     }
 
@@ -152,48 +162,71 @@ class InstumenTalentaController extends Controller
 
     public function storeKehadiranPeserta(Request $request)
     {
-        $validated = $request->validate([
+        $supportsMateri = Schema::hasColumn('talenta_kehadiran_peserta', 'materi_id');
+
+        $rules = [
             'tanggal' => 'required|date',
             'talenta_peserta_id' => 'required|exists:talenta_peserta,id',
-            'materi_id' => 'required|exists:talenta_materi,id',
             'status_kehadiran' => 'required|in:hadir,telat,izin,sakit,tidak_hadir,lainnya',
             'sesi' => 'required|array|min:1',
             'sesi.*' => 'in:1,2,3,4',
             'catatan' => 'nullable|string|max:255',
-        ]);
+        ];
+
+        if ($supportsMateri) {
+            $rules['materi_id'] = 'required|exists:talenta_materi,id';
+        }
+
+        $validated = $request->validate($rules);
+
+        $lookup = [
+            'tanggal' => $validated['tanggal'],
+            'talenta_peserta_id' => $validated['talenta_peserta_id'],
+        ];
+
+        if ($supportsMateri) {
+            $lookup['materi_id'] = $validated['materi_id'];
+        }
+
+        $payload = [
+            'status_kehadiran' => $validated['status_kehadiran'],
+            'sesi' => array_values($validated['sesi']),
+            'catatan' => $validated['catatan'] ?? null,
+        ];
+
+        if ($supportsMateri) {
+            $payload['materi_id'] = $validated['materi_id'];
+        }
 
         TalentaKehadiranPeserta::updateOrCreate(
-            [
-                'tanggal' => $validated['tanggal'],
-                'talenta_peserta_id' => $validated['talenta_peserta_id'],
-                'materi_id' => $validated['materi_id'],
-            ],
-            [
-                'status_kehadiran' => $validated['status_kehadiran'],
-                'sesi' => array_values($validated['sesi']),
-                'catatan' => $validated['catatan'] ?? null,
-            ]
+            $lookup,
+            $payload
         );
 
+        $redirectParams = ['tanggal' => $validated['tanggal']];
+        if ($supportsMateri) {
+            $redirectParams['materi_id'] = $validated['materi_id'];
+        }
+
         return redirect()
-            ->route('instumen-talenta.input-kehadiran-peserta', [
-                'tanggal' => $validated['tanggal'],
-                'materi_id' => $validated['materi_id'],
-            ])
+            ->route('instumen-talenta.input-kehadiran-peserta', $redirectParams)
             ->with('success', 'Data kehadiran peserta berhasil disimpan.');
     }
 
     public function deleteKehadiranPeserta(TalentaKehadiranPeserta $kehadiranPeserta)
     {
         $tanggal = optional($kehadiranPeserta->tanggal)->format('Y-m-d');
-        $materiId = $kehadiranPeserta->materi_id;
+        $supportsMateri = Schema::hasColumn('talenta_kehadiran_peserta', 'materi_id');
+        $materiId = $supportsMateri ? $kehadiranPeserta->materi_id : null;
         $kehadiranPeserta->delete();
 
+        $redirectParams = ['tanggal' => $tanggal];
+        if ($supportsMateri && $materiId) {
+            $redirectParams['materi_id'] = $materiId;
+        }
+
         return redirect()
-            ->route('instumen-talenta.input-kehadiran-peserta', [
-                'tanggal' => $tanggal,
-                'materi_id' => $materiId,
-            ])
+            ->route('instumen-talenta.input-kehadiran-peserta', $redirectParams)
             ->with('success', 'Data kehadiran peserta berhasil dihapus.');
     }
 
