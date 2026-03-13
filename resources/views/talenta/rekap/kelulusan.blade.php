@@ -9,16 +9,105 @@
 @include('talenta.partials.styles')
 
 <style>
-    /* clickable row styling for professional look */
     .clickable-row { cursor: pointer; }
-    .clickable-row:hover { background-color: #f8f9fa; }
-    /* wider modal for Rekap Kelulusan */
+    .clickable-row:hover { background-color: #f4f7fb; }
     .modal-dialog.modal-wide {
         max-width: 1400px;
         width: 100%;
     }
     @media (max-width: 1400px) {
         .modal-dialog.modal-wide { max-width: 95%; }
+    }
+    .summary-card {
+        border: 0;
+        overflow: hidden;
+        background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+        color: #fff;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+    }
+    .summary-card .text-muted {
+        color: rgba(255, 255, 255, 0.72) !important;
+    }
+    .summary-stat {
+        height: 100%;
+        border-radius: 16px;
+        padding: 1rem 1.1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(8px);
+    }
+    .summary-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.72);
+        margin-bottom: 0.35rem;
+    }
+    .summary-value {
+        font-size: 1.45rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    .formula-card {
+        border-radius: 18px;
+        background: #fff;
+        color: #0f172a;
+        padding: 1.25rem;
+        height: 100%;
+        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2);
+    }
+    .weight-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.65rem 0.85rem;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .weight-chip span {
+        color: #1d4ed8;
+    }
+    .table-card {
+        border: 0;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .table-card .card-header {
+        background: #fff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.25rem 1.5rem;
+    }
+    .table-card .table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+    .table-card .table tbody td {
+        vertical-align: middle;
+        border-color: #eef2f7;
+    }
+    .table-score {
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .participant-name {
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .participant-school {
+        color: #64748b;
+        font-size: 0.875rem;
     }
 </style>
 
@@ -32,21 +121,112 @@
 
 <section class="section-clean">
 <div class="container">
+    @php
+        $avgUjian = $pesertaList->avg('avg_ujian') ?: 0;
+        $avgTotal = $pesertaList->avg('total_score') ?: 0;
+        $topPeserta = $pesertaList->sortByDesc('total_score')->first();
+    @endphp
     <div class="row">
-    <div class="col-lg-9">
+        <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0">Rekap Nilai</h2>
+                <div>
+                    <h2 class="mb-1">Hasil Nilai Peserta Talenta</h2>
+                    <p class="text-muted mb-0">Rekap akhir penilaian peserta berdasarkan komponen ujian, tugas, dan instrumen fasilitator.</p>
+                </div>
             </div>
 
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <div class="card shadow-sm border-0">
+            <div class="card summary-card mb-4">
+                <div class="card-body p-4 p-lg-4">
+                    <div class="row g-4 align-items-stretch">
+                        <div class="col-lg-4">
+                            <div class="h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="text-uppercase small fw-semibold mb-2" style="letter-spacing: 0.08em;">Perhitungan Kelulusan</div>
+                                    <h4 class="mb-2">Komposisi nilai akhir peserta</h4>
+                                    <p class="text-muted mb-0">Panel ini menjelaskan bobot, konversi skala, dan sumber data yang digunakan untuk menyusun nilai akhir peserta talenta.</p>
+                                </div>
+                                <div class="row g-3 mt-1">
+                                    <div class="col-6">
+                                        <div class="summary-stat">
+                                            <div class="summary-label">Peserta</div>
+                                            <div class="summary-value">{{ $pesertaList->count() }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="summary-stat">
+                                            <div class="summary-label">Rata-rata Total</div>
+                                            <div class="summary-value">{{ number_format($avgTotal, 2) }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="summary-stat">
+                                            <div class="summary-label">Rata-rata Ujian</div>
+                                            <div class="summary-value">{{ number_format($avgUjian, 2) }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="summary-stat">
+                                            <div class="summary-label">Skor Tertinggi</div>
+                                            <div class="summary-value">{{ number_format($topPeserta->total_score ?? 0, 2) }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="formula-card">
+                                <div class="row g-4">
+                                    <div class="col-lg-6">
+                                        <div class="small fw-semibold text-uppercase text-primary mb-3" style="letter-spacing: 0.08em;">Bobot Penilaian</div>
+                                        <div class="d-grid gap-2">
+                                            <div class="weight-chip">Ujian <span>50%</span></div>
+                                            <div class="weight-chip">On Site <span>10%</span></div>
+                                            <div class="weight-chip">Terstruktur <span>10%</span></div>
+                                            <div class="weight-chip">Kelompok <span>10%</span></div>
+                                            <div class="weight-chip">Kehadiran <span>10%</span></div>
+                                            <div class="weight-chip">Kedisiplinan <span>10%</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="small fw-semibold text-uppercase text-primary mb-3" style="letter-spacing: 0.08em;">Aturan Perhitungan</div>
+                                        <div class="mb-3">
+                                            <div class="fw-semibold mb-1">Rumus Nilai Akhir</div>
+                                            <div class="small text-muted">Total = Ujian × 0.5 + On Site × 0.1 + Terstruktur × 0.1 + Kelompok × 0.1 + Kehadiran × 0.1 + Kedisiplinan × 0.1</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="fw-semibold mb-1">Konversi Skala</div>
+                                            <div class="small text-muted">Nilai ujian memakai skala 0-100. Nilai instrumen dan tugas memakai skala 1-5, lalu dikonversi ke 0-100 sebelum dihitung ke total.</div>
+                                            <div class="small text-muted mt-1">Contoh konversi: 1 = 0, 3 = 50, 5 = 100.</div>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold mb-1">Sumber Data</div>
+                                            <div class="small text-muted">Nilai ujian akhir, hasil penilaian tugas dari pemateri, dan instrumen penilaian fasilitator terhadap peserta.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="card-header d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2">
+                    <div>
+                        <h5 class="mb-1">Rekapitulasi Peserta</h5>
+                        <div class="small text-muted">Klik baris peserta untuk melihat detail penilaian lengkap.</div>
+                    </div>
+                    <div class="small text-muted">Total peserta: <span class="fw-semibold text-dark">{{ $pesertaList->count() }}</span></div>
+                </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
                                     <th style="width:30px">No</th>
                                     <th>Nama Peserta</th>
@@ -65,7 +245,10 @@
                                 @foreach($pesertaList as $peserta)
                                 <tr data-bs-toggle="modal" data-bs-target="#detail-peserta-{{ $peserta->id }}" class="clickable-row" tabindex="0">
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</td>
+                                    <td>
+                                        <div class="participant-name">{{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</div>
+                                        <div class="participant-school">Klik untuk melihat detail penilaian</div>
+                                    </td>
                                     <td>{{ $peserta->namaMadrasah ?? $peserta->asal_sekolah ?? '—' }}</td>
                                     <td>{{ $peserta->kode_peserta ?? '—' }}</td>
                                     <td>{{ number_format($peserta->avg_ujian ?? 0, 2) }}</td>
@@ -75,7 +258,7 @@
                                     <td>{{ number_format($peserta->avg_kehadiran ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kedisiplinan ?? 0, 2) }}</td>
                                     <td>
-                                        <span class="fw-semibold">{{ number_format($peserta->total_score ?? 0, 2) }}</span>
+                                        <span class="table-score">{{ number_format($peserta->total_score ?? 0, 2) }}</span>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -104,42 +287,6 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3">
-            <div class="card shadow-sm border-0 sticky-top" style="top:90px;">
-                <div class="card-body">
-                    <h6 class="mb-2">Perhitungan Kelulusan</h6>
-                    <p class="small text-muted mb-2">Ringkasan bobot dan aturan perhitungan nilai akhir.</p>
-                    <ul class="list-unstyled small mb-3">
-                        <li><strong>Ujian:</strong> 50%</li>
-                        <li><strong>On site:</strong> 10%</li>
-                        <li><strong>Terstruktur:</strong> 10%</li>
-                        <li><strong>Kelompok:</strong> 10%</li>
-                        <li><strong>Kehadiran:</strong> 10%</li>
-                        <li><strong>Kedisiplinan:</strong> 10%</li>
-                    </ul>
-
-                    <div class="small mb-2"><strong>Rumus:</strong></div>
-                    <div class="small text-muted mb-3">Total = Ujian * 0.5 + OnSite * 0.1 + Terstruktur * 0.1 + Kelompok * 0.1 + Kehadiran * 0.1 + Kedisiplinan * 0.1</div>
-
-                    <div class="small mb-2"><strong>Konversi skala:</strong></div>
-                    <div class="small text-muted mb-2">Ujian: 0–100 (Nilai Ujian). Nilai instrumen/tugas: 1–5 (ditampilkan 0–5) dikonversi ke 0–100 untuk perhitungan Total.</div>
-                    <div class="small text-muted mb-3">Contoh: 1 → 0, 3 → 50, 5 → 100</div>
-
-                    <div class="small mb-2"><strong>Sumber data:</strong></div>
-                    <ul class="list-unstyled small text-muted">
-                        <li>- Nilai ujian (Hasil Nilai Ujian Akhir)</li>
-                        <li>- Nilai tugas (Hasil Penilaian Tugas dari Pemateri)</li>
-                        <li>- Instrumen penilaian dari fasilitator terhadap peserta</li>
-                    </ul>
-
-                    {{-- <div class="mt-3">
-                        <a href="#" class="btn btn-sm btn-outline-primary">Dokumentasi Perhitungan</a>
-                    </div> --}}
-                </div>
-            </div>
         </div>
 
         @foreach($pesertaList as $peserta)
