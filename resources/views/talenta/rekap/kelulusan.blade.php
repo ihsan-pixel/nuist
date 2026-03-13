@@ -25,13 +25,16 @@
         color: #fff;
         box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
     }
+    .summary-card .card-body {
+        padding: 1.5rem !important;
+    }
     .summary-card .text-muted {
         color: rgba(255, 255, 255, 0.72) !important;
     }
     .summary-stat {
         height: 100%;
-        border-radius: 16px;
-        padding: 1rem 1.1rem;
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.14);
         backdrop-filter: blur(8px);
@@ -44,33 +47,54 @@
         margin-bottom: 0.35rem;
     }
     .summary-value {
-        font-size: 1.45rem;
+        font-size: 1.25rem;
         font-weight: 700;
         line-height: 1;
     }
     .formula-card {
         border-radius: 18px;
-        background: #fff;
+        background: rgba(255, 255, 255, 0.98);
         color: #0f172a;
-        padding: 1.25rem;
+        padding: 1rem 1.1rem;
         height: 100%;
-        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2);
+        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
     }
     .weight-chip {
         display: inline-flex;
         align-items: center;
         justify-content: space-between;
         gap: 0.75rem;
-        padding: 0.65rem 0.85rem;
+        padding: 0.5rem 0.75rem;
         border-radius: 12px;
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        font-size: 0.875rem;
+        font-size: 0.82rem;
         font-weight: 600;
         color: #0f172a;
     }
     .weight-chip span {
         color: #1d4ed8;
+    }
+    .rule-item {
+        padding: 0.8rem 0.9rem;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        height: 100%;
+    }
+    .rule-item-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #1d4ed8;
+        margin-bottom: 0.35rem;
+    }
+    .rule-item-text {
+        font-size: 0.82rem;
+        color: #475569;
+        line-height: 1.45;
+        margin-bottom: 0;
     }
     .table-card {
         border: 0;
@@ -109,6 +133,11 @@
         color: #64748b;
         font-size: 0.875rem;
     }
+    @media (max-width: 991.98px) {
+        .summary-card .card-body {
+            padding: 1.1rem !important;
+        }
+    }
 </style>
 
 <!-- Back button (no navbar) -->
@@ -141,15 +170,15 @@
 
             <div class="card summary-card mb-4">
                 <div class="card-body p-4 p-lg-4">
-                    <div class="row g-4 align-items-stretch">
+                    <div class="row g-3 align-items-stretch">
                         <div class="col-lg-4">
                             <div class="h-100 d-flex flex-column justify-content-between">
                                 <div>
                                     <div class="text-uppercase small fw-semibold mb-2" style="letter-spacing: 0.08em;">Perhitungan Kelulusan</div>
                                     <h4 class="mb-2">Komposisi nilai akhir peserta</h4>
-                                    <p class="text-muted mb-0">Panel ini menjelaskan bobot, konversi skala, dan sumber data yang digunakan untuk menyusun nilai akhir peserta talenta.</p>
+                                    <p class="text-muted mb-0">Ringkasan singkat bobot dan dasar perhitungan nilai akhir peserta talenta.</p>
                                 </div>
-                                <div class="row g-3 mt-1">
+                                <div class="row g-2 mt-3">
                                     <div class="col-6">
                                         <div class="summary-stat">
                                             <div class="summary-label">Peserta</div>
@@ -180,9 +209,9 @@
 
                         <div class="col-lg-8">
                             <div class="formula-card">
-                                <div class="row g-4">
-                                    <div class="col-lg-6">
-                                        <div class="small fw-semibold text-uppercase text-primary mb-3" style="letter-spacing: 0.08em;">Bobot Penilaian</div>
+                                <div class="row g-3">
+                                    <div class="col-lg-5">
+                                        <div class="small fw-semibold text-uppercase text-primary mb-2" style="letter-spacing: 0.08em;">Bobot Penilaian</div>
                                         <div class="d-grid gap-2">
                                             <div class="weight-chip">Ujian <span>50%</span></div>
                                             <div class="weight-chip">On Site <span>10%</span></div>
@@ -192,20 +221,27 @@
                                             <div class="weight-chip">Kedisiplinan <span>10%</span></div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6">
-                                        <div class="small fw-semibold text-uppercase text-primary mb-3" style="letter-spacing: 0.08em;">Aturan Perhitungan</div>
-                                        <div class="mb-3">
-                                            <div class="fw-semibold mb-1">Rumus Nilai Akhir</div>
-                                            <div class="small text-muted">Total = Ujian × 0.5 + On Site × 0.1 + Terstruktur × 0.1 + Kelompok × 0.1 + Kehadiran × 0.1 + Kedisiplinan × 0.1</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <div class="fw-semibold mb-1">Konversi Skala</div>
-                                            <div class="small text-muted">Nilai ujian memakai skala 0-100. Nilai instrumen dan tugas memakai skala 1-5, lalu dikonversi ke 0-100 sebelum dihitung ke total.</div>
-                                            <div class="small text-muted mt-1">Contoh konversi: 1 = 0, 3 = 50, 5 = 100.</div>
-                                        </div>
-                                        <div>
-                                            <div class="fw-semibold mb-1">Sumber Data</div>
-                                            <div class="small text-muted">Nilai ujian akhir, hasil penilaian tugas dari pemateri, dan instrumen penilaian fasilitator terhadap peserta.</div>
+                                    <div class="col-lg-7">
+                                        <div class="small fw-semibold text-uppercase text-primary mb-2" style="letter-spacing: 0.08em;">Aturan Perhitungan</div>
+                                        <div class="row g-2">
+                                            <div class="col-md-4">
+                                                <div class="rule-item">
+                                                    <div class="rule-item-title">Rumus</div>
+                                                    <p class="rule-item-text">Total = Ujian x 0.5 + lima komponen lain x 0.1.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="rule-item">
+                                                    <div class="rule-item-title">Skala</div>
+                                                    <p class="rule-item-text">Ujian 0-100. Instrumen 1-5 dikonversi ke skala 0-100.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="rule-item">
+                                                    <div class="rule-item-title">Sumber Data</div>
+                                                    <p class="rule-item-text">Ujian akhir, penilaian tugas pemateri, dan fasilitator.</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
