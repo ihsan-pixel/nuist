@@ -267,7 +267,7 @@
                                     <th style="width:30px">No</th>
                                     <th>Asal Sekolah</th>
                                     <th>Nama Peserta</th>
-                                    <th>Kode</th>
+                                    <th style="width: 100px">Kode</th>
                                     <th style="width:100px">On site</th>
                                     <th style="width:100px">Terstruktur</th>
                                     <th style="width:100px">Kelompok</th>
