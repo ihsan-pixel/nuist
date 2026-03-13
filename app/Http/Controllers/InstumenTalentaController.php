@@ -82,9 +82,10 @@ class InstumenTalentaController extends Controller
     public function inputKehadiranPeserta(Request $request)
     {
         $supportsMateri = Schema::hasColumn('talenta_kehadiran_peserta', 'materi_id');
-        $selectedDate = $request->get('tanggal')
+        $formDate = now()->toDateString();
+        $selectedDate = $request->filled('tanggal')
             ? Carbon::parse($request->get('tanggal'))->toDateString()
-            : now()->toDateString();
+            : null;
         $selectedMateriId = $supportsMateri ? $request->get('materi_id') : null;
 
         $pesertas = TalentaPeserta::with(['user.madrasah'])
@@ -116,6 +117,7 @@ class InstumenTalentaController extends Controller
             'materis',
             'kehadiranPesertas',
             'selectedDate',
+            'formDate',
             'selectedMateriId',
             'supportsMateri'
         ));

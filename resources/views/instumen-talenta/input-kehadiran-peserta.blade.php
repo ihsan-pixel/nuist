@@ -52,7 +52,7 @@
                     @csrf
                     <div class="mb-3">
                         <label for="tanggal" class="form-label">Tanggal <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control @error('tanggal') is-invalid @enderror" id="tanggal" name="tanggal" value="{{ old('tanggal', $selectedDate) }}" required>
+                        <input type="date" class="form-control @error('tanggal') is-invalid @enderror" id="tanggal" name="tanggal" value="{{ old('tanggal', $formDate) }}" required>
                         @error('tanggal')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -187,7 +187,7 @@
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h4 class="card-title mb-0">Rekap Kehadiran Peserta</h4>
                 <form method="GET" action="{{ route('instumen-talenta.input-kehadiran-peserta') }}" class="d-flex gap-2">
-                    <input type="date" name="tanggal" value="{{ $selectedDate }}" class="form-control form-control-sm">
+                    <input type="date" name="tanggal" value="{{ $selectedDate ?? '' }}" class="form-control form-control-sm">
                     @if($supportsMateri)
                         <select name="materi_id" class="form-select form-select-sm">
                             <option value="">Semua materi</option>
@@ -199,9 +199,24 @@
                         </select>
                     @endif
                     <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
+                    <a href="{{ route('instumen-talenta.input-kehadiran-peserta') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
                 </form>
             </div>
             <div class="card-body">
+                <div class="mb-3 text-muted small">
+                    @if($selectedDate || $selectedMateriId)
+                        Menampilkan data sesuai filter
+                        @if($selectedDate)
+                            tanggal <strong>{{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}</strong>
+                        @endif
+                        @if($selectedMateriId && $supportsMateri)
+                            dan materi <strong>{{ optional($materis->firstWhere('id', (int) $selectedMateriId))->judul_materi ?? $selectedMateriId }}</strong>
+                        @endif
+                        .
+                    @else
+                        Menampilkan seluruh data kehadiran peserta yang tersimpan di database.
+                    @endif
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped align-middle">
                         <thead class="table-light">
@@ -244,7 +259,7 @@
                             @empty
                                 <tr>
                                     <td colspan="{{ $supportsMateri ? '7' : '6' }}" class="text-center py-4">
-                                        Belum ada data kehadiran pada filter ini.<br>
+                                        Belum ada data kehadiran yang tersimpan{{ ($selectedDate || $selectedMateriId) ? ' pada filter ini' : '' }}.<br>
                                         <small class="text-muted">Peserta yang tidak dicatat tetap dianggap hadir di semua sesi.</small>
                                     </td>
                                 </tr>
