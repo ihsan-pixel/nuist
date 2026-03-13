@@ -28,13 +28,27 @@ class TalentaController extends Controller
 {
     private const TUGAS_LEVEL_1_SUBMISSION_CLOSED = true;
 
+    private function normalizeRole(?string $role): string
+    {
+        return preg_replace('/[\s-]+/', '_', trim(strtolower((string) $role)));
+    }
+
+    private function talentaDashboardRoute(): string
+    {
+        $role = $this->normalizeRole(Auth::user()?->role);
+
+        return $role === 'super_admin'
+            ? 'talenta.admin.dashboard'
+            : 'talenta.dashboard';
+    }
+
     /* =========================
      * AUTH
      * ========================= */
     public function login()
     {
         if (Auth::check()) {
-            return redirect()->route('talenta.dashboard');
+            return redirect()->route($this->talentaDashboardRoute());
         }
 
         return view('talenta.login');
@@ -49,7 +63,7 @@ class TalentaController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->route('talenta.dashboard');
+            return redirect()->route($this->talentaDashboardRoute());
         }
 
         return back()
@@ -71,6 +85,10 @@ class TalentaController extends Controller
      * ========================= */
     public function dashboard()
     {
+        if ($this->normalizeRole(Auth::user()?->role) === 'super_admin') {
+            return redirect()->route('talenta.admin.dashboard');
+        }
+
         return view('talenta.dashboard');
     }
 

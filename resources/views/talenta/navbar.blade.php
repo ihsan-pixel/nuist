@@ -371,26 +371,29 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
+            @php
+                $talentaRole = preg_replace('/[\s-]+/', '_', strtolower(trim((string) Auth::user()->role)));
+            @endphp
             <img src="{{ asset('images/tpt logo.png') }}" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
-                @if(Auth::user()->role === 'pemateri')
+                @if($talentaRole === 'pemateri')
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.penilaian-tugas') }}" class="{{ request()->routeIs('talenta.penilaian-tugas') ? 'active' : '' }}">Data Penilaian Tugas</a></li>
                     {{-- <li><a href="{{ route('talenta.rekap.index') }}" class="{{ request()->routeIs('talenta.rekap.index') ? 'active' : '' }}">Rekap Instrumen Model Layanan</a></li> --}}
                     <li><a href="{{ route('talenta.rekap.kelulusan.pemateri') }}" class="{{ request()->routeIs('talenta.rekap.kelulusan.pemateri') ? 'active' : '' }}">Rekap Nilai</a></li>
-                @elseif(Auth::user()->role === 'fasilitator')
+                @elseif($talentaRole === 'fasilitator')
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
                     <li><a href="{{ route('talenta.penilaian-tugas') }}" class="{{ request()->routeIs('talenta.penilaian-tugas') ? 'active' : '' }}">Data Penilaian Tugas</a></li>
-                @elseif(Auth::user()->role === 'tenaga_pendidik')
+                @elseif($talentaRole === 'tenaga_pendidik')
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.instrumen-penilaian') }}" class="{{ request()->routeIs('talenta.instrumen-penilaian') ? 'active' : '' }}">Instrumen Penilaian</a></li>
                     <li><a href="{{ route('talenta.tugas-level-1') }}" class="{{ request()->routeIs('talenta.tugas-level-1') ? 'active' : '' }}">Tugas</a></li>
                     <li><a href="{{ route('talenta.assessment.fill') }}" class="{{ request()->routeIs('talenta.assessment.fill') ? 'active' : '' }}">Instrumen Model Layanan</a></li>
-                @elseif(Auth::user()->role === 'super_admin')
+                @elseif($talentaRole === 'super_admin')
                     <li><a href="{{ route('talenta.admin.dashboard') }}" class="{{ request()->routeIs('talenta.admin.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.questions.index') }}" class="{{ request()->routeIs('talenta.questions.index') ? 'active' : '' }}">Soal</a></li>
@@ -408,15 +411,15 @@
             </ul>
             <!-- Role-specific quick action buttons (added without removing existing menu) -->
             <div class="role-actions" style="display:flex; gap:8px; align-items:center; margin-left:12px; margin-top:20px;">
-                @if(Auth::check() && Auth::user()->role === 'super_admin')
+                @if(Auth::check() && $talentaRole === 'super_admin')
                     {{-- <a href="{{ route('talenta.questions.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Soal</a>
                     <a href="{{ route('talenta.results.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil</a>
                     <a href="{{ route('talenta.schoollevel.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">School Level</a> --}}
                     {{-- <a href="{{ route('talenta.users.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Users</a> --}}
-                @elseif(Auth::check() && Auth::user()->role === 'tenaga_pendidik')
+                @elseif(Auth::check() && $talentaRole === 'tenaga_pendidik')
                     {{-- <a href="{{ route('talenta.assessment.fill') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Isi Assessment</a>
                     <a href="{{ route('talenta.assessment.myresults') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Hasil Saya</a> --}}
-                @elseif(Auth::check() && Auth::user()->role === 'pemateri')
+                @elseif(Auth::check() && $talentaRole === 'pemateri')
                     {{-- <a href="{{ route('talenta.rekap.index') }}" class="btn-primary" style="padding:8px 14px; font-size:14px;">Rekap</a> --}}
                 @endif
             </div>
@@ -556,4 +559,3 @@ window.addEventListener('scroll', function() {
     }
 });
 </script>
-
