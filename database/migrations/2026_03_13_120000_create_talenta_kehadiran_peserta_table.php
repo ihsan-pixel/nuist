@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->date('tanggal');
             $table->foreignId('talenta_peserta_id')->constrained('talenta_peserta')->cascadeOnDelete();
-            $table->enum('status_kehadiran', ['telat', 'izin', 'sakit', 'tidak_hadir', 'lainnya']);
+            $table->foreignId('materi_id')->constrained('talenta_materi')->cascadeOnDelete();
+            $table->enum('status_kehadiran', ['hadir', 'telat', 'izin', 'sakit', 'tidak_hadir', 'lainnya']);
             $table->json('sesi');
             $table->string('catatan')->nullable();
             $table->timestamps();
 
-            $table->unique(['tanggal', 'talenta_peserta_id'], 'talenta_kehadiran_peserta_unique');
+            $table->unique(['tanggal', 'talenta_peserta_id', 'materi_id'], 'talenta_kehadiran_peserta_unique');
         });
     }
 

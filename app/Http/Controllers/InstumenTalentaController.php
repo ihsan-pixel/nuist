@@ -81,23 +81,31 @@ class InstumenTalentaController extends Controller
         $selectedDate = $request->get('tanggal')
             ? Carbon::parse($request->get('tanggal'))->toDateString()
             : now()->toDateString();
+        $selectedMateriId = $request->get('materi_id');
 
         $pesertas = TalentaPeserta::with(['user.madrasah'])
             ->orderBy('kode_peserta')
             ->get();
+        $materis = TalentaMateri::orderBy('tanggal_materi')->orderBy('judul_materi')->get();
 
-        $kehadiranPesertas = TalentaKehadiranPeserta::with(['peserta.user.madrasah'])
+        $kehadiranPesertas = TalentaKehadiranPeserta::with(['peserta.user.madrasah', 'materi'])
             ->when($selectedDate, function ($query) use ($selectedDate) {
                 $query->whereDate('tanggal', $selectedDate);
             })
+            ->when($selectedMateriId, function ($query) use ($selectedMateriId) {
+                $query->where('materi_id', $selectedMateriId);
+            })
             ->orderBy('tanggal', 'desc')
+            ->orderBy('materi_id')
             ->orderBy('id')
             ->get();
 
         return view('instumen-talenta.input-kehadiran-peserta', compact(
             'pesertas',
+            'materis',
             'kehadiranPesertas',
-            'selectedDate'
+            'selectedDate',
+            'selectedMateriId'
         ));
     }
 
@@ -147,7 +155,8 @@ class InstumenTalentaController extends Controller
         $validated = $request->validate([
             'tanggal' => 'required|date',
             'talenta_peserta_id' => 'required|exists:talenta_peserta,id',
-            'status_kehadiran' => 'required|in:telat,izin,sakit,tidak_hadir,lainnya',
+            'materi_id' => 'required|exists:talenta_materi,id',
+            'status_kehadiran' => 'required|in:hadir,telat,izin,sakit,tidak_hadir,lainnya',
             'sesi' => 'required|array|min:1',
             'sesi.*' => 'in:1,2,3,4',
             'catatan' => 'nullable|string|max:255',
@@ -157,6 +166,7 @@ class InstumenTalentaController extends Controller
             [
                 'tanggal' => $validated['tanggal'],
                 'talenta_peserta_id' => $validated['talenta_peserta_id'],
+                'materi_id' => $validated['materi_id'],
             ],
             [
                 'status_kehadiran' => $validated['status_kehadiran'],
@@ -166,17 +176,24 @@ class InstumenTalentaController extends Controller
         );
 
         return redirect()
-            ->route('instumen-talenta.input-kehadiran-peserta', ['tanggal' => $validated['tanggal']])
+            ->route('instumen-talenta.input-kehadiran-peserta', [
+                'tanggal' => $validated['tanggal'],
+                'materi_id' => $validated['materi_id'],
+            ])
             ->with('success', 'Data kehadiran peserta berhasil disimpan.');
     }
 
     public function deleteKehadiranPeserta(TalentaKehadiranPeserta $kehadiranPeserta)
     {
         $tanggal = optional($kehadiranPeserta->tanggal)->format('Y-m-d');
+        $materiId = $kehadiranPeserta->materi_id;
         $kehadiranPeserta->delete();
 
         return redirect()
-            ->route('instumen-talenta.input-kehadiran-peserta', ['tanggal' => $tanggal])
+            ->route('instumen-talenta.input-kehadiran-peserta', [
+                'tanggal' => $tanggal,
+                'materi_id' => $materiId,
+            ])
             ->with('success', 'Data kehadiran peserta berhasil dihapus.');
     }
 

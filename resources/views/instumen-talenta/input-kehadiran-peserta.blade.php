@@ -21,7 +21,7 @@
 <div class="row mt-4">
     <div class="col-lg-12">
         <div class="alert alert-info mb-4">
-            Peserta yang tidak tercatat pada tabel kehadiran dianggap <strong>hadir pada semua sesi</strong>.
+            Anda dapat mencatat peserta dengan status <strong>hadir</strong>, <strong>izin</strong>, <strong>sakit</strong>, <strong>telat</strong>, atau lainnya per materi. Jika peserta tidak tercatat, sistem tetap menganggap peserta <strong>hadir pada semua sesi</strong>.
         </div>
     </div>
 </div>
@@ -59,9 +59,25 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="materi_id" class="form-label">Materi <span class="text-danger">*</span></label>
+                        <select class="form-select @error('materi_id') is-invalid @enderror" id="materi_id" name="materi_id" required>
+                            <option value="">Pilih materi</option>
+                            @foreach($materis as $materi)
+                                <option value="{{ $materi->id }}" {{ old('materi_id', $selectedMateriId) == $materi->id ? 'selected' : '' }}>
+                                    {{ $materi->judul_materi }} @if($materi->tanggal_materi) - {{ $materi->tanggal_materi->format('d-m-Y') }} @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('materi_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
                         <label for="status_kehadiran" class="form-label">Status <span class="text-danger">*</span></label>
                         <select class="form-select @error('status_kehadiran') is-invalid @enderror" id="status_kehadiran" name="status_kehadiran" required>
                             <option value="">Pilih status</option>
+                            <option value="hadir" {{ old('status_kehadiran') === 'hadir' ? 'selected' : '' }}>Hadir</option>
                             <option value="telat" {{ old('status_kehadiran') === 'telat' ? 'selected' : '' }}>Telat</option>
                             <option value="izin" {{ old('status_kehadiran') === 'izin' ? 'selected' : '' }}>Izin</option>
                             <option value="sakit" {{ old('status_kehadiran') === 'sakit' ? 'selected' : '' }}>Sakit</option>
@@ -125,6 +141,14 @@
                 <h4 class="card-title mb-0">Rekap Kehadiran Peserta</h4>
                 <form method="GET" action="{{ route('instumen-talenta.input-kehadiran-peserta') }}" class="d-flex gap-2">
                     <input type="date" name="tanggal" value="{{ $selectedDate }}" class="form-control form-control-sm">
+                    <select name="materi_id" class="form-select form-select-sm">
+                        <option value="">Semua materi</option>
+                        @foreach($materis as $materi)
+                            <option value="{{ $materi->id }}" {{ (string) $selectedMateriId === (string) $materi->id ? 'selected' : '' }}>
+                                {{ $materi->judul_materi }}
+                            </option>
+                        @endforeach
+                    </select>
                     <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
                 </form>
             </div>
@@ -137,6 +161,7 @@
                                 <th>No</th>
                                 <th>Nama</th>
                                 <th>Asal Sekolah/Madrasah</th>
+                                <th>Materi</th>
                                 <th>Keterangan</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
@@ -151,6 +176,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $item->peserta->user->name ?? 'N/A' }}</td>
                                     <td>{{ $item->peserta->user->madrasah->name ?? $item->peserta->asal_sekolah }}</td>
+                                    <td>{{ $item->materi->judul_materi ?? '-' }}</td>
                                     <td>{{ $item->keterangan_label }}</td>
                                     <td class="text-center">
                                         <form action="{{ route('instumen-talenta.delete-kehadiran-peserta', $item->id) }}" method="POST" onsubmit="return confirm('Hapus data kehadiran ini?');">
@@ -164,9 +190,9 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">
-                                        Tidak ada pengecualian kehadiran pada tanggal ini.<br>
-                                        <small class="text-muted">Artinya seluruh peserta dianggap hadir di semua sesi.</small>
+                                    <td colspan="7" class="text-center py-4">
+                                        Belum ada data kehadiran pada filter ini.<br>
+                                        <small class="text-muted">Peserta yang tidak dicatat tetap dianggap hadir di semua sesi.</small>
                                     </td>
                                 </tr>
                             @endforelse

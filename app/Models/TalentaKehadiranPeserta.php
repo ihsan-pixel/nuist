@@ -14,6 +14,7 @@ class TalentaKehadiranPeserta extends Model
     protected $fillable = [
         'tanggal',
         'talenta_peserta_id',
+        'materi_id',
         'status_kehadiran',
         'sesi',
         'catatan',
@@ -27,6 +28,11 @@ class TalentaKehadiranPeserta extends Model
     public function peserta()
     {
         return $this->belongsTo(TalentaPeserta::class, 'talenta_peserta_id');
+    }
+
+    public function materi()
+    {
+        return $this->belongsTo(TalentaMateri::class, 'materi_id');
     }
 
     public function getNamaHariAttribute()
@@ -45,6 +51,7 @@ class TalentaKehadiranPeserta extends Model
     public function getKeteranganLabelAttribute()
     {
         $statusMap = [
+            'hadir' => 'Hadir',
             'telat' => 'Telat',
             'izin' => 'Izin',
             'sakit' => 'Sakit',
