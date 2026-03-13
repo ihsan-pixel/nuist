@@ -65,7 +65,7 @@ Route::middleware(['auth'])->prefix('talenta')->name('talenta.')->group(function
     });
 
     // Pemateri: rekap and detail
-    Route::middleware(['role:pemateri'])->group(function () {
+    Route::middleware(['role:pemateri,super_admin'])->group(function () {
         Route::get('/dashboard', function () { return view('talenta.dashboard'); })->name('dashboard');
         Route::get('/rekap', [App\Http\Controllers\Talenta\ReportController::class, 'rekap'])->name('rekap.index');
         // Allow pemateri to view full rekap kelulusan (same controller, different route name)
