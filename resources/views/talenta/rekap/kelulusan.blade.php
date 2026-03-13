@@ -267,11 +267,11 @@
                                     <th style="width:30px">No</th>
                                     <th>Asal Sekolah</th>
                                     <th>Nama Peserta</th>
+                                    <th>Kode</th>
                                     <th style="width:100px">On site</th>
                                     <th style="width:100px">Terstruktur</th>
                                     <th style="width:100px">Kelompok</th>
 
-                                    <th>Kode</th>
                                     <th style="width:100px">Ujian</th>
                                     <th style="width:100px">Kehadiran</th>
                                     <th style="width:100px">Kedisiplinan</th>
@@ -287,11 +287,11 @@
                                         <div class="participant-name">{{ $peserta->nama ?? ($peserta->user->name ?? '—') }}</div>
                                         <div class="participant-school">Klik untuk melihat detail penilaian</div>
                                     </td>
+                                    <td>{{ $peserta->kode_peserta ?? '—' }}</td>
                                     <td>{{ number_format($peserta->avg_onsite ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_terstruktur ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kelompok ?? 0, 2) }}</td>
 
-                                    <td>{{ $peserta->kode_peserta ?? '—' }}</td>
                                     <td>{{ number_format($peserta->avg_ujian ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kehadiran ?? 0, 2) }}</td>
                                     <td>{{ number_format($peserta->avg_kedisiplinan ?? 0, 2) }}</td>
