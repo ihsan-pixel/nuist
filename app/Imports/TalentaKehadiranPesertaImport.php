@@ -106,12 +106,57 @@ class TalentaKehadiranPesertaImport implements ToCollection, WithHeadingRow
             return null;
         }
 
+        if ($value instanceof \DateTimeInterface) {
+            return Carbon::instance(\DateTimeImmutable::createFromInterface($value))->format('Y-m-d');
+        }
+
         if (is_numeric($value)) {
             return Carbon::instance(ExcelDate::excelToDateTimeObject($value))->format('Y-m-d');
         }
 
+        $value = trim((string) $value);
+        $value = preg_replace('/^[\'"\s]+|[\'"\s]+$/u', '', $value);
+        $value = preg_replace('/\x{00A0}/u', ' ', $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (ctype_digit($value)) {
+            try {
+                return Carbon::instance(ExcelDate::excelToDateTimeObject((float) $value))->format('Y-m-d');
+            } catch (\Throwable $e) {
+            }
+        }
+
+        $formats = [
+            'Y-m-d',
+            'd-m-Y',
+            'd/m/Y',
+            'm/d/Y',
+            'Y/m/d',
+            'd.m.Y',
+            'd-m-y',
+            'd/m/y',
+            'm/d/y',
+            'Ymd',
+            'd M Y',
+            'd F Y',
+            'd-m-Y H:i:s',
+            'd/m/Y H:i:s',
+            'Y-m-d H:i:s',
+            'm/d/Y H:i:s',
+        ];
+
+        foreach ($formats as $format) {
+            try {
+                return Carbon::createFromFormat($format, $value)->format('Y-m-d');
+            } catch (\Throwable $e) {
+            }
+        }
+
         try {
-            return Carbon::parse($value)->format('Y-m-d');
+            return Carbon::parse(str_replace('.', '/', $value))->format('Y-m-d');
         } catch (\Throwable $e) {
             return null;
         }
