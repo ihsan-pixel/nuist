@@ -107,6 +107,14 @@
         border-bottom: 1px solid #e2e8f0;
         padding: 1.25rem 1.5rem;
     }
+    .rekap-table-wrap {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+    .rekap-table-wrap table {
+        min-width: 1180px;
+    }
     .table-card .table thead th {
         background: #f8fafc;
         color: #475569;
@@ -260,7 +268,7 @@
                     <div class="small text-muted">Total peserta: <span class="fw-semibold text-dark">{{ $pesertaList->count() }}</span></div>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive">
+                    <div class="rekap-table-wrap">
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
