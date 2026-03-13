@@ -9,6 +9,7 @@ use App\Models\TalentaPemateri;
 use App\Models\TalentaFasilitator;
 use App\Models\TalentaLayananTeknis;
 use App\Models\TalentaKelompok;
+use App\Models\TalentaKehadiranPeserta;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -31,6 +32,7 @@ use App\Models\TalentaPenilaianPeserta;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Carbon\Carbon;
 // TalentaKelompok and TalentaPeserta already imported above
 
 class InstumenTalentaController extends Controller
@@ -74,6 +76,31 @@ class InstumenTalentaController extends Controller
         return view('instumen-talenta.input-peserta', compact('pesertas', 'kelompoks', 'nextKodePeserta'));
     }
 
+    public function inputKehadiranPeserta(Request $request)
+    {
+        $selectedDate = $request->get('tanggal')
+            ? Carbon::parse($request->get('tanggal'))->toDateString()
+            : now()->toDateString();
+
+        $pesertas = TalentaPeserta::with(['user.madrasah'])
+            ->orderBy('kode_peserta')
+            ->get();
+
+        $kehadiranPesertas = TalentaKehadiranPeserta::with(['peserta.user.madrasah'])
+            ->when($selectedDate, function ($query) use ($selectedDate) {
+                $query->whereDate('tanggal', $selectedDate);
+            })
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('id')
+            ->get();
+
+        return view('instumen-talenta.input-kehadiran-peserta', compact(
+            'pesertas',
+            'kehadiranPesertas',
+            'selectedDate'
+        ));
+    }
+
     public function storePeserta(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -113,6 +140,44 @@ class InstumenTalentaController extends Controller
         ]);
 
         return redirect()->route('instumen-talenta.input-peserta')->with('success', 'Data peserta berhasil disimpan.');
+    }
+
+    public function storeKehadiranPeserta(Request $request)
+    {
+        $validated = $request->validate([
+            'tanggal' => 'required|date',
+            'talenta_peserta_id' => 'required|exists:talenta_peserta,id',
+            'status_kehadiran' => 'required|in:telat,izin,sakit,tidak_hadir,lainnya',
+            'sesi' => 'required|array|min:1',
+            'sesi.*' => 'in:1,2,3,4',
+            'catatan' => 'nullable|string|max:255',
+        ]);
+
+        TalentaKehadiranPeserta::updateOrCreate(
+            [
+                'tanggal' => $validated['tanggal'],
+                'talenta_peserta_id' => $validated['talenta_peserta_id'],
+            ],
+            [
+                'status_kehadiran' => $validated['status_kehadiran'],
+                'sesi' => array_values($validated['sesi']),
+                'catatan' => $validated['catatan'] ?? null,
+            ]
+        );
+
+        return redirect()
+            ->route('instumen-talenta.input-kehadiran-peserta', ['tanggal' => $validated['tanggal']])
+            ->with('success', 'Data kehadiran peserta berhasil disimpan.');
+    }
+
+    public function deleteKehadiranPeserta(TalentaKehadiranPeserta $kehadiranPeserta)
+    {
+        $tanggal = optional($kehadiranPeserta->tanggal)->format('Y-m-d');
+        $kehadiranPeserta->delete();
+
+        return redirect()
+            ->route('instumen-talenta.input-kehadiran-peserta', ['tanggal' => $tanggal])
+            ->with('success', 'Data kehadiran peserta berhasil dihapus.');
     }
 
     public function inputMateri()

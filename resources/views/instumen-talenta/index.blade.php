@@ -143,6 +143,14 @@
                                 </a>
                             </div>
                         </div>
+
+                        <div class="col-lg-12">
+                            <div class="text-center">
+                                <a href="{{ route('instumen-talenta.input-kehadiran-peserta') }}" class="btn btn-dark btn-sm w-100" aria-label="Input Kehadiran Peserta">
+                                    <i class="fas fa-calendar-check me-1"></i> Input Kehadiran Peserta
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -48,6 +48,11 @@ class TalentaPeserta extends Model
         return $this->hasMany(\App\Models\TalentaPenilaianPeserta::class, 'talenta_peserta_id');
     }
 
+    public function kehadiranPeserta()
+    {
+        return $this->hasMany(\App\Models\TalentaKehadiranPeserta::class, 'talenta_peserta_id');
+    }
+
     /**
      * Get user's name (accessor).
      */
