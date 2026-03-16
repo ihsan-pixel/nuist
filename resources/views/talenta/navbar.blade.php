@@ -386,7 +386,7 @@
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
                     <li><a href="{{ route('talenta.penilaian-tugas') }}" class="{{ request()->routeIs('talenta.penilaian-tugas') ? 'active' : '' }}">Data Penilaian Tugas</a></li>
                     {{-- <li><a href="{{ route('talenta.rekap.index') }}" class="{{ request()->routeIs('talenta.rekap.index') ? 'active' : '' }}">Rekap Instrumen Model Layanan</a></li> --}}
-                    <li><a href="{{ $rekapKelulusanPemateriUrl }}" class="{{ request()->routeIs('talenta.rekap.kelulusan.pemateri') ? 'active' : '' }}">Rekap Nilai</a></li>
+                    {{-- <li><a href="{{ $rekapKelulusanPemateriUrl }}" class="{{ request()->routeIs('talenta.rekap.kelulusan.pemateri') ? 'active' : '' }}">Rekap Nilai</a></li> --}}
                 @elseif(Auth::user()->role === 'fasilitator')
                     <li><a href="{{ route('talenta.dashboard') }}" class="{{ request()->routeIs('talenta.dashboard') ? 'active' : '' }}">Dashboard</a></li>
                     <li><a href="{{ route('talenta.data') }}" class="{{ request()->routeIs('talenta.data') ? 'active' : '' }}">Data Talenta</a></li>
