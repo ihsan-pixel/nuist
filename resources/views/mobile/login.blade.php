@@ -278,7 +278,7 @@
                         <h4 class="hero-title">Halo, Selamat Datang di Nuist Mobile!</h4>
                     </div>
                     <div class="hero-illustration">
-                        <img src="{{ asset('images/illustration.png') }}" alt="illustration"/>
+                        <img src="{{ asset('images/10.png') }}" alt="illustration"/>
                     </div>
                     <!-- fast-menu removed: navigation/actions removed for simplified auth screen -->
                     <!-- White login button placed under Fast Menu (visible on hero) -->
