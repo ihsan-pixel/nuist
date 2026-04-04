@@ -886,15 +886,21 @@ class PresensiAdminController extends Controller
             }
 
             $totalHadir = 0;
+            $totalIzin = 0;
+            $totalAlpha = 0;
             $totalPresensi = 0;
             $currentDate = $startOfMonth->copy();
 
             while ($currentDate <= $endOfMonth) {
-                $dayOfWeek = $currentDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
-                $isWorkingDay = ($madrasah->hari_kbm == 5) ? ($dayOfWeek >= 1 && $dayOfWeek <= 5) : ($dayOfWeek >= 1 && $dayOfWeek <= 6);
+                $dayOfWeek = $currentDate->dayOfWeek;
+                $isWorkingDay = $madrasah->hari_kbm == 5
+                    ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
+                    : ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY);
+                $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
 
-                if ($isWorkingDay) {
+                if ($isWorkingDay && !$isHoliday) {
                     $hadir = 0;
+                    $izin = 0;
                     $alpha = 0;
 
                     foreach ($teachers as $guru) {
@@ -902,15 +908,23 @@ class PresensiAdminController extends Controller
                             ->whereDate('tanggal', $currentDate)
                             ->first();
 
-                        if ($presensi && $presensi->status === 'hadir') {
-                            $hadir++;
+                        if ($presensi) {
+                            if ($presensi->status === 'hadir') {
+                                $hadir++;
+                            } elseif ($presensi->status === 'izin') {
+                                $izin++;
+                            } else {
+                                $alpha++;
+                            }
                         } else {
                             $alpha++;
                         }
                     }
 
                     $totalHadir += $hadir;
-                    $totalPresensi += ($hadir + $alpha);
+                    $totalIzin += $izin;
+                    $totalAlpha += $alpha;
+                    $totalPresensi += ($hadir + $izin + $alpha);
                 }
 
                 $currentDate->addDay();
@@ -1042,6 +1056,12 @@ class PresensiAdminController extends Controller
                 ];
 
                 $kabupatenData['total_hadir'] += $totalHadir;
+                $kabupatenData['total_izin'] += collect($presensiMingguan)->sum(function ($item) {
+                    return is_numeric($item['izin']) ? $item['izin'] : 0;
+                });
+                $kabupatenData['total_alpha'] += collect($presensiMingguan)->sum(function ($item) {
+                    return is_numeric($item['alpha']) ? $item['alpha'] : 0;
+                });
                 $kabupatenData['total_presensi'] += $totalPresensi;
             }
 
