@@ -16,22 +16,20 @@ class TeachingProgressController extends Controller
      */
     public function index(Request $request)
     {
-        // Get month for top 10 madrasah
         $month = $request->input('month', now()->format('Y-m'));
         $year = (int) substr($month, 0, 4);
         $monthNum = (int) substr($month, 5, 2);
         $startOfMonth = Carbon::create($year, $monthNum, 1);
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $effectiveEndOfMonth = $startOfMonth->isSameMonth(now())
+            ? now()->copy()->endOfDay()
+            : $endOfMonth->copy()->endOfDay();
 
-        // Calculate top 10 madrasah for the month
         $madrasahPercentages = [];
         $allMadrasahs = Madrasah::orderByRaw("CAST(scod AS UNSIGNED) ASC")->get();
 
         foreach ($allMadrasahs as $madrasah) {
-            $teachers = User::where('madrasah_id', $madrasah->id)
-                ->where('role', 'tenaga_pendidik')
-                ->whereNotIn('status_kepegawaian_id', [7, 8])
-                ->get();
+            $teachers = $this->getEligibleTeachers($madrasah->id, false);
 
             $totalTeachers = $teachers->count();
 
@@ -47,30 +45,21 @@ class TeachingProgressController extends Controller
             $totalPresensi = 0;
             $currentDate = $startOfMonth->copy();
 
-            while ($currentDate <= $endOfMonth) {
+            while ($currentDate <= $effectiveEndOfMonth) {
                 $dayOfWeek = $currentDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
                 $isWorkingDay = ($madrasah->hari_kbm == 5) ? ($dayOfWeek >= 1 && $dayOfWeek <= 5) : ($dayOfWeek >= 1 && $dayOfWeek <= 6);
 
                 if ($isWorkingDay) {
                     $hadir = 0;
-                    $alpha = 0;
 
                     foreach ($teachers as $guru) {
-                        $attendance = TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($guru) {
-                            $q->where('teacher_id', $guru->id);
-                        })
-                        ->whereDate('tanggal', $currentDate)
-                        ->first();
-
-                        if ($attendance && $attendance->status === 'hadir') {
+                        if ($this->hasTeachingAttendance($guru->id, $currentDate)) {
                             $hadir++;
-                        } else {
-                            $alpha++;
                         }
                     }
 
                     $totalHadir += $hadir;
-                    $totalPresensi += ($hadir + $alpha);
+                    $totalPresensi += $totalTeachers;
                 }
 
                 $currentDate->addDay();
@@ -114,6 +103,7 @@ class TeachingProgressController extends Controller
         ];
 
         $laporanData = [];
+        $laporanBulananData = [];
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = Madrasah::where('kabupaten', $kabupaten)
@@ -130,16 +120,10 @@ class TeachingProgressController extends Controller
             ];
 
             foreach ($madrasahs as $madrasah) {
-                // Get all teachers for this madrasah excluding status_kepegawaian_id 7 and 8 and ketugasan kepala madrasah/sekolah
-                $teachers = User::where('madrasah_id', $madrasah->id)
-                    ->where('role', 'tenaga_pendidik')
-                    ->whereNotIn('status_kepegawaian_id', [7, 8])
-                    ->where('ketugasan', '!=', 'kepala madrasah/sekolah')
-                    ->get();
+                $teachers = $this->getEligibleTeachers($madrasah->id);
 
                 $totalTeachers = $teachers->count();
 
-                // Count teachers with and without teaching schedules
                 $teachersWithSchedule = $teachers->filter(function ($teacher) {
                     return TeachingSchedule::where('teacher_id', $teacher->id)->exists();
                 })->count();
@@ -171,15 +155,8 @@ class TeachingProgressController extends Controller
                     $alpha = 0;
 
                     foreach ($teachers as $guru) {
-                        $attendance = TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($guru) {
-                            $q->where('teacher_id', $guru->id);
-                        })
-                        ->whereDate('tanggal', $currentDate)
-                        ->first();
-
-                        if ($attendance) {
-                            if ($attendance->status === 'hadir') $hadir++;
-                            else $alpha++;
+                        if ($this->hasTeachingAttendance($guru->id, $currentDate)) {
+                            $hadir++;
                         } else {
                             $alpha++;
                         }
@@ -213,7 +190,9 @@ class TeachingProgressController extends Controller
                     'persentase_kehadiran' => $persentase
                 ];
 
-                $totalAlpha = $totalTeachers * $daysToCount - $totalPresensi; // Alpha = total possible - actual presensi
+                $totalAlpha = collect($presensiMingguan)->sum(function ($item) {
+                    return is_numeric($item['alpha']) ? $item['alpha'] : 0;
+                });
 
                 $kabupatenData['total_hadir'] += $totalHadir;
                 $kabupatenData['total_alpha'] += $totalAlpha;
@@ -228,7 +207,133 @@ class TeachingProgressController extends Controller
             $laporanData[] = $kabupatenData;
         }
 
-        return view('admin.teaching_progress', compact('laporanData', 'startOfWeek'));
+        foreach ($kabupatenOrder as $kabupaten) {
+            $madrasahs = Madrasah::where('kabupaten', $kabupaten)
+                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+                ->get();
+
+            $kabupatenBulananData = [
+                'kabupaten' => $kabupaten,
+                'madrasahs' => [],
+                'total_hadir' => 0,
+                'total_alpha' => 0,
+                'total_presensi' => 0,
+                'persentase_kehadiran' => 0
+            ];
+
+            foreach ($madrasahs as $madrasah) {
+                $teachers = $this->getEligibleTeachers($madrasah->id);
+                $totalTeachers = $teachers->count();
+                $teachersWithSchedule = $teachers->filter(function ($teacher) {
+                    return TeachingSchedule::where('teacher_id', $teacher->id)->exists();
+                })->count();
+                $teachersWithoutSchedule = $totalTeachers - $teachersWithSchedule;
+
+                if ($totalTeachers == 0) {
+                    $kabupatenBulananData['madrasahs'][] = [
+                        'scod' => $madrasah->scod,
+                        'nama' => $madrasah->name,
+                        'hari_kbm' => $madrasah->hari_kbm,
+                        'sudah' => 0,
+                        'belum' => 0,
+                        'total' => 0,
+                        'total_hadir' => 0,
+                        'total_alpha' => 0,
+                        'persentase_kehadiran' => 0
+                    ];
+                    continue;
+                }
+
+                $totalHadirBulanan = 0;
+                $totalAlphaBulanan = 0;
+                $totalPresensiBulanan = 0;
+                $currentDate = $startOfMonth->copy();
+
+                while ($currentDate <= $effectiveEndOfMonth) {
+                    $dayOfWeek = $currentDate->dayOfWeek;
+                    $isWorkingDay = $madrasah->hari_kbm == 5
+                        ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
+                        : ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY);
+
+                    if ($isWorkingDay) {
+                        $hadir = 0;
+
+                        foreach ($teachers as $guru) {
+                            if ($this->hasTeachingAttendance($guru->id, $currentDate)) {
+                                $hadir++;
+                            }
+                        }
+
+                        $alpha = $totalTeachers - $hadir;
+
+                        $totalHadirBulanan += $hadir;
+                        $totalAlphaBulanan += $alpha;
+                        $totalPresensiBulanan += $totalTeachers;
+                    }
+
+                    $currentDate->addDay();
+                }
+
+                $persentaseBulanan = $totalPresensiBulanan > 0
+                    ? ($totalHadirBulanan / $totalPresensiBulanan) * 100
+                    : 0;
+
+                $kabupatenBulananData['madrasahs'][] = [
+                    'scod' => $madrasah->scod,
+                    'nama' => $madrasah->name,
+                    'hari_kbm' => $madrasah->hari_kbm,
+                    'sudah' => $teachersWithSchedule,
+                    'belum' => $teachersWithoutSchedule,
+                    'total' => $totalTeachers,
+                    'total_hadir' => $totalHadirBulanan,
+                    'total_alpha' => $totalAlphaBulanan,
+                    'persentase_kehadiran' => $persentaseBulanan
+                ];
+
+                $kabupatenBulananData['total_hadir'] += $totalHadirBulanan;
+                $kabupatenBulananData['total_alpha'] += $totalAlphaBulanan;
+                $kabupatenBulananData['total_presensi'] += $totalPresensiBulanan;
+            }
+
+            $kabupatenBulananData['persentase_kehadiran'] =
+                $kabupatenBulananData['total_presensi'] > 0
+                    ? ($kabupatenBulananData['total_hadir'] / $kabupatenBulananData['total_presensi']) * 100
+                    : 0;
+
+            $laporanBulananData[] = $kabupatenBulananData;
+        }
+
+        return view('admin.teaching_progress', compact(
+            'laporanData',
+            'laporanBulananData',
+            'startOfWeek',
+            'startOfMonth',
+            'month',
+            'top10Madrasah'
+        ));
+    }
+
+    private function getEligibleTeachers($madrasahId, $excludePrincipal = true)
+    {
+        $query = User::where('madrasah_id', $madrasahId)
+            ->where('role', 'tenaga_pendidik')
+            ->whereNotIn('status_kepegawaian_id', [7, 8]);
+
+        if ($excludePrincipal) {
+            $query->where('ketugasan', '!=', 'kepala madrasah/sekolah');
+        }
+
+        return $query->get();
+    }
+
+    private function hasTeachingAttendance($teacherId, Carbon $date)
+    {
+        return TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($teacherId) {
+            $q->where('teacher_id', $teacherId);
+        })
+            ->whereDate('tanggal', $date)
+            ->where('status', 'hadir')
+            ->exists();
     }
 
     /**
