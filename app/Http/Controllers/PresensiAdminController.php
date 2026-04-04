@@ -959,6 +959,7 @@ class PresensiAdminController extends Controller
         ];
 
         $laporanData = [];
+        $laporanBulananData = [];
 
         foreach ($kabupatenOrder as $kabupaten) {
 
@@ -1052,9 +1053,106 @@ class PresensiAdminController extends Controller
             $laporanData[] = $kabupatenData;
         }
 
+        foreach ($kabupatenOrder as $kabupaten) {
+            $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
+                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+                ->get();
+
+            $kabupatenBulananData = [
+                'kabupaten' => $kabupaten,
+                'madrasahs' => [],
+                'total_hadir' => 0,
+                'total_izin' => 0,
+                'total_alpha' => 0,
+                'total_presensi' => 0,
+                'persentase_kehadiran' => 0
+            ];
+
+            foreach ($madrasahs as $madrasah) {
+                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $madrasah->id)
+                    ->get();
+
+                $totalHadirBulanan = 0;
+                $totalIzinBulanan = 0;
+                $totalAlphaBulanan = 0;
+                $totalPresensiBulanan = 0;
+                $currentDate = $startOfMonth->copy();
+
+                while ($currentDate <= $endOfMonth) {
+                    $dayOfWeek = $currentDate->dayOfWeek;
+                    $isWorkingDay = $madrasah->hari_kbm == 5
+                        ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
+                        : ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY);
+
+                    $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
+
+                    if ($isWorkingDay && !$isHoliday) {
+                        $hadir = 0;
+                        $izin = 0;
+                        $alpha = 0;
+
+                        foreach ($tenagaPendidik as $guru) {
+                            $presensi = Presensi::where('user_id', $guru->id)
+                                ->whereDate('tanggal', $currentDate)
+                                ->first();
+
+                            if ($presensi) {
+                                if ($presensi->status === 'hadir') {
+                                    $hadir++;
+                                } elseif ($presensi->status === 'izin') {
+                                    $izin++;
+                                } else {
+                                    $alpha++;
+                                }
+                            } else {
+                                $alpha++;
+                            }
+                        }
+
+                        $totalHadirBulanan += $hadir;
+                        $totalIzinBulanan += $izin;
+                        $totalAlphaBulanan += $alpha;
+                        $totalPresensiBulanan += ($hadir + $izin + $alpha);
+                    }
+
+                    $currentDate->addDay();
+                }
+
+                $persentaseBulanan = $totalPresensiBulanan > 0
+                    ? ($totalHadirBulanan / $totalPresensiBulanan) * 100
+                    : 0;
+
+                $kabupatenBulananData['madrasahs'][] = [
+                    'scod' => $madrasah->scod,
+                    'nama' => $madrasah->name,
+                    'hari_kbm' => $madrasah->hari_kbm,
+                    'total_tenaga_pendidik' => $tenagaPendidik->count(),
+                    'total_hadir' => $totalHadirBulanan,
+                    'total_izin' => $totalIzinBulanan,
+                    'total_alpha' => $totalAlphaBulanan,
+                    'persentase_kehadiran' => $persentaseBulanan
+                ];
+
+                $kabupatenBulananData['total_hadir'] += $totalHadirBulanan;
+                $kabupatenBulananData['total_izin'] += $totalIzinBulanan;
+                $kabupatenBulananData['total_alpha'] += $totalAlphaBulanan;
+                $kabupatenBulananData['total_presensi'] += $totalPresensiBulanan;
+            }
+
+            $kabupatenBulananData['persentase_kehadiran'] =
+                $kabupatenBulananData['total_presensi'] > 0
+                    ? ($kabupatenBulananData['total_hadir'] / $kabupatenBulananData['total_presensi']) * 100
+                    : 0;
+
+            $laporanBulananData[] = $kabupatenBulananData;
+        }
+
         return view('backend.presensi_admin.laporan_mingguan', compact(
             'laporanData',
+            'laporanBulananData',
             'startOfWeek',
+            'startOfMonth',
             'top10Madrasah'
         ));
     }

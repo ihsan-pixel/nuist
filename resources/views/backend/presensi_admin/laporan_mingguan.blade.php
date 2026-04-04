@@ -131,6 +131,64 @@
             </div>
         </div>
     </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Laporan Presensi Bulanan</h3>
+                    <div class="card-tools">
+                        <span class="text-muted small">
+                            Bulan: {{ $startOfMonth->translatedFormat('F Y') }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-bordered table-striped">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
+                                <th class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
+                                <th class="text-center align-middle">Hari KBM</th>
+                                <th class="text-center align-middle">Total Tenaga Pendidik</th>
+                                <th class="text-center align-middle">Total Hadir</th>
+                                <th class="text-center align-middle">Total Izin</th>
+                                <th class="text-center align-middle">Total Alpha</th>
+                                <th class="text-center align-middle">Persentase Kehadiran (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($laporanBulananData as $kabupaten)
+                            <tr class="bg-info">
+                                <td colspan="8" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
+                            </tr>
+                            @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
+                            <tr>
+                                <td class="text-center" style="position: sticky; left: 0; background: white;">{{ $madrasah['scod'] }}</td>
+                                <td style="position: sticky; left: 60px; background: white;">{{ $madrasah['nama'] }}</td>
+                                <td class="text-center">{{ $madrasah['hari_kbm'] }}</td>
+                                <td class="text-center">{{ $madrasah['total_tenaga_pendidik'] }}</td>
+                                <td class="text-center">{{ $madrasah['total_hadir'] }}</td>
+                                <td class="text-center">{{ $madrasah['total_izin'] }}</td>
+                                <td class="text-center">{{ $madrasah['total_alpha'] }}</td>
+                                <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
+                            </tr>
+                            @endforeach
+                            <tr class="bg-warning font-weight-bold">
+                                <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL {{ $kabupaten['kabupaten'] }}</td>
+                                <td></td>
+                                <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('total_tenaga_pendidik') }}</td>
+                                <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
+                                <td class="text-center">{{ $kabupaten['total_izin'] }}</td>
+                                <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
+                                <td class="text-center">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
