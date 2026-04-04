@@ -122,6 +122,17 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @php
+                                $monthlyGrandSudah = collect($laporanBulananData)->sum(fn ($kabupaten) => collect($kabupaten['madrasahs'])->sum('sudah'));
+                                $monthlyGrandBelum = collect($laporanBulananData)->sum(fn ($kabupaten) => collect($kabupaten['madrasahs'])->sum('belum'));
+                                $monthlyGrandTotal = collect($laporanBulananData)->sum(fn ($kabupaten) => collect($kabupaten['madrasahs'])->sum('total'));
+                                $monthlyGrandHadir = collect($laporanBulananData)->sum('total_hadir');
+                                $monthlyGrandAlpha = collect($laporanBulananData)->sum('total_alpha');
+                                $monthlyGrandPresensi = collect($laporanBulananData)->sum('total_presensi');
+                                $monthlyGrandPercentage = $monthlyGrandPresensi > 0
+                                    ? ($monthlyGrandHadir / $monthlyGrandPresensi) * 100
+                                    : 0;
+                            @endphp
                             @foreach($laporanBulananData as $kabupaten)
                             <tr class="bg-info">
                                 <td colspan="9" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }} - {{ $startOfMonth->translatedFormat('F Y') }}</td>
@@ -149,6 +160,15 @@
                                 <td class="text-center">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
                             </tr>
                             @endforeach
+                            <tr class="bg-warning font-weight-bold">
+                                <td colspan="3" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL RATA-RATA BULANAN</td>
+                                <td class="text-center">{{ $monthlyGrandSudah }}</td>
+                                <td class="text-center">{{ $monthlyGrandBelum }}</td>
+                                <td class="text-center">{{ $monthlyGrandTotal }}</td>
+                                <td class="text-center">{{ $monthlyGrandHadir }}</td>
+                                <td class="text-center">{{ $monthlyGrandAlpha }}</td>
+                                <td class="text-center">{{ number_format($monthlyGrandPercentage, 2) }}%</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
