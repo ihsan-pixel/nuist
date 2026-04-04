@@ -865,6 +865,10 @@ class PresensiAdminController extends Controller
         $monthNum = (int) substr($month, 5, 2);
         $startOfMonth = Carbon::create($year, $monthNum, 1);
         $endOfMonth = $startOfMonth->copy()->endOfMonth();
+        $today = Carbon::today();
+        $effectiveEndOfMonth = $startOfMonth->isSameMonth($today) && $startOfMonth->isSameYear($today)
+            ? $today->copy()
+            : $endOfMonth->copy();
 
         // Calculate top 10 madrasah for the month
         $madrasahPercentages = [];
@@ -891,7 +895,7 @@ class PresensiAdminController extends Controller
             $totalPresensi = 0;
             $currentDate = $startOfMonth->copy();
 
-            while ($currentDate <= $endOfMonth) {
+            while ($currentDate <= $effectiveEndOfMonth) {
                 $dayOfWeek = $currentDate->dayOfWeek;
                 $isWorkingDay = $madrasah->hari_kbm == 5
                     ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
@@ -1099,7 +1103,7 @@ class PresensiAdminController extends Controller
                 $totalPresensiBulanan = 0;
                 $currentDate = $startOfMonth->copy();
 
-                while ($currentDate <= $endOfMonth) {
+                while ($currentDate <= $effectiveEndOfMonth) {
                     $dayOfWeek = $currentDate->dayOfWeek;
                     $isWorkingDay = $madrasah->hari_kbm == 5
                         ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
