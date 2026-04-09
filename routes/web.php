@@ -225,7 +225,7 @@ Route::post('/mobile/login', [MobileAuthController::class, 'authenticate'])->nam
 
 // Mobile forgot password (mobile-optimized view and submit)
 Route::get('/mobile/forgot-password', function () {
-    return view('mobile.forgot-password');
+    return view('mobile.forgot-password-v2');
 })->name('mobile.password.request');
 
 Route::post('/mobile/forgot-password', function (Request $request) {
