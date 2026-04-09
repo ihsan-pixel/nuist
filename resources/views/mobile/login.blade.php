@@ -40,19 +40,6 @@
                     </div>
                 @endif
 
-                <div class="action-stack">
-                    <a class="action-btn action-btn-primary" href="{{ route('mobile.register') }}">Sign Up</a>
-                    <button
-                        type="button"
-                        class="action-btn action-btn-secondary"
-                        id="toggleLoginPanel"
-                        aria-expanded="{{ $errors->any() ? 'true' : 'false' }}"
-                        aria-controls="loginPanel"
-                    >
-                        Login
-                    </button>
-                </div>
-
                 <div class="login-panel" id="loginPanel">
                     <p class="panel-title">Masuk ke akun Anda</p>
 
@@ -101,6 +88,19 @@
                     <div class="panel-footer">
                         <a href="{{ route('mobile.password.request') }}">Forgot password?</a>
                     </div>
+                </div>
+
+                <div class="action-stack">
+                    <a class="action-btn action-btn-primary" href="{{ route('mobile.register') }}">Sign Up</a>
+                    <button
+                        type="button"
+                        class="action-btn action-btn-secondary"
+                        id="toggleLoginPanel"
+                        aria-expanded="{{ $errors->any() ? 'true' : 'false' }}"
+                        aria-controls="loginPanel"
+                    >
+                        Login
+                    </button>
                 </div>
             </div>
         </div>
