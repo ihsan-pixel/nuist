@@ -14,6 +14,7 @@ use App\Http\Controllers\DevelopmentHistoryController;
 use App\Http\Controllers\PanduanController;
 use App\Http\Controllers\Mobile\Izin\IzinController;
 use App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController;
+use App\Http\Controllers\Mobile\Siswa\SiswaController;
 use App\Http\Controllers\TeachingScheduleController;
 
 use App\Http\Controllers\PPDB\{
@@ -369,6 +370,21 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::get('/notifications/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+
+    // Siswa
+    Route::prefix('siswa')->name('siswa.')->middleware(['role:siswa'])->group(function () {
+        Route::get('/', [SiswaController::class, 'dashboard'])->name('index');
+        Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
+        Route::get('/tagihan', [SiswaController::class, 'tagihan'])->name('tagihan');
+        Route::get('/pembayaran', [SiswaController::class, 'pembayaran'])->name('pembayaran');
+        Route::get('/riwayat-pembayaran', [SiswaController::class, 'riwayat'])->name('riwayat');
+        Route::get('/detail/{tagihanId}', [SiswaController::class, 'detail'])->name('detail');
+        Route::get('/bukti-pembayaran/{paymentId}', [SiswaController::class, 'bukti'])->name('bukti');
+        Route::get('/notifikasi', [SiswaController::class, 'notifications'])->name('notifikasi');
+        Route::get('/profile', [SiswaController::class, 'profile'])->name('profile');
+        Route::get('/chat-admin', [SiswaController::class, 'chat'])->name('chat');
+        Route::post('/chat-admin', [SiswaController::class, 'sendChat'])->name('chat.send');
+    });
 
     // Simfoni (Data SK Tenaga Pendidik)
     Route::get('/simfoni', [App\Http\Controllers\Mobile\Simfoni\SimfoniController::class, 'show'])->name('simfoni.show');
