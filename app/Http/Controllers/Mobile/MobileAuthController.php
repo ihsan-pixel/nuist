@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class MobileAuthController extends Controller
 {
     /**
-     * Handle mobile form login. Only allow role 'tenaga_pendidik'.
+     * Handle mobile form login for supported mobile roles.
      */
     public function authenticate(Request $request)
     {
@@ -28,9 +28,7 @@ class MobileAuthController extends Controller
 
         $user = Auth::user();
 
-        // Only allow tenaga_pendidik role
-        if (isset($user->role) && $user->role !== 'tenaga_pendidik') {
-            // logout and invalidate session
+        if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa'])) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -40,7 +38,10 @@ class MobileAuthController extends Controller
                 ->withInput($request->only('email'));
         }
 
-        // Successful login for tenaga_pendidik -> redirect to mobile dashboard
+        if ($user->role === 'siswa') {
+            return redirect()->route('mobile.siswa.dashboard');
+        }
+
         return redirect()->route('mobile.dashboard');
     }
 }
