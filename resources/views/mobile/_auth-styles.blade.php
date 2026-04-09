@@ -4,11 +4,11 @@
         --auth-bg-end: #08756f;
         --text-main: #1f4f4c;
         --text-muted: #6d7f7d;
-        --border-soft: #f6a92b;
-        --accent-main: #f6a92b;
-        --accent-soft: #f4c272;
-        --accent-deep: #d98f12;
-        --accent-faint: #fff4df;
+        --border-soft: #004b48;
+        --accent-main: #004b48;
+        --accent-soft: #2b7a76;
+        --accent-deep: #003634;
+        --accent-faint: #e5f2f1;
     }
 
     html,
@@ -88,7 +88,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 10px 24px rgba(246, 169, 43, 0.22);
+        box-shadow: 0 10px 24px rgba(0, 75, 72, 0.18);
     }
 
     .brand-pill img {
@@ -108,7 +108,7 @@
         line-height: 1.1;
         font-weight: 700;
         color: var(--accent-main);
-        text-shadow: 0 3px 10px rgba(246, 169, 43, 0.22);
+        text-shadow: 0 3px 10px rgba(0, 75, 72, 0.16);
     }
 
     .welcome-subtitle {
@@ -122,7 +122,7 @@
         margin: 22px auto 16px;
         width: min(100%, 210px);
         display: block;
-        filter: drop-shadow(0 12px 20px rgba(246, 169, 43, 0.18));
+        filter: drop-shadow(0 12px 20px rgba(0, 75, 72, 0.14));
     }
 
     .status-stack {
@@ -185,7 +185,7 @@
     .action-btn-primary {
         background: linear-gradient(180deg, var(--accent-soft) 0%, var(--accent-main) 100%);
         color: #fff;
-        box-shadow: 0 14px 28px rgba(246, 169, 43, 0.3);
+        box-shadow: 0 14px 28px rgba(0, 75, 72, 0.22);
     }
 
     .action-btn-secondary {
@@ -197,7 +197,7 @@
     .login-panel {
         margin-top: 16px;
         padding-top: 16px;
-        border-top: 1px solid #f9e6be;
+        border-top: 1px solid #d7e8e7;
         text-align: left;
         display: none;
     }
@@ -244,8 +244,8 @@
         width: 100%;
         min-height: 46px;
         border-radius: 14px;
-        border: 1px solid #f3d69d;
-        background: #fffdf8;
+        border: 1px solid #cfe3e1;
+        background: #fbfdfd;
         padding: 10px 14px;
         color: #244744;
         font-size: 0.94rem;
@@ -256,7 +256,7 @@
     .input-control:focus,
     .select-control:focus {
         border-color: var(--accent-main);
-        box-shadow: 0 0 0 4px rgba(246, 169, 43, 0.18);
+        box-shadow: 0 0 0 4px rgba(0, 75, 72, 0.16);
     }
 
     .password-wrap {
@@ -297,7 +297,7 @@
         margin-top: 8px;
         background: linear-gradient(180deg, var(--accent-soft) 0%, var(--accent-deep) 100%);
         color: #fff;
-        box-shadow: 0 12px 24px rgba(217, 143, 18, 0.28);
+        box-shadow: 0 12px 24px rgba(0, 75, 72, 0.24);
     }
 
     .secondary-btn {
@@ -346,8 +346,8 @@
     .role-label {
         min-height: 38px;
         border-radius: 12px;
-        border: 1px solid #f3d69d;
-        background: #fffdf8;
+        border: 1px solid #cfe3e1;
+        background: #fbfdfd;
         color: var(--text-main);
         display: flex;
         align-items: center;
@@ -366,7 +366,7 @@
         background: linear-gradient(180deg, var(--accent-soft) 0%, var(--accent-main) 100%);
         border-color: var(--accent-main);
         color: #fff;
-        box-shadow: 0 12px 24px rgba(246, 169, 43, 0.24);
+        box-shadow: 0 12px 24px rgba(0, 75, 72, 0.2);
     }
 
     .auth-loader {
@@ -397,7 +397,7 @@
         max-width: 280px;
         border-radius: 24px;
         background: rgba(255, 255, 255, 0.96);
-        box-shadow: 0 24px 60px rgba(70, 48, 7, 0.2);
+        box-shadow: 0 24px 60px rgba(0, 75, 72, 0.16);
         padding: 22px 20px 18px;
         text-align: center;
     }
@@ -421,14 +421,14 @@
     }
 
     .auth-loader-ring {
-        border: 3px solid rgba(246, 169, 43, 0.18);
+        border: 3px solid rgba(0, 75, 72, 0.16);
         border-top-color: var(--accent-main);
         animation: auth-loader-spin 0.9s linear infinite;
     }
 
     .auth-loader-ring::before {
         inset: 8px;
-        border: 3px solid rgba(246, 169, 43, 0.14);
+        border: 3px solid rgba(0, 75, 72, 0.12);
         border-bottom-color: var(--accent-deep);
         animation: auth-loader-spin-reverse 1.3s linear infinite;
     }
@@ -436,7 +436,7 @@
     .auth-loader-ring::after {
         inset: 18px;
         background: radial-gradient(circle at 30% 30%, var(--accent-soft), var(--accent-main));
-        box-shadow: 0 8px 16px rgba(246, 169, 43, 0.26);
+        box-shadow: 0 8px 16px rgba(0, 75, 72, 0.22);
     }
 
     .auth-loader-title {
