@@ -1,4 +1,12 @@
 <style>
+    :root {
+        --text-main: #1f4f4c;
+        --text-muted: #6d7f7d;
+        --accent-main: #004b48;
+        --accent-soft: #2b7a76;
+        --accent-deep: #003634;
+    }
+
     body {
         background:
             radial-gradient(circle at top left, rgba(14, 133, 73, 0.16), transparent 28%),
@@ -447,6 +455,102 @@
     .bottom-nav-siswa a.active {
         background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
         color: #fff;
+    }
+
+    .auth-loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(22, 33, 32, 0.34);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.22s ease, visibility 0.22s ease;
+        z-index: 9999;
+    }
+
+    .auth-loader.is-visible {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .auth-loader-card {
+        min-width: 220px;
+        max-width: 280px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 24px 60px rgba(0, 75, 72, 0.16);
+        padding: 22px 20px 18px;
+        text-align: center;
+    }
+
+    .auth-loader-mark {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 14px;
+        position: relative;
+        display: grid;
+        place-items: center;
+    }
+
+    .auth-loader-ring,
+    .auth-loader-ring::before,
+    .auth-loader-ring::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+    }
+
+    .auth-loader-ring {
+        border: 3px solid rgba(0, 75, 72, 0.16);
+        border-top-color: var(--accent-main);
+        animation: auth-loader-spin 0.9s linear infinite;
+    }
+
+    .auth-loader-ring::before {
+        inset: 8px;
+        border: 3px solid rgba(0, 75, 72, 0.12);
+        border-bottom-color: var(--accent-deep);
+        animation: auth-loader-spin-reverse 1.3s linear infinite;
+    }
+
+    .auth-loader-ring::after {
+        inset: 18px;
+        background: radial-gradient(circle at 30% 30%, var(--accent-soft), var(--accent-main));
+        box-shadow: 0 8px 16px rgba(0, 75, 72, 0.22);
+    }
+
+    .auth-loader-title {
+        margin: 0;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .auth-loader-text {
+        margin: 6px 0 0;
+        font-size: 0.74rem;
+        line-height: 1.45;
+        color: var(--text-muted);
+    }
+
+    @keyframes auth-loader-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes auth-loader-spin-reverse {
+        to {
+            transform: rotate(-360deg);
+        }
     }
 
     @media (max-width: 420px) {

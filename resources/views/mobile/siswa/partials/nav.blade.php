@@ -15,3 +15,6 @@
         <i class="bx bx-user-circle"></i>Profil
     </a>
 </nav>
+
+@include('mobile._auth-loader')
+@include('mobile._auth-loader-script')
