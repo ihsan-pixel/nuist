@@ -8,7 +8,7 @@
     <style>
         :root {
             --auth-bg-start: #0d8e89;
-            --auth-bg-end: #08756f;
+            --auth-bg-end: #756a08;
             --card-accent: #7fe0db;
             --card-accent-soft: #dff6f4;
             --text-main: #1f4f4c;
