@@ -313,12 +313,12 @@
     <div class="mobile-auth-page">
         <div class="register-card">
             <div class="card-top">
-                <div class="brand-pill">
-                    <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
-                </div>
             </div>
 
             <div class="card-body">
+                <div class="brand-pill">
+                    <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
+                </div>
                 <h1 class="welcome-title">Welcome!</h1>
                 <p class="welcome-subtitle">Create your account to get started</p>
 
