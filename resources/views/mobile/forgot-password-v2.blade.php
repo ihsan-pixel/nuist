@@ -9,6 +9,7 @@
 @endsection
 
 @section('content')
+    @include('mobile._auth-loader')
     <div class="mobile-auth-page">
         <div class="forgot-card">
             <div class="card-top">
@@ -68,4 +69,8 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    @include('mobile._auth-loader-script')
 @endsection

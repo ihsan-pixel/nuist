@@ -10,6 +10,7 @@
 @endsection
 
 @section('content')
+    @include('mobile._auth-loader')
     <div class="mobile-auth-page">
         <div class="register-card">
             <div class="card-top">
@@ -40,7 +41,7 @@
                     </div>
                 @endif
 
-                <form class="register-form" id="mobileRegisterForm" method="POST" action="{{ route('register') }}">
+                <form class="register-form" id="mobileRegisterForm" method="POST" action="{{ route('register') }}" data-loader-ignore>
                     @csrf
 
                     <div class="input-group">
@@ -136,6 +137,7 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    @include('mobile._auth-loader-script')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var roleRadios = document.querySelectorAll('input[name="role"]');
@@ -184,16 +186,7 @@
                 event.preventDefault();
 
                 var formData = new FormData(registerForm);
-
-                Swal.fire({
-                    title: 'Processing...',
-                    text: 'Please wait while we process your registration',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    willOpen: function () {
-                        Swal.showLoading();
-                    }
-                });
+                window.MobileAuthLoader.show();
 
                 fetch('{{ route("register") }}', {
                     method: 'POST',
@@ -213,6 +206,8 @@
                     return response.json();
                 })
                 .then(function (data) {
+                    window.MobileAuthLoader.hide();
+
                     if (data.success) {
                         Swal.fire({
                             icon: 'success',
@@ -233,6 +228,8 @@
                     });
                 })
                 .catch(function (error) {
+                    window.MobileAuthLoader.hide();
+
                     if (error.errors) {
                         var errorMessages = [];
                         for (var field in error.errors) {

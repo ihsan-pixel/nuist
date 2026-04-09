@@ -9,6 +9,7 @@
 @endsection
 
 @section('content')
+    @include('mobile._auth-loader')
     <div class="mobile-auth-page">
         <div class="welcome-card {{ $errors->any() ? 'is-open' : '' }}" id="welcomeCard">
             <div class="card-top">
@@ -107,6 +108,7 @@
 @endsection
 
 @section('scripts')
+    @include('mobile._auth-loader-script')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var card = document.getElementById('welcomeCard');
