@@ -314,7 +314,7 @@
         <div class="register-card">
             <div class="card-top">
                 <div class="brand-pill">
-                    <img src="{{ asset('build/images/logo-light.png') }}" alt="Nuist">
+                    <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
                 </div>
             </div>
 
@@ -322,11 +322,11 @@
                 <h1 class="welcome-title">Welcome!</h1>
                 <p class="welcome-subtitle">Create your account to get started</p>
 
-                <img
+                {{-- <img
                     class="hero-illustration"
                     src="{{ asset('build/images/verification-img.png') }}"
                     alt="Ilustrasi register Nuist"
-                >
+                > --}}
 
                 @if (session('status'))
                     <div class="status-stack">
