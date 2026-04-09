@@ -21,25 +21,22 @@
             min-height: 100%;
             margin: 0;
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, var(--auth-bg-start) 0%, var(--auth-bg-end) 100%);
+            background: var(--auth-bg-start);
         }
 
         .mobile-auth-page {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 16px;
-            background:
-                radial-gradient(circle at top left, rgba(255, 255, 255, 0.14), transparent 32%),
-                radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.12), transparent 28%);
+            width: 100%;
+            background: linear-gradient(180deg, var(--auth-bg-start) 0%, var(--auth-bg-end) 100%);
         }
 
         .register-card {
-            width: min(100%, 360px);
-            border-radius: 34px;
+            width: 100%;
+            max-width: 100%;
+            min-height: 100vh;
+            border-radius: 0;
             background: #fff;
-            box-shadow: var(--shadow-main);
+            box-shadow: none;
             overflow: hidden;
             position: relative;
         }
@@ -48,7 +45,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            border-radius: 34px;
+            border-radius: 0;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
             pointer-events: none;
         }
@@ -287,15 +284,6 @@
         }
 
         @media (max-width: 420px) {
-            .mobile-auth-page {
-                padding: 18px 12px;
-            }
-
-            .register-card {
-                width: 100%;
-                border-radius: 30px;
-            }
-
             .card-body {
                 padding-left: 18px;
                 padding-right: 18px;
