@@ -310,10 +310,6 @@
     </style>
 @endsection
 
-@section('body')
-    <body class="auth-body-bg">
-@endsection
-
 @section('content')
     <div class="mobile-auth-page">
         <div class="register-card">
