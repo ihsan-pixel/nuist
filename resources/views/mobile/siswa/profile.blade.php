@@ -33,6 +33,15 @@
             </div>
         </div>
     </section>
+
+    <section class="section-card">
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="ghost-btn" style="width:auto; padding:9px 14px; background: linear-gradient(135deg, #dc3545 0%, #a61e2f 100%); color:#fff; margin:0 auto; display:inline-flex;">
+                <i class="bx bx-log-out"></i>Logout
+            </button>
+        </form>
+    </section>
 </div>
 
 @include('mobile.siswa.partials.nav')
