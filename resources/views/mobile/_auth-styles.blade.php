@@ -47,7 +47,7 @@
     .card-top {
         position: relative;
         height: 132px;
-        background: linear-gradient(180deg, #8fe6e0 0%, #78d7d1 100%);
+        background: linear-gradient(180deg, #f4c272 0%, #f6a92b 100%);
         overflow: hidden;
     }
 
