@@ -4,7 +4,7 @@
         --auth-bg-end: #08756f;
         --text-main: #1f4f4c;
         --text-muted: #6d7f7d;
-        --border-soft: #b7e3df;
+        --border-soft: #f6a92b;
     }
 
     html,
