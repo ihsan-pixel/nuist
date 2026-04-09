@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class MobileAuthController extends Controller
 {
     /**
-     * Handle mobile form login. Allow mobile roles that have dedicated mobile pages.
+     * Handle mobile form login. Only allow role 'tenaga_pendidik'.
      */
     public function authenticate(Request $request)
     {
@@ -28,21 +28,19 @@ class MobileAuthController extends Controller
 
         $user = Auth::user();
 
-        if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa'])) {
+        // Only allow tenaga_pendidik role
+        if (isset($user->role) && $user->role !== 'tenaga_pendidik') {
             // logout and invalidate session
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             return redirect()->route('mobile.login')
-                ->withErrors(['email' => 'Akun tidak memiliki akses mobile.'])
+                ->withErrors(['email' => 'Akun tidak memiliki akses mobile (hanya Tenaga Pendidik).'])
                 ->withInput($request->only('email'));
         }
 
-        if ($user->role === 'siswa') {
-            return redirect()->route('mobile.siswa.dashboard');
-        }
-
+        // Successful login for tenaga_pendidik -> redirect to mobile dashboard
         return redirect()->route('mobile.dashboard');
     }
 }

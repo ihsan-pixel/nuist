@@ -90,7 +90,7 @@ class RegisterController extends Controller
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'role' => ['required', 'in:pengurus,tenaga_pendidik,siswa'],
+            'role' => ['required', 'in:pengurus,tenaga_pendidik'],
         ];
 
         // Bidirectional validation: role determines required fields and vice versa
@@ -100,7 +100,7 @@ class RegisterController extends Controller
             if (!empty($data['asal_sekolah'])) {
                 $rules['asal_sekolah'] = ['prohibited'];
             }
-        } elseif (in_array($data['role'], ['tenaga_pendidik', 'siswa'])) {
+        } elseif ($data['role'] === 'tenaga_pendidik') {
             $rules['asal_sekolah'] = ['required', 'exists:madrasahs,id'];
             // If role is tenaga_pendidik, jabatan should not be provided
             if (!empty($data['jabatan'])) {
@@ -113,9 +113,9 @@ class RegisterController extends Controller
             $rules['role'] = ['required', 'in:pengurus'];
         }
 
-        // Additional validation: if asal_sekolah is provided, role must be tenaga_pendidik or siswa
-        if (!empty($data['asal_sekolah']) && !in_array($data['role'], ['tenaga_pendidik', 'siswa'])) {
-            $rules['role'] = ['required', 'in:tenaga_pendidik,siswa'];
+        // Additional validation: if asal_sekolah is provided, role must be tenaga_pendidik
+        if (!empty($data['asal_sekolah']) && $data['role'] !== 'tenaga_pendidik') {
+            $rules['role'] = ['required', 'in:tenaga_pendidik'];
         }
 
         return Validator::make($data, $rules);

@@ -59,7 +59,7 @@
         <ul>
             <li><strong>Nama:</strong> {{ $pendingRegistration->name }}</li>
             <li><strong>Email:</strong> {{ $pendingRegistration->email }}</li>
-            <li><strong>sebagai:</strong> {{ $pendingRegistration->role === 'tenaga_pendidik' ? 'Tenaga Pendidik' : ($pendingRegistration->role === 'super_admin' ? 'Super Admin' : ucfirst($pendingRegistration->role)) }}</li>
+            <li><strong>sebagai:</strong> {{ $pendingRegistration->role === 'tenaga_pendidik' ? 'Tenaga Pendidik' : ucfirst($pendingRegistration->role) }}</li>
             @if($pendingRegistration->jabatan)
                 <li><strong>Jabatan:</strong> {{ $pendingRegistration->jabatan }}</li>
             @endif
