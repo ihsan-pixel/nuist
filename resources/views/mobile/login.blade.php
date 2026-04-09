@@ -335,12 +335,12 @@
     <div class="mobile-auth-page">
         <div class="welcome-card {{ $errors->any() ? 'is-open' : '' }}" id="welcomeCard">
             <div class="card-top">
-                <div class="brand-pill">
-                    <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
-                </div>
             </div>
 
             <div class="card-body">
+                <div class="brand-pill">
+                    <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
+                </div>
                 <h1 class="welcome-title">Welcome!</h1>
                 <p class="welcome-subtitle">Find the things that you love</p>
 
