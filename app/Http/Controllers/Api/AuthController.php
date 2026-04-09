@@ -28,12 +28,25 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        if (!in_array($user->role, ['tenaga_pendidik', 'siswa'])) {
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Akun tidak memiliki akses mobile',
+            ], 403);
+        }
+
         // Create a token named 'mobile' (uses HasApiTokens trait)
         $token = $user->createToken('mobile-token')->plainTextToken;
+
+        $mobileRoute = $user->role === 'siswa'
+            ? '/mobile/siswa/dashboard'
+            : '/mobile/dashboard';
 
         return response()->json([
             'token' => $token,
             'user' => $user,
+            'mobile_route' => $mobileRoute,
         ]);
     }
 

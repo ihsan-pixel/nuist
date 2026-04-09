@@ -36,7 +36,7 @@ class MobileAuthController extends Controller
             $request->session()->regenerateToken();
 
             return redirect()->route('mobile.login')
-                ->withErrors(['email' => 'Akun tidak memiliki akses mobile (hanya Tenaga Pendidik).'])
+                ->withErrors(['email' => 'Akun tidak memiliki akses mobile.'])
                 ->withInput($request->only('email'));
         }
 
