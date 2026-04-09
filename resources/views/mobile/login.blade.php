@@ -344,11 +344,11 @@
                 <h1 class="welcome-title">Welcome!</h1>
                 <p class="welcome-subtitle">Find the things that you love</p>
 
-                <img
+                {{-- <img
                     class="hero-illustration"
                     src="{{ asset('build/images/verification-img.png') }}"
                     alt="Ilustrasi login Nuist"
-                >
+                > --}}
 
                 @if (session('status'))
                     <div class="status-stack">
