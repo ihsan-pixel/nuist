@@ -644,4 +644,3 @@ if (window.history && window.history.pushState) {
 }
 </script>
 @endsection
-

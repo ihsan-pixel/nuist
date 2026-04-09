@@ -363,7 +363,7 @@
                 @endif
 
                 <div class="action-stack">
-                    <a class="action-btn action-btn-primary" href="{{ route('register') }}">Sign Up</a>
+                    <a class="action-btn action-btn-primary" href="{{ route('mobile.register') }}">Sign Up</a>
                     <button
                         type="button"
                         class="action-btn action-btn-secondary"

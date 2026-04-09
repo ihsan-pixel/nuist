@@ -207,6 +207,11 @@ Route::get('/mobile/login', function () {
     return view('mobile.login');
 })->name('mobile.login');
 
+Route::get('/mobile/register', function () {
+    $madrasahs = \App\Models\Madrasah::orderBy('scod')->get();
+    return view('mobile.register', compact('madrasahs'));
+})->name('mobile.register');
+
 // Bundled APK entry (Plan B) - serves a local view that will be bundled into the APK
 Route::view('/mobile-app', 'mobile.index')->name('mobile.app');
 
