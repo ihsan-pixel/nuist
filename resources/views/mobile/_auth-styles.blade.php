@@ -135,7 +135,7 @@
     .status-alert {
         border-radius: 16px;
         padding: 12px 14px;
-        font-size: 0.88rem;
+        font-size: 0.8rem;
         line-height: 1.45;
     }
 
@@ -168,7 +168,7 @@
         border-radius: 14px;
         height: 48px;
         border: 0;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 600;
         text-decoration: none;
         display: inline-flex;
@@ -221,7 +221,7 @@
 
     .panel-title {
         margin: 0 0 12px;
-        font-size: 0.96rem;
+        font-size: 0.86rem;
         font-weight: 600;
         color: var(--text-main);
         text-align: center;
@@ -235,7 +235,7 @@
         display: block;
         margin-bottom: 6px;
         color: var(--text-main);
-        font-size: 0.88rem;
+        font-size: 0.8rem;
         font-weight: 600;
     }
 
@@ -248,7 +248,7 @@
         background: #fbfdfd;
         padding: 10px 14px;
         color: #244744;
-        font-size: 0.94rem;
+        font-size: 0.84rem;
         outline: none;
         transition: border-color 0.18s ease, box-shadow 0.18s ease;
     }
@@ -275,7 +275,7 @@
         border: 0;
         background: transparent;
         color: var(--accent-main);
-        font-size: 1.05rem;
+        font-size: 0.92rem;
         cursor: pointer;
     }
 
@@ -285,7 +285,7 @@
         min-height: 46px;
         border: 0;
         border-radius: 14px;
-        font-size: 0.96rem;
+        font-size: 0.88rem;
         font-weight: 600;
         text-decoration: none;
         display: inline-flex;
@@ -310,13 +310,13 @@
     .field-error {
         margin-top: 6px;
         color: #c44f4f;
-        font-size: 0.78rem;
+        font-size: 0.72rem;
     }
 
     .panel-footer {
         margin-top: 12px;
         text-align: center;
-        font-size: 0.84rem;
+        font-size: 0.76rem;
         color: var(--text-muted);
     }
 
@@ -354,7 +354,7 @@
         justify-content: center;
         padding: 5px 8px;
         text-align: center;
-        font-size: 0.76rem;
+        font-size: 0.7rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.18s ease;
@@ -441,14 +441,14 @@
 
     .auth-loader-title {
         margin: 0;
-        font-size: 0.96rem;
+        font-size: 0.88rem;
         font-weight: 700;
         color: var(--text-main);
     }
 
     .auth-loader-text {
         margin: 6px 0 0;
-        font-size: 0.82rem;
+        font-size: 0.74rem;
         line-height: 1.45;
         color: var(--text-muted);
     }
@@ -477,7 +477,7 @@
 
         .role-label {
             min-height: 36px;
-            font-size: 0.72rem;
+            font-size: 0.66rem;
             padding: 5px 6px;
         }
     }
