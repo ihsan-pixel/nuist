@@ -331,10 +331,14 @@
         grid-template-columns: 1fr 1fr;
         gap: 7px;
         align-items: stretch;
+        justify-items: stretch;
+        width: 100%;
+        text-align: left;
     }
 
     .role-option {
         position: relative;
+        width: 100%;
     }
 
     .role-option input {
@@ -351,9 +355,9 @@
         color: var(--text-main);
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         padding: 5px 8px;
-        text-align: center;
+        text-align: left;
         font-size: 0.7rem;
         font-weight: 600;
         cursor: pointer;
