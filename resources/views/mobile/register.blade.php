@@ -195,7 +195,8 @@
         .role-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 7px;
+            align-items: stretch;
         }
 
         .role-option {
@@ -209,21 +210,22 @@
         }
 
         .role-label {
-            min-height: 44px;
-            border-radius: 14px;
+            min-height: 38px;
+            border-radius: 12px;
             border: 1px solid #d8ece9;
             background: #f8fcfb;
             color: var(--text-main);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 6px 8px;
+            padding: 5px 8px;
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.76rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.18s ease;
             line-height: 1.2;
+            letter-spacing: 0.01em;
         }
 
         .role-option input:checked + .role-label {
@@ -299,14 +301,10 @@
                 padding-right: 18px;
             }
 
-            .role-grid {
-                grid-template-columns: 1fr;
-            }
-
             .role-label {
-                min-height: 40px;
-                font-size: 0.78rem;
-                padding: 6px 10px;
+                min-height: 36px;
+                font-size: 0.72rem;
+                padding: 5px 6px;
             }
         }
     </style>
