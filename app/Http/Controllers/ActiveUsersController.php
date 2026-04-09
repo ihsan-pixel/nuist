@@ -29,6 +29,7 @@ class ActiveUsersController extends Controller
             'super_admin' => 'Super Admin',
             'admin' => 'Admin',
             'tenaga_pendidik' => 'Tenaga Pendidik',
+            'siswa' => 'Siswa',
         ];
 
         return view('active-users.index', compact('activeUsersByRole', 'roleLabels'));
@@ -66,6 +67,7 @@ class ActiveUsersController extends Controller
             'super_admin' => 'Super Admin',
             'admin' => 'Admin',
             'tenaga_pendidik' => 'Tenaga Pendidik',
+            'siswa' => 'Siswa',
         ];
 
         return response()->json([

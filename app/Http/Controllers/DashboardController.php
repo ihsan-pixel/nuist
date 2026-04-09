@@ -94,6 +94,10 @@ class DashboardController extends Controller
             return redirect()->route('mobile.dashboard');
         }
 
+        if ($user->role === 'siswa') {
+            return redirect()->route('mobile.siswa.dashboard');
+        }
+
         // Untuk role lain, tampilkan dashboard default tanpa data users
         return view('dashboard.index', [
             'showUsers' => false,

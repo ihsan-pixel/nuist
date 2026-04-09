@@ -49,6 +49,7 @@ class ActiveUsersUpdated implements ShouldBroadcast
             'super_admin' => 'Super Admin',
             'admin' => 'Admin',
             'tenaga_pendidik' => 'Tenaga Pendidik',
+            'siswa' => 'Siswa',
         ];
         $this->totalActive = $activeUsersByRole->flatten(1)->count();
     }

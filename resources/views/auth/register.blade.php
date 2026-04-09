@@ -87,6 +87,12 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                                     Tenaga Pendidik
                                 </label>
                             </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="role" id="siswa" value="siswa" {{ old('role') == 'siswa' ? 'checked' : '' }} required>
+                                <label class="form-check-label" for="siswa">
+                                    Siswa
+                                </label>
+                            </div>
                         </div>
                         @error('role')
                         <span class="invalid-feedback" role="alert" style="display: block;">
@@ -506,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 jabatanInput.required = true;
                 asalSekolahInput.required = false;
                 asalSekolahInput.value = '';
-            } else if (selectedRole.value === 'tenaga_pendidik') {
+            } else if (selectedRole.value === 'tenaga_pendidik' || selectedRole.value === 'siswa') {
                 jabatanGroup.style.display = 'none';
                 asalSekolahGroup.style.display = 'block';
                 jabatanInput.required = false;

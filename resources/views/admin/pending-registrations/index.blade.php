@@ -62,7 +62,9 @@
                                 <td>{{ $registration->name }}</td>
                                 <td>{{ $registration->email }}</td>
                                 <td>
-                                    <span class="badge bg-primary">{{ ucfirst($registration->role) }}</span>
+                                    <span class="badge bg-primary">
+                                        {{ $registration->role === 'tenaga_pendidik' ? 'Tenaga Pendidik' : ($registration->role === 'super_admin' ? 'Super Admin' : ucfirst($registration->role)) }}
+                                    </span>
                                 </td>
                                 <td>{{ $registration->jabatan ?: '-' }}</td>
                                 <td>{{ optional($registration->madrasah)->name ?? '-' }}</td>

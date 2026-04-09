@@ -20,7 +20,7 @@
                     <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
                 </div>
                 <h1 class="welcome-title">Welcome!</h1>
-                <p class="welcome-subtitle">Nuist Mobile LP. Ma'arif NU PWNU DIY</p>
+                <p class="welcome-subtitle">Nuist Mobile untuk tenaga pendidik dan siswa</p>
 
                 {{-- <img
                     class="hero-illustration"

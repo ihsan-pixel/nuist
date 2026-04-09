@@ -87,6 +87,10 @@
                                 <input type="radio" name="role" value="tenaga_pendidik" {{ old('role') == 'tenaga_pendidik' ? 'checked' : '' }} required>
                                 <span class="role-label">Tenaga Pendidik</span>
                             </label>
+                            <label class="role-option">
+                                <input type="radio" name="role" value="siswa" {{ old('role') == 'siswa' ? 'checked' : '' }} required>
+                                <span class="role-label">Siswa</span>
+                            </label>
                         </div>
                         @error('role')
                             <div class="field-error">{{ $message }}</div>
@@ -159,7 +163,7 @@
                     return;
                 }
 
-                if (selectedRole && selectedRole.value === 'tenaga_pendidik') {
+                if (selectedRole && (selectedRole.value === 'tenaga_pendidik' || selectedRole.value === 'siswa')) {
                     jabatanGroup.hidden = true;
                     asalSekolahGroup.hidden = false;
                     jabatanInput.required = false;

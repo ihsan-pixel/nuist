@@ -39,6 +39,10 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+        if ($user->role === 'siswa') {
+            return redirect()->route('mobile.siswa.dashboard');
+        }
+
         // Redirect pengurus users to mobile pengurus dashboard
         if ($user->role === 'pengurus') {
             return redirect()->route('dashboard');
@@ -129,6 +133,10 @@ class LoginController extends Controller
     protected function redirectTo()
     {
         $user = Auth::user();
+
+        if ($user->role === 'siswa') {
+            return '/mobile/siswa/dashboard';
+        }
 
         if ($user->role === 'mgmp') {
             return '/mgmp/dashboard';
