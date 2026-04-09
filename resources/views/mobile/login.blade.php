@@ -336,7 +336,7 @@
         <div class="welcome-card {{ $errors->any() ? 'is-open' : '' }}" id="welcomeCard">
             <div class="card-top">
                 <div class="brand-pill">
-                    <img src="{{ asset('build/images/logo-light.png') }}" alt="Nuist">
+                    <img src="{{ asset('images/logo favicon 1.png') }}" alt="Nuist">
                 </div>
             </div>
 
