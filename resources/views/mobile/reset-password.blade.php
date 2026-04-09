@@ -6,153 +6,325 @@
 
 @section('css')
     <style>
-        /* Reuse mobile login styles (trimmed) to keep visual parity but fix stacking and polish UI */
-        html, body { height: 100%; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
-        .mobile-auth-bg { height: 100vh; width: 100vw; background: #f2f6fb; }
-        .auth-background { min-height: 100vh; background: #f5f5f5; position: relative; overflow: visible; }
+        :root {
+            --auth-bg-start: #0d8e89;
+            --auth-bg-end: #08756f;
+            --text-main: #1f4f4c;
+            --text-muted: #6d7f7d;
+            --border-soft: #b7e3df;
+        }
 
-        /* Decorative shapes remain behind everything (z-index:0) */
-        .auth-background::before{ content: ""; position:absolute; top:0; left:0; width:100%; height:420px; background:#004b4c; border-bottom-left-radius:200px; border-bottom-right-radius:200px; z-index:0 }
-        .auth-background::after{ content: ""; position:absolute; bottom:-80px; left:0; width:100%; height:220px; background:#004b4c; border-top-left-radius:200px; border-top-right-radius:200px; z-index:0 }
+        html,
+        body {
+            min-height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--auth-bg-start);
+        }
 
-        /* Ensure mobile-screen creates a new stacking context above pseudo-elements */
-    .mobile-screen{ width:100vw; max-width:100vw; min-height:100vh; display:flex; flex-direction:column; position:relative; z-index:1; justify-content:space-between; padding-bottom: max(env(safe-area-inset-bottom), 16px); }
+        .mobile-auth-page {
+            min-height: 100vh;
+            width: 100%;
+            background: linear-gradient(180deg, var(--auth-bg-start) 0%, var(--auth-bg-end) 100%);
+        }
 
-        /* Header hero sits visually above background shapes */
-        .header-hero{ background:transparent; padding:110px 18px 28px 18px; color:#fff; display:flex; flex-direction:column; align-items:center; gap:12px; position:relative; z-index:2 }
-        .logo-pill{ position: absolute; top: 16px; left: 50%; transform: translateX(-50%); background:#ffffff; padding:8px 16px; border-radius:12px; box-shadow:0 6px 18px rgba(14,42,120,0.06); display:inline-flex; z-index:3 }
-        .logo-pill img{ width:56px; height:auto }
-        .hero-title{ text-align:center; font-size:18px; margin: 150px 0 4px 0; font-weight:700; color:#fff }
-        .hero-sub{ color: rgba(255,255,255,0.9); text-align:center; max-width:320px; font-size:13px }
+        .reset-card {
+            width: 100%;
+            max-width: 100%;
+            min-height: 100vh;
+            background: #fff;
+            overflow: hidden;
+            position: relative;
+        }
 
-        /* White form card overlapping hero: make sure it is frontmost */
-    .form-card{ background:#fff; border-top-left-radius:18px; border-top-right-radius:18px; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; margin-top: 0px; padding:20px 16px; box-shadow: 0 10px 30px rgba(8,40,80,0.12); display:flex; flex-direction:column; gap:12px; position:relative; z-index:4; margin-bottom:0; flex-shrink:0 }
+        .reset-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+            pointer-events: none;
+        }
 
-        .pill-input{ width:100%; border-radius:28px; padding:14px 18px; border:none; background:#f6f9ff; font-size:15px; color:#0e8549; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6) }
-        .pill-input::placeholder{ color: rgba(14,133,73,0.35) }
+        .card-top {
+            position: relative;
+            height: 132px;
+            background: linear-gradient(180deg, #8fe6e0 0%, #78d7d1 100%);
+            overflow: hidden;
+        }
 
-    /* spacing: ensure inputs and action buttons don't stick together */
-    .input-wrap{ margin-bottom:12px }
-    .btn-row{ margin-top:12px }
+        .card-top::before,
+        .card-top::after {
+            content: "";
+            position: absolute;
+            left: -8%;
+            right: -8%;
+            border-radius: 50%;
+        }
 
-        .btn-primary-pill{ display:block; width:100%; background: linear-gradient(180deg,#006b67,#004b4c); color:#fff; border:none; padding:12px 18px; border-radius:28px; font-weight:700; box-shadow:0 8px 22px rgba(2,70,64,0.12); transition: transform .12s ease, box-shadow .12s ease }
-        .btn-primary-pill:hover{ transform: translateY(-2px); box-shadow:0 12px 30px rgba(2,70,64,0.16) }
+        .card-top::before {
+            bottom: 22px;
+            height: 78px;
+            background: rgba(255, 255, 255, 0.45);
+        }
 
-    /* Loading overlay and button interaction overrides */
-    #pageLoader{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(3,9,23,0.46); z-index:2200; transition:opacity .28s ease, visibility .28s ease; }
-    #pageLoader.hidden{ opacity:0; visibility:hidden; pointer-events:none }
-    .loader-card{ background:linear-gradient(180deg,#006b67,#004b4c); color:#fff; padding:12px 18px; border-radius:12px; display:flex; gap:12px; align-items:center; box-shadow:0 12px 36px rgba(2,70,64,0.18) }
-    .loader-ring{ width:42px; height:42px; border-radius:50%; border:4px solid rgba(255,255,255,0.18); border-top-color:#fff; animation:loader-spin 1s linear infinite }
-    .loader-text{ font-weight:700; font-size:14px; letter-spacing:0.2px }
-    @keyframes loader-spin{ to { transform:rotate(360deg) } }
+        .card-top::after {
+            bottom: -18px;
+            height: 92px;
+            background: #fff;
+        }
 
-    .btn-primary-pill:hover, .btn-primary-pill:active, .btn-primary-pill:focus{ box-shadow:none !important; transform:none !important; }
+        .brand-pill {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 24px rgba(0, 98, 93, 0.16);
+        }
 
-        .muted-center{ text-align:center; color:#6c757d; margin-top:8px; font-size:13px }
+        .brand-pill img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
 
-        .alert-success{ background: #e6f7ef; color:#044d35; padding:10px 12px; border-radius:10px; border:1px solid rgba(4,77,53,0.06) }
+        .card-body {
+            padding: 14px 20px 28px;
+            text-align: center;
+        }
 
-        @media (max-width:380px){ .pill-input{ padding:12px 14px } .btn-primary-pill{ padding:10px 14px } .header-hero{ padding:18px 12px 12px 12px } }
+        .welcome-title {
+            margin: 0;
+            font-size: 2rem;
+            line-height: 1.1;
+            font-weight: 700;
+            color: #67d3cc;
+            text-shadow: 0 3px 10px rgba(103, 211, 204, 0.2);
+        }
+
+        .welcome-subtitle {
+            margin: 10px 0 0;
+            color: var(--text-muted);
+            font-size: 0.96rem;
+            font-weight: 500;
+        }
+
+        .hero-illustration {
+            margin: 22px auto 16px;
+            width: min(100%, 210px);
+            display: block;
+            filter: drop-shadow(0 12px 20px rgba(127, 224, 219, 0.22));
+        }
+
+        .status-stack {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .status-alert {
+            border-radius: 16px;
+            padding: 12px 14px;
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        .status-alert.success {
+            background: #e8f8ee;
+            color: #1d6b40;
+            border: 1px solid #bfe8cb;
+        }
+
+        .status-alert.error {
+            background: #fdecec;
+            color: #a33b3b;
+            border: 1px solid #f7c4c4;
+        }
+
+        .reset-form {
+            text-align: left;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .input-control {
+            width: 100%;
+            min-height: 46px;
+            border-radius: 14px;
+            border: 1px solid #d8ece9;
+            background: #f8fcfb;
+            padding: 10px 14px;
+            color: #244744;
+            font-size: 0.94rem;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .input-control:focus {
+            border-color: #72d5cf;
+            box-shadow: 0 0 0 4px rgba(114, 213, 207, 0.16);
+        }
+
+        .submit-btn,
+        .secondary-btn {
+            width: 100%;
+            min-height: 46px;
+            border: 0;
+            border-radius: 14px;
+            font-size: 0.96rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .submit-btn {
+            margin-top: 8px;
+            background: linear-gradient(180deg, #169892 0%, #0b7d77 100%);
+            color: #fff;
+            box-shadow: 0 12px 24px rgba(11, 125, 119, 0.24);
+        }
+
+        .secondary-btn {
+            margin-top: 10px;
+            background: #fff;
+            color: #78bdb8;
+            border: 2px solid var(--border-soft);
+        }
+
+        .field-error {
+            margin-top: 6px;
+            color: #c44f4f;
+            font-size: 0.78rem;
+        }
+
+        .panel-footer {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 0.84rem;
+            color: var(--text-muted);
+        }
+
+        .panel-footer a {
+            color: #15918b;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        @media (max-width: 420px) {
+            .card-body {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+        }
     </style>
 @endsection
 
-@section('body')
-    <body class="auth-body-bg">
-@endsection
-
 @section('content')
-
-    <div class="auth-background">
-        <!-- Page loader overlay -->
-        <div id="pageLoader" aria-hidden="true" class="hidden">
-            <div class="loader-card" role="status" aria-live="polite">
-                <div class="loader-ring" aria-hidden="true"></div>
-                <div class="loader-text">Memuat...</div>
-            </div>
-        </div>
-        <div class="mobile-screen" role="main">
-            <div class="header-hero">
-                <div class="logo-pill" aria-hidden="true">
-                    <img src="{{ asset('images/logo1.png') }}" alt="logo">
+    <div class="mobile-auth-page">
+        <div class="reset-card">
+            <div class="card-top">
+                <div class="brand-pill">
+                    <img src="{{ asset('build/images/logo-light.png') }}" alt="Nuist">
                 </div>
-                <h4 class="hero-title">Reset Kata Sandi</h4>
-                <p class="hero-sub">Masukkan kata sandi baru Anda. Gunakan kata sandi kuat dan simpan.</p>
             </div>
 
-            <div class="form-card">
-                @if(session('status'))
-                    <div class="alert alert-success" role="alert">{{ session('status') }}</div>
+            <div class="card-body">
+                <h1 class="welcome-title">Welcome!</h1>
+                <p class="welcome-subtitle">Set a new password for your account</p>
+
+                <img
+                    class="hero-illustration"
+                    src="{{ asset('build/images/verification-img.png') }}"
+                    alt="Ilustrasi reset password Nuist"
+                >
+
+                @if (session('status'))
+                    <div class="status-stack">
+                        <div class="status-alert success">{{ session('status') }}</div>
+                    </div>
                 @endif
 
-                <form method="POST" action="{{ route('mobile.password.update') }}">
+                @if ($errors->any())
+                    <div class="status-stack">
+                        <div class="status-alert error">Periksa kembali data reset password Anda.</div>
+                    </div>
+                @endif
+
+                <form class="reset-form" method="POST" action="{{ route('mobile.password.update') }}">
                     @csrf
 
                     <input type="hidden" name="token" value="{{ $token ?? old('token') }}">
 
-                    <div class="input-wrap">
-                        <input id="email" name="email" type="email" class="pill-input" placeholder="contoh@gmail.com" required value="{{ $email ?? old('email') }}">
+                    <div class="input-group">
+                        <label class="input-label" for="email">Email</label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            class="input-control"
+                            value="{{ $email ?? old('email') }}"
+                            placeholder="Masukkan email akun"
+                            required
+                        >
                         @error('email')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="input-wrap">
-                        <input id="password" name="password" type="password" class="pill-input" placeholder="Kata sandi baru" required>
+                    <div class="input-group">
+                        <label class="input-label" for="password">Password Baru</label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="input-control"
+                            placeholder="Masukkan password baru"
+                            required
+                        >
                         @error('password')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
+                            <div class="field-error">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="input-wrap">
-                        <input id="password_confirmation" name="password_confirmation" type="password" class="pill-input" placeholder="Konfirmasi kata sandi" required>
+                    <div class="input-group">
+                        <label class="input-label" for="password_confirmation">Konfirmasi Password</label>
+                        <input
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            type="password"
+                            class="input-control"
+                            placeholder="Ulangi password baru"
+                            required
+                        >
                     </div>
 
-                    <div class="btn-row">
-                        <button type="submit" class="btn-primary-pill">Reset Password</button>
-                    </div>
-
-                    <div class="muted-center">
-                        <a href="{{ route('mobile.login') }}">Kembali ke Login</a>
-                    </div>
+                    <button class="submit-btn" type="submit">Reset Password</button>
+                    <a class="secondary-btn" href="{{ route('mobile.login') }}">Kembali ke Login</a>
                 </form>
-            </div>
 
+                <div class="panel-footer">
+                    Butuh halaman login? <a href="{{ route('mobile.login') }}">Masuk di sini</a>
+                </div>
+            </div>
         </div>
     </div>
-
-@endsection
-
-@section('script')
-    <script>
-        document.addEventListener('DOMContentLoaded', function(){
-            var pageLoader = document.getElementById('pageLoader');
-            function hideLoader(){ if(!pageLoader) return; pageLoader.classList.add('hidden'); }
-            function showLoader(){ if(!pageLoader) return; pageLoader.classList.remove('hidden'); }
-            setTimeout(hideLoader, 220);
-
-            // Form submits
-            var forms = document.querySelectorAll('form');
-            forms.forEach(function(f){ f.addEventListener('submit', function(){ showLoader(); }); });
-
-            // Link navigation (same-origin)
-            document.querySelectorAll('a[href]').forEach(function(a){
-                try{
-                    var href = a.getAttribute('href') || '';
-                    if(!href || href.indexOf('#') === 0) return;
-                    if(href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) return;
-                    if(a.target && a.target !== '' && a.target !== '_self') return;
-                    a.addEventListener('click', function(e){
-                        if(e.defaultPrevented) return;
-                        if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-                        if(e.button && e.button !== 0) return;
-                        try{ var url = new URL(href, location.href); if(url.origin !== location.origin) return; }catch(err){ return; }
-                        showLoader();
-                    });
-                }catch(err){}
-            });
-
-            window.addEventListener('beforeunload', function(){ showLoader(); });
-            window.addEventListener('pageshow', function(){ hideLoader(); });
-        });
-    </script>
 @endsection
