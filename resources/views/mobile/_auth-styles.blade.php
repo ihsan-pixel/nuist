@@ -5,6 +5,10 @@
         --text-main: #1f4f4c;
         --text-muted: #6d7f7d;
         --border-soft: #f6a92b;
+        --accent-main: #f6a92b;
+        --accent-soft: #f4c272;
+        --accent-deep: #d98f12;
+        --accent-faint: #fff4df;
     }
 
     html,
@@ -84,7 +88,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 10px 24px rgba(0, 98, 93, 0.16);
+        box-shadow: 0 10px 24px rgba(246, 169, 43, 0.22);
     }
 
     .brand-pill img {
@@ -103,8 +107,8 @@
         font-size: 2rem;
         line-height: 1.1;
         font-weight: 700;
-        color: #67d3cc;
-        text-shadow: 0 3px 10px rgba(103, 211, 204, 0.2);
+        color: var(--accent-main);
+        text-shadow: 0 3px 10px rgba(246, 169, 43, 0.22);
     }
 
     .welcome-subtitle {
@@ -118,7 +122,7 @@
         margin: 22px auto 16px;
         width: min(100%, 210px);
         display: block;
-        filter: drop-shadow(0 12px 20px rgba(127, 224, 219, 0.22));
+        filter: drop-shadow(0 12px 20px rgba(246, 169, 43, 0.18));
     }
 
     .status-stack {
@@ -179,21 +183,21 @@
     }
 
     .action-btn-primary {
-        background: linear-gradient(180deg, #7dded8 0%, #61cbc4 100%);
+        background: linear-gradient(180deg, var(--accent-soft) 0%, var(--accent-main) 100%);
         color: #fff;
-        box-shadow: 0 14px 28px rgba(97, 203, 196, 0.28);
+        box-shadow: 0 14px 28px rgba(246, 169, 43, 0.3);
     }
 
     .action-btn-secondary {
         background: #fff;
-        color: #78bdb8;
+        color: var(--accent-deep);
         border: 2px solid var(--border-soft);
     }
 
     .login-panel {
         margin-top: 16px;
         padding-top: 16px;
-        border-top: 1px solid #edf6f5;
+        border-top: 1px solid #f9e6be;
         text-align: left;
         display: none;
     }
@@ -240,8 +244,8 @@
         width: 100%;
         min-height: 46px;
         border-radius: 14px;
-        border: 1px solid #d8ece9;
-        background: #f8fcfb;
+        border: 1px solid #f3d69d;
+        background: #fffdf8;
         padding: 10px 14px;
         color: #244744;
         font-size: 0.94rem;
@@ -251,8 +255,8 @@
 
     .input-control:focus,
     .select-control:focus {
-        border-color: #72d5cf;
-        box-shadow: 0 0 0 4px rgba(114, 213, 207, 0.16);
+        border-color: var(--accent-main);
+        box-shadow: 0 0 0 4px rgba(246, 169, 43, 0.18);
     }
 
     .password-wrap {
@@ -270,7 +274,7 @@
         transform: translateY(-50%);
         border: 0;
         background: transparent;
-        color: #6ca7a2;
+        color: var(--accent-main);
         font-size: 1.05rem;
         cursor: pointer;
     }
@@ -291,15 +295,15 @@
 
     .submit-btn {
         margin-top: 8px;
-        background: linear-gradient(180deg, #169892 0%, #0b7d77 100%);
+        background: linear-gradient(180deg, var(--accent-soft) 0%, var(--accent-deep) 100%);
         color: #fff;
-        box-shadow: 0 12px 24px rgba(11, 125, 119, 0.24);
+        box-shadow: 0 12px 24px rgba(217, 143, 18, 0.28);
     }
 
     .secondary-btn {
         margin-top: 10px;
         background: #fff;
-        color: #78bdb8;
+        color: var(--accent-deep);
         border: 2px solid var(--border-soft);
     }
 
@@ -317,7 +321,7 @@
     }
 
     .panel-footer a {
-        color: #15918b;
+        color: var(--accent-deep);
         font-weight: 600;
         text-decoration: none;
     }
@@ -342,8 +346,8 @@
     .role-label {
         min-height: 38px;
         border-radius: 12px;
-        border: 1px solid #d8ece9;
-        background: #f8fcfb;
+        border: 1px solid #f3d69d;
+        background: #fffdf8;
         color: var(--text-main);
         display: flex;
         align-items: center;
@@ -359,10 +363,10 @@
     }
 
     .role-option input:checked + .role-label {
-        background: linear-gradient(180deg, #7dded8 0%, #61cbc4 100%);
-        border-color: #61cbc4;
+        background: linear-gradient(180deg, var(--accent-soft) 0%, var(--accent-main) 100%);
+        border-color: var(--accent-main);
         color: #fff;
-        box-shadow: 0 12px 24px rgba(97, 203, 196, 0.24);
+        box-shadow: 0 12px 24px rgba(246, 169, 43, 0.24);
     }
 
     [hidden] {
