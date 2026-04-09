@@ -327,9 +327,9 @@
     </style>
 @endsection
 
-@section('body')
+{{-- @section('body')
     <body class="auth-body-bg">
-@endsection
+@endsection --}}
 
 @section('content')
     <div class="mobile-auth-page">
