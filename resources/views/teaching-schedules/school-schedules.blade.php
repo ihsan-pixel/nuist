@@ -12,131 +12,322 @@
 <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
+
+<style>
+.schedule-page {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.page-hero {
+    border: 1px solid rgba(13, 110, 253, 0.12);
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f4f8ff 100%);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.hero-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0d6efd 0%, #3b82f6 100%);
+    color: #fff;
+    font-size: 1.75rem;
+    box-shadow: 0 12px 24px rgba(13, 110, 253, 0.22);
+}
+
+.summary-card,
+.day-card,
+.empty-state {
+    border: 1px solid #e9edf5;
+    border-radius: 1rem;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.summary-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.day-card {
+    overflow: hidden;
+    background: #fff;
+}
+
+.day-card-header {
+    padding: 1rem 1.25rem;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border-bottom: 1px solid #eef2f7;
+}
+
+.teacher-block + .teacher-block {
+    border-top: 1px solid #eef2f7;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.teacher-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8f1ff;
+    color: #0d6efd;
+    font-weight: 700;
+}
+
+.schedule-item {
+    border: 1px solid #edf1f7;
+    border-radius: 0.9rem;
+    padding: 0.9rem 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.schedule-item:hover {
+    border-color: rgba(13, 110, 253, 0.2);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+}
+
+.meta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.meta-badge-time {
+    color: #9a3412;
+    background: #fff1e6;
+}
+
+.subject-title {
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.info-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #edf2f7;
+    font-size: 0.85rem;
+}
+
+.empty-state {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.btn-action {
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+</style>
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bx bx-calendar me-2"></i>Jadwal Mengajar - {{ $school->name }}
-                </h4>
-                <p class="mb-0 text-muted">Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}</p>
-            </div>
-            <div class="card-body">
-                <div class="mb-3 d-flex justify-content-between align-items-center">
-                    <div>
+@php
+    $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    $totalTeachers = $grouped->count();
+    $totalSchedules = $grouped->flatten()->count();
+@endphp
+
+<div class="schedule-page">
+    <div class="card page-hero mb-0">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-auto">
+                    <div class="hero-icon">
+                        <i class="bx bx-building-house"></i>
+                    </div>
+                </div>
+                <div class="col">
+                    <h4 class="card-title mb-1">Jadwal Mengajar {{ $school->name }}</h4>
+                    <p class="text-muted mb-2">Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark border">Total guru: {{ $totalTeachers }}</span>
+                        <span class="badge bg-light text-dark border">Total jadwal: {{ $totalSchedules }}</span>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-auto">
+                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
                         @if((Auth::user()->role !== 'tenaga_pendidik' || Auth::user()->ketugasan !== 'kepala madrasah/sekolah') && Auth::user()->role !== 'admin' && Auth::user()->role !== 'super_admin')
-                        <a href="{{ route('teaching-schedules.index') }}" class="btn btn-secondary">
-                            <i class="bx bx-arrow-back"></i> Kembali ke Daftar Madrasah
+                        <a href="{{ route('teaching-schedules.index') }}" class="btn btn-outline-secondary rounded-pill px-3">
+                            <i class="bx bx-arrow-back me-1"></i>Kembali
                         </a>
                         @endif
-                    </div>
-                    <div class="d-flex gap-2">
+
                         @if(Auth::user()->role !== 'tenaga_pendidik')
-                        <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">
-                            <i class="bx bx-plus"></i> Tambah Jadwal
+                        <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary rounded-pill px-3">
+                            <i class="bx bx-plus me-1"></i>Tambah Jadwal
                         </a>
                         @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
-                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#importModal">
-                            <i class="bx bx-upload"></i> Import Jadwal
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal">
+                            <i class="bx bx-upload me-1"></i>Import Jadwal
                         </button>
                         @endif
                         @endif
+
                         @if(Auth::user()->role === 'super_admin' || Auth::user()->role === 'admin' || (Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah'))
-                        <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info">
-                            <i class="bx bx-group me-1"></i> Lihat Kelas
+                        <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info rounded-pill px-3">
+                            <i class="bx bx-group me-1"></i>Lihat Kelas
                         </a>
                         @endif
                     </div>
                 </div>
-
-                @php
-                    $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                @endphp
-
-                <div class="row">
-                    @foreach($days as $day)
-                        @php
-                            $daySchedules = collect();
-                            foreach ($grouped as $teacherName => $schedules) {
-                                $teacherDaySchedules = $schedules->where('day', $day);
-                                if ($teacherDaySchedules->isNotEmpty()) {
-                                    $daySchedules[$teacherName] = $teacherDaySchedules;
-                                }
-                            }
-                        @endphp
-
-                        @if($daySchedules->isNotEmpty())
-                        <div class="col-lg-6 col-xl-4 mb-4">
-                            <div class="card h-100 border">
-                                <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0">
-                                        <i class="bx bx-calendar-week me-2"></i>{{ $day }}
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    @foreach($daySchedules as $teacherName => $schedules)
-                                    <div class="mb-3">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <i class="bx bx-user me-2 text-muted"></i>
-                                            <strong class="text-primary">{{ $teacherName }}</strong>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-borderless mb-0">
-                                                <tbody>
-                                                    @foreach($schedules as $schedule)
-                                                    <tr>
-                                                        <td class="ps-0">
-                                                            <span class="badge bg-primary me-2">{{ $schedule->subject }}</span>
-                                                            <span class="badge bg-info">{{ $schedule->class_name }}</span>
-                                                        </td>
-                                                        <td class="text-end pe-0">
-                                                            <small class="text-muted">
-                                                                {{ $schedule->start_time }} - {{ $schedule->end_time }}
-                                                            </small>
-                                                        </td>
-                                                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
-                                                        <td class="text-end pe-0">
-                                                            <div class="btn-group" role="group">
-                                                                <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-outline-primary btn-sm" title="Edit Jadwal">
-                                                                    <i class="bx bx-edit"></i>
-                                                                </a>
-                                                                <button class="btn btn-outline-danger btn-sm delete-btn" data-id="{{ $schedule->id }}" data-name="{{ $schedule->subject }} - {{ $schedule->class_name }}" title="Hapus Jadwal">
-                                                                    <i class="bx bx-trash"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                        @endif
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                        @endif
-                    @endforeach
-                </div>
-
-                @if($grouped->flatten()->isEmpty())
-                <div class="text-center py-5">
-                    <div class="avatar-md mx-auto mb-3">
-                        <div class="avatar-title bg-light rounded-circle">
-                            <i class="bx bx-calendar font-size-24 text-muted"></i>
-                        </div>
-                    </div>
-                    <h5 class="text-muted">Belum ada jadwal mengajar</h5>
-                    <p class="text-muted">Belum ada jadwal mengajar untuk madrasah ini.</p>
-                </div>
-                @endif
             </div>
         </div>
     </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card summary-card h-100 mb-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="summary-icon bg-primary-subtle text-primary">
+                        <i class="bx bx-group"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Tenaga Pendidik</div>
+                        <h4 class="mb-0">{{ $totalTeachers }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card summary-card h-100 mb-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="summary-icon bg-success-subtle text-success">
+                        <i class="bx bx-book-content"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Jadwal</div>
+                        <h4 class="mb-0">{{ $totalSchedules }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card summary-card h-100 mb-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="summary-icon bg-warning-subtle text-warning">
+                        <i class="bx bx-calendar-week"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Hari Aktif</div>
+                        <h4 class="mb-0">{{ collect($days)->filter(fn ($day) => $grouped->flatten()->where('day', $day)->isNotEmpty())->count() }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if($grouped->flatten()->isEmpty())
+    <div class="card empty-state mb-0">
+        <div class="card-body text-center py-5">
+            <div class="avatar-md mx-auto mb-3">
+                <div class="avatar-title bg-light rounded-circle">
+                    <i class="bx bx-calendar font-size-24 text-muted"></i>
+                </div>
+            </div>
+            <h5 class="text-muted">Belum ada jadwal mengajar</h5>
+            <p class="text-muted mb-0">Belum ada jadwal mengajar untuk madrasah ini.</p>
+        </div>
+    </div>
+    @else
+    <div class="row g-4">
+        @foreach($days as $day)
+            @php
+                $daySchedules = collect();
+                foreach ($grouped as $teacherName => $schedules) {
+                    $teacherDaySchedules = $schedules->where('day', $day);
+                    if ($teacherDaySchedules->isNotEmpty()) {
+                        $daySchedules[$teacherName] = $teacherDaySchedules;
+                    }
+                }
+            @endphp
+
+            @if($daySchedules->isNotEmpty())
+            <div class="col-lg-6 col-xl-4">
+                <div class="card day-card h-100 mb-0">
+                    <div class="day-card-header d-flex align-items-center justify-content-between gap-2">
+                        <div>
+                            <h6 class="mb-1 text-primary">
+                                <i class="bx bx-calendar-week me-2"></i>{{ $day }}
+                            </h6>
+                            <small class="text-muted">{{ $daySchedules->flatten()->count() }} jadwal</small>
+                        </div>
+                        <span class="badge bg-light text-dark border">{{ $daySchedules->count() }} guru</span>
+                    </div>
+                    <div class="card-body">
+                        @foreach($daySchedules as $teacherName => $schedules)
+                        <div class="teacher-block">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="teacher-avatar">
+                                    {{ strtoupper(substr($teacherName, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold text-primary">{{ $teacherName }}</div>
+                                    <small class="text-muted">{{ count($schedules) }} jadwal</small>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                @foreach($schedules as $schedule)
+                                <div class="schedule-item">
+                                    <div class="d-flex flex-column gap-3">
+                                        <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+                                            <div class="subject-title">{{ $schedule->subject }}</div>
+                                            <span class="meta-badge meta-badge-time">
+                                                <i class="bx bx-time-five"></i>{{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <span class="info-chip">
+                                                <i class="bx bx-group"></i>{{ $schedule->class_name }}
+                                            </span>
+                                        </div>
+                                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-outline-primary btn-action" title="Edit Jadwal">
+                                                <i class="bx bx-edit"></i> Edit
+                                            </a>
+                                            <button class="btn btn-outline-danger btn-action delete-btn" data-id="{{ $schedule->id }}" data-name="{{ $schedule->subject }} - {{ $schedule->class_name }}" title="Hapus Jadwal">
+                                                <i class="bx bx-trash"></i> Hapus
+                                            </button>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+        @endforeach
+    </div>
+    @endif
 </div>
 
 <!-- Import Modal -->
