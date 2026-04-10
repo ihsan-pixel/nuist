@@ -15,221 +15,330 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
 
 <style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.schedule-page {
+    display: grid;
+    gap: 1.5rem;
 }
-.schedule-card {
-    transition: all 0.3s ease;
-    border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+.page-hero {
+    border: 1px solid rgba(13, 110, 253, 0.12);
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f4f8ff 100%);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
 }
-.schedule-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+
+.hero-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0d6efd 0%, #3b82f6 100%);
+    color: #fff;
+    font-size: 1.75rem;
+    box-shadow: 0 12px 24px rgba(13, 110, 253, 0.22);
 }
-.teacher-section {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 25px;
-    border-left: 4px solid #0d6efd;
+
+.summary-card,
+.teacher-card,
+.empty-state {
+    border: 1px solid #e9edf5;
+    border-radius: 1rem;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
 }
+
+.summary-card {
+    background: #fff;
+}
+
+.summary-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.teacher-card {
+    background: #fff;
+    overflow: hidden;
+}
+
+.teacher-card-header {
+    padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid #eef2f7;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
 .teacher-avatar {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
-    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    background: #e8f1ff;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #0d6efd;
     font-weight: bold;
     font-size: 18px;
 }
+
+.schedule-list {
+    padding: 1rem 1.25rem 1.25rem;
+}
+
 .schedule-item {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
-    border: 1px solid #e9ecef;
-    transition: all 0.2s ease;
+    border: 1px solid #edf1f7;
+    border-radius: 0.9rem;
+    padding: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
+
 .schedule-item:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-color: #0d6efd;
+    border-color: rgba(13, 110, 253, 0.2);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
 }
-.day-badge {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
+
+.meta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
 }
-.time-badge {
-    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
+
+.meta-badge-day {
+    color: #0f766e;
+    background: #e6fffb;
 }
-.subject-badge {
-    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
+
+.meta-badge-time {
+    color: #9a3412;
+    background: #fff1e6;
 }
-.school-info {
-    background: rgba(0,123,255,0.1);
-    border: 1px solid rgba(0,123,255,0.2);
-    border-radius: 8px;
-    padding: 8px 12px;
+
+.schedule-subject {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
 }
+
+.info-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #edf2f7;
+    font-size: 0.875rem;
+}
+
 .empty-state {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: none;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
 }
+
 .btn-action {
-    border-radius: 20px;
-    padding: 6px 12px;
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
     font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+    .teacher-card-header,
+    .schedule-list {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 }
 </style>
 @endsection
 
 @section('content')
-<!-- Header Section - Mobile Optimized -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <div class="avatar-lg">
-                            <div class="avatar-title bg-gradient-primary rounded-circle">
-                                <i class="bx bx-calendar fs-1"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <h4 class="card-title mb-1">Daftar Jadwal Mengajar</h4>
-                        <p class="text-muted mb-0">Kelola jadwal mengajar tenaga pendidik</p>
-                    </div>
-                    <div class="col-auto">
-                        <div class="d-flex gap-2">
-                            @if(Auth::user()->role !== 'tenaga_pendidik')
-                            <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary rounded-pill px-3">
-                                <i class="bx bx-plus me-1"></i>Tambah
-                            </a>
-                            @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin' || Auth::user()->role === 'pengurus')
-                            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal">
-                                <i class="bx bx-upload me-1"></i>Import
-                            </button>
-                            @endif
-                            @endif
-                        </div>
+@php
+    $totalTeachers = $grouped->count();
+    $totalSchedules = $grouped->flatten()->count();
+@endphp
+
+<div class="schedule-page">
+    <div class="card page-hero mb-0">
+        <div class="card-body p-4 p-lg-4">
+            <div class="row align-items-center g-3">
+                <div class="col-auto">
+                    <div class="hero-icon">
+                        <i class="bx bx-calendar"></i>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Alert Messages -->
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show border-0 rounded-3" role="alert">
-    <div class="d-flex align-items-center">
-        <i class="bx bx-check-circle fs-4 me-3"></i>
-        <div>{{ session('success') }}</div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
-
-@if(session('error'))
-<div class="alert alert-danger alert-dismissible fade show border-0 rounded-3" role="alert">
-    <div class="d-flex align-items-center">
-        <i class="bx bx-error-circle fs-4 me-3"></i>
-        <div>{{ session('error') }}</div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
-
-<!-- Schedule Content -->
-@if($grouped->isEmpty())
-    <!-- Empty State -->
-    <div class="card empty-state shadow-sm border-0">
-        <div class="card-body text-center py-5">
-            <div class="avatar-xl mx-auto mb-4">
-                <div class="avatar-title bg-light rounded-circle">
-                    <i class="bx bx-calendar-x fs-1 text-muted"></i>
+                <div class="col">
+                    <h4 class="card-title mb-1">Daftar Jadwal Mengajar</h4>
+                    <p class="text-muted mb-0">Kelola jadwal mengajar tenaga pendidik dengan tampilan yang lebih ringkas dan mudah dipindai.</p>
                 </div>
-            </div>
-            <h5 class="text-muted mb-2">Belum ada jadwal mengajar</h5>
-            <p class="text-muted mb-0">Belum ada data jadwal mengajar yang terdaftar dalam sistem.</p>
-        </div>
-    </div>
-@else
-    <!-- Teacher Schedule Sections - Mobile Optimized -->
-    @foreach($grouped as $teacherName => $schedules)
-    <div class="teacher-section">
-        <div class="d-flex align-items-center mb-4">
-            <div class="teacher-avatar me-3">
-                {{ strtoupper(substr($teacherName, 0, 1)) }}
-            </div>
-            <div>
-                <h5 class="mb-1 text-primary">{{ $teacherName }}</h5>
-                <small class="text-muted">{{ count($schedules) }} jadwal mengajar</small>
-            </div>
-        </div>
-
-        <div class="row g-3">
-            @foreach($schedules as $schedule)
-            <div class="col-12">
-                <div class="schedule-item">
-                    <div class="row align-items-center g-3">
-                        <div class="col-auto">
-                            <div class="d-flex flex-column gap-2">
-                                <span class="day-badge">{{ $schedule->day }}</span>
-                                <span class="time-badge">{{ $schedule->start_time }} - {{ $schedule->end_time }}</span>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="d-flex flex-column flex-md-row gap-2 mb-2">
-                                <span class="subject-badge">{{ $schedule->subject }}</span>
-                                <span class="badge bg-light text-dark">{{ $schedule->class_name }}</span>
-                            </div>
-                            <div class="school-info">
-                                <i class="bx bx-building me-1"></i>
-                                <strong>{{ $schedule->school->name ?? 'N/A' }}</strong>
-                            </div>
-                        </div>
+                <div class="col-12 col-lg-auto">
+                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
                         @if(Auth::user()->role !== 'tenaga_pendidik')
-                        <div class="col-auto">
-                            <div class="d-flex gap-2">
-                                <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-warning btn-action">
-                                    <i class="bx bx-edit"></i> Edit
-                                </a>
-                                <button type="button" class="btn btn-danger btn-action delete-btn"
-                                        data-id="{{ $schedule->id }}"
-                                        data-name="{{ $schedule->subject }} - {{ $schedule->class_name }}">
-                                    <i class="bx bx-trash"></i> Hapus
-                                </button>
+                        <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary rounded-pill px-3">
+                            <i class="bx bx-plus me-1"></i>Tambah Jadwal
+                        </a>
+                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin' || Auth::user()->role === 'pengurus')
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal">
+                            <i class="bx bx-upload me-1"></i>Import Jadwal
+                        </button>
+                        @endif
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card summary-card h-100 mb-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="summary-icon bg-primary-subtle text-primary">
+                        <i class="bx bx-group"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Guru</div>
+                        <h4 class="mb-0">{{ $totalTeachers }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card summary-card h-100 mb-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="summary-icon bg-success-subtle text-success">
+                        <i class="bx bx-book-content"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Jadwal</div>
+                        <h4 class="mb-0">{{ $totalSchedules }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card summary-card h-100 mb-0">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="summary-icon bg-warning-subtle text-warning">
+                        <i class="bx bx-calendar-week"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Status</div>
+                        <h6 class="mb-0">{{ $totalSchedules ? 'Data jadwal tersedia' : 'Belum ada data jadwal' }}</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 mb-0" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bx bx-check-circle fs-4 me-3"></i>
+            <div>{{ session('success') }}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 mb-0" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bx bx-error-circle fs-4 me-3"></i>
+            <div>{{ session('error') }}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if($grouped->isEmpty())
+        <div class="card empty-state mb-0">
+            <div class="card-body text-center py-5">
+                <div class="avatar-xl mx-auto mb-4">
+                    <div class="avatar-title bg-light rounded-circle">
+                        <i class="bx bx-calendar-x fs-1 text-muted"></i>
+                    </div>
+                </div>
+                <h5 class="text-muted mb-2">Belum ada jadwal mengajar</h5>
+                <p class="text-muted mb-0">Belum ada data jadwal mengajar yang terdaftar dalam sistem.</p>
+            </div>
+        </div>
+    @else
+        <div class="row g-4">
+            @foreach($grouped as $teacherName => $schedules)
+            <div class="col-12 col-xl-6">
+                <div class="card teacher-card h-100 mb-0">
+                    <div class="teacher-card-header">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="teacher-avatar">
+                                    {{ strtoupper(substr($teacherName, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <h5 class="mb-1 text-primary">{{ $teacherName }}</h5>
+                                    <div class="text-muted small">{{ count($schedules) }} jadwal mengajar</div>
+                                </div>
+                            </div>
+                            <span class="badge bg-light text-dark border">{{ count($schedules) }} entri</span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-list d-grid gap-3">
+                        @foreach($schedules as $schedule)
+                        <div class="schedule-item">
+                            <div class="d-flex flex-column flex-lg-row align-items-lg-start justify-content-between gap-3">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="meta-badge meta-badge-day">
+                                            <i class="bx bx-calendar"></i>{{ $schedule->day }}
+                                        </span>
+                                        <span class="meta-badge meta-badge-time">
+                                            <i class="bx bx-time-five"></i>{{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                        </span>
+                                    </div>
+                                    <div class="schedule-subject mb-2">{{ $schedule->subject }}</div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="info-chip">
+                                            <i class="bx bx-group"></i>{{ $schedule->class_name }}
+                                        </span>
+                                        <span class="info-chip">
+                                            <i class="bx bx-building-house"></i>{{ $schedule->school->name ?? 'N/A' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                @if(Auth::user()->role !== 'tenaga_pendidik')
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-warning btn-action">
+                                        <i class="bx bx-edit"></i> Edit
+                                    </a>
+                                    <button type="button" class="btn btn-danger btn-action delete-btn"
+                                            data-id="{{ $schedule->id }}"
+                                            data-name="{{ $schedule->subject }} - {{ $schedule->class_name }}">
+                                        <i class="bx bx-trash"></i> Hapus
+                                    </button>
+                                </div>
+                                @endif
                             </div>
                         </div>
-                        @endif
+                        @endforeach
                     </div>
                 </div>
             </div>
             @endforeach
         </div>
-    </div>
-    @endforeach
-@endif
+    @endif
+</div>
 
 <!-- Import Modal -->
 <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
