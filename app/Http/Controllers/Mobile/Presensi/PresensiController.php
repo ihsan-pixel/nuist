@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
+use App\Exports\MobileAttendanceRecapExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PresensiController extends \App\Http\Controllers\Controller
 {
@@ -622,8 +625,16 @@ class PresensiController extends \App\Http\Controllers\Controller
             abort(403, 'Unauthorized.');
         }
 
-        // allow optional month navigation via ?month=2025-10-01
-        $selectedMonth = $request->input('month') ? Carbon::parse($request->input('month')) : Carbon::now();
+        $today = Carbon::today('Asia/Jakarta');
+        $selectedMonth = $request->filled('month')
+            ? Carbon::createFromFormat('Y-m', $request->month, 'Asia/Jakarta')->startOfMonth()
+            : $today->copy()->startOfMonth();
+        $selectedWeek = $request->filled('week') && preg_match('/^\d{4}-W\d{2}$/', $request->week)
+            ? Carbon::now('Asia/Jakarta')->setISODate(
+                (int) substr($request->week, 0, 4),
+                (int) substr($request->week, 6, 2)
+            )->startOfWeek(Carbon::MONDAY)
+            : $today->copy()->startOfWeek(Carbon::MONDAY);
 
         // Fetch presensi for the selected month for the authenticated user
         $presensiRecords = Presensi::with('madrasah')
@@ -650,7 +661,30 @@ class PresensiController extends \App\Http\Controllers\Controller
         // Combine presensi and izin records, sort by tanggal desc
         $presensiHistory = $presensiRecords->concat($izinRecords)->sortByDesc('tanggal');
 
-        return view('mobile.riwayat-presensi', compact('presensiHistory'));
+        $weeklySummary = $this->buildAttendanceSummary(
+            $user->id,
+            $user->madrasah?->hari_kbm,
+            $selectedWeek->copy()->startOfWeek(Carbon::MONDAY),
+            $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY),
+            $today
+        );
+
+        $monthlySummary = $this->buildAttendanceSummary(
+            $user->id,
+            $user->madrasah?->hari_kbm,
+            $selectedMonth->copy()->startOfMonth(),
+            $selectedMonth->copy()->endOfMonth(),
+            $today
+        );
+
+        return view('mobile.riwayat-presensi', [
+            'presensiHistory' => $presensiHistory,
+            'selectedWeekValue' => $selectedWeek->format('o-\WW'),
+            'selectedMonthValue' => $selectedMonth->format('Y-m'),
+            'selectedMonthLabel' => $selectedMonth->translatedFormat('F Y'),
+            'weeklySummary' => $weeklySummary,
+            'monthlySummary' => $monthlySummary,
+        ]);
     }
 
     // Riwayat presensi alpha
@@ -676,6 +710,57 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->get();
 
         return view('mobile.riwayat-presensi-alpha', compact('presensiHistory'));
+    }
+
+    public function downloadRekapPresensi(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $type = $request->input('type', 'monthly');
+        $today = Carbon::today('Asia/Jakarta');
+
+        if ($type === 'weekly') {
+            $selectedWeek = $request->filled('week') && preg_match('/^\d{4}-W\d{2}$/', $request->week)
+                ? Carbon::now('Asia/Jakarta')->setISODate(
+                    (int) substr($request->week, 0, 4),
+                    (int) substr($request->week, 6, 2)
+                )->startOfWeek(Carbon::MONDAY)
+                : $today->copy()->startOfWeek(Carbon::MONDAY);
+
+            $startDate = $selectedWeek->copy()->startOfWeek(Carbon::MONDAY);
+            $endDate = $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY);
+            $summary = $this->buildAttendanceSummary($user->id, $user->madrasah?->hari_kbm, $startDate, $endDate, $today);
+            $filename = 'rekap-presensi-mingguan-' . $user->id . '-' . $selectedWeek->format('o-\WW') . '.xlsx';
+        } elseif ($type === 'all') {
+            $firstPresensiDate = Presensi::where('user_id', $user->id)->orderBy('tanggal')->value('tanggal');
+            $firstIzinDate = \App\Models\Izin::where('user_id', $user->id)->orderBy('tanggal')->value('tanggal');
+            $candidateDates = collect([$firstPresensiDate, $firstIzinDate])->filter();
+
+            $startDate = $candidateDates->isNotEmpty()
+                ? Carbon::parse($candidateDates->min(), 'Asia/Jakarta')->startOfDay()
+                : $today->copy()->startOfMonth();
+            $endDate = $today->copy();
+            $summary = $this->buildAttendanceSummary($user->id, $user->madrasah?->hari_kbm, $startDate, $endDate, $today);
+            $filename = 'rekap-presensi-keseluruhan-' . $user->id . '.xlsx';
+        } else {
+            $selectedMonth = $request->filled('month')
+                ? Carbon::createFromFormat('Y-m', $request->month, 'Asia/Jakarta')->startOfMonth()
+                : $today->copy()->startOfMonth();
+
+            $startDate = $selectedMonth->copy()->startOfMonth();
+            $endDate = $selectedMonth->copy()->endOfMonth();
+            $summary = $this->buildAttendanceSummary($user->id, $user->madrasah?->hari_kbm, $startDate, $endDate, $today);
+            $filename = 'rekap-presensi-bulanan-' . $user->id . '-' . $selectedMonth->format('Y-m') . '.xlsx';
+        }
+
+        return Excel::download(
+            new MobileAttendanceRecapExport($user, $type, $startDate, $endDate, $summary),
+            $filename
+        );
     }
 
     /**
@@ -1065,5 +1150,93 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         return $isInside;
+    }
+
+    private function buildAttendanceSummary(int $userId, ?string $hariKbm, Carbon $startDate, Carbon $endDate, Carbon $today): array
+    {
+        $effectiveEndDate = $endDate->copy()->min($today);
+
+        if ($effectiveEndDate->lt($startDate)) {
+            return [
+                'periode_label' => $startDate->translatedFormat('d M Y') . ' - ' . $endDate->translatedFormat('d M Y'),
+                'total_hari_kerja' => 0,
+                'total_hadir' => 0,
+                'total_izin' => 0,
+                'total_belum_hadir' => 0,
+                'persentase_kehadiran' => 0,
+                'details' => collect(),
+            ];
+        }
+
+        $presensiByDate = Presensi::query()
+            ->where('user_id', $userId)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+            ->orderBy('tanggal')
+            ->get()
+            ->groupBy(fn ($item) => $item->tanggal->toDateString());
+
+        $details = collect();
+        $totalHariKerja = 0;
+        $totalHadir = 0;
+        $totalIzinApproved = 0;
+
+        foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
+            if (!$this->isWorkingDay($date, $hariKbm)) {
+                continue;
+            }
+
+            $records = $presensiByDate->get($date->toDateString(), collect());
+            $hadirRecords = $records->whereIn('status', ['hadir', 'terlambat']);
+            $izinRecords = $records->where('status', 'izin');
+            $izinApprovedRecords = $izinRecords->where('status_izin', 'approved');
+            $alphaRecords = $records->where('status', 'alpha');
+
+            $isHadir = $hadirRecords->isNotEmpty();
+            $isIzinApproved = !$isHadir && $izinApprovedRecords->isNotEmpty();
+            $statusLabel = $isHadir
+                ? 'Hadir'
+                : ($isIzinApproved
+                    ? 'Izin Disetujui'
+                    : ($izinRecords->isNotEmpty() ? 'Izin Belum Disetujui' : ($alphaRecords->isNotEmpty() ? 'Alpha' : 'Belum Presensi')));
+
+            $details->push([
+                'tanggal' => $date->copy(),
+                'hari' => ucfirst($date->locale('id')->dayName),
+                'status' => $statusLabel,
+                'keterangan' => $records->pluck('keterangan')->filter()->implode(' | '),
+            ]);
+
+            $totalHariKerja++;
+            if ($isHadir) {
+                $totalHadir++;
+            } elseif ($isIzinApproved) {
+                $totalIzinApproved++;
+            }
+        }
+
+        $totalDasarPersentase = max($totalHariKerja - $totalIzinApproved, 0);
+
+        return [
+            'periode_label' => $startDate->translatedFormat('d M Y') . ' - ' . $effectiveEndDate->translatedFormat('d M Y'),
+            'total_hari_kerja' => $totalHariKerja,
+            'total_hadir' => $totalHadir,
+            'total_izin' => $totalIzinApproved,
+            'total_belum_hadir' => max($totalHariKerja - $totalHadir - $totalIzinApproved, 0),
+            'persentase_kehadiran' => $totalDasarPersentase > 0 ? round(($totalHadir / $totalDasarPersentase) * 100, 1) : 0,
+            'details' => $details,
+        ];
+    }
+
+    private function isWorkingDay(Carbon $date, ?string $hariKbm): bool
+    {
+        if ($date->isSunday() || Holiday::isHoliday($date->toDateString())) {
+            return false;
+        }
+
+        if ((string) $hariKbm === '5' && $date->isSaturday()) {
+            return false;
+        }
+
+        return true;
     }
 }
