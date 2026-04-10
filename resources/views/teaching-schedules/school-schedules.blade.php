@@ -6,12 +6,12 @@
     @slot('li_1') Master Data @endslot
     @slot('li_2') <a href="{{ route('teaching-schedules.index') }}">Jadwal Mengajar</a> @endslot
     @slot('title') Jadwal {{ $school->name }} @endslot
-@endcomponent
+@endcomponent--}}
 
 @section('css')
 <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
-<link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" /> --}}
+<link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
 
 <style>
 .schedule-page {
