@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TenagaPendidik;
+use App\Models\Siswa;
 
 class Madrasah extends Model
 {
@@ -117,6 +118,11 @@ class Madrasah extends Model
     public function users()
     {
         return $this->hasMany(User::class, 'madrasah_id');
+    }
+
+    public function siswas()
+    {
+        return $this->hasMany(Siswa::class, 'madrasah_id');
     }
 
     // Relasi lama ke TenagaPendidik model (jika masih diperlukan)

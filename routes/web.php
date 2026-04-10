@@ -570,6 +570,12 @@ Route::middleware(['auth', 'role:super_admin,admin,pengurus'])->prefix('data-sek
     Route::get('/guru', [App\Http\Controllers\DataSekolahController::class, 'guru'])->name('guru');
     Route::post('/update-siswa/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateSiswa'])->name('update-siswa');
     Route::post('/update-guru/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateGuru'])->name('update-guru');
+    Route::get('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'index'])->name('data-siswa.index');
+    Route::post('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'store'])->name('data-siswa.store');
+    Route::put('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'update'])->name('data-siswa.update');
+    Route::delete('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'destroy'])->name('data-siswa.destroy');
+    Route::post('/data-siswa/import', [App\Http\Controllers\DataSiswaController::class, 'import'])->name('data-siswa.import');
+    Route::get('/data-siswa/template', [App\Http\Controllers\DataSiswaController::class, 'template'])->name('data-siswa.template');
 });
 
 // Check tagihan route outside middleware group to avoid authentication issues
