@@ -19,7 +19,6 @@ class SiswaTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
             'no_hp_siswa',
             'no_hp_orang_tua_wali',
             'kelas',
-            'nama_madrasah_sekolah',
             'alamat',
         ];
     }
@@ -36,7 +35,6 @@ class SiswaTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
                 '081234567890',
                 '081298765432',
                 'X IPA 1',
-                'MA NU ISTIQLAL',
                 'Jl. Contoh No. 123, Kudus',
             ],
         ];

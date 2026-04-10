@@ -341,8 +341,27 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-warning mb-3">
-                        Gunakan template resmi agar nama kolom sesuai. Jika NIS atau email sudah ada, data akan diperbarui.
+                        Gunakan template resmi agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS atau email sudah ada, data akan diperbarui.
                     </div>
+                    @if($userRole !== 'admin')
+                        <div class="mb-3">
+                            <label for="import_madrasah_id" class="form-label">Madrasah/Sekolah</label>
+                            <select class="form-select" id="import_madrasah_id" name="madrasah_id" required>
+                                <option value="">Pilih Madrasah</option>
+                                @foreach($madrasahOptions as $madrasah)
+                                    <option value="{{ $madrasah->id }}" {{ (string) old('madrasah_id', $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : '' }}>
+                                        {{ $madrasah->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @else
+                        <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
+                        <div class="mb-3">
+                            <label class="form-label">Madrasah/Sekolah</label>
+                            <input type="text" class="form-control" value="{{ optional($madrasahOptions->first())->name }}" readonly>
+                        </div>
+                    @endif
                     <label for="file" class="form-label">File Excel/CSV</label>
                     <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
                 </div>

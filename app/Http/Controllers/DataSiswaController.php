@@ -132,15 +132,17 @@ class DataSiswaController extends Controller
     {
         $user = auth()->user();
 
-        $request->validate([
+        $madrasahRule = $user->role === 'admin'
+            ? Rule::in([$user->madrasah_id])
+            : Rule::exists('madrasahs', 'id');
+
+        $validated = $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+            'madrasah_id' => ['required', 'integer', $madrasahRule],
         ]);
 
-        $forcedMadrasah = $user->role === 'admin'
-            ? Madrasah::query()->findOrFail($user->madrasah_id)
-            : null;
-
-        $import = new SiswaImport($forcedMadrasah);
+        $madrasah = $this->resolveMadrasah((int) $validated['madrasah_id'], $user);
+        $import = new SiswaImport($madrasah);
 
         DB::transaction(function () use ($request, $import) {
             Excel::import($import, $request->file('file'));

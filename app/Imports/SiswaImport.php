@@ -6,7 +6,6 @@ use App\Models\Madrasah;
 use App\Models\Siswa;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -17,7 +16,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     public int $updated = 0;
 
     public function __construct(
-        private readonly ?Madrasah $forcedMadrasah = null
+        private readonly Madrasah $forcedMadrasah
     ) {
     }
 
@@ -35,7 +34,6 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 'no_hp_siswa',
                 'no_hp_orang_tua_wali',
                 'kelas',
-                'nama_madrasah_sekolah',
                 'alamat',
             ];
 
@@ -53,12 +51,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 throw new \InvalidArgumentException("Baris {$line}: format email_orang_tua_wali tidak valid.");
             }
 
-            $madrasah = $this->forcedMadrasah
-                ?? Madrasah::query()->whereRaw('LOWER(name) = ?', [Str::lower(trim((string) $row['nama_madrasah_sekolah']))])->first();
-
-            if (!$madrasah) {
-                throw new \InvalidArgumentException("Baris {$line}: nama madrasah/sekolah tidak ditemukan.");
-            }
+            $madrasah = $this->forcedMadrasah;
 
             $attributes = [
                 'madrasah_id' => $madrasah->id,
