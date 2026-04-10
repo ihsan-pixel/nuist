@@ -36,7 +36,7 @@
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             padding: 14px 16px 16px;
             background: #fff;
@@ -114,6 +114,11 @@
             color: #198754;
         }
 
+        .status-izin {
+            background: rgba(13, 110, 253, 0.12);
+            color: #0d6efd;
+        }
+
         .status-nonhadir {
             background: rgba(255, 193, 7, 0.18);
             color: #9a6700;
@@ -183,6 +188,10 @@
                 <div class="label">Sudah Hadir</div>
             </div>
             <div class="summary-metric">
+                <div class="value">{{ $weeklySummary['total_izin'] }}</div>
+                <div class="label">Izin</div>
+            </div>
+            <div class="summary-metric">
                 <div class="value">{{ $weeklySummary['total_belum_hadir'] }}</div>
                 <div class="label">Belum Hadir</div>
             </div>
@@ -208,6 +217,10 @@
             <div class="summary-metric">
                 <div class="value">{{ $monthlySummary['total_hadir'] }}</div>
                 <div class="label">Sudah Hadir</div>
+            </div>
+            <div class="summary-metric">
+                <div class="value">{{ $monthlySummary['total_izin'] }}</div>
+                <div class="label">Izin</div>
             </div>
             <div class="summary-metric">
                 <div class="value">{{ $monthlySummary['total_belum_hadir'] }}</div>
@@ -237,7 +250,7 @@
                                 <div class="text-muted mt-1" style="font-size: 11px;">{{ $item['keterangan'] }}</div>
                             @endif
                         </div>
-                        <span class="status-chip {{ $item['is_hadir'] ? 'status-hadir' : 'status-nonhadir' }}">
+                        <span class="status-chip {{ $item['is_hadir'] ? 'status-hadir' : ($item['is_izin'] ? 'status-izin' : 'status-nonhadir') }}">
                             {{ $item['status'] }}
                         </span>
                     </div>

@@ -147,6 +147,7 @@ class LaporanController extends \App\Http\Controllers\Controller
                 'periode_label' => $startDate->translatedFormat('d M Y') . ' - ' . $endDate->translatedFormat('d M Y'),
                 'total_hari_kerja' => 0,
                 'total_hadir' => 0,
+                'total_izin' => 0,
                 'total_belum_hadir' => 0,
                 'persentase_kehadiran' => 0,
                 'details' => collect(),
@@ -163,6 +164,7 @@ class LaporanController extends \App\Http\Controllers\Controller
         $details = collect();
         $totalHariKerja = 0;
         $totalHadir = 0;
+        $totalIzinApproved = 0;
 
         foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
             if (!$this->isWorkingDay($date, $hariKbm)) {
@@ -172,33 +174,43 @@ class LaporanController extends \App\Http\Controllers\Controller
             $records = $presensiByDate->get($date->toDateString(), collect());
             $hadirRecords = $records->where('status', 'hadir');
             $izinRecords = $records->where('status', 'izin');
+            $izinApprovedRecords = $izinRecords->where('status_izin', 'approved');
             $alphaRecords = $records->where('status', 'alpha');
 
             $isHadir = $hadirRecords->isNotEmpty();
+            $isIzinApproved = !$isHadir && $izinApprovedRecords->isNotEmpty();
             $statusLabel = $isHadir
                 ? 'Hadir'
-                : ($izinRecords->isNotEmpty() ? 'Izin' : ($alphaRecords->isNotEmpty() ? 'Alpha' : 'Belum Presensi'));
+                : ($isIzinApproved
+                    ? 'Izin Disetujui'
+                    : ($izinRecords->isNotEmpty() ? 'Izin Belum Disetujui' : ($alphaRecords->isNotEmpty() ? 'Alpha' : 'Belum Presensi')));
 
             $details->push([
                 'tanggal' => $date->copy(),
                 'hari' => $date->locale('id')->dayName,
                 'status' => $statusLabel,
                 'is_hadir' => $isHadir,
+                'is_izin' => $isIzinApproved,
                 'keterangan' => $records->pluck('keterangan')->filter()->implode(' | '),
             ]);
 
             $totalHariKerja++;
             if ($isHadir) {
                 $totalHadir++;
+            } elseif ($isIzinApproved) {
+                $totalIzinApproved++;
             }
         }
+
+        $totalDasarPersentase = max($totalHariKerja - $totalIzinApproved, 0);
 
         return [
             'periode_label' => $startDate->translatedFormat('d M Y') . ' - ' . $effectiveEndDate->translatedFormat('d M Y'),
             'total_hari_kerja' => $totalHariKerja,
             'total_hadir' => $totalHadir,
-            'total_belum_hadir' => max($totalHariKerja - $totalHadir, 0),
-            'persentase_kehadiran' => $totalHariKerja > 0 ? round(($totalHadir / $totalHariKerja) * 100, 1) : 0,
+            'total_izin' => $totalIzinApproved,
+            'total_belum_hadir' => max($totalHariKerja - $totalHadir - $totalIzinApproved, 0),
+            'persentase_kehadiran' => $totalDasarPersentase > 0 ? round(($totalHadir / $totalDasarPersentase) * 100, 1) : 0,
             'details' => $details,
         ];
     }
