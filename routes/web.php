@@ -342,6 +342,7 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
 
     // Laporan
     Route::get('/laporan', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporan'])->name('laporan');
+    Route::get('/laporan/persentase-kehadiran', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporanPersentaseKehadiran'])->name('laporan.persentase-kehadiran');
     // Mobile laporan presensi mengajar (riwayat)
     Route::get('/laporan/mengajar', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporanMengajar'])->name('laporan.mengajar');
     // Mobile presensi mengajar (mobile-optimized view)

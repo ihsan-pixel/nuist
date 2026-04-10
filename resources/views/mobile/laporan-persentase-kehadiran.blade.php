@@ -1,0 +1,225 @@
+@extends('layouts.mobile')
+
+@section('title', 'Persentase Kehadiran')
+@section('subtitle', 'Ringkasan Presensi Mingguan dan Bulanan')
+
+@section('content')
+<div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
+    <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
+        <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
+    </button>
+    <span class="fw-bold" style="color: #004b4c; font-size: 12px;">Kembali</span>
+</div>
+
+<div class="container px-0" style="max-width: 420px; margin: auto;">
+    <style>
+        .summary-card {
+            border: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(0, 75, 76, 0.10);
+            margin-bottom: 14px;
+        }
+
+        .summary-header {
+            padding: 16px;
+            color: #fff;
+        }
+
+        .summary-header.weekly {
+            background: linear-gradient(135deg, #0e8549 0%, #36b37e 100%);
+        }
+
+        .summary-header.monthly {
+            background: linear-gradient(135deg, #004b4c 0%, #0b6e70 100%);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 14px 16px 16px;
+            background: #fff;
+        }
+
+        .summary-metric {
+            background: #f6f8fb;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .summary-metric .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #004b4c;
+        }
+
+        .summary-metric .label {
+            font-size: 10px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .filter-card,
+        .detail-card {
+            border: 0;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+            margin-bottom: 14px;
+        }
+
+        .filter-card .card-body,
+        .detail-card .card-body {
+            padding: 14px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .detail-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detail-item:first-child {
+            padding-top: 0;
+        }
+
+        .status-chip {
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 5px 8px;
+            white-space: nowrap;
+        }
+
+        .status-hadir {
+            background: rgba(25, 135, 84, 0.12);
+            color: #198754;
+        }
+
+        .status-nonhadir {
+            background: rgba(255, 193, 7, 0.18);
+            color: #9a6700;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            padding: 12px 0 4px;
+        }
+    </style>
+
+    <div class="card filter-card">
+        <div class="card-body">
+            <form method="GET">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label for="week" class="form-label mb-1" style="font-size: 11px;">Minggu</label>
+                        <input type="week" id="week" name="week" value="{{ $selectedWeekValue }}" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-6">
+                        <label for="month" class="form-label mb-1" style="font-size: 11px;">Bulan</label>
+                        <input type="month" id="month" name="month" value="{{ $selectedMonthValue }}" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-sm w-100" style="background: #004b4c; color: #fff;">Tampilkan Laporan</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-header weekly">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div style="font-size: 11px; opacity: .9;">Persentase Mingguan</div>
+                    <h5 class="mb-1">{{ number_format($weeklySummary['persentase_kehadiran'], 1) }}%</h5>
+                    <small>{{ $weeklySummary['periode_label'] }}</small>
+                </div>
+                <i class="bx bx-calendar-week" style="font-size: 28px;"></i>
+            </div>
+        </div>
+        <div class="summary-grid">
+            <div class="summary-metric">
+                <div class="value">{{ $weeklySummary['total_hari_kerja'] }}</div>
+                <div class="label">Hari Kerja</div>
+            </div>
+            <div class="summary-metric">
+                <div class="value">{{ $weeklySummary['total_hadir'] }}</div>
+                <div class="label">Sudah Hadir</div>
+            </div>
+            <div class="summary-metric">
+                <div class="value">{{ $weeklySummary['total_belum_hadir'] }}</div>
+                <div class="label">Belum Hadir</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-header monthly">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div style="font-size: 11px; opacity: .9;">Persentase Bulanan</div>
+                    <h5 class="mb-1">{{ number_format($monthlySummary['persentase_kehadiran'], 1) }}%</h5>
+                    <small>{{ $monthlySummary['periode_label'] }}</small>
+                </div>
+                <i class="bx bx-calendar" style="font-size: 28px;"></i>
+            </div>
+        </div>
+        <div class="summary-grid">
+            <div class="summary-metric">
+                <div class="value">{{ $monthlySummary['total_hari_kerja'] }}</div>
+                <div class="label">Hari Kerja</div>
+            </div>
+            <div class="summary-metric">
+                <div class="value">{{ $monthlySummary['total_hadir'] }}</div>
+                <div class="label">Sudah Hadir</div>
+            </div>
+            <div class="summary-metric">
+                <div class="value">{{ $monthlySummary['total_belum_hadir'] }}</div>
+                <div class="label">Belum Hadir</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card detail-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Detail Mingguan</h6>
+                <small class="text-muted">{{ $weeklySummary['periode_label'] }}</small>
+            </div>
+
+            @if($weeklySummary['details']->isEmpty())
+                <div class="empty-state">
+                    Belum ada hari kerja pada periode ini.
+                </div>
+            @else
+                @foreach($weeklySummary['details'] as $item)
+                    <div class="detail-item">
+                        <div>
+                            <div class="fw-semibold">{{ $item['tanggal']->format('d M Y') }}</div>
+                            <small class="text-muted">{{ ucfirst($item['hari']) }}</small>
+                            @if($item['keterangan'])
+                                <div class="text-muted mt-1" style="font-size: 11px;">{{ $item['keterangan'] }}</div>
+                            @endif
+                        </div>
+                        <span class="status-chip {{ $item['is_hadir'] ? 'status-hadir' : 'status-nonhadir' }}">
+                            {{ $item['status'] }}
+                        </span>
+                    </div>
+                @endforeach
+            @endif
+        </div>
+    </div>
+</div>
+@endsection
