@@ -742,6 +742,12 @@
 
                     link.addEventListener('click', function(e){
 
+                        if (link.dataset.noLoader === 'true') {
+                            window.DISABLE_PAGE_LOADER = true;
+                            hideLoader();
+                            return;
+                        }
+
                         if(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
                         try{

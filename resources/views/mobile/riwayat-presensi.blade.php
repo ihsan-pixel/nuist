@@ -324,14 +324,17 @@
             </div>
             <div class="d-grid gap-2">
                 <a href="{{ route('mobile.riwayat-presensi.download', ['type' => 'weekly', 'week' => $selectedWeekValue, 'month' => $selectedMonthValue]) }}"
+                   data-no-loader="true"
                    class="btn btn-outline-success download-btn">
                     Download PDF Mingguan
                 </a>
                 <a href="{{ route('mobile.riwayat-presensi.download', ['type' => 'monthly', 'week' => $selectedWeekValue, 'month' => $selectedMonthValue]) }}"
+                   data-no-loader="true"
                    class="btn btn-outline-primary download-btn">
                     Download PDF Bulanan
                 </a>
                 <a href="{{ route('mobile.riwayat-presensi.download', ['type' => 'all']) }}"
+                   data-no-loader="true"
                    class="btn btn-dark download-btn">
                     Download PDF Keseluruhan
                 </a>
