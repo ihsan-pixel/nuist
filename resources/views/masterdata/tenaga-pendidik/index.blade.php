@@ -278,7 +278,7 @@
                                             @if($tp->avatar)
                                                 <img src="{{ asset('storage/app/public/' . $tp->avatar) }}"
                                                     alt="Foto {{ $tp->name }}"
-                                                    class="rounded-circle border border-3 border-primary mb-3"
+                                                    class="rounded-circle border-3 border-primary mb-3"
                                                     width="120" height="120"
                                                     style="object-fit: cover;">
                                             @else
