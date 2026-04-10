@@ -84,7 +84,7 @@
                     <div>
                         <h4 class="text-white mb-2"><i class="bx bx-id-card me-2"></i>Data Siswa</h4>
                         <p class="mb-0 text-white-50">
-                            Kelola CRUD dan import data siswa per madrasah. Akun siswa disimpan terpisah dari tabel <code class="text-white">users</code>.
+                            Kelola dan import data siswa per madrasah.
                         </p>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
