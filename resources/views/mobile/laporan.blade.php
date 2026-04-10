@@ -6,9 +6,9 @@
 @section('content')
     <!-- Back Button -->
     <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
-        <button href="{{ route('mobile.dashboard') }}" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
+        <a href="{{ route('mobile.dashboard') }}" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
             <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
-        </button>
+        </a>
         <span class="fw-bold" style="color: #004b4c; font-size: 12px;">Kembali</span>
     </div>
 
