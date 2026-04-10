@@ -297,7 +297,7 @@
                         @foreach($schedules as $schedule)
                         <div class="schedule-item">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-start justify-content-between gap-3">
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <div class="d-flex flex-wrap gap-2 mb-3">
                                         <span class="meta-badge meta-badge-day">
                                             <i class="bx bx-calendar"></i>{{ $schedule->day }}
