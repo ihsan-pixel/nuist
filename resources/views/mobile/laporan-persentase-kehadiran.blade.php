@@ -47,6 +47,9 @@
             border-radius: 12px;
             padding: 10px;
             text-align: center;
+            border: 0;
+            width: 100%;
+            cursor: pointer;
         }
 
         .summary-metric .value {
@@ -129,6 +132,15 @@
             color: #6c757d;
             padding: 12px 0 4px;
         }
+
+        .modal-detail-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .modal-detail-item:last-child {
+            border-bottom: 0;
+        }
     </style>
 
     <div class="card filter-card">
@@ -179,22 +191,26 @@
             </div>
         </div>
         <div class="summary-grid">
-            <div class="summary-metric">
+            <button type="button" class="summary-metric"
+                onclick='showBreakdownModal("Hari Kerja Mingguan", @json($weeklySummary["breakdown"]["hari_kerja"]))'>
                 <div class="value">{{ $weeklySummary['total_hari_kerja'] }}</div>
                 <div class="label">Hari Kerja</div>
-            </div>
-            <div class="summary-metric">
+            </button>
+            <button type="button" class="summary-metric"
+                onclick='showBreakdownModal("Sudah Hadir Mingguan", @json($weeklySummary["breakdown"]["hadir"]))'>
                 <div class="value">{{ $weeklySummary['total_hadir'] }}</div>
                 <div class="label">Sudah Hadir</div>
-            </div>
-            <div class="summary-metric">
+            </button>
+            <button type="button" class="summary-metric"
+                onclick='showBreakdownModal("Izin Mingguan", @json($weeklySummary["breakdown"]["izin"]))'>
                 <div class="value">{{ $weeklySummary['total_izin'] }}</div>
                 <div class="label">Izin</div>
-            </div>
-            <div class="summary-metric">
+            </button>
+            <button type="button" class="summary-metric"
+                onclick='showBreakdownModal("Belum Hadir Mingguan", @json($weeklySummary["breakdown"]["belum_hadir"]))'>
                 <div class="value">{{ $weeklySummary['total_belum_hadir'] }}</div>
                 <div class="label">Belum Hadir</div>
-            </div>
+            </button>
         </div>
     </div>
 
@@ -210,22 +226,26 @@
             </div>
         </div>
         <div class="summary-grid">
-            <div class="summary-metric">
+            <button type="button" class="summary-metric"
+                onclick='showBreakdownModal("Hari Kerja Bulanan", @json($monthlySummary["breakdown"]["hari_kerja"]))'>
                 <div class="value">{{ $monthlySummary['total_hari_kerja'] }}</div>
                 <div class="label">Hari Kerja</div>
-            </div>
-            <div class="summary-metric">
+            </button>
+            <button type="button" class="summary-metric"
+                onclick='showBreakdownModal("Sudah Hadir Bulanan", @json($monthlySummary["breakdown"]["hadir"]))'>
                 <div class="value">{{ $monthlySummary['total_hadir'] }}</div>
                 <div class="label">Sudah Hadir</div>
-            </div>
-            <div class="summary-metric">
+            </button>
+            <button type="button" class="summary-metric"
+                onclick='showBreakdownModal("Izin Bulanan", @json($monthlySummary["breakdown"]["izin"]))'>
                 <div class="value">{{ $monthlySummary['total_izin'] }}</div>
                 <div class="label">Izin</div>
-            </div>
-            <div class="summary-metric">
+            </button>
+            <button type="button" class="summary-metric"
+                onclick='showBreakdownModal("Belum Hadir Bulanan", @json($monthlySummary["breakdown"]["belum_hadir"]))'>
                 <div class="value">{{ $monthlySummary['total_belum_hadir'] }}</div>
                 <div class="label">Belum Hadir</div>
-            </div>
+            </button>
         </div>
     </div>
 
@@ -258,5 +278,41 @@
             @endif
         </div>
     </div>
+
+    <div class="modal fade" id="breakdownModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0" style="border-radius: 18px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="breakdownModalTitle">Detail Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="breakdownModalBody"></div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    function showBreakdownModal(title, items) {
+        const modalTitle = document.getElementById('breakdownModalTitle');
+        const modalBody = document.getElementById('breakdownModalBody');
+
+        modalTitle.textContent = title;
+
+        if (!items || items.length === 0) {
+            modalBody.innerHTML = '<div class="text-center text-muted py-3">Tidak ada data pada kategori ini.</div>';
+        } else {
+            modalBody.innerHTML = items.map(item => `
+                <div class="modal-detail-item">
+                    <div class="fw-semibold">${item.tanggal}</div>
+                    <div class="text-muted small">${item.hari} • ${item.status}</div>
+                    ${item.keterangan ? `<div class="small mt-1">${item.keterangan}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('breakdownModal'));
+        modal.show();
+    }
+</script>
 @endsection

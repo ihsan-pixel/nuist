@@ -151,6 +151,12 @@ class LaporanController extends \App\Http\Controllers\Controller
                 'total_belum_hadir' => 0,
                 'persentase_kehadiran' => 0,
                 'details' => collect(),
+                'breakdown' => [
+                    'hari_kerja' => [],
+                    'hadir' => [],
+                    'izin' => [],
+                    'belum_hadir' => [],
+                ],
             ];
         }
 
@@ -165,6 +171,12 @@ class LaporanController extends \App\Http\Controllers\Controller
         $totalHariKerja = 0;
         $totalHadir = 0;
         $totalIzinApproved = 0;
+        $breakdown = [
+            'hari_kerja' => [],
+            'hadir' => [],
+            'izin' => [],
+            'belum_hadir' => [],
+        ];
 
         foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
             if (!$this->isWorkingDay($date, $hariKbm)) {
@@ -194,11 +206,23 @@ class LaporanController extends \App\Http\Controllers\Controller
                 'keterangan' => $records->pluck('keterangan')->filter()->implode(' | '),
             ]);
 
+            $breakdownItem = [
+                'tanggal' => $date->translatedFormat('d M Y'),
+                'hari' => ucfirst($date->locale('id')->dayName),
+                'status' => $statusLabel,
+                'keterangan' => $records->pluck('keterangan')->filter()->implode(' | '),
+            ];
+
             $totalHariKerja++;
+            $breakdown['hari_kerja'][] = $breakdownItem;
             if ($isHadir) {
                 $totalHadir++;
+                $breakdown['hadir'][] = $breakdownItem;
             } elseif ($isIzinApproved) {
                 $totalIzinApproved++;
+                $breakdown['izin'][] = $breakdownItem;
+            } else {
+                $breakdown['belum_hadir'][] = $breakdownItem;
             }
         }
 
@@ -212,6 +236,7 @@ class LaporanController extends \App\Http\Controllers\Controller
             'total_belum_hadir' => max($totalHariKerja - $totalHadir - $totalIzinApproved, 0),
             'persentase_kehadiran' => $totalDasarPersentase > 0 ? round(($totalHadir / $totalDasarPersentase) * 100, 1) : 0,
             'details' => $details,
+            'breakdown' => $breakdown,
         ];
     }
 
