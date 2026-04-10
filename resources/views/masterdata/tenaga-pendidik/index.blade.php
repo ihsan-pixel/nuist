@@ -56,7 +56,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
-                        <th>Foto</th>
+                        {{-- <th>Foto</th> --}}
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Nuist ID</th>
@@ -72,7 +72,7 @@
                     @forelse($tenagaPendidiks as $index => $tp)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>
+                            {{-- <td>
                             @if($tp->avatar)
                                 <img src="{{ asset('storage/' . $tp->avatar) }}"
                                     alt="Avatar {{ $tp->name }}"
@@ -81,7 +81,7 @@
                             @else
                                 <span class="text-muted">-</span>
                             @endif
-                            </td>
+                            </td> --}}
                             <td>{{ $tp->name }}</td>
                             <td>{{ $tp->email }}</td>
                             <td>{{ $tp->nuist_id ?? '-' }}</td>
