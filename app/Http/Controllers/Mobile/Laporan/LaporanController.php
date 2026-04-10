@@ -9,6 +9,7 @@ use Carbon\CarbonPeriod;
 use App\Models\Holiday;
 use App\Models\Presensi;
 use App\Models\TeachingAttendance;
+use App\Models\User;
 
 class LaporanController extends \App\Http\Controllers\Controller
 {
@@ -42,8 +43,21 @@ class LaporanController extends \App\Http\Controllers\Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'tenaga_pendidik') {
+        if (!$this->canAccessAttendancePercentageReport($user)) {
             abort(403, 'Unauthorized.');
+        }
+
+        $teacherOptions = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $user->madrasah_id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'ketugasan']);
+
+        $selectedTeacherId = (int) ($request->input('teacher_id') ?: $user->id);
+        $selectedTeacher = $teacherOptions->firstWhere('id', $selectedTeacherId) ?? $teacherOptions->firstWhere('id', $user->id);
+
+        if (!$selectedTeacher) {
+            abort(404, 'Data tenaga pendidik tidak ditemukan.');
         }
 
         $today = Carbon::today('Asia/Jakarta');
@@ -60,7 +74,7 @@ class LaporanController extends \App\Http\Controllers\Controller
             : $today->copy()->startOfMonth();
 
         $weeklySummary = $this->buildAttendanceSummary(
-            $user->id,
+            $selectedTeacher->id,
             $user->madrasah?->hari_kbm,
             $selectedWeek->copy()->startOfWeek(Carbon::MONDAY),
             $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY),
@@ -68,7 +82,7 @@ class LaporanController extends \App\Http\Controllers\Controller
         );
 
         $monthlySummary = $this->buildAttendanceSummary(
-            $user->id,
+            $selectedTeacher->id,
             $user->madrasah?->hari_kbm,
             $selectedMonth->copy()->startOfMonth(),
             $selectedMonth->copy()->endOfMonth(),
@@ -78,6 +92,8 @@ class LaporanController extends \App\Http\Controllers\Controller
         return view('mobile.laporan-persentase-kehadiran', [
             'selectedWeekValue' => $selectedWeek->format('o-\WW'),
             'selectedMonthValue' => $selectedMonth->format('Y-m'),
+            'teacherOptions' => $teacherOptions,
+            'selectedTeacher' => $selectedTeacher,
             'weeklySummary' => $weeklySummary,
             'monthlySummary' => $monthlySummary,
         ]);
@@ -198,5 +214,11 @@ class LaporanController extends \App\Http\Controllers\Controller
         }
 
         return true;
+    }
+
+    private function canAccessAttendancePercentageReport($user): bool
+    {
+        return $user->role === 'tenaga_pendidik'
+            && $user->ketugasan === 'kepala madrasah/sekolah';
     }
 }

@@ -61,6 +61,14 @@
             margin-top: 2px;
         }
 
+        .selected-teacher-box {
+            background: linear-gradient(135deg, #fff8e7 0%, #fff 100%);
+            border: 1px solid rgba(255, 193, 7, 0.25);
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
         .filter-card,
         .detail-card {
             border: 0;
@@ -122,6 +130,16 @@
         <div class="card-body">
             <form method="GET">
                 <div class="row g-2">
+                    <div class="col-12">
+                        <label for="teacher_id" class="form-label mb-1" style="font-size: 11px;">Nama Tenaga Pendidik</label>
+                        <select id="teacher_id" name="teacher_id" class="form-select form-select-sm">
+                            @foreach($teacherOptions as $teacher)
+                                <option value="{{ $teacher->id }}" {{ (int) $selectedTeacher->id === (int) $teacher->id ? 'selected' : '' }}>
+                                    {{ $teacher->name }}{{ $teacher->ketugasan === 'kepala madrasah/sekolah' ? ' - Kepala Madrasah/Sekolah' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-6">
                         <label for="week" class="form-label mb-1" style="font-size: 11px;">Minggu</label>
                         <input type="week" id="week" name="week" value="{{ $selectedWeekValue }}" class="form-control form-control-sm">
@@ -136,6 +154,12 @@
                 </div>
             </form>
         </div>
+    </div>
+
+    <div class="selected-teacher-box">
+        <div class="fw-semibold" style="color: #8a6500;">Tenaga Pendidik Terpilih</div>
+        <div style="font-size: 15px; color: #004b4c;">{{ $selectedTeacher->name }}</div>
+        <small class="text-muted">{{ $selectedTeacher->ketugasan ?? 'Tenaga pendidik' }}</small>
     </div>
 
     <div class="summary-card">

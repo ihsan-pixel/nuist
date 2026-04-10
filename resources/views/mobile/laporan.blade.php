@@ -41,19 +41,21 @@
         </a>
     </div>
 
-    <div class="col-6">
-        <a href="{{ route('mobile.laporan.persentase-kehadiran') }}" class="text-decoration-none">
-            <div class="card shadow-sm text-center p-3">
-                <div class="avatar-md mx-auto mb-2">
-                    <div class="avatar-title bg-warning bg-opacity-10 text-warning rounded-circle">
-                        <i class="bx bx-pie-chart-alt-2 fs-3"></i>
+    @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
+        <div class="col-6">
+            <a href="{{ route('mobile.laporan.persentase-kehadiran') }}" class="text-decoration-none">
+                <div class="card shadow-sm text-center p-3">
+                    <div class="avatar-md mx-auto mb-2">
+                        <div class="avatar-title bg-warning bg-opacity-10 text-warning rounded-circle">
+                            <i class="bx bx-pie-chart-alt-2 fs-3"></i>
+                        </div>
                     </div>
+                    <h6 class="mb-0">Persentase Presensi Kehadiran</h6>
+                    <p class="text-muted small mb-0">Pilih tenaga pendidik di madrasah Anda lalu lihat persentasenya</p>
                 </div>
-                <h6 class="mb-0">Persentase Presensi Kehadiran</h6>
-                <p class="text-muted small mb-0">Ringkasan kehadiran mingguan dan bulanan Anda</p>
-            </div>
-        </a>
-    </div>
+            </a>
+        </div>
+    @endif
 </div>
 
 @endsection
