@@ -11,8 +11,7 @@ use Carbon\CarbonPeriod;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
-use App\Exports\MobileAttendanceRecapExport;
-use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PresensiController extends \App\Http\Controllers\Controller
 {
@@ -757,10 +756,46 @@ class PresensiController extends \App\Http\Controllers\Controller
             $filename = 'rekap-presensi-bulanan-' . $user->id . '-' . $selectedMonth->format('Y-m') . '.xlsx';
         }
 
-        return Excel::download(
-            new MobileAttendanceRecapExport($user, $type, $startDate, $endDate, $summary),
-            $filename
-        );
+        $effectiveEndDate = $endDate->copy()->min($today);
+
+        $presensiRecords = Presensi::with('madrasah')
+            ->where('user_id', $user->id)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+            ->get()
+            ->map(function ($item) {
+                $item->model_type = 'presensi';
+                return $item;
+            });
+
+        $izinRecords = \App\Models\Izin::query()
+            ->where('user_id', $user->id)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+            ->get()
+            ->map(function ($item) {
+                $item->model_type = 'izin';
+                return $item;
+            });
+
+        $records = $presensiRecords
+            ->concat($izinRecords)
+            ->sortBy([
+                ['tanggal', 'asc'],
+                ['model_type', 'asc'],
+            ])
+            ->values();
+
+        $filename = str_replace('.xlsx', '.pdf', $filename);
+
+        $pdf = Pdf::loadView('pdf.mobile-presensi-rekap', [
+            'user' => $user,
+            'type' => $type,
+            'summary' => $summary,
+            'records' => $records,
+            'startDate' => $startDate,
+            'endDate' => $effectiveEndDate,
+        ])->setPaper('A4', 'portrait');
+
+        return $pdf->download($filename);
     }
 
     /**

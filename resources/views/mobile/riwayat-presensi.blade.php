@@ -318,22 +318,22 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                     <div class="history-title">Download Rekap Presensi</div>
-                    <small class="text-muted">Unduh Excel berdasarkan periode yang dibutuhkan.</small>
+                    <small class="text-muted">Unduh PDF berdasarkan periode yang dibutuhkan.</small>
                 </div>
                 <i class="bx bx-download" style="font-size: 24px; color: #004b4c;"></i>
             </div>
             <div class="d-grid gap-2">
                 <a href="{{ route('mobile.riwayat-presensi.download', ['type' => 'weekly', 'week' => $selectedWeekValue, 'month' => $selectedMonthValue]) }}"
                    class="btn btn-outline-success download-btn">
-                    Download Rekap Mingguan
+                    Download PDF Mingguan
                 </a>
                 <a href="{{ route('mobile.riwayat-presensi.download', ['type' => 'monthly', 'week' => $selectedWeekValue, 'month' => $selectedMonthValue]) }}"
                    class="btn btn-outline-primary download-btn">
-                    Download Rekap Bulanan
+                    Download PDF Bulanan
                 </a>
                 <a href="{{ route('mobile.riwayat-presensi.download', ['type' => 'all']) }}"
                    class="btn btn-dark download-btn">
-                    Download Rekap Keseluruhan
+                    Download PDF Keseluruhan
                 </a>
             </div>
         </div>
