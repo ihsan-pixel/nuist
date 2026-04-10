@@ -13,12 +13,18 @@ class FotoController extends Controller
     {
         $presensi = Presensi::findOrFail($id);
 
-        $path = $type === 'masuk'
-            ? base_path('../nuist/storage/app/public/' . $presensi->selfie_masuk_path)
-            : base_path('../nuist/storage/app/public/' . $presensi->selfie_keluar_path);
+        $relativePath = $type === 'masuk'
+            ? $presensi->selfie_masuk_path
+            : $presensi->selfie_keluar_path;
+
+        if (empty($relativePath)) {
+            abort(404, 'File foto tidak ditemukan.');
+        }
+
+        $path = storage_path('app/public/' . ltrim($relativePath, '/'));
 
         if (!File::exists($path)) {
-            abort(404);
+            abort(404, 'File foto tidak ditemukan.');
         }
 
         return Response::file($path);
