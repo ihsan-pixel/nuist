@@ -198,7 +198,7 @@
 <div class="card">
     <div class="card-body">
         <div class="alert alert-info">
-            Password default akun siswa saat tambah/import adalah <strong>NIS</strong>. Data akun ini sudah dipisahkan dari tabel <strong>users</strong> agar struktur database tetap rapi.
+            Password default akun siswa saat tambah/import adalah <strong>NIS</strong>.
         </div>
 
         <div class="table-responsive">
