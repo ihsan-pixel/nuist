@@ -578,10 +578,14 @@
 
         // Notification badge functionality
         function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            if (!badge) {
+                return;
+            }
+
             fetch('/mobile/notifications/unread-count')
                 .then(response => response.json())
                 .then(data => {
-                    const badge = document.getElementById('notificationBadge');
                     if (data.count > 0) {
                         badge.textContent = data.count > 99 ? '99+' : data.count;
                         badge.style.display = 'inline-block';
@@ -619,13 +623,39 @@
             console.debug('DISABLE_PAGE_LOADER server:', __DISABLE_PAGE_LOADER_SERVER, 'window flag:', !!window.DISABLE_PAGE_LOADER, 'effective:', __DISABLE_PAGE_LOADER, 'path:', location.pathname);
 
             if (!__DISABLE_PAGE_LOADER) {
-                const buttons = document.querySelectorAll('.btn');
-                buttons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        if (this.form || this.getAttribute('href') === '#') {
-                            this.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Loading...';
-                            this.disabled = true;
+                const submitButtons = document.querySelectorAll('button[type="submit"].btn, input[type="submit"].btn');
+                submitButtons.forEach(button => {
+                    const form = button.form;
+                    if (!form) {
+                        return;
+                    }
+
+                    form.addEventListener('submit', function() {
+                        if (!form.checkValidity()) {
+                            return;
                         }
+
+                        if (button.dataset.loadingApplied === 'true') {
+                            return;
+                        }
+
+                        button.dataset.loadingApplied = 'true';
+
+                        if (button.tagName === 'BUTTON') {
+                            button.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Loading...';
+                        } else {
+                            button.value = 'Loading...';
+                        }
+
+                        button.disabled = true;
+                    });
+                });
+
+                const actionButtons = document.querySelectorAll('.btn[href="#"]');
+                actionButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        this.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Loading...';
+                        this.disabled = true;
                     });
                 });
             }
