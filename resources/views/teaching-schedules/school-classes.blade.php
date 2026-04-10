@@ -4,12 +4,6 @@
     Kelas Berjalan - {{ $school->name }} ({{ $selectedDay }})
 @endsection
 
-@component('components.breadcrumb')
-    @slot('li_1') Master Data @endslot
-    @slot('li_2') <a href="{{ route('teaching-schedules.index') }}">Jadwal Mengajar</a> @endslot
-    @slot('title') Kelas Berjalan {{ $school->name }} ({{ $selectedDay }}) @endslot
-@endcomponent
-
 @section('css')
 <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />

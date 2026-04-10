@@ -2,11 +2,6 @@
 
 @section('title') Jadwal Mengajar @endsection
 
-@component('components.breadcrumb')
-    @slot('li_1') Master Data @endslot
-    @slot('title') Jadwal Mengajar @endslot
-@endcomponent
-
 @section('css')
 <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
