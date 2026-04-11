@@ -14,14 +14,14 @@
         </div>
         @forelse($tagihans as $tagihan)
             <div class="list-item">
-                <h6>{{ $tagihan->nomor_invoice }}</h6>
-                <p>{{ $tagihan->jenis_tagihan ?? 'SPP / Iuran Sekolah' }}</p>
+                <h6>{{ $tagihan->nomor_tagihan }}</h6>
+                <p>SPP / Iuran Sekolah periode {{ \Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y') }}</p>
                 <div class="meta-row">
                     <span>{{ optional($tagihan->jatuh_tempo)->translatedFormat('d M Y') }}</span>
-                    <strong>Rp {{ number_format($tagihan->nominal, 0, ',', '.') }}</strong>
+                    <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong>
                 </div>
                 <div class="meta-row">
-                    <span class="pill {{ $tagihan->status === 'lunas' ? 'pill-success' : ($tagihan->status === 'pending' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst(str_replace('_', ' ', $tagihan->status)) }}</span>
+                    <span class="pill {{ $tagihan->status === 'lunas' ? 'pill-success' : ($tagihan->status === 'sebagian' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst(str_replace('_', ' ', $tagihan->status)) }}</span>
                     <a href="{{ route('mobile.siswa.detail', $tagihan->id) }}" class="ghost-btn" style="width:auto; padding:8px 12px;">Detail</a>
                 </div>
             </div>

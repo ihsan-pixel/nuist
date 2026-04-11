@@ -32,7 +32,7 @@
         <div class="mini-card">
             <small>Tagihan aktif</small>
             <h4>{{ $activeTagihan ? '1' : '0' }}</h4>
-            <div class="text-soft">{{ $activeTagihan?->nomor_invoice ?? 'Tidak ada tagihan aktif' }}</div>
+            <div class="text-soft">{{ $activeTagihan?->nomor_tagihan ?? 'Tidak ada tagihan aktif' }}</div>
         </div>
         <div class="mini-card">
             <small>Riwayat pembayaran</small>
@@ -91,11 +91,12 @@
         </div>
         @forelse($tagihans->take(2) as $tagihan)
             <div class="list-item">
-                <h6>{{ $tagihan->nomor_invoice }}</h6>
+                <h6>{{ $tagihan->nomor_tagihan }}</h6>
+                <p>Periode {{ \Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y') }}</p>
                 <p>Jatuh tempo {{ optional($tagihan->jatuh_tempo)->translatedFormat('d M Y') }}</p>
                 <div class="meta-row">
-                    <span class="pill {{ $tagihan->status === 'lunas' ? 'pill-success' : ($tagihan->status === 'pending' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst(str_replace('_', ' ', $tagihan->status)) }}</span>
-                    <strong>Rp {{ number_format($tagihan->nominal, 0, ',', '.') }}</strong>
+                    <span class="pill {{ $tagihan->status === 'lunas' ? 'pill-success' : ($tagihan->status === 'sebagian' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst(str_replace('_', ' ', $tagihan->status)) }}</span>
+                    <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong>
                 </div>
             </div>
         @empty

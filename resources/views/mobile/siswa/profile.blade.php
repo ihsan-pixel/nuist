@@ -16,12 +16,24 @@
     <section class="section-card">
         <div class="detail-grid">
             <div class="detail-box">
+                <small>NIS</small>
+                <strong>{{ $studentRecord->nis ?? '-' }}</strong>
+            </div>
+            <div class="detail-box">
                 <small>Role</small>
                 <strong>{{ ucfirst(str_replace('_', ' ', $studentUser->role ?? 'siswa')) }}</strong>
             </div>
             <div class="detail-box">
+                <small>Kelas</small>
+                <strong>{{ $studentRecord->kelas ?? '-' }}</strong>
+            </div>
+            <div class="detail-box">
+                <small>Jurusan</small>
+                <strong>{{ $studentRecord->jurusan ?? '-' }}</strong>
+            </div>
+            <div class="detail-box">
                 <small>No. HP</small>
-                <strong>{{ $studentUser->no_hp ?? '-' }}</strong>
+                <strong>{{ $studentRecord->no_hp ?? $studentUser->no_hp ?? '-' }}</strong>
             </div>
             <div class="detail-box">
                 <small>Madrasah</small>
@@ -29,7 +41,7 @@
             </div>
             <div class="detail-box">
                 <small>Alamat</small>
-                <strong>{{ $studentUser->alamat ?? '-' }}</strong>
+                <strong>{{ $studentRecord->alamat ?? $studentUser->alamat ?? '-' }}</strong>
             </div>
         </div>
     </section>

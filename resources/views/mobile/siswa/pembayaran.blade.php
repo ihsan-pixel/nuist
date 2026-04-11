@@ -9,7 +9,7 @@
 
     <section class="hero-card">
         <small>Pembayaran aktif</small>
-        <h4>{{ $activeTagihan?->nomor_invoice ?? 'Belum ada tagihan' }}</h4>
+        <h4>{{ $activeTagihan?->nomor_tagihan ?? 'Belum ada tagihan' }}</h4>
         <p class="mb-0">Gunakan halaman ini untuk melihat nominal, metode pembayaran yang tersedia, dan akses cepat ke detail invoice.</p>
     </section>
 
@@ -20,8 +20,12 @@
         </div>
         <div class="detail-grid">
             <div class="detail-box">
+                <small>Periode</small>
+                <strong>{{ $activeTagihan ? \Carbon\Carbon::createFromFormat('Y-m', $activeTagihan->periode)->translatedFormat('F Y') : '-' }}</strong>
+            </div>
+            <div class="detail-box">
                 <small>Nominal</small>
-                <strong>Rp {{ number_format($activeTagihan->nominal ?? 0, 0, ',', '.') }}</strong>
+                <strong>Rp {{ number_format($activeTagihan->total_tagihan ?? 0, 0, ',', '.') }}</strong>
             </div>
             <div class="detail-box">
                 <small>Jatuh tempo</small>

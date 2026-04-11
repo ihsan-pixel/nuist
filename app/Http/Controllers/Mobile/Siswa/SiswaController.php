@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Mobile\Siswa;
 use App\Http\Controllers\Controller;
 use App\Models\Chat;
 use App\Models\Notification;
-use App\Models\Payment;
-use App\Models\Tagihan;
+use App\Models\Siswa;
+use App\Models\SppSiswaBill;
+use App\Models\SppSiswaTransaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -43,14 +44,14 @@ class SiswaController extends Controller
 
         if ($request->filled('status')) {
             $payments = $payments->filter(function ($payment) use ($request) {
-                return $payment->status === $request->string('status')->toString();
+                return $payment->status_verifikasi === $request->string('status')->toString();
             });
         }
 
         if ($request->filled('bulan')) {
             $bulan = (int) $request->input('bulan');
             $payments = $payments->filter(function ($payment) use ($bulan) {
-                return optional($payment->paid_at)->month === $bulan;
+                return optional($payment->tanggal_bayar)->month === $bulan;
             });
         }
 
@@ -67,7 +68,10 @@ class SiswaController extends Controller
         abort_if(!$tagihan, 404);
 
         $data['selectedTagihan'] = $tagihan;
-        $data['selectedPayment'] = $data['payments']->firstWhere('tagihan_id', $tagihan->id);
+        $data['selectedPayment'] = $data['payments']
+            ->where('bill_id', $tagihan->id)
+            ->sortByDesc('tanggal_bayar')
+            ->first();
 
         return view('mobile.siswa.detail', $data);
     }
@@ -80,7 +84,7 @@ class SiswaController extends Controller
         abort_if(!$payment, 404);
 
         $data['selectedPayment'] = $payment;
-        $data['selectedTagihan'] = $data['tagihans']->firstWhere('id', $payment->tagihan_id);
+        $data['selectedTagihan'] = $data['tagihans']->firstWhere('id', $payment->bill_id) ?? $payment->bill;
 
         return view('mobile.siswa.bukti', $data);
     }
@@ -132,28 +136,34 @@ class SiswaController extends Controller
     private function buildSiswaData(): array
     {
         $user = Auth::user();
-        $madrasahId = $user->madrasah_id;
+        $siswa = $this->resolveSiswaRecord($user);
+        $madrasahId = $siswa?->madrasah_id ?? $user->madrasah_id;
 
-        $tagihans = Tagihan::query()
-            ->where('madrasah_id', $madrasahId)
-            ->orderByRaw('CASE WHEN status = "belum_lunas" THEN 0 WHEN status = "pending" THEN 1 ELSE 2 END')
-            ->orderBy('jatuh_tempo')
-            ->get();
+        $tagihans = $siswa
+            ? SppSiswaBill::query()
+                ->with(['setting', 'transactions'])
+                ->where('siswa_id', $siswa->id)
+                ->orderByRaw('CASE WHEN status = "belum_lunas" THEN 0 WHEN status = "sebagian" THEN 1 ELSE 2 END')
+                ->orderBy('jatuh_tempo')
+                ->get()
+            : collect();
 
-        $payments = Payment::query()
-            ->with('tagihan')
-            ->where('madrasah_id', $madrasahId)
-            ->latest('paid_at')
-            ->get();
+        $payments = $siswa
+            ? SppSiswaTransaction::query()
+                ->with('bill')
+                ->where('siswa_id', $siswa->id)
+                ->latest('tanggal_bayar')
+                ->get()
+            : collect();
 
         $activeTagihan = $tagihans->firstWhere('status', 'belum_lunas')
-            ?? $tagihans->firstWhere('status', 'pending')
+            ?? $tagihans->firstWhere('status', 'sebagian')
             ?? $tagihans->first();
 
         $lastPayment = $payments->first();
         $chartSummary = [
             'lunas' => $tagihans->where('status', 'lunas')->count(),
-            'belum' => $tagihans->whereIn('status', ['belum_lunas', 'pending'])->count(),
+            'belum' => $tagihans->whereIn('status', ['belum_lunas', 'sebagian'])->count(),
         ];
 
         $generatedReminders = $this->generateReminderNotifications($tagihans);
@@ -190,7 +200,8 @@ class SiswaController extends Controller
 
         return [
             'studentUser' => $user,
-            'studentSchool' => $user->madrasah,
+            'studentRecord' => $siswa,
+            'studentSchool' => $siswa?->madrasah ?? $user->madrasah,
             'tagihans' => $tagihans,
             'payments' => $payments,
             'activeTagihan' => $activeTagihan,
@@ -202,8 +213,8 @@ class SiswaController extends Controller
             'paymentCompletionRate' => $tagihans->count() > 0
                 ? (int) round(($chartSummary['lunas'] / $tagihans->count()) * 100)
                 : 0,
-            'totalTagihanNominal' => $tagihans->sum('nominal'),
-            'totalTerbayarNominal' => $payments->where('status', 'success')->sum('nominal'),
+            'totalTagihanNominal' => $tagihans->sum('total_tagihan'),
+            'totalTerbayarNominal' => $payments->where('status_verifikasi', 'diverifikasi')->sum('nominal_bayar'),
             'upcomingReminder' => $generatedReminders->first(),
         ];
     }
@@ -227,13 +238,22 @@ class SiswaController extends Controller
                 return (object) [
                     'id' => 'reminder-' . $tagihan->id,
                     'title' => 'Reminder jatuh tempo ' . $label,
-                    'message' => 'Tagihan ' . ($tagihan->nomor_invoice ?? '-') . ' jatuh tempo pada ' . optional($tagihan->jatuh_tempo)->translatedFormat('d M Y') . '.',
+                    'message' => 'Tagihan ' . ($tagihan->nomor_tagihan ?? '-') . ' jatuh tempo pada ' . optional($tagihan->jatuh_tempo)->translatedFormat('d M Y') . '.',
                     'type' => 'reminder',
                     'is_read' => false,
                     'created_at' => now()->subMinutes(5),
                 ];
             })
             ->values();
+    }
+
+    private function resolveSiswaRecord(User $user): ?Siswa
+    {
+        return Siswa::query()
+            ->with('madrasah')
+            ->where('email', $user->email)
+            ->where('madrasah_id', $user->madrasah_id)
+            ->first();
     }
 
     private function resolveAdminContact(User $user): ?User

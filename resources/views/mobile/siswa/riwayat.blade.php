@@ -14,9 +14,9 @@
         <form method="GET" class="filter-form">
             <select name="status" class="form-control">
                 <option value="">Semua status</option>
-                <option value="success" {{ request('status') === 'success' ? 'selected' : '' }}>Success</option>
-                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>Failed</option>
+                <option value="diverifikasi" {{ request('status') === 'diverifikasi' ? 'selected' : '' }}>Diverifikasi</option>
+                <option value="menunggu" {{ request('status') === 'menunggu' ? 'selected' : '' }}>Menunggu</option>
+                <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
             </select>
             <select name="bulan" class="form-control">
                 <option value="">Semua bulan</option>
@@ -39,14 +39,14 @@
         </div>
         @forelse($filteredPayments as $payment)
             <div class="list-item">
-                <h6>{{ $payment->order_id ?? 'PAY-' . $payment->id }}</h6>
-                <p>{{ $payment->metode_pembayaran ?? 'Metode belum tercatat' }}</p>
+                <h6>{{ $payment->nomor_transaksi }}</h6>
+                <p>{{ $payment->bill?->nomor_tagihan ?? 'Tagihan tidak ditemukan' }}</p>
                 <div class="meta-row">
-                    <span>{{ optional($payment->paid_at)->translatedFormat('d M Y H:i') ?? 'Belum dibayar' }}</span>
-                    <strong>Rp {{ number_format($payment->nominal, 0, ',', '.') }}</strong>
+                    <span>{{ optional($payment->tanggal_bayar)->translatedFormat('d M Y') ?? 'Belum dibayar' }}</span>
+                    <strong>Rp {{ number_format($payment->nominal_bayar, 0, ',', '.') }}</strong>
                 </div>
                 <div class="meta-row">
-                    <span class="pill {{ $payment->status === 'success' ? 'pill-success' : ($payment->status === 'pending' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst($payment->status) }}</span>
+                    <span class="pill {{ $payment->status_verifikasi === 'diverifikasi' ? 'pill-success' : ($payment->status_verifikasi === 'menunggu' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst($payment->status_verifikasi) }}</span>
                     <a href="{{ route('mobile.siswa.bukti', $payment->id) }}" class="ghost-btn" style="width:auto; padding:8px 12px;">Bukti</a>
                 </div>
             </div>

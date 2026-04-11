@@ -10,16 +10,16 @@
     <section class="receipt-card">
         <div class="section-title">
             <h5>Receipt</h5>
-            <span class="pill {{ $selectedPayment->status === 'success' ? 'pill-success' : ($selectedPayment->status === 'pending' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst($selectedPayment->status) }}</span>
+            <span class="pill {{ $selectedPayment->status_verifikasi === 'diverifikasi' ? 'pill-success' : ($selectedPayment->status_verifikasi === 'menunggu' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst($selectedPayment->status_verifikasi) }}</span>
         </div>
         <div class="detail-grid">
             <div class="detail-box">
-                <small>Order ID</small>
-                <strong>{{ $selectedPayment->order_id ?? 'PAY-' . $selectedPayment->id }}</strong>
+                <small>No. transaksi</small>
+                <strong>{{ $selectedPayment->nomor_transaksi }}</strong>
             </div>
             <div class="detail-box">
                 <small>Invoice</small>
-                <strong>{{ $selectedTagihan->nomor_invoice ?? '-' }}</strong>
+                <strong>{{ $selectedTagihan->nomor_tagihan ?? '-' }}</strong>
             </div>
             <div class="detail-box">
                 <small>Metode</small>
@@ -27,11 +27,11 @@
             </div>
             <div class="detail-box">
                 <small>Waktu bayar</small>
-                <strong>{{ optional($selectedPayment->paid_at)->translatedFormat('d M Y H:i') ?? '-' }}</strong>
+                <strong>{{ optional($selectedPayment->tanggal_bayar)->translatedFormat('d M Y') ?? '-' }}</strong>
             </div>
             <div class="detail-box">
                 <small>Nominal</small>
-                <strong>Rp {{ number_format($selectedPayment->nominal, 0, ',', '.') }}</strong>
+                <strong>Rp {{ number_format($selectedPayment->nominal_bayar, 0, ',', '.') }}</strong>
             </div>
             <div class="detail-box">
                 <small>Sekolah</small>
