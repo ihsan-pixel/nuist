@@ -74,6 +74,6 @@ class SiswaMobileAuthService
 
     private function buildLinkKey(Siswa $siswa): string
     {
-        return 'SISWA-' . $siswa->id;
+        return 'S' . str_pad(strtoupper(base_convert((string) $siswa->id, 10, 36)), 5, '0', STR_PAD_LEFT);
     }
 }
