@@ -16,7 +16,6 @@ class SppSiswaSetting extends Model
         'tahun_ajaran',
         'nominal_spp',
         'tanggal_jatuh_tempo',
-        'denda_harian',
         'payment_provider',
         'va_expired_hours',
         'is_active',
@@ -26,7 +25,6 @@ class SppSiswaSetting extends Model
 
     protected $casts = [
         'nominal_spp' => 'decimal:2',
-        'denda_harian' => 'decimal:2',
         'va_expired_hours' => 'integer',
         'is_active' => 'boolean',
     ];

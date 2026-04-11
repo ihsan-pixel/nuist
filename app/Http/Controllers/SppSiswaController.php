@@ -118,7 +118,6 @@ class SppSiswaController extends Controller
             'periode' => ['required', 'date_format:Y-m'],
             'jatuh_tempo' => ['required', 'date'],
             'nominal' => ['required', 'numeric', 'min:0'],
-            'denda' => ['nullable', 'numeric', 'min:0'],
             'status' => ['required', Rule::in(['belum_lunas', 'sebagian', 'lunas'])],
             'catatan' => ['nullable', 'string'],
         ]);
@@ -141,7 +140,6 @@ class SppSiswaController extends Controller
 
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
         $nominal = (float) $validated['nominal'];
-        $denda = (float) ($validated['denda'] ?? 0);
 
         SppSiswaBill::create([
             'siswa_id' => $siswa->id,
@@ -151,8 +149,7 @@ class SppSiswaController extends Controller
             'periode' => $periodeDate->format('Y-m'),
             'jatuh_tempo' => $validated['jatuh_tempo'],
             'nominal' => $nominal,
-            'denda' => $denda,
-            'total_tagihan' => $nominal + $denda,
+            'total_tagihan' => $nominal,
             'status' => $validated['status'],
             'catatan' => $validated['catatan'] ?? null,
         ]);
@@ -170,7 +167,6 @@ class SppSiswaController extends Controller
             'periode' => ['required', 'date_format:Y-m'],
             'jatuh_tempo' => ['required', 'date'],
             'nominal' => ['required', 'numeric', 'min:0'],
-            'denda' => ['nullable', 'numeric', 'min:0'],
             'status' => ['required', Rule::in(['belum_lunas', 'sebagian', 'lunas'])],
             'catatan' => ['nullable', 'string'],
         ]);
@@ -188,7 +184,6 @@ class SppSiswaController extends Controller
 
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
         $nominal = (float) $validated['nominal'];
-        $denda = (float) ($validated['denda'] ?? 0);
 
         $students = $this->studentQuery((int) $validated['madrasah_id'])
             ->when(!empty($validated['jurusan']), fn ($query) => $query->where('jurusan', trim((string) $validated['jurusan'])))
@@ -205,7 +200,7 @@ class SppSiswaController extends Controller
         $created = 0;
         $skipped = 0;
 
-        DB::transaction(function () use ($students, $validated, $setting, $periodeDate, $nominal, $denda, &$created, &$skipped) {
+        DB::transaction(function () use ($students, $validated, $setting, $periodeDate, $nominal, &$created, &$skipped) {
             foreach ($students as $siswa) {
                 $exists = SppSiswaBill::query()
                     ->where('siswa_id', $siswa->id)
@@ -225,8 +220,7 @@ class SppSiswaController extends Controller
                     'periode' => $periodeDate->format('Y-m'),
                     'jatuh_tempo' => $validated['jatuh_tempo'],
                     'nominal' => $nominal,
-                    'denda' => $denda,
-                    'total_tagihan' => $nominal + $denda,
+                    'total_tagihan' => $nominal,
                     'status' => $validated['status'],
                     'catatan' => $validated['catatan'] ?? null,
                 ]);

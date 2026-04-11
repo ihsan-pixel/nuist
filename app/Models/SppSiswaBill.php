@@ -19,7 +19,6 @@ class SppSiswaBill extends Model
         'periode',
         'jatuh_tempo',
         'nominal',
-        'denda',
         'total_tagihan',
         'status',
         'catatan',
@@ -28,7 +27,6 @@ class SppSiswaBill extends Model
     protected $casts = [
         'jatuh_tempo' => 'date',
         'nominal' => 'decimal:2',
-        'denda' => 'decimal:2',
         'total_tagihan' => 'decimal:2',
     ];
 
