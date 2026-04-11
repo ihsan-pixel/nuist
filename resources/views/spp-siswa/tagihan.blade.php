@@ -27,7 +27,10 @@
                 <h4 class="mb-1">Tagihan SPP Siswa</h4>
                 <p class="text-muted mb-0">Semua tagihan di halaman ini memakai tabel baru `spp_siswa_bills` dan relasi ke data siswa.</p>
             </div>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTagihanModal"><i class="bx bx-plus me-1"></i>Buat Tagihan</button>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkTagihanModal"><i class="bx bx-layer-plus me-1"></i>Buat Tagihan Massal</button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTagihanModal"><i class="bx bx-plus me-1"></i>Buat Tagihan</button>
+            </div>
         </div>
     </div>
 </div>
@@ -48,6 +51,7 @@
                     </div>
                 @endif
                 <div class="col-md-2"><label class="form-label">Kelas</label><input type="text" name="kelas" value="{{ request('kelas') }}" class="form-control"></div>
+                <div class="col-md-2"><label class="form-label">Jurusan</label><input type="text" name="jurusan" value="{{ request('jurusan') }}" class="form-control"></div>
                 <div class="col-md-2">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
@@ -100,6 +104,83 @@
             </table>
         </div>
         {{ $bills->links() }}
+    </div>
+</div>
+
+<div class="modal fade" id="bulkTagihanModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('spp-siswa.tagihan.bulk-store') }}">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Buat Tagihan Massal SPP Siswa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        Tagihan massal dibuat untuk semua siswa di sekolah terpilih. Jurusan dan kelas bisa dikosongkan jika ingin membuat tagihan untuk seluruh siswa sekolah tersebut.
+                    </div>
+                    <div class="row g-3">
+                        @if($userRole !== 'admin')
+                            <div class="col-md-6">
+                                <label class="form-label">Madrasah</label>
+                                <select name="madrasah_id" class="form-select" required>
+                                    @foreach($madrasahOptions as $madrasah)
+                                        <option value="{{ $madrasah->id }}" {{ (string) $selectedMadrasahId === (string) $madrasah->id ? 'selected' : '' }}>{{ $madrasah->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
+                        @endif
+                        <div class="col-md-6">
+                            <label class="form-label">Pengaturan</label>
+                            <select name="setting_id" class="form-select">
+                                <option value="">Manual tanpa pengaturan</option>
+                                @foreach($settings as $setting)
+                                    <option value="{{ $setting->id }}">{{ $setting->tahun_ajaran }} - Rp {{ number_format($setting->nominal_spp, 0, ',', '.') }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Jurusan</label>
+                            <select name="jurusan" class="form-select">
+                                <option value="">Semua Jurusan</option>
+                                @foreach($jurusanOptions as $jurusan)
+                                    <option value="{{ $jurusan }}">{{ $jurusan }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Kelas</label>
+                            <select name="kelas" class="form-select">
+                                <option value="">Semua Kelas</option>
+                                @foreach($kelasOptions as $kelas)
+                                    <option value="{{ $kelas }}">{{ $kelas }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
+                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
+                        <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" placeholder="Isi jika tidak pakai pengaturan"></div>
+                        <div class="col-md-4"><label class="form-label">Denda</label><input type="number" min="0" name="denda" class="form-control" value="0"></div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select" required>
+                                <option value="belum_lunas">Belum Lunas</option>
+                                <option value="sebagian">Sebagian</option>
+                                <option value="lunas">Lunas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary">Buat Tagihan Massal</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

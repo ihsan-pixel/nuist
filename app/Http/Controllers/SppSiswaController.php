@@ -47,11 +47,15 @@ class SppSiswaController extends Controller
     {
         $scope = $this->resolveScope($request);
         $selectedMadrasahId = $scope['selectedMadrasahId'];
+        $studentBaseQuery = $this->studentQuery($selectedMadrasahId);
 
         $bills = $this->billQuery($selectedMadrasahId)
             ->with(['siswa', 'madrasah', 'setting'])
             ->when($request->filled('kelas'), function ($query) use ($request) {
                 $query->whereHas('siswa', fn ($siswa) => $siswa->where('kelas', 'like', '%' . trim((string) $request->kelas) . '%'));
+            })
+            ->when($request->filled('jurusan'), function ($query) use ($request) {
+                $query->whereHas('siswa', fn ($siswa) => $siswa->where('jurusan', 'like', '%' . trim((string) $request->jurusan) . '%'));
             })
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->status))
             ->when($request->filled('q'), function ($query) use ($request) {
@@ -69,8 +73,20 @@ class SppSiswaController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        $students = $this->studentQuery($selectedMadrasahId)->orderBy('nama_lengkap')->get();
+        $students = (clone $studentBaseQuery)->orderBy('nama_lengkap')->get();
         $settings = $this->settingQuery($selectedMadrasahId)->where('is_active', true)->orderByDesc('tahun_ajaran')->get();
+        $jurusanOptions = (clone $studentBaseQuery)
+            ->select('jurusan')
+            ->whereNotNull('jurusan')
+            ->distinct()
+            ->orderBy('jurusan')
+            ->pluck('jurusan');
+        $kelasOptions = (clone $studentBaseQuery)
+            ->select('kelas')
+            ->whereNotNull('kelas')
+            ->distinct()
+            ->orderBy('kelas')
+            ->pluck('kelas');
 
         return view('spp-siswa.tagihan', [
             'madrasahOptions' => $scope['madrasahOptions'],
@@ -78,6 +94,8 @@ class SppSiswaController extends Controller
             'bills' => $bills,
             'students' => $students,
             'settings' => $settings,
+            'jurusanOptions' => $jurusanOptions,
+            'kelasOptions' => $kelasOptions,
             'userRole' => auth()->user()->role,
         ]);
     }
@@ -130,6 +148,92 @@ class SppSiswaController extends Controller
         ]);
 
         return back()->with('success', 'Tagihan SPP siswa berhasil dibuat.');
+    }
+
+    public function storeBulkTagihan(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'madrasah_id' => $this->madrasahRules(),
+            'setting_id' => ['nullable', 'integer', Rule::exists('spp_siswa_settings', 'id')],
+            'jurusan' => ['nullable', 'string', 'max:100'],
+            'kelas' => ['nullable', 'string', 'max:50'],
+            'periode' => ['required', 'date_format:Y-m'],
+            'jatuh_tempo' => ['required', 'date'],
+            'nominal' => ['nullable', 'numeric', 'min:0'],
+            'denda' => ['nullable', 'numeric', 'min:0'],
+            'status' => ['required', Rule::in(['belum_lunas', 'sebagian', 'lunas'])],
+            'catatan' => ['nullable', 'string'],
+        ]);
+
+        $this->ensureMadrasahAccess((int) $validated['madrasah_id']);
+
+        $setting = null;
+        if (!empty($validated['setting_id'])) {
+            $setting = SppSiswaSetting::query()
+                ->whereKey($validated['setting_id'])
+                ->where('madrasah_id', $validated['madrasah_id'])
+                ->firstOrFail();
+        }
+
+        if (!$setting && !isset($validated['nominal'])) {
+            return back()->withErrors([
+                'nominal' => 'Nominal wajib diisi jika pengaturan tidak dipilih.',
+            ])->withInput();
+        }
+
+        $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
+        $nominal = (float) ($validated['nominal'] ?? $setting?->nominal_spp ?? 0);
+        $denda = (float) ($validated['denda'] ?? $setting?->denda_harian ?? 0);
+
+        $students = $this->studentQuery((int) $validated['madrasah_id'])
+            ->when(!empty($validated['jurusan']), fn ($query) => $query->where('jurusan', trim((string) $validated['jurusan'])))
+            ->when(!empty($validated['kelas']), fn ($query) => $query->where('kelas', trim((string) $validated['kelas'])))
+            ->orderBy('nama_lengkap')
+            ->get();
+
+        if ($students->isEmpty()) {
+            return back()->withErrors([
+                'jurusan' => 'Tidak ada siswa yang cocok dengan filter madrasah, jurusan, dan kelas tersebut.',
+            ])->withInput();
+        }
+
+        $created = 0;
+        $skipped = 0;
+
+        DB::transaction(function () use ($students, $validated, $setting, $periodeDate, $nominal, $denda, &$created, &$skipped) {
+            foreach ($students as $siswa) {
+                $exists = SppSiswaBill::query()
+                    ->where('siswa_id', $siswa->id)
+                    ->where('periode', $periodeDate->format('Y-m'))
+                    ->exists();
+
+                if ($exists) {
+                    $skipped++;
+                    continue;
+                }
+
+                SppSiswaBill::create([
+                    'siswa_id' => $siswa->id,
+                    'madrasah_id' => $siswa->madrasah_id,
+                    'setting_id' => $setting?->id,
+                    'nomor_tagihan' => $this->generateBillNumber($siswa, $periodeDate),
+                    'periode' => $periodeDate->format('Y-m'),
+                    'jatuh_tempo' => $validated['jatuh_tempo'],
+                    'nominal' => $nominal,
+                    'denda' => $denda,
+                    'total_tagihan' => $nominal + $denda,
+                    'status' => $validated['status'],
+                    'catatan' => $validated['catatan'] ?? null,
+                ]);
+
+                $created++;
+            }
+        });
+
+        return back()->with(
+            'success',
+            "Tagihan massal selesai. {$created} tagihan dibuat, {$skipped} dilewati karena periode yang sama sudah ada."
+        );
     }
 
     public function transaksi(Request $request)

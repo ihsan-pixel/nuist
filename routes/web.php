@@ -438,6 +438,7 @@ Route::prefix('spp-siswa')->middleware(['auth', 'role:super_admin,admin,pengurus
     Route::get('/dashboard', [App\Http\Controllers\SppSiswaController::class, 'dashboard'])->name('dashboard');
     Route::get('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'tagihan'])->name('tagihan');
     Route::post('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'storeTagihan'])->name('tagihan.store');
+    Route::post('/tagihan/bulk', [App\Http\Controllers\SppSiswaController::class, 'storeBulkTagihan'])->name('tagihan.bulk-store');
     Route::get('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'transaksi'])->name('transaksi');
     Route::post('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'storeTransaksi'])->name('transaksi.store');
     Route::get('/laporan', [App\Http\Controllers\SppSiswaController::class, 'laporan'])->name('laporan');
