@@ -52,10 +52,10 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-12">
+                        <button class="btn btn-light w-100"><i class="bx bx-filter-alt me-1"></i>Terapkan</button>
+                    </div>
                 @endif
-                <div class="col-12">
-                    <button class="btn btn-light w-100"><i class="bx bx-filter-alt me-1"></i>Terapkan</button>
-                </div>
             </form>
         </div>
     </div>
