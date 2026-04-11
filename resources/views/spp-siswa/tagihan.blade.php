@@ -103,11 +103,9 @@
                                 @if($latestVa && $latestVa->va_number)
                                     <div class="fw-semibold">{{ $latestVa->va_number }}</div>
                                     <small class="text-muted d-block">{{ optional($latestVa->va_expired_at)->format('d M Y H:i') ?? 'Belum ada expiry' }}</small>
+                                @else
+                                    <small class="text-muted d-block">VA akan diterbitkan saat siswa mencetak billing.</small>
                                 @endif
-                                <form method="POST" action="{{ route('spp-siswa.tagihan.generate-bni-va', $bill) }}" class="mt-2">
-                                    @csrf
-                                    <button class="btn btn-sm btn-outline-primary">{{ $latestVa ? 'Regenerate VA' : 'Buat VA BNI' }}</button>
-                                </form>
                             @else
                                 <span class="text-muted">Manual</span>
                             @endif

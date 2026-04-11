@@ -7,6 +7,10 @@
     @include('mobile.siswa.partials.styles')
     @include('mobile.siswa.partials.header', ['title' => 'Detail Tagihan', 'subtitle' => $selectedTagihan->nomor_tagihan])
 
+    @if($errors->has('bni_va'))
+        <section class="section-card"><div class="list-item"><h6>BNI VA</h6><p>{{ $errors->first('bni_va') }}</p></div></section>
+    @endif
+
     <section class="section-card">
         <div class="section-title">
             <h5>Detail invoice</h5>
@@ -75,10 +79,9 @@
                 <p>Tagihan ini belum memiliki transaksi yang tercatat.</p>
             </div>
             @if(($selectedTagihan->setting->payment_provider ?? 'manual') === 'bni_va')
-                <form method="POST" action="{{ route('mobile.siswa.generate-bni-va', $selectedTagihan->id) }}">
-                    @csrf
-                    <button class="cta-btn" type="submit"><i class="bx bx-credit-card-front"></i>Buat Virtual Account BNI</button>
-                </form>
+                <a href="{{ route('mobile.siswa.billing', $selectedTagihan->id) }}" class="cta-btn">
+                    <i class="bx bx-printer"></i>Cetak Billing & Terbitkan VA
+                </a>
             @endif
         @endif
     </section>

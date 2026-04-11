@@ -379,7 +379,7 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
         Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
         Route::get('/tagihan', [SiswaController::class, 'tagihan'])->name('tagihan');
         Route::get('/pembayaran', [SiswaController::class, 'pembayaran'])->name('pembayaran');
-        Route::post('/tagihan/{tagihanId}/generate-bni-va', [SiswaController::class, 'generateBniVa'])->name('generate-bni-va');
+        Route::get('/billing/{tagihanId}', [SiswaController::class, 'billing'])->name('billing');
         Route::get('/riwayat-pembayaran', [SiswaController::class, 'riwayat'])->name('riwayat');
         Route::get('/detail/{tagihanId}', [SiswaController::class, 'detail'])->name('detail');
         Route::get('/bukti-pembayaran/{paymentId}', [SiswaController::class, 'bukti'])->name('bukti');

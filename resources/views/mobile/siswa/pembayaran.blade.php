@@ -7,10 +7,6 @@
     @include('mobile.siswa.partials.styles')
     @include('mobile.siswa.partials.header', ['title' => 'Pembayaran', 'subtitle' => 'Instruksi dan kanal pembayaran'])
 
-    @if(session('success'))
-        <section class="section-card"><div class="list-item"><h6>Berhasil</h6><p>{{ session('success') }}</p></div></section>
-    @endif
-
     @if($errors->has('bni_va'))
         <section class="section-card"><div class="list-item"><h6>BNI VA</h6><p>{{ $errors->first('bni_va') }}</p></div></section>
     @endif
@@ -64,15 +60,17 @@
                     <h6>Langkah pembayaran</h6>
                     <p>Bayar sesuai nominal tagihan melalui ATM BNI, BNI Mobile Banking, atau teller dengan memasukkan nomor Virtual Account di atas.</p>
                 </div>
+                <a href="{{ route('mobile.siswa.billing', $activeTagihan->id) }}" class="cta-btn">
+                    <i class="bx bx-printer"></i>Cetak Billing
+                </a>
             @else
                 <div class="list-item">
-                    <h6>Virtual Account belum dibuat</h6>
-                    <p>Tap tombol di bawah untuk menyiapkan nomor Virtual Account BNI untuk tagihan aktif Anda.</p>
+                    <h6>Billing belum dicetak</h6>
+                    <p>Virtual Account BNI akan diterbitkan saat Anda mencetak billing tagihan aktif ini.</p>
                 </div>
-                <form method="POST" action="{{ route('mobile.siswa.generate-bni-va', $activeTagihan->id) }}">
-                    @csrf
-                    <button class="cta-btn" type="submit"><i class="bx bx-credit-card-front"></i>Buat Virtual Account BNI</button>
-                </form>
+                <a href="{{ route('mobile.siswa.billing', $activeTagihan->id) }}" class="cta-btn">
+                    <i class="bx bx-printer"></i>Cetak Billing & Terbitkan VA
+                </a>
             @endif
         @elseif($activeTagihan && ($activeTagihan->setting->payment_provider ?? 'manual') === 'bni_va')
             <div class="list-item">

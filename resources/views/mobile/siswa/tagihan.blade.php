@@ -22,7 +22,12 @@
                 </div>
                 <div class="meta-row">
                     <span class="pill {{ $tagihan->status === 'lunas' ? 'pill-success' : ($tagihan->status === 'sebagian' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst(str_replace('_', ' ', $tagihan->status)) }}</span>
-                    <a href="{{ route('mobile.siswa.detail', $tagihan->id) }}" class="ghost-btn" style="width:auto; padding:8px 12px;">Detail</a>
+                    <div style="display:flex; gap:8px;">
+                        <a href="{{ route('mobile.siswa.detail', $tagihan->id) }}" class="ghost-btn" style="width:auto; padding:8px 12px;">Detail</a>
+                        @if(($tagihan->setting->payment_provider ?? 'manual') === 'bni_va' && $tagihan->status !== 'lunas')
+                            <a href="{{ route('mobile.siswa.billing', $tagihan->id) }}" class="ghost-btn" style="width:auto; padding:8px 12px;">Billing</a>
+                        @endif
+                    </div>
                 </div>
             </div>
         @empty

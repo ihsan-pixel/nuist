@@ -39,6 +39,39 @@ class SiswaController extends Controller
         return view('mobile.siswa.pembayaran', $data);
     }
 
+    public function billing(int $tagihanId, BniVirtualAccountService $service)
+    {
+        $user = Auth::user();
+        $siswa = $this->resolveSiswaRecord($user);
+
+        abort_if(!$siswa, 404);
+
+        $bill = SppSiswaBill::query()
+            ->with(['setting', 'madrasah', 'siswa'])
+            ->where('id', $tagihanId)
+            ->where('siswa_id', $siswa->id)
+            ->firstOrFail();
+
+        $transaction = null;
+
+        if (($bill->setting->payment_provider ?? 'manual') === 'bni_va') {
+            try {
+                $transaction = $service->createOrReuseForBill($bill, $user->id);
+            } catch (\Throwable $throwable) {
+                return redirect()->route('mobile.siswa.detail', $bill->id)
+                    ->withErrors(['bni_va' => $throwable->getMessage()]);
+            }
+        }
+
+        return view('mobile.siswa.billing', [
+            'studentUser' => $user,
+            'studentRecord' => $siswa,
+            'studentSchool' => $siswa->madrasah,
+            'selectedTagihan' => $bill,
+            'billingTransaction' => $transaction,
+        ]);
+    }
+
     public function riwayat(Request $request)
     {
         $data = $this->buildSiswaData();
@@ -110,29 +143,6 @@ class SiswaController extends Controller
         $data = $this->buildSiswaData();
 
         return view('mobile.siswa.chat', $data);
-    }
-
-    public function generateBniVa(int $tagihanId, BniVirtualAccountService $service)
-    {
-        $user = Auth::user();
-        $siswa = $this->resolveSiswaRecord($user);
-
-        abort_if(!$siswa, 404);
-
-        $bill = SppSiswaBill::query()
-            ->where('id', $tagihanId)
-            ->where('siswa_id', $siswa->id)
-            ->firstOrFail();
-
-        try {
-            $transaction = $service->createOrReuseForBill($bill, $user->id);
-
-            return redirect()->route('mobile.siswa.pembayaran')
-                ->with('success', 'Virtual Account BNI siap digunakan: ' . $transaction->va_number);
-        } catch (\Throwable $throwable) {
-            return redirect()->route('mobile.siswa.pembayaran')
-                ->withErrors(['bni_va' => $throwable->getMessage()]);
-        }
     }
 
     public function sendChat(Request $request)
