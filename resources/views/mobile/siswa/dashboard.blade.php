@@ -10,7 +10,7 @@
     <section class="hero-card">
         <small>Status pembayaran semester ini</small>
         <h4>{{ $paymentCompletionRate }}% selesai</h4>
-        <p class="mb-0">Pantau tagihan, bukti bayar, reminder H-3 jatuh tempo, dan komunikasi dengan admin sekolah dari satu panel.</p>
+        {{-- <p class="mb-0">Pantau tagihan, bukti bayar, reminder H-3 jatuh tempo, dan komunikasi dengan admin sekolah dari satu panel.</p> --}}
 
         <div class="hero-stat-grid">
             <div>
