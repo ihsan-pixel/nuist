@@ -88,6 +88,7 @@
                         <th>Total</th>
                         <th>Status</th>
                         <th>Virtual Account</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -116,9 +117,16 @@
                                 <span class="text-muted">Manual</span>
                             @endif
                         </td>
+                        <td>
+                            <form method="POST" action="{{ route('spp-siswa.tagihan.destroy', $bill) }}" onsubmit="return confirm('Hapus tagihan ini? Data yang sudah punya transaksi pembayaran tidak bisa dihapus.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                            </form>
+                        </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="text-center text-muted">Belum ada tagihan SPP siswa.</td></tr>
+                    <tr><td colspan="9" class="text-center text-muted">Belum ada tagihan SPP siswa.</td></tr>
                 @endforelse
                 </tbody>
             </table>

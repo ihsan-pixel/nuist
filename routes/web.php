@@ -440,12 +440,14 @@ Route::prefix('spp-siswa')->middleware(['auth', 'role:super_admin,admin,pengurus
     Route::get('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'tagihan'])->name('tagihan');
     Route::post('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'storeTagihan'])->name('tagihan.store');
     Route::post('/tagihan/bulk', [App\Http\Controllers\SppSiswaController::class, 'storeBulkTagihan'])->name('tagihan.bulk-store');
+    Route::delete('/tagihan/{bill}', [App\Http\Controllers\SppSiswaController::class, 'destroyTagihan'])->name('tagihan.destroy');
     Route::post('/tagihan/{bill}/generate-bni-va', [App\Http\Controllers\SppSiswaPaymentController::class, 'generateBniVa'])->name('tagihan.generate-bni-va');
     Route::get('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'transaksi'])->name('transaksi');
     Route::post('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'storeTransaksi'])->name('transaksi.store');
     Route::get('/laporan', [App\Http\Controllers\SppSiswaController::class, 'laporan'])->name('laporan');
     Route::get('/pengaturan', [App\Http\Controllers\SppSiswaController::class, 'pengaturan'])->name('pengaturan');
     Route::post('/pengaturan', [App\Http\Controllers\SppSiswaController::class, 'storePengaturan'])->name('pengaturan.store');
+    Route::put('/pengaturan/{setting}', [App\Http\Controllers\SppSiswaController::class, 'updatePengaturan'])->name('pengaturan.update');
 });
 
 Route::prefix('admin-masterdata')->middleware(['auth', 'role:super_admin,pengurus'])->group(function () {

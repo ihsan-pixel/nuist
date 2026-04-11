@@ -241,6 +241,21 @@ class SppSiswaController extends Controller
         );
     }
 
+    public function destroyTagihan(SppSiswaBill $bill): RedirectResponse
+    {
+        $this->ensureMadrasahAccess((int) $bill->madrasah_id);
+
+        if ($bill->transactions()->exists()) {
+            return back()->withErrors([
+                'tagihan' => 'Tagihan yang sudah memiliki transaksi pembayaran tidak dapat dihapus.',
+            ]);
+        }
+
+        $bill->delete();
+
+        return back()->with('success', 'Tagihan SPP siswa berhasil dihapus.');
+    }
+
     public function transaksi(Request $request)
     {
         $scope = $this->resolveScope($request);
@@ -377,15 +392,7 @@ class SppSiswaController extends Controller
 
     public function storePengaturan(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'madrasah_id' => $this->madrasahRules(),
-            'tahun_ajaran' => ['required', 'string', 'max:20'],
-            'payment_provider' => ['required', Rule::in($this->allowedPaymentProviders())],
-            'va_expired_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
-            'is_active' => ['nullable', 'boolean'],
-            'catatan' => ['nullable', 'string'],
-            'payment_notes' => ['nullable', 'string'],
-        ]);
+        $validated = $this->validatePengaturan($request);
 
         $this->ensureMadrasahAccess((int) $validated['madrasah_id']);
 
@@ -404,6 +411,30 @@ class SppSiswaController extends Controller
         );
 
         return back()->with('success', 'Pengaturan SPP siswa berhasil disimpan.');
+    }
+
+    public function updatePengaturan(Request $request, SppSiswaSetting $setting): RedirectResponse
+    {
+        $validated = $this->validatePengaturan($request);
+
+        $this->ensureMadrasahAccess((int) $setting->madrasah_id);
+
+        if ((int) $validated['madrasah_id'] !== (int) $setting->madrasah_id) {
+            throw ValidationException::withMessages([
+                'madrasah_id' => 'Madrasah pengaturan tidak boleh diubah.',
+            ]);
+        }
+
+        $setting->update([
+            'tahun_ajaran' => $validated['tahun_ajaran'],
+            'payment_provider' => $validated['payment_provider'],
+            'va_expired_hours' => $validated['va_expired_hours'] ?? 24,
+            'is_active' => $request->boolean('is_active', false),
+            'catatan' => $validated['catatan'] ?? null,
+            'payment_notes' => $validated['payment_notes'] ?? null,
+        ]);
+
+        return back()->with('success', 'Pengaturan SPP siswa berhasil diperbarui.');
     }
 
     private function resolveScope(Request $request): array
@@ -513,6 +544,19 @@ class SppSiswaController extends Controller
                 'setting_id' => 'Pengaturan yang dipilih untuk admin harus menggunakan provider BNI Virtual Account.',
             ]);
         }
+    }
+
+    private function validatePengaturan(Request $request): array
+    {
+        return $request->validate([
+            'madrasah_id' => $this->madrasahRules(),
+            'tahun_ajaran' => ['required', 'string', 'max:20'],
+            'payment_provider' => ['required', Rule::in($this->allowedPaymentProviders())],
+            'va_expired_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
+            'is_active' => ['nullable', 'boolean'],
+            'catatan' => ['nullable', 'string'],
+            'payment_notes' => ['nullable', 'string'],
+        ]);
     }
 
     private function hasActiveBniVaSettingForMadrasah(?int $madrasahId): bool

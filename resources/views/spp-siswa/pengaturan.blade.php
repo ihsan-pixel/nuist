@@ -78,6 +78,7 @@
                                 <th>Provider</th>
                                 <th>VA Expired</th>
                                 <th>Status</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -88,9 +89,14 @@
                                 <td>{{ strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual')) }}</td>
                                 <td>{{ $setting->va_expired_hours ?? 24 }} jam</td>
                                 <td><span class="badge bg-{{ $setting->is_active ? 'success' : 'secondary' }}">{{ $setting->is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editSettingModal{{ $setting->id }}">
+                                        Edit
+                                    </button>
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="text-center text-muted">Belum ada pengaturan SPP siswa.</td></tr>
+                            <tr><td colspan="6" class="text-center text-muted">Belum ada pengaturan SPP siswa.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -100,4 +106,72 @@
         </div>
     </div>
 </div>
+
+@foreach($settings as $setting)
+    <div class="modal fade" id="editSettingModal{{ $setting->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('spp-siswa.pengaturan.update', $setting) }}">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Pengaturan SPP Siswa</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            @if($userRole !== 'admin')
+                                <div class="col-12">
+                                    <label class="form-label">Madrasah</label>
+                                    <select name="madrasah_id" class="form-select" required>
+                                        @foreach($madrasahOptions as $madrasah)
+                                            <option value="{{ $madrasah->id }}" {{ (string) $setting->madrasah_id === (string) $madrasah->id ? 'selected' : '' }}>{{ $madrasah->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @else
+                                <input type="hidden" name="madrasah_id" value="{{ $setting->madrasah_id }}">
+                            @endif
+                            <div class="col-md-6">
+                                <label class="form-label">Tahun Ajaran</label>
+                                <input type="text" name="tahun_ajaran" class="form-control" value="{{ $setting->tahun_ajaran }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Provider Pembayaran</label>
+                                <select name="payment_provider" class="form-select" required>
+                                    @if($userRole === 'super_admin')
+                                        <option value="manual" @selected($setting->payment_provider === 'manual')>Manual</option>
+                                    @endif
+                                    <option value="bni_va" @selected($setting->payment_provider === 'bni_va')>BNI Virtual Account</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">VA Expired (jam)</label>
+                                <input type="number" min="1" max="720" name="va_expired_hours" class="form-control" value="{{ $setting->va_expired_hours ?? 24 }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Catatan</label>
+                                <textarea name="catatan" rows="3" class="form-control">{{ $setting->catatan }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Catatan Pembayaran</label>
+                                <textarea name="payment_notes" rows="3" class="form-control">{{ $setting->payment_notes }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_active" value="1" id="edit_is_active_{{ $setting->id }}" {{ $setting->is_active ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="edit_is_active_{{ $setting->id }}">Aktifkan pengaturan ini</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
 @endsection
