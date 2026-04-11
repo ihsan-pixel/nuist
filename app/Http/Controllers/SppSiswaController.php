@@ -159,7 +159,7 @@ class SppSiswaController extends Controller
             'kelas' => ['nullable', 'string', 'max:50'],
             'periode' => ['required', 'date_format:Y-m'],
             'jatuh_tempo' => ['required', 'date'],
-            'nominal' => ['nullable', 'numeric', 'min:0'],
+            'nominal' => ['required', 'numeric', 'min:0'],
             'denda' => ['nullable', 'numeric', 'min:0'],
             'status' => ['required', Rule::in(['belum_lunas', 'sebagian', 'lunas'])],
             'catatan' => ['nullable', 'string'],
@@ -175,15 +175,9 @@ class SppSiswaController extends Controller
                 ->firstOrFail();
         }
 
-        if (!$setting && !isset($validated['nominal'])) {
-            return back()->withErrors([
-                'nominal' => 'Nominal wajib diisi jika pengaturan tidak dipilih.',
-            ])->withInput();
-        }
-
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
-        $nominal = (float) ($validated['nominal'] ?? $setting?->nominal_spp ?? 0);
-        $denda = (float) ($validated['denda'] ?? $setting?->denda_harian ?? 0);
+        $nominal = (float) $validated['nominal'];
+        $denda = (float) ($validated['denda'] ?? 0);
 
         $students = $this->studentQuery((int) $validated['madrasah_id'])
             ->when(!empty($validated['jurusan']), fn ($query) => $query->where('jurusan', trim((string) $validated['jurusan'])))
@@ -375,9 +369,6 @@ class SppSiswaController extends Controller
         $validated = $request->validate([
             'madrasah_id' => $this->madrasahRules(),
             'tahun_ajaran' => ['required', 'string', 'max:20'],
-            'nominal_spp' => ['required', 'numeric', 'min:0'],
-            'tanggal_jatuh_tempo' => ['required', 'integer', 'between:1,31'],
-            'denda_harian' => ['nullable', 'numeric', 'min:0'],
             'payment_provider' => ['required', Rule::in(['manual', 'bni_va'])],
             'va_expired_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'is_active' => ['nullable', 'boolean'],
@@ -393,9 +384,6 @@ class SppSiswaController extends Controller
                 'tahun_ajaran' => $validated['tahun_ajaran'],
             ],
             [
-                'nominal_spp' => $validated['nominal_spp'],
-                'tanggal_jatuh_tempo' => $validated['tanggal_jatuh_tempo'],
-                'denda_harian' => $validated['denda_harian'] ?? 0,
                 'payment_provider' => $validated['payment_provider'],
                 'va_expired_hours' => $validated['va_expired_hours'] ?? 24,
                 'is_active' => $request->boolean('is_active', true),

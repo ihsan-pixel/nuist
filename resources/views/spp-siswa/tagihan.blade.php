@@ -152,7 +152,7 @@
                             <select name="setting_id" class="form-select">
                                 <option value="">Manual tanpa pengaturan</option>
                                 @foreach($settings as $setting)
-                                    <option value="{{ $setting->id }}">{{ $setting->tahun_ajaran }} - Rp {{ number_format($setting->nominal_spp, 0, ',', '.') }}</option>
+                                    <option value="{{ $setting->id }}">{{ $setting->tahun_ajaran }} - {{ strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual')) }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -235,7 +235,7 @@
                             <select name="setting_id" class="form-select">
                                 <option value="">Manual tanpa pengaturan</option>
                                 @foreach($settings as $setting)
-                                    <option value="{{ $setting->id }}">{{ $setting->tahun_ajaran }} - Rp {{ number_format($setting->nominal_spp, 0, ',', '.') }}</option>
+                                    <option value="{{ $setting->id }}">{{ $setting->tahun_ajaran }} - {{ strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual')) }}</option>
                                 @endforeach
                             </select>
                         </div>

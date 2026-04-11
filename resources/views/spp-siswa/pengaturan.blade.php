@@ -41,9 +41,6 @@
                             <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
                         @endif
                         <div class="col-md-6"><label class="form-label">Tahun Ajaran</label><input type="text" name="tahun_ajaran" class="form-control" placeholder="2025/2026" required></div>
-                        <div class="col-md-6"><label class="form-label">Tanggal Jatuh Tempo</label><input type="number" min="1" max="31" name="tanggal_jatuh_tempo" class="form-control" value="10" required></div>
-                        <div class="col-md-6"><label class="form-label">Nominal SPP</label><input type="number" min="0" name="nominal_spp" class="form-control" required></div>
-                        <div class="col-md-6"><label class="form-label">Denda Harian</label><input type="number" min="0" name="denda_harian" class="form-control" value="0"></div>
                         <div class="col-md-6">
                             <label class="form-label">Provider Pembayaran</label>
                             <select name="payment_provider" class="form-select" required>
@@ -76,10 +73,8 @@
                             <tr>
                                 <th>Madrasah</th>
                                 <th>Tahun Ajaran</th>
-                                <th>Nominal</th>
-                                <th>Jatuh Tempo</th>
-                                <th>Denda</th>
                                 <th>Provider</th>
+                                <th>VA Expired</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -88,14 +83,12 @@
                             <tr>
                                 <td>{{ $setting->madrasah->name ?? '-' }}</td>
                                 <td>{{ $setting->tahun_ajaran }}</td>
-                                <td>Rp {{ number_format($setting->nominal_spp, 0, ',', '.') }}</td>
-                                <td>Tanggal {{ $setting->tanggal_jatuh_tempo }}</td>
-                                <td>Rp {{ number_format($setting->denda_harian, 0, ',', '.') }}</td>
                                 <td>{{ strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual')) }}</td>
+                                <td>{{ $setting->va_expired_hours ?? 24 }} jam</td>
                                 <td><span class="badge bg-{{ $setting->is_active ? 'success' : 'secondary' }}">{{ $setting->is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="text-center text-muted">Belum ada pengaturan SPP siswa.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted">Belum ada pengaturan SPP siswa.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
