@@ -434,6 +434,17 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::delete('/yayasan/destroy/{id}', [App\Http\Controllers\YayasanController::class, 'destroy'])->name('yayasan.destroy');
 });
 
+Route::prefix('spp-siswa')->middleware(['auth', 'role:super_admin,admin,pengurus'])->name('spp-siswa.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\SppSiswaController::class, 'dashboard'])->name('dashboard');
+    Route::get('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'tagihan'])->name('tagihan');
+    Route::post('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'storeTagihan'])->name('tagihan.store');
+    Route::get('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'transaksi'])->name('transaksi');
+    Route::post('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'storeTransaksi'])->name('transaksi.store');
+    Route::get('/laporan', [App\Http\Controllers\SppSiswaController::class, 'laporan'])->name('laporan');
+    Route::get('/pengaturan', [App\Http\Controllers\SppSiswaController::class, 'pengaturan'])->name('pengaturan');
+    Route::post('/pengaturan', [App\Http\Controllers\SppSiswaController::class, 'storePengaturan'])->name('pengaturan.store');
+});
+
 Route::prefix('admin-masterdata')->middleware(['auth', 'role:super_admin,pengurus'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin_masterdata.admin.index');
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin_masterdata.admin.store');

@@ -49,6 +49,16 @@ class Siswa extends Authenticatable
         return $this->belongsTo(Madrasah::class);
     }
 
+    public function sppBills()
+    {
+        return $this->hasMany(SppSiswaBill::class);
+    }
+
+    public function sppTransactions()
+    {
+        return $this->hasMany(SppSiswaTransaction::class);
+    }
+
     public function setNamaLengkapAttribute($value): void
     {
         $this->attributes['nama_lengkap'] = Str::upper(trim((string) $value));
