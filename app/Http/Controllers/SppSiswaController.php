@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class SppSiswaController extends Controller
 {
@@ -48,6 +49,7 @@ class SppSiswaController extends Controller
         $scope = $this->resolveScope($request);
         $selectedMadrasahId = $scope['selectedMadrasahId'];
         $studentBaseQuery = $this->studentQuery($selectedMadrasahId);
+        $user = auth()->user();
 
         $bills = $this->billQuery($selectedMadrasahId)
             ->with(['siswa', 'madrasah', 'setting', 'transactions' => fn ($query) => $query->latest('id')])
@@ -74,7 +76,11 @@ class SppSiswaController extends Controller
             ->withQueryString();
 
         $students = (clone $studentBaseQuery)->orderBy('nama_lengkap')->get();
-        $settings = $this->settingQuery($selectedMadrasahId)->where('is_active', true)->orderByDesc('tahun_ajaran')->get();
+        $settings = $this->settingQuery($selectedMadrasahId)
+            ->where('is_active', true)
+            ->when($user->role === 'admin', fn ($query) => $query->where('payment_provider', 'bni_va'))
+            ->orderByDesc('tahun_ajaran')
+            ->get();
         $jurusanOptions = (clone $studentBaseQuery)
             ->select('jurusan')
             ->whereNotNull('jurusan')
@@ -88,6 +94,8 @@ class SppSiswaController extends Controller
             ->orderBy('kelas')
             ->pluck('kelas');
 
+        $hasActiveBniVaSetting = $this->hasActiveBniVaSettingForMadrasah($selectedMadrasahId);
+
         return view('spp-siswa.tagihan', [
             'madrasahOptions' => $scope['madrasahOptions'],
             'selectedMadrasahId' => $selectedMadrasahId,
@@ -96,7 +104,8 @@ class SppSiswaController extends Controller
             'settings' => $settings,
             'jurusanOptions' => $jurusanOptions,
             'kelasOptions' => $kelasOptions,
-            'userRole' => auth()->user()->role,
+            'userRole' => $user->role,
+            'hasActiveBniVaSetting' => $hasActiveBniVaSetting,
         ]);
     }
 
@@ -115,6 +124,7 @@ class SppSiswaController extends Controller
         ]);
 
         $this->ensureMadrasahAccess((int) $validated['madrasah_id']);
+        $this->ensureTagihanCreationAllowed((int) $validated['madrasah_id'], $validated['setting_id'] ?? null);
 
         $siswa = Siswa::query()
             ->whereKey($validated['siswa_id'])
@@ -166,6 +176,7 @@ class SppSiswaController extends Controller
         ]);
 
         $this->ensureMadrasahAccess((int) $validated['madrasah_id']);
+        $this->ensureTagihanCreationAllowed((int) $validated['madrasah_id'], $validated['setting_id'] ?? null);
 
         $setting = null;
         if (!empty($validated['setting_id'])) {
@@ -369,7 +380,7 @@ class SppSiswaController extends Controller
         $validated = $request->validate([
             'madrasah_id' => $this->madrasahRules(),
             'tahun_ajaran' => ['required', 'string', 'max:20'],
-            'payment_provider' => ['required', Rule::in(['manual', 'bni_va'])],
+            'payment_provider' => ['required', Rule::in($this->allowedPaymentProviders())],
             'va_expired_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'is_active' => ['nullable', 'boolean'],
             'catatan' => ['nullable', 'string'],
@@ -468,6 +479,60 @@ class SppSiswaController extends Controller
         $user = auth()->user();
 
         abort_if($user->role === 'admin' && (int) $user->madrasah_id !== $madrasahId, 403);
+    }
+
+    private function ensureTagihanCreationAllowed(int $madrasahId, ?int $settingId): void
+    {
+        $user = auth()->user();
+
+        if ($user->role !== 'admin') {
+            return;
+        }
+
+        if (!$this->hasActiveBniVaSettingForMadrasah($madrasahId)) {
+            throw ValidationException::withMessages([
+                'setting_id' => 'Admin hanya bisa membuat tagihan setelah tersedia pengaturan aktif dengan provider BNI Virtual Account.',
+            ]);
+        }
+
+        if (!$settingId) {
+            throw ValidationException::withMessages([
+                'setting_id' => 'Admin wajib memilih pengaturan aktif BNI Virtual Account saat membuat tagihan.',
+            ]);
+        }
+
+        $validSetting = SppSiswaSetting::query()
+            ->whereKey($settingId)
+            ->where('madrasah_id', $madrasahId)
+            ->where('is_active', true)
+            ->where('payment_provider', 'bni_va')
+            ->exists();
+
+        if (!$validSetting) {
+            throw ValidationException::withMessages([
+                'setting_id' => 'Pengaturan yang dipilih untuk admin harus menggunakan provider BNI Virtual Account.',
+            ]);
+        }
+    }
+
+    private function hasActiveBniVaSettingForMadrasah(?int $madrasahId): bool
+    {
+        if (!$madrasahId) {
+            return false;
+        }
+
+        return SppSiswaSetting::query()
+            ->where('madrasah_id', $madrasahId)
+            ->where('is_active', true)
+            ->where('payment_provider', 'bni_va')
+            ->exists();
+    }
+
+    private function allowedPaymentProviders(): array
+    {
+        return auth()->user()->role === 'super_admin'
+            ? ['manual', 'bni_va']
+            : ['bni_va'];
     }
 
     private function generateBillNumber(Siswa $siswa, Carbon $periode): string

@@ -44,7 +44,9 @@
                         <div class="col-md-6">
                             <label class="form-label">Provider Pembayaran</label>
                             <select name="payment_provider" class="form-select" required>
-                                <option value="manual">Manual</option>
+                                @if($userRole === 'super_admin')
+                                    <option value="manual">Manual</option>
+                                @endif
                                 <option value="bni_va">BNI Virtual Account</option>
                             </select>
                         </div>

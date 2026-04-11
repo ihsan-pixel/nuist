@@ -20,16 +20,22 @@
     </div>
 @endif
 
+@if($userRole === 'admin' && !$hasActiveBniVaSetting)
+    <div class="alert alert-warning">
+        Admin sekolah hanya dapat membuat tagihan setelah tersedia pengaturan aktif dengan provider `BNI Virtual Account`.
+    </div>
+@endif
+
 <div class="card mb-4">
     <div class="card-body">
-        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
             <div>
                 <h4 class="mb-1">Tagihan SPP Siswa</h4>
                 <p class="text-muted mb-0">Semua tagihan di halaman ini memakai tabel baru `spp_siswa_bills` dan relasi ke data siswa.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkTagihanModal"><i class="bx bx-layer-plus me-1"></i>Buat Tagihan Massal</button>
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTagihanModal"><i class="bx bx-plus me-1"></i>Buat Tagihan</button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkTagihanModal" {{ $userRole === 'admin' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-layer-plus me-1"></i>Buat Tagihan Massal</button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTagihanModal" {{ $userRole === 'admin' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-plus me-1"></i>Buat Tagihan</button>
             </div>
         </div>
     </div>
@@ -149,8 +155,10 @@
                         @endif
                         <div class="col-md-6">
                             <label class="form-label">Pengaturan</label>
-                            <select name="setting_id" class="form-select">
-                                <option value="">Manual tanpa pengaturan</option>
+                            <select name="setting_id" class="form-select" {{ $userRole === 'admin' ? 'required' : '' }}>
+                                @if($userRole !== 'admin')
+                                    <option value="">Manual tanpa pengaturan</option>
+                                @endif
                                 @foreach($settings as $setting)
                                     <option value="{{ $setting->id }}">{{ $setting->tahun_ajaran }} - {{ strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual')) }}</option>
                                 @endforeach
@@ -232,8 +240,10 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Pengaturan</label>
-                            <select name="setting_id" class="form-select">
-                                <option value="">Manual tanpa pengaturan</option>
+                            <select name="setting_id" class="form-select" {{ $userRole === 'admin' ? 'required' : '' }}>
+                                @if($userRole !== 'admin')
+                                    <option value="">Manual tanpa pengaturan</option>
+                                @endif
                                 @foreach($settings as $setting)
                                     <option value="{{ $setting->id }}">{{ $setting->tahun_ajaran }} - {{ strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual')) }}</option>
                                 @endforeach
