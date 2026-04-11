@@ -51,4 +51,13 @@ class SppSiswaBill extends Model
     {
         return $this->hasMany(SppSiswaTransaction::class, 'bill_id');
     }
+
+    public function getOutstandingAmountAttribute(): float
+    {
+        $verifiedAmount = (float) $this->transactions()
+            ->where('status_verifikasi', 'diverifikasi')
+            ->sum('nominal_bayar');
+
+        return max(0, (float) $this->total_tagihan - $verifiedAmount);
+    }
 }

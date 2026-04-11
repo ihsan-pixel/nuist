@@ -50,7 +50,7 @@ class SppSiswaController extends Controller
         $studentBaseQuery = $this->studentQuery($selectedMadrasahId);
 
         $bills = $this->billQuery($selectedMadrasahId)
-            ->with(['siswa', 'madrasah', 'setting'])
+            ->with(['siswa', 'madrasah', 'setting', 'transactions' => fn ($query) => $query->latest('id')])
             ->when($request->filled('kelas'), function ($query) use ($request) {
                 $query->whereHas('siswa', fn ($siswa) => $siswa->where('kelas', 'like', '%' . trim((string) $request->kelas) . '%'));
             })
@@ -378,8 +378,11 @@ class SppSiswaController extends Controller
             'nominal_spp' => ['required', 'numeric', 'min:0'],
             'tanggal_jatuh_tempo' => ['required', 'integer', 'between:1,31'],
             'denda_harian' => ['nullable', 'numeric', 'min:0'],
+            'payment_provider' => ['required', Rule::in(['manual', 'bni_va'])],
+            'va_expired_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'is_active' => ['nullable', 'boolean'],
             'catatan' => ['nullable', 'string'],
+            'payment_notes' => ['nullable', 'string'],
         ]);
 
         $this->ensureMadrasahAccess((int) $validated['madrasah_id']);
@@ -393,8 +396,11 @@ class SppSiswaController extends Controller
                 'nominal_spp' => $validated['nominal_spp'],
                 'tanggal_jatuh_tempo' => $validated['tanggal_jatuh_tempo'],
                 'denda_harian' => $validated['denda_harian'] ?? 0,
+                'payment_provider' => $validated['payment_provider'],
+                'va_expired_hours' => $validated['va_expired_hours'] ?? 24,
                 'is_active' => $request->boolean('is_active', true),
                 'catatan' => $validated['catatan'] ?? null,
+                'payment_notes' => $validated['payment_notes'] ?? null,
             ]
         );
 

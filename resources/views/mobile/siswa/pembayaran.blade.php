@@ -7,10 +7,18 @@
     @include('mobile.siswa.partials.styles')
     @include('mobile.siswa.partials.header', ['title' => 'Pembayaran', 'subtitle' => 'Instruksi dan kanal pembayaran'])
 
+    @if(session('success'))
+        <section class="section-card"><div class="list-item"><h6>Berhasil</h6><p>{{ session('success') }}</p></div></section>
+    @endif
+
+    @if($errors->has('bni_va'))
+        <section class="section-card"><div class="list-item"><h6>BNI VA</h6><p>{{ $errors->first('bni_va') }}</p></div></section>
+    @endif
+
     <section class="hero-card">
         <small>Pembayaran aktif</small>
         <h4>{{ $activeTagihan?->nomor_tagihan ?? 'Belum ada tagihan' }}</h4>
-        <p class="mb-0">Gunakan halaman ini untuk melihat nominal, metode pembayaran yang tersedia, dan akses cepat ke detail invoice.</p>
+        <p class="mb-0">Gunakan halaman ini untuk melihat nominal, membuat Virtual Account BNI, dan memantau status pembayaran tagihan siswa.</p>
     </section>
 
     <section class="section-card">
@@ -43,16 +51,46 @@
 
     <section class="section-card">
         <div class="section-title">
-            <h5>Metode pembayaran</h5>
+            <h5>BNI Virtual Account</h5>
         </div>
-        <div class="list-item">
-            <h6>Transfer / payment gateway</h6>
-            <p>Siapkan nomor invoice dan nominal sesuai tagihan. Integrasi pembayaran dapat diarahkan ke gateway sekolah atau verifikasi admin.</p>
-        </div>
-        <div class="list-item">
-            <h6>Konfirmasi manual ke admin</h6>
-            <p>Setelah transfer, kirim bukti pembayaran melalui admin sekolah agar status tagihan diperbarui lebih cepat.</p>
-        </div>
+        @if($activeTagihan && ($activeTagihan->setting->payment_provider ?? 'manual') === 'bni_va' && $bniVaEnabled)
+            @if($activeVaTransaction && $activeVaTransaction->va_number)
+                <div class="list-item">
+                    <h6>Nomor VA BNI</h6>
+                    <p style="font-size:1.15rem; font-weight:700; letter-spacing:1px;">{{ $activeVaTransaction->va_number }}</p>
+                    <small>Berlaku sampai {{ optional($activeVaTransaction->va_expired_at)->translatedFormat('d M Y H:i') ?? '-' }}</small>
+                </div>
+                <div class="list-item">
+                    <h6>Langkah pembayaran</h6>
+                    <p>Bayar sesuai nominal tagihan melalui ATM BNI, BNI Mobile Banking, atau teller dengan memasukkan nomor Virtual Account di atas.</p>
+                </div>
+            @else
+                <div class="list-item">
+                    <h6>Virtual Account belum dibuat</h6>
+                    <p>Tap tombol di bawah untuk menyiapkan nomor Virtual Account BNI untuk tagihan aktif Anda.</p>
+                </div>
+                <form method="POST" action="{{ route('mobile.siswa.generate-bni-va', $activeTagihan->id) }}">
+                    @csrf
+                    <button class="cta-btn" type="submit"><i class="bx bx-credit-card-front"></i>Buat Virtual Account BNI</button>
+                </form>
+            @endif
+        @elseif($activeTagihan && ($activeTagihan->setting->payment_provider ?? 'manual') === 'bni_va')
+            <div class="list-item">
+                <h6>BNI Virtual Account belum aktif</h6>
+                <p>Administrator belum mengaktifkan konfigurasi BNI Virtual Account pada aplikasi.</p>
+            </div>
+        @else
+            <div class="list-item">
+                <h6>Pembayaran manual</h6>
+                <p>Tagihan ini masih menggunakan mekanisme pembayaran manual. Hubungi admin sekolah untuk konfirmasi pembayaran.</p>
+            </div>
+        @endif
+        @if($activeTagihan?->setting?->payment_notes)
+            <div class="list-item">
+                <h6>Catatan pembayaran</h6>
+                <p>{{ $activeTagihan->setting->payment_notes }}</p>
+            </div>
+        @endif
         <a href="{{ route('mobile.siswa.chat') }}" class="ghost-btn">
             <i class="bx bx-message-square-detail"></i>Hubungi admin sekolah
         </a>

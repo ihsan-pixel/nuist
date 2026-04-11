@@ -41,6 +41,14 @@ class AppSettingsController extends Controller
             'midtrans_server_key' => $appSettings->midtrans_server_key,
             'midtrans_client_key' => $appSettings->midtrans_client_key,
             'midtrans_is_production' => $appSettings->midtrans_is_production,
+            'bni_va_enabled' => $appSettings->bni_va_enabled,
+            'bni_va_mock_mode' => $appSettings->bni_va_mock_mode,
+            'bni_va_api_url' => $appSettings->bni_va_api_url,
+            'bni_va_client_id' => $appSettings->bni_va_client_id,
+            'bni_va_client_secret' => $appSettings->bni_va_client_secret,
+            'bni_va_merchant_id' => $appSettings->bni_va_merchant_id,
+            'bni_va_prefix' => $appSettings->bni_va_prefix,
+            'bni_va_callback_token' => $appSettings->bni_va_callback_token,
             'max_upload_size' => ini_get('upload_max_filesize'),
             'memory_limit' => ini_get('memory_limit'),
         ];
@@ -71,6 +79,14 @@ class AppSettingsController extends Controller
             'midtrans_server_key' => 'nullable|string|max:255',
             'midtrans_client_key' => 'nullable|string|max:255',
             'midtrans_is_production' => 'boolean',
+            'bni_va_enabled' => 'boolean',
+            'bni_va_mock_mode' => 'boolean',
+            'bni_va_api_url' => 'nullable|string|max:255',
+            'bni_va_client_id' => 'nullable|string|max:255',
+            'bni_va_client_secret' => 'nullable|string|max:255',
+            'bni_va_merchant_id' => 'nullable|string|max:255',
+            'bni_va_prefix' => 'nullable|string|max:20',
+            'bni_va_callback_token' => 'nullable|string|max:255',
         ]);
 
         // Get or create app settings
@@ -101,6 +117,14 @@ class AppSettingsController extends Controller
             'midtrans_server_key' => $request->midtrans_server_key,
             'midtrans_client_key' => $request->midtrans_client_key,
             'midtrans_is_production' => $request->boolean('midtrans_is_production'),
+            'bni_va_enabled' => $request->boolean('bni_va_enabled'),
+            'bni_va_mock_mode' => $request->boolean('bni_va_mock_mode'),
+            'bni_va_api_url' => $request->bni_va_api_url,
+            'bni_va_client_id' => $request->bni_va_client_id,
+            'bni_va_client_secret' => $request->bni_va_client_secret,
+            'bni_va_merchant_id' => $request->bni_va_merchant_id,
+            'bni_va_prefix' => $request->bni_va_prefix,
+            'bni_va_callback_token' => $request->bni_va_callback_token,
         ]);
 
         // Update app name in cache for immediate effect

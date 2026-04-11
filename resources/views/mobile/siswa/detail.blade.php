@@ -62,12 +62,24 @@
                     <span>{{ $selectedPayment->metode_pembayaran ?? 'Metode belum tercatat' }}</span>
                     <a href="{{ route('mobile.siswa.bukti', $selectedPayment->id) }}" class="ghost-btn" style="width:auto; padding:8px 12px;">Bukti pembayaran</a>
                 </div>
+                @if($selectedPayment->payment_channel === 'bni_va' && $selectedPayment->va_number)
+                    <div class="meta-row mt-2">
+                        <span>VA BNI: {{ $selectedPayment->va_number }}</span>
+                        <span>{{ optional($selectedPayment->va_expired_at)->translatedFormat('d M Y H:i') ?? '-' }}</span>
+                    </div>
+                @endif
             </div>
         @else
             <div class="list-item">
                 <h6>Belum ada pembayaran</h6>
                 <p>Tagihan ini belum memiliki transaksi yang tercatat.</p>
             </div>
+            @if(($selectedTagihan->setting->payment_provider ?? 'manual') === 'bni_va')
+                <form method="POST" action="{{ route('mobile.siswa.generate-bni-va', $selectedTagihan->id) }}">
+                    @csrf
+                    <button class="cta-btn" type="submit"><i class="bx bx-credit-card-front"></i>Buat Virtual Account BNI</button>
+                </form>
+            @endif
         @endif
     </section>
 </div>

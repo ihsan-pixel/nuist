@@ -26,6 +26,14 @@
                 <strong>{{ strtoupper($selectedPayment->metode_pembayaran ?? '-') }}</strong>
             </div>
             <div class="detail-box">
+                <small>Channel</small>
+                <strong>{{ strtoupper($selectedPayment->payment_channel ?? '-') }}</strong>
+            </div>
+            <div class="detail-box">
+                <small>VA BNI</small>
+                <strong>{{ $selectedPayment->va_number ?? '-' }}</strong>
+            </div>
+            <div class="detail-box">
                 <small>Waktu bayar</small>
                 <strong>{{ optional($selectedPayment->tanggal_bayar)->translatedFormat('d M Y') ?? '-' }}</strong>
             </div>

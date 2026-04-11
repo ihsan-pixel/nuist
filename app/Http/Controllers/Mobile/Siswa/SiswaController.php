@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Mobile\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\AppSetting;
 use App\Models\Chat;
 use App\Models\Notification;
 use App\Models\Siswa;
 use App\Models\SppSiswaBill;
 use App\Models\SppSiswaTransaction;
 use App\Models\User;
+use App\Services\BniVirtualAccountService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -110,6 +112,29 @@ class SiswaController extends Controller
         return view('mobile.siswa.chat', $data);
     }
 
+    public function generateBniVa(int $tagihanId, BniVirtualAccountService $service)
+    {
+        $user = Auth::user();
+        $siswa = $this->resolveSiswaRecord($user);
+
+        abort_if(!$siswa, 404);
+
+        $bill = SppSiswaBill::query()
+            ->where('id', $tagihanId)
+            ->where('siswa_id', $siswa->id)
+            ->firstOrFail();
+
+        try {
+            $transaction = $service->createOrReuseForBill($bill, $user->id);
+
+            return redirect()->route('mobile.siswa.pembayaran')
+                ->with('success', 'Virtual Account BNI siap digunakan: ' . $transaction->va_number);
+        } catch (\Throwable $throwable) {
+            return redirect()->route('mobile.siswa.pembayaran')
+                ->withErrors(['bni_va' => $throwable->getMessage()]);
+        }
+    }
+
     public function sendChat(Request $request)
     {
         $request->validate([
@@ -160,6 +185,17 @@ class SiswaController extends Controller
             ?? $tagihans->firstWhere('status', 'sebagian')
             ?? $tagihans->first();
 
+        $activeVaTransaction = $activeTagihan
+            ? $payments
+                ->where('bill_id', $activeTagihan->id)
+                ->where('payment_channel', 'bni_va')
+                ->where('status_verifikasi', 'menunggu')
+                ->sortByDesc(function ($payment) {
+                    return optional($payment->va_expired_at)->timestamp ?? 0;
+                })
+                ->first()
+            : null;
+
         $lastPayment = $payments->first();
         $chartSummary = [
             'lunas' => $tagihans->where('status', 'lunas')->count(),
@@ -205,9 +241,11 @@ class SiswaController extends Controller
             'studentUser' => $user,
             'studentRecord' => $siswa,
             'studentSchool' => $siswa?->madrasah ?? $user->madrasah,
+            'bniVaEnabled' => AppSetting::getSettings()->bni_va_enabled,
             'tagihans' => $tagihans,
             'payments' => $payments,
             'activeTagihan' => $activeTagihan,
+            'activeVaTransaction' => $activeVaTransaction,
             'lastPayment' => $lastPayment,
             'chartSummary' => $chartSummary,
             'notifications' => $notifications,

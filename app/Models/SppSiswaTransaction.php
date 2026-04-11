@@ -16,17 +16,25 @@ class SppSiswaTransaction extends Model
         'siswa_id',
         'madrasah_id',
         'nomor_transaksi',
+        'external_order_id',
+        'external_transaction_id',
         'tanggal_bayar',
         'nominal_bayar',
         'metode_pembayaran',
+        'payment_channel',
+        'va_number',
+        'va_expired_at',
         'status_verifikasi',
         'keterangan',
+        'payment_payload',
         'created_by',
     ];
 
     protected $casts = [
         'tanggal_bayar' => 'date',
         'nominal_bayar' => 'decimal:2',
+        'va_expired_at' => 'datetime',
+        'payment_payload' => 'array',
     ];
 
     public function bill()

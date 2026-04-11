@@ -18,5 +18,6 @@ class VerifyCsrfToken extends Middleware
         // Mobile webview POST login often doesn't carry CSRF token from native webview
         // Exclude mobile login POST so Capacitor webviews can authenticate via form.
         'mobile/login',
+        'spp-siswa/bni-va/callback',
     ];
 }

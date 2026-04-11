@@ -45,6 +45,12 @@
                     <span>{{ optional($payment->tanggal_bayar)->translatedFormat('d M Y') ?? 'Belum dibayar' }}</span>
                     <strong>Rp {{ number_format($payment->nominal_bayar, 0, ',', '.') }}</strong>
                 </div>
+                @if($payment->payment_channel === 'bni_va' && $payment->va_number)
+                    <div class="meta-row">
+                        <span>VA BNI {{ $payment->va_number }}</span>
+                        <span>{{ optional($payment->va_expired_at)->translatedFormat('d M Y H:i') ?? '-' }}</span>
+                    </div>
+                @endif
                 <div class="meta-row">
                     <span class="pill {{ $payment->status_verifikasi === 'diverifikasi' ? 'pill-success' : ($payment->status_verifikasi === 'menunggu' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst($payment->status_verifikasi) }}</span>
                     <a href="{{ route('mobile.siswa.bukti', $payment->id) }}" class="ghost-btn" style="width:auto; padding:8px 12px;">Bukti</a>

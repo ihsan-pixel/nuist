@@ -379,6 +379,7 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
         Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
         Route::get('/tagihan', [SiswaController::class, 'tagihan'])->name('tagihan');
         Route::get('/pembayaran', [SiswaController::class, 'pembayaran'])->name('pembayaran');
+        Route::post('/tagihan/{tagihanId}/generate-bni-va', [SiswaController::class, 'generateBniVa'])->name('generate-bni-va');
         Route::get('/riwayat-pembayaran', [SiswaController::class, 'riwayat'])->name('riwayat');
         Route::get('/detail/{tagihanId}', [SiswaController::class, 'detail'])->name('detail');
         Route::get('/bukti-pembayaran/{paymentId}', [SiswaController::class, 'bukti'])->name('bukti');
@@ -439,6 +440,7 @@ Route::prefix('spp-siswa')->middleware(['auth', 'role:super_admin,admin,pengurus
     Route::get('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'tagihan'])->name('tagihan');
     Route::post('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'storeTagihan'])->name('tagihan.store');
     Route::post('/tagihan/bulk', [App\Http\Controllers\SppSiswaController::class, 'storeBulkTagihan'])->name('tagihan.bulk-store');
+    Route::post('/tagihan/{bill}/generate-bni-va', [App\Http\Controllers\SppSiswaPaymentController::class, 'generateBniVa'])->name('tagihan.generate-bni-va');
     Route::get('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'transaksi'])->name('transaksi');
     Route::post('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'storeTransaksi'])->name('transaksi.store');
     Route::get('/laporan', [App\Http\Controllers\SppSiswaController::class, 'laporan'])->name('laporan');
@@ -859,6 +861,7 @@ if (env('APP_DEBUG') === true) {
 
 // Midtrans Webhook Callback - TANPA AUTH & CSRF
 Route::post('/midtrans/callback', [App\Http\Controllers\PembayaranController::class, 'midtransCallback'])->name('midtrans.callback');
+Route::post('/spp-siswa/bni-va/callback', [App\Http\Controllers\SppSiswaPaymentController::class, 'callback'])->name('spp-siswa.bni-va.callback');
 
 // Pending Registration Routes - Super Admin Only
 Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')->group(function () {

@@ -39,7 +39,7 @@
         <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
             <div>
                 <h4 class="text-white mb-2"><i class="bx bx-wallet me-2"></i>Dashboard SPP Siswa</h4>
-                <p class="mb-0 text-white-50">Modul baru SPP siswa yang terhubung langsung ke data siswa dan terpisah dari tagihan/payment lama.</p>
+                <p class="mb-0 text-white-50">Modul baru SPP siswa yang terhubung langsung ke data siswa, terpisah dari tagihan lama, dan sudah disiapkan untuk alur pembayaran BNI Virtual Account.</p>
             </div>
             <form method="GET" class="row g-2 align-items-end" style="min-width: 280px;">
                 @if($userRole !== 'admin')

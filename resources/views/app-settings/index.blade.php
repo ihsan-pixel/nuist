@@ -380,6 +380,84 @@
                         </div>
                     </div>
 
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bx bx-buildings me-1"></i>
+                                Pengaturan BNI Virtual Account
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="bni_va_enabled" name="bni_va_enabled" value="1"
+                                           {{ old('bni_va_enabled', $settings['bni_va_enabled']) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="bni_va_enabled">
+                                        Aktifkan BNI Virtual Account
+                                    </label>
+                                </div>
+                                <div class="form-text">Digunakan untuk modul SPP Siswa dengan skema host-to-host langsung ke BNI.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="bni_va_mock_mode" name="bni_va_mock_mode" value="1"
+                                           {{ old('bni_va_mock_mode', $settings['bni_va_mock_mode']) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="bni_va_mock_mode">
+                                        Mock Mode
+                                    </label>
+                                </div>
+                                <div class="form-text">Aktifkan untuk pengujian internal sebelum endpoint resmi BNI tersedia.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bni_va_api_url" class="form-label">API URL BNI VA</label>
+                                <input type="text" class="form-control" id="bni_va_api_url" name="bni_va_api_url"
+                                       value="{{ old('bni_va_api_url', $settings['bni_va_api_url']) }}"
+                                       placeholder="https://...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bni_va_merchant_id" class="form-label">Merchant ID</label>
+                                <input type="text" class="form-control" id="bni_va_merchant_id" name="bni_va_merchant_id"
+                                       value="{{ old('bni_va_merchant_id', $settings['bni_va_merchant_id']) }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bni_va_client_id" class="form-label">Client ID</label>
+                                <input type="text" class="form-control" id="bni_va_client_id" name="bni_va_client_id"
+                                       value="{{ old('bni_va_client_id', $settings['bni_va_client_id']) }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bni_va_client_secret" class="form-label">Client Secret</label>
+                                <input type="text" class="form-control" id="bni_va_client_secret" name="bni_va_client_secret"
+                                       value="{{ old('bni_va_client_secret', $settings['bni_va_client_secret']) }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bni_va_prefix" class="form-label">Prefix VA Mock</label>
+                                <input type="text" class="form-control" id="bni_va_prefix" name="bni_va_prefix"
+                                       value="{{ old('bni_va_prefix', $settings['bni_va_prefix']) }}"
+                                       placeholder="9888">
+                                <div class="form-text">Dipakai untuk generator VA saat mock mode aktif.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bni_va_callback_token" class="form-label">Callback Token</label>
+                                <input type="text" class="form-control" id="bni_va_callback_token" name="bni_va_callback_token"
+                                       value="{{ old('bni_va_callback_token', $settings['bni_va_callback_token']) }}">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-end gap-2 mt-4">
                         <button type="button" class="btn btn-secondary" onclick="resetSettings()">
                             <i class="bx bx-refresh me-1"></i>

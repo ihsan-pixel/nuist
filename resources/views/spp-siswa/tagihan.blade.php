@@ -81,10 +81,12 @@
                         <th>Jatuh Tempo</th>
                         <th>Total</th>
                         <th>Status</th>
+                        <th>Virtual Account</th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($bills as $index => $bill)
+                    @php($latestVa = $bill->transactions->firstWhere('payment_channel', 'bni_va'))
                     <tr>
                         <td>{{ $bills->firstItem() + $index }}</td>
                         <td>{{ $bill->nomor_tagihan }}</td>
@@ -96,9 +98,23 @@
                         <td>{{ optional($bill->jatuh_tempo)->format('d M Y') }}</td>
                         <td>Rp {{ number_format($bill->total_tagihan, 0, ',', '.') }}</td>
                         <td><span class="badge bg-{{ $bill->status === 'lunas' ? 'success' : ($bill->status === 'sebagian' ? 'warning' : 'danger') }}">{{ ucfirst(str_replace('_', ' ', $bill->status)) }}</span></td>
+                        <td>
+                            @if(($bill->setting->payment_provider ?? 'manual') === 'bni_va' && $bill->status !== 'lunas')
+                                @if($latestVa && $latestVa->va_number)
+                                    <div class="fw-semibold">{{ $latestVa->va_number }}</div>
+                                    <small class="text-muted d-block">{{ optional($latestVa->va_expired_at)->format('d M Y H:i') ?? 'Belum ada expiry' }}</small>
+                                @endif
+                                <form method="POST" action="{{ route('spp-siswa.tagihan.generate-bni-va', $bill) }}" class="mt-2">
+                                    @csrf
+                                    <button class="btn btn-sm btn-outline-primary">{{ $latestVa ? 'Regenerate VA' : 'Buat VA BNI' }}</button>
+                                </form>
+                            @else
+                                <span class="text-muted">Manual</span>
+                            @endif
+                        </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-center text-muted">Belum ada tagihan SPP siswa.</td></tr>
+                    <tr><td colspan="8" class="text-center text-muted">Belum ada tagihan SPP siswa.</td></tr>
                 @endforelse
                 </tbody>
             </table>

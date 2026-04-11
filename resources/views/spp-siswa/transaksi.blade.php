@@ -74,6 +74,7 @@
                         <th>Tanggal Bayar</th>
                         <th>Nominal</th>
                         <th>Metode</th>
+                        <th>VA</th>
                         <th>Verifikasi</th>
                     </tr>
                 </thead>
@@ -90,10 +91,18 @@
                         <td>{{ optional($transaction->tanggal_bayar)->format('d M Y') }}</td>
                         <td>Rp {{ number_format($transaction->nominal_bayar, 0, ',', '.') }}</td>
                         <td>{{ $transaction->metode_pembayaran }}</td>
+                        <td>
+                            @if($transaction->payment_channel === 'bni_va')
+                                <div class="fw-semibold">{{ $transaction->va_number ?? '-' }}</div>
+                                <small class="text-muted">{{ optional($transaction->va_expired_at)->format('d M Y H:i') ?? 'Tanpa expiry' }}</small>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
                         <td><span class="badge bg-{{ $transaction->status_verifikasi === 'diverifikasi' ? 'success' : ($transaction->status_verifikasi === 'ditolak' ? 'danger' : 'warning') }}">{{ ucfirst($transaction->status_verifikasi) }}</span></td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="text-center text-muted">Belum ada transaksi SPP siswa.</td></tr>
+                    <tr><td colspan="9" class="text-center text-muted">Belum ada transaksi SPP siswa.</td></tr>
                 @endforelse
                 </tbody>
             </table>
@@ -124,7 +133,7 @@
                         </div>
                         <div class="col-md-3"><label class="form-label">Tanggal Bayar</label><input type="date" name="tanggal_bayar" class="form-control" required></div>
                         <div class="col-md-3"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal_bayar" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label">Metode Pembayaran</label><input type="text" name="metode_pembayaran" class="form-control" placeholder="Transfer, Cash, QRIS" required></div>
+                        <div class="col-md-4"><label class="form-label">Metode Pembayaran</label><input type="text" name="metode_pembayaran" class="form-control" placeholder="Transfer, Cash, QRIS, Virtual Account" required></div>
                         <div class="col-md-4">
                             <label class="form-label">Status Verifikasi</label>
                             <select name="status_verifikasi" class="form-select" required>
