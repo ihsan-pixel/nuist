@@ -26,7 +26,7 @@
             <h4 class="mb-1">Transaksi SPP Siswa</h4>
             <p class="text-muted mb-0">Pencatatan pembayaran SPP siswa baru yang terhubung ke tagihan SPP siswa.</p>
         </div>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTransactionModal"><i class="bx bx-plus me-1"></i>Tambah Transaksi</button>
+        {{-- <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTransactionModal"><i class="bx bx-plus me-1"></i>Tambah Transaksi</button> --}}
     </div>
 </div>
 
