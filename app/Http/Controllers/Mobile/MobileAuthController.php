@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
+use App\Services\SiswaMobileAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class MobileAuthController extends Controller
 {
     /**
      * Handle mobile form login for supported mobile roles.
      */
-    public function authenticate(Request $request)
+    public function authenticate(Request $request, SiswaMobileAuthService $siswaMobileAuthService)
     {
         $credentials = $request->validate([
             'email' => 'required|email',
@@ -19,9 +21,21 @@ class MobileAuthController extends Controller
         ]);
 
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
-            return redirect()->route('mobile.login')
-                ->withErrors(['email' => 'Email atau password salah'])
-                ->withInput($request->only('email'));
+            try {
+                $user = $siswaMobileAuthService->authenticate($credentials['email'], $credentials['password']);
+            } catch (ValidationException $exception) {
+                return redirect()->route('mobile.login')
+                    ->withErrors($exception->errors())
+                    ->withInput($request->only('email'));
+            }
+
+            if (!$user) {
+                return redirect()->route('mobile.login')
+                    ->withErrors(['email' => 'Email atau password salah'])
+                    ->withInput($request->only('email'));
+            }
+
+            Auth::login($user, $request->boolean('remember'));
         }
 
         $request->session()->regenerate();

@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Services\SiswaMobileAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -14,7 +15,7 @@ class AuthController extends Controller
      * Mobile login: issue a personal access token for the user.
      * Expected payload: { email, password }
      */
-    public function login(Request $request)
+    public function login(Request $request, SiswaMobileAuthService $siswaMobileAuthService)
     {
         $data = $request->validate([
             'email' => 'required|email',
@@ -22,7 +23,20 @@ class AuthController extends Controller
         ]);
 
         if (!Auth::attempt($data)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            try {
+                $user = $siswaMobileAuthService->authenticate($data['email'], $data['password']);
+            } catch (ValidationException $exception) {
+                return response()->json([
+                    'message' => $exception->errors()['email'][0] ?? 'Login gagal',
+                    'errors' => $exception->errors(),
+                ], 422);
+            }
+
+            if (!$user) {
+                return response()->json(['message' => 'Invalid credentials'], 401);
+            }
+
+            Auth::login($user);
         }
 
         /** @var \App\Models\User $user */
