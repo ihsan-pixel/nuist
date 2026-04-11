@@ -192,8 +192,7 @@
                         </div>
                         <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" placeholder="Isi jika tidak pakai pengaturan"></div>
-                        <div class="col-md-4"><label class="form-label">Denda</label><input type="number" min="0" name="denda" class="form-control" value="0"></div>
+                        <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" placeholder="Isi nominal tagihan" required></div>
                         <div class="col-md-4">
                             <label class="form-label">Status</label>
                             <select name="status" class="form-select" required>
@@ -257,11 +256,10 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
-                        <div class="col-md-3"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
+                        <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
+                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label">Denda</label><input type="number" min="0" name="denda" class="form-control" value="0"></div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Status</label>
                             <select name="status" class="form-select" required>
                                 <option value="belum_lunas">Belum Lunas</option>
@@ -269,7 +267,7 @@
                                 <option value="lunas">Lunas</option>
                             </select>
                         </div>
-                        <div class="col-12"><label class="form-label">Catatan</label><textarea name="catatan" class="form-control" rows="3"></textarea></div>
+                        <div class="col-md-6"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control"></div>
                     </div>
                 </div>
                 <div class="modal-footer">

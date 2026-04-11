@@ -33,10 +33,6 @@
                 <strong>Rp {{ number_format($selectedTagihan->nominal, 0, ',', '.') }}</strong>
             </div>
             <div class="detail-box">
-                <small>Denda</small>
-                <strong>Rp {{ number_format($selectedTagihan->denda, 0, ',', '.') }}</strong>
-            </div>
-            <div class="detail-box">
                 <small>Total tagihan</small>
                 <strong>Rp {{ number_format($selectedTagihan->total_tagihan, 0, ',', '.') }}</strong>
             </div>
