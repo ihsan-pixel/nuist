@@ -24,6 +24,7 @@ class Siswa extends Authenticatable
         'no_hp',
         'no_hp_orang_tua_wali',
         'kelas',
+        'jurusan',
         'nama_madrasah',
         'alamat',
         'password',
@@ -81,6 +82,11 @@ class Siswa extends Authenticatable
     public function setKelasAttribute($value): void
     {
         $this->attributes['kelas'] = Str::upper(trim((string) $value));
+    }
+
+    public function setJurusanAttribute($value): void
+    {
+        $this->attributes['jurusan'] = Str::upper(trim((string) $value));
     }
 
     public function setNamaMadrasahAttribute($value): void

@@ -34,6 +34,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 'no_hp_siswa',
                 'no_hp_orang_tua_wali',
                 'kelas',
+                'jurusan',
                 'alamat',
             ];
 
@@ -63,6 +64,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 'no_hp' => trim((string) $row['no_hp_siswa']),
                 'no_hp_orang_tua_wali' => trim((string) $row['no_hp_orang_tua_wali']),
                 'kelas' => trim((string) $row['kelas']),
+                'jurusan' => trim((string) $row['jurusan']),
                 'nama_madrasah' => $madrasah->name,
                 'alamat' => trim((string) $row['alamat']),
                 'is_active' => true,

@@ -16,6 +16,10 @@
         <input type="text" name="kelas" class="form-control" value="{{ old('kelas', $siswa->kelas ?? '') }}" required>
     </div>
     <div class="col-md-6">
+        <label class="form-label">Jurusan</label>
+        <input type="text" name="jurusan" class="form-control" value="{{ old('jurusan', $siswa->jurusan ?? '') }}" required>
+    </div>
+    <div class="col-md-6">
         <label class="form-label">Email Siswa</label>
         <input type="email" name="email" class="form-control" value="{{ old('email', $siswa->email ?? '') }}" required>
     </div>

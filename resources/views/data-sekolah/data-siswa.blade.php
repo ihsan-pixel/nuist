@@ -180,7 +180,11 @@
                     <label for="kelas" class="form-label">Kelas</label>
                     <input type="text" name="kelas" id="kelas" class="form-control" value="{{ request('kelas') }}" placeholder="Contoh: X IPA 1">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label for="jurusan" class="form-label">Jurusan</label>
+                    <input type="text" name="jurusan" id="jurusan" class="form-control" value="{{ request('jurusan') }}" placeholder="Contoh: IPA">
+                </div>
+                <div class="col-md-2">
                     <label for="q" class="form-label">Pencarian</label>
                     <input type="text" name="q" id="q" class="form-control" value="{{ request('q') }}" placeholder="Cari NIS, nama, email, wali">
                 </div>
@@ -209,6 +213,7 @@
                         <th>NIS</th>
                         <th>Nama Siswa</th>
                         <th>Kelas</th>
+                        <th>Jurusan</th>
                         <th>Madrasah</th>
                         <th>Email Siswa</th>
                         <th>Orang Tua/Wali</th>
@@ -226,6 +231,7 @@
                                 <small class="text-muted">{{ $siswa->no_hp }}</small>
                             </td>
                             <td>{{ $siswa->kelas }}</td>
+                            <td>{{ $siswa->jurusan }}</td>
                             <td>{{ $siswa->nama_madrasah }}</td>
                             <td>
                                 <div>{{ $siswa->email }}</div>
@@ -257,6 +263,7 @@
                                         data-no_hp="{{ $siswa->no_hp }}"
                                         data-no_hp_orang_tua_wali="{{ $siswa->no_hp_orang_tua_wali }}"
                                         data-kelas="{{ $siswa->kelas }}"
+                                        data-jurusan="{{ $siswa->jurusan }}"
                                         data-alamat="{{ $siswa->alamat }}"
                                         data-is_active="{{ $siswa->is_active ? 1 : 0 }}"
                                     >
@@ -274,7 +281,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-4">Belum ada data siswa.</td>
+                            <td colspan="10" class="text-center text-muted py-4">Belum ada data siswa.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -398,6 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
         form.querySelector('[name="no_hp"]').value = button.getAttribute('data-no_hp');
         form.querySelector('[name="no_hp_orang_tua_wali"]').value = button.getAttribute('data-no_hp_orang_tua_wali');
         form.querySelector('[name="kelas"]').value = button.getAttribute('data-kelas');
+        form.querySelector('[name="jurusan"]').value = button.getAttribute('data-jurusan');
         form.querySelector('[name="alamat"]').value = button.getAttribute('data-alamat');
         form.querySelector('[name="is_active"]').checked = button.getAttribute('data-is_active') === '1';
     });

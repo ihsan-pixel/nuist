@@ -36,6 +36,10 @@ class DataSiswaController extends Controller
             $query->where('kelas', 'like', '%' . trim((string) $request->kelas) . '%');
         }
 
+        if ($request->filled('jurusan')) {
+            $query->where('jurusan', 'like', '%' . trim((string) $request->jurusan) . '%');
+        }
+
         if ($request->filled('q')) {
             $keyword = trim((string) $request->q);
             $query->where(function ($builder) use ($keyword) {
@@ -85,6 +89,7 @@ class DataSiswaController extends Controller
             'no_hp' => $validated['no_hp'],
             'no_hp_orang_tua_wali' => $validated['no_hp_orang_tua_wali'],
             'kelas' => $validated['kelas'],
+            'jurusan' => $validated['jurusan'],
             'nama_madrasah' => $madrasah->name,
             'alamat' => $validated['alamat'],
             'password' => Hash::make($validated['nis']),
@@ -112,6 +117,7 @@ class DataSiswaController extends Controller
             'no_hp' => $validated['no_hp'],
             'no_hp_orang_tua_wali' => $validated['no_hp_orang_tua_wali'],
             'kelas' => $validated['kelas'],
+            'jurusan' => $validated['jurusan'],
             'nama_madrasah' => $madrasah->name,
             'alamat' => $validated['alamat'],
             'is_active' => $request->boolean('is_active'),
@@ -185,6 +191,7 @@ class DataSiswaController extends Controller
             'no_hp' => ['required', 'string', 'max:25'],
             'no_hp_orang_tua_wali' => ['required', 'string', 'max:25'],
             'kelas' => ['required', 'string', 'max:50'],
+            'jurusan' => ['required', 'string', 'max:100'],
             'alamat' => ['required', 'string'],
         ]);
     }
