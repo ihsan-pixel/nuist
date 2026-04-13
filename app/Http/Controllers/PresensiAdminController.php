@@ -1413,6 +1413,7 @@ class PresensiAdminController extends Controller
 
         $usersQuery = User::query()
             ->where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id')
             ->with(['madrasah.yayasan']);
 
         if (!in_array($user->role, ['super_admin', 'pengurus']) && $user->madrasah_id) {
@@ -1438,7 +1439,6 @@ class PresensiAdminController extends Controller
                 return [
                     'name' => $teacher->name,
                     'madrasah' => $teacher->madrasah->name ?? '-',
-                    'yayasan' => $teacher->madrasah->yayasan->name ?? '-',
                     'periode' => $monthStarts
                         ->map(fn ($month) => $month->locale('id')->translatedFormat('F Y'))
                         ->implode(', '),
