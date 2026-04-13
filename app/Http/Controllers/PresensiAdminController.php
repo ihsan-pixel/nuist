@@ -201,6 +201,7 @@ class PresensiAdminController extends Controller
 
         // Get selected date or default to today
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+        $threeMonthAbsenceData = $this->getThreeMonthAbsenceData($selectedDate, $user);
 
         // Calculate summary metrics
         $summary = $this->calculatePresensiSummary($selectedDate, $user);
@@ -250,7 +251,7 @@ class PresensiAdminController extends Controller
             }
             }
 
-            return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary'));
+            return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData'));
         } elseif ($user->role === 'admin' && $user->madrasah_id) {
             // For admin, redirect to their madrasah detail page
             return redirect()->route('presensi_admin.show_detail', $user->madrasah_id)->withInput(['date' => $selectedDate->format('Y-m-d')]);
@@ -286,7 +287,7 @@ class PresensiAdminController extends Controller
                 $q->whereDate('tanggal', $selectedDate);
             })->with('madrasah')->get();
 
-            return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate', 'summary'));
+            return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData'));
         }
     }
 
@@ -1400,5 +1401,54 @@ class PresensiAdminController extends Controller
         }
 
         return $summary;
+    }
+
+    private function getThreeMonthAbsenceData(Carbon $selectedDate, $user): array
+    {
+        $monthStarts = collect([
+            $selectedDate->copy()->startOfMonth()->subMonths(2),
+            $selectedDate->copy()->startOfMonth()->subMonth(),
+            $selectedDate->copy()->startOfMonth(),
+        ]);
+
+        $usersQuery = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->with(['madrasah.yayasan']);
+
+        if (!in_array($user->role, ['super_admin', 'pengurus']) && $user->madrasah_id) {
+            $usersQuery->where('madrasah_id', $user->madrasah_id);
+        }
+
+        foreach ($monthStarts as $monthStart) {
+            $monthEnd = $monthStart->copy()->endOfMonth();
+
+            $usersQuery->whereDoesntHave('presensis', function ($query) use ($monthStart, $monthEnd) {
+                $query->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                    ->where(function ($subQuery) {
+                        $subQuery->whereIn('status', ['hadir', 'terlambat'])
+                            ->orWhereNotNull('waktu_masuk');
+                    });
+            });
+        }
+
+        $users = $usersQuery
+            ->orderBy('name')
+            ->get()
+            ->map(function ($teacher) use ($monthStarts) {
+                return [
+                    'name' => $teacher->name,
+                    'madrasah' => $teacher->madrasah->name ?? '-',
+                    'yayasan' => $teacher->madrasah->yayasan->name ?? '-',
+                    'periode' => $monthStarts
+                        ->map(fn ($month) => $month->locale('id')->translatedFormat('F Y'))
+                        ->implode(', '),
+                ];
+            });
+
+        return [
+            'rows' => $users,
+            'label' => $monthStarts->first()->locale('id')->translatedFormat('F Y') . ' - ' .
+                $monthStarts->last()->locale('id')->translatedFormat('F Y'),
+        ];
     }
 }

@@ -1175,7 +1175,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-{{ in_array($user->role, ['super_admin', 'pengurus']) ? 3 : 2 }}
+                                    <td colspan="{{ in_array($user->role, ['super_admin', 'pengurus']) ? 3 : 2 }}" class="text-center p-4">
                                         <div class="alert alert-info d-inline-block text-center" role="alert">
                                             <i class="bx bx-info-circle bx-lg me-2"></i>
                                             <strong>Semua tenaga pendidik sudah melakukan presensi pada tanggal ini</strong><br>
@@ -1192,6 +1192,56 @@
         </div>
     </div>
 @endif
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h4 class="card-title mb-1">
+                        <i class="bx bx-time-five me-2"></i>Tenaga Pendidik Tidak Presensi 3 Bulan Berturut-turut
+                    </h4>
+                    <p class="text-muted mb-0">Periode {{ $threeMonthAbsenceData['label'] }}</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="datatable-three-month-absence" class="table table-bordered dt-responsive nowrap w-100">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama User</th>
+                                <th>Asal Sekolah</th>
+                                <th>Yayasan</th>
+                                <th>Periode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($threeMonthAbsenceData['rows'] as $teacher)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $teacher['name'] }}</td>
+                                    <td>{{ $teacher['madrasah'] }}</td>
+                                    <td>{{ $teacher['yayasan'] }}</td>
+                                    <td>{{ $teacher['periode'] }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center p-4">
+                                        <div class="alert alert-info d-inline-block text-center" role="alert">
+                                            <i class="bx bx-info-circle bx-lg me-2"></i>
+                                            <strong>Tidak ada tenaga pendidik yang memenuhi kriteria</strong><br>
+                                            <small>Semua tenaga pendidik masih memiliki presensi hadir/terlambat dalam periode 3 bulan terakhir.</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -1227,6 +1277,19 @@ $(document).ready(function () {
     table.buttons().container()
         .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
     @endif
+
+    let threeMonthAbsenceTable = $("#datatable-three-month-absence");
+    if (threeMonthAbsenceTable.length) {
+        let absenceTable = threeMonthAbsenceTable.DataTable({
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            buttons: ["copy", "excel", "pdf", "print", "colvis"]
+        });
+
+        absenceTable.buttons().container()
+            .appendTo('#datatable-three-month-absence_wrapper .col-md-6:eq(0)');
+    }
 
     // Replace alert notifications with SweetAlert2
     @if(session('success'))
@@ -1666,4 +1729,3 @@ $(document).ready(function () {
 
 </script>
 @endsection
-
