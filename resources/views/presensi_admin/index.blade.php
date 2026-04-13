@@ -1209,6 +1209,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>No</th>
+                                <th>SCOD</th>
                                 <th>Nama User</th>
                                 <th>Asal Sekolah</th>
                                 <th>Periode</th>
@@ -1218,13 +1219,14 @@
                             @forelse ($threeMonthAbsenceData['rows'] as $teacher)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $teacher['scod'] }}</td>
                                     <td>{{ $teacher['name'] }}</td>
                                     <td>{{ $teacher['madrasah'] }}</td>
                                     <td>{{ $teacher['periode'] }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center p-4">
+                                    <td colspan="5" class="text-center p-4">
                                         <div class="alert alert-info d-inline-block text-center" role="alert">
                                             <i class="bx bx-info-circle bx-lg me-2"></i>
                                             <strong>Tidak ada tenaga pendidik yang memenuhi kriteria</strong><br>

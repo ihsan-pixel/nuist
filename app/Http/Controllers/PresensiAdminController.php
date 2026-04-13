@@ -1433,10 +1433,14 @@ class PresensiAdminController extends Controller
         }
 
         $users = $usersQuery
-            ->orderBy('name')
+            ->join('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
+            ->orderByRaw("CAST(madrasahs.scod AS UNSIGNED) ASC")
+            ->orderBy('users.name')
+            ->select('users.*')
             ->get()
             ->map(function ($teacher) use ($monthStarts) {
                 return [
+                    'scod' => $teacher->madrasah->scod ?? '-',
                     'name' => $teacher->name,
                     'madrasah' => $teacher->madrasah->name ?? '-',
                     'periode' => $monthStarts
