@@ -778,7 +778,7 @@
                             Excel
                         </button>
                         <button class="btn btn-danger btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#pdfExportModal">
-                            PDF
+                            PDF Persentase
                         </button>
                         <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
                                value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
@@ -1343,7 +1343,7 @@
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="pdfExportModalLabel">
-                    <i class="mdi mdi-file-pdf"></i> Export PDF Data Presensi
+                    <i class="mdi mdi-file-pdf"></i> Export PDF Persentase Presensi Tenaga Pendidik
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -1360,13 +1360,13 @@
                 <div class="mb-3" id="pdf-week-wrapper" style="{{ $summaryPeriod === 'week' ? '' : 'display:none;' }}">
                     <label class="form-label">Pilih Minggu</label>
                     <input type="week" class="form-control" id="pdf-week-input" value="{{ $selectedWeek->format('o-\\WW') }}">
-                    <small class="form-text text-muted">Export PDF akan mengikuti rekap mingguan yang dipilih</small>
+                    <small class="form-text text-muted">PDF ini untuk tabel persentase presensi mingguan.</small>
                 </div>
 
                 <div class="mb-3" id="pdf-month-wrapper" style="{{ $summaryPeriod === 'month' ? '' : 'display:none;' }}">
                     <label class="form-label">Pilih Bulan</label>
                     <input type="month" class="form-control" id="pdf-month-input" value="{{ $selectedMonth->format('Y-m') }}">
-                    <small class="form-text text-muted">Export PDF akan mengikuti rekap bulanan yang dipilih</small>
+                    <small class="form-text text-muted">PDF ini untuk tabel persentase presensi bulanan.</small>
                 </div>
             </div>
 
@@ -1588,7 +1588,7 @@ $('#download-pdf-btn').on('click', function() {
         summary_period: summaryPeriod,
         week: weekValue,
         month: monthValue,
-        search: @json($search),
+        search: @json($search)
     });
 
     var url = '{{ route('presensi_admin.export_summary_pdf', $madrasah->id) }}' + '?' + params.toString();

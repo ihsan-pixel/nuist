@@ -644,7 +644,7 @@ class PresensiAdminController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        if ($user->role === 'admin' && (int) $user->madrasah_id !== (int) $madrasahId) {
+        if ($user->role === 'admin' && $user->madrasah_id != $madrasahId) {
             abort(403, 'Unauthorized');
         }
 
@@ -717,16 +717,14 @@ class PresensiAdminController extends Controller
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.presensi-persentase-summary', [
             'madrasah' => $madrasah,
             'summaryLabel' => $summaryLabel,
-            'summaryPeriod' => $summaryPeriod,
             'summaryStartDate' => $summaryStartDate,
-            'summaryEndDate' => $summaryEndDate,
             'effectiveEndDate' => $effectiveEndDate,
             'attendancePercentageRows' => $attendancePercentageRows,
             'search' => $search,
             'generatedAt' => Carbon::now('Asia/Jakarta'),
         ])->setPaper('A4', 'landscape');
 
-        $filename = 'Rekap_Persentase_Presensi_' . $madrasah->name . '_' . $summaryPeriod . '_' . $summaryStartDate->format('Ymd') . '.pdf';
+        $filename = 'Persentase_Presensi_' . $madrasah->name . '_' . $summaryPeriod . '_' . $summaryStartDate->format('Ymd') . '.pdf';
 
         return $pdf->download($filename);
     }
