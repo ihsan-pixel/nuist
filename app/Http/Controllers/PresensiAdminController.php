@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Holiday;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -511,9 +512,18 @@ class PresensiAdminController extends Controller
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
         $search = $request->input('search', '');
-    $page = $request->input('page', 1);
-    // Show all rows on a single page by setting perPage to the total matched records
-    // This preserves the Paginator API used in the view (firstItem(), total(), etc.)
+        $page = $request->input('page', 1);
+        $summaryPeriod = $request->input('summary_period', 'week') === 'month' ? 'month' : 'week';
+        $today = Carbon::today('Asia/Jakarta');
+        $selectedWeek = $request->filled('week') && preg_match('/^\d{4}-W\d{2}$/', $request->week)
+            ? Carbon::now('Asia/Jakarta')->setISODate(
+                (int) substr($request->week, 0, 4),
+                (int) substr($request->week, 6, 2)
+            )->startOfWeek(Carbon::MONDAY)
+            : $today->copy()->startOfWeek(Carbon::MONDAY);
+        $selectedMonth = $request->filled('month')
+            ? Carbon::createFromFormat('Y-m', $request->month, 'Asia/Jakarta')->startOfMonth()
+            : $today->copy()->startOfMonth();
 
         $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
 
@@ -533,12 +543,12 @@ class PresensiAdminController extends Controller
             });
         }
 
-    // Calculate total matched records and paginate them all on one page so the view shows everything
-    $totalMatched = $query->count();
-    $perPage = $totalMatched > 0 ? $totalMatched : 1;
+        // Calculate total matched records and paginate them all on one page so the view shows everything
+        $totalMatched = $query->count();
+        $perPage = $totalMatched > 0 ? $totalMatched : 1;
 
-    // Get paginated results (all rows in one page)
-    $tenagaPendidik = $query->paginate($perPage, ['*'], 'page', $page);
+        // Get paginated results (all rows in one page)
+        $tenagaPendidik = $query->paginate($perPage, ['*'], 'page', $page);
 
         $tenagaPendidikData = $tenagaPendidik->map(function($tp) {
             $presensi = $tp->presensis->first();
@@ -564,6 +574,45 @@ class PresensiAdminController extends Controller
             ];
         });
 
+        $summaryStartDate = $summaryPeriod === 'month'
+            ? $selectedMonth->copy()->startOfMonth()
+            : $selectedWeek->copy()->startOfWeek(Carbon::MONDAY);
+        $summaryEndDate = $summaryPeriod === 'month'
+            ? $selectedMonth->copy()->endOfMonth()
+            : $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY);
+        $summaryLabel = $summaryPeriod === 'month'
+            ? 'Bulanan'
+            : 'Mingguan';
+
+        $attendancePercentageRows = $tenagaPendidik->getCollection()
+            ->map(function ($tp) use ($madrasah, $summaryStartDate, $summaryEndDate, $today) {
+                $summary = $this->buildTeacherAttendanceSummary(
+                    $tp->id,
+                    $madrasah->hari_kbm,
+                    $summaryStartDate,
+                    $summaryEndDate,
+                    $today
+                );
+
+                return [
+                    'id' => $tp->id,
+                    'nama' => $tp->name,
+                    'nip' => $tp->nip,
+                    'nuptk' => $tp->nuptk,
+                    'status_kepegawaian' => $tp->statusKepegawaian?->name ?? '-',
+                    'total_hari_kerja' => $summary['total_hari_kerja'],
+                    'total_hadir' => $summary['total_hadir'],
+                    'total_izin' => $summary['total_izin'],
+                    'total_belum_hadir' => $summary['total_belum_hadir'],
+                    'persentase_kehadiran' => $summary['persentase_kehadiran'],
+                ];
+            })
+            ->sortBy([
+                ['persentase_kehadiran', 'desc'],
+                ['nama', 'asc'],
+            ])
+            ->values();
+
         $bulanTersedia = DB::table('presensis')
             ->join('users', 'presensis.user_id', '=', 'users.id')
             ->selectRaw("MONTH(presensis.tanggal) AS bulan, DATE_FORMAT(presensis.tanggal, '%M %Y') AS nama_bulan")
@@ -581,7 +630,10 @@ class PresensiAdminController extends Controller
 
         return view('presensi_admin.detail', compact(
             'madrasah', 'tenagaPendidik', 'tenagaPendidikData',
-            'selectedDate', 'user', 'search', 'bulanTersedia'
+            'selectedDate', 'user', 'search', 'bulanTersedia',
+            'summaryPeriod', 'selectedWeek', 'selectedMonth',
+            'summaryLabel', 'summaryStartDate', 'summaryEndDate',
+            'attendancePercentageRows'
         ));
     }
 
@@ -1454,5 +1506,77 @@ class PresensiAdminController extends Controller
             'label' => $monthStarts->first()->locale('id')->translatedFormat('F Y') . ' - ' .
                 $monthStarts->last()->locale('id')->translatedFormat('F Y'),
         ];
+    }
+
+    private function buildTeacherAttendanceSummary(
+        int $userId,
+        ?string $hariKbm,
+        Carbon $startDate,
+        Carbon $endDate,
+        Carbon $today
+    ): array {
+        $effectiveEndDate = $endDate->copy()->min($today);
+
+        if ($effectiveEndDate->lt($startDate)) {
+            return [
+                'total_hari_kerja' => 0,
+                'total_hadir' => 0,
+                'total_izin' => 0,
+                'total_belum_hadir' => 0,
+                'persentase_kehadiran' => 0,
+            ];
+        }
+
+        $presensiByDate = Presensi::query()
+            ->where('user_id', $userId)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+            ->orderBy('tanggal')
+            ->get()
+            ->groupBy(fn ($item) => $item->tanggal->toDateString());
+
+        $totalHariKerja = 0;
+        $totalHadir = 0;
+        $totalIzinApproved = 0;
+
+        foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
+            if (!$this->isAttendanceWorkingDay($date, $hariKbm)) {
+                continue;
+            }
+
+            $records = $presensiByDate->get($date->toDateString(), collect());
+            $isHadir = $records->whereIn('status', ['hadir', 'terlambat'])->isNotEmpty();
+            $isIzinApproved = !$isHadir
+                && $records->where('status', 'izin')->where('status_izin', 'approved')->isNotEmpty();
+
+            $totalHariKerja++;
+            if ($isHadir) {
+                $totalHadir++;
+            } elseif ($isIzinApproved) {
+                $totalIzinApproved++;
+            }
+        }
+
+        $totalDasarPersentase = max($totalHariKerja - $totalIzinApproved, 0);
+
+        return [
+            'total_hari_kerja' => $totalHariKerja,
+            'total_hadir' => $totalHadir,
+            'total_izin' => $totalIzinApproved,
+            'total_belum_hadir' => max($totalHariKerja - $totalHadir - $totalIzinApproved, 0),
+            'persentase_kehadiran' => $totalDasarPersentase > 0 ? round(($totalHadir / $totalDasarPersentase) * 100, 1) : 0,
+        ];
+    }
+
+    private function isAttendanceWorkingDay(Carbon $date, ?string $hariKbm): bool
+    {
+        if ($date->isSunday() || Holiday::isHoliday($date->toDateString())) {
+            return false;
+        }
+
+        if ((string) $hariKbm === '5' && $date->isSaturday()) {
+            return false;
+        }
+
+        return true;
     }
 }
