@@ -14,6 +14,74 @@ use App\Models\Holiday;
 
 class DashboardController extends \App\Http\Controllers\Controller
 {
+    private function calculateMonthlyAttendanceStats(User $user, int $currentYear, int $currentMonth): array
+    {
+        $hariKbm = $user->madrasah->hari_kbm ?? 6;
+        $monthlyHolidays = Holiday::whereYear('date', $currentYear)
+            ->whereMonth('date', $currentMonth)
+            ->where('is_active', true)
+            ->pluck('date')
+            ->map(function ($date) {
+                return $date->toDateString();
+            })
+            ->toArray();
+
+        $monthlyPresensi = Presensi::where('user_id', $user->id)
+            ->whereYear('tanggal', $currentYear)
+            ->whereMonth('tanggal', $currentMonth)
+            ->pluck('status', 'tanggal')
+            ->toArray();
+
+        $hadir = 0;
+        $izin = 0;
+        $alpha = 0;
+        $workingDays = 0;
+        $today = Carbon::today();
+        $daysInMonth = Carbon::create($currentYear, $currentMonth, 1)->daysInMonth;
+        $isCurrentMonth = $currentYear === $today->year && $currentMonth === $today->month;
+        $isFutureMonth = Carbon::create($currentYear, $currentMonth, 1)->startOfMonth()->isAfter($today->copy()->startOfMonth());
+        $lastDayToCount = $isFutureMonth ? 0 : ($isCurrentMonth ? $today->day : $daysInMonth);
+
+        for ($day = 1; $day <= $lastDayToCount; $day++) {
+            $date = Carbon::create($currentYear, $currentMonth, $day);
+            $dateKey = $date->toDateString();
+            $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
+            $isWorkingDay = true;
+
+            if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
+                $isWorkingDay = false;
+            } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
+                $isWorkingDay = false;
+            }
+
+            $isHoliday = in_array($dateKey, $monthlyHolidays);
+            $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
+
+            if ($isWorkingDay && !$isHoliday) {
+                $workingDays++;
+
+                if ($presensiStatus === 'hadir') {
+                    $hadir++;
+                } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
+                    $izin++;
+                } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today))) {
+                    $alpha++;
+                }
+            }
+        }
+
+        $totalBasis = $workingDays;
+        $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
+
+        return [
+            'kehadiranPercent' => $kehadiranPercent,
+            'hadir' => $hadir,
+            'totalBasis' => $totalBasis,
+            'izin' => $izin,
+            'alpha' => $alpha,
+        ];
+    }
+
     // Mobile dashboard for tenaga_pendidik and pengurus
     public function dashboard(Request $request)
     {
@@ -52,58 +120,13 @@ class DashboardController extends \App\Http\Controllers\Controller
         $currentMonth = max(1, min(12, (int)$currentMonth));
         $currentYear = max(2020, min(2030, (int)$currentYear));
 
-        // Calculate stats based on calendar logic
-        $hariKbm = $user->madrasah->hari_kbm ?? 6;
-        $monthlyHolidays = Holiday::whereYear('date', $currentYear)
-            ->whereMonth('date', $currentMonth)
-            ->where('is_active', true)
-            ->pluck('date')
-            ->map(function ($date) {
-                return $date->toDateString();
-            })
-            ->toArray();
-
-        // Get all presensi for the month
-        $monthlyPresensi = Presensi::where('user_id', $user->id)
-            ->whereYear('tanggal', $currentYear)
-            ->whereMonth('tanggal', $currentMonth)
-            ->pluck('status', 'tanggal')
-            ->toArray();
-
-        $hadir = 0;
-        $izin = 0;
-        $alpha = 0;
-        $workingDays = 0;
-        $daysInMonth = Carbon::create($currentYear, $currentMonth)->daysInMonth;
+        $attendanceStats = $this->calculateMonthlyAttendanceStats($user, $currentYear, $currentMonth);
+        $kehadiranPercent = $attendanceStats['kehadiranPercent'];
+        $hadir = $attendanceStats['hadir'];
+        $totalBasis = $attendanceStats['totalBasis'];
+        $izin = $attendanceStats['izin'];
+        $alpha = $attendanceStats['alpha'];
         $today = Carbon::now();
-
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = Carbon::create($currentYear, $currentMonth, $day);
-            $dateKey = $date->toDateString();
-            $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
-            $isWorkingDay = true;
-            if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
-                $isWorkingDay = false;
-            } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
-                $isWorkingDay = false;
-            }
-            $isHoliday = in_array($dateKey, $monthlyHolidays);
-            $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
-
-            if ($isWorkingDay && !$isHoliday) {
-                $workingDays++;
-                if ($presensiStatus === 'hadir') {
-                    $hadir++;
-                } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
-                    $izin++;
-                } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today->startOfDay()))) {
-                    $alpha++;
-                }
-            }
-        }
-
-        $totalBasis = $workingDays;
-        $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
 
         // Prepare user info array expected by the view
         $userInfo = [
@@ -301,66 +324,9 @@ class DashboardController extends \App\Http\Controllers\Controller
         $currentMonth = max(1, min(12, (int)$currentMonth));
         $currentYear = max(2020, min(2030, (int)$currentYear));
 
-        // Calculate stats based on calendar logic
-        $hariKbm = $user->madrasah->hari_kbm ?? 6;
-        $monthlyHolidays = Holiday::whereYear('date', $currentYear)
-            ->whereMonth('date', $currentMonth)
-            ->where('is_active', true)
-            ->pluck('date')
-            ->map(function ($date) {
-                return $date->toDateString();
-            })
-            ->toArray();
-
-        // Get all presensi for the month
-        $monthlyPresensi = Presensi::where('user_id', $user->id)
-            ->whereYear('tanggal', $currentYear)
-            ->whereMonth('tanggal', $currentMonth)
-            ->pluck('status', 'tanggal')
-            ->toArray();
-
-        $hadir = 0;
-        $izin = 0;
-        $alpha = 0;
-        $workingDays = 0;
-        $daysInMonth = Carbon::create($currentYear, $currentMonth)->daysInMonth;
-        $today = Carbon::now();
-
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = Carbon::create($currentYear, $currentMonth, $day);
-            $dateKey = $date->toDateString();
-            $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
-            $isWorkingDay = true;
-            if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
-                $isWorkingDay = false;
-            } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
-                $isWorkingDay = false;
-            }
-            $isHoliday = in_array($dateKey, $monthlyHolidays);
-            $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
-
-            if ($isWorkingDay && !$isHoliday) {
-                $workingDays++;
-                if ($presensiStatus === 'hadir') {
-                    $hadir++;
-                } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
-                    $izin++;
-                } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today->startOfDay()))) {
-                    $alpha++;
-                }
-            }
-        }
-
-        $totalBasis = $workingDays;
-        $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
-
-        return response()->json([
-            'kehadiranPercent' => $kehadiranPercent,
-            'hadir' => $hadir,
-            'totalBasis' => $totalBasis,
-            'izin' => $izin,
-            'alpha' => $alpha,
-        ]);
+        return response()->json(
+            $this->calculateMonthlyAttendanceStats($user, $currentYear, $currentMonth)
+        );
     }
 
     // Mobile dashboard for pengurus
