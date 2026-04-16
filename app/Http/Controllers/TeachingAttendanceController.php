@@ -69,6 +69,16 @@ class TeachingAttendanceController extends Controller
             ], 403);
         }
 
+        $todayName = Carbon::now('Asia/Jakarta')->locale('id')->dayName;
+
+        // Ensure the attendance can only be submitted for today's schedule.
+        if (strtolower($schedule->day) !== strtolower($todayName)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.'
+            ], 400);
+        }
+
         // Check if already attended today
         $existingAttendance = TeachingAttendance::where('teaching_schedule_id', $schedule->id)
             ->where('tanggal', $today)
@@ -192,6 +202,15 @@ class TeachingAttendanceController extends Controller
                 'success' => false,
                 'message' => 'Jadwal tidak valid.'
             ], 403);
+        }
+
+        $todayName = Carbon::now('Asia/Jakarta')->locale('id')->dayName;
+
+        if (strtolower($schedule->day) !== strtolower($todayName)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.'
+            ], 400);
         }
 
         // Location validation using polygon from madrasah

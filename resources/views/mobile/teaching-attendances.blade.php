@@ -351,7 +351,15 @@
                                         </div>
                                     </div>
                                 @else
-                                    <div class="time-status-container" data-schedule-id="{{ $schedule->id }}" data-start-time="{{ $schedule->start_time }}" data-end-time="{{ $schedule->end_time }}">
+                                    <div
+                                        class="time-status-container"
+                                        data-schedule-id="{{ $schedule->id }}"
+                                        data-subject="{{ e($schedule->subject) }}"
+                                        data-class-name="{{ e($schedule->class_name) }}"
+                                        data-school-name="{{ e($schedule->school->name ?? 'N/A') }}"
+                                        data-start-time="{{ $schedule->start_time }}"
+                                        data-end-time="{{ $schedule->end_time }}"
+                                    >
                                         @php
                                             $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
                                             $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
@@ -362,7 +370,15 @@
                                         @endphp
 
                                         @if($isWithinTime)
-                                            <button class="presensi-btn attendance-btn" data-schedule-id="{{ $schedule->id }}" onclick="openAttendanceModal({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
+                                            <button
+                                                class="presensi-btn attendance-btn"
+                                                data-schedule-id="{{ $schedule->id }}"
+                                                data-subject="{{ e($schedule->subject) }}"
+                                                data-class-name="{{ e($schedule->class_name) }}"
+                                                data-school-name="{{ e($schedule->school->name ?? 'N/A') }}"
+                                                data-start-time="{{ $schedule->start_time }}"
+                                                data-end-time="{{ $schedule->end_time }}"
+                                            >
                                                 <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
                                             </button>
                                         @elseif($isBeforeStart)
@@ -493,6 +509,8 @@ let timeCheckInterval;
 let scheduleData = {};
 let map;
 let marker;
+const confirmAttendanceBtnLabel = '<i class="bx bx-check-circle me-1"></i>Presensi';
+const confirmAttendanceBtnLoadingLabel = '<i class="bx bx-loader-alt bx-spin me-1"></i> Memproses...';
 
 // Initialize Leaflet Map
 function initializeMap() {
@@ -552,15 +570,77 @@ function updateMapLocation(lat, lng) {
 function initializeScheduleData() {
     document.querySelectorAll('.time-status-container').forEach(container => {
         const scheduleId = container.dataset.scheduleId;
-        const startTime = container.dataset.startTime;
-        const endTime = container.dataset.endTime;
 
         scheduleData[scheduleId] = {
-            startTime: startTime,
-            endTime: endTime,
+            scheduleId: scheduleId,
+            subject: container.dataset.subject,
+            className: container.dataset.className,
+            schoolName: container.dataset.schoolName,
+            startTime: container.dataset.startTime,
+            endTime: container.dataset.endTime,
             container: container
         };
     });
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function renderScheduleAction(data, state, minutesUntilStart = 0) {
+    const container = data.container;
+    const escapedSubject = escapeHtml(data.subject);
+    const escapedClassName = escapeHtml(data.className);
+    const escapedSchoolName = escapeHtml(data.schoolName);
+    const escapedStartTime = escapeHtml(data.startTime);
+    const escapedEndTime = escapeHtml(data.endTime);
+
+    if (state === 'within') {
+        container.innerHTML = `
+            <button
+                class="presensi-btn attendance-btn"
+                data-schedule-id="${data.scheduleId}"
+                data-subject="${escapedSubject}"
+                data-class-name="${escapedClassName}"
+                data-school-name="${escapedSchoolName}"
+                data-start-time="${escapedStartTime}"
+                data-end-time="${escapedEndTime}"
+            >
+                <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
+            </button>
+        `;
+        return;
+    }
+
+    if (state === 'before') {
+        container.innerHTML = `
+            <button class="presensi-btn outline countdown-btn" disabled data-schedule-id="${data.scheduleId}">
+                <i class="bx bx-time me-1"></i> <span class="countdown-text">Mulai dalam ${escapeHtml(formatTimeDifference(minutesUntilStart))}</span>
+            </button>
+            <div class="text-center mt-2">
+                <small class="small-muted bg-light px-2 py-1 rounded-pill countdown-info" data-schedule-id="${data.scheduleId}">
+                    <i class="bx bx-info-circle me-1"></i>Waktu mengajar: ${escapedStartTime} - ${escapedEndTime}
+                </small>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <button class="presensi-btn outline ended-btn" disabled>
+            <i class="bx bx-time me-1"></i> Waktu Mengajar Berakhir
+        </button>
+        <div class="text-center mt-2">
+            <small class="small-muted bg-light px-2 py-1 rounded-pill">
+                <i class="bx bx-info-circle me-1"></i>Waktu mengajar: ${escapedStartTime} - ${escapedEndTime}
+            </small>
+        </div>
+    `;
 }
 
 // Format time difference to readable format
@@ -594,33 +674,13 @@ function checkTimeAndUpdateUI() {
         const startMinutes = startHour * 60 + startMinute;
         const endMinutes = endHour * 60 + endMinute;
 
-        const container = data.container;
-        const countdownBtn = container.querySelector('.countdown-btn');
-        const countdownText = container.querySelector('.countdown-text');
-        const countdownInfo = container.querySelector('.countdown-info');
-        const attendanceBtn = container.querySelector('.attendance-btn');
-
         if (currentTime >= startMinutes && currentTime <= endMinutes) {
-            // Within teaching time - show attendance button
-            if (countdownBtn) countdownBtn.style.display = 'none';
-            if (countdownInfo) countdownInfo.style.display = 'none';
-            if (attendanceBtn) attendanceBtn.style.display = 'block';
+            renderScheduleAction(data, 'within');
         } else if (currentTime < startMinutes) {
-            // Before teaching time - show countdown
             const minutesUntilStart = startMinutes - currentTime;
-            if (countdownBtn) {
-                countdownBtn.style.display = 'block';
-                if (countdownText) {
-                    countdownText.textContent = `Mulai dalam ${formatTimeDifference(minutesUntilStart)}`;
-                }
-            }
-            if (countdownInfo) countdownInfo.style.display = 'block';
-            if (attendanceBtn) attendanceBtn.style.display = 'none';
+            renderScheduleAction(data, 'before', minutesUntilStart);
         } else {
-            // After teaching time - show ended state
-            if (countdownBtn) countdownBtn.style.display = 'none';
-            if (countdownInfo) countdownInfo.style.display = 'none';
-            if (attendanceBtn) attendanceBtn.style.display = 'none';
+            renderScheduleAction(data, 'after');
         }
     });
 }
@@ -654,10 +714,13 @@ window.addEventListener('beforeunload', function() {
 
 let currentScheduleId = null;
 let userLocation = null;
+const confirmAttendanceBtn = document.getElementById('confirmAttendanceBtn');
 
 function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime) {
     currentScheduleId = scheduleId;
     userLocation = null;
+    confirmAttendanceBtn.disabled = true;
+    confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
 
     document.getElementById('modal-subject').innerText = subject;
     document.getElementById('modal-class').innerText = className;
@@ -767,7 +830,7 @@ function updateLocationStatus(status, message, isSuccess = false) {
 function checkLocationInPolygon(lat, lng, scheduleId) {
     return new Promise((resolve, reject) => {
         fetch('{{ route('teaching-attendances.check-location') }}', {
-            method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
             body: JSON.stringify({ latitude: lat, longitude: lng, teaching_schedule_id: scheduleId })
         }).then(res => res.json()).then(json => {
             if (json.success) resolve(json.is_within_polygon);
@@ -777,30 +840,56 @@ function checkLocationInPolygon(lat, lng, scheduleId) {
 }
 
 document.addEventListener('click', function (e) {
-    if (e.target && e.target.id === 'confirmAttendanceBtn') {
+    const attendanceTrigger = e.target.closest('.attendance-btn');
+    if (attendanceTrigger) {
+        openAttendanceModal(
+            attendanceTrigger.dataset.scheduleId,
+            attendanceTrigger.dataset.subject,
+            attendanceTrigger.dataset.className,
+            attendanceTrigger.dataset.schoolName,
+            attendanceTrigger.dataset.startTime,
+            attendanceTrigger.dataset.endTime
+        );
+        return;
+    }
+
+    if (e.target.closest('#confirmAttendanceBtn')) {
         if (!userLocation || !currentScheduleId) {
             Swal.fire({ icon: 'error', title: 'Kesalahan', text: 'Lokasi belum didapatkan atau jadwal tidak valid.' });
             return;
         }
 
         checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
-            if (!isValid) { Swal.fire({ icon: 'warning', title: 'Diluar Area', text: 'Lokasi Anda berada di luar area sekolah.' }); return; }
+            if (!isValid) {
+                Swal.fire({ icon: 'warning', title: 'Diluar Area', text: 'Lokasi Anda berada di luar area sekolah.' });
+                return;
+            }
 
-            const btn = document.getElementById('confirmAttendanceBtn');
-            btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Memproses...';
+            confirmAttendanceBtn.disabled = true;
+            confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLoadingLabel;
 
             fetch('{{ route('teaching-attendances.store') }}', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ teaching_schedule_id: currentScheduleId, latitude: userLocation.latitude, longitude: userLocation.longitude, lokasi: 'Presensi Mengajar' })
-            }).then(res => res.json()).then(json => {
-                btn.disabled = false; btn.innerHTML = 'Ya, Lakukan Presensi';
-                if (json.success) {
-                    Swal.fire({ icon: 'success', title: 'Berhasil', text: json.message, timer: 2000 }).then(() => location.reload());
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Terjadi kesalahan' });
-                }
-            }).catch(err => { btn.disabled = false; btn.innerHTML = 'Ya, Lakukan Presensi'; Swal.fire({ icon: 'error', title: 'Error', text: err }); });
+            }).then(async res => {
+                const json = await res.json();
+                return { ok: res.ok, json };
+            }).then(({ ok, json }) => {
+                confirmAttendanceBtn.disabled = false;
+                confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
 
+                if (ok && json.success) {
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: json.message, timer: 2000 }).then(() => location.reload());
+                    return;
+                }
+
+                Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Terjadi kesalahan' });
+            }).catch(err => {
+                confirmAttendanceBtn.disabled = false;
+                confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
+                Swal.fire({ icon: 'error', title: 'Error', text: err?.message || String(err) });
+            });
         }).catch(err => Swal.fire({ icon: 'error', title: 'Error', text: err }));
     }
 });
