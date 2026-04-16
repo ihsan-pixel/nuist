@@ -1090,11 +1090,14 @@
                                 <label for="date" class="form-label mb-0 fw-semibold">Pilih Tanggal:</label>
                                 <input type="date" name="date" id="date" class="form-control" style="max-width: 200px;" value="{{ $selectedDate->format('Y-m-d') }}" onchange="this.form.submit()">
                                 <input type="text" name="search" class="form-control" placeholder="Cari nama, NIP, NUPTK..." value="{{ $search }}" style="max-width: 250px;">
+                                <input type="hidden" name="summary_period" value="{{ $summaryPeriod }}">
+                                <input type="hidden" name="week" value="{{ $selectedWeek->format('o-\\WW') }}">
+                                <input type="hidden" name="month" value="{{ $selectedMonth->format('Y-m') }}">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="mdi mdi-magnify"></i> Cari
                                 </button>
                                 @if($search)
-                                    <a href="{{ route('presensi_admin.show_detail', $madrasah->id) }}?date={{ $selectedDate->format('Y-m-d') }}" class="btn btn-outline-secondary">
+                                    <a href="{{ route('presensi_admin.show_detail', $madrasah->id) }}?date={{ $selectedDate->format('Y-m-d') }}&summary_period={{ $summaryPeriod }}&week={{ $selectedWeek->format('o-\\WW') }}&month={{ $selectedMonth->format('Y-m') }}" class="btn btn-outline-secondary">
                                         <i class="mdi mdi-close"></i> Reset
                                     </a>
                                 @endif
@@ -1183,6 +1186,101 @@
                                                     </div>
                                                 </td>
                                             </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <i class="mdi mdi-chart-box-outline me-2"></i>Persentase Presensi {{ $summaryLabel }} Tenaga Pendidik
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            Periode {{ $summaryStartDate->translatedFormat('d M Y') }} - {{ $summaryEndDate->copy()->min(\Illuminate\Support\Carbon::today('Asia/Jakarta'))->translatedFormat('d M Y') }}
+                                        </p>
+                                    </div>
+
+                                    <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex align-items-end gap-3 flex-wrap">
+                                        <input type="hidden" name="date" value="{{ $selectedDate->format('Y-m-d') }}">
+                                        <input type="hidden" name="search" value="{{ $search }}">
+
+                                        <div>
+                                            <label for="summary_period" class="form-label fw-semibold mb-1">Tampilkan</label>
+                                            <select name="summary_period" id="summary_period" class="form-select">
+                                                <option value="week" {{ $summaryPeriod === 'week' ? 'selected' : '' }}>Per Minggu</option>
+                                                <option value="month" {{ $summaryPeriod === 'month' ? 'selected' : '' }}>Per Bulan</option>
+                                            </select>
+                                        </div>
+
+                                        <div id="week-filter-wrapper" style="{{ $summaryPeriod === 'week' ? '' : 'display:none;' }}">
+                                            <label for="summary_week" class="form-label fw-semibold mb-1">Minggu</label>
+                                            <input type="week" name="week" id="summary_week" class="form-control" value="{{ $selectedWeek->format('o-\\WW') }}">
+                                        </div>
+
+                                        <div id="month-filter-wrapper" style="{{ $summaryPeriod === 'month' ? '' : 'display:none;' }}">
+                                            <label for="summary_month" class="form-label fw-semibold mb-1">Bulan</label>
+                                            <input type="month" name="month" id="summary_month" class="form-control" value="{{ $selectedMonth->format('Y-m') }}">
+                                        </div>
+
+                                        <div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="mdi mdi-eye-outline me-1"></i>Lihat
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 60px;">No</th>
+                                                <th>Nama</th>
+                                                <th>Status Kepegawaian</th>
+                                                <th class="text-center">Hari Kerja</th>
+                                                <th class="text-center">Hadir</th>
+                                                <th class="text-center">Izin</th>
+                                                <th class="text-center">Belum Hadir</th>
+                                                <th class="text-center">Persentase</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($attendancePercentageRows as $index => $row)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>
+                                                        <div class="fw-semibold">{{ $row['nama'] }}</div>
+                                                        <small class="text-muted">
+                                                            NIP: {{ $row['nip'] ?: '-' }} | NUPTK: {{ $row['nuptk'] ?: '-' }}
+                                                        </small>
+                                                    </td>
+                                                    <td>{{ $row['status_kepegawaian'] }}</td>
+                                                    <td class="text-center">{{ $row['total_hari_kerja'] }}</td>
+                                                    <td class="text-center"><span class="badge bg-success">{{ $row['total_hadir'] }}</span></td>
+                                                    <td class="text-center"><span class="badge bg-info text-white">{{ $row['total_izin'] }}</span></td>
+                                                    <td class="text-center"><span class="badge bg-danger">{{ $row['total_belum_hadir'] }}</span></td>
+                                                    <td class="text-center">
+                                                        @php
+                                                            $percentageClass = $row['persentase_kehadiran'] >= 80
+                                                                ? 'bg-success'
+                                                                : ($row['persentase_kehadiran'] >= 60 ? 'bg-warning text-dark' : 'bg-danger');
+                                                        @endphp
+                                                        <span class="badge {{ $percentageClass }}">
+                                                            {{ number_format($row['persentase_kehadiran'], 1) }}%
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="8" class="text-center text-muted py-4">
+                                                        Belum ada data tenaga pendidik untuk ditampilkan.
+                                                    </td>
+                                                </tr>
                                             @endforelse
                                         </tbody>
                                     </table>
@@ -1441,6 +1539,16 @@ $('#jenis-export').on('change', function() {
         $('#bulan-wrapper').show();
     } else {
         $('#bulan-wrapper').hide();
+    }
+});
+
+$('#summary_period').on('change', function() {
+    if ($(this).val() === 'month') {
+        $('#week-filter-wrapper').hide();
+        $('#month-filter-wrapper').show();
+    } else {
+        $('#week-filter-wrapper').show();
+        $('#month-filter-wrapper').hide();
     }
 });
 
