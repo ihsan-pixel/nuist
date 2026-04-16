@@ -10,6 +10,13 @@
             <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Presensi Mengajar</h5>
             <small class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
         </div>
+        <div class="realtime-clock-card mb-3">
+            <div class="clock-label">
+                <i class="bx bx-time-five me-1"></i>Waktu Saat Ini
+            </div>
+            <div class="clock-time" id="realtimeClock">--:--:--</div>
+            <div class="clock-caption">Zona waktu Asia/Jakarta</div>
+        </div>
 
         @if(session('success'))
         <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
@@ -183,6 +190,38 @@
             z-index: 100;
             background: #ffffff;
             padding-bottom: 16px;
+        }
+
+        .realtime-clock-card {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: #fff;
+            border-radius: 14px;
+            padding: 12px 14px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(14, 133, 73, 0.18);
+        }
+
+        .clock-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            opacity: 0.85;
+            margin-bottom: 4px;
+        }
+
+        .clock-time {
+            font-size: 28px;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 4px;
+        }
+
+        .clock-caption {
+            font-size: 11px;
+            opacity: 0.8;
         }
 
         /* Modal font sizes */
@@ -509,6 +548,7 @@ let timeCheckInterval;
 let scheduleData = {};
 let map;
 let marker;
+let realtimeClockInterval;
 const confirmAttendanceBtnLabel = '<i class="bx bx-check-circle me-1"></i>Presensi';
 const confirmAttendanceBtnLoadingLabel = '<i class="bx bx-loader-alt bx-spin me-1"></i> Memproses...';
 
@@ -660,6 +700,18 @@ function formatTimeDifference(minutes) {
     }
 }
 
+function updateRealtimeClock() {
+    const realtimeClock = document.getElementById('realtimeClock');
+    if (!realtimeClock) return;
+
+    const jakartaNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+    const hours = String(jakartaNow.getHours()).padStart(2, '0');
+    const minutes = String(jakartaNow.getMinutes()).padStart(2, '0');
+    const seconds = String(jakartaNow.getSeconds()).padStart(2, '0');
+
+    realtimeClock.textContent = `${hours}:${minutes}:${seconds}`;
+}
+
 // Check current time and update UI accordingly
 function checkTimeAndUpdateUI() {
     const now = new Date();
@@ -688,7 +740,10 @@ function checkTimeAndUpdateUI() {
 // Start real-time time checking
 function startTimeChecking() {
     // Check immediately
+    updateRealtimeClock();
     checkTimeAndUpdateUI();
+
+    realtimeClockInterval = setInterval(updateRealtimeClock, 1000);
 
     // Then check every 30 seconds
     timeCheckInterval = setInterval(checkTimeAndUpdateUI, 30000);
@@ -698,6 +753,9 @@ function startTimeChecking() {
 function stopTimeChecking() {
     if (timeCheckInterval) {
         clearInterval(timeCheckInterval);
+    }
+    if (realtimeClockInterval) {
+        clearInterval(realtimeClockInterval);
     }
 }
 
