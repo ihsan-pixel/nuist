@@ -11,11 +11,11 @@
             <small class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
         </div>
         <div class="realtime-clock-card mb-3">
-            <div class="clock-label">
+            {{-- <div class="clock-label">
                 <i class="bx bx-time-five me-1"></i>Waktu Saat Ini
-            </div>
+            </div> --}}
             <div class="clock-time" id="realtimeClock">--:--:--</div>
-            <div class="clock-caption">Zona waktu Asia/Jakarta</div>
+            {{-- <div class="clock-caption">Zona waktu Asia/Jakarta</div> --}}
         </div>
 
         @if(session('success'))
