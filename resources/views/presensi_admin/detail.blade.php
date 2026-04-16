@@ -1350,20 +1350,29 @@
 
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Pilih Bulan</label>
-                    <select class="form-select" id="pdf-bulan-select" required>
-                        <option value="">-- Pilih Bulan --</option>
-                        @foreach($bulanTersedia as $b)
-                            <option value="{{ $b->bulan }}">{{ $b->nama_bulan }}</option>
-                        @endforeach
+                    <label class="form-label">Jenis Rekap</label>
+                    <select class="form-select" id="pdf-summary-period" required>
+                        <option value="week" {{ $summaryPeriod === 'week' ? 'selected' : '' }}>Per Minggu</option>
+                        <option value="month" {{ $summaryPeriod === 'month' ? 'selected' : '' }}>Per Bulan</option>
                     </select>
-                    <small class="form-text text-muted">Pilih bulan yang tersedia berdasarkan data presensi</small>
+                </div>
+
+                <div class="mb-3" id="pdf-week-wrapper" style="{{ $summaryPeriod === 'week' ? '' : 'display:none;' }}">
+                    <label class="form-label">Pilih Minggu</label>
+                    <input type="week" class="form-control" id="pdf-week-input" value="{{ $selectedWeek->format('o-\\WW') }}">
+                    <small class="form-text text-muted">Export PDF akan mengikuti rekap mingguan yang dipilih</small>
+                </div>
+
+                <div class="mb-3" id="pdf-month-wrapper" style="{{ $summaryPeriod === 'month' ? '' : 'display:none;' }}">
+                    <label class="form-label">Pilih Bulan</label>
+                    <input type="month" class="form-control" id="pdf-month-input" value="{{ $selectedMonth->format('Y-m') }}">
+                    <small class="form-text text-muted">Export PDF akan mengikuti rekap bulanan yang dipilih</small>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-danger" id="download-pdf-btn" disabled>
+                <button type="button" class="btn btn-danger" id="download-pdf-btn">
                     <i class="mdi mdi-download"></i> Download PDF
                 </button>
             </div>
@@ -1552,23 +1561,39 @@ $('#summary_period').on('change', function() {
     }
 });
 
-// PDF Export Modal functionality
-$('#pdf-bulan-select').on('change', function() {
-    var selectedBulan = $(this).val();
-    if (selectedBulan) {
-        $('#download-pdf-btn').prop('disabled', false);
+$('#pdf-summary-period').on('change', function() {
+    if ($(this).val() === 'month') {
+        $('#pdf-week-wrapper').hide();
+        $('#pdf-month-wrapper').show();
     } else {
-        $('#download-pdf-btn').prop('disabled', true);
+        $('#pdf-week-wrapper').show();
+        $('#pdf-month-wrapper').hide();
     }
 });
 
 $('#download-pdf-btn').on('click', function() {
-    var selectedBulan = $('#pdf-bulan-select').val();
-    if (selectedBulan) {
-        var url = '/presensi/rekap/pdf/{{ $madrasah->id }}/' + selectedBulan;
-        window.open(url, '_blank');
-        $('#pdfExportModal').modal('hide');
+    var summaryPeriod = $('#pdf-summary-period').val();
+    var weekValue = $('#pdf-week-input').val();
+    var monthValue = $('#pdf-month-input').val();
+
+    if (summaryPeriod === 'week' && !weekValue) {
+        return;
     }
+
+    if (summaryPeriod === 'month' && !monthValue) {
+        return;
+    }
+
+    var params = new URLSearchParams({
+        summary_period: summaryPeriod,
+        week: weekValue,
+        month: monthValue,
+        search: @json($search),
+    });
+
+    var url = '{{ route('presensi_admin.export_summary_pdf', $madrasah->id) }}' + '?' + params.toString();
+    window.open(url, '_blank');
+    $('#pdfExportModal').modal('hide');
 });
 </script>
 
