@@ -65,17 +65,17 @@
                         <div class="input-group">
                             <label class="input-label" for="password">Password</label>
                             {{-- <div class="password-wrap"> --}}
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    class="input-control"
-                                    placeholder="Masukkan password"
-                                    required
-                                >
-                                <button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password">
-                                    &#128065;
-                                </button>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                class="input-control"
+                                placeholder="Masukkan password"
+                                required
+                            >
+                            <button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password">
+                                &#128065;
+                            </button>
                             {{-- </div> --}}
                             @error('password')
                                 <div class="field-error">{{ $message }}</div>
