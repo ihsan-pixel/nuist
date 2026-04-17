@@ -528,7 +528,10 @@
                 <i class="bx bx-download"></i>
                 Install Aplikasi PWA
             </a>
-            @if(strtolower(Auth::user()->ketugasan ?? '') === 'tenaga pendidik')
+            @php
+                $showApkButton = (isset(Auth::user()->role) && Auth::user()->role === 'tenaga_pendidik') || (strtolower(Auth::user()->ketugasan ?? '') === 'tenaga pendidik');
+            @endphp
+            @if($showApkButton)
             <a href="{{ route('download.app-nuist') }}" class="settings-button" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white;" download>
                 <i class="bx bx-download"></i>
                 Download APK Nuist
