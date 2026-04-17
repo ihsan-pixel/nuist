@@ -528,6 +528,12 @@
                 <i class="bx bx-download"></i>
                 Install Aplikasi PWA
             </a>
+            @if(strtolower(Auth::user()->ketugasan ?? '') === 'tenaga pendidik')
+            <a href="{{ route('download.app-nuist') }}" class="settings-button" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white;" download>
+                <i class="bx bx-download"></i>
+                Download APK Nuist
+            </a>
+            @endif
             <div id="pwa-status" class="alert-custom" style="display: none;">
                 <i class="bx bx-check-circle"></i>
                 Aplikasi PWA sudah terinstall.

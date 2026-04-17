@@ -166,6 +166,17 @@ Route::get('/csrf-token', function () {
     return response()->json(['token' => csrf_token()]);
 });
 
+// Download route for APK (serves app-nuist.apk from project root)
+Route::get('/download/app-nuist', function () {
+    $path = base_path('app-nuist.apk');
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->download($path, 'app-nuist.apk', [
+        'Content-Type' => 'application/vnd.android.package-archive'
+    ]);
+})->name('download.app-nuist')->middleware('auth');
+
 // Foto routes for accessing images from nuist folder
 Route::get('/foto/{type}/{id}', [App\Http\Controllers\FotoController::class, 'show'])->name('foto.show');
 
