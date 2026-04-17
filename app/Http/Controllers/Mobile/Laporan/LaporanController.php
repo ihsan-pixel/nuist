@@ -142,18 +142,9 @@ class LaporanController extends \App\Http\Controllers\Controller
     {
         $effectiveEndDate = $endDate->copy()->min($today);
 
-        // If the requested period's end is after today, mark this summary as realtime
-        // i.e. calculations are only up to today (month-to-date / week-to-date)
-        $isRealtime = $endDate->gt($today);
-
         if ($effectiveEndDate->lt($startDate)) {
-            $label = $startDate->translatedFormat('d M Y') . ' - ' . $endDate->translatedFormat('d M Y');
-            if ($isRealtime) {
-                $label .= ' (s.d. hari ini)';
-            }
-
             return [
-                'periode_label' => $label,
+                'periode_label' => $startDate->translatedFormat('d M Y') . ' - ' . $endDate->translatedFormat('d M Y'),
                 'total_hari_kerja' => 0,
                 'total_hadir' => 0,
                 'total_izin' => 0,
@@ -166,7 +157,6 @@ class LaporanController extends \App\Http\Controllers\Controller
                     'izin' => [],
                     'belum_hadir' => [],
                 ],
-                'is_realtime' => $isRealtime,
             ];
         }
 
@@ -238,13 +228,8 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         $totalDasarPersentase = max($totalHariKerja - $totalIzinApproved, 0);
 
-        $periodeLabel = $startDate->translatedFormat('d M Y') . ' - ' . $effectiveEndDate->translatedFormat('d M Y');
-        if ($isRealtime) {
-            $periodeLabel .= ' (s.d. hari ini)';
-        }
-
         return [
-            'periode_label' => $periodeLabel,
+            'periode_label' => $startDate->translatedFormat('d M Y') . ' - ' . $effectiveEndDate->translatedFormat('d M Y'),
             'total_hari_kerja' => $totalHariKerja,
             'total_hadir' => $totalHadir,
             'total_izin' => $totalIzinApproved,
@@ -252,7 +237,6 @@ class LaporanController extends \App\Http\Controllers\Controller
             'persentase_kehadiran' => $totalDasarPersentase > 0 ? round(($totalHadir / $totalDasarPersentase) * 100, 1) : 0,
             'details' => $details,
             'breakdown' => $breakdown,
-            'is_realtime' => $isRealtime,
         ];
     }
 
