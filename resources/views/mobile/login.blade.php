@@ -64,7 +64,7 @@
 
                         <div class="input-group">
                             <label class="input-label" for="password">Password</label>
-                            <div class="password-wrap">
+                            {{-- <div class="password-wrap"> --}}
                                 <input
                                     id="password"
                                     name="password"
@@ -76,7 +76,7 @@
                                 <button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan password">
                                     &#128065;
                                 </button>
-                            </div>
+                            {{-- </div> --}}
                             @error('password')
                                 <div class="field-error">{{ $message }}</div>
                             @enderror
