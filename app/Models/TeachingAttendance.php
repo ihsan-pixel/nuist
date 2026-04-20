@@ -18,6 +18,7 @@ class TeachingAttendance extends Model
         'latitude',
         'longitude',
         'lokasi',
+        'materi',
     ];
 
     public function teachingSchedule()

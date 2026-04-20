@@ -46,6 +46,9 @@
                     <div class="fw-semibold">{{ optional($item->teachingSchedule)->subject ?? 'Mata Pelajaran' }}</div>
                     <div class="text-muted small">{{ optional($item->teachingSchedule->school)->name ?? '-' }}</div>
                     <div class="text-muted small">Kelas: {{ optional($item->teachingSchedule)->class_name ?? '-' }}</div>
+                    @if($item->materi)
+                        <div class="text-muted small">Materi: {{ $item->materi }}</div>
+                    @endif
                 </div>
                 <div class="text-end">
                     <div class="fw-semibold">{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</div>

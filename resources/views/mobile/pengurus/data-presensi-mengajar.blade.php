@@ -161,6 +161,7 @@ if ($hour >= 0 && $hour <= 11) {
                                     <th>Tanggal</th>
                                     <th>Guru</th>
                                     <th>Mata Pelajaran</th>
+                                    <th>Materi</th>
                                     <th>Jam</th>
                                     <th>Status</th>
                                 </tr>
@@ -171,6 +172,7 @@ if ($hour >= 0 && $hour <= 11) {
                                     <td>{{ \Carbon\Carbon::parse($attendance->tanggal)->format('d M Y') }}</td>
                                     <td>{{ $attendance->teachingSchedule->teacher->name ?? '-' }}</td>
                                     <td>{{ $attendance->teachingSchedule->subject ?? '-' }}</td>
+                                    <td>{{ $attendance->materi ?? '-' }}</td>
                                     <td>{{ $attendance->teachingSchedule->start_time ?? '-' }} - {{ $attendance->teachingSchedule->end_time ?? '-' }}</td>
                                     <td>
                                         <span class="badge bg-success">Hadir</span>
@@ -178,7 +180,7 @@ if ($hour >= 0 && $hour <= 11) {
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">Tidak ada data presensi mengajar.</td>
+                                    <td colspan="6" class="text-center">Tidak ada data presensi mengajar.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

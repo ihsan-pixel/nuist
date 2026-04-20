@@ -177,6 +177,11 @@
                                         <div>
                                             <h6 class="mb-1 text-success">Presensi Berhasil</h6>
                                             <small class="text-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                            @if($schedule->attendance->materi)
+                                                <div class="text-muted small mt-1">
+                                                    <i class="bx bx-note me-1"></i>Materi: {{ $schedule->attendance->materi }}
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -300,6 +305,27 @@
                     </div>
                 </div>
 
+                <div class="card border-primary border-opacity-25 mb-4">
+                    <div class="card-header bg-primary bg-opacity-10 border-primary border-opacity-25">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-note text-primary me-2"></i>
+                            <h6 class="mb-0 text-primary">Materi Mengajar</h6>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <label for="attendanceMateri" class="form-label fw-semibold">Materi atau Topik yang Disampaikan</label>
+                        <textarea
+                            class="form-control"
+                            id="attendanceMateri"
+                            rows="3"
+                            maxlength="1000"
+                            placeholder="Contoh: Persamaan linear satu variabel"
+                            required
+                        ></textarea>
+                        <div class="form-text">Wajib diisi sebelum presensi dikirim.</div>
+                    </div>
+                </div>
+
                 <!-- Location Status Card -->
                 <div class="card shadow-sm">
                     <div class="card-header bg-light border-0">
@@ -420,6 +446,7 @@ function updateLocationStatus(status, message, isSuccess = false) {
 function markAttendance(scheduleId, subject, className, schoolName, startTime, endTime) {
     currentScheduleId = scheduleId;
     userLocation = null;
+    $('#attendanceMateri').val('');
 
     // Update modal content
     $('#modal-subject').text(subject);
@@ -471,6 +498,12 @@ function refreshLocation() {
 }
 
 $('#confirmAttendanceBtn').click(function() {
+    const materi = $('#attendanceMateri').val().trim();
+    if (!materi) {
+        alert('Materi atau topik yang disampaikan wajib diisi.');
+        return;
+    }
+
     if (!userLocation || !currentScheduleId) {
         alert('Lokasi belum didapatkan atau jadwal tidak valid.');
         return;
@@ -495,7 +528,8 @@ $('#confirmAttendanceBtn').click(function() {
                 teaching_schedule_id: currentScheduleId,
                 latitude: userLocation.latitude,
                 longitude: userLocation.longitude,
-                lokasi: 'Presensi Mengajar'
+                lokasi: 'Presensi Mengajar',
+                materi: materi
             },
             success: function(response) {
                 $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');

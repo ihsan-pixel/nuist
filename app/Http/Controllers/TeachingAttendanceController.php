@@ -47,11 +47,16 @@ class TeachingAttendanceController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'materi' => trim((string) $request->input('materi', '')),
+        ]);
+
         $request->validate([
             'teaching_schedule_id' => 'required|exists:teaching_schedules,id',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'lokasi' => 'nullable|string',
+            'materi' => 'required|string|max:1000',
         ]);
 
         $user = Auth::user();
@@ -157,6 +162,7 @@ class TeachingAttendanceController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'lokasi' => $request->lokasi,
+            'materi' => $request->materi,
         ]);
 
         $message = 'Presensi mengajar berhasil dicatat pada ' . $now . '.';
@@ -172,7 +178,8 @@ class TeachingAttendanceController extends Controller
                 'schedule_id' => $schedule->id,
                 'tanggal' => $today,
                 'waktu' => $now,
-                'school_name' => $schedule->school->name ?? 'N/A'
+                'school_name' => $schedule->school->name ?? 'N/A',
+                'materi' => $attendance->materi,
             ]
         ]);
 

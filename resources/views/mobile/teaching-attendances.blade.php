@@ -386,6 +386,11 @@
                                             <div>
                                                 <div class="fw-semibold">Presensi Berhasil</div>
                                                 <small class="small-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                                @if($schedule->attendance->materi)
+                                                    <div class="small-muted mt-1">
+                                                        <i class="bx bx-note me-1"></i>Materi: {{ $schedule->attendance->materi }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -520,6 +525,21 @@
                             <li>Lokasi GPS aktif dan akurat</li>
                         </ul>
                     </div> --}}
+
+                    <div class="mb-3">
+                        <label for="attendanceMateri" class="form-label fw-semibold mb-1">
+                            <i class="bx bx-note me-1"></i>Materi atau Topik yang Disampaikan
+                        </label>
+                        <textarea
+                            class="form-control"
+                            id="attendanceMateri"
+                            rows="3"
+                            maxlength="1000"
+                            placeholder="Contoh: Persamaan linear satu variabel"
+                            required
+                        ></textarea>
+                        <div class="form-text" style="font-size: 10px;">Wajib diisi sebelum presensi dikirim.</div>
+                    </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
@@ -772,13 +792,24 @@ window.addEventListener('beforeunload', function() {
 
 let currentScheduleId = null;
 let userLocation = null;
+let isLocationValid = false;
 const confirmAttendanceBtn = document.getElementById('confirmAttendanceBtn');
+const attendanceMateriInput = document.getElementById('attendanceMateri');
+
+function refreshConfirmAttendanceButton() {
+    const hasMateri = attendanceMateriInput && attendanceMateriInput.value.trim().length > 0;
+    confirmAttendanceBtn.disabled = !(isLocationValid && hasMateri);
+}
 
 function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime) {
     currentScheduleId = scheduleId;
     userLocation = null;
+    isLocationValid = false;
     confirmAttendanceBtn.disabled = true;
     confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
+    if (attendanceMateriInput) {
+        attendanceMateriInput.value = '';
+    }
 
     document.getElementById('modal-subject').innerText = subject;
     document.getElementById('modal-class').innerText = className;
@@ -867,22 +898,27 @@ function updateLocationStatus(status, message, isSuccess = false) {
     const el = document.getElementById('locationStatus');
     el.className = 'alert';
     if (isSuccess) {
+        isLocationValid = true;
         el.classList.add('alert-success');
         el.innerHTML = '<i class="bx bx-check-circle me-2"></i> ' + message;
         document.getElementById('confirmAttendanceBtn').disabled = false;
     } else if (status === 'loading') {
+        isLocationValid = false;
         el.classList.add('alert-info');
         el.innerHTML = '<i class="bx bx-loader-alt bx-spin me-2"></i> ' + message;
         document.getElementById('confirmAttendanceBtn').disabled = true;
     } else if (status === 'warning') {
+        isLocationValid = false;
         el.classList.add('alert-warning');
         el.innerHTML = '<i class="bx bx-error-circle me-2"></i> ' + message;
         document.getElementById('confirmAttendanceBtn').disabled = true;
     } else {
+        isLocationValid = false;
         el.classList.add('alert-danger');
         el.innerHTML = '<i class="bx bx-error me-2"></i> ' + message;
         document.getElementById('confirmAttendanceBtn').disabled = true;
     }
+    refreshConfirmAttendanceButton();
 }
 
 function checkLocationInPolygon(lat, lng, scheduleId) {
@@ -912,6 +948,12 @@ document.addEventListener('click', function (e) {
     }
 
     if (e.target.closest('#confirmAttendanceBtn')) {
+        const materi = attendanceMateriInput ? attendanceMateriInput.value.trim() : '';
+        if (!materi) {
+            Swal.fire({ icon: 'warning', title: 'Materi Wajib Diisi', text: 'Tuliskan materi atau topik yang disampaikan sebelum mengirim presensi.' });
+            return;
+        }
+
         if (!userLocation || !currentScheduleId) {
             Swal.fire({ icon: 'error', title: 'Kesalahan', text: 'Lokasi belum didapatkan atau jadwal tidak valid.' });
             return;
@@ -929,7 +971,7 @@ document.addEventListener('click', function (e) {
             fetch('{{ route('teaching-attendances.store') }}', {
                 method: 'POST',
                 headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ teaching_schedule_id: currentScheduleId, latitude: userLocation.latitude, longitude: userLocation.longitude, lokasi: 'Presensi Mengajar' })
+                body: JSON.stringify({ teaching_schedule_id: currentScheduleId, latitude: userLocation.latitude, longitude: userLocation.longitude, lokasi: 'Presensi Mengajar', materi: materi })
             }).then(async res => {
                 const json = await res.json();
                 return { ok: res.ok, json };
@@ -951,5 +993,9 @@ document.addEventListener('click', function (e) {
         }).catch(err => Swal.fire({ icon: 'error', title: 'Error', text: err }));
     }
 });
+
+if (attendanceMateriInput) {
+    attendanceMateriInput.addEventListener('input', refreshConfirmAttendanceButton);
+}
 </script>
 @endsection
