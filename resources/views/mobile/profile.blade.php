@@ -208,6 +208,82 @@
             margin-right: 8px;
         }
 
+        .mgmp-presensi-card {
+            background: linear-gradient(135deg, #f7fffb 0%, #ffffff 100%);
+            border: 1px solid rgba(14, 133, 73, 0.12);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+
+        .mgmp-presensi-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #153c31;
+            margin-bottom: 4px;
+        }
+
+        .mgmp-presensi-meta {
+            font-size: 10px;
+            color: #687b73;
+            line-height: 1.5;
+        }
+
+        .mgmp-presensi-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            padding: 9px 10px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .mgmp-presensi-button:hover {
+            color: #fff;
+            opacity: 0.92;
+        }
+
+        .mgmp-presensi-button.active {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        }
+
+        .mgmp-presensi-button.upcoming {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        }
+
+        .mgmp-presensi-button.done {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .mgmp-presensi-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 3px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 7px;
+        }
+
+        .mgmp-presensi-badge.active {
+            background: #e7f7ee;
+            color: #0e8549;
+        }
+
+        .mgmp-presensi-badge.upcoming {
+            background: #e8f1ff;
+            color: #0d6efd;
+        }
+
+        .mgmp-presensi-badge.done {
+            background: #eef0f2;
+            color: #495057;
+        }
+
         .quick-actions {
             background: #fff;
             border-radius: 12px;
@@ -506,6 +582,63 @@
     </div>
     @endif
 
+    @if(isset($mgmpMemberships) && $mgmpMemberships->isNotEmpty())
+    <!-- Presensi Kegiatan MGMP -->
+    <div class="settings-section">
+        <div class="settings-header">
+            <h6><i class="bx bx-calendar-check me-2"></i>Presensi Kegiatan MGMP</h6>
+        </div>
+        <div class="settings-content">
+            <p style="font-size: 11px; color: #666; margin-bottom: 12px; line-height: 1.5;">
+                Kegiatan berikut ditampilkan berdasarkan keanggotaan MGMP Anda:
+                <strong>{{ $mgmpMemberships->pluck('mgmpGroup.name')->filter()->implode(', ') }}</strong>
+            </p>
+
+            @forelse($mgmpActivities as $activity)
+                @php
+                    $badgeClass = $activity->attendance_state === 'berlangsung'
+                        ? 'active'
+                        : ($activity->attendance_state === 'akan_datang' ? 'upcoming' : 'done');
+                    $buttonClass = $badgeClass;
+                    $buttonText = $activity->attendance_state === 'berlangsung'
+                        ? 'Presensi Sekarang'
+                        : ($activity->attendance_state === 'hadir' ? 'Lihat Bukti Presensi' : 'Lihat Detail Presensi');
+                    $badgeText = [
+                        'berlangsung' => 'Sedang berlangsung',
+                        'akan_datang' => 'Akan datang',
+                        'hadir' => 'Sudah presensi',
+                        'selesai' => 'Selesai',
+                    ][$activity->attendance_state] ?? 'Kegiatan';
+                @endphp
+
+                <div class="mgmp-presensi-card">
+                    <div class="mgmp-presensi-title">{{ $activity->judul }}</div>
+                    <div class="mgmp-presensi-meta">
+                        <div><i class="bx bx-group me-1"></i>{{ $activity->mgmpGroup->name ?? 'MGMP' }}</div>
+                        <div>
+                            <i class="bx bx-time-five me-1"></i>
+                            {{ $activity->starts_at ? $activity->starts_at->format('d M Y H:i') : '-' }}
+                            -
+                            {{ $activity->ends_at ? $activity->ends_at->format('H:i') : '-' }} WIB
+                        </div>
+                        <div><i class="bx bx-map me-1"></i>{{ $activity->lokasi ?: 'Lokasi kegiatan' }}</div>
+                    </div>
+                    <span class="mgmp-presensi-badge {{ $badgeClass }}">{{ $badgeText }}</span>
+                    <a href="{{ route('mgmp.kegiatan.presensi', $activity) }}" class="mgmp-presensi-button {{ $buttonClass }}">
+                        <i class="bx bx-log-in-circle me-1"></i>
+                        {{ $buttonText }}
+                    </a>
+                </div>
+            @empty
+                <div class="alert-custom mb-0">
+                    <i class="bx bx-info-circle"></i>
+                    Belum ada kegiatan MGMP aktif atau mendatang untuk keanggotaan Anda.
+                </div>
+            @endforelse
+        </div>
+    </div>
+    @endif
+
     <!-- Account Settings -->
     <div class="settings-section">
         <div class="settings-header">
@@ -609,4 +742,3 @@ window.addEventListener('appinstalled', () => {
 });
 </script>
 @endsection
-

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Mobile\Profile;
 
+use App\Models\MgmpMember;
+use App\Models\MgmpReport;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -34,8 +37,46 @@ class ProfileController extends \App\Http\Controllers\Controller
             'program_studi' => $user->program_studi ?? '-',
         ];
 
+        $mgmpMemberships = MgmpMember::with('mgmpGroup')
+            ->where('user_id', $user->id)
+            ->get();
+        $mgmpGroupIds = $mgmpMemberships->pluck('mgmp_group_id')->filter()->unique()->values();
+        $now = Carbon::now('Asia/Jakarta');
+
+        $mgmpActivities = $mgmpGroupIds->isEmpty()
+            ? collect()
+            : MgmpReport::with([
+                'mgmpGroup',
+                'attendances' => function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                },
+            ])
+                ->whereIn('mgmp_group_id', $mgmpGroupIds)
+                ->whereDate('tanggal', '>=', $now->toDateString())
+                ->orderBy('tanggal')
+                ->orderBy('waktu_mulai')
+                ->limit(6)
+                ->get()
+                ->map(function ($activity) use ($now) {
+                    $date = $activity->tanggal ? Carbon::parse($activity->tanggal)->format('Y-m-d') : null;
+                    $activity->starts_at = $date && $activity->waktu_mulai
+                        ? Carbon::parse($date . ' ' . $activity->waktu_mulai, 'Asia/Jakarta')
+                        : null;
+                    $activity->ends_at = $date && $activity->waktu_selesai
+                        ? Carbon::parse($date . ' ' . $activity->waktu_selesai, 'Asia/Jakarta')
+                        : null;
+                    $activity->user_attendance = $activity->attendances->first();
+                    $activity->attendance_state = $activity->user_attendance
+                        ? 'hadir'
+                        : ($activity->starts_at && $activity->ends_at && $now->betweenIncluded($activity->starts_at, $activity->ends_at)
+                            ? 'berlangsung'
+                            : ($activity->starts_at && $now->lt($activity->starts_at) ? 'akan_datang' : 'selesai'));
+
+                    return $activity;
+                });
+
         // pass the authenticated user and userInfo to the view
-        return view('mobile.profile', compact('user', 'userInfo'));
+        return view('mobile.profile', compact('user', 'userInfo', 'mgmpMemberships', 'mgmpActivities'));
     }
 
     public function updateProfile(Request $request)
