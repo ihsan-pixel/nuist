@@ -60,7 +60,7 @@
                             <div class="mgmp-icon-bubble">
                                 <i class="bx bx-file"></i>
                             </div>
-                            <div class="flex-grow-1">
+                            <div class="grow">
                                 <div class="fw-semibold text-dark">{{ $userProposal->filename }}</div>
                                 <small class="text-muted">Terakhir diperbarui {{ $userProposal->updated_at->format('d M Y H:i') }}</small>
                                 <div class="mt-2">
