@@ -87,6 +87,10 @@
             display: none;
         }
 
+        .camera-frame video.selfie-mirror {
+            transform: scaleX(-1);
+        }
+
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -333,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 audio: false
             });
             video.srcObject = stream;
+            video.classList.add('selfie-mirror');
             placeholder.style.display = 'none';
             preview.style.display = 'none';
             video.style.display = 'block';
@@ -362,7 +367,10 @@ document.addEventListener('DOMContentLoaded', function () {
             sourceY = (video.videoHeight - sourceHeight) / 2;
         }
 
+        context.translate(size, 0);
+        context.scale(-1, 1);
         context.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, size, size);
+        context.setTransform(1, 0, 0, 1, 0, 0);
         selfieData = canvas.toDataURL('image/jpeg', 0.9);
         preview.src = selfieData;
         preview.style.display = 'block';
