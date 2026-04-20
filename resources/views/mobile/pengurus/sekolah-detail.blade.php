@@ -875,6 +875,12 @@
                             @if(!empty($teacher['materi']))
                                 <div class="text-muted" style="font-size: 10px;">Materi: {{ $teacher['materi'] }}</div>
                             @endif
+                            @if(!is_null($teacher['present_students']) && !is_null($teacher['class_total_students']))
+                                <div class="text-muted" style="font-size: 10px;">
+                                    Siswa hadir: {{ $teacher['present_students'] }}/{{ $teacher['class_total_students'] }}
+                                    ({{ number_format($teacher['student_attendance_percentage'], 1) }}%)
+                                </div>
+                            @endif
                         </div>
                         <span class="badge bg-success" style="font-size: 8px;">
                             <i class="bx bx-check me-1"></i>Hadir
@@ -1139,6 +1145,9 @@ function changeTeachingMonth(monthValue) {
                         const materiHtml = teacher.materi
                             ? `<div class="text-muted" style="font-size: 10px;">Materi: ${escapeHtml(teacher.materi)}</div>`
                             : '';
+                        const studentAttendanceHtml = teacher.present_students !== null && teacher.present_students !== undefined && teacher.class_total_students !== null && teacher.class_total_students !== undefined
+                            ? `<div class="text-muted" style="font-size: 10px;">Siswa hadir: ${escapeHtml(teacher.present_students)}/${escapeHtml(teacher.class_total_students)} (${Number(teacher.student_attendance_percentage || 0).toFixed(1)}%)</div>`
+                            : '';
 
                         teachersHtml += `
                             <div class="d-flex align-items-center py-1 border-top" style="border-color: #e9ecef !important;">
@@ -1146,6 +1155,7 @@ function changeTeachingMonth(monthValue) {
                                     <div class="fw-medium" style="font-size: 11px; color: #212529;">${escapeHtml(teacher.teacher_name)}</div>
                                     <small class="text-muted" style="font-size: 10px;">${escapeHtml(teacher.subject)} • ${escapeHtml(teacher.time)}</small>
                                     ${materiHtml}
+                                    ${studentAttendanceHtml}
                                 </div>
                                 <span class="badge bg-success" style="font-size: 8px;">
                                     <i class="bx bx-check me-1"></i>Hadir

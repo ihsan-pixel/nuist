@@ -19,6 +19,9 @@ class TeachingAttendance extends Model
         'longitude',
         'lokasi',
         'materi',
+        'class_total_students',
+        'present_students',
+        'student_attendance_percentage',
     ];
 
     public function teachingSchedule()

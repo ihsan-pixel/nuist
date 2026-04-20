@@ -182,6 +182,13 @@
                                                     <i class="bx bx-note me-1"></i>Materi: {{ $schedule->attendance->materi }}
                                                 </div>
                                             @endif
+                                            @if(!is_null($schedule->attendance->present_students) && !is_null($schedule->attendance->class_total_students))
+                                                <div class="text-muted small mt-1">
+                                                    <i class="bx bx-user-check me-1"></i>Siswa hadir:
+                                                    {{ $schedule->attendance->present_students }}/{{ $schedule->attendance->class_total_students }}
+                                                    ({{ number_format($schedule->attendance->student_attendance_percentage, 1) }}%)
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -194,7 +201,7 @@
                                 @endphp
                                 @if($isWithinTime)
                                     <button type="button" class="btn btn-primary btn-lg w-100 rounded-3 py-3 fw-semibold"
-                                            onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
+                                            onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}', '{{ $schedule->class_student_count->total_students ?? '' }}')">
                                         <i class="bx bx-check-circle me-2 fs-5"></i> Lakukan Presensi
                                     </button>
                                 @else
@@ -326,6 +333,30 @@
                     </div>
                 </div>
 
+                <div class="card border-primary border-opacity-25 mb-4">
+                    <div class="card-header bg-primary bg-opacity-10 border-primary border-opacity-25">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-group text-primary me-2"></i>
+                            <h6 class="mb-0 text-primary">Kehadiran Siswa</h6>
+                        </div>
+                    </div>
+                    <div class="card-body p-3">
+                        <div id="classTotalInfo" class="alert alert-light border mb-3"></div>
+                        <div class="mb-3" id="classTotalInputGroup">
+                            <label for="classTotalStudents" class="form-label fw-semibold">Jumlah siswa di kelas</label>
+                            <input type="number" class="form-control" id="classTotalStudents" min="1" max="10000" placeholder="Contoh: 32">
+                            <div class="form-text">Diisi sekali jika data jumlah siswa kelas belum tersimpan.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="presentStudents" class="form-label fw-semibold">Jumlah siswa hadir</label>
+                            <input type="number" class="form-control" id="presentStudents" min="0" max="10000" placeholder="Contoh: 30" required>
+                        </div>
+                        <div id="studentAttendancePreview" class="alert alert-info mb-0">
+                            Isi jumlah siswa hadir untuk melihat persentase.
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Location Status Card -->
                 <div class="card shadow-sm">
                     <div class="card-header bg-light border-0">
@@ -381,6 +412,38 @@
 <script>
 let currentScheduleId = null;
 let userLocation = null;
+let currentClassTotalStudents = null;
+
+function getStudentAttendanceNumbers() {
+    const total = currentClassTotalStudents || Number($('#classTotalStudents').val() || 0);
+    const present = Number($('#presentStudents').val() || -1);
+
+    return {
+        total: Number.isInteger(total) ? total : Math.floor(total),
+        present: Number.isInteger(present) ? present : Math.floor(present)
+    };
+}
+
+function updateStudentAttendancePreview() {
+    const { total, present } = getStudentAttendanceNumbers();
+    const preview = $('#studentAttendancePreview');
+
+    if (!total || total < 1 || present < 0 || !$('#presentStudents').val()) {
+        preview.removeClass('alert-success alert-warning').addClass('alert-info')
+            .text('Isi jumlah siswa hadir untuk melihat persentase.');
+        return;
+    }
+
+    if (present > total) {
+        preview.removeClass('alert-info alert-success').addClass('alert-warning')
+            .text('Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.');
+        return;
+    }
+
+    const percentage = ((present / total) * 100).toFixed(1);
+    preview.removeClass('alert-info alert-warning').addClass('alert-success')
+        .text(`Kehadiran siswa: ${present}/${total} (${percentage}%)`);
+}
 
 function getUserLocation() {
     return new Promise((resolve, reject) => {
@@ -443,10 +506,29 @@ function updateLocationStatus(status, message, isSuccess = false) {
     }
 }
 
-function markAttendance(scheduleId, subject, className, schoolName, startTime, endTime) {
+function markAttendance(scheduleId, subject, className, schoolName, startTime, endTime, classTotalStudents) {
     currentScheduleId = scheduleId;
     userLocation = null;
+    currentClassTotalStudents = classTotalStudents ? Number(classTotalStudents) : null;
     $('#attendanceMateri').val('');
+    $('#presentStudents').val('').removeAttr('max');
+    $('#classTotalStudents').val('');
+
+    if (currentClassTotalStudents) {
+        $('#classTotalInputGroup').hide();
+        $('#classTotalInfo')
+            .removeClass('alert-warning alert-light')
+            .addClass('alert-success')
+            .html(`Jumlah siswa kelas sudah tersimpan: <strong>${currentClassTotalStudents} siswa</strong>.`);
+        $('#presentStudents').attr('max', currentClassTotalStudents);
+    } else {
+        $('#classTotalInputGroup').show();
+        $('#classTotalInfo')
+            .removeClass('alert-success alert-light')
+            .addClass('alert-warning')
+            .text('Jumlah siswa kelas belum tersimpan. Isi sekali untuk kelas ini sebelum presensi.');
+    }
+    updateStudentAttendancePreview();
 
     // Update modal content
     $('#modal-subject').text(subject);
@@ -504,6 +586,22 @@ $('#confirmAttendanceBtn').click(function() {
         return;
     }
 
+    const { total, present } = getStudentAttendanceNumbers();
+    if (!total || total < 1) {
+        alert('Jumlah siswa yang ada di kelas wajib diisi.');
+        return;
+    }
+
+    if (present < 0 || !$('#presentStudents').val()) {
+        alert('Jumlah siswa hadir wajib diisi.');
+        return;
+    }
+
+    if (present > total) {
+        alert('Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.');
+        return;
+    }
+
     if (!userLocation || !currentScheduleId) {
         alert('Lokasi belum didapatkan atau jadwal tidak valid.');
         return;
@@ -529,7 +627,9 @@ $('#confirmAttendanceBtn').click(function() {
                 latitude: userLocation.latitude,
                 longitude: userLocation.longitude,
                 lokasi: 'Presensi Mengajar',
-                materi: materi
+                materi: materi,
+                class_total_students: currentClassTotalStudents ? null : total,
+                present_students: present
             },
             success: function(response) {
                 $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');
@@ -556,6 +656,8 @@ $('#confirmAttendanceBtn').click(function() {
         alert('Error: ' + error);
     });
 });
+
+$('#classTotalStudents, #presentStudents').on('input', updateStudentAttendancePreview);
 
 // Function to check location in polygon via AJAX
 function checkLocationInPolygon(lat, lng, scheduleId) {

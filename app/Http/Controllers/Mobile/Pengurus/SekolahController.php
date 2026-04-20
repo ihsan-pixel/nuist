@@ -581,6 +581,9 @@ class SekolahController extends \App\Http\Controllers\Controller
                     'subject' => $subject,
                     'time' => $startTime . ' - ' . $endTime,
                     'materi' => $attendance->materi,
+                    'class_total_students' => $attendance->class_total_students,
+                    'present_students' => $attendance->present_students,
+                    'student_attendance_percentage' => $attendance->student_attendance_percentage,
                     'status' => $attendance->status ?? 'hadir'
                 ];
             }

@@ -391,6 +391,13 @@
                                                         <i class="bx bx-note me-1"></i>Materi: {{ $schedule->attendance->materi }}
                                                     </div>
                                                 @endif
+                                                @if(!is_null($schedule->attendance->present_students) && !is_null($schedule->attendance->class_total_students))
+                                                    <div class="small-muted mt-1">
+                                                        <i class="bx bx-user-check me-1"></i>Siswa hadir:
+                                                        {{ $schedule->attendance->present_students }}/{{ $schedule->attendance->class_total_students }}
+                                                        ({{ number_format($schedule->attendance->student_attendance_percentage, 1) }}%)
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -403,6 +410,7 @@
                                         data-school-name="{{ e($schedule->school->name ?? 'N/A') }}"
                                         data-start-time="{{ $schedule->start_time }}"
                                         data-end-time="{{ $schedule->end_time }}"
+                                        data-class-total-students="{{ $schedule->class_student_count->total_students ?? '' }}"
                                     >
                                         @php
                                             $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
@@ -422,6 +430,7 @@
                                                 data-school-name="{{ e($schedule->school->name ?? 'N/A') }}"
                                                 data-start-time="{{ $schedule->start_time }}"
                                                 data-end-time="{{ $schedule->end_time }}"
+                                                data-class-total-students="{{ $schedule->class_student_count->total_students ?? '' }}"
                                             >
                                                 <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
                                             </button>
@@ -525,6 +534,41 @@
                             <li>Lokasi GPS aktif dan akurat</li>
                         </ul>
                     </div> --}}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold mb-1">
+                            <i class="bx bx-group me-1"></i>Kehadiran Siswa
+                        </label>
+                        <div id="classTotalInfo" class="alert alert-light border mb-2" style="font-size: 11px;"></div>
+                        <div class="mb-2" id="classTotalInputGroup">
+                            <label for="classTotalStudents" class="form-label mb-1" style="font-size: 11px;">Jumlah siswa di kelas</label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="classTotalStudents"
+                                min="1"
+                                max="10000"
+                                inputmode="numeric"
+                                placeholder="Contoh: 32"
+                            >
+                        </div>
+                        <div class="mb-2">
+                            <label for="presentStudents" class="form-label mb-1" style="font-size: 11px;">Jumlah siswa hadir</label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="presentStudents"
+                                min="0"
+                                max="10000"
+                                inputmode="numeric"
+                                placeholder="Contoh: 30"
+                                required
+                            >
+                        </div>
+                        <div id="studentAttendancePreview" class="alert alert-info mb-0" style="font-size: 11px;">
+                            Isi jumlah siswa hadir untuk melihat persentase.
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label for="attendanceMateri" class="form-label fw-semibold mb-1">
@@ -638,6 +682,7 @@ function initializeScheduleData() {
             schoolName: container.dataset.schoolName,
             startTime: container.dataset.startTime,
             endTime: container.dataset.endTime,
+            classTotalStudents: container.dataset.classTotalStudents,
             container: container
         };
     });
@@ -659,6 +704,7 @@ function renderScheduleAction(data, state, minutesUntilStart = 0) {
     const escapedSchoolName = escapeHtml(data.schoolName);
     const escapedStartTime = escapeHtml(data.startTime);
     const escapedEndTime = escapeHtml(data.endTime);
+    const escapedClassTotalStudents = escapeHtml(data.classTotalStudents);
 
     if (state === 'within') {
         container.innerHTML = `
@@ -670,6 +716,7 @@ function renderScheduleAction(data, state, minutesUntilStart = 0) {
                 data-school-name="${escapedSchoolName}"
                 data-start-time="${escapedStartTime}"
                 data-end-time="${escapedEndTime}"
+                data-class-total-students="${escapedClassTotalStudents}"
             >
                 <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
             </button>
@@ -793,23 +840,84 @@ window.addEventListener('beforeunload', function() {
 let currentScheduleId = null;
 let userLocation = null;
 let isLocationValid = false;
+let currentClassTotalStudents = null;
 const confirmAttendanceBtn = document.getElementById('confirmAttendanceBtn');
 const attendanceMateriInput = document.getElementById('attendanceMateri');
+const classTotalStudentsInput = document.getElementById('classTotalStudents');
+const presentStudentsInput = document.getElementById('presentStudents');
+const classTotalInputGroup = document.getElementById('classTotalInputGroup');
+const classTotalInfo = document.getElementById('classTotalInfo');
+const studentAttendancePreview = document.getElementById('studentAttendancePreview');
+
+function getStudentAttendanceNumbers() {
+    const totalRaw = currentClassTotalStudents || Number(classTotalStudentsInput?.value || 0);
+    const presentRaw = Number(presentStudentsInput?.value || -1);
+
+    return {
+        total: Number.isInteger(totalRaw) ? totalRaw : Math.floor(totalRaw),
+        present: Number.isInteger(presentRaw) ? presentRaw : Math.floor(presentRaw),
+    };
+}
+
+function updateStudentAttendancePreview() {
+    if (!studentAttendancePreview) return;
+
+    const { total, present } = getStudentAttendanceNumbers();
+
+    if (!total || total < 1 || present < 0 || !presentStudentsInput?.value) {
+        studentAttendancePreview.className = 'alert alert-info mb-0';
+        studentAttendancePreview.textContent = 'Isi jumlah siswa hadir untuk melihat persentase.';
+        return;
+    }
+
+    if (present > total) {
+        studentAttendancePreview.className = 'alert alert-warning mb-0';
+        studentAttendancePreview.textContent = 'Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.';
+        return;
+    }
+
+    const percentage = ((present / total) * 100).toFixed(1);
+    studentAttendancePreview.className = 'alert alert-success mb-0';
+    studentAttendancePreview.textContent = `Kehadiran siswa: ${present}/${total} (${percentage}%)`;
+}
 
 function refreshConfirmAttendanceButton() {
     const hasMateri = attendanceMateriInput && attendanceMateriInput.value.trim().length > 0;
-    confirmAttendanceBtn.disabled = !(isLocationValid && hasMateri);
+    const { total, present } = getStudentAttendanceNumbers();
+    const hasValidStudentAttendance = total > 0 && present >= 0 && present <= total && !!presentStudentsInput?.value;
+    confirmAttendanceBtn.disabled = !(isLocationValid && hasMateri && hasValidStudentAttendance);
+    updateStudentAttendancePreview();
 }
 
-function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime) {
+function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime, classTotalStudents) {
     currentScheduleId = scheduleId;
     userLocation = null;
     isLocationValid = false;
+    currentClassTotalStudents = classTotalStudents ? Number(classTotalStudents) : null;
     confirmAttendanceBtn.disabled = true;
     confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
     if (attendanceMateriInput) {
         attendanceMateriInput.value = '';
     }
+    if (presentStudentsInput) {
+        presentStudentsInput.value = '';
+        presentStudentsInput.removeAttribute('max');
+    }
+    if (classTotalStudentsInput) {
+        classTotalStudentsInput.value = '';
+    }
+
+    if (currentClassTotalStudents) {
+        classTotalInputGroup.style.display = 'none';
+        classTotalInfo.className = 'alert alert-success border mb-2';
+        classTotalInfo.innerHTML = `Jumlah siswa kelas sudah tersimpan: <strong>${currentClassTotalStudents} siswa</strong>.`;
+        presentStudentsInput?.setAttribute('max', currentClassTotalStudents);
+    } else {
+        classTotalInputGroup.style.display = '';
+        classTotalInfo.className = 'alert alert-warning border mb-2';
+        classTotalInfo.textContent = 'Jumlah siswa kelas belum tersimpan. Isi sekali untuk kelas ini sebelum presensi.';
+    }
+    updateStudentAttendancePreview();
 
     document.getElementById('modal-subject').innerText = subject;
     document.getElementById('modal-class').innerText = className;
@@ -942,7 +1050,8 @@ document.addEventListener('click', function (e) {
             attendanceTrigger.dataset.className,
             attendanceTrigger.dataset.schoolName,
             attendanceTrigger.dataset.startTime,
-            attendanceTrigger.dataset.endTime
+            attendanceTrigger.dataset.endTime,
+            attendanceTrigger.dataset.classTotalStudents
         );
         return;
     }
@@ -951,6 +1060,22 @@ document.addEventListener('click', function (e) {
         const materi = attendanceMateriInput ? attendanceMateriInput.value.trim() : '';
         if (!materi) {
             Swal.fire({ icon: 'warning', title: 'Materi Wajib Diisi', text: 'Tuliskan materi atau topik yang disampaikan sebelum mengirim presensi.' });
+            return;
+        }
+
+        const { total, present } = getStudentAttendanceNumbers();
+        if (!total || total < 1) {
+            Swal.fire({ icon: 'warning', title: 'Jumlah Siswa Wajib Diisi', text: 'Isi jumlah siswa yang ada di kelas ini terlebih dahulu.' });
+            return;
+        }
+
+        if (present < 0 || !presentStudentsInput?.value) {
+            Swal.fire({ icon: 'warning', title: 'Jumlah Hadir Wajib Diisi', text: 'Isi jumlah siswa yang hadir pada jam mengajar ini.' });
+            return;
+        }
+
+        if (present > total) {
+            Swal.fire({ icon: 'warning', title: 'Jumlah Tidak Valid', text: 'Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.' });
             return;
         }
 
@@ -971,7 +1096,15 @@ document.addEventListener('click', function (e) {
             fetch('{{ route('teaching-attendances.store') }}', {
                 method: 'POST',
                 headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify({ teaching_schedule_id: currentScheduleId, latitude: userLocation.latitude, longitude: userLocation.longitude, lokasi: 'Presensi Mengajar', materi: materi })
+                body: JSON.stringify({
+                    teaching_schedule_id: currentScheduleId,
+                    latitude: userLocation.latitude,
+                    longitude: userLocation.longitude,
+                    lokasi: 'Presensi Mengajar',
+                    materi: materi,
+                    class_total_students: currentClassTotalStudents ? null : total,
+                    present_students: present
+                })
             }).then(async res => {
                 const json = await res.json();
                 return { ok: res.ok, json };
@@ -996,6 +1129,12 @@ document.addEventListener('click', function (e) {
 
 if (attendanceMateriInput) {
     attendanceMateriInput.addEventListener('input', refreshConfirmAttendanceButton);
+}
+if (classTotalStudentsInput) {
+    classTotalStudentsInput.addEventListener('input', refreshConfirmAttendanceButton);
+}
+if (presentStudentsInput) {
+    presentStudentsInput.addEventListener('input', refreshConfirmAttendanceButton);
 }
 </script>
 @endsection

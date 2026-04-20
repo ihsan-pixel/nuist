@@ -9,6 +9,7 @@ use Carbon\CarbonPeriod;
 use App\Models\Holiday;
 use App\Models\Presensi;
 use App\Models\TeachingAttendance;
+use App\Models\TeachingClassStudentCount;
 use App\Models\User;
 
 class LaporanController extends \App\Http\Controllers\Controller
@@ -133,9 +134,41 @@ class LaporanController extends \App\Http\Controllers\Controller
             $schedule->attendance = $schedule->teachingAttendances->first() ?? null;
         });
 
+        $this->attachClassStudentCounts($schedules);
+
         $today = $selectedDate->toDateString();
 
         return view('mobile.teaching-attendances', compact('today', 'schedules'));
+    }
+
+    private function attachClassStudentCounts($schedules): void
+    {
+        $schoolIds = $schedules->pluck('school_id')->filter()->unique()->values();
+        $classNames = $schedules->pluck('class_name')
+            ->map(fn ($className) => trim((string) $className))
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($schoolIds->isEmpty() || $classNames->isEmpty()) {
+            return;
+        }
+
+        $counts = TeachingClassStudentCount::whereIn('school_id', $schoolIds)
+            ->whereIn('class_name', $classNames)
+            ->get()
+            ->keyBy(fn ($count) => $this->classStudentCountKey($count->school_id, $count->class_name));
+
+        $schedules->each(function ($schedule) use ($counts) {
+            $schedule->class_student_count = $counts->get(
+                $this->classStudentCountKey($schedule->school_id, $schedule->class_name)
+            );
+        });
+    }
+
+    private function classStudentCountKey($schoolId, $className): string
+    {
+        return $schoolId . '|' . strtolower(trim((string) $className));
     }
 
     private function buildAttendanceSummary(int $userId, ?string $hariKbm, Carbon $startDate, Carbon $endDate, Carbon $today): array

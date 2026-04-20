@@ -49,6 +49,12 @@
                     @if($item->materi)
                         <div class="text-muted small">Materi: {{ $item->materi }}</div>
                     @endif
+                    @if(!is_null($item->present_students) && !is_null($item->class_total_students))
+                        <div class="text-muted small">
+                            Siswa hadir: {{ $item->present_students }}/{{ $item->class_total_students }}
+                            ({{ number_format($item->student_attendance_percentage, 1) }}%)
+                        </div>
+                    @endif
                 </div>
                 <div class="text-end">
                     <div class="fw-semibold">{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</div>

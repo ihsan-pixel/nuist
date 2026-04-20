@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\TeachingAttendance;
+use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class TeachingAttendanceController extends Controller
@@ -42,6 +44,8 @@ class TeachingAttendanceController extends Controller
             $schedule->attendance = $attendance;
         }
 
+        $this->attachClassStudentCounts($schedules);
+
         return view('teaching-attendances.index', compact('schedules', 'today'));
     }
 
@@ -57,6 +61,8 @@ class TeachingAttendanceController extends Controller
             'longitude' => 'required|numeric',
             'lokasi' => 'nullable|string',
             'materi' => 'required|string|max:1000',
+            'present_students' => 'required|integer|min:0|max:10000',
+            'class_total_students' => 'nullable|integer|min:1|max:10000',
         ]);
 
         $user = Auth::user();
@@ -152,18 +158,70 @@ class TeachingAttendanceController extends Controller
             ], 400);
         }
 
+        $classStudentCount = TeachingClassStudentCount::where('school_id', $schedule->school_id)
+            ->where('class_name', trim((string) $schedule->class_name))
+            ->first();
+
+        if (!$classStudentCount && !$request->filled('class_total_students')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jumlah siswa di kelas wajib diisi untuk jadwal ini.'
+            ], 422);
+        }
+
+        $presentStudents = (int) $request->present_students;
+        $classTotalStudents = $classStudentCount
+            ? (int) $classStudentCount->total_students
+            : (int) $request->class_total_students;
+
+        if ($presentStudents > $classTotalStudents) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.'
+            ], 422);
+        }
+
+        $studentAttendancePercentage = $classTotalStudents > 0
+            ? round(($presentStudents / $classTotalStudents) * 100, 2)
+            : 0;
+
         // Create attendance
-        $attendance = TeachingAttendance::create([
-            'teaching_schedule_id' => $schedule->id,
-            'user_id' => $user->id,
-            'tanggal' => $today,
-            'waktu' => $now,
-            'status' => 'hadir',
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'lokasi' => $request->lokasi,
-            'materi' => $request->materi,
-        ]);
+        $attendance = DB::transaction(function () use (
+            $classStudentCount,
+            $classTotalStudents,
+            $presentStudents,
+            $studentAttendancePercentage,
+            $request,
+            $schedule,
+            $today,
+            $now,
+            $user
+        ) {
+            if (!$classStudentCount) {
+                TeachingClassStudentCount::create([
+                    'school_id' => $schedule->school_id,
+                    'class_name' => trim((string) $schedule->class_name),
+                    'total_students' => $classTotalStudents,
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ]);
+            }
+
+            return TeachingAttendance::create([
+                'teaching_schedule_id' => $schedule->id,
+                'user_id' => $user->id,
+                'tanggal' => $today,
+                'waktu' => $now,
+                'status' => 'hadir',
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'lokasi' => $request->lokasi,
+                'materi' => $request->materi,
+                'class_total_students' => $classTotalStudents,
+                'present_students' => $presentStudents,
+                'student_attendance_percentage' => $studentAttendancePercentage,
+            ]);
+        });
 
         $message = 'Presensi mengajar berhasil dicatat pada ' . $now . '.';
 
@@ -180,6 +238,9 @@ class TeachingAttendanceController extends Controller
                 'waktu' => $now,
                 'school_name' => $schedule->school->name ?? 'N/A',
                 'materi' => $attendance->materi,
+                'class_total_students' => $attendance->class_total_students,
+                'present_students' => $attendance->present_students,
+                'student_attendance_percentage' => $attendance->student_attendance_percentage,
             ]
         ]);
 
@@ -253,6 +314,36 @@ class TeachingAttendanceController extends Controller
             'success' => true,
             'is_within_polygon' => $isWithinPolygon
         ]);
+    }
+
+    private function attachClassStudentCounts($schedules): void
+    {
+        $schoolIds = $schedules->pluck('school_id')->filter()->unique()->values();
+        $classNames = $schedules->pluck('class_name')
+            ->map(fn ($className) => trim((string) $className))
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($schoolIds->isEmpty() || $classNames->isEmpty()) {
+            return;
+        }
+
+        $counts = TeachingClassStudentCount::whereIn('school_id', $schoolIds)
+            ->whereIn('class_name', $classNames)
+            ->get()
+            ->keyBy(fn ($count) => $this->classStudentCountKey($count->school_id, $count->class_name));
+
+        $schedules->each(function ($schedule) use ($counts) {
+            $schedule->class_student_count = $counts->get(
+                $this->classStudentCountKey($schedule->school_id, $schedule->class_name)
+            );
+        });
+    }
+
+    private function classStudentCountKey($schoolId, $className): string
+    {
+        return $schoolId . '|' . strtolower(trim((string) $className));
     }
 
     /**

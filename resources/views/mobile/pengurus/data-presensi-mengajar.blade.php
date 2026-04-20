@@ -162,6 +162,7 @@ if ($hour >= 0 && $hour <= 11) {
                                     <th>Guru</th>
                                     <th>Mata Pelajaran</th>
                                     <th>Materi</th>
+                                    <th>Kehadiran Siswa</th>
                                     <th>Jam</th>
                                     <th>Status</th>
                                 </tr>
@@ -173,6 +174,14 @@ if ($hour >= 0 && $hour <= 11) {
                                     <td>{{ $attendance->teachingSchedule->teacher->name ?? '-' }}</td>
                                     <td>{{ $attendance->teachingSchedule->subject ?? '-' }}</td>
                                     <td>{{ $attendance->materi ?? '-' }}</td>
+                                    <td>
+                                        @if(!is_null($attendance->present_students) && !is_null($attendance->class_total_students))
+                                            {{ $attendance->present_students }}/{{ $attendance->class_total_students }}
+                                            ({{ number_format($attendance->student_attendance_percentage, 1) }}%)
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>{{ $attendance->teachingSchedule->start_time ?? '-' }} - {{ $attendance->teachingSchedule->end_time ?? '-' }}</td>
                                     <td>
                                         <span class="badge bg-success">Hadir</span>
@@ -180,7 +189,7 @@ if ($hour >= 0 && $hour <= 11) {
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">Tidak ada data presensi mengajar.</td>
+                                    <td colspan="7" class="text-center">Tidak ada data presensi mengajar.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
