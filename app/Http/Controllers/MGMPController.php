@@ -9,9 +9,11 @@ use App\Models\StatusKepegawaian;
 use App\Models\MgmpGroup;
 use App\Models\MgmpMember;
 use App\Models\MgmpReport;
+use App\Models\MgmpAttendance;
 use App\Models\AcademicaProposal;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class MGMPController extends Controller
 {
@@ -231,26 +233,223 @@ class MGMPController extends Controller
     public function laporan()
     {
         $user = Auth::user();
+        $mgmpGroup = $this->currentMgmpGroupForUser($user);
 
-        // Get laporan kegiatan (placeholder - can be extended with database model)
-        $laporan = collect(); // Empty collection for now
-        $totalLaporan = 0;
-        $laporanBulanIni = 0;
-        $totalPeserta = 0;
-        $rataRataDurasi = 0;
+        $query = MgmpReport::with(['mgmpGroup', 'attendances.user'])
+            ->withCount('attendances')
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('waktu_mulai', 'desc');
 
-        // Provide members list for the modal attendee selector
-        $members = User::whereIn('role', ['tenaga_pendidik', 'mgmp'])->get();
+        if ($user->role === 'mgmp') {
+            if (!$mgmpGroup) {
+                $laporan = collect();
+            } else {
+                $laporan = $query->where('mgmp_group_id', $mgmpGroup->id)->get();
+            }
+        } else {
+            $laporan = $query->get();
+        }
+
+        $totalLaporan = $laporan->count();
+        $laporanBulanIni = $laporan->filter(function ($report) {
+            return $report->tanggal && Carbon::parse($report->tanggal)->isSameMonth(Carbon::now('Asia/Jakarta'));
+        })->count();
+        $totalPeserta = $laporan->sum('attendances_count');
+        $rataRataDurasi = $this->calculateAverageReportDuration($laporan);
+
+        $mgmpGroups = in_array($user->role, ['super_admin', 'admin', 'pengurus'])
+            ? MgmpGroup::orderBy('name')->get()
+            : collect();
 
         return view('mgmp.laporan', compact(
             'user',
+            'mgmpGroup',
+            'mgmpGroups',
             'laporan',
             'totalLaporan',
             'laporanBulanIni',
             'totalPeserta',
-            'rataRataDurasi',
-            'members'
+            'rataRataDurasi'
         ));
+    }
+
+    public function storeLaporan(Request $request)
+    {
+        $user = Auth::user();
+        $mgmpGroup = $this->currentMgmpGroupForUser($user);
+
+        $request->validate([
+            'mgmp_group_id' => 'nullable|integer|exists:mgmp_groups,id',
+            'judul' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'waktu_mulai' => 'required|date_format:H:i',
+            'waktu_selesai' => 'required|date_format:H:i',
+            'lokasi' => 'nullable|string|max:255',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'radius_meters' => 'nullable|integer|min:10|max:1000',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        if ($request->waktu_selesai <= $request->waktu_mulai) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Waktu selesai harus lebih besar dari waktu mulai.');
+        }
+
+        $groupId = $mgmpGroup?->id;
+        if (in_array($user->role, ['super_admin', 'admin', 'pengurus'])) {
+            $groupId = $request->input('mgmp_group_id');
+        }
+
+        if (!$groupId) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Grup MGMP tidak ditemukan. Pilih atau buat data MGMP terlebih dahulu.');
+        }
+
+        MgmpReport::create([
+            'mgmp_group_id' => $groupId,
+            'created_by' => $user->id,
+            'judul' => $request->judul,
+            'tanggal' => $request->tanggal,
+            'waktu_mulai' => $request->waktu_mulai,
+            'waktu_selesai' => $request->waktu_selesai,
+            'deskripsi' => $request->deskripsi,
+            'lokasi' => $request->lokasi,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'radius_meters' => $request->input('radius_meters', 100),
+            'jumlah_peserta' => 0,
+        ]);
+
+        return redirect()->route('mgmp.laporan')->with('success', 'Kegiatan MGMP berhasil dibuat.');
+    }
+
+    public function presensiKegiatan(MgmpReport $report)
+    {
+        $report->load(['mgmpGroup', 'attendances']);
+        $user = Auth::user();
+        $canAttend = $this->canAttendMgmpReport($user, $report);
+        $existingAttendance = MgmpAttendance::where('mgmp_report_id', $report->id)
+            ->where('user_id', $user->id)
+            ->first();
+        $schedule = $this->reportSchedule($report);
+        $isOngoing = $this->isReportOngoing($report);
+
+        return view('mgmp.presensi', compact(
+            'report',
+            'user',
+            'canAttend',
+            'existingAttendance',
+            'schedule',
+            'isOngoing'
+        ));
+    }
+
+    public function storePresensiKegiatan(Request $request, MgmpReport $report)
+    {
+        $user = Auth::user();
+        $report->load('mgmpGroup');
+
+        if (!$this->canAttendMgmpReport($user, $report)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda tidak terdaftar sebagai anggota pada grup MGMP kegiatan ini.'
+            ], 403);
+        }
+
+        if (!$this->isReportOngoing($report)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi hanya dapat dilakukan saat kegiatan sedang berlangsung.'
+            ], 422);
+        }
+
+        if (!$report->latitude || !$report->longitude) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lokasi kegiatan belum lengkap. Hubungi pengelola MGMP.'
+            ], 422);
+        }
+
+        $request->validate([
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'lokasi' => 'nullable|string|max:255',
+            'accuracy' => 'nullable|numeric',
+            'device_info' => 'nullable|string',
+            'location_readings' => 'nullable|string',
+            'selfie_data' => 'required|string|min:100',
+        ]);
+
+        if (!$this->isValidBase64Image($request->selfie_data)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data foto selfie tidak valid. Silakan ambil foto ulang.'
+            ], 422);
+        }
+
+        $alreadyAttended = MgmpAttendance::where('mgmp_report_id', $report->id)
+            ->where('user_id', $user->id)
+            ->exists();
+
+        if ($alreadyAttended) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi untuk kegiatan ini sudah tercatat.'
+            ], 422);
+        }
+
+        $distanceMeters = (int) round($this->calculateDistanceInMeters(
+            (float) $request->latitude,
+            (float) $request->longitude,
+            (float) $report->latitude,
+            (float) $report->longitude
+        ));
+        $allowedRadius = (int) ($report->radius_meters ?: 100);
+
+        if ($distanceMeters > $allowedRadius) {
+            return response()->json([
+                'success' => false,
+                'message' => "Lokasi Anda berjarak {$distanceMeters} meter dari titik kegiatan. Batas radius presensi adalah {$allowedRadius} meter.",
+                'distance_meters' => $distanceMeters,
+                'radius_meters' => $allowedRadius,
+            ], 422);
+        }
+
+        $selfiePath = $this->saveMgmpSelfie($request->selfie_data, $user->id, $report->id);
+        $locationReadings = null;
+        if ($request->filled('location_readings')) {
+            $decodedReadings = json_decode($request->location_readings, true);
+            $locationReadings = json_last_error() === JSON_ERROR_NONE ? $decodedReadings : null;
+        }
+
+        $attendance = MgmpAttendance::create([
+            'mgmp_report_id' => $report->id,
+            'mgmp_group_id' => $report->mgmp_group_id,
+            'user_id' => $user->id,
+            'attended_at' => Carbon::now('Asia/Jakarta'),
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'distance_meters' => $distanceMeters,
+            'selfie_path' => $selfiePath,
+            'lokasi' => $request->lokasi,
+            'accuracy' => $request->accuracy,
+            'device_info' => $request->device_info,
+            'location_readings' => $locationReadings,
+        ]);
+
+        $report->update([
+            'jumlah_peserta' => $report->attendances()->count(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Presensi kegiatan MGMP berhasil dicatat.',
+            'attended_at' => $attendance->attended_at->format('d M Y H:i'),
+            'distance_meters' => $distanceMeters,
+        ]);
     }
 
     /**
@@ -506,6 +705,126 @@ class MGMPController extends Controller
         return redirect()->back()->with('success', 'Import data MGMP berhasil.');
     }
 
+    private function currentMgmpGroupForUser(?User $user): ?MgmpGroup
+    {
+        if (!$user) {
+            return null;
+        }
+
+        return MgmpGroup::where('user_id', $user->id)->first();
+    }
+
+    private function canAttendMgmpReport(User $user, MgmpReport $report): bool
+    {
+        if (!$report->mgmp_group_id) {
+            return false;
+        }
+
+        if ($report->mgmpGroup && (int) $report->mgmpGroup->user_id === (int) $user->id) {
+            return true;
+        }
+
+        return MgmpMember::where('mgmp_group_id', $report->mgmp_group_id)
+            ->where('user_id', $user->id)
+            ->exists();
+    }
+
+    private function reportSchedule(MgmpReport $report): array
+    {
+        $timezone = 'Asia/Jakarta';
+        $date = $report->tanggal ? Carbon::parse($report->tanggal)->format('Y-m-d') : null;
+
+        if (!$date || !$report->waktu_mulai || !$report->waktu_selesai) {
+            return ['start' => null, 'end' => null];
+        }
+
+        return [
+            'start' => Carbon::parse($date . ' ' . $report->waktu_mulai, $timezone),
+            'end' => Carbon::parse($date . ' ' . $report->waktu_selesai, $timezone),
+        ];
+    }
+
+    private function isReportOngoing(MgmpReport $report): bool
+    {
+        $schedule = $this->reportSchedule($report);
+
+        if (!$schedule['start'] || !$schedule['end']) {
+            return false;
+        }
+
+        return Carbon::now('Asia/Jakarta')->betweenIncluded($schedule['start'], $schedule['end']);
+    }
+
+    private function calculateAverageReportDuration($reports): string
+    {
+        $minutes = $reports->map(function ($report) {
+            $schedule = $this->reportSchedule($report);
+
+            if (!$schedule['start'] || !$schedule['end'] || $schedule['end']->lessThanOrEqualTo($schedule['start'])) {
+                return null;
+            }
+
+            return $schedule['start']->diffInMinutes($schedule['end']);
+        })->filter();
+
+        if ($minutes->isEmpty()) {
+            return '0';
+        }
+
+        return number_format($minutes->avg() / 60, 1);
+    }
+
+    private function calculateDistanceInMeters(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $earthRadiusMeters = 6371000;
+        $latDelta = deg2rad($lat2 - $lat1);
+        $lonDelta = deg2rad($lon2 - $lon1);
+
+        $a = sin($latDelta / 2) ** 2
+            + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($lonDelta / 2) ** 2;
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadiusMeters * $c;
+    }
+
+    private function isValidBase64Image(string $data): bool
+    {
+        if (strlen($data) < 100 || !preg_match('/^data:image\/(jpeg|jpg|png);base64,/', $data)) {
+            return false;
+        }
+
+        $base64Data = preg_replace('/^data:image\/(jpeg|jpg|png);base64,/', '', $data);
+        $decoded = base64_decode($base64Data, true);
+
+        return $decoded !== false && getimagesizefromstring($decoded) !== false;
+    }
+
+    private function saveMgmpSelfie(string $selfieData, int $userId, int $reportId): string
+    {
+        $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $selfieData));
+        $imageInfo = getimagesizefromstring($imageData);
+
+        if (!$imageInfo) {
+            throw new \RuntimeException('Foto selfie tidak dapat diproses.');
+        }
+
+        $extension = image_type_to_extension($imageInfo[2], false) ?: 'jpg';
+        $directory = storage_path('app/public/mgmp-attendance-selfies');
+
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        $filename = 'mgmp_selfie_' . $reportId . '_' . $userId . '_' . time() . '.' . $extension;
+        $path = $directory . DIRECTORY_SEPARATOR . $filename;
+
+        if (file_put_contents($path, $imageData) === false) {
+            throw new \RuntimeException('Gagal menyimpan foto selfie.');
+        }
+
+        return 'mgmp-attendance-selfies/' . $filename;
+    }
+
     /**
      * Logout MGMP user
      */
@@ -515,4 +834,3 @@ class MGMPController extends Controller
         return redirect()->route('login')->with('success', 'Anda telah logout dari MGMP.');
     }
 }
-

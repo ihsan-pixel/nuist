@@ -133,10 +133,10 @@
                                         </div>
                                         <div class="grow">
                                             <div class="d-flex justify-content-between">
-                                                <h6 class="mb-1">{{ $activity->title ?? $activity->name ?? '-' }}</h6>
+                                                <h6 class="mb-1">{{ $activity->judul ?? $activity->title ?? $activity->name ?? '-' }}</h6>
                                                 <small class="text-muted">{{ $activity->created_at->diffForHumans() }}</small>
                                             </div>
-                                            <p class="text-muted small mb-0">{{ Str::limit($activity->description, 120) }}</p>
+                                            <p class="text-muted small mb-0">{{ Str::limit($activity->deskripsi ?? $activity->description ?? '', 120) }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -177,7 +177,7 @@
                                         @foreach($recentReports as $i => $r)
                                         <tr>
                                             <td>{{ $i + 1 }}</td>
-                                            <td>{{ Str::limit($r->name ?? $r->title ?? '-', 40) }}</td>
+                                            <td>{{ Str::limit($r->judul ?? $r->name ?? $r->title ?? '-', 40) }}</td>
                                             <td>{{ isset($r->tanggal) ? \Carbon\Carbon::parse($r->tanggal)->format('d M Y') : '-' }}</td>
                                         </tr>
                                         @endforeach

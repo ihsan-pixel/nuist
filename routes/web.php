@@ -761,6 +761,7 @@ Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgm
     Route::get('/data-anggota', [App\Http\Controllers\MGMPController::class, 'dataAnggota'])->name('data-anggota');
     Route::get('/data-mgmp', [App\Http\Controllers\MGMPController::class, 'manage'])->name('data-mgmp');
     Route::get('/laporan', [App\Http\Controllers\MGMPController::class, 'laporan'])->name('laporan');
+    Route::post('/laporan', [App\Http\Controllers\MGMPController::class, 'storeLaporan'])->name('laporan.store');
 
     // CRUD routes for MGMP (store, update, destroy, import)
     Route::post('/', [App\Http\Controllers\MGMPController::class, 'store'])->name('store');
@@ -777,6 +778,11 @@ Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgm
 
     // Logout route for MGMP
     Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])->name('logout');
+});
+
+Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp,tenaga_pendidik'])->prefix('mgmp')->name('mgmp.')->group(function () {
+    Route::get('/kegiatan/{report}/presensi', [App\Http\Controllers\MGMPController::class, 'presensiKegiatan'])->name('kegiatan.presensi');
+    Route::post('/kegiatan/{report}/presensi', [App\Http\Controllers\MGMPController::class, 'storePresensiKegiatan'])->name('kegiatan.presensi.store');
 });
 
 // Public MGMP landing page (no auth required)

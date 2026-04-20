@@ -20,6 +20,9 @@ class MgmpReport extends Model
         'waktu_selesai',
         'deskripsi',
         'lokasi',
+        'latitude',
+        'longitude',
+        'radius_meters',
         'materi',
         'hasil',
         'dokumentasi',
@@ -31,6 +34,8 @@ class MgmpReport extends Model
         'dokumentasi' => 'array',
         'peserta' => 'array',
         'tanggal' => 'date',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     public function mgmpGroup()
@@ -41,5 +46,10 @@ class MgmpReport extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(MgmpAttendance::class, 'mgmp_report_id');
     }
 }

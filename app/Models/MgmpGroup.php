@@ -27,4 +27,9 @@ class MgmpGroup extends Model
     {
         return $this->hasMany(MgmpReport::class, 'mgmp_group_id');
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(MgmpAttendance::class, 'mgmp_group_id');
+    }
 }
