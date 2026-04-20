@@ -12,6 +12,8 @@
 
         if (!$canAttend) {
             $disabledReason = 'Akun Anda tidak terdaftar sebagai anggota pada grup MGMP kegiatan ini.';
+        } elseif ($report->status === 'cancelled') {
+            $disabledReason = 'Presensi tidak dapat dilakukan karena kegiatan ini sudah dibatalkan.';
         } elseif ($existingAttendance) {
             $disabledReason = 'Presensi kegiatan ini sudah tercatat.';
         } elseif (!$isOngoing) {

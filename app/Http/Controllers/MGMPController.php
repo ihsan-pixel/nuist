@@ -320,10 +320,79 @@ class MGMPController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'radius_meters' => $request->input('radius_meters', 100),
+            'status' => 'scheduled',
             'jumlah_peserta' => 0,
         ]);
 
         return redirect()->route('mgmp.laporan')->with('success', 'Kegiatan MGMP berhasil dibuat.');
+    }
+
+    public function updateLaporan(Request $request, MgmpReport $report)
+    {
+        if (!$this->canManageMgmpReport(Auth::user(), $report)) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit kegiatan ini.');
+        }
+
+        if ($report->status === 'cancelled') {
+            return redirect()->back()->with('error', 'Kegiatan yang sudah dibatalkan tidak dapat diedit.');
+        }
+
+        $request->validate([
+            'mgmp_group_id' => 'nullable|integer|exists:mgmp_groups,id',
+            'judul' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'waktu_mulai' => 'required|date_format:H:i',
+            'waktu_selesai' => 'required|date_format:H:i',
+            'lokasi' => 'nullable|string|max:255',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'radius_meters' => 'nullable|integer|min:10|max:1000',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        if ($request->waktu_selesai <= $request->waktu_mulai) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Waktu selesai harus lebih besar dari waktu mulai.');
+        }
+
+        $groupId = $report->mgmp_group_id;
+        if (in_array(Auth::user()->role, ['super_admin', 'admin', 'pengurus'])) {
+            $groupId = $request->input('mgmp_group_id') ?: $groupId;
+        }
+
+        $report->update([
+            'mgmp_group_id' => $groupId,
+            'judul' => $request->judul,
+            'tanggal' => $request->tanggal,
+            'waktu_mulai' => $request->waktu_mulai,
+            'waktu_selesai' => $request->waktu_selesai,
+            'deskripsi' => $request->deskripsi,
+            'lokasi' => $request->lokasi,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'radius_meters' => $request->input('radius_meters', 100),
+        ]);
+
+        return redirect()->route('mgmp.laporan')->with('success', 'Kegiatan MGMP berhasil diperbarui.');
+    }
+
+    public function cancelLaporan(MgmpReport $report)
+    {
+        if (!$this->canManageMgmpReport(Auth::user(), $report)) {
+            abort(403, 'Anda tidak memiliki akses untuk membatalkan kegiatan ini.');
+        }
+
+        if ($report->status === 'cancelled') {
+            return redirect()->back()->with('error', 'Kegiatan ini sudah dibatalkan.');
+        }
+
+        $report->update([
+            'status' => 'cancelled',
+            'cancelled_at' => Carbon::now('Asia/Jakarta'),
+        ]);
+
+        return redirect()->route('mgmp.laporan')->with('success', 'Kegiatan MGMP berhasil dibatalkan.');
     }
 
     public function presensiKegiatan(MgmpReport $report)
@@ -362,7 +431,9 @@ class MGMPController extends Controller
         if (!$this->isReportOngoing($report)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Presensi hanya dapat dilakukan saat kegiatan sedang berlangsung.'
+                'message' => $report->status === 'cancelled'
+                    ? 'Presensi tidak dapat dilakukan karena kegiatan ini sudah dibatalkan.'
+                    : 'Presensi hanya dapat dilakukan saat kegiatan sedang berlangsung.'
             ], 422);
         }
 
@@ -738,6 +809,17 @@ class MGMPController extends Controller
             ->exists();
     }
 
+    private function canManageMgmpReport(User $user, MgmpReport $report): bool
+    {
+        if (in_array($user->role, ['super_admin', 'admin', 'pengurus'])) {
+            return true;
+        }
+
+        return $user->role === 'mgmp'
+            && $report->mgmpGroup
+            && (int) $report->mgmpGroup->user_id === (int) $user->id;
+    }
+
     private function reportSchedule(MgmpReport $report): array
     {
         $timezone = 'Asia/Jakarta';
@@ -755,6 +837,10 @@ class MGMPController extends Controller
 
     private function isReportOngoing(MgmpReport $report): bool
     {
+        if ($report->status === 'cancelled') {
+            return false;
+        }
+
         $schedule = $this->reportSchedule($report);
 
         if (!$schedule['start'] || !$schedule['end']) {

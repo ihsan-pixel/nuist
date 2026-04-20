@@ -148,8 +148,9 @@
                                         ? \Carbon\Carbon::parse($report->tanggal->format('Y-m-d') . ' ' . $report->waktu_selesai, 'Asia/Jakarta')
                                         : null;
                                     $isOngoing = $start && $end && $now->betweenIncluded($start, $end);
+                                    $isCancelled = $report->status === 'cancelled';
                                 @endphp
-                                <tr class="border-bottom border-light">
+                                <tr class="border-bottom border-light {{ $isCancelled ? 'table-light text-muted' : '' }}">
                                     <td class="py-3 ps-4">{{ $loop->iteration }}</td>
                                     <td class="py-3">
                                         <h6 class="mb-1">{{ $report->judul }}</h6>
@@ -163,7 +164,9 @@
                                             <div class="fw-medium">{{ $start->format('d M Y') }}</div>
                                             <small class="text-muted">{{ $start->format('H:i') }} - {{ $end->format('H:i') }} WIB</small>
                                             <div class="mt-1">
-                                                @if($isOngoing)
+                                                @if($isCancelled)
+                                                    <span class="badge bg-danger">Dibatalkan</span>
+                                                @elseif($isOngoing)
                                                     <span class="badge bg-success">Sedang Berlangsung</span>
                                                 @elseif($now->lt($start))
                                                     <span class="badge bg-info">Akan Datang</span>
@@ -189,12 +192,21 @@
                                     </td>
                                     <td class="py-3 pe-4">
                                         <div class="d-flex flex-wrap gap-2">
-                                            <a href="{{ route('mgmp.kegiatan.presensi', $report) }}" target="_blank" class="btn btn-sm btn-success">
+                                            <a href="{{ route('mgmp.kegiatan.presensi', $report) }}" target="_blank" class="btn btn-sm btn-success {{ $isCancelled ? 'disabled' : '' }}">
                                                 <i class="mdi mdi-cellphone-check me-1"></i> Form Presensi
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-secondary btn-copy-presensi" data-url="{{ route('mgmp.kegiatan.presensi', $report) }}">
                                                 <i class="mdi mdi-content-copy me-1"></i> Salin Link
                                             </button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editKegiatanModal{{ $report->id }}" @disabled($isCancelled)>
+                                                <i class="mdi mdi-pencil me-1"></i> Edit
+                                            </button>
+                                            <form action="{{ route('mgmp.laporan.cancel', $report) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan kegiatan MGMP ini? Presensi untuk kegiatan ini akan ditutup.');">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" @disabled($isCancelled)>
+                                                    <i class="mdi mdi-cancel me-1"></i> Batalkan
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -261,6 +273,81 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editKegiatanModal{{ $report->id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Kegiatan MGMP</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('mgmp.laporan.update', $report) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            @if(in_array($user->role, ['super_admin', 'admin', 'pengurus']))
+                                <div class="col-12">
+                                    <label class="form-label">Grup MGMP</label>
+                                    <select class="form-select" name="mgmp_group_id" required>
+                                        @foreach($mgmpGroups as $group)
+                                            <option value="{{ $group->id }}" @selected($report->mgmp_group_id == $group->id)>{{ $group->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            <div class="col-12">
+                                <label class="form-label">Nama Kegiatan</label>
+                                <input type="text" class="form-control" name="judul" value="{{ $report->judul }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tanggal</label>
+                                <input type="date" class="form-control" name="tanggal" value="{{ $report->tanggal ? $report->tanggal->format('Y-m-d') : '' }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Waktu Mulai</label>
+                                <input type="time" class="form-control" name="waktu_mulai" value="{{ $report->waktu_mulai ? \Carbon\Carbon::parse($report->waktu_mulai)->format('H:i') : '' }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Waktu Selesai</label>
+                                <input type="time" class="form-control" name="waktu_selesai" value="{{ $report->waktu_selesai ? \Carbon\Carbon::parse($report->waktu_selesai)->format('H:i') : '' }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Nama Lokasi</label>
+                                <input type="text" class="form-control" name="lokasi" value="{{ $report->lokasi }}" placeholder="Contoh: Aula LP Ma'arif NU DIY">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Latitude</label>
+                                <input type="number" step="0.00000001" class="form-control" name="latitude" value="{{ $report->latitude }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Longitude</label>
+                                <input type="number" step="0.00000001" class="form-control" name="longitude" value="{{ $report->longitude }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Radius Presensi (meter)</label>
+                                <input type="number" min="10" max="1000" class="form-control" name="radius_meters" value="{{ $report->radius_meters ?? 100 }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Deskripsi (opsional)</label>
+                                <textarea class="form-control" name="deskripsi" rows="3">{{ $report->deskripsi }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="alert alert-info mb-0">
+                                    Jika perlu mengubah titik lokasi dengan map/link, gunakan modal tambah sebagai acuan lalu salin koordinatnya ke field latitude dan longitude.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

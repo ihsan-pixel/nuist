@@ -765,6 +765,8 @@ Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgm
     Route::get('/data-mgmp', [App\Http\Controllers\MGMPController::class, 'manage'])->name('data-mgmp');
     Route::get('/laporan', [App\Http\Controllers\MGMPController::class, 'laporan'])->name('laporan');
     Route::post('/laporan', [App\Http\Controllers\MGMPController::class, 'storeLaporan'])->name('laporan.store');
+    Route::put('/laporan/{report}', [App\Http\Controllers\MGMPController::class, 'updateLaporan'])->name('laporan.update');
+    Route::post('/laporan/{report}/cancel', [App\Http\Controllers\MGMPController::class, 'cancelLaporan'])->name('laporan.cancel');
 
     // CRUD routes for MGMP (store, update, destroy, import)
     Route::post('/', [App\Http\Controllers\MGMPController::class, 'store'])->name('store');

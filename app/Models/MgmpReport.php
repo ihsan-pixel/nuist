@@ -23,6 +23,8 @@ class MgmpReport extends Model
         'latitude',
         'longitude',
         'radius_meters',
+        'status',
+        'cancelled_at',
         'materi',
         'hasil',
         'dokumentasi',
@@ -36,6 +38,7 @@ class MgmpReport extends Model
         'tanggal' => 'date',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'cancelled_at' => 'datetime',
     ];
 
     public function mgmpGroup()

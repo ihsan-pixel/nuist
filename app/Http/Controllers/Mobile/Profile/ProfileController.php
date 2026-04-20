@@ -52,6 +52,10 @@ class ProfileController extends \App\Http\Controllers\Controller
                 },
             ])
                 ->whereIn('mgmp_group_id', $mgmpGroupIds)
+                ->where(function ($query) {
+                    $query->whereNull('status')
+                        ->orWhere('status', '!=', 'cancelled');
+                })
                 ->whereDate('tanggal', '>=', $now->toDateString())
                 ->orderBy('tanggal')
                 ->orderBy('waktu_mulai')
