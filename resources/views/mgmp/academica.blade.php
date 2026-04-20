@@ -98,7 +98,7 @@
     </div>
 </div>
 
-<div class="card mgmp-panel">
+{{-- <div class="card mgmp-panel">
     <div class="card-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
@@ -143,7 +143,7 @@
             </table>
         </div>
     </div>
-</div>
+</div> --}}
 </div>
 
 @else
