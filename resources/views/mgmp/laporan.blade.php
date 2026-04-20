@@ -246,7 +246,7 @@
                                         <td>{{ $attendance->distance_meters ?? '-' }} m</td>
                                         <td>
                                             @if($attendance->selfie_path)
-                                                <a href="{{ asset('storage/' . $attendance->selfie_path) }}" target="_blank">Lihat</a>
+                                                <a href="{{ route('foto.mgmp_attendance', $attendance) }}" target="_blank">Lihat</a>
                                             @else
                                                 -
                                             @endif

@@ -183,7 +183,7 @@
                     <div><strong>Waktu:</strong> {{ $existingAttendance->attended_at->format('d M Y H:i') }} WIB</div>
                     <div><strong>Jarak:</strong> {{ $existingAttendance->distance_meters }} meter dari titik kegiatan</div>
                     @if($existingAttendance->selfie_path)
-                        <a href="{{ asset('storage/' . $existingAttendance->selfie_path) }}" target="_blank" class="btn btn-outline-success btn-sm mt-3">Lihat Selfie</a>
+                        <a href="{{ route('foto.mgmp_attendance', $existingAttendance) }}" target="_blank" class="btn btn-outline-success btn-sm mt-3">Lihat Selfie</a>
                     @endif
                 </div>
             @endif

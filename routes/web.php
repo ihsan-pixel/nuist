@@ -178,6 +178,9 @@ Route::get('/download/app-nuist', function () {
 })->name('download.app-nuist')->middleware('auth');
 
 // Foto routes for accessing images from nuist folder
+Route::get('/foto/mgmp-attendance/{attendance}', [App\Http\Controllers\FotoController::class, 'showMgmpAttendance'])
+    ->name('foto.mgmp_attendance')
+    ->middleware('auth');
 Route::get('/foto/{type}/{id}', [App\Http\Controllers\FotoController::class, 'show'])->name('foto.show');
 
 // Clear cache endpoint (accessible without authentication)
