@@ -872,6 +872,9 @@
                         <div class="grow">
                             <div class="fw-medium" style="font-size: 11px; color: #212529;">{{ $teacher['teacher_name'] }}</div>
                             <small class="text-muted" style="font-size: 10px;">{{ $teacher['subject'] }} • {{ $teacher['time'] }}</small>
+                            @if(!empty($teacher['materi']))
+                                <div class="text-muted" style="font-size: 10px;">Materi: {{ $teacher['materi'] }}</div>
+                            @endif
                         </div>
                         <span class="badge bg-success" style="font-size: 8px;">
                             <i class="bx bx-check me-1"></i>Hadir
@@ -1061,6 +1064,15 @@ function changeMonth(monthValue) {
 }
 
 // Teaching Attendance Month change functionality
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 function changeTeachingMonth(monthValue) {
     const schoolId = '{{ $madrasah->id }}';
 
@@ -1124,11 +1136,16 @@ function changeTeachingMonth(monthValue) {
                     hasData = true;
                     let teachersHtml = '';
                     day.teachers.forEach(teacher => {
+                        const materiHtml = teacher.materi
+                            ? `<div class="text-muted" style="font-size: 10px;">Materi: ${escapeHtml(teacher.materi)}</div>`
+                            : '';
+
                         teachersHtml += `
                             <div class="d-flex align-items-center py-1 border-top" style="border-color: #e9ecef !important;">
                                 <div class="grow">
-                                    <div class="fw-medium" style="font-size: 11px; color: #212529;">${teacher.teacher_name}</div>
-                                    <small class="text-muted" style="font-size: 10px;">${teacher.subject} • ${teacher.time}</small>
+                                    <div class="fw-medium" style="font-size: 11px; color: #212529;">${escapeHtml(teacher.teacher_name)}</div>
+                                    <small class="text-muted" style="font-size: 10px;">${escapeHtml(teacher.subject)} • ${escapeHtml(teacher.time)}</small>
+                                    ${materiHtml}
                                 </div>
                                 <span class="badge bg-success" style="font-size: 8px;">
                                     <i class="bx bx-check me-1"></i>Hadir
@@ -1198,4 +1215,3 @@ function changeTeachingMonth(monthValue) {
 }
 </script>
 @endsection
-

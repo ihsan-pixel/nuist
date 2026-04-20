@@ -580,6 +580,7 @@ class SekolahController extends \App\Http\Controllers\Controller
                     'teacher_name' => $teacherName,
                     'subject' => $subject,
                     'time' => $startTime . ' - ' . $endTime,
+                    'materi' => $attendance->materi,
                     'status' => $attendance->status ?? 'hadir'
                 ];
             }
