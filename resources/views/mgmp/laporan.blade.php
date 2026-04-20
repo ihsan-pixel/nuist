@@ -309,6 +309,16 @@
                             <label class="form-label">Nama Lokasi</label>
                             <input type="text" class="form-control" name="lokasi" value="{{ old('lokasi') }}" placeholder="Contoh: Aula LP Ma'arif NU DIY">
                         </div>
+                        <div class="col-12">
+                            <label class="form-label">Link Lokasi</label>
+                            <div class="input-group">
+                                <input type="url" class="form-control" id="locationLinkInput" placeholder="Tempel link Google Maps / OpenStreetMap di sini">
+                                <button type="button" class="btn btn-outline-primary" id="btnApplyLocationLink">
+                                    Gunakan Link
+                                </button>
+                            </div>
+                            <small class="text-muted">Bisa pakai link lokasi langsung. Sistem akan mencoba membaca latitude dan longitude dari link.</small>
+                        </div>
                         <div class="col-md-4">
                             <label class="form-label">Latitude</label>
                             <input type="number" step="0.00000001" class="form-control" id="latitudeInput" name="latitude" value="{{ old('latitude') }}" required>
@@ -326,6 +336,15 @@
                                 <i class="mdi mdi-crosshairs-gps me-1"></i> Gunakan Lokasi Saat Ini
                             </button>
                             <small class="text-muted ms-2">Titik ini menjadi acuan validasi GPS presensi anggota.</small>
+                        </div>
+                        <div class="col-12">
+                            <div id="mgmpLocationMap" style="height: 320px; border-radius: 14px; overflow: hidden; border: 1px solid #dee2e6;"></div>
+                            <small class="text-muted d-block mt-2">
+                                Klik peta untuk menentukan titik lokasi atau geser marker yang muncul.
+                            </small>
+                            <div id="locationPickerStatus" class="small text-muted mt-1">
+                                Belum ada titik lokasi dipilih.
+                            </div>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Deskripsi (opsional)</label>
@@ -348,8 +367,102 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const locationButton = document.getElementById('btnUseCurrentLocation');
+    const applyLocationLinkButton = document.getElementById('btnApplyLocationLink');
+    const locationLinkInput = document.getElementById('locationLinkInput');
     const latitudeInput = document.getElementById('latitudeInput');
     const longitudeInput = document.getElementById('longitudeInput');
+    const locationStatus = document.getElementById('locationPickerStatus');
+    const modalElement = document.getElementById('tambahKegiatanModal');
+    const defaultLat = -7.80119450;
+    const defaultLng = 110.36491730;
+    let locationMap = null;
+    let locationMarker = null;
+
+    function setStatus(message, type = 'muted') {
+        locationStatus.className = 'small mt-1 text-' + type;
+        locationStatus.textContent = message;
+    }
+
+    function updateCoordinateInputs(lat, lng, message = null) {
+        latitudeInput.value = Number(lat).toFixed(8);
+        longitudeInput.value = Number(lng).toFixed(8);
+
+        if (locationMarker) {
+            locationMarker.setLatLng([lat, lng]);
+        } else if (locationMap) {
+            locationMarker = L.marker([lat, lng], { draggable: true }).addTo(locationMap);
+            locationMarker.on('dragend', function (event) {
+                const position = event.target.getLatLng();
+                updateCoordinateInputs(position.lat, position.lng, 'Marker digeser. Koordinat diperbarui.');
+                locationMap.panTo(position);
+            });
+        }
+
+        if (locationMap) {
+            locationMap.setView([lat, lng], Math.max(locationMap.getZoom(), 16));
+        }
+
+        setStatus(message || ('Titik dipilih: ' + Number(lat).toFixed(8) + ', ' + Number(lng).toFixed(8)), 'success');
+    }
+
+    function extractCoordinatesFromLink(url) {
+        const patterns = [
+            /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+            /[?&]q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+            /[?&]ll=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+            /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+            /#map=\d+\/(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)/,
+            /(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/
+        ];
+
+        for (const pattern of patterns) {
+            const match = url.match(pattern);
+            if (match) {
+                return {
+                    lat: parseFloat(match[1]),
+                    lng: parseFloat(match[2])
+                };
+            }
+        }
+
+        return null;
+    }
+
+    function initializeLocationMap() {
+        if (locationMap) {
+            locationMap.invalidateSize();
+            return;
+        }
+
+        locationMap = L.map('mgmpLocationMap').setView([defaultLat, defaultLng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(locationMap);
+
+        locationMap.on('click', function (event) {
+            updateCoordinateInputs(event.latlng.lat, event.latlng.lng, 'Titik lokasi dipilih dari peta.');
+        });
+
+        const initialLat = parseFloat(latitudeInput.value);
+        const initialLng = parseFloat(longitudeInput.value);
+        if (!Number.isNaN(initialLat) && !Number.isNaN(initialLng)) {
+            updateCoordinateInputs(initialLat, initialLng, 'Koordinat awal dimuat ke peta.');
+        } else {
+            setStatus('Belum ada titik lokasi dipilih.');
+        }
+    }
+
+    if (modalElement) {
+        modalElement.addEventListener('shown.bs.modal', function () {
+            initializeLocationMap();
+            if (locationMap) {
+                setTimeout(function () {
+                    locationMap.invalidateSize();
+                }, 100);
+            }
+        });
+    }
 
     if (locationButton) {
         locationButton.addEventListener('click', function () {
@@ -362,8 +475,11 @@ document.addEventListener('DOMContentLoaded', function () {
             locationButton.innerHTML = '<i class="mdi mdi-loading mdi-spin me-1"></i> Mengambil lokasi...';
 
             navigator.geolocation.getCurrentPosition(function (position) {
-                latitudeInput.value = position.coords.latitude.toFixed(8);
-                longitudeInput.value = position.coords.longitude.toFixed(8);
+                updateCoordinateInputs(
+                    position.coords.latitude,
+                    position.coords.longitude,
+                    'Lokasi saat ini berhasil digunakan.'
+                );
                 locationButton.disabled = false;
                 locationButton.innerHTML = '<i class="mdi mdi-crosshairs-gps me-1"></i> Gunakan Lokasi Saat Ini';
             }, function () {
@@ -377,6 +493,35 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    if (applyLocationLinkButton) {
+        applyLocationLinkButton.addEventListener('click', function () {
+            const rawLink = (locationLinkInput.value || '').trim();
+            if (!rawLink) {
+                setStatus('Tempel link lokasi terlebih dahulu.', 'danger');
+                return;
+            }
+
+            const coordinates = extractCoordinatesFromLink(rawLink);
+            if (!coordinates || Number.isNaN(coordinates.lat) || Number.isNaN(coordinates.lng)) {
+                setStatus('Koordinat tidak ditemukan dari link lokasi tersebut.', 'danger');
+                return;
+            }
+
+            updateCoordinateInputs(coordinates.lat, coordinates.lng, 'Koordinat berhasil diambil dari link lokasi.');
+        });
+    }
+
+    [latitudeInput, longitudeInput].forEach(function (input) {
+        input.addEventListener('change', function () {
+            const lat = parseFloat(latitudeInput.value);
+            const lng = parseFloat(longitudeInput.value);
+
+            if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+                updateCoordinateInputs(lat, lng, 'Koordinat manual diterapkan ke peta.');
+            }
+        });
+    });
 
     document.querySelectorAll('.btn-copy-presensi').forEach(function (button) {
         button.addEventListener('click', async function () {
@@ -398,6 +543,10 @@ document.addEventListener('DOMContentLoaded', function () {
 <style>
 .table-hover tbody tr:hover {
     background-color: rgba(0, 123, 255, 0.05);
+}
+
+#mgmpLocationMap .leaflet-control-attribution {
+    font-size: 10px;
 }
 </style>
 @endsection
