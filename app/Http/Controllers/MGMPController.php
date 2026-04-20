@@ -401,6 +401,15 @@ class MGMPController extends Controller
             ], 422);
         }
 
+        $locationValidation = $this->validateMgmpLocationForFakeGPS($request);
+        if ($locationValidation['is_fake']) {
+            return response()->json([
+                'success' => false,
+                'message' => $locationValidation['message'],
+                'analysis' => $locationValidation['analysis'],
+            ], 422);
+        }
+
         $distanceMeters = (int) round($this->calculateDistanceInMeters(
             (float) $request->latitude,
             (float) $request->longitude,
@@ -785,6 +794,104 @@ class MGMPController extends Controller
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return $earthRadiusMeters * $c;
+    }
+
+    private function validateMgmpLocationForFakeGPS(Request $request): array
+    {
+        $analysis = [
+            'accuracy_check' => false,
+            'consistency_check' => false,
+            'device_info_check' => false,
+            'coordinate_check' => false,
+            'suspicious_indicators' => [],
+        ];
+        $messages = [];
+
+        if ($request->accuracy && (float) $request->accuracy < 3) {
+            $analysis['accuracy_check'] = true;
+            $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
+            $messages[] = 'Akurasi GPS terlalu sempurna (Terindikasi Lokasi Palsu)';
+        }
+
+        if ($request->filled('location_readings') && !$this->isMgmpLocationReadingConsistent($request->location_readings)) {
+            $analysis['consistency_check'] = true;
+            $analysis['suspicious_indicators'][] = 'location_consistency';
+            $messages[] = 'Peringatan, presensi anda terindikasi sebagai lokasi tidak sesuai. Silahkan geser atau pindah dari posisi sebelumnya.';
+        }
+
+        if ($request->device_info) {
+            $deviceInfo = strtolower($request->device_info);
+            foreach (['fake', 'mock', 'gps', 'spoof'] as $keyword) {
+                if (strpos($deviceInfo, $keyword) !== false) {
+                    $analysis['device_info_check'] = true;
+                    $analysis['suspicious_indicators'][] = 'device_info_suspicious';
+                    $messages[] = 'Informasi device menunjukkan indikasi penggunaan aplikasi lokasi palsu';
+                    break;
+                }
+            }
+        }
+
+        if ($request->latitude && $request->longitude) {
+            $latStr = (string) $request->latitude;
+            $lngStr = (string) $request->longitude;
+            $latParts = explode('.', $latStr);
+            $lngParts = explode('.', $lngStr);
+            $latDecimals = isset($latParts[1]) ? strlen($latParts[1]) : 0;
+            $lngDecimals = isset($lngParts[1]) ? strlen($lngParts[1]) : 0;
+
+            if ($latDecimals > 15 || $lngDecimals > 15) {
+                $analysis['coordinate_check'] = true;
+                $analysis['suspicious_indicators'][] = 'precision_too_high';
+                $messages[] = 'Presisi koordinat GPS tidak wajar';
+            }
+
+            if (fmod((float) $request->latitude, 1) == 0.0 || fmod((float) $request->longitude, 1) == 0.0) {
+                $analysis['coordinate_check'] = true;
+                $analysis['suspicious_indicators'][] = 'round_coordinates';
+                $messages[] = 'Koordinat GPS terlalu bulat (kemungkinan fake)';
+            }
+        }
+
+        return [
+            'is_fake' => !empty($messages),
+            'message' => !empty($messages) ? implode('. ', array_unique($messages)) : '',
+            'analysis' => $analysis,
+        ];
+    }
+
+    private function isMgmpLocationReadingConsistent(string $locationReadings): bool
+    {
+        $readings = json_decode($locationReadings, true);
+
+        if (!is_array($readings) || count($readings) < 4) {
+            return true;
+        }
+
+        $firstFourReadings = array_slice($readings, 0, 4);
+        $referenceLat = $firstFourReadings[0]['latitude'] ?? null;
+        $referenceLng = $firstFourReadings[0]['longitude'] ?? null;
+
+        if ($referenceLat === null || $referenceLng === null) {
+            return true;
+        }
+
+        $consistentCount = 0;
+        $tolerance = 0.0001;
+
+        foreach ($firstFourReadings as $reading) {
+            if (!isset($reading['latitude'], $reading['longitude'])) {
+                continue;
+            }
+
+            $latDiff = abs((float) $reading['latitude'] - (float) $referenceLat);
+            $lngDiff = abs((float) $reading['longitude'] - (float) $referenceLng);
+
+            if ($latDiff <= $tolerance && $lngDiff <= $tolerance) {
+                $consistentCount++;
+            }
+        }
+
+        return $consistentCount < 4;
     }
 
     private function isValidBase64Image(string $data): bool
