@@ -310,6 +310,31 @@
                             <input type="text" class="form-control" name="lokasi" value="{{ old('lokasi') }}" placeholder="Contoh: Aula LP Ma'arif NU DIY">
                         </div>
                         <div class="col-12">
+                            <label class="form-label">Metode Penentuan Lokasi</label>
+                            <div class="location-method-grid">
+                                <label class="location-method-card">
+                                    <input type="radio" name="location_method" value="link" class="location-method-input" checked>
+                                    <span class="location-method-icon"><i class="mdi mdi-link-variant"></i></span>
+                                    <span class="location-method-title">Gunakan Link</span>
+                                    <small>Tempel link Google Maps / OpenStreetMap</small>
+                                </label>
+                                <label class="location-method-card">
+                                    <input type="radio" name="location_method" value="current" class="location-method-input">
+                                    <span class="location-method-icon"><i class="mdi mdi-crosshairs-gps"></i></span>
+                                    <span class="location-method-title">Lokasi Saat Ini</span>
+                                    <small>Ambil titik dari GPS perangkat</small>
+                                </label>
+                                <label class="location-method-card">
+                                    <input type="radio" name="location_method" value="map" class="location-method-input">
+                                    <span class="location-method-icon"><i class="mdi mdi-map-marker-radius"></i></span>
+                                    <span class="location-method-title">Pilih di Map</span>
+                                    <small>Klik peta atau geser marker</small>
+                                </label>
+                            </div>
+                            <small class="text-muted">Pilih salah satu metode. Semua metode akan mengisi latitude dan longitude kegiatan.</small>
+                        </div>
+
+                        <div class="col-12 location-method-panel" data-location-panel="link">
                             <label class="form-label">Link Lokasi</label>
                             <div class="input-group">
                                 <input type="url" class="form-control" id="locationLinkInput" placeholder="Tempel link Google Maps / OpenStreetMap di sini">
@@ -317,7 +342,19 @@
                                     Gunakan Link
                                 </button>
                             </div>
-                            <small class="text-muted">Bisa pakai link lokasi langsung. Sistem akan mencoba membaca latitude dan longitude dari link.</small>
+                            <small class="text-muted">Contoh: link Google Maps yang mengandung koordinat `@lat,lng` atau `q=lat,lng`.</small>
+                        </div>
+
+                        <div class="col-12 location-method-panel d-none" data-location-panel="current">
+                            <div class="location-method-helper">
+                                <div>
+                                    <h6 class="mb-1">Gunakan Lokasi Saat Ini</h6>
+                                    <small class="text-muted">Pastikan Anda sedang berada di lokasi kegiatan dan browser mengizinkan akses lokasi.</small>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="btnUseCurrentLocation">
+                                    <i class="mdi mdi-crosshairs-gps me-1"></i> Ambil Lokasi Saat Ini
+                                </button>
+                            </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Latitude</label>
@@ -331,18 +368,14 @@
                             <label class="form-label">Radius Presensi (meter)</label>
                             <input type="number" min="10" max="1000" class="form-control" name="radius_meters" value="{{ old('radius_meters', 100) }}" required>
                         </div>
-                        <div class="col-12">
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btnUseCurrentLocation">
-                                <i class="mdi mdi-crosshairs-gps me-1"></i> Gunakan Lokasi Saat Ini
-                            </button>
-                            <small class="text-muted ms-2">Titik ini menjadi acuan validasi GPS presensi anggota.</small>
-                        </div>
-                        <div class="col-12">
+                        <div class="col-12 location-method-panel d-none" data-location-panel="map">
                             <div id="mgmpLocationMap" style="height: 320px; border-radius: 14px; overflow: hidden; border: 1px solid #dee2e6;"></div>
                             <small class="text-muted d-block mt-2">
                                 Klik peta untuk menentukan titik lokasi atau geser marker yang muncul.
                             </small>
-                            <div id="locationPickerStatus" class="small text-muted mt-1">
+                        </div>
+                        <div class="col-12">
+                            <div id="locationPickerStatus" class="small text-muted">
                                 Belum ada titik lokasi dipilih.
                             </div>
                         </div>
@@ -373,6 +406,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const longitudeInput = document.getElementById('longitudeInput');
     const locationStatus = document.getElementById('locationPickerStatus');
     const modalElement = document.getElementById('tambahKegiatanModal');
+    const methodInputs = document.querySelectorAll('.location-method-input');
+    const methodPanels = document.querySelectorAll('.location-method-panel');
+    const methodCards = document.querySelectorAll('.location-method-card');
     const defaultLat = -7.80119450;
     const defaultLng = 110.36491730;
     let locationMap = null;
@@ -381,6 +417,41 @@ document.addEventListener('DOMContentLoaded', function () {
     function setStatus(message, type = 'muted') {
         locationStatus.className = 'small mt-1 text-' + type;
         locationStatus.textContent = message;
+    }
+
+    function selectedLocationMethod() {
+        const selected = document.querySelector('.location-method-input:checked');
+        return selected ? selected.value : 'link';
+    }
+
+    function applyLocationMethod(method) {
+        methodPanels.forEach(function (panel) {
+            panel.classList.toggle('d-none', panel.dataset.locationPanel !== method);
+        });
+
+        methodCards.forEach(function (card) {
+            const input = card.querySelector('.location-method-input');
+            card.classList.toggle('active', input && input.checked);
+        });
+
+        if (method === 'map') {
+            initializeLocationMap();
+            setTimeout(function () {
+                if (locationMap) {
+                    locationMap.invalidateSize();
+                }
+            }, 120);
+        }
+
+        const methodMessages = {
+            link: 'Tempel link lokasi lalu klik Gunakan Link.',
+            current: 'Klik Ambil Lokasi Saat Ini untuk memakai GPS perangkat.',
+            map: 'Klik peta untuk menentukan titik lokasi kegiatan.'
+        };
+
+        if (!latitudeInput.value || !longitudeInput.value) {
+            setStatus(methodMessages[method] || 'Pilih metode penentuan lokasi.');
+        }
     }
 
     function updateCoordinateInputs(lat, lng, message = null) {
@@ -455,14 +526,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (modalElement) {
         modalElement.addEventListener('shown.bs.modal', function () {
-            initializeLocationMap();
-            if (locationMap) {
+            applyLocationMethod(selectedLocationMethod());
+            if (selectedLocationMethod() === 'map' && locationMap) {
                 setTimeout(function () {
                     locationMap.invalidateSize();
                 }, 100);
             }
         });
     }
+
+    methodInputs.forEach(function (input) {
+        input.addEventListener('change', function () {
+            applyLocationMethod(input.value);
+        });
+    });
+
+    applyLocationMethod(selectedLocationMethod());
 
     if (locationButton) {
         locationButton.addEventListener('click', function () {
@@ -545,8 +624,82 @@ document.addEventListener('DOMContentLoaded', function () {
     background-color: rgba(0, 123, 255, 0.05);
 }
 
+.location-method-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.location-method-card {
+    border: 1px solid #dee2e6;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.location-method-card.active {
+    background: rgba(13, 110, 253, 0.08);
+    border-color: #0d6efd;
+    box-shadow: 0 8px 22px rgba(13, 110, 253, 0.12);
+}
+
+.location-method-card input {
+    display: none;
+}
+
+.location-method-icon {
+    align-items: center;
+    background: #f1f5f9;
+    border-radius: 10px;
+    display: inline-flex;
+    height: 34px;
+    justify-content: center;
+    width: 34px;
+}
+
+.location-method-icon i {
+    color: #0d6efd;
+    font-size: 20px;
+}
+
+.location-method-title {
+    color: #1f2937;
+    font-weight: 700;
+}
+
+.location-method-card small {
+    color: #6c757d;
+    line-height: 1.35;
+}
+
+.location-method-helper {
+    align-items: center;
+    background: #f8fbff;
+    border: 1px solid #dbeafe;
+    border-radius: 14px;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    padding: 14px;
+}
+
 #mgmpLocationMap .leaflet-control-attribution {
     font-size: 10px;
+}
+
+@media (max-width: 768px) {
+    .location-method-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .location-method-helper {
+        align-items: stretch;
+        flex-direction: column;
+    }
 }
 </style>
 @endsection
