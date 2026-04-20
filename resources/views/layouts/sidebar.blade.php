@@ -471,12 +471,12 @@
                     </a>
                 </li>
 
-                {{-- <li>
+                <li>
                     <a href="{{ route('mgmp.laporan') }}" class="waves-effect">
-                        <i class="bx bx-file"></i>
-                        <span>Laporan Kegiatan</span>
+                        <i class="bx bx-calendar-event"></i>
+                        <span>Kegiatan MGMP</span>
                     </a>
-                </li> --}}
+                </li>
                 @endif
 
             </ul>
