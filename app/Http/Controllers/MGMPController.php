@@ -621,7 +621,7 @@ class MGMPController extends Controller
     }
 
     /**
-     * Handle PDF proposal upload. Each user allowed only one upload.
+     * Handle PDF proposal upload or replacement.
      */
     public function uploadAcademica(Request $request)
     {
@@ -630,11 +630,7 @@ class MGMPController extends Controller
         ]);
 
         $user = auth()->user();
-
-        // enforce single upload per user
-        if (AcademicaProposal::where('user_id', $user->id)->exists()) {
-            return redirect()->back()->with('error', 'Anda hanya dapat mengupload proposal satu kali.');
-        }
+        $existingProposal = AcademicaProposal::where('user_id', $user->id)->first();
 
         $file = $request->file('proposal');
         $filename = time() . '_' . $user->id . '_' . preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $file->getClientOriginalName());
@@ -650,6 +646,21 @@ class MGMPController extends Controller
         $file->move($destinationPath, $filename);
 
         $path = 'academica_proposals/' . $filename;
+        $oldFilePath = $existingProposal ? $documentRoot . '/uploads/' . ltrim($existingProposal->path, '/') : null;
+
+        if ($existingProposal) {
+            $existingProposal->update([
+                'filename' => $file->getClientOriginalName(),
+                'path' => $path,
+                'mime' => $file->getClientMimeType(),
+            ]);
+
+            if ($oldFilePath && file_exists($oldFilePath) && $oldFilePath !== $destinationPath . '/' . $filename) {
+                @unlink($oldFilePath);
+            }
+
+            return redirect()->back()->with('success', 'Proposal berhasil diperbarui.');
+        }
 
         AcademicaProposal::create([
             'user_id' => $user->id,

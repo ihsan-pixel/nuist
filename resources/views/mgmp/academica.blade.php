@@ -47,37 +47,51 @@
 
 <div class="card mgmp-panel mb-4">
     <div class="card-body">
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-5">
+                <h5 class="mb-2">{{ $userHasUploaded ? 'Proposal Anda' : 'Upload Proposal PDF' }}</h5>
+                <p class="text-muted mb-3">
+                    {{ $userHasUploaded ? 'File yang sudah diunggah masih bisa diperbarui dengan file PDF baru.' : 'Unggah proposal akademik dalam format PDF.' }}
+                </p>
 
-        <div class="row mb-3">
-            <div class="col text-end">
-                @if($userHasUploaded)
-                    <div class="text-muted">Anda sudah mengupload proposal. Hanya satu upload per user.</div>
+                @if($userHasUploaded && $userProposal)
+                    <div class="p-3 rounded-3 border bg-light">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="mgmp-icon-bubble">
+                                <i class="bx bx-file"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold text-dark">{{ $userProposal->filename }}</div>
+                                <small class="text-muted">Terakhir diperbarui {{ $userProposal->updated_at->format('d M Y H:i') }}</small>
+                                <div class="mt-2">
+                                    <a href="{{ url('/uploads/' . $userProposal->path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="bx bx-show"></i> Lihat File
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 @endif
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <h5 class="mb-3">Upload Proposal PDF</h5>
-                @if($userHasUploaded)
-                    <div class="mb-2">
-                        @if($userProposal)
-                        <a href="{{ url('/uploads/' . $userProposal->path) }}" target="_blank" class="btn btn-outline-primary">
-                            <i class="bx bx-file"></i> {{ $userProposal->filename }}
-                        </a>
-                        @endif
+            <div class="col-lg-7">
+                <h5 class="mb-2">{{ $userHasUploaded ? 'Ganti Proposal' : 'Form Upload Proposal' }}</h5>
+                <p class="text-muted mb-3">
+                    {{ $userHasUploaded ? 'Pilih file PDF baru untuk mengganti proposal lama. File lama akan diganti.' : 'File maksimal 10 MB dan wajib berformat PDF.' }}
+                </p>
+
+                <form method="POST" action="{{ route('mgmp.academica.upload') }}" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="proposal" class="form-label">Pilih file PDF proposal</label>
+                        <input type="file" name="proposal" id="proposal" accept="application/pdf" class="form-control" required>
+                        @error('proposal') <div class="text-danger mt-1">{{ $message }}</div> @enderror
                     </div>
-                @else
-                    <form method="POST" action="{{ route('mgmp.academica.upload') }}" enctype="multipart/form-data">
-                        @csrf
-                        <div class="mb-2">
-                            <label for="proposal" class="form-label">Pilih file PDF proposal</label>
-                            <input type="file" name="proposal" id="proposal" accept="application/pdf" class="form-control" required>
-                            @error('proposal') <div class="text-danger">{{ $message }}</div> @enderror
-                        </div>
-                        <button class="btn btn-primary">Upload Proposal</button>
-                    </form>
-                @endif
+                    <button class="btn btn-primary">
+                        <i class="bx {{ $userHasUploaded ? 'bx-refresh' : 'bx-upload' }}"></i>
+                        {{ $userHasUploaded ? 'Perbarui Proposal' : 'Upload Proposal' }}
+                    </button>
+                </form>
             </div>
         </div>
 
