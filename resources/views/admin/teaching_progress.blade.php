@@ -184,7 +184,7 @@
                         <div>
                             <h3 class="card-title mb-1">Rekap Presensi dan Jadwal Mengajar Tenaga Pendidik</h3>
                             <div class="text-muted small">
-                                Periode {{ $teachingRecapData['label'] }}. Data khusus selain status GTT/GTY dan selain kepala sekolah.
+                                Periode {{ $teachingRecapData['label'] }}. Data mengecualikan status kepegawaian 1, 2, 7, 8 dan kepala sekolah.
                             </div>
                         </div>
                         <form method="GET" class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 mb-0">
@@ -244,54 +244,7 @@
                         </div>
                     </div>
 
-                    <h5 class="mb-3">Tenaga Pendidik Tidak Melakukan Presensi Mengajar</h5>
-                    <div class="table-responsive teaching-recap-table mb-4">
-                        <table class="table table-bordered table-striped mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="text-center">No</th>
-                                    <th class="text-center">SCOD</th>
-                                    <th>Nama User</th>
-                                    <th>Asal Sekolah</th>
-                                    <th>Status Kepegawaian</th>
-                                    <th class="text-center">Jadwal Berjalan</th>
-                                    <th class="text-center">Sudah Presensi</th>
-                                    <th class="text-center">Tidak Presensi</th>
-                                    <th class="text-center">% Tidak Presensi</th>
-                                    <th>Rincian Tanggal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($teachingRecapData['absence_rows'] as $teacher)
-                                <tr>
-                                    <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="text-center">{{ $teacher['scod'] }}</td>
-                                    <td>{{ $teacher['name'] }}</td>
-                                    <td>{{ $teacher['madrasah'] }}</td>
-                                    <td>{{ $teacher['status_kepegawaian'] }}</td>
-                                    <td class="text-center">{{ $teacher['total_jadwal_berjalan'] }}</td>
-                                    <td class="text-center">{{ $teacher['total_presensi'] }}</td>
-                                    <td class="text-center">
-                                        <span class="badge bg-danger">{{ $teacher['total_belum_presensi'] }}</span>
-                                    </td>
-                                    <td class="text-center">{{ number_format($teacher['persentase_tidak_presensi'], 1) }}%</td>
-                                    <td class="small">{{ $teacher['rincian_tanggal'] }}</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="10" class="text-center p-4">
-                                        <div class="alert alert-info d-inline-block mb-0">
-                                            <strong>Tidak ada tenaga pendidik yang belum presensi mengajar</strong><br>
-                                            <small>Semua jadwal berjalan pada periode ini sudah memiliki presensi mengajar.</small>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <h5 class="mb-3">Rekap Tenaga Pendidik Sudah atau Belum Memiliki Jadwal Mengajar</h5>
+                    <h5 class="mb-3">Rekap Tenaga Pendidik, Jadwal Mengajar, dan Presensi Mengajar</h5>
                     <div class="table-responsive teaching-recap-table">
                         <table class="table table-bordered table-striped mb-0">
                             <thead class="bg-light">
@@ -304,10 +257,16 @@
                                     <th class="text-center">Jadwal Master</th>
                                     <th class="text-center">Jadwal Periode</th>
                                     <th class="text-center">Status Jadwal</th>
+                                    <th class="text-center">Jadwal Berjalan</th>
+                                    <th class="text-center">Sudah Presensi</th>
+                                    <th class="text-center">Tidak Presensi</th>
+                                    <th class="text-center">% Tidak Presensi</th>
+                                    <th class="text-center">Status Presensi</th>
+                                    <th>Rincian Tanggal</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($teachingRecapData['schedule_rows'] as $teacher)
+                                @forelse($teachingRecapData['rows'] as $teacher)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
                                     <td class="text-center">{{ $teacher['scod'] }}</td>
@@ -321,10 +280,29 @@
                                             {{ $teacher['status_jadwal'] }}
                                         </span>
                                     </td>
+                                    <td class="text-center">{{ $teacher['total_jadwal_berjalan'] }}</td>
+                                    <td class="text-center">{{ $teacher['total_presensi'] }}</td>
+                                    <td class="text-center">
+                                        <span class="badge {{ $teacher['total_belum_presensi'] > 0 ? 'bg-danger' : 'bg-success' }}">
+                                            {{ $teacher['total_belum_presensi'] }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">{{ number_format($teacher['persentase_tidak_presensi'], 1) }}%</td>
+                                    <td class="text-center">
+                                        @php
+                                            $presensiBadge = $teacher['total_belum_presensi'] > 0
+                                                ? 'bg-danger'
+                                                : ($teacher['jumlah_jadwal_master'] > 0 ? 'bg-success' : 'bg-secondary');
+                                        @endphp
+                                        <span class="badge {{ $presensiBadge }}">
+                                            {{ $teacher['status_presensi'] }}
+                                        </span>
+                                    </td>
+                                    <td class="small">{{ $teacher['rincian_tanggal'] }}</td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center p-4">
+                                    <td colspan="14" class="text-center p-4">
                                         <div class="alert alert-info d-inline-block mb-0">
                                             Tidak ada tenaga pendidik sesuai kriteria filter ini.
                                         </div>

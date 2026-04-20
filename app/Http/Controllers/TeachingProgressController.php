@@ -402,8 +402,7 @@ class TeachingProgressController extends Controller
                 });
         }
 
-        $absenceRows = collect();
-        $scheduleRows = collect();
+        $recapRows = collect();
 
         foreach ($teachers as $teacher) {
             $teacherSchedules = $schedulesByTeacher->get($teacher->id, collect());
@@ -415,32 +414,42 @@ class TeachingProgressController extends Controller
                 $attendanceKeys
             );
 
-            $scheduleRows->push([
+            $hasSchedule = $teacherSchedules->count() > 0;
+            $hasMissingAttendance = $scheduleSummary['total_belum_presensi'] > 0;
+            $attendanceStatus = 'Tidak ada jadwal berjalan';
+
+            if (!$hasSchedule) {
+                $attendanceStatus = 'Belum memiliki jadwal';
+            } elseif ($hasMissingAttendance) {
+                $attendanceStatus = 'Belum presensi mengajar';
+            } elseif ($scheduleSummary['total_jadwal_berjalan'] > 0) {
+                $attendanceStatus = 'Sudah presensi mengajar';
+            }
+
+            $recapRows->push([
                 'scod' => $teacher->madrasah->scod ?? '-',
                 'name' => $teacher->name,
                 'madrasah' => $teacher->madrasah->name ?? '-',
                 'status_kepegawaian' => $teacher->statusKepegawaian->name ?? '-',
                 'jumlah_jadwal_master' => $teacherSchedules->count(),
                 'total_jadwal_periode' => $scheduleSummary['total_jadwal_periode'],
-                'status_jadwal' => $teacherSchedules->count() > 0 ? 'Sudah memiliki jadwal' : 'Belum memiliki jadwal',
-            ]);
-
-            if ($scheduleSummary['total_belum_presensi'] <= 0) {
-                continue;
-            }
-
-            $absenceRows->push([
-                'scod' => $teacher->madrasah->scod ?? '-',
-                'name' => $teacher->name,
-                'madrasah' => $teacher->madrasah->name ?? '-',
-                'status_kepegawaian' => $teacher->statusKepegawaian->name ?? '-',
+                'status_jadwal' => $hasSchedule ? 'Sudah memiliki jadwal' : 'Belum memiliki jadwal',
                 'total_jadwal_berjalan' => $scheduleSummary['total_jadwal_berjalan'],
                 'total_presensi' => $scheduleSummary['total_presensi'],
                 'total_belum_presensi' => $scheduleSummary['total_belum_presensi'],
                 'persentase_tidak_presensi' => $scheduleSummary['persentase_tidak_presensi'],
+                'status_presensi' => $attendanceStatus,
                 'rincian_tanggal' => $scheduleSummary['rincian_tanggal'],
             ]);
         }
+
+        $sortedRows = $recapRows
+            ->sortBy([
+                ['total_belum_presensi', 'desc'],
+                ['scod', 'asc'],
+                ['name', 'asc'],
+            ])
+            ->values();
 
         return [
             'period' => $period,
@@ -448,16 +457,13 @@ class TeachingProgressController extends Controller
             'month_value' => $selectedMonthValue,
             'label' => $startDate->locale('id')->translatedFormat('d F Y') . ' - ' .
                 $endDate->locale('id')->translatedFormat('d F Y'),
-            'absence_rows' => $absenceRows
-                ->sortByDesc('total_belum_presensi')
-                ->values(),
-            'schedule_rows' => $scheduleRows->values(),
+            'rows' => $sortedRows,
             'summary' => [
                 'total_tenaga_pendidik' => $teachers->count(),
-                'total_tidak_presensi' => $absenceRows->count(),
-                'total_sudah_jadwal' => $scheduleRows->where('jumlah_jadwal_master', '>', 0)->count(),
-                'total_belum_jadwal' => $scheduleRows->where('jumlah_jadwal_master', 0)->count(),
-                'total_sesi_tidak_presensi' => $absenceRows->sum('total_belum_presensi'),
+                'total_tidak_presensi' => $recapRows->where('total_belum_presensi', '>', 0)->count(),
+                'total_sudah_jadwal' => $recapRows->where('jumlah_jadwal_master', '>', 0)->count(),
+                'total_belum_jadwal' => $recapRows->where('jumlah_jadwal_master', 0)->count(),
+                'total_sesi_tidak_presensi' => $recapRows->sum('total_belum_presensi'),
             ],
         ];
     }
@@ -473,10 +479,7 @@ class TeachingProgressController extends Controller
             })
             ->where(function ($query) {
                 $query->whereNull('status_kepegawaian_id')
-                    ->orWhereDoesntHave('statusKepegawaian', function ($statusQuery) {
-                        $statusQuery->whereRaw('LOWER(name) LIKE ?', ['%gtt%'])
-                            ->orWhereRaw('LOWER(name) LIKE ?', ['%gty%']);
-                    });
+                    ->orWhereNotIn('status_kepegawaian_id', [1, 2, 7, 8]);
             })
             ->with(['madrasah', 'statusKepegawaian'])
             ->join('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
