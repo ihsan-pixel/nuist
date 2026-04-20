@@ -16,6 +16,7 @@ use App\Http\Controllers\Mobile\Izin\IzinController;
 use App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController;
 use App\Http\Controllers\Mobile\Siswa\SiswaController;
 use App\Http\Controllers\TeachingScheduleController;
+use App\Http\Controllers\DpsController;
 
 use App\Http\Controllers\PPDB\{
     PPDBController,
@@ -447,6 +448,17 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::post('/yayasan/store', [App\Http\Controllers\YayasanController::class, 'store'])->name('yayasan.store');
     Route::put('/yayasan/update/{id}', [App\Http\Controllers\YayasanController::class, 'update'])->name('yayasan.update');
     Route::delete('/yayasan/destroy/{id}', [App\Http\Controllers\YayasanController::class, 'destroy'])->name('yayasan.destroy');
+});
+
+// DPS (Dewan Pengawas Sekolah) - Super Admin only
+Route::prefix('masterdata')->middleware(['auth', 'role:super_admin'])->group(function () {
+    Route::get('/dps', [DpsController::class, 'index'])->name('dps.index');
+    Route::get('/dps/create', [DpsController::class, 'create'])->name('dps.create');
+    Route::post('/dps', [DpsController::class, 'store'])->name('dps.store');
+    Route::get('/dps/{madrasah}', [DpsController::class, 'show'])->name('dps.show');
+    Route::get('/dps/member/{member}/edit', [DpsController::class, 'edit'])->name('dps.edit');
+    Route::put('/dps/member/{member}', [DpsController::class, 'update'])->name('dps.update');
+    Route::delete('/dps/member/{member}', [DpsController::class, 'destroy'])->name('dps.destroy');
 });
 
 Route::prefix('spp-siswa')->middleware(['auth', 'role:super_admin,admin,pengurus'])->name('spp-siswa.')->group(function () {

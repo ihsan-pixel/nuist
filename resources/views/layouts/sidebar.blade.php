@@ -36,6 +36,9 @@
                         <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
                         <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
                         <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
+                        @if($userRole === 'super_admin')
+                        <li><a href="{{ route('dps.index') }}">Data DPS</a></li>
+                        @endif
                         @if(in_array($userRole, ['super_admin', 'pengurus']))
                         <li><a href="{{ route('status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
                         <li><a href="{{ route('tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>

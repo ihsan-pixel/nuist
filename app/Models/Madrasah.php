@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TenagaPendidik;
 use App\Models\Siswa;
+use App\Models\DpsMember;
 
 class Madrasah extends Model
 {
@@ -159,5 +160,11 @@ class Madrasah extends Model
     public function ppdbSettings()
     {
         return $this->hasMany(PPDBSetting::class, 'sekolah_id');
+    }
+
+    // Relasi: satu madrasah punya banyak anggota DPS
+    public function dpsMembers()
+    {
+        return $this->hasMany(DpsMember::class, 'madrasah_id');
     }
 }
