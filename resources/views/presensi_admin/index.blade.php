@@ -1242,6 +1242,120 @@
         </div>
     </div>
 </div>
+
+@if($user->role === 'super_admin')
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                    <div>
+                        <h4 class="card-title mb-1">
+                            <i class="bx bx-calendar-x me-2"></i>Rekap Tenaga Pendidik Tidak Presensi Mingguan dan Bulanan
+                        </h4>
+                        <p class="text-muted mb-0">Periode {{ $teacherAbsenceRecapData['label'] }}</p>
+                    </div>
+
+                    <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
+                        <input type="hidden" name="date" value="{{ $selectedDate->format('Y-m-d') }}">
+
+                        <select name="absence_recap_period" id="absenceRecapPeriod" class="form-select form-select-sm" style="min-width: 130px;">
+                            <option value="week" {{ $teacherAbsenceRecapData['period'] === 'week' ? 'selected' : '' }}>Mingguan</option>
+                            <option value="month" {{ $teacherAbsenceRecapData['period'] === 'month' ? 'selected' : '' }}>Bulanan</option>
+                        </select>
+
+                        <input type="week"
+                            name="absence_recap_week"
+                            id="absenceRecapWeek"
+                            class="form-control form-control-sm"
+                            value="{{ $teacherAbsenceRecapData['week_value'] }}"
+                            style="min-width: 150px;">
+
+                        <input type="month"
+                            name="absence_recap_month"
+                            id="absenceRecapMonth"
+                            class="form-control form-control-sm"
+                            value="{{ $teacherAbsenceRecapData['month_value'] }}"
+                            style="min-width: 150px;">
+
+                        <button type="submit" class="btn btn-primary btn-sm px-3">
+                            <i class="bx bx-filter-alt me-1"></i>Filter
+                        </button>
+                    </form>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="text-muted small">Total Tenaga Pendidik</div>
+                            <div class="fs-4 fw-bold">{{ number_format($teacherAbsenceRecapData['summary']['total_tenaga_pendidik']) }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="text-muted small">Tenaga Pendidik Tidak Presensi</div>
+                            <div class="fs-4 fw-bold text-danger">{{ number_format($teacherAbsenceRecapData['summary']['total_tidak_presensi']) }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="text-muted small">Total Hari Tidak Presensi</div>
+                            <div class="fs-4 fw-bold text-warning">{{ number_format($teacherAbsenceRecapData['summary']['total_hari_tidak_presensi']) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="datatable-teacher-absence-recap" class="table table-bordered dt-responsive nowrap w-100">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>SCOD</th>
+                                <th>Nama User</th>
+                                <th>Asal Sekolah</th>
+                                <th>Hari KBM</th>
+                                <th>Total Hari Kerja</th>
+                                <th>Hadir</th>
+                                <th>Izin Disetujui</th>
+                                <th>Tidak Presensi</th>
+                                <th>Persentase Tidak Presensi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($teacherAbsenceRecapData['rows'] as $teacher)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $teacher['scod'] }}</td>
+                                    <td>{{ $teacher['name'] }}</td>
+                                    <td>{{ $teacher['madrasah'] }}</td>
+                                    <td>{{ $teacher['hari_kbm'] }}</td>
+                                    <td>{{ $teacher['total_hari_kerja'] }}</td>
+                                    <td>{{ $teacher['total_hadir'] }}</td>
+                                    <td>{{ $teacher['total_izin'] }}</td>
+                                    <td>
+                                        <span class="badge bg-danger">{{ $teacher['total_tidak_presensi'] }}</span>
+                                    </td>
+                                    <td>{{ number_format($teacher['persentase_tidak_presensi'], 1) }}%</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="10" class="text-center p-4">
+                                        <div class="alert alert-info d-inline-block text-center" role="alert">
+                                            <i class="bx bx-info-circle bx-lg me-2"></i>
+                                            <strong>Tidak ada tenaga pendidik yang tidak presensi</strong><br>
+                                            <small>Semua tenaga pendidik memiliki presensi hadir atau izin disetujui pada hari kerja periode ini.</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
 
 @section('script')
@@ -1290,6 +1404,29 @@ $(document).ready(function () {
         absenceTable.buttons().container()
             .appendTo('#datatable-three-month-absence_wrapper .col-md-6:eq(0)');
     }
+
+    let teacherAbsenceRecapTable = $("#datatable-teacher-absence-recap");
+    if (teacherAbsenceRecapTable.length) {
+        let recapTable = teacherAbsenceRecapTable.DataTable({
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            order: [[8, 'desc'], [1, 'asc']],
+            buttons: ["copy", "excel", "pdf", "print", "colvis"]
+        });
+
+        recapTable.buttons().container()
+            .appendTo('#datatable-teacher-absence-recap_wrapper .col-md-6:eq(0)');
+    }
+
+    function toggleAbsenceRecapFilters() {
+        let period = $('#absenceRecapPeriod').val();
+        $('#absenceRecapWeek').toggle(period === 'week');
+        $('#absenceRecapMonth').toggle(period === 'month');
+    }
+
+    toggleAbsenceRecapFilters();
+    $('#absenceRecapPeriod').on('change', toggleAbsenceRecapFilters);
 
     // Replace alert notifications with SweetAlert2
     @if(session('success'))

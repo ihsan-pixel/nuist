@@ -203,6 +203,7 @@ class PresensiAdminController extends Controller
         // Get selected date or default to today
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
         $threeMonthAbsenceData = $this->getThreeMonthAbsenceData($selectedDate, $user);
+        $teacherAbsenceRecapData = $this->getTeacherAbsenceRecapData($request, $user);
 
         // Calculate summary metrics
         $summary = $this->calculatePresensiSummary($selectedDate, $user);
@@ -252,7 +253,7 @@ class PresensiAdminController extends Controller
             }
             }
 
-            return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData'));
+            return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData', 'teacherAbsenceRecapData'));
         } elseif ($user->role === 'admin' && $user->madrasah_id) {
             // For admin, redirect to their madrasah detail page
             return redirect()->route('presensi_admin.show_detail', $user->madrasah_id)->withInput(['date' => $selectedDate->format('Y-m-d')]);
@@ -288,7 +289,7 @@ class PresensiAdminController extends Controller
                 $q->whereDate('tanggal', $selectedDate);
             })->with('madrasah')->get();
 
-            return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData'));
+            return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData', 'teacherAbsenceRecapData'));
         }
     }
 
@@ -1505,6 +1506,110 @@ class PresensiAdminController extends Controller
             'rows' => $users,
             'label' => $monthStarts->first()->locale('id')->translatedFormat('F Y') . ' - ' .
                 $monthStarts->last()->locale('id')->translatedFormat('F Y'),
+        ];
+    }
+
+    private function getTeacherAbsenceRecapData(Request $request, $user): array
+    {
+        $today = Carbon::today('Asia/Jakarta');
+        $period = $request->input('absence_recap_period') === 'month' ? 'month' : 'week';
+
+        $selectedWeekValue = $request->input('absence_recap_week', $today->format('o-\WW'));
+        if (preg_match('/^(\d{4})-W(\d{2})$/', $selectedWeekValue, $matches)) {
+            $startOfWeek = Carbon::now('Asia/Jakarta')
+                ->setISODate((int) $matches[1], (int) $matches[2])
+                ->startOfWeek(Carbon::MONDAY);
+        } else {
+            $startOfWeek = $today->copy()->startOfWeek(Carbon::MONDAY);
+            $selectedWeekValue = $startOfWeek->format('o-\WW');
+        }
+
+        $selectedMonthValue = $request->input('absence_recap_month', $today->format('Y-m'));
+        if (preg_match('/^\d{4}-\d{2}$/', $selectedMonthValue)) {
+            $startOfMonth = Carbon::createFromFormat('Y-m', $selectedMonthValue, 'Asia/Jakarta')->startOfMonth();
+        } else {
+            $startOfMonth = $today->copy()->startOfMonth();
+            $selectedMonthValue = $startOfMonth->format('Y-m');
+        }
+
+        $startDate = $period === 'month'
+            ? $startOfMonth->copy()
+            : $startOfWeek->copy();
+        $endDate = $period === 'month'
+            ? $startOfMonth->copy()->endOfMonth()
+            : $startOfWeek->copy()->endOfWeek(Carbon::SATURDAY);
+
+        if ($user->role !== 'super_admin') {
+            return [
+                'rows' => collect(),
+                'period' => $period,
+                'week_value' => $selectedWeekValue,
+                'month_value' => $selectedMonthValue,
+                'label' => $startDate->locale('id')->translatedFormat('d F Y') . ' - ' .
+                    $endDate->locale('id')->translatedFormat('d F Y'),
+                'summary' => [
+                    'total_tenaga_pendidik' => 0,
+                    'total_tidak_presensi' => 0,
+                    'total_hari_tidak_presensi' => 0,
+                ],
+            ];
+        }
+
+        $teachers = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id')
+            ->with(['madrasah'])
+            ->join('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
+            ->orderByRaw("CAST(madrasahs.scod AS UNSIGNED) ASC")
+            ->orderBy('users.name')
+            ->select('users.*')
+            ->get();
+
+        $rows = $teachers
+            ->map(function ($teacher) use ($startDate, $endDate, $today) {
+                $summary = $this->buildTeacherAttendanceSummary(
+                    $teacher->id,
+                    $teacher->madrasah->hari_kbm ?? null,
+                    $startDate->copy(),
+                    $endDate->copy(),
+                    $today->copy()
+                );
+
+                if ($summary['total_belum_hadir'] <= 0) {
+                    return null;
+                }
+
+                $persentaseTidakPresensi = $summary['total_hari_kerja'] > 0
+                    ? round(($summary['total_belum_hadir'] / $summary['total_hari_kerja']) * 100, 1)
+                    : 0;
+
+                return [
+                    'scod' => $teacher->madrasah->scod ?? '-',
+                    'name' => $teacher->name,
+                    'madrasah' => $teacher->madrasah->name ?? '-',
+                    'hari_kbm' => $teacher->madrasah->hari_kbm ?? '-',
+                    'total_hari_kerja' => $summary['total_hari_kerja'],
+                    'total_hadir' => $summary['total_hadir'],
+                    'total_izin' => $summary['total_izin'],
+                    'total_tidak_presensi' => $summary['total_belum_hadir'],
+                    'persentase_tidak_presensi' => $persentaseTidakPresensi,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return [
+            'rows' => $rows,
+            'period' => $period,
+            'week_value' => $selectedWeekValue,
+            'month_value' => $selectedMonthValue,
+            'label' => $startDate->locale('id')->translatedFormat('d F Y') . ' - ' .
+                $endDate->locale('id')->translatedFormat('d F Y'),
+            'summary' => [
+                'total_tenaga_pendidik' => $teachers->count(),
+                'total_tidak_presensi' => $rows->count(),
+                'total_hari_tidak_presensi' => $rows->sum('total_tidak_presensi'),
+            ],
         ];
     }
 
