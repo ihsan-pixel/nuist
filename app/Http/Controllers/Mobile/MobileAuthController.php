@@ -42,7 +42,7 @@ class MobileAuthController extends Controller
 
         $user = Auth::user();
 
-        if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa'])) {
+        if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa', 'dps'])) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -54,6 +54,10 @@ class MobileAuthController extends Controller
 
         if ($user->role === 'siswa') {
             return redirect()->route('mobile.siswa.dashboard');
+        }
+
+        if ($user->role === 'dps') {
+            return redirect()->route('mobile.dps.dashboard');
         }
 
         return redirect()->route('mobile.dashboard');

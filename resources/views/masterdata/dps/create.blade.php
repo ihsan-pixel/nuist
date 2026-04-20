@@ -5,6 +5,9 @@
 @endsection
 
 @section('content')
+@php
+    $unsurOptions = \App\Models\DpsMember::UNSUR_OPTIONS;
+@endphp
 @component('components.breadcrumb')
     @slot('li_1') Master Data @endslot
     @slot('title') Tambah DPS @endslot
@@ -74,7 +77,12 @@
                                 <input type="text" name="members[0][nama]" class="form-control" placeholder="Nama DPS" required>
                             </td>
                             <td>
-                                <input type="text" name="members[0][unsur]" class="form-control" placeholder="Contoh: Akademisi / Tokoh Masyarakat" required>
+                                <select name="members[0][unsur]" class="form-select" required>
+                                    <option value="">Pilih unsur...</option>
+                                    @foreach($unsurOptions as $opt)
+                                        <option value="{{ $opt }}" @selected(old('members.0.unsur') === $opt)>{{ $opt }}</option>
+                                    @endforeach
+                                </select>
                             </td>
                             <td>
                                 <input type="text" name="members[0][periode]" class="form-control" value="2024-2026" required>
@@ -114,6 +122,9 @@
 
     const tableBody = document.querySelector('#membersTable tbody');
     const addRowBtn = document.getElementById('addRowBtn');
+    const unsurOptionsHtml = @json(
+        collect($unsurOptions)->map(fn($o) => "<option value=\\\"".e($o)."\\\">".e($o)."</option>")->implode('')
+    );
 
     function updateRemoveButtons() {
         const rows = tableBody.querySelectorAll('tr');
@@ -139,7 +150,12 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><input type="text" name="members[${idx}][nama]" class="form-control" placeholder="Nama DPS" required></td>
-            <td><input type="text" name="members[${idx}][unsur]" class="form-control" placeholder="Contoh: Akademisi / Tokoh Masyarakat" required></td>
+            <td>
+                <select name="members[${idx}][unsur]" class="form-select" required>
+                    <option value="">Pilih unsur...</option>
+                    ${unsurOptionsHtml}
+                </select>
+            </td>
             <td><input type="text" name="members[${idx}][periode]" class="form-control" value="2024-2026" required></td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-outline-danger removeRowBtn" title="Hapus baris">
@@ -166,4 +182,3 @@
 </script>
 @endpush
 @endsection
-

@@ -401,6 +401,9 @@
                     break;
                 }
             }
+        } elseif ($userRole === 'dps') {
+            $menuRoutes = ['mobile.dps.*'];
+            $showNav = request()->routeIs('mobile.dps.*');
         } else {
             $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
             $showNav = false;
@@ -443,6 +446,28 @@
             <a href="{{ route('dashboard') }}" class="nav-link">
                 <i class="bx bx-desktop"></i>
                 <span>Desktop</span>
+            </a>
+        </div>
+    </nav>
+    @elseif($userRole === 'dps')
+    <!-- Navigation for DPS -->
+    <nav class="mobile-nav d-md-none custom-bottom-nav">
+        <div class="nav-container">
+            <a href="{{ route('mobile.dps.dashboard') }}" class="nav-link {{ request()->routeIs('mobile.dps.dashboard') ? 'active' : '' }}">
+                <i class="bx bx-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ route('mobile.dps.presensi-kehadiran') }}" class="nav-link {{ request()->routeIs('mobile.dps.presensi-kehadiran') ? 'active' : '' }}">
+                <i class="bx bx-check-square"></i>
+                <span>Hadir</span>
+            </a>
+            <a href="{{ route('mobile.dps.presensi-mengajar') }}" class="nav-link {{ request()->routeIs('mobile.dps.presensi-mengajar') ? 'active' : '' }}">
+                <i class="bx bx-calendar-check"></i>
+                <span>Mengajar</span>
+            </a>
+            <a href="{{ route('mobile.dps.profile') }}" class="nav-link {{ request()->routeIs('mobile.dps.profile') ? 'active' : '' }}">
+                <i class="bx bx-user"></i>
+                <span>Profile</span>
             </a>
         </div>
     </nav>

@@ -5,6 +5,9 @@
 @endsection
 
 @section('content')
+@php
+    $unsurOptions = \App\Models\DpsMember::UNSUR_OPTIONS;
+@endphp
 @component('components.breadcrumb')
     @slot('li_1') Master Data @endslot
     @slot('title') Edit DPS @endslot
@@ -39,7 +42,12 @@
                 </div>
                 <div class="col-lg-5">
                     <label class="form-label">Unsur DPS</label>
-                    <input type="text" name="unsur" value="{{ old('unsur', $member->unsur) }}" class="form-control" required>
+                    <select name="unsur" class="form-select" required>
+                        <option value="">Pilih unsur...</option>
+                        @foreach($unsurOptions as $opt)
+                            <option value="{{ $opt }}" @selected(old('unsur', $member->unsur) === $opt)>{{ $opt }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-lg-3">
                     <label class="form-label">Periode</label>
@@ -57,4 +65,3 @@
     </div>
 </div>
 @endsection
-

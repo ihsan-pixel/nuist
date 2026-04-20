@@ -299,9 +299,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // Mobile routes for all authenticated users
 Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');
-    Route::get('/dashboard/calendar-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getCalendarData'])->name('dashboard.calendar-data');
-    Route::get('/dashboard/stats-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getStatsData'])->name('dashboard.stats-data');
+    Route::middleware(['role:tenaga_pendidik'])->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard/calendar-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getCalendarData'])->name('dashboard.calendar-data');
+        Route::get('/dashboard/stats-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getStatsData'])->name('dashboard.stats-data');
+    });
 
     // Pengurus routes
     Route::prefix('pengurus')->name('pengurus.')->group(function () {
@@ -321,6 +323,14 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
         Route::get('/profile', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'profile'])->name('profile');
         Route::get('/ubah-password', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'ubahPassword'])->name('ubah-password');
         Route::post('/ubah-password', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'updatePassword'])->name('update-password');
+    });
+
+    // DPS routes
+    Route::prefix('dps')->name('dps.')->middleware(['role:dps'])->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Mobile\Dps\DpsController::class, 'dashboard'])->name('dashboard');
+        Route::get('/presensi-kehadiran', [App\Http\Controllers\Mobile\Dps\DpsController::class, 'presensiKehadiran'])->name('presensi-kehadiran');
+        Route::get('/presensi-mengajar', [App\Http\Controllers\Mobile\Dps\DpsController::class, 'presensiMengajar'])->name('presensi-mengajar');
+        Route::get('/profile', [App\Http\Controllers\Mobile\Dps\DpsController::class, 'profile'])->name('profile');
     });
 
     // Presensi
@@ -455,6 +465,8 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin'])->group(fun
     Route::get('/dps', [DpsController::class, 'index'])->name('dps.index');
     Route::get('/dps/create', [DpsController::class, 'create'])->name('dps.create');
     Route::post('/dps', [DpsController::class, 'store'])->name('dps.store');
+    Route::post('/dps/import', [DpsController::class, 'import'])->name('dps.import');
+    Route::get('/dps/import-credentials/{token}', [DpsController::class, 'downloadCredentials'])->name('dps.credentials.download');
     Route::get('/dps/{madrasah}', [DpsController::class, 'show'])->name('dps.show');
     Route::get('/dps/member/{member}/edit', [DpsController::class, 'edit'])->name('dps.edit');
     Route::put('/dps/member/{member}', [DpsController::class, 'update'])->name('dps.update');

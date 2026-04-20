@@ -32,6 +32,32 @@
         </div>
         @endif
 
+        @if(session('dps_created_credentials'))
+            <div class="alert alert-warning">
+                <div class="fw-semibold mb-2">Akun DPS baru dibuat (catat sekarang):</div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(session('dps_created_credentials') as $c)
+                                <tr>
+                                    <td>{{ $c['nama'] ?? '-' }}</td>
+                                    <td>{{ $c['email'] ?? '-' }}</td>
+                                    <td class="fw-semibold">{{ $c['password'] ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+
         @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bx bx-error-circle me-2"></i>{{ session('error') }}
@@ -47,6 +73,7 @@
                         <th>Nama DPS</th>
                         <th>Unsur DPS</th>
                         <th style="width: 140px;">Periode</th>
+                        <th>Email Akun</th>
                         <th style="width: 160px;">Aksi</th>
                     </tr>
                 </thead>
@@ -57,6 +84,7 @@
                             <td class="fw-semibold">{{ $m->nama }}</td>
                             <td>{{ $m->unsur }}</td>
                             <td>{{ $m->periode }}</td>
+                            <td>{{ $m->user->email ?? '-' }}</td>
                             <td class="d-flex gap-2">
                                 <a href="{{ route('dps.edit', $m->id) }}" class="btn btn-sm btn-warning">Edit</a>
                                 <form action="{{ route('dps.destroy', $m->id) }}" method="POST" onsubmit="return confirm('Yakin hapus anggota DPS ini?')">
@@ -68,7 +96,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">
+                            <td colspan="6" class="text-center text-muted py-4">
                                 Belum ada anggota DPS untuk sekolah ini.
                             </td>
                         </tr>
@@ -79,4 +107,3 @@
     </div>
 </div>
 @endsection
-
