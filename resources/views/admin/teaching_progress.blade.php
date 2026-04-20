@@ -2,6 +2,12 @@
 
 @section('title', 'Teaching Progress')
 
+@section('css')
+<link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+@endsection
+
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -246,7 +252,7 @@
 
                     <h5 class="mb-3">Rekap Tenaga Pendidik, Jadwal Mengajar, dan Presensi Mengajar</h5>
                     <div class="table-responsive teaching-recap-table">
-                        <table class="table table-bordered table-striped mb-0">
+                        <table id="datatable-teaching-recap" class="table table-bordered dt-responsive nowrap w-100">
                             <thead class="bg-light">
                                 <tr>
                                     <th class="text-center">No</th>
@@ -266,7 +272,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($teachingRecapData['rows'] as $teacher)
+                                @foreach($teachingRecapData['rows'] as $teacher)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
                                     <td class="text-center">{{ $teacher['scod'] }}</td>
@@ -300,15 +306,7 @@
                                     </td>
                                     <td class="small">{{ $teacher['rincian_tanggal'] }}</td>
                                 </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="14" class="text-center p-4">
-                                        <div class="alert alert-info d-inline-block mb-0">
-                                            Tidak ada tenaga pendidik sesuai kriteria filter ini.
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -356,26 +354,42 @@
 @endpush
 
 @section('script')
+<script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/jszip/jszip.min.js') }}"></script>
+<script src="{{ asset('build/libs/pdfmake/build/pdfmake.min.js') }}"></script>
+<script src="{{ asset('build/libs/pdfmake/build/vfs_fonts.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const periodSelect = document.getElementById('teachingRecapPeriod');
-    const weekInput = document.getElementById('teachingRecapWeek');
-    const monthInput = document.getElementById('teachingRecapMonth');
-
+$(document).ready(function () {
     function toggleTeachingRecapFilters() {
-        const period = periodSelect ? periodSelect.value : 'week';
-        if (weekInput) {
-            weekInput.style.display = period === 'week' ? '' : 'none';
-        }
-        if (monthInput) {
-            monthInput.style.display = period === 'month' ? '' : 'none';
-        }
+        let period = $('#teachingRecapPeriod').val();
+        $('#teachingRecapWeek').toggle(period === 'week');
+        $('#teachingRecapMonth').toggle(period === 'month');
+    }
+
+    let teachingRecapTable = $('#datatable-teaching-recap');
+    if (teachingRecapTable.length) {
+        let recapTable = teachingRecapTable.DataTable({
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            order: [[10, 'desc'], [1, 'asc']],
+            buttons: ['copy', 'excel', 'pdf', 'print', 'colvis']
+        });
+
+        recapTable.buttons().container()
+            .appendTo('#datatable-teaching-recap_wrapper .col-md-6:eq(0)');
     }
 
     toggleTeachingRecapFilters();
-    if (periodSelect) {
-        periodSelect.addEventListener('change', toggleTeachingRecapFilters);
-    }
+    $('#teachingRecapPeriod').on('change', toggleTeachingRecapFilters);
 });
 </script>
 @endsection
