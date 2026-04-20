@@ -33,13 +33,35 @@
     @slot('title') Data Anggota @endslot
 @endcomponent
 
-<div class="card mb-4">
+@include('mgmp.partials.ui-styles')
+
+<div class="mgmp-page">
+<div class="mgmp-hero-strip mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="mgmp-kicker mb-2">Keanggotaan</div>
+            <h4 class="mb-1">Data Anggota MGMP</h4>
+            <p class="mb-0 text-white-50">Kelola anggota guru berdasarkan grup MGMP yang aktif.</p>
+        </div>
+        @if(isset($canAddMember) && $canAddMember)
+            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalTambahAnggota">
+                <i class="bx bx-plus"></i> Tambah Anggota
+            </button>
+        @endif
+    </div>
+</div>
+
+<div class="card mgmp-panel mb-4">
     <div class="card-body">
 
         <!-- Tombol tambah anggota -->
-        <div class="mb-3 d-flex justify-content-end">
+        <div class="mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h5 class="mb-1">Daftar Anggota</h5>
+                <p class="text-muted mb-0">Total {{ $members->count() }} anggota terdaftar.</p>
+            </div>
             @if(isset($canAddMember) && $canAddMember)
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahAnggota">
+            <button class="btn btn-primary d-md-none" data-bs-toggle="modal" data-bs-target="#modalTambahAnggota">
                 <i class="bx bx-plus"></i> Tambah Anggota
             </button>
             @else
@@ -73,7 +95,9 @@
                             <form action="#" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus anggota ini?')">Hapus</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin hapus anggota ini?')">
+                                    <i class="bx bx-trash"></i> Hapus
+                                </button>
                             </form>
                             @else
                             <span class="text-muted">-</span>
@@ -81,21 +105,22 @@
                         </td>
                     </tr>
                     @empty
-                    {{-- <tr>
+                    <tr>
                         <td colspan="5" class="text-center p-5">
-                            <div class="mb-3">
-                                <i class="bx bx-info-circle bx-lg text-info"></i>
+                            <div class="mgmp-empty-state">
+                                <i class="bx bx-group"></i>
+                                <h5 class="mb-1">Belum ada data anggota</h5>
+                                <p class="text-muted mb-0">Klik tombol Tambah Anggota untuk menambahkan anggota MGMP.</p>
                             </div>
-                            <h5 class="mb-1">Belum ada data anggota</h5>
-                            <p class="text-muted">Klik tombol "Tambah Anggota" untuk menambahkan anggota MGMP.</p>
                         </td>
-                    </tr> --}}
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
     </div>
+</div>
 </div>
 @else
 <div class="alert alert-danger text-center">

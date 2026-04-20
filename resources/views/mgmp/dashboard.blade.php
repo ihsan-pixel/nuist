@@ -9,10 +9,27 @@
     @slot('li_1') MGMP @endslot
     @slot('title') Dashboard MGMP @endslot
 @endcomponent
+
+@include('mgmp.partials.ui-styles')
+
+<div class="mgmp-page">
+<div class="mgmp-hero-strip mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="mgmp-kicker mb-2">Dashboard MGMP</div>
+            <h4 class="mb-1">Ruang kerja MGMP</h4>
+            <p class="mb-0 text-white-50">Pantau anggota, kegiatan, proposal, dan aktivitas terbaru dalam satu halaman.</p>
+        </div>
+        <a href="{{ route('mgmp.laporan') }}" class="btn btn-light">
+            <i class="mdi mdi-calendar-plus me-1"></i> Kelola Kegiatan
+        </a>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-lg-4 col-12">
         <!-- Profile / Welcome Card -->
-        <div class="card border-0 shadow-sm hover-lift mb-3" style="border-radius: 12px; overflow: hidden;">
+        <div class="card border-0 shadow-sm hover-lift mb-3" style="overflow: hidden;">
             <div class="p-4" style="background: linear-gradient(135deg, #0e8549 0%, #0b6b4d 100%); color: #fff;">
                 <div class="d-flex align-items-center">
                     <div class="me-3">
@@ -65,7 +82,7 @@
         <!-- Top statistic cards -->
         <div class="row g-3 mb-3">
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="card mgmp-stat-card p-3 h-100">
                     <div class="d-flex align-items-center">
                         <div class="avatar-md me-3">
                             <div class="avatar-title bg-success-subtle text-success rounded-circle">
@@ -80,7 +97,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="card mgmp-stat-card p-3 h-100">
                     <div class="d-flex align-items-center">
                         <div class="avatar-md me-3">
                             <div class="avatar-title bg-info-subtle text-info rounded-circle">
@@ -95,7 +112,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="card mgmp-stat-card p-3 h-100">
                     <div class="d-flex align-items-center">
                         <div class="avatar-md me-3">
                             <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
@@ -113,7 +130,7 @@
 
         <div class="row g-3">
             <div class="col-lg-6">
-                <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+                <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <h6 class="mb-0">Aktivitas Terbaru</h6>
@@ -157,7 +174,7 @@
             </div>
 
             <div class="col-lg-6">
-                <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+                <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <h6 class="mb-0">Laporan Terbaru</h6>
@@ -194,6 +211,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 
 @endsection

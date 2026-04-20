@@ -5,6 +5,29 @@
 
 @section('content')
 @include('landing.navbar')
+@include('mgmp.partials.ui-styles')
+
+<style>
+    .mgmp-landing .hero {
+        background:
+            radial-gradient(circle at 15% 20%, rgba(239, 170, 12, .28), transparent 26%),
+            linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        padding: 110px 0 90px;
+    }
+
+    .mgmp-landing .landing-card {
+        border: 1px solid #e5eee9;
+        border-radius: 22px;
+        box-shadow: 0 16px 36px rgba(16, 45, 40, .08);
+        transition: transform .2s ease;
+    }
+
+    .mgmp-landing .landing-card:hover {
+        transform: translateY(-4px);
+    }
+</style>
+
+<div class="mgmp-page mgmp-landing">
 
 <!-- HERO -->
 <section id="hero" class="hero">
@@ -33,7 +56,7 @@
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+                <div class="card landing-card h-100">
                     <div class="card-body p-4 text-center">
                         <div class="avatar-lg mx-auto mb-3">
                             <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
@@ -48,7 +71,7 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+                <div class="card landing-card h-100">
                     <div class="card-body p-4 text-center">
                         <div class="avatar-lg mx-auto mb-3">
                             <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
@@ -84,7 +107,7 @@
 <!-- OBJECTIVES -->
 <section class="py-5">
     <div class="container">
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card landing-card">
             <div class="card-body p-4">
                 <h4 class="card-title mb-3 text-dark"><i class="mdi mdi-target text-primary me-2"></i> Tujuan MGMP</h4>
                 <div class="row g-4">
@@ -111,6 +134,7 @@
 </section>
 
 @include('landing.footer')
+</div>
 
 @include('landing._sekolah_styles')
 

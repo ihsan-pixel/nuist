@@ -11,10 +11,14 @@
     @slot('title') Kegiatan dan Presensi MGMP @endslot
 @endcomponent
 
+@include('mgmp.partials.ui-styles')
+
 @php
     $canCreateActivity = in_array($user->role, ['super_admin', 'admin', 'pengurus']) || !empty($mgmpGroup);
     $now = \Carbon\Carbon::now('Asia/Jakarta');
 @endphp
+
+<div class="mgmp-page">
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -43,17 +47,18 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+        <div class="mgmp-hero-strip mb-4">
             <div class="card-body p-4">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                     <div>
-                        <h4 class="card-title mb-1 text-dark">
-                            <i class="mdi mdi-calendar-check text-primary me-2"></i>
+                        <div class="mgmp-kicker mb-2">Kegiatan MGMP</div>
+                        <h4 class="card-title mb-1">
+                            <i class="mdi mdi-calendar-check me-2"></i>
                             Kegiatan dan Presensi MGMP
                         </h4>
-                        <p class="text-muted mb-0">Buat kegiatan MGMP dan pantau presensi anggota berbasis GPS dan selfie.</p>
+                        <p class="mb-0 text-white-50">Buat kegiatan MGMP dan pantau presensi anggota berbasis GPS dan selfie.</p>
                     </div>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahKegiatanModal" @disabled(!$canCreateActivity)>
+                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#tambahKegiatanModal" @disabled(!$canCreateActivity)>
                         <i class="mdi mdi-plus me-1"></i>
                         Tambah Kegiatan
                     </button>
@@ -68,7 +73,7 @@
 
         <div class="row g-3 mb-4">
             <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card mgmp-stat-card h-100">
                     <div class="card-body p-3 text-center">
                         <div class="avatar-sm mx-auto mb-2">
                             <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
@@ -82,7 +87,7 @@
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card mgmp-stat-card h-100">
                     <div class="card-body p-3 text-center">
                         <div class="avatar-sm mx-auto mb-2">
                             <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
@@ -96,7 +101,7 @@
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card mgmp-stat-card h-100">
                     <div class="card-body p-3 text-center">
                         <div class="avatar-sm mx-auto mb-2">
                             <div class="avatar-title bg-info bg-opacity-10 text-info rounded-circle">
@@ -110,7 +115,7 @@
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card mgmp-stat-card h-100">
                     <div class="card-body p-3 text-center">
                         <div class="avatar-sm mx-auto mb-2">
                             <div class="avatar-title bg-warning bg-opacity-10 text-warning rounded-circle">
@@ -124,7 +129,7 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card mgmp-panel">
             <div class="card-body p-4">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -481,6 +486,7 @@
     </div>
 </div>
 
+</div>
 @endsection
 
 @section('script')

@@ -31,7 +31,21 @@
     @slot('title') Academica @endslot
 @endcomponent
 
-<div class="card mb-4">
+@include('mgmp.partials.ui-styles')
+
+<div class="mgmp-page">
+<div class="mgmp-hero-strip mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="mgmp-kicker mb-2">Academica</div>
+            <h4 class="mb-1">Proposal Akademik MGMP</h4>
+            <p class="mb-0 text-white-50">Unggah dan pantau proposal akademik anggota MGMP.</p>
+        </div>
+        <span class="mgmp-chip bg-white text-success">{{ $proposals->count() }} proposal</span>
+    </div>
+</div>
+
+<div class="card mgmp-panel mb-4">
     <div class="card-body">
 
         <div class="row mb-3">
@@ -70,9 +84,14 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card mgmp-panel">
     <div class="card-body">
-        <h5 class="mb-3">Daftar Proposal</h5>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div>
+                <h5 class="mb-1">Daftar Proposal</h5>
+                <p class="text-muted mb-0">Proposal yang sudah diunggah oleh anggota.</p>
+            </div>
+        </div>
         <div class="table-responsive">
             <table id="datatable-academica" class="table table-bordered dt-responsive nowrap w-100">
                 <thead class="table-light">
@@ -97,13 +116,20 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center">Belum ada proposal.</td>
+                        <td colspan="5">
+                            <div class="mgmp-empty-state">
+                                <i class="bx bx-file-blank"></i>
+                                <strong>Belum ada proposal</strong>
+                                <small>Proposal yang diunggah akan tampil di sini.</small>
+                            </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+</div>
 </div>
 
 @else

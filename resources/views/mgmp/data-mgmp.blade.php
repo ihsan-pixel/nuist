@@ -30,7 +30,30 @@
     @slot('title') Data MGMP @endslot
 @endcomponent
 
-<div class="card mb-4">
+@include('mgmp.partials.ui-styles')
+
+<div class="mgmp-page">
+<div class="mgmp-hero-strip mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="mgmp-kicker mb-2">Master Data</div>
+            <h4 class="mb-1">Data MGMP</h4>
+            <p class="mb-0 text-white-50">Kelola profil grup, jumlah anggota, dan identitas MGMP.</p>
+        </div>
+        @if($canAdd)
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalTambahMGMP">
+                <i class="bx bx-plus"></i> Tambah MGMP
+            </button>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalImportMGMP">
+                <i class="bx bx-upload"></i> Import
+            </button>
+        </div>
+        @endif
+    </div>
+</div>
+
+<div class="card mgmp-panel mb-4">
     <div class="card-body">
 
         @if(auth()->user()->role === 'mgmp' && !$canAdd)
@@ -40,16 +63,11 @@
         </div>
         @endif
 
-        <!-- Tombol aksi -->
-        <div class="mb-3 d-flex justify-content-end gap-2">
-            @if($canAdd)
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahMGMP">
-                <i class="bx bx-plus"></i> Tambah MGMP
-            </button>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportMGMP">
-                <i class="bx bx-upload"></i> Import Data MGMP
-            </button>
-            @endif
+        <div class="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h5 class="mb-1">Daftar Grup MGMP</h5>
+                <p class="text-muted mb-0">Total {{ $mgmpGroups->count() }} grup terdata.</p>
+            </div>
         </div>
 
         @if(session('success'))
@@ -78,14 +96,16 @@
                         <td>{{ $mgmp->member_count }}</td>
                         <td>
                             @if($mgmp->logo)
-                                <img src="{{ asset('uploads/' . $mgmp->logo) }}" alt="Logo" width="50">
+                                <img src="{{ asset('uploads/' . $mgmp->logo) }}" alt="Logo" width="50" class="rounded-circle">
                             @else
                                 -
                             @endif
                         </td>
                         <td>
                             @if(auth()->user()->role === 'mgmp' && $mgmp->user_id === auth()->id() || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus']))
-                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditMGMP{{ $mgmp->id }}">Edit</button>
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEditMGMP{{ $mgmp->id }}">
+                                <i class="bx bx-edit"></i> Edit
+                            </button>
                             {{-- <form action="{{ route('mgmp.destroy', $mgmp->id) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
@@ -131,10 +151,10 @@
                     </div>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center p-4">
-                            <div class="alert alert-info d-inline-block text-center" role="alert">
-                                <i class="bx bx-info-circle bx-lg me-2"></i>
-                                <strong>Belum ada data MGMP</strong><br>
+                        <td colspan="5">
+                            <div class="mgmp-empty-state">
+                                <i class="bx bx-data"></i>
+                                <strong>Belum ada data MGMP</strong>
                                 <small>Silakan tambahkan data MGMP terlebih dahulu untuk melanjutkan.</small>
                             </div>
                         </td>
@@ -209,6 +229,7 @@
             </div>
         </form>
     </div>
+</div>
 </div>
 @else
 <div class="alert alert-danger text-center">

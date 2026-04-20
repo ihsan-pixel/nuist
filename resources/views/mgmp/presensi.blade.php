@@ -29,7 +29,9 @@
         }
 
         .mgmp-hero {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background:
+                radial-gradient(circle at top right, rgba(239, 170, 12, 0.30), transparent 30%),
+                linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border-radius: 18px;
             color: #fff;
             padding: 18px;
@@ -38,6 +40,7 @@
 
         .mgmp-card {
             background: #fff;
+            border: 1px solid #e4eee9;
             border-radius: 16px;
             padding: 16px;
             box-shadow: 0 8px 24px rgba(24, 39, 75, 0.08);
