@@ -175,10 +175,173 @@
             </div>
         </div>
     </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                        <div>
+                            <h3 class="card-title mb-1">Rekap Presensi dan Jadwal Mengajar Tenaga Pendidik</h3>
+                            <div class="text-muted small">
+                                Periode {{ $teachingRecapData['label'] }}. Data khusus selain status GTT/GTY dan selain kepala sekolah.
+                            </div>
+                        </div>
+                        <form method="GET" class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 mb-0">
+                            <input type="hidden" name="week" value="{{ $startOfWeek->format('o-\\WW') }}">
+                            <input type="hidden" name="month" value="{{ $month }}">
+
+                            <select name="teaching_recap_period" id="teachingRecapPeriod" class="form-select form-select-sm" style="min-width: 130px;">
+                                <option value="week" {{ $teachingRecapData['period'] === 'week' ? 'selected' : '' }}>Mingguan</option>
+                                <option value="month" {{ $teachingRecapData['period'] === 'month' ? 'selected' : '' }}>Bulanan</option>
+                            </select>
+
+                            <input type="week"
+                                name="teaching_recap_week"
+                                id="teachingRecapWeek"
+                                class="form-control form-control-sm"
+                                value="{{ $teachingRecapData['week_value'] }}"
+                                style="min-width: 150px;">
+
+                            <input type="month"
+                                name="teaching_recap_month"
+                                id="teachingRecapMonth"
+                                class="form-control form-control-sm"
+                                value="{{ $teachingRecapData['month_value'] }}"
+                                style="min-width: 150px;">
+
+                            <button type="submit" class="btn btn-primary btn-sm px-3">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="border rounded p-3 h-100">
+                                <div class="text-muted small">Total Tenaga Pendidik</div>
+                                <div class="h4 mb-0">{{ number_format($teachingRecapData['summary']['total_tenaga_pendidik']) }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border rounded p-3 h-100">
+                                <div class="text-muted small">Tidak Presensi Mengajar</div>
+                                <div class="h4 mb-0 text-danger">{{ number_format($teachingRecapData['summary']['total_tidak_presensi']) }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border rounded p-3 h-100">
+                                <div class="text-muted small">Sudah Punya Jadwal</div>
+                                <div class="h4 mb-0 text-success">{{ number_format($teachingRecapData['summary']['total_sudah_jadwal']) }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border rounded p-3 h-100">
+                                <div class="text-muted small">Belum Punya Jadwal</div>
+                                <div class="h4 mb-0 text-warning">{{ number_format($teachingRecapData['summary']['total_belum_jadwal']) }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">Tenaga Pendidik Tidak Melakukan Presensi Mengajar</h5>
+                    <div class="table-responsive teaching-recap-table mb-4">
+                        <table class="table table-bordered table-striped mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th class="text-center">SCOD</th>
+                                    <th>Nama User</th>
+                                    <th>Asal Sekolah</th>
+                                    <th>Status Kepegawaian</th>
+                                    <th class="text-center">Jadwal Berjalan</th>
+                                    <th class="text-center">Sudah Presensi</th>
+                                    <th class="text-center">Tidak Presensi</th>
+                                    <th class="text-center">% Tidak Presensi</th>
+                                    <th>Rincian Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($teachingRecapData['absence_rows'] as $teacher)
+                                <tr>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="text-center">{{ $teacher['scod'] }}</td>
+                                    <td>{{ $teacher['name'] }}</td>
+                                    <td>{{ $teacher['madrasah'] }}</td>
+                                    <td>{{ $teacher['status_kepegawaian'] }}</td>
+                                    <td class="text-center">{{ $teacher['total_jadwal_berjalan'] }}</td>
+                                    <td class="text-center">{{ $teacher['total_presensi'] }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-danger">{{ $teacher['total_belum_presensi'] }}</span>
+                                    </td>
+                                    <td class="text-center">{{ number_format($teacher['persentase_tidak_presensi'], 1) }}%</td>
+                                    <td class="small">{{ $teacher['rincian_tanggal'] }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="10" class="text-center p-4">
+                                        <div class="alert alert-info d-inline-block mb-0">
+                                            <strong>Tidak ada tenaga pendidik yang belum presensi mengajar</strong><br>
+                                            <small>Semua jadwal berjalan pada periode ini sudah memiliki presensi mengajar.</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h5 class="mb-3">Rekap Tenaga Pendidik Sudah atau Belum Memiliki Jadwal Mengajar</h5>
+                    <div class="table-responsive teaching-recap-table">
+                        <table class="table table-bordered table-striped mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th class="text-center">SCOD</th>
+                                    <th>Nama User</th>
+                                    <th>Asal Sekolah</th>
+                                    <th>Status Kepegawaian</th>
+                                    <th class="text-center">Jadwal Master</th>
+                                    <th class="text-center">Jadwal Periode</th>
+                                    <th class="text-center">Status Jadwal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($teachingRecapData['schedule_rows'] as $teacher)
+                                <tr>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="text-center">{{ $teacher['scod'] }}</td>
+                                    <td>{{ $teacher['name'] }}</td>
+                                    <td>{{ $teacher['madrasah'] }}</td>
+                                    <td>{{ $teacher['status_kepegawaian'] }}</td>
+                                    <td class="text-center">{{ $teacher['jumlah_jadwal_master'] }}</td>
+                                    <td class="text-center">{{ $teacher['total_jadwal_periode'] }}</td>
+                                    <td class="text-center">
+                                        <span class="badge {{ $teacher['jumlah_jadwal_master'] > 0 ? 'bg-success' : 'bg-warning text-dark' }}">
+                                            {{ $teacher['status_jadwal'] }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="text-center p-4">
+                                        <div class="alert alert-info d-inline-block mb-0">
+                                            Tidak ada tenaga pendidik sesuai kriteria filter ini.
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
-@push('styles')
+@push('css')
 <style>
 .table-responsive {
     max-height: 70vh;
@@ -207,5 +370,34 @@
 .bg-warning {
     background-color: #fff3cd !important;
 }
+
+.teaching-recap-table {
+    max-height: 520px;
+}
 </style>
 @endpush
+
+@section('script')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const periodSelect = document.getElementById('teachingRecapPeriod');
+    const weekInput = document.getElementById('teachingRecapWeek');
+    const monthInput = document.getElementById('teachingRecapMonth');
+
+    function toggleTeachingRecapFilters() {
+        const period = periodSelect ? periodSelect.value : 'week';
+        if (weekInput) {
+            weekInput.style.display = period === 'week' ? '' : 'none';
+        }
+        if (monthInput) {
+            monthInput.style.display = period === 'month' ? '' : 'none';
+        }
+    }
+
+    toggleTeachingRecapFilters();
+    if (periodSelect) {
+        periodSelect.addEventListener('change', toggleTeachingRecapFilters);
+    }
+});
+</script>
+@endsection

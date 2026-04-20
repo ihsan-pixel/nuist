@@ -8,9 +8,19 @@ use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class TeachingProgressController extends Controller
 {
+    private const TEACHING_DAY_NAMES = [
+        Carbon::MONDAY => 'Senin',
+        Carbon::TUESDAY => 'Selasa',
+        Carbon::WEDNESDAY => 'Rabu',
+        Carbon::THURSDAY => 'Kamis',
+        Carbon::FRIDAY => 'Jumat',
+        Carbon::SATURDAY => 'Sabtu',
+    ];
+
     /**
      * Display the teaching progress for all madrasahs
      */
@@ -104,6 +114,7 @@ class TeachingProgressController extends Controller
 
         $laporanData = [];
         $laporanBulananData = [];
+        $teachingRecapData = $this->getTeachingRecapData($request);
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = Madrasah::where('kabupaten', $kabupaten)
@@ -309,7 +320,8 @@ class TeachingProgressController extends Controller
             'startOfWeek',
             'startOfMonth',
             'month',
-            'top10Madrasah'
+            'top10Madrasah',
+            'teachingRecapData'
         ));
     }
 
@@ -334,6 +346,206 @@ class TeachingProgressController extends Controller
             ->whereDate('tanggal', $date)
             ->where('status', 'hadir')
             ->exists();
+    }
+
+    private function getTeachingRecapData(Request $request): array
+    {
+        $today = Carbon::today('Asia/Jakarta');
+        $period = $request->input('teaching_recap_period') === 'month' ? 'month' : 'week';
+
+        $selectedWeekValue = $request->input('teaching_recap_week', $today->format('o-\WW'));
+        if (preg_match('/^(\d{4})-W(\d{2})$/', $selectedWeekValue, $matches)) {
+            $startOfWeek = Carbon::now('Asia/Jakarta')
+                ->setISODate((int) $matches[1], (int) $matches[2])
+                ->startOfWeek(Carbon::MONDAY);
+        } else {
+            $startOfWeek = $today->copy()->startOfWeek(Carbon::MONDAY);
+            $selectedWeekValue = $startOfWeek->format('o-\WW');
+        }
+
+        $selectedMonthValue = $request->input('teaching_recap_month', $today->format('Y-m'));
+        if (preg_match('/^\d{4}-\d{2}$/', $selectedMonthValue)) {
+            $startOfMonth = Carbon::createFromFormat('Y-m', $selectedMonthValue, 'Asia/Jakarta')->startOfMonth();
+        } else {
+            $startOfMonth = $today->copy()->startOfMonth();
+            $selectedMonthValue = $startOfMonth->format('Y-m');
+        }
+
+        $startDate = $period === 'month'
+            ? $startOfMonth->copy()
+            : $startOfWeek->copy();
+        $endDate = $period === 'month'
+            ? $startOfMonth->copy()->endOfMonth()
+            : $startOfWeek->copy()->endOfWeek(Carbon::SATURDAY);
+        $effectiveEndDate = $endDate->copy()->min($today);
+
+        $teachers = $this->getTeachingRecapEligibleTeachers();
+        $teacherIds = $teachers->pluck('id');
+        $schedules = TeachingSchedule::query()
+            ->whereIn('teacher_id', $teacherIds)
+            ->orderBy('day')
+            ->orderBy('start_time')
+            ->get();
+
+        $schedulesByTeacher = $schedules->groupBy('teacher_id');
+        $attendanceKeys = collect();
+
+        if ($schedules->isNotEmpty() && !$effectiveEndDate->lt($startDate)) {
+            $attendanceKeys = TeachingAttendance::query()
+                ->whereIn('teaching_schedule_id', $schedules->pluck('id'))
+                ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+                ->where('status', 'hadir')
+                ->get()
+                ->mapWithKeys(function ($attendance) {
+                    $date = Carbon::parse($attendance->tanggal)->toDateString();
+                    return [$attendance->teaching_schedule_id . '|' . $date => true];
+                });
+        }
+
+        $absenceRows = collect();
+        $scheduleRows = collect();
+
+        foreach ($teachers as $teacher) {
+            $teacherSchedules = $schedulesByTeacher->get($teacher->id, collect());
+            $scheduleSummary = $this->summarizeTeachingSchedules(
+                $teacherSchedules,
+                $startDate,
+                $endDate,
+                $effectiveEndDate,
+                $attendanceKeys
+            );
+
+            $scheduleRows->push([
+                'scod' => $teacher->madrasah->scod ?? '-',
+                'name' => $teacher->name,
+                'madrasah' => $teacher->madrasah->name ?? '-',
+                'status_kepegawaian' => $teacher->statusKepegawaian->name ?? '-',
+                'jumlah_jadwal_master' => $teacherSchedules->count(),
+                'total_jadwal_periode' => $scheduleSummary['total_jadwal_periode'],
+                'status_jadwal' => $teacherSchedules->count() > 0 ? 'Sudah memiliki jadwal' : 'Belum memiliki jadwal',
+            ]);
+
+            if ($scheduleSummary['total_belum_presensi'] <= 0) {
+                continue;
+            }
+
+            $absenceRows->push([
+                'scod' => $teacher->madrasah->scod ?? '-',
+                'name' => $teacher->name,
+                'madrasah' => $teacher->madrasah->name ?? '-',
+                'status_kepegawaian' => $teacher->statusKepegawaian->name ?? '-',
+                'total_jadwal_berjalan' => $scheduleSummary['total_jadwal_berjalan'],
+                'total_presensi' => $scheduleSummary['total_presensi'],
+                'total_belum_presensi' => $scheduleSummary['total_belum_presensi'],
+                'persentase_tidak_presensi' => $scheduleSummary['persentase_tidak_presensi'],
+                'rincian_tanggal' => $scheduleSummary['rincian_tanggal'],
+            ]);
+        }
+
+        return [
+            'period' => $period,
+            'week_value' => $selectedWeekValue,
+            'month_value' => $selectedMonthValue,
+            'label' => $startDate->locale('id')->translatedFormat('d F Y') . ' - ' .
+                $endDate->locale('id')->translatedFormat('d F Y'),
+            'absence_rows' => $absenceRows
+                ->sortByDesc('total_belum_presensi')
+                ->values(),
+            'schedule_rows' => $scheduleRows->values(),
+            'summary' => [
+                'total_tenaga_pendidik' => $teachers->count(),
+                'total_tidak_presensi' => $absenceRows->count(),
+                'total_sudah_jadwal' => $scheduleRows->where('jumlah_jadwal_master', '>', 0)->count(),
+                'total_belum_jadwal' => $scheduleRows->where('jumlah_jadwal_master', 0)->count(),
+                'total_sesi_tidak_presensi' => $absenceRows->sum('total_belum_presensi'),
+            ],
+        ];
+    }
+
+    private function getTeachingRecapEligibleTeachers()
+    {
+        return User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id')
+            ->where(function ($query) {
+                $query->whereNull('ketugasan')
+                    ->orWhereRaw('LOWER(ketugasan) NOT LIKE ?', ['%kepala%']);
+            })
+            ->where(function ($query) {
+                $query->whereNull('status_kepegawaian_id')
+                    ->orWhereDoesntHave('statusKepegawaian', function ($statusQuery) {
+                        $statusQuery->whereRaw('LOWER(name) LIKE ?', ['%gtt%'])
+                            ->orWhereRaw('LOWER(name) LIKE ?', ['%gty%']);
+                    });
+            })
+            ->with(['madrasah', 'statusKepegawaian'])
+            ->join('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
+            ->orderByRaw("CAST(madrasahs.scod AS UNSIGNED) ASC")
+            ->orderBy('users.name')
+            ->select('users.*')
+            ->get();
+    }
+
+    private function summarizeTeachingSchedules(
+        $schedules,
+        Carbon $startDate,
+        Carbon $endDate,
+        Carbon $effectiveEndDate,
+        $attendanceKeys
+    ): array {
+        $totalJadwalPeriode = 0;
+        $totalJadwalBerjalan = 0;
+        $totalPresensi = 0;
+        $totalBelumPresensi = 0;
+        $missingByDate = [];
+
+        foreach ($schedules as $schedule) {
+            foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+                if ($this->getTeachingDayName($date) !== $schedule->day) {
+                    continue;
+                }
+
+                $totalJadwalPeriode++;
+
+                if ($date->gt($effectiveEndDate)) {
+                    continue;
+                }
+
+                $totalJadwalBerjalan++;
+                $dateKey = $date->toDateString();
+                $attendanceKey = $schedule->id . '|' . $dateKey;
+
+                if ($attendanceKeys->has($attendanceKey)) {
+                    $totalPresensi++;
+                } else {
+                    $totalBelumPresensi++;
+                    $missingByDate[$dateKey] = ($missingByDate[$dateKey] ?? 0) + 1;
+                }
+            }
+        }
+
+        $rincianTanggal = collect($missingByDate)
+            ->map(function ($count, $date) {
+                $label = Carbon::parse($date)->locale('id')->translatedFormat('d M Y');
+                return $count > 1 ? "{$label} ({$count} jadwal)" : $label;
+            })
+            ->implode(', ');
+
+        return [
+            'total_jadwal_periode' => $totalJadwalPeriode,
+            'total_jadwal_berjalan' => $totalJadwalBerjalan,
+            'total_presensi' => $totalPresensi,
+            'total_belum_presensi' => $totalBelumPresensi,
+            'persentase_tidak_presensi' => $totalJadwalBerjalan > 0
+                ? round(($totalBelumPresensi / $totalJadwalBerjalan) * 100, 1)
+                : 0,
+            'rincian_tanggal' => $rincianTanggal ?: '-',
+        ];
+    }
+
+    private function getTeachingDayName(Carbon $date): ?string
+    {
+        return self::TEACHING_DAY_NAMES[$date->dayOfWeek] ?? null;
     }
 
     /**
