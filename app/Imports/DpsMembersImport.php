@@ -30,8 +30,7 @@ class DpsMembersImport implements ToCollection, WithHeadingRow
 
             $scod = trim((string)($row['scod'] ?? $row['school_scod'] ?? ''));
             $nama = trim((string)($row['nama_dps'] ?? $row['nama'] ?? ''));
-            $unsurRaw = trim((string)($row['unsur_dps'] ?? $row['unsur'] ?? ''));
-            $unsur = $this->normalizeUnsur($unsurRaw);
+            $unsur = trim((string)($row['unsur_dps'] ?? $row['unsur'] ?? ''));
             $periode = trim((string)($row['periode'] ?? ''));
 
             // Skip empty row
@@ -42,13 +41,6 @@ class DpsMembersImport implements ToCollection, WithHeadingRow
 
             if ($scod === '' || $nama === '' || $unsur === '' || $periode === '') {
                 $this->errors[] = "Baris {$excelRow}: kolom wajib kosong (scod, nama_dps, unsur_dps, periode).";
-                $this->skippedCount++;
-                continue;
-            }
-
-            if (!in_array($unsur, DpsMember::UNSUR_OPTIONS, true)) {
-                $allowed = implode(' | ', DpsMember::UNSUR_OPTIONS);
-                $this->errors[] = "Baris {$excelRow}: unsur_dps '{$unsurRaw}' tidak valid. Pilihan: {$allowed}.";
                 $this->skippedCount++;
                 continue;
             }
@@ -93,16 +85,5 @@ class DpsMembersImport implements ToCollection, WithHeadingRow
                 ];
             }
         }
-    }
-
-    private function normalizeUnsur(string $unsur): string
-    {
-        $u = preg_replace('/\\s+/', ' ', trim($unsur));
-
-        if (strcasecmp($u, "Pengurus LP Ma'arif NU PWNU DIY") === 0) {
-            return "Pengurus LP. Ma'arif NU PWNU DIY";
-        }
-
-        return $u;
     }
 }

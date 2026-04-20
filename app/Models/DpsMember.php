@@ -9,7 +9,7 @@ class DpsMember extends Model
 {
     use HasFactory;
 
-    public const UNSUR_OPTIONS = [
+    public const DEFAULT_UNSUR_OPTIONS = [
         "Pengurus LP. Ma'arif NU PWNU DIY",
         'Akademisi',
         'Pendiri Sekolah',

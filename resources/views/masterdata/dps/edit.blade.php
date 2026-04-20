@@ -6,7 +6,9 @@
 
 @section('content')
 @php
-    $unsurOptions = \App\Models\DpsMember::UNSUR_OPTIONS;
+    $defaults = \App\Models\DpsMember::DEFAULT_UNSUR_OPTIONS;
+    $existing = \App\Models\DpsMember::query()->select('unsur')->distinct()->pluck('unsur')->filter()->all();
+    $unsurOptions = array_values(array_unique(array_merge($defaults, $existing)));
 @endphp
 @component('components.breadcrumb')
     @slot('li_1') Master Data @endslot

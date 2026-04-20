@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\DpsMembersImport;
 
@@ -66,7 +65,7 @@ class DpsController extends Controller
             'madrasah_id' => 'required|integer',
             'members' => 'required|array|min:1',
             'members.*.nama' => 'required|string|max:255',
-            'members.*.unsur' => ['required', 'string', Rule::in(DpsMember::UNSUR_OPTIONS)],
+            'members.*.unsur' => 'required|string|max:255',
             'members.*.periode' => 'required|string|max:50',
         ]);
 
@@ -117,7 +116,7 @@ class DpsController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'unsur' => ['required', 'string', Rule::in(DpsMember::UNSUR_OPTIONS)],
+            'unsur' => 'required|string|max:255',
             'periode' => 'required|string|max:50',
         ]);
 

@@ -143,7 +143,7 @@
                         <code>scod</code>, <code>nama_dps</code>, <code>unsur_dps</code>, <code>periode</code>
                     </div>
                     <div class="small mt-2">
-                        Nilai <code>unsur_dps</code> wajib salah satu: Pengurus LP. Ma'arif NU PWNU DIY, Akademisi, Pendiri Sekolah, Tokoh Masyarakat.
+                        Nilai <code>unsur_dps</code> boleh baru (akan tersimpan sesuai Excel dan otomatis muncul sebagai pilihan unsur di form).
                     </div>
                 </div>
             </div>
