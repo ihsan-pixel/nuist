@@ -87,17 +87,7 @@
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label for="class_name" class="form-label">Kelas <span class="text-danger">*</span></label>
-                                @if(!empty($availableClasses))
-                                    <datalist id="available-classes">
-                                        @foreach($availableClasses as $className)
-                                            <option value="{{ $className }}"></option>
-                                        @endforeach
-                                    </datalist>
-                                @endif
-                                <input type="text" name="class_name" id="class_name" class="form-control" value="{{ $schedule->class_name }}" {{ !empty($availableClasses) ? 'list="available-classes"' : '' }} required>
-                                @if(!empty($availableClasses))
-                                    <div class="form-text">Pilih dari daftar atau ketik kelas baru.</div>
-                                @endif
+                                <input type="text" name="class_name" id="class_name" class="form-control" value="{{ $schedule->class_name }}" required>
                             </div>
                         </div>
                         <div class="col-md-3">

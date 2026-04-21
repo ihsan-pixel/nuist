@@ -93,11 +93,6 @@
                         <div class="text-end">
                             <div class="fs-4 fw-bold text-primary">{{ $schedules->count() }}</div>
                             <small class="text-muted">Jadwal Hari Ini</small>
-                            <div class="mt-2">
-                                <a href="{{ route('teaching-schedules.index') }}" class="btn btn-outline-primary btn-sm">
-                                    <i class="bx bx-calendar-edit me-1"></i>Kelola Jadwal
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>
