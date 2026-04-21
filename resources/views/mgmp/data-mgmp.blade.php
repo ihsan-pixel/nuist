@@ -45,9 +45,9 @@
             <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#modalTambahMGMP">
                 <i class="bx bx-plus"></i> Tambah MGMP
             </button>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalImportMGMP">
+            {{-- <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalImportMGMP">
                 <i class="bx bx-upload"></i> Import
-            </button>
+            </button> --}}
         </div>
         @endif
     </div>
