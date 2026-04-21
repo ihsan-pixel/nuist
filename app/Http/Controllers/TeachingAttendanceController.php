@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
-use App\Models\TeachingClassActivity;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Notification;
@@ -54,7 +53,6 @@ class TeachingAttendanceController extends Controller
         }
 
         $this->attachClassStudentCounts($schedules);
-        $this->attachClassActivities($schedules, $today);
 
         return view('teaching-attendances.index', compact('schedules', 'today', 'approvedIzinPresensi'));
     }
@@ -102,25 +100,6 @@ class TeachingAttendanceController extends Controller
                 'success' => false,
                 'message' => 'Jadwal tidak valid.'
             ], 403);
-        }
-
-        $activeActivity = TeachingClassActivity::query()
-            ->where('school_id', $schedule->school_id)
-            ->where('class_name', $schedule->class_name)
-            ->whereDate('start_date', '<=', $today)
-            ->whereDate('end_date', '>=', $today)
-            ->orderByDesc('start_date')
-            ->first();
-
-        if ($activeActivity) {
-            $rangeLabel = $activeActivity->start_date && $activeActivity->end_date
-                ? $activeActivity->start_date->format('d M Y') . ' - ' . $activeActivity->end_date->format('d M Y')
-                : $today;
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak perlu presensi mengajar untuk kelas ' . $schedule->class_name . ' karena ada kegiatan: ' . $activeActivity->activity_type . ' (' . $rangeLabel . ').'
-            ], 400);
         }
 
         $todayName = Carbon::now('Asia/Jakarta')->locale('id')->dayName;
@@ -404,34 +383,6 @@ class TeachingAttendanceController extends Controller
     private function classStudentCountKey($schoolId, $className): string
     {
         return $schoolId . '|' . strtolower(trim((string) $className));
-    }
-
-    private function attachClassActivities($schedules, string $dateYmd): void
-    {
-        $schoolIds = $schedules->pluck('school_id')->filter()->unique()->values();
-
-        if ($schoolIds->isEmpty()) {
-            return;
-        }
-
-        $activities = TeachingClassActivity::query()
-            ->whereIn('school_id', $schoolIds)
-            ->whereDate('start_date', '<=', $dateYmd)
-            ->whereDate('end_date', '>=', $dateYmd)
-            ->orderByDesc('start_date')
-            ->get();
-
-        $byKey = $activities
-            ->groupBy(function ($a) {
-                return $a->school_id . '|' . strtolower(trim((string) $a->class_name));
-            })
-            ->map(fn ($group) => $group->first());
-
-        $schedules->each(function ($schedule) use ($byKey) {
-            $schedule->class_activity = $byKey->get(
-                $this->classStudentCountKey($schedule->school_id, $schedule->class_name)
-            );
-        });
     }
 
     /**
