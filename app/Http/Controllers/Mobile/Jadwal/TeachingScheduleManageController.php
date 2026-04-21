@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 class TeachingScheduleManageController extends Controller
 {
     private const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    private const NEW_VALUE = '__new__';
 
     public function create()
     {
@@ -44,13 +45,31 @@ class TeachingScheduleManageController extends Controller
         $validated = $request->validate([
             'day' => ['required', Rule::in(self::DAYS)],
             'subject' => ['required', 'string', 'max:255'],
+            'subject_new' => ['nullable', 'string', 'max:255'],
             'class_name' => ['required', 'string', 'max:255'],
+            'class_name_new' => ['nullable', 'string', 'max:255'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
         ]);
 
         $validated['subject'] = trim((string) $validated['subject']);
         $validated['class_name'] = trim((string) $validated['class_name']);
+        $validated['subject_new'] = trim((string) ($validated['subject_new'] ?? ''));
+        $validated['class_name_new'] = trim((string) ($validated['class_name_new'] ?? ''));
+
+        if ($validated['subject'] === self::NEW_VALUE) {
+            if ($validated['subject_new'] === '') {
+                return back()->withErrors(['subject_new' => 'Mata pelajaran baru wajib diisi.'])->withInput();
+            }
+            $validated['subject'] = $validated['subject_new'];
+        }
+
+        if ($validated['class_name'] === self::NEW_VALUE) {
+            if ($validated['class_name_new'] === '') {
+                return back()->withErrors(['class_name_new' => 'Kelas baru wajib diisi.'])->withInput();
+            }
+            $validated['class_name'] = $validated['class_name_new'];
+        }
 
         // Check overlap for teacher schedule (same teacher, same day, overlapping time)
         $teacherOverlap = TeachingSchedule::query()
@@ -137,13 +156,31 @@ class TeachingScheduleManageController extends Controller
         $validated = $request->validate([
             'day' => ['required', Rule::in(self::DAYS)],
             'subject' => ['required', 'string', 'max:255'],
+            'subject_new' => ['nullable', 'string', 'max:255'],
             'class_name' => ['required', 'string', 'max:255'],
+            'class_name_new' => ['nullable', 'string', 'max:255'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
         ]);
 
         $validated['subject'] = trim((string) $validated['subject']);
         $validated['class_name'] = trim((string) $validated['class_name']);
+        $validated['subject_new'] = trim((string) ($validated['subject_new'] ?? ''));
+        $validated['class_name_new'] = trim((string) ($validated['class_name_new'] ?? ''));
+
+        if ($validated['subject'] === self::NEW_VALUE) {
+            if ($validated['subject_new'] === '') {
+                return back()->withErrors(['subject_new' => 'Mata pelajaran baru wajib diisi.'])->withInput();
+            }
+            $validated['subject'] = $validated['subject_new'];
+        }
+
+        if ($validated['class_name'] === self::NEW_VALUE) {
+            if ($validated['class_name_new'] === '') {
+                return back()->withErrors(['class_name_new' => 'Kelas baru wajib diisi.'])->withInput();
+            }
+            $validated['class_name'] = $validated['class_name_new'];
+        }
 
         // Check overlap, excluding current
         $teacherOverlap = TeachingSchedule::query()

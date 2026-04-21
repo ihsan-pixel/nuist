@@ -39,6 +39,13 @@
 
         <div class="card mb-3">
             <div class="card-body">
+                @php
+                    $subjectValue = old('subject', optional($schedule)->subject ?? '');
+                    $classValue = old('class_name', optional($schedule)->class_name ?? '');
+                    $subjectIsKnown = $subjectValue !== '' && $subjects->contains($subjectValue);
+                    $classIsKnown = $classValue !== '' && $classes->contains($classValue);
+                @endphp
+
                 <div class="mb-3">
                     <label class="form-label mb-1">Hari</label>
                     <select class="form-select" name="day" required>
@@ -55,39 +62,43 @@
 
                 <div class="mb-3">
                     <label class="form-label mb-1">Mata Pelajaran</label>
+                    <select class="form-select" name="subject" id="subjectSelect" required>
+                        <option value="" @selected($subjectValue === '')>Pilih mata pelajaran</option>
+                        @foreach($subjects as $s)
+                            <option value="{{ $s }}" @selected($subjectValue === (string) $s)>{{ $s }}</option>
+                        @endforeach
+                        <option value="__new__" @selected(!$subjectIsKnown && $subjectValue !== '')>Tambah mata pelajaran baru...</option>
+                    </select>
                     <input
                         type="text"
-                        class="form-control"
-                        name="subject"
-                        list="subjectList"
-                        value="{{ old('subject', optional($schedule)->subject ?? '') }}"
-                        placeholder="Contoh: Matematika"
-                        required
+                        class="form-control mt-2"
+                        name="subject_new"
+                        id="subjectNew"
+                        value="{{ old('subject_new', $subjectIsKnown ? '' : $subjectValue) }}"
+                        placeholder="Tulis mata pelajaran baru"
+                        style="{{ ($subjectValue === '' || $subjectIsKnown) ? 'display:none;' : '' }}"
                     />
-                    <datalist id="subjectList">
-                        @foreach($subjects as $s)
-                            <option value="{{ $s }}"></option>
-                        @endforeach
-                    </datalist>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label mb-1">Kelas</label>
+                    <select class="form-select" name="class_name" id="classSelect" required>
+                        <option value="" @selected($classValue === '')>Pilih kelas</option>
+                        @foreach($classes as $c)
+                            <option value="{{ $c }}" @selected($classValue === (string) $c)>{{ $c }}</option>
+                        @endforeach
+                        <option value="__new__" @selected(!$classIsKnown && $classValue !== '')>Tambah kelas baru...</option>
+                    </select>
                     <input
                         type="text"
-                        class="form-control"
-                        name="class_name"
-                        list="classList"
-                        value="{{ old('class_name', $schedule ? substr((string) $schedule->class_name, 0, 255) : '') }}"
-                        placeholder="Contoh: VII A"
-                        required
+                        class="form-control mt-2"
+                        name="class_name_new"
+                        id="classNew"
+                        value="{{ old('class_name_new', $classIsKnown ? '' : $classValue) }}"
+                        placeholder="Tulis nama kelas baru"
+                        style="{{ ($classValue === '' || $classIsKnown) ? 'display:none;' : '' }}"
                     />
-                    <datalist id="classList">
-                        @foreach($classes as $c)
-                            <option value="{{ $c }}"></option>
-                        @endforeach
-                    </datalist>
-                    <div class="form-text">Ketik nama kelas jika belum ada di daftar.</div>
+                    <div class="form-text">Daftar kelas & mapel diambil dari jadwal madrasah Anda. Jika belum ada, pilih "Tambah ..." lalu ketik.</div>
                 </div>
 
                 <div class="row g-2">
@@ -119,6 +130,33 @@
             <i class="bx bx-save me-1"></i> {{ $isEditing ? 'Simpan Perubahan' : 'Simpan Jadwal' }}
         </button>
     </form>
+
+    <script>
+        (function () {
+            function bindToggle(selectId, newInputId) {
+                const selectEl = document.getElementById(selectId);
+                const newEl = document.getElementById(newInputId);
+                if (!selectEl || !newEl) return;
+
+                const toggle = () => {
+                    if (selectEl.value === '__new__') {
+                        newEl.style.display = '';
+                    } else {
+                        newEl.style.display = 'none';
+                        newEl.value = '';
+                    }
+                };
+
+                selectEl.addEventListener('change', toggle);
+                toggle();
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                bindToggle('subjectSelect', 'subjectNew');
+                bindToggle('classSelect', 'classNew');
+            });
+        })();
+    </script>
 
     @if($isEditing)
         <form method="POST" action="{{ route('mobile.jadwal.destroy', $schedule->id) }}" class="mt-2" onsubmit="return confirm('Hapus jadwal ini?');">
