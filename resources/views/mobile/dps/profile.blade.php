@@ -60,9 +60,9 @@
 </div>
 
 <div class="d-grid gap-2">
-    <a class="btn btn-outline-secondary" href="{{ route('dashboard') }}">
+    {{-- <a class="btn btn-outline-secondary" href="{{ route('dashboard') }}">
         <i class="bx bx-desktop me-1"></i> Masuk Mode Desktop
-    </a>
+    </a> --}}
     <a class="btn btn-outline-danger" href="{{ route('logout') }}"
        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
         <i class="bx bx-log-out me-1"></i> Logout
