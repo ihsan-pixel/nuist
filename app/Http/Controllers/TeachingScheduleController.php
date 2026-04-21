@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\TeachingSchedule;
+use App\Models\TeachingClassStudentCount;
 use App\Models\User;
 use App\Models\Madrasah;
+use App\Models\Siswa;
 use App\Imports\TeachingScheduleImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -121,7 +124,11 @@ class TeachingScheduleController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role === 'admin') {
+        if ($user->role === 'tenaga_pendidik') {
+            $school = Madrasah::findOrFail($user->madrasah_id);
+            $availableClasses = $this->getAvailableClassesForSchool((int) $school->id);
+            return view('teaching-schedules.teacher-create', compact('school', 'availableClasses'));
+        } elseif ($user->role === 'admin') {
             $schools = Madrasah::where('id', $user->madrasah_id)->get();
             $teachers = User::where('role', 'tenaga_pendidik')
                 ->where('madrasah_id', $user->madrasah_id)
@@ -153,6 +160,69 @@ class TeachingScheduleController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user->role === 'tenaga_pendidik') {
+            $request->merge([
+                'subject' => trim((string) $request->input('subject', '')),
+                'class_name' => Str::upper(trim((string) $request->input('class_name', ''))),
+            ]);
+
+            $request->validate([
+                'day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
+                'subject' => 'required|string|max:255',
+                'class_name' => 'required|string|max:255',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i|after:start_time',
+            ]);
+
+            $schoolId = (int) $user->madrasah_id;
+
+            $teacherOverlap = TeachingSchedule::where('teacher_id', $user->id)
+                ->where('day', $request->day)
+                ->where(function ($query) use ($request) {
+                    $query->where('start_time', '<', $request->end_time)
+                        ->where('end_time', '>', $request->start_time);
+                })
+                ->exists();
+
+            if ($teacherOverlap) {
+                return back()
+                    ->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari ' . $request->day . '.'])
+                    ->withInput();
+            }
+
+            if (!in_array($schoolId, [8, 9])) {
+                $classOverlap = TeachingSchedule::where('school_id', $schoolId)
+                    ->where('class_name', $request->class_name)
+                    ->where('day', $request->day)
+                    ->where(function ($query) use ($request) {
+                        $query->where('start_time', '<', $request->end_time)
+                            ->where('end_time', '>', $request->start_time);
+                    })
+                    ->exists();
+
+                if ($classOverlap) {
+                    return back()
+                        ->withErrors(['class_overlap' => 'Jadwal bentrok dengan jadwal lain pada kelas yang sama di hari ' . $request->day . '.'])
+                        ->withInput();
+                }
+            }
+
+            TeachingSchedule::create([
+                'school_id' => $schoolId,
+                'teacher_id' => $user->id,
+                'day' => $request->day,
+                'subject' => $request->subject,
+                'class_name' => $request->class_name,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'created_by' => $user->id,
+            ]);
+
+            return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil ditambahkan.');
+        }
+
         // Debug: Log the incoming request data
         \Illuminate\Support\Facades\Log::info('TeachingSchedule store request:', $request->all());
 
@@ -166,8 +236,6 @@ class TeachingScheduleController extends Controller
             'schedules.*.*.start_time' => 'nullable|date_format:H:i',
             'schedules.*.*.end_time' => 'nullable|date_format:H:i',
         ]);
-
-        $user = Auth::user();
 
         // Check role access
         if ($user->role === 'admin' && $request->school_id != $user->madrasah_id) {
@@ -276,20 +344,9 @@ class TeachingScheduleController extends Controller
         } elseif ($user->role === 'tenaga_pendidik' && $schedule->teacher_id != $user->id) {
             abort(403);
         }
+        $availableClasses = $this->getAvailableClassesForSchool((int) $schedule->school_id);
 
-        if ($user->role === 'admin') {
-            $teachers = User::where('role', 'tenaga_pendidik')
-                ->where('madrasah_id', $user->madrasah_id)
-                ->get();
-        } elseif ($user->role === 'super_admin') {
-            $teachers = User::where('role', 'tenaga_pendidik')->get();
-        } else {
-            abort(403);
-        }
-
-        $schools = Madrasah::all();
-
-        return view('teaching-schedules.edit', compact('schedule', 'teachers', 'schools'));
+        return view('teaching-schedules.edit', compact('schedule', 'availableClasses'));
     }
 
     /**
@@ -298,6 +355,20 @@ class TeachingScheduleController extends Controller
     public function update(Request $request, string $id)
     {
         $schedule = TeachingSchedule::findOrFail($id);
+        $user = Auth::user();
+
+        if ($user->role === 'tenaga_pendidik') {
+            if ($schedule->teacher_id !== $user->id) {
+                abort(403);
+            }
+
+            $request->merge([
+                'school_id' => $schedule->school_id,
+                'teacher_id' => $schedule->teacher_id,
+                'subject' => trim((string) $request->input('subject', '')),
+                'class_name' => Str::upper(trim((string) $request->input('class_name', ''))),
+            ]);
+        }
 
         $request->validate([
             'school_id' => 'required|exists:madrasahs,id',
@@ -308,8 +379,6 @@ class TeachingScheduleController extends Controller
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
-
-        $user = Auth::user();
 
         // Check role access
         if ($user->role === 'admin' && $request->school_id != $user->madrasah_id) {
@@ -529,5 +598,37 @@ class TeachingScheduleController extends Controller
         $schoolsByKabupaten = $schools->groupBy('kabupaten');
 
         return response()->json($schoolsByKabupaten);
+    }
+
+    private function getAvailableClassesForSchool(int $schoolId)
+    {
+        $fromStudents = Siswa::query()
+            ->where('madrasah_id', $schoolId)
+            ->whereNotNull('kelas')
+            ->where('kelas', '!=', '')
+            ->distinct()
+            ->orderBy('kelas')
+            ->pluck('kelas');
+
+        $fromSchedules = TeachingSchedule::query()
+            ->where('school_id', $schoolId)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->pluck('class_name');
+
+        $fromCounts = TeachingClassStudentCount::query()
+            ->where('school_id', $schoolId)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->pluck('class_name');
+
+        return $fromStudents
+            ->merge($fromSchedules)
+            ->merge($fromCounts)
+            ->map(fn ($name) => Str::upper(trim((string) $name)))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
     }
 }
