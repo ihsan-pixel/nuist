@@ -9,6 +9,7 @@ use App\Models\Holiday;
 use App\Models\Madrasah;
 use App\Models\Presensi;
 use App\Models\TeachingAttendance;
+use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -58,6 +59,27 @@ class DpsController extends Controller
 
     private function getJumlahSiswa(int $madrasahId): int
     {
+        $fromTeachingClassCounts = (int) TeachingClassStudentCount::query()
+            ->where('school_id', $madrasahId)
+            ->sum('total_students');
+
+        if ($fromTeachingClassCounts > 0) {
+            return $fromTeachingClassCounts;
+        }
+
+        $fromTeachingAttendances = (int) DB::table('teaching_attendances')
+            ->join('teaching_schedules', 'teaching_attendances.teaching_schedule_id', '=', 'teaching_schedules.id')
+            ->where('teaching_schedules.school_id', $madrasahId)
+            ->whereNotNull('teaching_attendances.class_total_students')
+            ->select('teaching_schedules.class_name', DB::raw('MAX(teaching_attendances.class_total_students) as total_students'))
+            ->groupBy('teaching_schedules.class_name')
+            ->get()
+            ->sum('total_students');
+
+        if ($fromTeachingAttendances > 0) {
+            return $fromTeachingAttendances;
+        }
+
         $dataSekolah = DataSekolah::where('madrasah_id', $madrasahId)
             ->orderBy('tahun', 'desc')
             ->first();
@@ -91,8 +113,14 @@ class DpsController extends Controller
             ->limit(20)
             ->get(['id', 'name', 'ketugasan']);
 
-        $kepalaSekolah = trim(($selectedMadrasah->kepala_sekolah_nama ?? '') . ' ' . ($selectedMadrasah->kepala_sekolah_gelar ?? ''));
-        $kepalaSekolah = $kepalaSekolah !== '' ? $kepalaSekolah : '-';
+        $kepalaSekolahUser = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $selectedMadrasah->id)
+            ->where('ketugasan', 'kepala madrasah/sekolah')
+            ->orderBy('name')
+            ->first(['id', 'name', 'ketugasan']);
+
+        $kepalaSekolah = $kepalaSekolahUser?->name ?: '-';
 
         return view('mobile.dps.dashboard', compact(
             'user',
