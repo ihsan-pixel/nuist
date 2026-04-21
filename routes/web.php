@@ -353,6 +353,13 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     // Jadwal
     Route::get('/jadwal', [App\Http\Controllers\Mobile\Jadwal\JadwalController::class, 'jadwal'])->name('jadwal');
     Route::get('/data-jadwal', [App\Http\Controllers\Mobile\Jadwal\JadwalController::class, 'jadwal'])->name('data-jadwal');
+    Route::middleware(['role:tenaga_pendidik'])->group(function () {
+        Route::get('/jadwal/create', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'create'])->name('jadwal.create');
+        Route::post('/jadwal', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'store'])->name('jadwal.store');
+        Route::get('/jadwal/{schedule}/edit', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'edit'])->name('jadwal.edit');
+        Route::put('/jadwal/{schedule}', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'update'])->name('jadwal.update');
+        Route::delete('/jadwal/{schedule}', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'destroy'])->name('jadwal.destroy');
+    });
 
     // Profile
     Route::get('/profile', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'profile'])->name('profile');

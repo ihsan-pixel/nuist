@@ -384,11 +384,21 @@
     </style>
 
     <div class="sticky-header">
+        @if(session('error'))
+        <div class="alert alert-danger border-0 rounded-3 mb-3" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border-radius: 12px; padding: 10px;">
+            <i class="bx bx-error-circle me-1"></i>{{ session('error') }}
+        </div>
+        @endif
+
         @if(session('success'))
         <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
             <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
         </div>
         @endif
+
+        <a class="btn btn-success w-100 mb-3" href="{{ route('mobile.jadwal.create') }}">
+            <i class="bx bx-plus me-1"></i> Tambah Jadwal Mengajar
+        </a>
 
         <!-- Day Indicator -->
         <div class="day-indicator">
@@ -428,6 +438,11 @@
                                     {{ Str::limit($schedule->school->name ?? 'N/A', 100) }}
                                 </div>
                             </div>
+                            @if($schedule->teacher_id === auth()->id())
+                                <a class="btn btn-sm btn-outline-secondary" href="{{ route('mobile.jadwal.edit', $schedule->id) }}" style="white-space:nowrap;">
+                                    <i class="bx bx-edit-alt"></i>
+                                </a>
+                            @endif
                         </div>
                     @endforeach
                 @else
