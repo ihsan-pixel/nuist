@@ -17,7 +17,6 @@ use App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController;
 use App\Http\Controllers\Mobile\Siswa\SiswaController;
 use App\Http\Controllers\TeachingScheduleController;
 use App\Http\Controllers\DpsController;
-use App\Http\Controllers\DayMarkerController;
 
 use App\Http\Controllers\PPDB\{
     PPDBController,
@@ -125,7 +124,6 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:tenaga_pendidik'])->group(function () {
         Route::get('/teaching-attendances', [App\Http\Controllers\TeachingAttendanceController::class, 'index'])->name('teaching-attendances.index');
         Route::post('/teaching-attendances', [App\Http\Controllers\TeachingAttendanceController::class, 'store'])->name('teaching-attendances.store');
-        Route::put('/teaching-attendances/{attendance}', [App\Http\Controllers\TeachingAttendanceController::class, 'update'])->name('teaching-attendances.update');
         Route::post('/teaching-attendances/check-location', [App\Http\Controllers\TeachingAttendanceController::class, 'checkLocation'])->name('teaching-attendances.check-location');
     });
 
@@ -600,14 +598,6 @@ Route::prefix('izin')->middleware(['auth'])->group(function () {
         Route::post('/approve-all', [IzinController::class, 'approveAll'])->name('izin.approve.all');
         Route::post('/reject-all', [IzinController::class, 'rejectAll'])->name('izin.reject.all');
     });
-});
-
-// Day markers (Normal/Libur/Ujian/Kegiatan Khusus)
-Route::middleware(['auth'])->prefix('day-markers')->name('day-markers.')->group(function () {
-    Route::get('/', [DayMarkerController::class, 'index'])->name('index');
-    Route::post('/', [DayMarkerController::class, 'store'])->name('store');
-    Route::put('/{dayMarker}', [DayMarkerController::class, 'update'])->name('update');
-    Route::delete('/{dayMarker}', [DayMarkerController::class, 'destroy'])->name('destroy');
 });
 
 // Direct route for /izin/store

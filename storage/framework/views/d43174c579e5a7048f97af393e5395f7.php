@@ -1,0 +1,790 @@
+<?php $__env->startSection('title'); ?>Dashboard Pembayaran <?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('css'); ?>
+<style>
+/* Modern Card Grid Design */
+.dashboard-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.menu-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    text-align: center;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #48bb78, #38a169);
+}
+
+.menu-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.menu-icon.payment { background: linear-gradient(135deg, #667eea, #764ba2); }
+.menu-icon.cash { background: linear-gradient(135deg, #4299e1, #3182ce); }
+.menu-icon.gateway { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+.menu-icon.history { background: linear-gradient(135deg, #004b4c, #0e8549); }
+
+.menu-card:hover .menu-icon {
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+}
+
+/* .menu-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 10px;
+} */
+
+.menu-description {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.btn-modern {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+}
+
+.btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+/* Filter Card */
+.filter-card {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+    color: white;
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+}
+
+/* Statistics Cards */
+.stats-card {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.stats-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .menu-card {
+        margin-bottom: 1rem;
+    }
+
+    .dashboard-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .menu-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .menu-title {
+        font-size: 1.1rem;
+    }
+}
+</style>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
+<?php $__env->startComponent('components.breadcrumb'); ?>
+    <?php $__env->slot('li_1'); ?> Dashboard <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Dashboard Pembayaran <?php $__env->endSlot(); ?>
+<?php echo $__env->renderComponent(); ?>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card filter-card mb-4">
+            <div class="card-body">
+                <h4 class="card-title text-white mb-4">
+                    <i class="bx bx-credit-card me-2"></i>
+                    Dashboard Pembayaran
+                </h4>
+                <p class="text-white-50 mb-0">
+                    Sistem pembayaran terintegrasi dengan data. Kelola pembayaran iuran, pantau status pembayaran, dan proses transaksi dengan mudah.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-success">
+                        <i class="bx bx-check-circle"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Lunas</p>
+                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'lunas')->count()); ?></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-warning">
+                        <i class="bx bx-time"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Total Lunas</p>
+                        <h5 class="mb-0">Rp <?php echo e(number_format($totalLunasNominal, 0, ',', '.')); ?></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-danger">
+                        <i class="bx bx-x-circle"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Belum Bayar</p>
+                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'belum_lunas')->count()); ?></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-info">
+                        <i class="bx bx-money"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Total Tagihan</p>
+                        <h5 class="mb-0">Rp <?php echo e(number_format($totalTagihanNominal, 0, ',', '.')); ?></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Tagihan Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i class="bx bx-list-ul me-2"></i>Data Tagihan Pembayaran
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-centered table-nowrap mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Madrasah</th>
+                                <th>Nomor Invoice</th>
+                                <th>Order ID</th>
+                                <th>Jenis Tagihan</th>
+                                <th>Total Tagihan</th>
+                                <th>Status Pembayaran</th>
+                                <th>Nominal Dibayar</th>
+                                <th>Tanggal Pembayaran</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <?php
+                                $payment = \App\Models\Payment::where('tagihan_id', $item->id)->first();
+                            ?>
+                            <tr>
+                                <td><?php echo e($index + 1); ?></td>
+                                <td>
+                                    <div>
+                                        <h6 class="mb-0"><?php echo e($item->madrasah->name); ?></h6>
+                                        <small class="text-muted"><?php echo e($item->madrasah->address ?? '-'); ?></small>
+                                    </div>
+                                </td>
+                                <td><?php echo e($item->nomor_invoice ?? '-'); ?></td>
+                                <td>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment && $payment->order_id): ?>
+                                        <code class="text-primary"><?php echo e($payment->order_id); ?></code>
+                                    <?php else: ?>
+                                        -
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </td>
+                                <td><?php echo e($item->jenis_tagihan ?? '-'); ?></td>
+                                <td>Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?></td>
+                                <td>
+                                    <span class="badge badge-modern bg-<?php echo e($item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger')); ?>">
+                                        <?php echo e(ucfirst(str_replace('_', ' ', $item->status_pembayaran))); ?>
+
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item->status_pembayaran == 'lunas'): ?>
+                                        Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?>
+
+                                    <?php else: ?>
+                                        Rp 0
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </td>
+                                <td><?php echo e($item->tanggal_pembayaran ? $item->tanggal_pembayaran->format('d/m/Y') : '-'); ?></td>
+                                <td>
+                                    <button type="button" onclick="checkTagihan(<?php echo e($item->madrasah->id); ?>, <?php echo e($item->tahun_anggaran); ?>, '<?php echo e($item->madrasah->name); ?>')"
+                                            class="btn btn-sm btn-primary me-1">
+                                        <i class="bx bx-detail me-1"></i>Detail
+                                    </button>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item->status_pembayaran != 'lunas'): ?>
+                                    <button type="button" onclick="showPaymentModal(<?php echo e($item->id); ?>, <?php echo e($item->madrasah->id); ?>, <?php echo e($item->tahun_anggaran); ?>, '<?php echo e($item->madrasah->name); ?>', <?php echo e($item->total_nominal); ?>)"
+                                            class="btn btn-sm btn-success">
+                                        <i class="bx bx-money me-1"></i>Bayar
+                                    </button>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            <tr>
+                                <td colspan="9" class="text-center">
+                                    <div class="py-4">
+                                        <i class="bx bx-info-circle display-4 text-muted"></i>
+                                        <h5 class="mt-3">Tidak Ada Data Tagihan</h5>
+                                        <p class="text-muted">Belum ada data tagihan untuk tahun <?php echo e($tahun); ?></p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Pilih Metode Pembayaran</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-primary text-center">
+                            <div class="card-body">
+                                <i class="bx bx-money display-4 text-primary"></i>
+                                <h5 class="card-title">Manual</h5>
+                                <p class="card-text">Input data pembayaran manual</p>
+                                <button type="button" class="btn btn-primary" onclick="showManualPayment()">Pilih Manual</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-success text-center">
+                            <div class="card-body">
+                                <i class="bx bx-credit-card display-4 text-success"></i>
+                                <h5 class="card-title">Online</h5>
+                                <p class="card-text">Bayar melalui Midtrans</p>
+                                <button type="button" class="btn btn-success" onclick="payOnline(currentTagihanId, currentMadrasahId, currentTahun, currentMadrasahName, currentTotalNominal)">Pilih Online</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Payment Modal -->
+<div class="modal fade" id="manualPaymentModal" tabindex="-1" aria-labelledby="manualPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="manualPaymentModalLabel">Pembayaran Manual</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="manualPaymentForm" action="<?php echo e(route('uppm.pembayaran.cash')); ?>" method="POST" onsubmit="return submitManualPayment(event)">
+                    <?php echo csrf_field(); ?>
+                    <input type="hidden" name="tagihan_id" id="manual_tagihan_id">
+                    <input type="hidden" name="madrasah_id" id="manual_madrasah_id">
+                    <input type="hidden" name="tahun" id="manual_tahun">
+                    <div class="mb-3">
+                        <label for="manual_nominal" class="form-label">Nominal Pembayaran</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" class="form-control" id="manual_nominal" name="nominal" required min="0" step="1000" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="manual_keterangan" class="form-label">Keterangan</label>
+                        <textarea class="form-control" id="manual_keterangan" name="keterangan" rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Bayar Sekarang</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('script'); ?>
+<?php
+    $appSetting = App\Models\AppSetting::find(1);
+    $clientKey = $appSetting ? $appSetting->midtrans_client_key : config('services.midtrans.client_key');
+    $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
+?>
+
+<!-- Midtrans Snap.js -->
+<script src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>"
+        data-client-key="<?php echo e($clientKey); ?>"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function checkTagihan(madrasahId, tahun, madrasahName) {
+    // Show loading
+    Swal.fire({
+        title: 'Memeriksa Tagihan...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // AJAX request to check tagihan
+    fetch(`/uppm/pembayaran/check-tagihan?madrasah_id=${madrasahId}&tahun=${tahun}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+        credentials: 'same-origin'
+    })
+        .then(response => response.json())
+        .then(data => {
+            Swal.close();
+
+            if (data.exists) {
+                // Redirect to detail page
+                window.location.href = `/uppm/pembayaran/${madrasahId}?tahun=${tahun}`;
+            } else {
+                // Show error message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tagihan Tidak Ditemukan',
+                    text: `Tagihan belum dibuat untuk madrasah ${madrasahName} pada tahun ${tahun}. Silakan buat tagihan terlebih dahulu.`,
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            Swal.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan',
+                text: 'Gagal memeriksa tagihan. Silakan coba lagi.',
+                confirmButtonText: 'OK'
+            });
+        });
+}
+
+function showNoTagihanAlert() {
+    Swal.fire({
+        icon: 'info',
+        title: 'Tidak Ada Data Tagihan',
+        text: 'Belum ada data tagihan untuk tahun ini.',
+        confirmButtonText: 'OK'
+    });
+}
+
+let currentTagihanId = null;
+let currentMadrasahId = null;
+let currentTahun = null;
+let currentMadrasahName = null;
+let currentTotalNominal = null;
+
+function showPaymentModal(tagihanId, madrasahId, tahun, madrasahName, totalNominal) {
+    currentTagihanId = tagihanId;
+    currentMadrasahId = madrasahId;
+    currentTahun = tahun;
+    currentMadrasahName = madrasahName;
+    currentTotalNominal = totalNominal;
+
+    const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    modal.show();
+}
+
+function showManualPayment() {
+    // Close the payment modal
+    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+    paymentModal.hide();
+
+    // Set form values
+    document.getElementById('manual_tagihan_id').value = currentTagihanId;
+    document.getElementById('manual_madrasah_id').value = currentMadrasahId;
+    document.getElementById('manual_tahun').value = currentTahun;
+    document.getElementById('manual_nominal').value = currentTotalNominal;
+
+    // Show manual payment modal
+    const manualModal = new bootstrap.Modal(document.getElementById('manualPaymentModal'));
+    manualModal.show();
+}
+
+function payOnline(tagihanId, madrasahId, tahun, madrasahName, totalNominal) {
+    // Check if Midtrans Snap.js is loaded
+    if (typeof snap === 'undefined') {
+        Swal.fire({
+            icon: 'error',
+            title: 'Midtrans Tidak Tersedia',
+            text: 'Client key Midtrans belum dikonfigurasi. Silakan hubungi administrator.'
+        });
+        return;
+    }
+
+    // Show loading
+    Swal.fire({
+        title: 'Memproses...',
+        text: 'Menghubungkan ke Midtrans',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Make AJAX request to Midtrans endpoint to get snap token
+    fetch('/uppm/pembayaran/midtrans', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+        },
+        body: JSON.stringify({
+            tagihan_id: tagihanId,
+            madrasah_id: madrasahId,
+            tahun: tahun,
+            nominal: totalNominal
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+        if (data.success) {
+            // Simpan order_id di sessionStorage untuk digunakan nanti (misal testing callback)
+            sessionStorage.setItem('midtrans_order_id', data.order_id);
+
+            // Open Midtrans Snap popup
+            bayarMidtrans(data.snap_token, data.payment_id);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi'
+        });
+    });
+}
+
+
+
+function bayarMidtrans(token, paymentId) {
+    snap.pay(token, {
+        onSuccess: function (result) {
+            console.log('Payment success, showing status check prompt');
+            // Show SweetAlert asking user to check payment status
+            Swal.fire({
+                icon: 'info',
+                title: 'Pembayaran Berhasil!',
+                text: 'Silakan klik "Update Pembayaran" untuk mengecek dan memperbarui status pembayaran Anda.',
+                showCancelButton: true,
+                confirmButtonText: 'Update Pembayaran',
+                cancelButtonText: 'Nanti Saja',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Get order_id from sessionStorage and update status
+                    const orderId = sessionStorage.getItem('midtrans_order_id');
+                    if (orderId) {
+                        updatePaymentStatus(orderId);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Order ID tidak ditemukan. Silakan refresh halaman.'
+                        });
+                    }
+                } else {
+                    // User chose to do it later
+                    window.location.href = "/uppm/pembayaran";
+                }
+            });
+        },
+        onPending: function (result) {
+            console.log('Payment pending');
+            Swal.fire({
+                icon: 'info',
+                title: 'Menunggu Pembayaran',
+                text: 'Silakan selesaikan pembayaran.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "/uppm/pembayaran";
+            });
+        },
+        onError: function () {
+            Swal.fire('Gagal', 'Pembayaran gagal', 'error');
+        }
+    });
+}
+
+function updatePaymentStatus(orderId) {
+    // Show loading
+    Swal.fire({
+        title: 'Updating Payment Status...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Make AJAX request
+    fetch('<?php echo e(route("uppm.pembayaran.check-status")); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            order_id: orderId
+        }),
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+
+        if (data.success) {
+            // Show success message and reload page
+            Swal.fire({
+                icon: 'success',
+                title: 'Status Updated!',
+                text: data.message,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Reload page to show updated status
+                location.reload();
+            });
+        } else {
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message || 'Terjadi kesalahan saat update status'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi. Silakan coba lagi.'
+        });
+    });
+}
+
+
+
+
+
+function submitManualPayment(event) {
+    event.preventDefault();
+
+    // Show loading
+    Swal.fire({
+        title: 'Memproses Pembayaran...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Get form data
+    const formData = new FormData(document.getElementById('manualPaymentForm'));
+
+    // Make AJAX request
+    fetch('<?php echo e(route("uppm.pembayaran.cash")); ?>', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+
+        if (data.success) {
+            // Close modal
+            const manualModal = bootstrap.Modal.getInstance(document.getElementById('manualPaymentModal'));
+            manualModal.hide();
+
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Pembayaran Berhasil!',
+                text: data.message,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Reload page to update status
+                location.reload();
+            });
+        } else {
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Pembayaran Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi. Silakan coba lagi.'
+        });
+    });
+}
+
+
+</script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/pembayaran/index.blade.php ENDPATH**/ ?>

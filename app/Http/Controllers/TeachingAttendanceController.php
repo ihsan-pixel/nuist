@@ -6,7 +6,6 @@ use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\Presensi;
-use App\Models\DayMarker;
 use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -16,42 +15,6 @@ use Carbon\Carbon;
 
 class TeachingAttendanceController extends Controller
 {
-    private function scheduleDayOfWeek(?string $day): ?int
-    {
-        $day = trim((string) $day);
-        if ($day === '') return null;
-
-        if (is_numeric($day)) {
-            $int = (int) $day;
-            if ($int >= 0 && $int <= 6) return $int; // Carbon: 0=Sun..6=Sat
-            if ($int >= 1 && $int <= 7) return $int === 7 ? 0 : $int; // ISO: 1=Mon..7=Sun
-            return null;
-        }
-
-        $key = strtolower($day);
-        return match ($key) {
-            'senin' => Carbon::MONDAY,
-            'selasa' => Carbon::TUESDAY,
-            'rabu' => Carbon::WEDNESDAY,
-            'kamis' => Carbon::THURSDAY,
-            'jumat' => Carbon::FRIDAY,
-            'sabtu' => Carbon::SATURDAY,
-            'minggu' => Carbon::SUNDAY,
-            default => null,
-        };
-    }
-
-    private function scheduleAppliesToDate(TeachingSchedule $schedule, Carbon $date): bool
-    {
-        $scheduleDow = $this->scheduleDayOfWeek((string) $schedule->day);
-        if ($scheduleDow !== null) {
-            return $scheduleDow === $date->dayOfWeek;
-        }
-
-        $todayName = strtolower($date->locale('id')->dayName);
-        return strtolower(trim((string) $schedule->day)) === $todayName;
-    }
-
     public function index()
     {
         $user = Auth::user();
@@ -61,12 +24,8 @@ class TeachingAttendanceController extends Controller
             return redirect()->route('dashboard')->with('error', 'Anda harus mengubah password terlebih dahulu sebelum mengakses menu presensi mengajar.');
         }
 
-        $todayCarbon = Carbon::now('Asia/Jakarta');
-        $today = $todayCarbon->toDateString();
-        $dayOfWeek = $todayCarbon->locale('id')->dayName; // e.g., 'Senin'
-        $todayNameLower = strtolower($dayOfWeek);
-        $todayDow = $todayCarbon->dayOfWeek; // 0..6
-        $todayIsoDow = $todayCarbon->isoWeekday(); // 1..7
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+        $dayOfWeek = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
 
         $approvedIzinPresensi = Presensi::query()
             ->where('user_id', $user->id)
@@ -78,11 +37,7 @@ class TeachingAttendanceController extends Controller
         // Get today's schedules for the teacher
         $schedules = TeachingSchedule::with(['school', 'teacher'])
             ->where('teacher_id', $user->id)
-            ->where(function ($q) use ($todayNameLower, $todayDow, $todayIsoDow) {
-                $q->whereRaw('LOWER(day) = ?', [$todayNameLower])
-                    ->orWhere('day', (string) $todayDow)
-                    ->orWhere('day', (string) $todayIsoDow);
-            })
+            ->whereRaw('LOWER(day) = ?', [strtolower($dayOfWeek)])
             ->orderBy('start_time')
             ->get();
 
@@ -95,10 +50,6 @@ class TeachingAttendanceController extends Controller
                 ->where('tanggal', $today)
                 ->first();
             $schedule->attendance = $attendance;
-
-            $marker = DayMarker::resolveMarker($today, (int) $schedule->school_id, (string) $schedule->class_name);
-            $schedule->day_marker = $marker['marker'];
-            $schedule->day_marker_label = DayMarker::markerLabel($marker['marker']);
         }
 
         $this->attachClassStudentCounts($schedules);
@@ -120,15 +71,11 @@ class TeachingAttendanceController extends Controller
             'materi' => 'required|string|max:1000',
             'present_students' => 'required|integer|min:0|max:10000',
             'class_total_students' => 'nullable|integer|min:1|max:10000',
-            'force' => 'nullable|boolean',
-            'force_reason' => 'nullable|string|max:255',
         ]);
 
         $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
-        $force = (bool) $request->boolean('force');
-        $forceReason = trim((string) $request->input('force_reason', ''));
 
         $hasApprovedIzinToday = Presensi::query()
             ->where('user_id', $user->id)
@@ -155,24 +102,10 @@ class TeachingAttendanceController extends Controller
             ], 403);
         }
 
-        $dayMarker = DayMarker::resolveMarker($today, (int) $schedule->school_id, (string) $schedule->class_name);
-        $marker = $dayMarker['marker'];
-
-        if ($marker === 'libur') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hari ini ditandai sebagai ' . DayMarker::markerLabel($marker) . ', presensi mengajar tidak dapat dilakukan.'
-            ], 400);
-        }
-
-        $isKegiatanKhusus = $marker === 'kegiatan_khusus';
-        if ($isKegiatanKhusus && !$force) {
-            $force = true;
-            if ($forceReason === '') $forceReason = 'kegiatan_khusus';
-        }
+        $todayName = Carbon::now('Asia/Jakarta')->locale('id')->dayName;
 
         // Ensure the attendance can only be submitted for today's schedule.
-        if (!$this->scheduleAppliesToDate($schedule, Carbon::today('Asia/Jakarta')) && !$force) {
+        if (strtolower($schedule->day) !== strtolower($todayName)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.'
@@ -197,7 +130,7 @@ class TeachingAttendanceController extends Controller
         $endTime = Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
 
         // Strict time validation: only within schedule time
-        if (!$force && !$currentTime->between($startTime, $endTime)) {
+        if (!$currentTime->between($startTime, $endTime)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Waktu presensi harus dilakukan dalam rentang waktu mengajar (' . $schedule->start_time . ' - ' . $schedule->end_time . '). Waktu sekarang: ' . $now
@@ -239,11 +172,8 @@ class TeachingAttendanceController extends Controller
             $polygonError = 'Madrasah belum memiliki polygon koordinat yang ditentukan.';
         }
 
-        $skipPolygonValidation = $isKegiatanKhusus
-            || ($force && in_array($forceReason, ['kegiatan_khusus', 'outside_area'], true));
-
-        // Strict polygon validation: must be within madrasah polygon (except special day/forced reasons)
-        if (!$skipPolygonValidation && !$isWithinPolygon) {
+        // Strict polygon validation: must be within madrasah polygon
+        if (!$isWithinPolygon) {
             return response()->json([
                 'success' => false,
                 'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
@@ -333,8 +263,6 @@ class TeachingAttendanceController extends Controller
                 'class_total_students' => $attendance->class_total_students,
                 'present_students' => $attendance->present_students,
                 'student_attendance_percentage' => $attendance->student_attendance_percentage,
-                'force' => $force,
-                'force_reason' => $forceReason,
             ]
         ]);
 
@@ -342,93 +270,6 @@ class TeachingAttendanceController extends Controller
             'success' => true,
             'message' => $message,
             'data' => $attendance
-        ]);
-    }
-
-    public function update(Request $request, TeachingAttendance $attendance)
-    {
-        $user = Auth::user();
-
-        if ((int) $attendance->user_id !== (int) $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda tidak berhak mengubah presensi ini.'
-            ], 403);
-        }
-
-        $request->merge([
-            'materi' => trim((string) $request->input('materi', '')),
-        ]);
-
-        $request->validate([
-            'materi' => 'required|string|max:1000',
-            'present_students' => 'required|integer|min:0|max:10000',
-            'class_total_students' => 'nullable|integer|min:1|max:10000',
-        ]);
-
-        $schedule = TeachingSchedule::find($attendance->teaching_schedule_id);
-        $classTotalStudents = $attendance->class_total_students;
-        if (is_null($classTotalStudents)) {
-            $classTotalStudents = $request->filled('class_total_students')
-                ? (int) $request->input('class_total_students')
-                : null;
-        } elseif ($request->filled('class_total_students')) {
-            $classTotalStudents = (int) $request->input('class_total_students');
-        }
-
-        if (!$classTotalStudents || $classTotalStudents < 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Jumlah siswa di kelas wajib diisi.'
-            ], 422);
-        }
-
-        $presentStudents = (int) $request->input('present_students');
-        if ($presentStudents > $classTotalStudents) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.'
-            ], 422);
-        }
-
-        $studentAttendancePercentage = $classTotalStudents > 0
-            ? round(($presentStudents / $classTotalStudents) * 100, 2)
-            : 0;
-
-        DB::transaction(function () use (
-            $attendance,
-            $request,
-            $presentStudents,
-            $classTotalStudents,
-            $studentAttendancePercentage,
-            $schedule,
-            $user
-        ) {
-            $attendance->update([
-                'materi' => $request->input('materi'),
-                'present_students' => $presentStudents,
-                'class_total_students' => $classTotalStudents,
-                'student_attendance_percentage' => $studentAttendancePercentage,
-            ]);
-
-            if ($schedule) {
-                $count = TeachingClassStudentCount::where('school_id', $schedule->school_id)
-                    ->where('class_name', trim((string) $schedule->class_name))
-                    ->first();
-
-                if ($count) {
-                    $count->update([
-                        'total_students' => $classTotalStudents,
-                        'updated_by' => $user->id,
-                    ]);
-                }
-            }
-        });
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Presensi mengajar berhasil diperbarui.',
-            'data' => $attendance->fresh()
         ]);
     }
 
@@ -470,28 +311,13 @@ class TeachingAttendanceController extends Controller
             ], 403);
         }
 
-        if (!$this->scheduleAppliesToDate($schedule, Carbon::today('Asia/Jakarta'))) {
+        $todayName = Carbon::now('Asia/Jakarta')->locale('id')->dayName;
+
+        if (strtolower($schedule->day) !== strtolower($todayName)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.'
             ], 400);
-        }
-
-        $dayMarker = DayMarker::resolveMarker($today, (int) $schedule->school_id, (string) $schedule->class_name);
-        $marker = $dayMarker['marker'];
-
-        if ($marker === 'libur') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hari ini ditandai sebagai ' . DayMarker::markerLabel($marker) . ', presensi mengajar tidak dapat dilakukan.'
-            ], 400);
-        }
-
-        if ($marker === 'kegiatan_khusus') {
-            return response()->json([
-                'success' => true,
-                'is_within_polygon' => true,
-            ]);
         }
 
         // Location validation using polygon from madrasah
