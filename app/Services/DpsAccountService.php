@@ -8,7 +8,6 @@ use App\Models\DpsAccountPassword;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 
 class DpsAccountService
 {
@@ -55,18 +54,19 @@ class DpsAccountService
             return null;
         }
 
-        // New account: email derived from DPS name (one account per name).
-        // Requirement: no '-' in email local part.
-        $base = Str::slug((string) $member->nama);     // words-separated-by-dash
-        $base = str_replace('-', '', $base);           // remove dashes
-        $base = preg_replace('/[^a-z0-9]/', '', strtolower((string) $base));
-        $base = $base !== '' ? $base : 'dps';
+        // New account: email MUST be 6 digits only + @nuist.id (no DPS text, no name).
+        $attempts = 0;
+        do {
+            $localPart = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $email = "{$localPart}@nuist.id";
+            $attempts++;
+        } while (User::where('email', $email)->exists() && $attempts < 200);
 
-        $email = "dps{$base}@nuist.id";
-        $suffix = 2;
-        while (User::where('email', $email)->exists()) {
-            $email = "dps{$base}{$suffix}@nuist.id";
-            $suffix++;
+        if (User::where('email', $email)->exists()) {
+            // Extremely unlikely fallback: microtime-based 6 digits.
+            $digits = preg_replace('/\\D+/', '', (string) (microtime(true) * 1000000));
+            $localPart = str_pad(substr($digits, -6), 6, '0', STR_PAD_LEFT);
+            $email = "{$localPart}@nuist.id";
         }
 
         // Simple password (shown via import credential download). Not logged.
