@@ -180,6 +180,11 @@
                                         <div>
                                             <small class="text-muted d-block">Kelas</small>
                                             <span class="fw-medium">{{ $schedule->class_name }}</span>
+                                            @if(!empty($schedule->day_marker) && $schedule->day_marker !== 'normal')
+                                                <div class="mt-1">
+                                                    <span class="badge bg-info text-dark">{{ $schedule->day_marker_label ?? 'Keterangan Hari' }}</span>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -203,7 +208,7 @@
                                 <div class="alert {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success' }} border-0 rounded-3 p-3 mb-0">
                                     <div class="d-flex align-items-center">
                                         <i class="bx {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle' }} fs-4 me-3"></i>
-                                        <div>
+                                        <div class="flex-grow-1">
                                             @if(($schedule->attendance->status ?? 'hadir') === 'izin')
                                                 <h6 class="mb-1">Izin</h6>
                                             @else
@@ -223,6 +228,29 @@
                                                 </div>
                                             @endif
                                         </div>
+                                        @if(($schedule->attendance->status ?? 'hadir') !== 'izin')
+                                            <div class="ms-2">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-primary edit-attendance-btn"
+                                                    data-attendance='@json([
+                                                        "id" => $schedule->attendance->id,
+                                                        "schedule_id" => $schedule->id,
+                                                        "subject" => $schedule->subject,
+                                                        "class_name" => $schedule->class_name,
+                                                        "school_name" => $schedule->school->name ?? "N/A",
+                                                        "start_time" => $schedule->start_time,
+                                                        "end_time" => $schedule->end_time,
+                                                        "materi" => $schedule->attendance->materi,
+                                                        "present_students" => $schedule->attendance->present_students,
+                                                        "class_total_students" => $schedule->attendance->class_total_students,
+                                                    ])'
+                                                    title="Edit presensi"
+                                                >
+                                                    <i class="bx bx-edit-alt"></i>
+                                                </button>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             @else
@@ -237,6 +265,17 @@
                                         </div>
                                     </div>
                                 @else
+                                @if(($schedule->day_marker ?? 'normal') === 'libur')
+                                    <div class="alert alert-info border-0 rounded-3 p-3 mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bx bx-calendar-x fs-4 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1">{{ $schedule->day_marker_label ?? 'Hari Libur' }}</h6>
+                                                <small class="text-muted">Presensi mengajar dinonaktifkan untuk kelas ini hari ini.</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
                                 @php
                                     $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
                                     $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
@@ -245,18 +284,20 @@
                                 @endphp
                                 @if($isWithinTime)
                                     <button type="button" class="btn btn-primary btn-lg w-100 rounded-3 py-3 fw-semibold"
-                                            onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}', '{{ $schedule->class_student_count->total_students ?? '' }}')">
+                                            onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}', '{{ $schedule->class_student_count->total_students ?? '' }}', 0)">
                                         <i class="bx bx-check-circle me-2 fs-5"></i> Lakukan Presensi
                                     </button>
                                 @else
-                                    <button type="button" class="btn btn-outline-secondary btn-lg w-100 rounded-3 py-3" disabled>
-                                        <i class="bx bx-time me-2 fs-5"></i> Diluar Waktu Mengajar
+                                    <button type="button" class="btn btn-outline-warning btn-lg w-100 rounded-3 py-3 fw-semibold"
+                                            onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}', '{{ $schedule->class_student_count->total_students ?? '' }}', 1)">
+                                        <i class="bx bx-error-circle me-2 fs-5"></i> Input Manual
                                     </button>
                                     <div class="text-center mt-2">
                                         <small class="text-muted bg-light px-2 py-1 rounded-pill">
                                             <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
                                         </small>
                                     </div>
+                                @endif
                                 @endif
                                 @endif
                             @endif
@@ -456,8 +497,42 @@
 @section('script')
 <script>
 let currentScheduleId = null;
+let currentAttendanceId = null;
 let userLocation = null;
 let currentClassTotalStudents = null;
+let isEditMode = false;
+let requiresLocationValidation = true;
+let currentForce = false;
+let currentForceReason = '';
+
+const allSchedules = @json(
+    $schedules->map(fn ($s) => [
+        'id' => $s->id,
+        'subject' => $s->subject,
+        'start_time' => $s->start_time,
+        'end_time' => $s->end_time,
+    ])->values()
+);
+
+function parseTimeToMinutes(value) {
+    const parts = String(value ?? '').split(':').map(v => Number(v));
+    const hours = Number.isFinite(parts[0]) ? parts[0] : 0;
+    const minutes = Number.isFinite(parts[1]) ? parts[1] : 0;
+    return (hours * 60) + minutes;
+}
+
+function getOverlaps(scheduleId) {
+    const base = allSchedules.find(s => String(s.id) === String(scheduleId));
+    if (!base) return [];
+    const baseStart = parseTimeToMinutes(base.start_time);
+    const baseEnd = parseTimeToMinutes(base.end_time);
+    return allSchedules.filter(s => {
+        if (String(s.id) === String(scheduleId)) return false;
+        const start = parseTimeToMinutes(s.start_time);
+        const end = parseTimeToMinutes(s.end_time);
+        return baseStart < end && baseEnd > start;
+    });
+}
 
 function getStudentAttendanceNumbers() {
     const total = currentClassTotalStudents || Number($('#classTotalStudents').val() || 0);
@@ -551,55 +626,91 @@ function updateLocationStatus(status, message, isSuccess = false) {
     }
 }
 
-function markAttendance(scheduleId, subject, className, schoolName, startTime, endTime, classTotalStudents) {
-    currentScheduleId = scheduleId;
-    userLocation = null;
-    currentClassTotalStudents = classTotalStudents ? Number(classTotalStudents) : null;
-    $('#attendanceMateri').val('');
-    $('#presentStudents').val('').removeAttr('max');
-    $('#classTotalStudents').val('');
+function markAttendance(scheduleId, subject, className, schoolName, startTime, endTime, classTotalStudents, isManual = 0) {
+    const overlaps = getOverlaps(scheduleId);
+    const warnings = [];
 
-    if (currentClassTotalStudents) {
-        $('#classTotalInputGroup').hide();
-        $('#classTotalInfo')
-            .removeClass('alert-warning alert-light')
-            .addClass('alert-success')
-            .html(`Jumlah siswa kelas sudah tersimpan: <strong>${currentClassTotalStudents} siswa</strong>.`);
-        $('#presentStudents').attr('max', currentClassTotalStudents);
-    } else {
-        $('#classTotalInputGroup').show();
-        $('#classTotalInfo')
-            .removeClass('alert-success alert-light')
-            .addClass('alert-warning')
-            .text('Jumlah siswa kelas belum tersimpan. Isi sekali untuk kelas ini sebelum presensi.');
+    if (overlaps.length > 0) {
+        const list = overlaps.slice(0, 3).map(o => `${o.subject} (${o.start_time}-${o.end_time})`).join('<br>');
+        warnings.push(`<div class="text-start"><b>Jadwal bentrok</b><br>${list}${overlaps.length > 3 ? '<br>...' : ''}</div>`);
     }
-    updateStudentAttendancePreview();
 
-    // Update modal content
-    $('#modal-subject').text(subject);
-    $('#modal-class').text(className);
-    $('#modal-school').text(schoolName);
-    $('#modal-time').text(startTime + ' - ' + endTime);
+    if (Number(isManual) === 1) {
+        warnings.push('<div class="text-start"><b>Input manual</b><br>Anda akan menginput presensi di luar jam mengajar. Lanjutkan?</div>');
+    }
 
-    $('#attendanceModal').modal('show');
-    updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
+    const proceed = () => {
+        isEditMode = false;
+        currentAttendanceId = null;
+        requiresLocationValidation = true;
+        currentForce = Number(isManual) === 1;
+        currentForceReason = currentForce ? 'outside_time' : '';
 
-    // Get user location
-    getUserLocation().then(location => {
-        userLocation = location;
+        currentScheduleId = scheduleId;
+        userLocation = null;
+        currentClassTotalStudents = classTotalStudents ? Number(classTotalStudents) : null;
+        $('#attendanceMateri').val('');
+        $('#presentStudents').val('').removeAttr('max');
+        $('#classTotalStudents').val('');
 
-        // Check if location is within school polygon
-        checkLocationInPolygon(location.latitude, location.longitude, currentScheduleId).then(isValid => {
-            if (isValid) {
-                updateLocationStatus('success', 'Lokasi berhasil didapatkan dan berada dalam area sekolah.', true);
-            } else {
-                updateLocationStatus('warning', 'Lokasi Anda berada di luar area sekolah. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.', false);
-            }
+        if (currentClassTotalStudents) {
+            $('#classTotalInputGroup').hide();
+            $('#classTotalInfo')
+                .removeClass('alert-warning alert-light')
+                .addClass('alert-success')
+                .html(`Jumlah siswa kelas sudah tersimpan: <strong>${currentClassTotalStudents} siswa</strong>.`);
+            $('#presentStudents').attr('max', currentClassTotalStudents);
+        } else {
+            $('#classTotalInputGroup').show();
+            $('#classTotalInfo')
+                .removeClass('alert-success alert-light')
+                .addClass('alert-warning')
+                .text('Jumlah siswa kelas belum tersimpan. Isi sekali untuk kelas ini.');
+        }
+        updateStudentAttendancePreview();
+
+        // Update modal content
+        $('#modal-subject').text(subject);
+        $('#modal-class').text(className);
+        $('#modal-school').text(schoolName);
+        $('#modal-time').text(startTime + ' - ' + endTime);
+
+        $('#attendanceModal').modal('show');
+        updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
+
+        // Get user location
+        getUserLocation().then(location => {
+            userLocation = location;
+
+            // Check if location is within school polygon
+            checkLocationInPolygon(location.latitude, location.longitude, currentScheduleId).then(isValid => {
+                if (isValid) {
+                    updateLocationStatus('success', 'Lokasi berhasil didapatkan dan berada dalam area sekolah.', true);
+                } else {
+                    updateLocationStatus('warning', 'Lokasi Anda berada di luar area sekolah. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.', false);
+                }
+            }).catch(error => {
+                updateLocationStatus('error', 'Gagal memverifikasi lokasi dalam area sekolah: ' + error, false);
+            });
         }).catch(error => {
-            updateLocationStatus('error', 'Gagal memverifikasi lokasi dalam area sekolah: ' + error, false);
+            updateLocationStatus('error', error);
         });
-    }).catch(error => {
-        updateLocationStatus('error', error);
+    };
+
+    if (warnings.length === 0) {
+        proceed();
+        return;
+    }
+
+    Swal.fire({
+        icon: 'warning',
+        title: 'Konfirmasi',
+        html: warnings.join('<hr class="my-2">'),
+        showCancelButton: true,
+        confirmButtonText: 'Ya, lanjutkan',
+        cancelButtonText: 'Batal',
+    }).then(res => {
+        if (res.isConfirmed) proceed();
     });
 }
 
@@ -627,35 +738,68 @@ function refreshLocation() {
 $('#confirmAttendanceBtn').click(function() {
     const materi = $('#attendanceMateri').val().trim();
     if (!materi) {
-        alert('Materi atau topik yang disampaikan wajib diisi.');
+        Swal.fire({ icon: 'warning', title: 'Materi Wajib Diisi', text: 'Materi atau topik yang disampaikan wajib diisi.' });
         return;
     }
 
     const { total, present } = getStudentAttendanceNumbers();
     if (!total || total < 1) {
-        alert('Jumlah siswa yang ada di kelas wajib diisi.');
+        Swal.fire({ icon: 'warning', title: 'Jumlah Siswa Wajib Diisi', text: 'Jumlah siswa yang ada di kelas wajib diisi.' });
         return;
     }
 
     if (present < 0 || !$('#presentStudents').val()) {
-        alert('Jumlah siswa hadir wajib diisi.');
+        Swal.fire({ icon: 'warning', title: 'Jumlah Hadir Wajib Diisi', text: 'Jumlah siswa hadir wajib diisi.' });
         return;
     }
 
     if (present > total) {
-        alert('Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.');
+        Swal.fire({ icon: 'warning', title: 'Jumlah Tidak Valid', text: 'Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.' });
+        return;
+    }
+
+    // Update mode (edit) does not require location
+    if (isEditMode) {
+        $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i> Memproses...');
+
+        const updateUrl = `{{ url('/teaching-attendances') }}/${currentAttendanceId}`;
+        $.ajax({
+            url: updateUrl,
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                _method: 'PUT',
+                materi: materi,
+                class_total_students: currentClassTotalStudents ? currentClassTotalStudents : total,
+                present_students: present
+            },
+            success: function(response) {
+                $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-save me-2"></i> Simpan');
+                if (response.success) {
+                    $('#attendanceModal').modal('hide');
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message, timer: 1500 }).then(() => location.reload());
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: response.message || 'Terjadi kesalahan' });
+                }
+            },
+            error: function(xhr) {
+                $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-save me-2"></i> Simpan');
+                const message = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan perubahan.';
+                Swal.fire({ icon: 'error', title: 'Error', text: message });
+            }
+        });
         return;
     }
 
     if (!userLocation || !currentScheduleId) {
-        alert('Lokasi belum didapatkan atau jadwal tidak valid.');
+        Swal.fire({ icon: 'error', title: 'Kesalahan', text: 'Lokasi belum didapatkan atau jadwal tidak valid.' });
         return;
     }
 
     // Check location in polygon before submitting
     checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
         if (!isValid) {
-            alert('Lokasi Anda berada di luar area sekolah. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.');
+            Swal.fire({ icon: 'warning', title: 'Diluar Area', text: 'Lokasi Anda berada di luar area sekolah.' });
             return;
         }
 
@@ -674,17 +818,18 @@ $('#confirmAttendanceBtn').click(function() {
                 lokasi: 'Presensi Mengajar',
                 materi: materi,
                 class_total_students: currentClassTotalStudents ? null : total,
-                present_students: present
+                present_students: present,
+                force: currentForce ? 1 : 0,
+                force_reason: currentForceReason || null
             },
             success: function(response) {
                 $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');
 
                 if (response.success) {
                     $('#attendanceModal').modal('hide');
-                    alert('Presensi mengajar berhasil dicatat!');
-                    location.reload();
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: response.message || 'Presensi mengajar berhasil dicatat!', timer: 1500 }).then(() => location.reload());
                 } else {
-                    alert('Gagal: ' + response.message);
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: response.message || 'Terjadi kesalahan' });
                 }
             },
             error: function(xhr) {
@@ -694,11 +839,11 @@ $('#confirmAttendanceBtn').click(function() {
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     message = xhr.responseJSON.message;
                 }
-                alert('Error: ' + message);
+                Swal.fire({ icon: 'error', title: 'Error', text: message });
             }
         });
     }).catch(error => {
-        alert('Error: ' + error);
+        Swal.fire({ icon: 'error', title: 'Error', text: String(error) });
     });
 });
 
@@ -734,6 +879,52 @@ $(document).ready(function() {
     // Initialize modal when shown
     $('#attendanceModal').on('shown.bs.modal', function () {
         // Modal initialization code if needed
+    });
+
+    $(document).on('click', '.edit-attendance-btn', function() {
+        let payload = null;
+        try { payload = JSON.parse($(this).attr('data-attendance') || 'null'); } catch (err) {}
+        if (!payload || !payload.id) return;
+
+        isEditMode = true;
+        currentAttendanceId = payload.id;
+        currentScheduleId = payload.schedule_id;
+        userLocation = null;
+        requiresLocationValidation = false;
+        currentForce = false;
+        currentForceReason = '';
+
+        currentClassTotalStudents = payload.class_total_students ? Number(payload.class_total_students) : null;
+
+        $('#attendanceMateri').val(payload.materi || '');
+        $('#presentStudents').val(payload.present_students ?? '').removeAttr('max');
+        $('#classTotalStudents').val(payload.class_total_students ?? '');
+
+        if (currentClassTotalStudents) {
+            $('#classTotalInputGroup').hide();
+            $('#classTotalInfo')
+                .removeClass('alert-warning alert-light')
+                .addClass('alert-success')
+                .html(`Jumlah siswa kelas sudah tersimpan: <strong>${currentClassTotalStudents} siswa</strong>.`);
+            $('#presentStudents').attr('max', currentClassTotalStudents);
+        } else {
+            $('#classTotalInputGroup').show();
+            $('#classTotalInfo')
+                .removeClass('alert-success alert-light')
+                .addClass('alert-warning')
+                .text('Jumlah siswa kelas belum tersimpan. Isi sekali untuk kelas ini.');
+        }
+        updateStudentAttendancePreview();
+
+        $('#modal-subject').text(payload.subject || '');
+        $('#modal-class').text(payload.class_name || '');
+        $('#modal-school').text(payload.school_name || '');
+        $('#modal-time').text((payload.start_time || '') + ' - ' + (payload.end_time || ''));
+
+        $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-save me-2"></i> Simpan');
+        updateLocationStatus('success', 'Mode edit: lokasi tidak perlu divalidasi.', true);
+
+        $('#attendanceModal').modal('show');
     });
 });
 </script>

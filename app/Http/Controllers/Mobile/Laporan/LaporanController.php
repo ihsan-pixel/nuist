@@ -10,6 +10,7 @@ use App\Models\Holiday;
 use App\Models\Presensi;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
+use App\Models\DayMarker;
 use App\Models\User;
 
 class LaporanController extends \App\Http\Controllers\Controller
@@ -139,6 +140,16 @@ class LaporanController extends \App\Http\Controllers\Controller
         // Normalize: attach shortcut `attendance` to each schedule (first attendance of the day or null)
         $schedules->each(function ($schedule) {
             $schedule->attendance = $schedule->teachingAttendances->first() ?? null;
+        });
+
+        $schedules->each(function ($schedule) use ($selectedDate) {
+            $marker = DayMarker::resolveMarker(
+                $selectedDate->toDateString(),
+                (int) $schedule->school_id,
+                (string) $schedule->class_name
+            );
+            $schedule->day_marker = $marker['marker'];
+            $schedule->day_marker_label = DayMarker::markerLabel($marker['marker']);
         });
 
         $this->attachClassStudentCounts($schedules);

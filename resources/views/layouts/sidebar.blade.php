@@ -93,6 +93,12 @@
                         <span>Jadwal Mengajar</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('day-markers.index') }}" class="waves-effect">
+                        <i class="bx bx-calendar-event"></i>
+                        <span>Penanda Hari</span>
+                    </a>
+                </li>
                 @endif
 
                 @php
