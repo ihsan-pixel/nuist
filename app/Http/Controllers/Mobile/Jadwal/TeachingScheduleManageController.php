@@ -83,27 +83,8 @@ class TeachingScheduleManageController extends Controller
 
         if ($teacherOverlap) {
             return back()
-                ->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari yang sama.'])
+                ->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal Anda sendiri pada hari yang sama.'])
                 ->withInput();
-        }
-
-        // Check class overlap (skip for madrasah ID 8 and 9)
-        if (!in_array((int) $schoolId, [8, 9], true)) {
-            $classOverlap = TeachingSchedule::query()
-                ->where('school_id', $schoolId)
-                ->where('class_name', $validated['class_name'])
-                ->where('day', $validated['day'])
-                ->where(function ($query) use ($validated) {
-                    $query->where('start_time', '<', $validated['end_time'])
-                        ->where('end_time', '>', $validated['start_time']);
-                })
-                ->exists();
-
-            if ($classOverlap) {
-                return back()
-                    ->withErrors(['class_overlap' => 'Jadwal bentrok dengan jadwal lain pada kelas yang sama di hari ' . $validated['day'] . '.'])
-                    ->withInput();
-            }
         }
 
         TeachingSchedule::create([
@@ -195,28 +176,8 @@ class TeachingScheduleManageController extends Controller
 
         if ($teacherOverlap) {
             return back()
-                ->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari yang sama.'])
+                ->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal Anda sendiri pada hari yang sama.'])
                 ->withInput();
-        }
-
-        // Check class overlap, excluding current (skip for madrasah ID 8 and 9)
-        if (!in_array((int) $schoolId, [8, 9], true)) {
-            $classOverlap = TeachingSchedule::query()
-                ->where('school_id', $schoolId)
-                ->where('class_name', $validated['class_name'])
-                ->where('day', $validated['day'])
-                ->where('id', '!=', $schedule->id)
-                ->where(function ($query) use ($validated) {
-                    $query->where('start_time', '<', $validated['end_time'])
-                        ->where('end_time', '>', $validated['start_time']);
-                })
-                ->exists();
-
-            if ($classOverlap) {
-                return back()
-                    ->withErrors(['class_overlap' => 'Jadwal bentrok dengan jadwal lain pada kelas yang sama di hari ' . $validated['day'] . '.'])
-                    ->withInput();
-            }
         }
 
         $schedule->update([

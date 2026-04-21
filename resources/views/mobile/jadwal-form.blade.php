@@ -158,6 +158,20 @@
         })();
     </script>
 
+    @if($errors->has('overlap'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                if (typeof Swal === 'undefined') return;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Jadwal Bentrok',
+                    text: @json($errors->first('overlap')),
+                    confirmButtonText: 'OK'
+                });
+            });
+        </script>
+    @endif
+
     @if($isEditing)
         <form method="POST" action="{{ route('mobile.jadwal.destroy', $schedule->id) }}" class="mt-2" onsubmit="return confirm('Hapus jadwal ini?');">
             @csrf
