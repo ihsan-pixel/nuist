@@ -12,8 +12,8 @@
                 </div>
             </div>
             <div>
-                <div class="fw-semibold" style="line-height:1.1;">{{ $madrasah->name }}</div>
-                <div class="text-muted small">SCOD: {{ $madrasah->scod ?? '-' }}</div>
+                <div class="fw-semibold" style="line-height:1.1;">{{ $selectedMadrasah->name }}</div>
+                <div class="text-muted small">SCOD: {{ $selectedMadrasah->scod ?? '-' }}</div>
             </div>
         </div>
         <div class="text-end">
@@ -29,6 +29,17 @@
 
 <div class="card mb-3">
     <div class="card-body">
+        <form method="GET" class="mb-3">
+            <label class="form-label mb-1">Pilih Sekolah</label>
+            <select class="form-select" name="madrasah_id" onchange="this.form.submit()">
+                @foreach($madrasahs as $m)
+                    <option value="{{ $m->id }}" @selected($m->id === $selectedMadrasah->id)>
+                        {{ $m->scod ?? '-' }} - {{ $m->name ?? '-' }}
+                    </option>
+                @endforeach
+            </select>
+        </form>
+
         <div class="d-flex justify-content-between align-items-start">
             <div>
                 <div class="text-muted small">Kepala Sekolah</div>
@@ -36,11 +47,11 @@
             </div>
             <div class="text-end">
                 <div class="text-muted small">Kabupaten</div>
-                <div class="fw-semibold">{{ $madrasah->kabupaten ?? '-' }}</div>
+                <div class="fw-semibold">{{ $selectedMadrasah->kabupaten ?? '-' }}</div>
             </div>
         </div>
         <div class="text-muted small mt-2">
-            {{ $madrasah->alamat ?? 'Alamat belum diisi.' }}
+            {{ $selectedMadrasah->alamat ?? 'Alamat belum diisi.' }}
         </div>
     </div>
 </div>

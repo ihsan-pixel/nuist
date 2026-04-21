@@ -7,7 +7,7 @@
     <div class="d-flex align-items-center justify-content-between px-2 py-2">
         <div>
             <div class="fw-semibold">Presensi Mengajar</div>
-            <div class="text-muted small">{{ $madrasah->name }} (SCOD: {{ $madrasah->scod ?? '-' }})</div>
+            <div class="text-muted small">{{ $selectedMadrasah->name }} (SCOD: {{ $selectedMadrasah->scod ?? '-' }})</div>
         </div>
         <a class="btn btn-sm btn-outline-secondary" href="{{ route('mobile.dps.dashboard') }}">
             <i class="bx bx-home"></i>
@@ -18,6 +18,16 @@
 <div class="card mb-3">
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end">
+            <div class="col-12">
+                <label class="form-label mb-1">Sekolah</label>
+                <select class="form-select" name="madrasah_id" onchange="this.form.submit()">
+                    @foreach($madrasahs as $m)
+                        <option value="{{ $m->id }}" @selected($m->id === $selectedMadrasah->id)>
+                            {{ $m->scod ?? '-' }} - {{ $m->name ?? '-' }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             <div class="col-8">
                 <label class="form-label mb-1">Bulan</label>
                 <input type="month" name="month" class="form-control" value="{{ $selectedMonth }}">
@@ -92,4 +102,3 @@
     </div>
 </div>
 @endsection
-

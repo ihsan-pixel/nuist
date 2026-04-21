@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mobile\Dps;
 
 use App\Http\Controllers\Controller;
+use App\Models\DpsMember;
 use App\Models\DataSekolah;
 use App\Models\Holiday;
 use App\Models\Madrasah;
@@ -26,12 +27,33 @@ class DpsController extends Controller
         return $user;
     }
 
-    private function getMadrasahForUser(User $user): Madrasah
+    private function getAccessibleMadrasahs(User $user)
     {
-        if (!$user->madrasah_id) {
-            abort(400, 'Akun DPS belum terhubung ke sekolah.');
+        $madrasahIds = DpsMember::where('user_id', $user->id)
+            ->pluck('madrasah_id')
+            ->unique()
+            ->filter()
+            ->values()
+            ->all();
+
+        return Madrasah::whereIn('id', $madrasahIds)
+            ->orderByRaw('CAST(scod AS UNSIGNED) ASC')
+            ->get();
+    }
+
+    private function getSelectedMadrasah(User $user, ?int $madrasahId): Madrasah
+    {
+        $madrasahs = $this->getAccessibleMadrasahs($user);
+        if ($madrasahs->isEmpty()) {
+            abort(400, 'Akun DPS belum memiliki sekolah.');
         }
-        return Madrasah::findOrFail($user->madrasah_id);
+
+        if ($madrasahId) {
+            $selected = $madrasahs->firstWhere('id', $madrasahId);
+            if ($selected) return $selected;
+        }
+
+        return $madrasahs->first();
     }
 
     private function getJumlahSiswa(int $madrasahId): int
@@ -53,27 +75,29 @@ class DpsController extends Controller
     public function dashboard(Request $request)
     {
         $user = $this->ensureRole();
-        $madrasah = $this->getMadrasahForUser($user);
+        $madrasahs = $this->getAccessibleMadrasahs($user);
+        $selectedMadrasah = $this->getSelectedMadrasah($user, $request->integer('madrasah_id') ?: null);
 
-        $dataSekolah = DataSekolah::where('madrasah_id', $madrasah->id)
+        $dataSekolah = DataSekolah::where('madrasah_id', $selectedMadrasah->id)
             ->orderBy('tahun', 'desc')
             ->first();
 
-        $jumlahGuru = $this->getJumlahGuru($madrasah->id);
-        $jumlahSiswa = $this->getJumlahSiswa($madrasah->id);
+        $jumlahGuru = $this->getJumlahGuru($selectedMadrasah->id);
+        $jumlahSiswa = $this->getJumlahSiswa($selectedMadrasah->id);
 
         $tenagaPendidik = User::where('role', 'tenaga_pendidik')
-            ->where('madrasah_id', $madrasah->id)
+            ->where('madrasah_id', $selectedMadrasah->id)
             ->orderBy('name')
             ->limit(20)
             ->get(['id', 'name', 'ketugasan']);
 
-        $kepalaSekolah = trim(($madrasah->kepala_sekolah_nama ?? '') . ' ' . ($madrasah->kepala_sekolah_gelar ?? ''));
+        $kepalaSekolah = trim(($selectedMadrasah->kepala_sekolah_nama ?? '') . ' ' . ($selectedMadrasah->kepala_sekolah_gelar ?? ''));
         $kepalaSekolah = $kepalaSekolah !== '' ? $kepalaSekolah : '-';
 
         return view('mobile.dps.dashboard', compact(
             'user',
-            'madrasah',
+            'madrasahs',
+            'selectedMadrasah',
             'dataSekolah',
             'jumlahGuru',
             'jumlahSiswa',
@@ -85,14 +109,16 @@ class DpsController extends Controller
     public function presensiKehadiran(Request $request)
     {
         $user = $this->ensureRole();
-        $madrasah = $this->getMadrasahForUser($user);
+        $madrasahs = $this->getAccessibleMadrasahs($user);
+        $selectedMadrasah = $this->getSelectedMadrasah($user, $request->integer('madrasah_id') ?: null);
 
         $selectedMonth = $request->input('month', Carbon::now()->format('Y-m'));
-        $monthly = $this->getMonthlyAttendanceSummary($madrasah->id, $selectedMonth);
+        $monthly = $this->getMonthlyAttendanceSummary($selectedMadrasah->id, $selectedMonth);
 
         return view('mobile.dps.presensi-kehadiran', [
             'user' => $user,
-            'madrasah' => $madrasah,
+            'madrasahs' => $madrasahs,
+            'selectedMadrasah' => $selectedMadrasah,
             'selectedMonth' => $selectedMonth,
             'monthly' => $monthly,
         ]);
@@ -101,14 +127,16 @@ class DpsController extends Controller
     public function presensiMengajar(Request $request)
     {
         $user = $this->ensureRole();
-        $madrasah = $this->getMadrasahForUser($user);
+        $madrasahs = $this->getAccessibleMadrasahs($user);
+        $selectedMadrasah = $this->getSelectedMadrasah($user, $request->integer('madrasah_id') ?: null);
 
         $selectedMonth = $request->input('month', Carbon::now()->format('Y-m'));
-        $teaching = $this->getTeachingAttendanceSummary($madrasah->id, $selectedMonth);
+        $teaching = $this->getTeachingAttendanceSummary($selectedMadrasah->id, $selectedMonth);
 
         return view('mobile.dps.presensi-mengajar', [
             'user' => $user,
-            'madrasah' => $madrasah,
+            'madrasahs' => $madrasahs,
+            'selectedMadrasah' => $selectedMadrasah,
             'selectedMonth' => $selectedMonth,
             'teaching' => $teaching,
         ]);
@@ -117,9 +145,15 @@ class DpsController extends Controller
     public function profile(Request $request)
     {
         $user = $this->ensureRole();
-        $madrasah = $this->getMadrasahForUser($user);
+        $madrasahs = $this->getAccessibleMadrasahs($user);
 
-        return view('mobile.dps.profile', compact('user', 'madrasah'));
+        $assignments = DpsMember::with('madrasah')
+            ->where('user_id', $user->id)
+            ->orderByRaw('madrasah_id ASC')
+            ->orderBy('periode')
+            ->get();
+
+        return view('mobile.dps.profile', compact('user', 'madrasahs', 'assignments'));
     }
 
     private function getMonthlyAttendanceSummary(int $madrasahId, string $month): array

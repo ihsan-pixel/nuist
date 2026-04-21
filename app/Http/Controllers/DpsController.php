@@ -126,8 +126,14 @@ class DpsController extends Controller
             $user = User::find($member->user_id);
             if ($user && $user->role === 'dps') {
                 $user->name = $member->nama;
-                $user->madrasah_id = $member->madrasah_id;
+                // DPS can cover multiple schools; keep a primary madrasah_id only if empty.
+                if (!$user->madrasah_id) {
+                    $user->madrasah_id = $member->madrasah_id;
+                }
                 $user->save();
+
+                // Normalize all DPS assignments under the same account to the same display name.
+                DpsMember::where('user_id', $user->id)->update(['nama' => $member->nama]);
             }
         }
 
@@ -140,14 +146,19 @@ class DpsController extends Controller
     {
         $madrasahId = $member->madrasah_id;
 
-        // Remove linked DPS login account too (only if it's a DPS account).
-        if ($member->user_id) {
-            $user = User::find($member->user_id);
-            if ($user && $user->role === 'dps') {
-                $user->delete();
+        $userId = $member->user_id;
+        $member->delete();
+
+        // Remove linked DPS login account only when it has no other school assignments.
+        if ($userId) {
+            $stillUsed = DpsMember::where('user_id', $userId)->exists();
+            if (!$stillUsed) {
+                $user = User::find($userId);
+                if ($user && $user->role === 'dps') {
+                    $user->delete();
+                }
             }
         }
-        $member->delete();
 
         return redirect()
             ->route('dps.show', $madrasahId)

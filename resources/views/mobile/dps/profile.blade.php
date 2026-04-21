@@ -7,7 +7,7 @@
     <div class="d-flex align-items-center justify-content-between px-2 py-2">
         <div>
             <div class="fw-semibold">Profile DPS</div>
-            <div class="text-muted small">{{ $madrasah->name }} (SCOD: {{ $madrasah->scod ?? '-' }})</div>
+            <div class="text-muted small">Akses sekolah: {{ $madrasahs->count() }}</div>
         </div>
         <a class="btn btn-sm btn-outline-secondary" href="{{ route('mobile.dps.dashboard') }}">
             <i class="bx bx-home"></i>
@@ -27,15 +27,35 @@
 
 <div class="card mb-3">
     <div class="card-body">
-        <div class="fw-semibold mb-2">Sekolah</div>
-        <div class="text-muted small">SCOD</div>
-        <div class="fw-semibold mb-2">{{ $madrasah->scod ?? '-' }}</div>
-
-        <div class="text-muted small">Nama Sekolah</div>
-        <div class="fw-semibold mb-2">{{ $madrasah->name ?? '-' }}</div>
-
-        <div class="text-muted small">Alamat</div>
-        <div class="small">{{ $madrasah->alamat ?? '-' }}</div>
+        <div class="fw-semibold mb-2">Sekolah & Unsur DPS</div>
+        @if($madrasahs->isEmpty())
+            <div class="text-muted text-center py-2">Belum ada sekolah.</div>
+        @else
+            @php
+                $bySchool = $assignments->groupBy('madrasah_id');
+            @endphp
+            <div class="d-grid gap-2">
+                @foreach($madrasahs as $m)
+                    @php
+                        $rows = $bySchool->get($m->id, collect());
+                        $unsur = $rows->pluck('unsur')->filter()->unique()->values();
+                        $periode = $rows->pluck('periode')->filter()->unique()->values();
+                    @endphp
+                    <div class="border rounded p-2">
+                        <div class="fw-semibold">{{ $m->name ?? '-' }}</div>
+                        <div class="text-muted small mb-1">SCOD: {{ $m->scod ?? '-' }}</div>
+                        <div class="small">
+                            <span class="text-muted">Unsur:</span>
+                            {{ $unsur->isEmpty() ? '-' : $unsur->implode(', ') }}
+                        </div>
+                        <div class="small">
+                            <span class="text-muted">Periode:</span>
+                            {{ $periode->isEmpty() ? '-' : $periode->implode(', ') }}
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </div>
 </div>
 
@@ -52,4 +72,3 @@
     </form>
 </div>
 @endsection
-

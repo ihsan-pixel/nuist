@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\DpsMember;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DpsAccountService
 {
@@ -15,22 +16,51 @@ class DpsAccountService
      */
     public function ensureUser(DpsMember $member): ?array
     {
+        $normalizedName = $this->normalizeName($member->nama);
+
+        // If this member already linked, nothing to do.
         if ($member->user_id && User::whereKey($member->user_id)->exists()) {
             return null;
         }
 
-        $scod = $member->madrasah ? ($member->madrasah->scod ?? null) : null;
-        $scodPart = $scod ? preg_replace('/[^0-9A-Za-z]/', '', (string) $scod) : (string) $member->madrasah_id;
+        // Prefer an existing DPS account already used by another DPS record with the same name.
+        $existingMemberWithUser = DpsMember::query()
+            ->whereNotNull('user_id')
+            ->whereRaw('LOWER(TRIM(nama)) = ?', [$normalizedName])
+            ->orderBy('id')
+            ->first();
 
-        // Unique, deterministic email (based on DPS member id).
-        $email = strtolower("dps-{$scodPart}-{$member->id}@nuist.id");
+        if ($existingMemberWithUser && $existingMemberWithUser->user_id) {
+            $existingUser = User::find($existingMemberWithUser->user_id);
+            if ($existingUser && $existingUser->role === 'dps') {
+                $member->user_id = $existingUser->id;
+                $member->save();
+                return null;
+            }
+        }
 
-        // If an account with this email already exists (e.g. restored data), just link it.
-        $existing = User::where('email', $email)->first();
-        if ($existing) {
-            $member->user_id = $existing->id;
+        // Fallback: match directly by DPS users table (name).
+        $existingUser = User::query()
+            ->where('role', 'dps')
+            ->whereRaw('LOWER(TRIM(name)) = ?', [$normalizedName])
+            ->orderBy('id')
+            ->first();
+
+        if ($existingUser) {
+            $member->user_id = $existingUser->id;
             $member->save();
             return null;
+        }
+
+        // New account: email derived from DPS name (one account per name).
+        $base = Str::slug((string) $member->nama);
+        $base = $base !== '' ? $base : 'dps';
+
+        $email = "dps-{$base}@nuist.id";
+        $suffix = 2;
+        while (User::where('email', $email)->exists()) {
+            $email = "dps-{$base}-{$suffix}@nuist.id";
+            $suffix++;
         }
 
         // Simple password (shown via import credential download). Not logged.
@@ -41,17 +71,27 @@ class DpsAccountService
             'email' => $email,
             'password' => Hash::make($passwordPlain),
             'role' => 'dps',
-            'madrasah_id' => $member->madrasah_id,
             'password_changed' => false,
         ]);
 
         // Avoid blocking flows that rely on verified users, if enabled in this app.
         $user->email_verified_at = now();
+        // Keep a "primary" madrasah_id only if empty; DPS may cover multiple schools.
+        if (!$user->madrasah_id) {
+            $user->madrasah_id = $member->madrasah_id;
+        }
         $user->save();
 
         $member->user_id = $user->id;
         $member->save();
 
         return ['email' => $email, 'password' => $passwordPlain];
+    }
+
+    private function normalizeName(string $name): string
+    {
+        $n = trim(strtolower($name));
+        $n = preg_replace('/\s+/', ' ', $n);
+        return $n;
     }
 }
