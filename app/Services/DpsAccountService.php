@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\DpsAccountPassword;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class DpsAccountService
@@ -91,11 +92,17 @@ class DpsAccountService
         $member->save();
 
         // Store initial password (encrypted) for Super Admin export purposes.
-        // Note: existing accounts created before this change will not have a stored password.
-        DpsAccountPassword::updateOrCreate(
-            ['user_id' => $user->id],
-            ['password_encrypted' => Crypt::encryptString($passwordPlain)]
-        );
+        // In production this table might not exist yet; don't fail account creation/import.
+        if (Schema::hasTable('dps_account_passwords')) {
+            try {
+                DpsAccountPassword::updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['password_encrypted' => Crypt::encryptString($passwordPlain)]
+                );
+            } catch (\Throwable $e) {
+                // no-op: never block DPS creation on password export feature
+            }
+        }
 
         return ['email' => $email, 'password' => $passwordPlain];
     }

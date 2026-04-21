@@ -32,9 +32,16 @@ class DpsAccountsExport implements FromCollection, WithHeadings
             ->orderBy('name')
             ->get(['id', 'name', 'email']);
 
-        $passwords = DpsAccountPassword::whereIn('user_id', $users->pluck('id'))
-            ->get()
-            ->keyBy('user_id');
+        $passwords = collect();
+        if (Schema::hasTable('dps_account_passwords')) {
+            try {
+                $passwords = DpsAccountPassword::whereIn('user_id', $users->pluck('id'))
+                    ->get()
+                    ->keyBy('user_id');
+            } catch (\Throwable $e) {
+                $passwords = collect();
+            }
+        }
 
         // Preload DPS assignments and school info.
         // Some environments may use 'madrasah' vs 'madrasahs'; try both.
