@@ -43,6 +43,9 @@
 .attendance-izin {
     background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
 }
+.attendance-exempt {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
 .time-indicator {
     background: rgba(255,255,255,0.9);
     border-radius: 20px;
@@ -138,15 +141,16 @@
                 <div class="col-12">
                     @php
                         $scheduleAttendanceStatus = $schedule->attendance->status ?? null;
+                        $isExemptByActivity = empty($schedule->attendance) && !$isIzinApprovedToday && !empty($schedule->class_activity);
                         $cardStateClass = $scheduleAttendanceStatus === 'izin'
                             ? 'attendance-izin'
-                            : ($schedule->attendance ? 'attendance-success' : ($isIzinApprovedToday ? 'attendance-izin' : 'attendance-pending'));
+                            : ($isExemptByActivity ? 'attendance-exempt' : ($schedule->attendance ? 'attendance-success' : ($isIzinApprovedToday ? 'attendance-izin' : 'attendance-pending')));
                         $badgeClass = $scheduleAttendanceStatus === 'izin'
                             ? 'bg-info'
-                            : ($schedule->attendance ? 'bg-success' : ($isIzinApprovedToday ? 'bg-info' : 'bg-warning'));
+                            : ($isExemptByActivity ? 'bg-secondary' : ($schedule->attendance ? 'bg-success' : ($isIzinApprovedToday ? 'bg-info' : 'bg-warning')));
                         $badgeIcon = $scheduleAttendanceStatus === 'izin'
                             ? 'bx-info'
-                            : ($schedule->attendance ? 'bx-check' : ($isIzinApprovedToday ? 'bx-info' : 'bx-time'));
+                            : ($isExemptByActivity ? 'bx-calendar-x' : ($schedule->attendance ? 'bx-check' : ($isIzinApprovedToday ? 'bx-info' : 'bx-time')));
                     @endphp
                     <div class="card schedule-card h-100 position-relative {{ $cardStateClass }}">
                         <!-- Status Badge -->
@@ -237,6 +241,23 @@
                                         </div>
                                     </div>
                                 @else
+                                @if(!empty($schedule->class_activity))
+                                    <div class="alert alert-secondary border-0 rounded-3 p-3 mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bx bx-calendar-x fs-4 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1">Tidak Perlu Presensi</h6>
+                                                <small class="text-muted">
+                                                    Kegiatan kelas: {{ $schedule->class_activity->activity_type }}
+                                                    ({{ optional($schedule->class_activity->start_date)->format('d M Y') }} - {{ optional($schedule->class_activity->end_date)->format('d M Y') }})
+                                                </small>
+                                                @if(!empty($schedule->class_activity->description))
+                                                    <div class="small text-muted mt-1">{{ \Illuminate\Support\Str::limit((string) $schedule->class_activity->description, 140) }}</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
                                 @php
                                     $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
                                     $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
@@ -257,6 +278,7 @@
                                             <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
                                         </small>
                                     </div>
+                                @endif
                                 @endif
                                 @endif
                             @endif

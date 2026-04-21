@@ -393,7 +393,11 @@
                                         @if($isIzinApprovedToday)
                                             <div class="badge bg-info text-dark">Izin</div>
                                         @else
-                                            <div class="badge bg-warning text-dark">Belum</div>
+                                            @if(!empty($schedule->class_activity))
+                                                <div class="badge bg-secondary">Kegiatan</div>
+                                            @else
+                                                <div class="badge bg-warning text-dark">Belum</div>
+                                            @endif
                                         @endif
                                     @endif
                                 </div>
@@ -434,6 +438,23 @@
                                                 <div>
                                                     <div class="fw-semibold">Izin (Disetujui)</div>
                                                     <small class="small-muted">Anda tidak dapat melakukan presensi mengajar hari ini.</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                    @if(!empty($schedule->class_activity))
+                                        <div class="alert alert-secondary mb-0">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bx bx-calendar-x fs-4 me-2"></i>
+                                                <div>
+                                                    <div class="fw-semibold">Tidak Perlu Presensi</div>
+                                                    <small class="small-muted">
+                                                        Kegiatan kelas: {{ $schedule->class_activity->activity_type }}
+                                                        ({{ optional($schedule->class_activity->start_date)->format('d M Y') }} - {{ optional($schedule->class_activity->end_date)->format('d M Y') }})
+                                                    </small>
+                                                    @if(!empty($schedule->class_activity->description))
+                                                        <div class="small-muted mt-1">{{ \Illuminate\Support\Str::limit((string) $schedule->class_activity->description, 140) }}</div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -490,6 +511,7 @@
                                             </div>
                                         @endif
                                     </div>
+                                    @endif
                                     @endif
                                 @endif
                             </div>

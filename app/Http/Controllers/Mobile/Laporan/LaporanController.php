@@ -9,6 +9,7 @@ use Carbon\CarbonPeriod;
 use App\Models\Holiday;
 use App\Models\Presensi;
 use App\Models\TeachingAttendance;
+use App\Models\TeachingClassActivity;
 use App\Models\TeachingClassStudentCount;
 use App\Models\User;
 
@@ -142,6 +143,7 @@ class LaporanController extends \App\Http\Controllers\Controller
         });
 
         $this->attachClassStudentCounts($schedules);
+        $this->attachClassActivities($schedules, $today);
 
         $today = $selectedDate->toDateString();
 
@@ -176,6 +178,34 @@ class LaporanController extends \App\Http\Controllers\Controller
     private function classStudentCountKey($schoolId, $className): string
     {
         return $schoolId . '|' . strtolower(trim((string) $className));
+    }
+
+    private function attachClassActivities($schedules, string $dateYmd): void
+    {
+        $schoolIds = $schedules->pluck('school_id')->filter()->unique()->values();
+
+        if ($schoolIds->isEmpty()) {
+            return;
+        }
+
+        $activities = TeachingClassActivity::query()
+            ->whereIn('school_id', $schoolIds)
+            ->whereDate('start_date', '<=', $dateYmd)
+            ->whereDate('end_date', '>=', $dateYmd)
+            ->orderByDesc('start_date')
+            ->get();
+
+        $byKey = $activities
+            ->groupBy(function ($a) {
+                return $a->school_id . '|' . strtolower(trim((string) $a->class_name));
+            })
+            ->map(fn ($group) => $group->first());
+
+        $schedules->each(function ($schedule) use ($byKey) {
+            $schedule->class_activity = $byKey->get(
+                $this->classStudentCountKey($schedule->school_id, $schedule->class_name)
+            );
+        });
     }
 
     private function buildAttendanceSummary(int $userId, ?string $hariKbm, Carbon $startDate, Carbon $endDate, Carbon $today): array

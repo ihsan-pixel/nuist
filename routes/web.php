@@ -120,6 +120,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter'])->name('teaching-schedules.filter');
     });
 
+    // Teaching Class Activities (No Teaching Days per Class) - Admin & Super Admin
+    Route::middleware(['role:super_admin,admin'])->group(function () {
+        Route::get('teaching-class-activities/get-classes/{schoolId}', [App\Http\Controllers\TeachingClassActivityController::class, 'getClassesBySchool'])->name('teaching-class-activities.get-classes');
+        Route::resource('teaching-class-activities', App\Http\Controllers\TeachingClassActivityController::class);
+    });
+
     // Teaching Attendances Routes
     Route::middleware(['role:tenaga_pendidik'])->group(function () {
         Route::get('/teaching-attendances', [App\Http\Controllers\TeachingAttendanceController::class, 'index'])->name('teaching-attendances.index');

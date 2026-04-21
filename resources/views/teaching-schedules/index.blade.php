@@ -177,16 +177,21 @@
                     <p class="text-muted mb-0">Kelola jadwal mengajar tenaga pendidik dengan tampilan yang lebih ringkas dan mudah dipindai.</p>
                 </div>
                 <div class="col-12 col-lg-auto">
-                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
-                        @if(Auth::user()->role !== 'tenaga_pendidik')
-                        <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary rounded-pill px-3">
-                            <i class="bx bx-plus me-1"></i>Tambah Jadwal
-                        </a>
-                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin' || Auth::user()->role === 'pengurus')
-                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal">
-                            <i class="bx bx-upload me-1"></i>Import Jadwal
-                        </button>
-                        @endif
+	                    <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+	                        @if(Auth::user()->role !== 'tenaga_pendidik')
+	                        <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary rounded-pill px-3">
+	                            <i class="bx bx-plus me-1"></i>Tambah Jadwal
+	                        </a>
+	                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
+	                        <a href="{{ route('teaching-class-activities.index') }}" class="btn btn-outline-dark rounded-pill px-3">
+	                            <i class="bx bx-calendar-x me-1"></i>Kegiatan Kelas
+	                        </a>
+	                        @endif
+	                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin' || Auth::user()->role === 'pengurus')
+	                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal">
+	                            <i class="bx bx-upload me-1"></i>Import Jadwal
+	                        </button>
+	                        @endif
                         @endif
                     </div>
                 </div>
