@@ -113,6 +113,13 @@ class LaporanController extends \App\Http\Controllers\Controller
         $selectedDate = Carbon::today('Asia/Jakarta');
         $todayName = $selectedDate->locale('id')->dayName;
 
+        $approvedIzinPresensi = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $selectedDate)
+            ->where('status', 'izin')
+            ->where('status_izin', 'approved')
+            ->first();
+
         // Build schedule query with today's teaching attendances, filtered by current day
         $query = \App\Models\TeachingSchedule::with(['teacher', 'school', 'teachingAttendances' => function ($q) use ($selectedDate) {
             $q->whereDate('tanggal', $selectedDate);
@@ -138,7 +145,7 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         $today = $selectedDate->toDateString();
 
-        return view('mobile.teaching-attendances', compact('today', 'schedules'));
+        return view('mobile.teaching-attendances', compact('today', 'schedules', 'approvedIzinPresensi'));
     }
 
     private function attachClassStudentCounts($schedules): void

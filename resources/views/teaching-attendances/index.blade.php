@@ -40,6 +40,9 @@
 .attendance-pending {
     background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
 }
+.attendance-izin {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+}
 .time-indicator {
     background: rgba(255,255,255,0.9);
     border-radius: 20px;
@@ -64,6 +67,10 @@
     @slot('li_1') Dashboard @endslot
     @slot('title') Presensi Mengajar @endslot
 @endcomponent
+
+@php
+    $isIzinApprovedToday = !empty($approvedIzinPresensi);
+@endphp
 
 <!-- Header Section -->
 <div class="row mb-4">
@@ -94,6 +101,20 @@
     </div>
 </div>
 
+@if($isIzinApprovedToday)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info border-0 shadow-sm">
+                <i class="bx bx-info-circle me-1"></i>
+                Anda tercatat <strong>izin (disetujui)</strong> hari ini, sehingga presensi mengajar ditandai sebagai izin.
+                @if(!empty($approvedIzinPresensi->keterangan))
+                    <div class="small mt-1">{{ \Illuminate\Support\Str::limit((string) $approvedIzinPresensi->keterangan, 180) }}</div>
+                @endif
+            </div>
+        </div>
+    </div>
+@endif
+
 <!-- Main Content -->
 <div class="row">
     <div class="col-12">
@@ -115,14 +136,22 @@
             <div class="row g-3">
                 @foreach($schedules as $schedule)
                 <div class="col-12">
-                    <div class="card schedule-card h-100 position-relative {{ $schedule->attendance ? 'attendance-success' : 'attendance-pending' }}">
+                    @php
+                        $scheduleAttendanceStatus = $schedule->attendance->status ?? null;
+                        $cardStateClass = $scheduleAttendanceStatus === 'izin'
+                            ? 'attendance-izin'
+                            : ($schedule->attendance ? 'attendance-success' : ($isIzinApprovedToday ? 'attendance-izin' : 'attendance-pending'));
+                        $badgeClass = $scheduleAttendanceStatus === 'izin'
+                            ? 'bg-info'
+                            : ($schedule->attendance ? 'bg-success' : ($isIzinApprovedToday ? 'bg-info' : 'bg-warning'));
+                        $badgeIcon = $scheduleAttendanceStatus === 'izin'
+                            ? 'bx-info'
+                            : ($schedule->attendance ? 'bx-check' : ($isIzinApprovedToday ? 'bx-info' : 'bx-time'));
+                    @endphp
+                    <div class="card schedule-card h-100 position-relative {{ $cardStateClass }}">
                         <!-- Status Badge -->
-                        <div class="status-badge {{ $schedule->attendance ? 'bg-success' : 'bg-warning' }}">
-                            @if($schedule->attendance)
-                                <i class="bx bx-check text-white"></i>
-                            @else
-                                <i class="bx bx-time text-white"></i>
-                            @endif
+                        <div class="status-badge {{ $badgeClass }}">
+                            <i class="bx {{ $badgeIcon }} text-white"></i>
                         </div>
 
                         <div class="card-body p-4">
@@ -171,12 +200,16 @@
 
                             <!-- Attendance Status -->
                             @if($schedule->attendance)
-                                <div class="alert alert-success border-0 rounded-3 p-3 mb-0">
+                                <div class="alert {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success' }} border-0 rounded-3 p-3 mb-0">
                                     <div class="d-flex align-items-center">
-                                        <i class="bx bx-check-circle fs-4 me-3"></i>
+                                        <i class="bx {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle' }} fs-4 me-3"></i>
                                         <div>
-                                            <h6 class="mb-1 text-success">Presensi Berhasil</h6>
-                                            <small class="text-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                            @if(($schedule->attendance->status ?? 'hadir') === 'izin')
+                                                <h6 class="mb-1">Izin</h6>
+                                            @else
+                                                <h6 class="mb-1 text-success">Presensi Berhasil</h6>
+                                                <small class="text-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                            @endif
                                             @if($schedule->attendance->materi)
                                                 <div class="text-muted small mt-1">
                                                     <i class="bx bx-note me-1"></i>Materi: {{ $schedule->attendance->materi }}
@@ -193,6 +226,17 @@
                                     </div>
                                 </div>
                             @else
+                                @if($isIzinApprovedToday)
+                                    <div class="alert alert-info border-0 rounded-3 p-3 mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bx bx-info-circle fs-4 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1">Izin (Disetujui)</h6>
+                                                <small class="text-muted">Anda tidak dapat melakukan presensi mengajar hari ini.</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
                                 @php
                                     $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
                                     $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
@@ -213,6 +257,7 @@
                                             <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
                                         </small>
                                     </div>
+                                @endif
                                 @endif
                             @endif
                         </div>

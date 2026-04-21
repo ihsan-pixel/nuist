@@ -23,6 +23,16 @@
             <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
         </div>
         @endif
+
+        @if(!empty($approvedIzinPresensi))
+            <div class="alert alert-info border-0 rounded-3 mb-3" style="background: rgba(13, 202, 240, 0.12); color: #055160; border-radius: 12px; padding: 10px;">
+                <i class="bx bx-info-circle me-1"></i>
+                Anda tercatat <strong>izin (disetujui)</strong> hari ini, sehingga presensi mengajar ditandai sebagai izin.
+                @if(!empty($approvedIzinPresensi->keterangan))
+                    <div class="small mt-1">{{ Str::limit((string) $approvedIzinPresensi->keterangan, 140) }}</div>
+                @endif
+            </div>
+        @endif
     </div>
     <style>
         body {
@@ -352,6 +362,9 @@
                     <p>Tidak ada jadwal mengajar hari ini</p>
                 </div>
             @else
+                @php
+                    $isIzinApprovedToday = !empty($approvedIzinPresensi);
+                @endphp
                 @foreach($schedules as $schedule)
                     <div class="schedule-item">
                         <div class="schedule-icon">
@@ -371,21 +384,33 @@
                                 </div>
                                 <div class="text-end">
                                     @if($schedule->attendance)
-                                        <div class="badge bg-success">Hadir</div>
+                                        @if(($schedule->attendance->status ?? 'hadir') === 'izin')
+                                            <div class="badge bg-info text-dark">Izin</div>
+                                        @else
+                                            <div class="badge bg-success">Hadir</div>
+                                        @endif
                                     @else
-                                        <div class="badge bg-warning text-dark">Belum</div>
+                                        @if($isIzinApprovedToday)
+                                            <div class="badge bg-info text-dark">Izin</div>
+                                        @else
+                                            <div class="badge bg-warning text-dark">Belum</div>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
 
                             <div class="mt-3">
                                 @if($schedule->attendance)
-                                    <div class="alert alert-success mb-0">
+                                    <div class="alert {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success' }} mb-0">
                                         <div class="d-flex align-items-center">
-                                            <i class="bx bx-check-circle fs-4 me-2"></i>
+                                            <i class="bx {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle' }} fs-4 me-2"></i>
                                             <div>
-                                                <div class="fw-semibold">Presensi Berhasil</div>
-                                                <small class="small-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                                @if(($schedule->attendance->status ?? 'hadir') === 'izin')
+                                                    <div class="fw-semibold">Izin</div>
+                                                @else
+                                                    <div class="fw-semibold">Presensi Berhasil</div>
+                                                    <small class="small-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                                @endif
                                                 @if($schedule->attendance->materi)
                                                     <div class="small-muted mt-1">
                                                         <i class="bx bx-note me-1"></i>Materi: {{ $schedule->attendance->materi }}
@@ -402,6 +427,17 @@
                                         </div>
                                     </div>
                                 @else
+                                    @if($isIzinApprovedToday)
+                                        <div class="alert alert-info mb-0">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bx bx-info-circle fs-4 me-2"></i>
+                                                <div>
+                                                    <div class="fw-semibold">Izin (Disetujui)</div>
+                                                    <small class="small-muted">Anda tidak dapat melakukan presensi mengajar hari ini.</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
                                     <div
                                         class="time-status-container"
                                         data-schedule-id="{{ $schedule->id }}"
@@ -454,6 +490,7 @@
                                             </div>
                                         @endif
                                     </div>
+                                    @endif
                                 @endif
                             </div>
                         </div>

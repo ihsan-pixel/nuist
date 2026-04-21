@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
+use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -26,6 +27,13 @@ class TeachingAttendanceController extends Controller
         $today = Carbon::now('Asia/Jakarta')->toDateString();
         $dayOfWeek = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
 
+        $approvedIzinPresensi = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->where('status', 'izin')
+            ->where('status_izin', 'approved')
+            ->first();
+
         // Get today's schedules for the teacher
         $schedules = TeachingSchedule::with(['school', 'teacher'])
             ->where('teacher_id', $user->id)
@@ -46,7 +54,7 @@ class TeachingAttendanceController extends Controller
 
         $this->attachClassStudentCounts($schedules);
 
-        return view('teaching-attendances.index', compact('schedules', 'today'));
+        return view('teaching-attendances.index', compact('schedules', 'today', 'approvedIzinPresensi'));
     }
 
     public function store(Request $request)
@@ -68,6 +76,20 @@ class TeachingAttendanceController extends Controller
         $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
+
+        $hasApprovedIzinToday = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->where('status', 'izin')
+            ->where('status_izin', 'approved')
+            ->exists();
+
+        if ($hasApprovedIzinToday) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tercatat izin (disetujui) hari ini, sehingga tidak dapat melakukan presensi mengajar.'
+            ], 400);
+        }
 
         // Get the schedule
         $schedule = TeachingSchedule::findOrFail($request->teaching_schedule_id);
@@ -258,6 +280,23 @@ class TeachingAttendanceController extends Controller
             'longitude' => 'required|numeric',
             'teaching_schedule_id' => 'required|exists:teaching_schedules,id',
         ]);
+
+        $user = Auth::user();
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        $hasApprovedIzinToday = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->where('status', 'izin')
+            ->where('status_izin', 'approved')
+            ->exists();
+
+        if ($hasApprovedIzinToday) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tercatat izin (disetujui) hari ini, sehingga tidak dapat melakukan presensi mengajar.'
+            ], 400);
+        }
 
         $user = Auth::user();
 
