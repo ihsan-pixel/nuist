@@ -186,9 +186,11 @@ class DpsController extends Controller
 
     private function getMonthlyAttendanceSummary(int $madrasahId, string $month): array
     {
-        $selectedMonth = Carbon::createFromFormat('Y-m', $month);
+        $selectedMonth = Carbon::createFromFormat('Y-m', $month, 'Asia/Jakarta');
         $start = $selectedMonth->copy()->startOfMonth()->startOfDay();
         $end = $selectedMonth->copy()->endOfMonth()->endOfDay();
+        $today = Carbon::today('Asia/Jakarta')->endOfDay();
+        $effectiveEnd = $end->copy()->min($today);
 
         $madrasah = Madrasah::find($madrasahId);
         $hariKbm = (int)($madrasah->hari_kbm ?? 5);
@@ -201,7 +203,7 @@ class DpsController extends Controller
         // Build working days list
         $workingDates = [];
         $cursor = $start->copy();
-        while ($cursor <= $end) {
+        while ($cursor <= $effectiveEnd) {
             $dayOfWeek = $cursor->dayOfWeek; // 0 Sun ... 6 Sat
             $isWorking = $hariKbm === 6
                 ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY)
@@ -221,7 +223,7 @@ class DpsController extends Controller
 
         foreach ($teachers as $t) {
             $records = Presensi::where('user_id', $t->id)
-                ->whereBetween('tanggal', [$start, $end])
+                ->whereBetween('tanggal', [$start->toDateString(), $effectiveEnd->toDateString()])
                 ->get(['tanggal', 'status', 'status_izin']);
 
             $byDate = $records->keyBy(function ($r) {
@@ -284,23 +286,28 @@ class DpsController extends Controller
 
     private function getTeachingAttendanceSummary(int $madrasahId, string $month): array
     {
-        $selectedMonth = Carbon::createFromFormat('Y-m', $month);
+        $selectedMonth = Carbon::createFromFormat('Y-m', $month, 'Asia/Jakarta');
         $startOfMonth = $selectedMonth->copy()->startOfMonth()->startOfDay();
         $endOfMonth = $selectedMonth->copy()->endOfMonth()->endOfDay();
+        $today = Carbon::today('Asia/Jakarta')->endOfDay();
+        $effectiveEnd = $endOfMonth->copy()->min($today);
 
         $madrasah = Madrasah::find($madrasahId);
         $hariKbm = (int)($madrasah->hari_kbm ?? 5);
 
         $teachingSchedules = TeachingSchedule::where('school_id', $madrasahId)->get();
 
-        $teachingAttendances = TeachingAttendance::with(['teachingSchedule', 'user'])
-            ->whereHas('teachingSchedule', function ($q) use ($madrasahId) {
-                $q->where('school_id', $madrasahId);
-            })
-            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('waktu', 'desc')
-            ->get();
+        $teachingAttendances = collect();
+        if ($effectiveEnd->gte($startOfMonth)) {
+            $teachingAttendances = TeachingAttendance::with(['teachingSchedule', 'user'])
+                ->whereHas('teachingSchedule', function ($q) use ($madrasahId) {
+                    $q->where('school_id', $madrasahId);
+                })
+                ->whereBetween('tanggal', [$startOfMonth->toDateString(), $effectiveEnd->toDateString()])
+                ->orderBy('tanggal', 'desc')
+                ->orderBy('waktu', 'desc')
+                ->get();
+        }
 
         $availableMonths = DB::table('teaching_attendances')
             ->join('teaching_schedules', 'teaching_attendances.teaching_schedule_id', '=', 'teaching_schedules.id')
@@ -313,9 +320,23 @@ class DpsController extends Controller
         $scheduledByDate = [];
         $totalScheduled = 0;
         foreach ($teachingSchedules as $schedule) {
-            $dayOfWeek = (int) $schedule->day;
+            $dayName = strtolower(trim((string) $schedule->day));
+            $dayOfWeek = match ($dayName) {
+                'senin' => Carbon::MONDAY,
+                'selasa' => Carbon::TUESDAY,
+                'rabu' => Carbon::WEDNESDAY,
+                'kamis' => Carbon::THURSDAY,
+                'jumat' => Carbon::FRIDAY,
+                'sabtu' => Carbon::SATURDAY,
+                default => null,
+            };
+
+            if ($dayOfWeek === null) {
+                continue;
+            }
+
             $cursor = $startOfMonth->copy();
-            while ($cursor <= $endOfMonth) {
+            while ($cursor <= $effectiveEnd) {
                 if ($cursor->dayOfWeek === $dayOfWeek) {
                     $dateStr = $cursor->toDateString();
                     $scheduledByDate[$dateStr] = ($scheduledByDate[$dateStr] ?? 0) + 1;
