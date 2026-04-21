@@ -4,6 +4,15 @@
     DPS (Dewan Pengawas Sekolah)
 @endsection
 
+@section('css')
+    <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
+@endsection
+
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1') Master Data @endslot
@@ -12,22 +21,13 @@
 
 <div class="card mb-4">
     <div class="card-body">
-        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
-            <form method="GET" action="{{ route('dps.index') }}" class="d-flex gap-2" style="max-width:520px; width:100%;">
-                <input type="text" name="q" value="{{ $q }}" class="form-control" placeholder="Cari SCOD / Nama Sekolah / Nama DPS / Unsur / Periode">
-                <button class="btn btn-outline-secondary" type="submit">
-                    <i class="bx bx-search"></i>
-                </button>
-            </form>
-
-            <div class="d-flex gap-2">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportDps">
-                    <i class="bx bx-upload"></i> Import Excel
-                </button>
-                <a href="{{ route('dps.create') }}" class="btn btn-primary">
-                    <i class="bx bx-plus"></i> Tambah DPS
-                </a>
-            </div>
+        <div class="mb-3 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportDps">
+                <i class="bx bx-upload"></i> Import Excel
+            </button>
+            <a href="{{ route('dps.create') }}" class="btn btn-primary">
+                <i class="bx bx-plus"></i> Tambah DPS
+            </a>
         </div>
 
         @if(session('success'))
@@ -68,9 +68,10 @@
         @endif
 
         <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+            <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100 align-middle">
                 <thead class="table-light">
                     <tr>
+                        <th style="width: 60px;">No</th>
                         <th style="width: 110px;">SCOD</th>
                         <th>Nama Sekolah</th>
                         <th>Daftar DPS</th>
@@ -79,12 +80,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($madrasahs as $madrasah)
+                    @forelse($madrasahs as $index => $madrasah)
                         <tr>
+                            <td>{{ $index + 1 }}</td>
                             <td><span class="badge bg-primary-subtle text-primary">{{ $madrasah->scod ?? '-' }}</span></td>
                             <td class="fw-semibold">{{ $madrasah->name ?? '-' }}</td>
                             <td>
-                                <ul class="list-unstyled mb-0">
+                                <ul class="list-unstyled mb-0" style="min-width:260px;">
                                     @foreach($madrasah->dpsMembers as $m)
                                         <li class="mb-2">
                                             <div>{{ $m->nama }}</div>
@@ -108,17 +110,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">
+                            <td colspan="6" class="text-center text-muted py-4">
                                 Belum ada data DPS.
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
-        </div>
-
-        <div class="d-flex justify-content-end">
-            {{ $madrasahs->links() }}
         </div>
     </div>
 </div>
@@ -156,4 +154,33 @@
         </form>
     </div>
 </div>
+@endsection
+
+@section('script')
+    <script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('build/libs/jszip/jszip.min.js') }}"></script>
+    <script src="{{ asset('build/libs/pdfmake/build/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('build/libs/pdfmake/build/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function () {
+            let table = $("#datatable-buttons").DataTable({
+                responsive: true,
+                lengthChange: true,
+                autoWidth: false,
+                buttons: ["copy", "excel", "pdf", "print", "colvis"]
+            });
+
+            table.buttons().container()
+                .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+        });
+    </script>
 @endsection

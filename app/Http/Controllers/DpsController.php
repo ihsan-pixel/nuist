@@ -36,8 +36,7 @@ class DpsController extends Controller
                 });
             })
             ->orderByRaw('CAST(scod AS UNSIGNED) ASC')
-            ->paginate(25)
-            ->withQueryString();
+            ->get();
 
         return view('masterdata.dps.index', compact('madrasahs', 'q'));
     }
