@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\DpsMember;
 use App\Models\User;
+use App\Models\DpsAccountPassword;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -53,13 +55,16 @@ class DpsAccountService
         }
 
         // New account: email derived from DPS name (one account per name).
-        $base = Str::slug((string) $member->nama);
+        // Requirement: no '-' in email local part.
+        $base = Str::slug((string) $member->nama);     // words-separated-by-dash
+        $base = str_replace('-', '', $base);           // remove dashes
+        $base = preg_replace('/[^a-z0-9]/', '', strtolower((string) $base));
         $base = $base !== '' ? $base : 'dps';
 
-        $email = "dps-{$base}@nuist.id";
+        $email = "dps{$base}@nuist.id";
         $suffix = 2;
         while (User::where('email', $email)->exists()) {
-            $email = "dps-{$base}-{$suffix}@nuist.id";
+            $email = "dps{$base}{$suffix}@nuist.id";
             $suffix++;
         }
 
@@ -84,6 +89,13 @@ class DpsAccountService
 
         $member->user_id = $user->id;
         $member->save();
+
+        // Store initial password (encrypted) for Super Admin export purposes.
+        // Note: existing accounts created before this change will not have a stored password.
+        DpsAccountPassword::updateOrCreate(
+            ['user_id' => $user->id],
+            ['password_encrypted' => Crypt::encryptString($passwordPlain)]
+        );
 
         return ['email' => $email, 'password' => $passwordPlain];
     }

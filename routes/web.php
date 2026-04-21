@@ -467,6 +467,7 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin'])->group(fun
     Route::post('/dps', [DpsController::class, 'store'])->name('dps.store');
     Route::post('/dps/import', [DpsController::class, 'import'])->name('dps.import');
     Route::get('/dps/import-credentials/{token}', [DpsController::class, 'downloadCredentials'])->name('dps.credentials.download');
+    Route::get('/dps/accounts/export', [DpsController::class, 'exportAccounts'])->name('dps.accounts.export');
     Route::get('/dps/{madrasah}', [DpsController::class, 'show'])->name('dps.show');
     Route::get('/dps/member/{member}/edit', [DpsController::class, 'edit'])->name('dps.edit');
     Route::put('/dps/member/{member}', [DpsController::class, 'update'])->name('dps.update');

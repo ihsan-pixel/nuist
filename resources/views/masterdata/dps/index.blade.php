@@ -21,7 +21,37 @@
 
 <div class="card mb-4">
     <div class="card-body">
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                    <div class="card-body">
+                        <div class="text-muted small">Jumlah Akun DPS</div>
+                        <div class="fw-bold" style="font-size: 22px;">{{ $stats['akun_dps'] ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                    <div class="card-body">
+                        <div class="text-muted small">Jumlah Anggota DPS (Record)</div>
+                        <div class="fw-bold" style="font-size: 22px;">{{ $stats['anggota_dps'] ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                    <div class="card-body">
+                        <div class="text-muted small">Jumlah Sekolah Terkait</div>
+                        <div class="fw-bold" style="font-size: 22px;">{{ $stats['sekolah_terkait'] ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="mb-3 d-flex justify-content-end gap-2">
+            <a href="{{ route('dps.accounts.export') }}" class="btn btn-outline-dark">
+                <i class="bx bx-download"></i> Unduh Akun DPS (Excel)
+            </a>
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportDps">
                 <i class="bx bx-upload"></i> Import Excel
             </button>

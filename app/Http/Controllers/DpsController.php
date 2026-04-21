@@ -6,6 +6,7 @@ use App\Models\DpsMember;
 use App\Models\Madrasah;
 use App\Services\DpsAccountService;
 use App\Models\User;
+use App\Exports\DpsAccountsExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,12 @@ class DpsController extends Controller
     public function index(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
+
+        $stats = [
+            'akun_dps' => User::where('role', 'dps')->count(),
+            'anggota_dps' => DpsMember::count(),
+            'sekolah_terkait' => (int) DpsMember::distinct('madrasah_id')->count('madrasah_id'),
+        ];
 
         $madrasahs = Madrasah::query()
             ->with(['dpsMembers' => function ($query) {
@@ -38,7 +45,7 @@ class DpsController extends Controller
             ->orderByRaw('CAST(scod AS UNSIGNED) ASC')
             ->get();
 
-        return view('masterdata.dps.index', compact('madrasahs', 'q'));
+        return view('masterdata.dps.index', compact('madrasahs', 'q', 'stats'));
     }
 
     public function show(Madrasah $madrasah)
@@ -217,5 +224,10 @@ class DpsController extends Controller
         }
 
         return Storage::disk('local')->download($path, "dps-akun-{$token}.csv");
+    }
+
+    public function exportAccounts()
+    {
+        return Excel::download(new DpsAccountsExport(), 'akun-dps.xlsx');
     }
 }
