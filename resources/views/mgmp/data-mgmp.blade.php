@@ -38,7 +38,7 @@
         <div>
             <div class="mgmp-kicker mb-2">Master Data</div>
             <h4 class="mb-1">Data MGMP</h4>
-            <p class="mb-0 text-white-50">Kelola profil grup, jumlah anggota, dan identitas MGMP.</p>
+            <p class="mb-0 text-white-50">Kelola profil grup, anggota otomatis, dan identitas MGMP.</p>
         </div>
         @if($canAdd)
         <div class="d-flex flex-wrap gap-2">
@@ -93,7 +93,7 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $mgmp->name }}</td>
-                        <td>{{ $mgmp->member_count }}</td>
+                        <td>{{ $mgmp->members_count ?? $mgmp->members()->count() }}</td>
                         <td>
                             @if($mgmp->logo)
                                 <img src="{{ asset('uploads/' . $mgmp->logo) }}" alt="Logo" width="50" class="rounded-circle">
@@ -133,7 +133,8 @@
                                         </div>
                                         <div class="mb-3">
                                             <label>Jumlah Anggota</label>
-                                            <input type="number" name="member_count" class="form-control" value="{{ $mgmp->member_count }}" required>
+                                            <input type="number" class="form-control" value="{{ $mgmp->members_count ?? $mgmp->members()->count() }}" readonly>
+                                            <small class="text-muted">Jumlah otomatis dari Data Anggota MGMP.</small>
                                         </div>
                                         <div class="mb-3">
                                             <label>Logo</label>
@@ -183,7 +184,8 @@
                     </div>
                     <div class="mb-3">
                         <label>Jumlah Anggota</label>
-                        <input type="number" name="member_count" class="form-control" required>
+                        <input type="number" class="form-control" value="0" readonly>
+                        <small class="text-muted">Jumlah akan terisi otomatis setelah anggota ditambahkan.</small>
                     </div>
                     <div class="mb-3">
                         <label>Logo</label>
@@ -217,7 +219,7 @@
                     </div>
                     <div class="mb-2">
                         <small class="text-muted">
-                            Gunakan template file sesuai format data MGMP. Urutan kolom harus: nama, member_count, logo.
+                            Gunakan template file sesuai format data MGMP. Urutan kolom harus: nama, logo.
                             <a href="{{ url('public/template/mgmp_template.xlsx') }}" download>Download Template Excel</a>
                         </small>
                     </div>

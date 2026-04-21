@@ -216,11 +216,13 @@ class MGMPController extends Controller
 
         // If current user is an MGMP user, only show their own MGMP data and allow adding only if they don't have one
         if ($user && $user->role === 'mgmp') {
-            $mgmpGroups = MgmpGroup::where('user_id', $user->id)->get();
+            $mgmpGroups = MgmpGroup::withCount('members')
+                ->where('user_id', $user->id)
+                ->get();
             $canAdd = !MgmpGroup::where('user_id', $user->id)->exists();
         } else {
             // For admin/super_admin/pengurus show all and allow add
-            $mgmpGroups = MgmpGroup::all();
+            $mgmpGroups = MgmpGroup::withCount('members')->get();
             $canAdd = true;
         }
 
@@ -679,7 +681,6 @@ class MGMPController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'member_count' => 'required|integer|min:1',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -709,7 +710,6 @@ class MGMPController extends Controller
         MgmpGroup::create([
             'user_id' => $user->id,
             'name' => $request->name,
-            'member_count' => $request->member_count,
             'logo' => $logoPath,
         ]);
 
@@ -723,7 +723,6 @@ class MGMPController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'member_count' => 'required|integer|min:1',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -752,7 +751,6 @@ class MGMPController extends Controller
 
         $mgmpGroup->update([
             'name' => $request->name,
-            'member_count' => $request->member_count,
             'logo' => $logoPath,
         ]);
 
