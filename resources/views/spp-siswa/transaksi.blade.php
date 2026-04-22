@@ -127,7 +127,7 @@
                             <select name="bill_id" class="form-select" required>
                                 <option value="">Pilih Tagihan</option>
                                 @foreach($bills as $bill)
-                                    <option value="{{ $bill->id }}">{{ $bill->nomor_tagihan }} - {{ $bill->siswa->nama_lengkap ?? '-' }} - Rp {{ number_format($bill->total_tagihan, 0, ',', '.') }}</option>
+                                    <option value="{{ $bill->id }}">{{ $bill->nomor_tagihan }} - {{ $bill->jenis_tagihan ?? 'SPP' }} - {{ $bill->siswa->nama_lengkap ?? '-' }} - Rp {{ number_format($bill->total_tagihan, 0, ',', '.') }}</option>
                                 @endforeach
                             </select>
                         </div>

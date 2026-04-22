@@ -15,7 +15,7 @@
         @forelse($tagihans as $tagihan)
             <div class="list-item">
                 <h6>{{ $tagihan->nomor_tagihan }}</h6>
-                <p>SPP / Iuran Sekolah periode {{ \Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y') }}</p>
+                <p>{{ $tagihan->jenis_tagihan ?? 'SPP' }} periode {{ \Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y') }}</p>
                 <div class="meta-row">
                     <span>{{ optional($tagihan->jatuh_tempo)->translatedFormat('d M Y') }}</span>
                     <strong>Rp {{ number_format($tagihan->total_tagihan, 0, ',', '.') }}</strong>

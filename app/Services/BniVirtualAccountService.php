@@ -114,6 +114,7 @@ class BniVirtualAccountService
             'bill' => [
                 'id' => $bill->id,
                 'nomor_tagihan' => $bill->nomor_tagihan,
+                'jenis_tagihan' => $bill->jenis_tagihan ?? 'SPP',
                 'periode' => $bill->periode,
                 'gross_amount' => $grossAmount,
                 'expired_at' => now()->addHours($expiredHours)->toIso8601String(),
@@ -221,7 +222,7 @@ class BniVirtualAccountService
 
     private function generateOrderId(SppSiswaBill $bill): string
     {
-        return sprintf('BNIVA-SPP-%d-%d-%s', $bill->madrasah_id, $bill->id, now()->format('YmdHis'));
+        return sprintf('BNIVA-TGH-%d-%d-%s', $bill->madrasah_id, $bill->id, now()->format('YmdHis'));
     }
 
     private function generateTransactionNumber(SppSiswaBill $bill): string

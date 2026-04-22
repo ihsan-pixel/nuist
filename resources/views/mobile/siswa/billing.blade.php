@@ -148,7 +148,7 @@
         <div class="sheet">
             <div class="header">
                 <div>
-                    <p class="muted" style="margin:0 0 6px;">Billing Pembayaran SPP Siswa</p>
+                    <p class="muted" style="margin:0 0 6px;">Billing Pembayaran {{ $selectedTagihan->jenis_tagihan ?? 'SPP' }}</p>
                     <h1 class="title">{{ $selectedTagihan->nomor_tagihan }}</h1>
                     <div class="muted">{{ $studentSchool->name ?? 'Madrasah' }}</div>
                 </div>
@@ -170,6 +170,10 @@
                 <div class="box">
                     <small>Kelas / Jurusan</small>
                     <strong>{{ trim(($studentRecord->kelas ?? '-') . ' / ' . ($studentRecord->jurusan ?? '-')) }}</strong>
+                </div>
+                <div class="box">
+                    <small>Jenis Tagihan</small>
+                    <strong>{{ $selectedTagihan->jenis_tagihan ?? 'SPP' }}</strong>
                 </div>
                 <div class="box">
                     <small>Periode</small>

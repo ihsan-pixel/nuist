@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SppSiswaBillTemplateExport;
+use App\Imports\SppSiswaBillImport;
 use App\Models\Madrasah;
 use App\Models\Siswa;
 use App\Models\SppSiswaBill;
@@ -13,6 +15,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SppSiswaController extends Controller
 {
@@ -60,10 +63,12 @@ class SppSiswaController extends Controller
                 $query->whereHas('siswa', fn ($siswa) => $siswa->where('jurusan', 'like', '%' . trim((string) $request->jurusan) . '%'));
             })
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->status))
+            ->when($request->filled('jenis_tagihan'), fn ($query) => $query->where('jenis_tagihan', trim((string) $request->jenis_tagihan)))
             ->when($request->filled('q'), function ($query) use ($request) {
                 $keyword = trim((string) $request->q);
                 $query->where(function ($builder) use ($keyword) {
                     $builder->where('nomor_tagihan', 'like', '%' . $keyword . '%')
+                        ->orWhere('jenis_tagihan', 'like', '%' . $keyword . '%')
                         ->orWhere('periode', 'like', '%' . $keyword . '%')
                         ->orWhereHas('siswa', function ($siswa) use ($keyword) {
                             $siswa->where('nama_lengkap', 'like', '%' . $keyword . '%')
@@ -93,6 +98,12 @@ class SppSiswaController extends Controller
             ->distinct()
             ->orderBy('kelas')
             ->pluck('kelas');
+        $jenisTagihanOptions = $this->billQuery($selectedMadrasahId)
+            ->select('jenis_tagihan')
+            ->whereNotNull('jenis_tagihan')
+            ->distinct()
+            ->orderBy('jenis_tagihan')
+            ->pluck('jenis_tagihan');
 
         $hasActiveBniVaSetting = $this->hasActiveBniVaSettingForMadrasah($selectedMadrasahId);
 
@@ -104,6 +115,7 @@ class SppSiswaController extends Controller
             'settings' => $settings,
             'jurusanOptions' => $jurusanOptions,
             'kelasOptions' => $kelasOptions,
+            'jenisTagihanOptions' => $jenisTagihanOptions,
             'userRole' => $user->role,
             'hasActiveBniVaSetting' => $hasActiveBniVaSetting,
         ]);
@@ -115,6 +127,7 @@ class SppSiswaController extends Controller
             'madrasah_id' => $this->madrasahRules(),
             'siswa_id' => ['required', 'integer', Rule::exists('siswa', 'id')],
             'setting_id' => ['nullable', 'integer', Rule::exists('spp_siswa_settings', 'id')],
+            'jenis_tagihan' => ['required', 'string', 'max:100'],
             'periode' => ['required', 'date_format:Y-m'],
             'jatuh_tempo' => ['required', 'date'],
             'nominal' => ['required', 'numeric', 'min:0'],
@@ -140,12 +153,14 @@ class SppSiswaController extends Controller
 
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
         $nominal = (float) $validated['nominal'];
+        $jenisTagihan = trim((string) $validated['jenis_tagihan']);
 
         SppSiswaBill::create([
             'siswa_id' => $siswa->id,
             'madrasah_id' => $siswa->madrasah_id,
             'setting_id' => $setting?->id,
-            'nomor_tagihan' => $this->generateBillNumber($siswa, $periodeDate),
+            'jenis_tagihan' => $jenisTagihan,
+            'nomor_tagihan' => $this->generateBillNumber($siswa, $periodeDate, $jenisTagihan),
             'periode' => $periodeDate->format('Y-m'),
             'jatuh_tempo' => $validated['jatuh_tempo'],
             'nominal' => $nominal,
@@ -154,7 +169,7 @@ class SppSiswaController extends Controller
             'catatan' => $validated['catatan'] ?? null,
         ]);
 
-        return back()->with('success', 'Tagihan SPP siswa berhasil dibuat.');
+        return back()->with('success', 'Tagihan siswa berhasil dibuat.');
     }
 
     public function storeBulkTagihan(Request $request): RedirectResponse
@@ -162,6 +177,7 @@ class SppSiswaController extends Controller
         $validated = $request->validate([
             'madrasah_id' => $this->madrasahRules(),
             'setting_id' => ['nullable', 'integer', Rule::exists('spp_siswa_settings', 'id')],
+            'jenis_tagihan' => ['required', 'string', 'max:100'],
             'jurusan' => ['nullable', 'string', 'max:100'],
             'kelas' => ['nullable', 'string', 'max:50'],
             'periode' => ['required', 'date_format:Y-m'],
@@ -184,6 +200,7 @@ class SppSiswaController extends Controller
 
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
         $nominal = (float) $validated['nominal'];
+        $jenisTagihan = trim((string) $validated['jenis_tagihan']);
 
         $students = $this->studentQuery((int) $validated['madrasah_id'])
             ->when(!empty($validated['jurusan']), fn ($query) => $query->where('jurusan', trim((string) $validated['jurusan'])))
@@ -200,11 +217,12 @@ class SppSiswaController extends Controller
         $created = 0;
         $skipped = 0;
 
-        DB::transaction(function () use ($students, $validated, $setting, $periodeDate, $nominal, &$created, &$skipped) {
+        DB::transaction(function () use ($students, $validated, $setting, $periodeDate, $nominal, $jenisTagihan, &$created, &$skipped) {
             foreach ($students as $siswa) {
                 $exists = SppSiswaBill::query()
                     ->where('siswa_id', $siswa->id)
                     ->where('periode', $periodeDate->format('Y-m'))
+                    ->where('jenis_tagihan', $jenisTagihan)
                     ->exists();
 
                 if ($exists) {
@@ -216,7 +234,8 @@ class SppSiswaController extends Controller
                     'siswa_id' => $siswa->id,
                     'madrasah_id' => $siswa->madrasah_id,
                     'setting_id' => $setting?->id,
-                    'nomor_tagihan' => $this->generateBillNumber($siswa, $periodeDate),
+                    'jenis_tagihan' => $jenisTagihan,
+                    'nomor_tagihan' => $this->generateBillNumber($siswa, $periodeDate, $jenisTagihan),
                     'periode' => $periodeDate->format('Y-m'),
                     'jatuh_tempo' => $validated['jatuh_tempo'],
                     'nominal' => $nominal,
@@ -231,8 +250,57 @@ class SppSiswaController extends Controller
 
         return back()->with(
             'success',
-            "Tagihan massal selesai. {$created} tagihan dibuat, {$skipped} dilewati karena periode yang sama sudah ada."
+            "Tagihan massal {$jenisTagihan} selesai. {$created} tagihan dibuat, {$skipped} dilewati karena siswa, periode, dan jenis tagihan yang sama sudah ada."
         );
+    }
+
+    public function importTagihan(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'madrasah_id' => $this->madrasahRules(),
+            'setting_id' => ['nullable', 'integer', Rule::exists('spp_siswa_settings', 'id')],
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+        ]);
+
+        $this->ensureMadrasahAccess((int) $validated['madrasah_id']);
+        $this->ensureTagihanCreationAllowed((int) $validated['madrasah_id'], $validated['setting_id'] ?? null);
+
+        $madrasah = Madrasah::query()->findOrFail($validated['madrasah_id']);
+        $setting = null;
+
+        if (!empty($validated['setting_id'])) {
+            $setting = SppSiswaSetting::query()
+                ->whereKey($validated['setting_id'])
+                ->where('madrasah_id', $validated['madrasah_id'])
+                ->firstOrFail();
+        }
+
+        $import = new SppSiswaBillImport($madrasah, $setting);
+
+        try {
+            Excel::import($import, $request->file('file'));
+        } catch (\Throwable $throwable) {
+            return back()->withErrors([
+                'file' => $throwable->getMessage(),
+            ])->withInput();
+        }
+
+        return back()->with(
+            'success',
+            "Import tagihan selesai. {$import->created} tagihan dibuat, {$import->skipped} dilewati karena siswa, periode, dan jenis tagihan yang sama sudah ada."
+        );
+    }
+
+    public function templateTagihan(Request $request)
+    {
+        $madrasah = null;
+
+        if ($request->filled('madrasah_id')) {
+            $this->ensureMadrasahAccess((int) $request->madrasah_id);
+            $madrasah = Madrasah::query()->findOrFail($request->integer('madrasah_id'));
+        }
+
+        return Excel::download(new SppSiswaBillTemplateExport($madrasah), 'template-import-tagihan-siswa.xlsx');
     }
 
     public function destroyTagihan(SppSiswaBill $bill): RedirectResponse
@@ -247,7 +315,7 @@ class SppSiswaController extends Controller
 
         $bill->delete();
 
-        return back()->with('success', 'Tagihan SPP siswa berhasil dihapus.');
+        return back()->with('success', 'Tagihan siswa berhasil dihapus.');
     }
 
     public function transaksi(Request $request)
@@ -266,7 +334,9 @@ class SppSiswaController extends Controller
                             $siswa->where('nama_lengkap', 'like', '%' . $keyword . '%')
                                 ->orWhere('nis', 'like', '%' . $keyword . '%');
                         })
-                        ->orWhereHas('bill', fn ($bill) => $bill->where('nomor_tagihan', 'like', '%' . $keyword . '%'));
+                        ->orWhereHas('bill', fn ($bill) => $bill
+                            ->where('nomor_tagihan', 'like', '%' . $keyword . '%')
+                            ->orWhere('jenis_tagihan', 'like', '%' . $keyword . '%'));
                 });
             })
             ->latest('tanggal_bayar')
@@ -573,14 +643,9 @@ class SppSiswaController extends Controller
             : ['bni_va'];
     }
 
-    private function generateBillNumber(Siswa $siswa, Carbon $periode): string
+    private function generateBillNumber(Siswa $siswa, Carbon $periode, string $jenisTagihan = 'SPP'): string
     {
-        return sprintf(
-            'SPP-%s-%s-%04d',
-            $periode->format('Ym'),
-            $siswa->id,
-            SppSiswaBill::query()->whereYear('created_at', now()->year)->count() + 1
-        );
+        return SppSiswaBill::makeBillNumber($siswa, $periode, $jenisTagihan);
     }
 
     private function generateTransactionNumber(SppSiswaBill $bill): string

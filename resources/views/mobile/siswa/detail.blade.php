@@ -25,6 +25,10 @@
                 <strong>{{ $selectedTagihan->nomor_tagihan }}</strong>
             </div>
             <div class="detail-box">
+                <small>Jenis tagihan</small>
+                <strong>{{ $selectedTagihan->jenis_tagihan ?? 'SPP' }}</strong>
+            </div>
+            <div class="detail-box">
                 <small>Periode</small>
                 <strong>{{ \Carbon\Carbon::createFromFormat('Y-m', $selectedTagihan->periode)->translatedFormat('F Y') }}</strong>
             </div>

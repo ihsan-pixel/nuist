@@ -95,17 +95,18 @@
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-sm align-middle">
-                        <thead><tr><th>No Tagihan</th><th>Siswa</th><th>Status</th><th>Total</th></tr></thead>
+                        <thead><tr><th>No Tagihan</th><th>Jenis</th><th>Siswa</th><th>Status</th><th>Total</th></tr></thead>
                         <tbody>
                         @forelse($recentBills as $bill)
                             <tr>
                                 <td>{{ $bill->nomor_tagihan }}</td>
+                                <td>{{ $bill->jenis_tagihan ?? 'SPP' }}</td>
                                 <td>{{ $bill->siswa->nama_lengkap ?? '-' }}</td>
                                 <td><span class="badge bg-{{ $bill->status === 'lunas' ? 'success' : ($bill->status === 'sebagian' ? 'warning' : 'danger') }}">{{ ucfirst(str_replace('_', ' ', $bill->status)) }}</span></td>
                                 <td>Rp {{ number_format($bill->total_tagihan, 0, ',', '.') }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="text-center text-muted">Belum ada tagihan SPP siswa.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted">Belum ada tagihan siswa.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
