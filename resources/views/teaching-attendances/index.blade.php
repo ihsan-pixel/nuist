@@ -426,7 +426,7 @@
                             </div>
                         </div>
 
-                        <div class="alert alert-warning border-0 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-25">
+                        <div class="alert alert-warning rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-25">
                             <div class="d-flex">
                                 <i class="bx bx-error-circle text-warning me-3 fs-4"></i>
                                 <div>
