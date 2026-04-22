@@ -10,6 +10,9 @@ class Izin extends Model
     protected $fillable = [
         'user_id',
         'tanggal',
+        'tanggal_selesai',
+        'hari_presensi',
+        'hari_tidak_presensi',
         'type',
         'alasan',
         'deskripsi_tugas',
@@ -26,6 +29,9 @@ class Izin extends Model
 
     protected $casts = [
         'tanggal' => 'date',
+        'tanggal_selesai' => 'date',
+        'hari_presensi' => 'array',
+        'hari_tidak_presensi' => 'array',
         'waktu_masuk' => 'datetime:H:i',
         'waktu_keluar' => 'datetime:H:i',
         'approved_at' => 'datetime',

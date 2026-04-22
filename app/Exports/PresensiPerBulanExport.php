@@ -7,6 +7,7 @@ use App\Models\Holiday;
 use Carbon\Carbon;
 use App\Models\Presensi;
 use App\Models\User;
+use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -124,6 +125,20 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
                         'Waktu Keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
                         'Keterangan' => $presensi->keterangan,
                         'Lokasi' => $presensi->lokasi,
+                    ]);
+                } elseif (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($tp, Carbon::parse($date))) {
+                    $data->push([
+                        'Tanggal' => $date,
+                        'Hari' => $hari,
+                        'Nama Guru' => $tp->name,
+                        'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
+                        'NIP' => $tp->nip,
+                        'NUPTK' => $tp->nuptk,
+                        'Status Presensi' => 'izin',
+                        'Waktu Masuk' => null,
+                        'Waktu Keluar' => null,
+                        'Keterangan' => ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI,
+                        'Lokasi' => null,
                     ]);
                 } else {
                     // User belum presensi

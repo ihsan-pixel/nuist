@@ -47,6 +47,13 @@
             <i class="bx bx-calendar-star"></i>
             <div class="label">Izin Cuti</div>
         </a>
+
+        @if(auth()->user()->pemenuhan_beban_kerja_lain)
+        <a href="{{ route('mobile.izin', ['type' => 'mengajar_sekolah_lain']) }}" class="izin-action">
+            <i class="bx bx-buildings"></i>
+            <div class="label">Mengajar Sekolah Lain</div>
+        </a>
+        @endif
     </div>
 </div>
 @endsection

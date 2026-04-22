@@ -15,6 +15,7 @@ use App\Models\Presensi;
 use App\Models\Holiday;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingSchedule;
+use App\Services\ExternalTeachingPermissionService;
 
 class SekolahController extends \App\Http\Controllers\Controller
 {
@@ -392,17 +393,12 @@ class SekolahController extends \App\Http\Controllers\Controller
                         ->whereDate('tanggal', $currentDate)
                         ->first();
 
-                    if ($presensi) {
-                        if ($presensi->status === 'hadir') {
-                            $dayData['hadir']++;
-                            $totalHadir++;
-                        } elseif ($presensi->status === 'izin') {
-                            $dayData['izin']++;
-                            $totalIzin++;
-                        } else {
-                            $dayData['alpha']++;
-                            $totalAlpha++;
-                        }
+                    if ($presensi && $presensi->status === 'hadir') {
+                        $dayData['hadir']++;
+                        $totalHadir++;
+                    } elseif (($presensi && $presensi->status === 'izin') || ExternalTeachingPermissionService::hasApprovedNoPresenceDay($guru, $currentDate)) {
+                        $dayData['izin']++;
+                        $totalIzin++;
                     } else {
                         $dayData['alpha']++;
                         $totalAlpha++;

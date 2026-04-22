@@ -7,9 +7,24 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Presensi;
 use App\Models\User;
+use App\Services\ExternalTeachingPermissionService;
 
 class IzinController extends \App\Http\Controllers\Controller
 {
+    private function canManageIzin(User $user, \App\Models\Izin $izin): bool
+    {
+        if (in_array($user->role, ['super_admin', 'pengurus'], true)) {
+            return true;
+        }
+
+        if (!in_array($user->role, ['admin', 'tenaga_pendidik'], true)) {
+            return false;
+        }
+
+        return $user->ketugasan === 'kepala madrasah/sekolah'
+            && (int) $user->madrasah_id === (int) ($izin->user->madrasah_id ?? 0);
+    }
+
     private function uploadSuratIzin($file)
     {
         // Path to public_html/storage/surat_izin using DOCUMENT_ROOT for production compatibility
@@ -56,10 +71,10 @@ class IzinController extends \App\Http\Controllers\Controller
         // Validate and map input per type
         $filePath = null;
         $keterangan = '';
-        $tanggal = $request->input('tanggal');
+        $tanggal = $request->input('tanggal', $request->input('tanggal_mulai'));
 
         // Prevent duplicate presensi records on same date, except for tugas_luar which can be submitted even with existing presensi masuk
-        if ($tanggal && $type !== 'tugas_luar') {
+        if ($tanggal && !in_array($type, ['tugas_luar', 'cuti', ExternalTeachingPermissionService::TYPE], true)) {
             $existing = Presensi::where('user_id', $user->id)->where('tanggal', $tanggal)->first();
             if ($existing) {
                 $msg = 'Anda sudah memiliki catatan kehadiran pada tanggal ini.';
@@ -188,6 +203,75 @@ class IzinController extends \App\Http\Controllers\Controller
                 }
                 break;
 
+            case 'mengajar_sekolah_lain':
+                if (!ExternalTeachingPermissionService::isEligibleUser($user)) {
+                    $msg = 'Pengajuan ini hanya untuk guru yang memiliki beban kerja di sekolah lain.';
+                    if ($request->wantsJson() || $request->ajax()) {
+                        return response()->json(['success' => false, 'message' => $msg], 403);
+                    }
+                    return redirect()->back()->with('error', $msg);
+                }
+
+                $request->validate([
+                    'tanggal_mulai' => 'required|date',
+                    'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+                    'hari_presensi' => 'required|array|min:1',
+                    'hari_presensi.*' => 'integer|between:1,6',
+                    'hari_tidak_presensi' => 'required|array|min:1',
+                    'hari_tidak_presensi.*' => 'integer|between:1,6',
+                    'alasan' => 'nullable|string',
+                    'file_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                ]);
+
+                $hariPresensi = collect($request->input('hari_presensi', []))
+                    ->map(fn ($day) => (int) $day)
+                    ->unique()
+                    ->values()
+                    ->all();
+                $hariTidakPresensi = collect($request->input('hari_tidak_presensi', []))
+                    ->map(fn ($day) => (int) $day)
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                if (!empty(array_intersect($hariPresensi, $hariTidakPresensi))) {
+                    $msg = 'Hari aktif presensi dan hari izin tidak presensi tidak boleh sama.';
+                    if ($request->wantsJson() || $request->ajax()) {
+                        return response()->json(['success' => false, 'message' => $msg], 422);
+                    }
+                    return redirect()->back()->with('error', $msg)->withInput();
+                }
+
+                $tanggal = $request->input('tanggal_mulai');
+                $tanggalSelesai = $request->input('tanggal_selesai');
+                $alasan = $request->input('alasan') ?: 'Pengaturan presensi karena mengajar di sekolah lain.';
+                $deskripsiTugas = 'Mengajar di sekolah lain';
+                $lokasiTugas = $user->madrasahTambahan->name ?? 'Sekolah lain';
+
+                $overlappingSchedule = \App\Models\Izin::query()
+                    ->where('user_id', $user->id)
+                    ->where('type', ExternalTeachingPermissionService::TYPE)
+                    ->whereIn('status', ['pending', 'approved'])
+                    ->whereDate('tanggal', '<=', $tanggalSelesai)
+                    ->where(function ($query) use ($tanggal) {
+                        $query->whereNull('tanggal_selesai')
+                            ->orWhereDate('tanggal_selesai', '>=', $tanggal);
+                    })
+                    ->exists();
+
+                if ($overlappingSchedule) {
+                    $msg = 'Anda sudah memiliki pengajuan jadwal mengajar di sekolah lain pada periode tersebut.';
+                    if ($request->wantsJson() || $request->ajax()) {
+                        return response()->json(['success' => false, 'message' => $msg], 400);
+                    }
+                    return redirect()->back()->with('error', $msg)->withInput();
+                }
+
+                if ($request->hasFile('file_izin')) {
+                    $filePath = $this->uploadSuratIzin($request->file('file_izin'));
+                }
+                break;
+
             default:
                 if ($request->wantsJson() || $request->ajax()) {
                     return response()->json(['success' => false, 'message' => 'Tipe izin tidak dikenali.'], 422);
@@ -209,7 +293,9 @@ class IzinController extends \App\Http\Controllers\Controller
         if (isset($lokasiTugas)) $izinData['lokasi_tugas'] = $lokasiTugas;
         if (isset($waktuMasuk)) $izinData['waktu_masuk'] = $waktuMasuk;
         if (isset($waktuKeluar)) $izinData['waktu_keluar'] = $waktuKeluar;
-        if (isset($tanggalSelesai)) $izinData['tanggal_selesai'] = $tanggalSelesai; // Assuming we add this field or store in alasan
+        if (isset($tanggalSelesai)) $izinData['tanggal_selesai'] = $tanggalSelesai;
+        if (isset($hariPresensi)) $izinData['hari_presensi'] = $hariPresensi;
+        if (isset($hariTidakPresensi)) $izinData['hari_tidak_presensi'] = $hariTidakPresensi;
 
         $izin = \App\Models\Izin::create($izinData);
 
@@ -269,6 +355,12 @@ class IzinController extends \App\Http\Controllers\Controller
                 return view('mobile.izin-tugas-luar');
             case 'cuti':
                 return view('mobile.izin-cuti');
+            case 'mengajar_sekolah_lain':
+            case 'mengajar-sekolah-lain':
+                if (!ExternalTeachingPermissionService::isEligibleUser($user)) {
+                    return redirect()->route('mobile.izin')->with('error', 'Menu ini hanya untuk guru yang memiliki beban kerja di sekolah lain.');
+                }
+                return view('mobile.izin-mengajar-sekolah-lain');
             default:
                 // Unknown type -> show menu with flash
                 return redirect()->route('mobile.izin')->with('error', 'Tipe izin tidak dikenali.');
@@ -330,7 +422,9 @@ class IzinController extends \App\Http\Controllers\Controller
     {
         $user = Auth::user();
 
-        if (!in_array($user->role, ['admin', 'super_admin', 'pengurus', 'tenaga_pendidik'])) {
+        $izin->loadMissing('user');
+
+        if (!$this->canManageIzin($user, $izin)) {
             abort(403, 'Unauthorized');
         }
 
@@ -339,8 +433,12 @@ class IzinController extends \App\Http\Controllers\Controller
         $izin->approved_at = now();
         $izin->save();
 
+        if ($izin->type === ExternalTeachingPermissionService::TYPE) {
+            ExternalTeachingPermissionService::syncApprovedNoPresencePresensi($izin, Carbon::today('Asia/Jakarta'));
+        }
+
         // Auto-fill presensi record for approved izin types except 'terlambat'
-        if ($izin->type !== 'terlambat') {
+        if ($izin->type !== 'terlambat' && $izin->type !== ExternalTeachingPermissionService::TYPE) {
             $existingPresensi = Presensi::where('user_id', $izin->user_id)
                 ->where('tanggal', $izin->tanggal)
                 ->first();
@@ -398,7 +496,9 @@ class IzinController extends \App\Http\Controllers\Controller
     {
         $user = Auth::user();
 
-        if (!in_array($user->role, ['admin', 'super_admin', 'pengurus', 'tenaga_pendidik'])) {
+        $izin->loadMissing('user');
+
+        if (!$this->canManageIzin($user, $izin)) {
             abort(403, 'Unauthorized');
         }
 

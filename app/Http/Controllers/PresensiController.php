@@ -8,6 +8,7 @@ use App\Models\Madrasah;
 use App\Models\Holiday;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Services\ExternalTeachingPermissionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PresensiController extends Controller
@@ -107,7 +108,9 @@ class PresensiController extends Controller
                     'hari' => $hari,
                     'user' => $tp,
                     'presensi' => $presensi,
-                    'status' => $presensi ? $presensi->status : 'alpha/tidak presensi',
+                    'status' => $presensi
+                        ? $presensi->status
+                        : (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($tp, Carbon::parse($date)) ? 'izin' : 'alpha/tidak presensi'),
                 ];
             }
         }

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PresensiPerBulanExport;
 use App\Exports\PresensiSemuaExport;
+use App\Services\ExternalTeachingPermissionService;
 
 class PresensiAdminController extends Controller
 {
@@ -235,14 +236,15 @@ class PresensiAdminController extends Controller
                 $presensiData = [];
                 foreach ($tenagaPendidik as $tp) {
                     $presensi = $tp->presensis->first();
+                    $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
                     $presensiData[] = [
                         'user_id' => $tp->id,
                         'nama' => $tp->name,
-                        'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                        'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
-                        'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
-                        'keterangan' => $presensi ? $presensi->keterangan : null,
-                        'is_fake_location' => $presensi ? $presensi->is_fake_location : false,
+                        'status' => $dailyPresensi['status'],
+                        'waktu_masuk' => $dailyPresensi['waktu_masuk'],
+                        'waktu_keluar' => $dailyPresensi['waktu_keluar'],
+                        'keterangan' => $dailyPresensi['keterangan'],
+                        'is_fake_location' => $dailyPresensi['is_fake_location'],
                     ];
                 }
 
@@ -287,7 +289,9 @@ class PresensiAdminController extends Controller
 
             $belumPresensi = $belumPresensiQuery->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
                 $q->whereDate('tanggal', $selectedDate);
-            })->with('madrasah')->get();
+            })->with('madrasah')->get()
+                ->reject(fn ($teacher) => ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate))
+                ->values();
 
             return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData', 'teacherAbsenceRecapData'));
         }
@@ -325,14 +329,15 @@ class PresensiAdminController extends Controller
                 $presensiData = [];
                 foreach ($tenagaPendidik as $tp) {
                     $presensi = $tp->presensis->first();
+                    $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
                     $presensiData[] = [
                         'user_id' => $tp->id,
                         'nama' => $tp->name,
-                        'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                        'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
-                        'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
-                        'keterangan' => $presensi ? $presensi->keterangan : null,
-                        'is_fake_location' => $presensi ? $presensi->is_fake_location : false,
+                        'status' => $dailyPresensi['status'],
+                        'waktu_masuk' => $dailyPresensi['waktu_masuk'],
+                        'waktu_keluar' => $dailyPresensi['waktu_keluar'],
+                        'keterangan' => $dailyPresensi['keterangan'],
+                        'is_fake_location' => $dailyPresensi['is_fake_location'],
                     ];
                 }
 
@@ -361,14 +366,15 @@ class PresensiAdminController extends Controller
             $presensiData = [];
             foreach ($tenagaPendidik as $tp) {
                 $presensi = $tp->presensis->first();
+                $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
                 $presensiData[] = [
                     'user_id' => $tp->id,
                     'nama' => $tp->name,
-                    'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                    'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
-                    'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
-                    'keterangan' => $presensi ? $presensi->keterangan : null,
-                    'is_fake_location' => $presensi ? $presensi->is_fake_location : false,
+                    'status' => $dailyPresensi['status'],
+                    'waktu_masuk' => $dailyPresensi['waktu_masuk'],
+                    'waktu_keluar' => $dailyPresensi['waktu_keluar'],
+                    'keterangan' => $dailyPresensi['keterangan'],
+                    'is_fake_location' => $dailyPresensi['is_fake_location'],
                 ];
             }
 
@@ -456,27 +462,28 @@ class PresensiAdminController extends Controller
             }])
             ->get();
 
-        $tenagaPendidikData = $tenagaPendidik->map(function($tp) {
+        $tenagaPendidikData = $tenagaPendidik->map(function($tp) use ($selectedDate) {
             $presensi = $tp->presensis->first();
+            $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
             return [
                 'id' => $tp->id,
                 'nama' => $tp->name,
                 'nip' => $tp->nip,
                 'nuptk' => $tp->nuptk,
                 'status_kepegawaian' => $tp->statusKepegawaian ? $tp->statusKepegawaian->name : '-',
-                'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                'waktu_masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
-                'waktu_keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
-                'latitude' => $presensi ? $presensi->latitude : null,
-                'longitude' => $presensi ? $presensi->longitude : null,
-                'lokasi' => $presensi ? $presensi->lokasi : null,
-                'keterangan' => $presensi ? $presensi->keterangan : null,
-                'is_fake_location' => $presensi ? $presensi->is_fake_location : false,
-                'accuracy' => $presensi ? $presensi->accuracy : null,
-                'created_at' => $presensi ? $presensi->created_at->format('Y-m-d H:i:s') : null,
-                'face_verified' => $presensi ? $presensi->face_verified : false,
-                'face_similarity_score' => $presensi ? $presensi->face_similarity_score : null,
-                'liveness_score' => $presensi ? $presensi->liveness_score : null,
+                'status' => $dailyPresensi['status'],
+                'waktu_masuk' => $dailyPresensi['waktu_masuk'] ? $dailyPresensi['waktu_masuk']->format('H:i:s') : null,
+                'waktu_keluar' => $dailyPresensi['waktu_keluar'] ? $dailyPresensi['waktu_keluar']->format('H:i:s') : null,
+                'latitude' => $dailyPresensi['latitude'],
+                'longitude' => $dailyPresensi['longitude'],
+                'lokasi' => $dailyPresensi['lokasi'],
+                'keterangan' => $dailyPresensi['keterangan'],
+                'is_fake_location' => $dailyPresensi['is_fake_location'],
+                'accuracy' => $dailyPresensi['accuracy'],
+                'created_at' => $dailyPresensi['created_at'] ? $dailyPresensi['created_at']->format('Y-m-d H:i:s') : null,
+                'face_verified' => $dailyPresensi['face_verified'],
+                'face_similarity_score' => $dailyPresensi['face_similarity_score'],
+                'liveness_score' => $dailyPresensi['liveness_score'],
             ];
         });
 
@@ -551,27 +558,28 @@ class PresensiAdminController extends Controller
         // Get paginated results (all rows in one page)
         $tenagaPendidik = $query->paginate($perPage, ['*'], 'page', $page);
 
-        $tenagaPendidikData = $tenagaPendidik->map(function($tp) {
+        $tenagaPendidikData = $tenagaPendidik->map(function($tp) use ($selectedDate) {
             $presensi = $tp->presensis->first();
+            $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
             return [
                 'id' => $tp->id,
                 'nama' => $tp->name,
                 'nip' => $tp->nip,
                 'nuptk' => $tp->nuptk,
                 'status_kepegawaian' => $tp->statusKepegawaian ? $tp->statusKepegawaian->name : '-',
-                'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                'waktu_masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
-                'waktu_keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
-                'latitude' => $presensi ? $presensi->latitude : null,
-                'longitude' => $presensi ? $presensi->longitude : null,
-                'lokasi' => $presensi ? $presensi->lokasi : null,
-                'keterangan' => $presensi ? $presensi->keterangan : null,
-                'is_fake_location' => $presensi ? $presensi->is_fake_location : false,
-                'accuracy' => $presensi ? $presensi->accuracy : null,
-                'created_at' => $presensi ? $presensi->created_at->format('Y-m-d H:i:s') : null,
-                'face_verified' => $presensi ? $presensi->face_verified : false,
-                'face_similarity_score' => $presensi ? $presensi->face_similarity_score : null,
-                'liveness_score' => $presensi ? $presensi->liveness_score : null,
+                'status' => $dailyPresensi['status'],
+                'waktu_masuk' => $dailyPresensi['waktu_masuk'] ? $dailyPresensi['waktu_masuk']->format('H:i:s') : null,
+                'waktu_keluar' => $dailyPresensi['waktu_keluar'] ? $dailyPresensi['waktu_keluar']->format('H:i:s') : null,
+                'latitude' => $dailyPresensi['latitude'],
+                'longitude' => $dailyPresensi['longitude'],
+                'lokasi' => $dailyPresensi['lokasi'],
+                'keterangan' => $dailyPresensi['keterangan'],
+                'is_fake_location' => $dailyPresensi['is_fake_location'],
+                'accuracy' => $dailyPresensi['accuracy'],
+                'created_at' => $dailyPresensi['created_at'] ? $dailyPresensi['created_at']->format('Y-m-d H:i:s') : null,
+                'face_verified' => $dailyPresensi['face_verified'],
+                'face_similarity_score' => $dailyPresensi['face_similarity_score'],
+                'liveness_score' => $dailyPresensi['liveness_score'],
             ];
         });
 
@@ -673,6 +681,7 @@ class PresensiAdminController extends Controller
 
                 foreach ($tenagaPendidik as $tp) {
                     $presensi = $tp->presensis->first();
+                    $dailyPresensi = $this->resolveDailyPresensiData($tp, $selectedDate, $presensi);
                     $data[] = [
                         'Madrasah' => $madrasah->name,
                         'SCOD' => $madrasah->scod,
@@ -681,11 +690,11 @@ class PresensiAdminController extends Controller
                         'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
                         'NIP' => $tp->nip,
                         'NUPTK' => $tp->nuptk,
-                        'Status Presensi' => $presensi ? $presensi->status : 'tidak_hadir',
-                        'Waktu Masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
-                        'Waktu Keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
-                        'Keterangan' => $presensi ? $presensi->keterangan : null,
-                        'Lokasi' => $presensi ? $presensi->lokasi : null,
+                        'Status Presensi' => $dailyPresensi['status'],
+                        'Waktu Masuk' => $dailyPresensi['waktu_masuk'] ? $dailyPresensi['waktu_masuk']->format('H:i:s') : null,
+                        'Waktu Keluar' => $dailyPresensi['waktu_keluar'] ? $dailyPresensi['waktu_keluar']->format('H:i:s') : null,
+                        'Keterangan' => $dailyPresensi['keterangan'],
+                        'Lokasi' => $dailyPresensi['lokasi'],
                         'Tanggal' => $selectedDate->format('Y-m-d'),
                     ];
                 }
@@ -966,14 +975,10 @@ class PresensiAdminController extends Controller
                             ->whereDate('tanggal', $currentDate)
                             ->first();
 
-                        if ($presensi) {
-                            if ($presensi->status === 'hadir') {
-                                $hadir++;
-                            } elseif ($presensi->status === 'izin') {
-                                $izin++;
-                            } else {
-                                $alpha++;
-                            }
+                        if ($presensi && $presensi->status === 'hadir') {
+                            $hadir++;
+                        } elseif ($this->isTeacherIzinForDate($guru, $currentDate, $presensi)) {
+                            $izin++;
                         } else {
                             $alpha++;
                         }
@@ -1077,10 +1082,10 @@ class PresensiAdminController extends Controller
                                 ->whereDate('tanggal', $currentDate)
                                 ->first();
 
-                            if ($presensi) {
-                                if ($presensi->status === 'hadir') $hadir++;
-                                elseif ($presensi->status === 'izin') $izin++;
-                                else $alpha++;
+                            if ($presensi && $presensi->status === 'hadir') {
+                                $hadir++;
+                            } elseif ($this->isTeacherIzinForDate($guru, $currentDate, $presensi)) {
+                                $izin++;
                             } else {
                                 $alpha++;
                             }
@@ -1175,14 +1180,10 @@ class PresensiAdminController extends Controller
                                 ->whereDate('tanggal', $currentDate)
                                 ->first();
 
-                            if ($presensi) {
-                                if ($presensi->status === 'hadir') {
-                                    $hadir++;
-                                } elseif ($presensi->status === 'izin') {
-                                    $izin++;
-                                } else {
-                                    $alpha++;
-                                }
+                            if ($presensi && $presensi->status === 'hadir') {
+                                $hadir++;
+                            } elseif ($this->isTeacherIzinForDate($guru, $currentDate, $presensi)) {
+                                $izin++;
                             } else {
                                 $alpha++;
                             }
@@ -1296,14 +1297,10 @@ class PresensiAdminController extends Controller
                                 ->whereDate('tanggal', $currentDate)
                                 ->first();
 
-                            if ($presensi) {
-                                if ($presensi->status === 'hadir') {
-                                    $hadir++;
-                                } elseif ($presensi->status === 'izin') {
-                                    $izin++;
-                                } else {
-                                    $alpha++;
-                                }
+                            if ($presensi && $presensi->status === 'hadir') {
+                                $hadir++;
+                            } elseif ($this->isTeacherIzinForDate($guru, $currentDate, $presensi)) {
+                                $izin++;
                             } else {
                                 $alpha++;
                             }
@@ -1362,6 +1359,70 @@ class PresensiAdminController extends Controller
     /**
      * Calculate presensi summary metrics based on user role and selected date.
      */
+    private function resolveDailyPresensiData(User $teacher, Carbon $selectedDate, ?Presensi $presensi = null): array
+    {
+        if ($presensi) {
+            return [
+                'status' => $presensi->status,
+                'waktu_masuk' => $presensi->waktu_masuk,
+                'waktu_keluar' => $presensi->waktu_keluar,
+                'latitude' => $presensi->latitude,
+                'longitude' => $presensi->longitude,
+                'lokasi' => $presensi->lokasi,
+                'keterangan' => $presensi->keterangan,
+                'is_fake_location' => $presensi->is_fake_location,
+                'accuracy' => $presensi->accuracy,
+                'created_at' => $presensi->created_at,
+                'face_verified' => $presensi->face_verified,
+                'face_similarity_score' => $presensi->face_similarity_score,
+                'liveness_score' => $presensi->liveness_score,
+            ];
+        }
+
+        if (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate)) {
+            return [
+                'status' => 'izin',
+                'waktu_masuk' => null,
+                'waktu_keluar' => null,
+                'latitude' => null,
+                'longitude' => null,
+                'lokasi' => null,
+                'keterangan' => ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI,
+                'is_fake_location' => false,
+                'accuracy' => null,
+                'created_at' => null,
+                'face_verified' => false,
+                'face_similarity_score' => null,
+                'liveness_score' => null,
+            ];
+        }
+
+        return [
+            'status' => 'tidak_hadir',
+            'waktu_masuk' => null,
+            'waktu_keluar' => null,
+            'latitude' => null,
+            'longitude' => null,
+            'lokasi' => null,
+            'keterangan' => null,
+            'is_fake_location' => false,
+            'accuracy' => null,
+            'created_at' => null,
+            'face_verified' => false,
+            'face_similarity_score' => null,
+            'liveness_score' => null,
+        ];
+    }
+
+    private function isTeacherIzinForDate(User $teacher, Carbon $date, ?Presensi $presensi = null): bool
+    {
+        if ($presensi && $presensi->status === 'izin') {
+            return $presensi->status === 'izin';
+        }
+
+        return ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $date);
+    }
+
     private function calculatePresensiSummary($selectedDate, $user)
     {
         $summary = [
@@ -1373,17 +1434,29 @@ class PresensiAdminController extends Controller
 
         if (in_array($user->role, ['super_admin', 'pengurus'])) {
             // For super_admin and pengurus: all data
-            $hadirUsers = Presensi::whereDate('tanggal', $selectedDate)
+            $hadirUserIds = Presensi::whereDate('tanggal', $selectedDate)
                 ->where('status', 'hadir')
-                ->distinct('user_id')
-                ->count('user_id');
-            $summary['users_presensi'] = $hadirUsers;
+                ->distinct()
+                ->pluck('user_id');
+            $summary['users_presensi'] = $hadirUserIds->count();
 
-            $izinUsers = Presensi::whereDate('tanggal', $selectedDate)
+            $izinUserIds = Presensi::whereDate('tanggal', $selectedDate)
                 ->where('status', 'izin')
-                ->distinct('user_id')
-                ->count('user_id');
-            $summary['users_izin'] = $izinUsers;
+                ->distinct()
+                ->pluck('user_id');
+
+            $externalTeachingIzinUserIds = User::with('madrasah')
+                ->where('role', 'tenaga_pendidik')
+                ->get()
+                ->filter(fn ($teacher) => ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate))
+                ->pluck('id');
+
+            $izinUserIds = $izinUserIds
+                ->merge($externalTeachingIzinUserIds)
+                ->diff($hadirUserIds)
+                ->unique()
+                ->values();
+            $summary['users_izin'] = $izinUserIds->count();
 
             $sekolahPresensi = Presensi::whereDate('tanggal', $selectedDate)
                 ->join('users', 'presensis.user_id', '=', 'users.id')
@@ -1393,11 +1466,11 @@ class PresensiAdminController extends Controller
             $summary['sekolah_presensi'] = $sekolahPresensi;
 
             $totalGuru = User::where('role', 'tenaga_pendidik')->count();
-            $summary['guru_tidak_presensi'] = $totalGuru - ($hadirUsers + $izinUsers);
+            $summary['guru_tidak_presensi'] = $totalGuru - $hadirUserIds->merge($izinUserIds)->unique()->count();
         } else {
             // For admin and tenaga_pendidik kepala: filter by madrasah
             if ($user->madrasah_id) {
-                $hadirUsers = Presensi::whereDate('tanggal', $selectedDate)
+                $hadirUserIds = Presensi::whereDate('tanggal', $selectedDate)
                     ->where('status', 'hadir')
                     ->where(function ($q) use ($user) {
                         // Jika presensi.madrasah_id bernilai null, tampilkan data presensi di mana user.madrasah_id == admin.madrasah_id
@@ -1410,11 +1483,11 @@ class PresensiAdminController extends Controller
                         // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
                         ->orWhere('madrasah_id', $user->madrasah_id);
                     })
-                    ->distinct('user_id')
-                    ->count('user_id');
-                $summary['users_presensi'] = $hadirUsers;
+                    ->distinct()
+                    ->pluck('user_id');
+                $summary['users_presensi'] = $hadirUserIds->count();
 
-                $izinUsers = Presensi::whereDate('tanggal', $selectedDate)
+                $izinUserIds = Presensi::whereDate('tanggal', $selectedDate)
                     ->where('status', 'izin')
                     ->where(function ($q) use ($user) {
                         // Jika presensi.madrasah_id bernilai null, tampilkan data presensi di mana user.madrasah_id == admin.madrasah_id
@@ -1427,9 +1500,22 @@ class PresensiAdminController extends Controller
                         // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
                         ->orWhere('madrasah_id', $user->madrasah_id);
                     })
-                    ->distinct('user_id')
-                    ->count('user_id');
-                $summary['users_izin'] = $izinUsers;
+                    ->distinct()
+                    ->pluck('user_id');
+
+                $externalTeachingIzinUserIds = User::with('madrasah')
+                    ->where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $user->madrasah_id)
+                    ->get()
+                    ->filter(fn ($teacher) => ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate))
+                    ->pluck('id');
+
+                $izinUserIds = $izinUserIds
+                    ->merge($externalTeachingIzinUserIds)
+                    ->diff($hadirUserIds)
+                    ->unique()
+                    ->values();
+                $summary['users_izin'] = $izinUserIds->count();
 
                 $hasPresensi = Presensi::whereDate('tanggal', $selectedDate)
                     ->where(function ($q) use ($user) {
@@ -1449,7 +1535,7 @@ class PresensiAdminController extends Controller
                 $totalGuru = User::where('role', 'tenaga_pendidik')
                     ->where('madrasah_id', $user->madrasah_id)
                     ->count();
-                $summary['guru_tidak_presensi'] = $totalGuru - ($hadirUsers + $izinUsers);
+                $summary['guru_tidak_presensi'] = $totalGuru - $hadirUserIds->merge($izinUserIds)->unique()->count();
             }
         }
 
@@ -1639,6 +1725,7 @@ class PresensiAdminController extends Controller
             ->get()
             ->groupBy(fn ($item) => $item->tanggal->toDateString());
 
+        $summaryUser = User::with('madrasah')->find($userId);
         $totalHariKerja = 0;
         $totalHadir = 0;
         $totalIzinApproved = 0;
@@ -1652,11 +1739,14 @@ class PresensiAdminController extends Controller
             $isHadir = $records->whereIn('status', ['hadir', 'terlambat'])->isNotEmpty();
             $isIzinApproved = !$isHadir
                 && $records->where('status', 'izin')->where('status_izin', 'approved')->isNotEmpty();
+            $externalTeachingIzin = (!$isHadir && !$isIzinApproved && $summaryUser)
+                ? ExternalTeachingPermissionService::approvedRequestForDate($summaryUser, $date)
+                : null;
 
             $totalHariKerja++;
             if ($isHadir) {
                 $totalHadir++;
-            } elseif ($isIzinApproved) {
+            } elseif ($isIzinApproved || $externalTeachingIzin) {
                 $totalIzinApproved++;
             }
         }

@@ -11,6 +11,7 @@ use App\Models\Presensi;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\User;
+use App\Services\ExternalTeachingPermissionService;
 
 class LaporanController extends \App\Http\Controllers\Controller
 {
@@ -207,6 +208,7 @@ class LaporanController extends \App\Http\Controllers\Controller
             ->get()
             ->groupBy(fn ($item) => $item->tanggal->toDateString());
 
+        $summaryUser = User::with('madrasah')->find($userId);
         $details = collect();
         $totalHariKerja = 0;
         $totalHadir = 0;
@@ -231,26 +233,32 @@ class LaporanController extends \App\Http\Controllers\Controller
 
             $isHadir = $hadirRecords->isNotEmpty();
             $isIzinApproved = !$isHadir && $izinApprovedRecords->isNotEmpty();
+            $externalTeachingIzin = (!$isHadir && !$isIzinApproved && $summaryUser)
+                ? ExternalTeachingPermissionService::approvedRequestForDate($summaryUser, $date)
+                : null;
             $statusLabel = $isHadir
                 ? 'Hadir'
-                : ($isIzinApproved
+                : (($isIzinApproved || $externalTeachingIzin)
                     ? 'Izin Disetujui'
                     : ($izinRecords->isNotEmpty() ? 'Izin Belum Disetujui' : ($alphaRecords->isNotEmpty() ? 'Alpha' : 'Belum Presensi')));
+            $keterangan = $externalTeachingIzin
+                ? ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI
+                : $records->pluck('keterangan')->filter()->implode(' | ');
 
             $details->push([
                 'tanggal' => $date->copy(),
                 'hari' => $date->locale('id')->dayName,
                 'status' => $statusLabel,
                 'is_hadir' => $isHadir,
-                'is_izin' => $isIzinApproved,
-                'keterangan' => $records->pluck('keterangan')->filter()->implode(' | '),
+                'is_izin' => $isIzinApproved || (bool) $externalTeachingIzin,
+                'keterangan' => $keterangan,
             ]);
 
             $breakdownItem = [
                 'tanggal' => $date->translatedFormat('d M Y'),
                 'hari' => ucfirst($date->locale('id')->dayName),
                 'status' => $statusLabel,
-                'keterangan' => $records->pluck('keterangan')->filter()->implode(' | '),
+                'keterangan' => $keterangan,
             ];
 
             $totalHariKerja++;
@@ -258,7 +266,7 @@ class LaporanController extends \App\Http\Controllers\Controller
             if ($isHadir) {
                 $totalHadir++;
                 $breakdown['hadir'][] = $breakdownItem;
-            } elseif ($isIzinApproved) {
+            } elseif ($isIzinApproved || $externalTeachingIzin) {
                 $totalIzinApproved++;
                 $breakdown['izin'][] = $breakdownItem;
             } else {

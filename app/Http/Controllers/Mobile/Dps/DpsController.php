@@ -12,6 +12,7 @@ use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\User;
+use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -237,12 +238,18 @@ class DpsController extends Controller
             foreach ($workingDates as $dateStr) {
                 $r = $byDate->get($dateStr);
                 if (!$r) {
-                    $alpha++;
+                    if (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($t, Carbon::parse($dateStr))) {
+                        $izin++;
+                    } else {
+                        $alpha++;
+                    }
                     continue;
                 }
                 if (in_array($r->status, ['hadir', 'terlambat'], true)) {
                     $hadir++;
                 } elseif ($r->status === 'izin') {
+                    $izin++;
+                } elseif (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($t, Carbon::parse($dateStr))) {
                     $izin++;
                 } else {
                     $alpha++;

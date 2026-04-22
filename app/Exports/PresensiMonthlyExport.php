@@ -5,6 +5,7 @@ namespace App\Exports;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Madrasah;
+use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -111,6 +112,7 @@ class PresensiMonthlyExport implements FromCollection, WithHeadings
 
     private function getPresensiSummary($userId, $startDate, $endDate, $workingDays)
     {
+        $user = User::with('madrasah')->find($userId);
         $presensis = Presensi::where('user_id', $userId)
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->get()
@@ -137,9 +139,15 @@ class PresensiMonthlyExport implements FromCollection, WithHeadings
                         $izin++;
                         break;
                     default:
-                        $tidak_hadir++;
+                        if ($user && ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $date)) {
+                            $izin++;
+                        } else {
+                            $tidak_hadir++;
+                        }
                         break;
                 }
+            } elseif ($user && ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $date)) {
+                $izin++;
             } else {
                 $tidak_hadir++;
             }

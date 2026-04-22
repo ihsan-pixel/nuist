@@ -6,6 +6,7 @@ use App\Models\Holiday;
 use App\Models\Presensi;
 use App\Models\PresensiSettings;
 use App\Models\User;
+use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
@@ -62,6 +63,7 @@ class AutoInsertAbsence extends Command
 
         $absenceCount = 0;
         $updatedCount = 0;
+        $externalTeachingCount = 0;
 
         foreach ($tenagaPendidikUsers as $user) {
             // Determine if this date is a working day based on madrasah hari_kbm
@@ -89,6 +91,13 @@ class AutoInsertAbsence extends Command
                 ->first();
 
             if (!$existingPresensi) {
+                if (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $date)) {
+                    ExternalTeachingPermissionService::createOrUpdateNoPresenceRecord($user, $date);
+                    $externalTeachingCount++;
+                    $this->line("Inserted approved external teaching note for: {$user->name}");
+                    continue;
+                }
+
                 // Insert absence record
                 Presensi::create([
                     'user_id' => $user->id,
@@ -100,6 +109,13 @@ class AutoInsertAbsence extends Command
 
                 $absenceCount++;
                 $this->line("Inserted absence for: {$user->name}");
+            } elseif (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $date)
+                && $existingPresensi->status === 'alpha'
+                && $existingPresensi->waktu_masuk === null
+                && $existingPresensi->waktu_keluar === null) {
+                ExternalTeachingPermissionService::createOrUpdateNoPresenceRecord($user, $date);
+                $externalTeachingCount++;
+                $this->line("Updated alpha to approved external teaching note for: {$user->name}");
             } elseif ($existingPresensi->waktu_keluar === null) {
                 // User checked in but not checked out, mark as alpha
                 $existingPresensi->update([
@@ -112,6 +128,6 @@ class AutoInsertAbsence extends Command
             }
         }
 
-        $this->info("Successfully inserted {$absenceCount} absence records and updated {$updatedCount} records");
+        $this->info("Successfully inserted {$absenceCount} absence records, updated {$updatedCount} records, and recorded {$externalTeachingCount} external teaching permissions");
     }
 }

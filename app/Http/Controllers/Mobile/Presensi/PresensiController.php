@@ -11,6 +11,7 @@ use Carbon\CarbonPeriod;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
+use App\Services\ExternalTeachingPermissionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PresensiController extends \App\Http\Controllers\Controller
@@ -62,7 +63,9 @@ class PresensiController extends \App\Http\Controllers\Controller
                 ->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
                     $q->whereDate('tanggal', $selectedDate);
                 })
-                ->get();
+                ->get()
+                ->reject(fn ($teacher) => ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate))
+                ->values();
 
             // Prepare map data
             $madrasahLat = $user->madrasah->latitude ?? -6.2088; // Default Jakarta coordinates
@@ -232,6 +235,15 @@ class PresensiController extends \App\Http\Controllers\Controller
 
             // Check if time is after endOfDayCutoff - mark as alpha (only for non-penjaga sekolah)
             if ($now->format('H:i:s') > $endOfDayCutoff) {
+                if (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $tanggal)) {
+                    ExternalTeachingPermissionService::createOrUpdateNoPresenceRecord($user, $tanggal);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hari ini Anda tercatat mengajar di sekolah lain dan tidak dihitung alpha.'
+                    ], 400);
+                }
+
                 // Check if user already has presensi for today
                 $existingPresensi = Presensi::where('user_id', $user->id)
                     ->whereDate('tanggal', $tanggal)
@@ -1210,6 +1222,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->get()
             ->groupBy(fn ($item) => $item->tanggal->toDateString());
 
+        $summaryUser = User::with('madrasah')->find($userId);
         $details = collect();
         $totalHariKerja = 0;
         $totalHadir = 0;
@@ -1227,10 +1240,13 @@ class PresensiController extends \App\Http\Controllers\Controller
             $alphaRecords = $records->where('status', 'alpha');
 
             $isHadir = $hadirRecords->isNotEmpty();
+            $externalTeachingIzin = (!$isHadir && $summaryUser)
+                ? ExternalTeachingPermissionService::approvedRequestForDate($summaryUser, $date)
+                : null;
             $isIzinApproved = !$isHadir && $izinApprovedRecords->isNotEmpty();
             $statusLabel = $isHadir
                 ? 'Hadir'
-                : ($isIzinApproved
+                : (($isIzinApproved || $externalTeachingIzin)
                     ? 'Izin Disetujui'
                     : ($izinRecords->isNotEmpty() ? 'Izin Belum Disetujui' : ($alphaRecords->isNotEmpty() ? 'Alpha' : 'Belum Presensi')));
 
@@ -1238,13 +1254,15 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'tanggal' => $date->copy(),
                 'hari' => ucfirst($date->locale('id')->dayName),
                 'status' => $statusLabel,
-                'keterangan' => $records->pluck('keterangan')->filter()->implode(' | '),
+                'keterangan' => $externalTeachingIzin
+                    ? ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI
+                    : $records->pluck('keterangan')->filter()->implode(' | '),
             ]);
 
             $totalHariKerja++;
             if ($isHadir) {
                 $totalHadir++;
-            } elseif ($isIzinApproved) {
+            } elseif ($isIzinApproved || $externalTeachingIzin) {
                 $totalIzinApproved++;
             }
         }

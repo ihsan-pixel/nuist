@@ -11,6 +11,7 @@ use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
 use App\Models\AppSetting;
 use App\Models\Holiday;
+use App\Services\ExternalTeachingPermissionService;
 
 class DashboardController extends \App\Http\Controllers\Controller
 {
@@ -63,6 +64,8 @@ class DashboardController extends \App\Http\Controllers\Controller
                 if ($presensiStatus === 'hadir') {
                     $hadir++;
                 } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
+                    $izin++;
+                } elseif (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $date)) {
                     $izin++;
                 } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today))) {
                     $alpha++;

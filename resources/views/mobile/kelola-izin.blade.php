@@ -212,6 +212,8 @@
                             $jenisIzin = 'Izin Tugas Luar';
                         } elseif ($izin->type === 'cuti') {
                             $jenisIzin = 'Izin Cuti';
+                        } elseif ($izin->type === 'mengajar_sekolah_lain') {
+                            $jenisIzin = 'Mengajar di Sekolah Lain';
                         }
                     @endphp
                     <div class="izin-type">{{ $jenisIzin }}</div>
@@ -228,6 +230,19 @@
                     <strong>Deskripsi:</strong> {{ $izin->deskripsi_tugas }}<br>
                     <strong>Lokasi:</strong> {{ $izin->lokasi_tugas }}<br>
                     <strong>Waktu:</strong> {{ $izin->waktu_masuk }} - {{ $izin->waktu_keluar }}
+                @elseif($izin->type === 'mengajar_sekolah_lain')
+                    @php
+                        $dayLabels = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu'];
+                        $hariPresensi = collect($izin->hari_presensi ?? [])->map(fn($day) => $dayLabels[(int) $day] ?? null)->filter()->implode(', ');
+                        $hariTidakPresensi = collect($izin->hari_tidak_presensi ?? [])->map(fn($day) => $dayLabels[(int) $day] ?? null)->filter()->implode(', ');
+                    @endphp
+                    <strong>Periode:</strong> {{ $izin->tanggal->format('d M Y') }} - {{ optional($izin->tanggal_selesai)->format('d M Y') }}<br>
+                    <strong>Sekolah lain:</strong> {{ $izin->lokasi_tugas ?: ($izin->user->madrasahTambahan->name ?? '-') }}<br>
+                    <strong>Hari presensi:</strong> {{ $hariPresensi ?: '-' }}<br>
+                    <strong>Hari tidak presensi:</strong> {{ $hariTidakPresensi ?: '-' }}<br>
+                    @if($izin->alasan)
+                        <strong>Keterangan:</strong> {{ $izin->alasan }}
+                    @endif
                 @else
                     {{ $izin->alasan }}
                 @endif
