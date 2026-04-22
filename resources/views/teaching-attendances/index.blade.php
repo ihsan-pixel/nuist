@@ -157,7 +157,7 @@
                         <div class="card-body p-4">
                             <!-- Subject Header -->
                             <div class="d-flex align-items-start justify-content-between mb-3">
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h5 class="card-title mb-1">
                                         <i class="bx bx-book-open text-primary me-2"></i>{{ $schedule->subject }}
                                     </h5>
@@ -308,7 +308,7 @@
                                             <i class="bx bx-book"></i>
                                         </div>
                                     </div>
-                                    <div class="flex-grow-1">
+                                    <div class="grow">
                                         <small class="text-muted d-block">Mata Pelajaran</small>
                                         <span id="modal-subject" class="fw-medium"></span>
                                     </div>
@@ -321,7 +321,7 @@
                                             <i class="bx bx-group"></i>
                                         </div>
                                     </div>
-                                    <div class="flex-grow-1">
+                                    <div class="grow">
                                         <small class="text-muted d-block">Kelas</small>
                                         <span id="modal-class" class="fw-medium"></span>
                                     </div>
@@ -334,7 +334,7 @@
                                             <i class="bx bx-building-house"></i>
                                         </div>
                                     </div>
-                                    <div class="flex-grow-1">
+                                    <div class="grow">
                                         <small class="text-muted d-block">Sekolah</small>
                                         <span id="modal-school" class="fw-medium"></span>
                                     </div>
@@ -347,7 +347,7 @@
                                             <i class="bx bx-time"></i>
                                         </div>
                                     </div>
-                                    <div class="flex-grow-1">
+                                    <div class="grow">
                                         <small class="text-muted d-block">Waktu</small>
                                         <span id="modal-time" class="fw-medium"></span>
                                     </div>
