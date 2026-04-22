@@ -17,18 +17,21 @@ class TenagaPendidikController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        $tenagaPendidikQuery = User::with('madrasah')
+            ->where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id');
+
         if ($user->role === 'admin') {
-            $tenagaPendidiks = User::with('madrasah')
-                ->where('role', 'tenaga_pendidik')
-                ->where('madrasah_id', $user->madrasah_id)
-                ->get();
+            $tenagaPendidikQuery->where('madrasah_id', $user->madrasah_id);
         } elseif ($user->role === 'pengurus' || $user->role === 'super_admin') {
-            $tenagaPendidiks = User::with('madrasah')
-                ->where('role', 'tenaga_pendidik')
-                ->get();
+            // Super admin and pengurus can see all assigned tenaga pendidik.
         } else {
             abort(403, 'Unauthorized access');
         }
+
+        $tenagaPendidiks = $tenagaPendidikQuery->get();
+
         $madrasahs = Madrasah::all();
         $statusKepegawaian = StatusKepegawaian::all();
         return view('masterdata.tenaga-pendidik.index', compact('tenagaPendidiks', 'madrasahs', 'statusKepegawaian'));
