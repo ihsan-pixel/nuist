@@ -16,6 +16,7 @@ use App\Http\Controllers\Mobile\Izin\IzinController;
 use App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController;
 use App\Http\Controllers\Mobile\Siswa\SiswaController;
 use App\Http\Controllers\TeachingScheduleController;
+use App\Http\Controllers\TeachingClassStudentCountController;
 use App\Http\Controllers\DpsController;
 
 use App\Http\Controllers\PPDB\{
@@ -459,6 +460,9 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
 
     Route::get('/madrasah', [App\Http\Controllers\MadrasahController::class, 'index'])->name('madrasah.index');
     Route::get('/tenaga-pendidik', [App\Http\Controllers\TenagaPendidikController::class, 'index'])->name('tenaga-pendidik.index');
+    Route::get('/jumlah-siswa-kelas', [TeachingClassStudentCountController::class, 'index'])->name('class-student-counts.index');
+    Route::post('/jumlah-siswa-kelas', [TeachingClassStudentCountController::class, 'store'])->name('class-student-counts.store');
+    Route::put('/jumlah-siswa-kelas/{classStudentCount}', [TeachingClassStudentCountController::class, 'update'])->name('class-student-counts.update');
 
     // Yayasan routes
     Route::get('/yayasan', [App\Http\Controllers\YayasanController::class, 'index'])->name('yayasan.index');
