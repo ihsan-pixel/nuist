@@ -1216,6 +1216,14 @@ $progressColor = "rgb($red, $green, 0)";
                 </a>
                 <div class="service-label">Presensi Mengajar</div>
             </div>
+            @if(Auth::user()->pemenuhan_beban_kerja_lain)
+            <div class="service-wrapper">
+                <a href="{{ route('mobile.izin', ['type' => 'mengajar_sekolah_lain']) }}" class="service-item" style="background: #fff; border: 1px solid rgba(0,75,76,0.12); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <i class="bx bx-buildings" style="position: relative; z-index: 1;"></i>
+                </a>
+                <div class="service-label">Mengajar Sekolah Lain</div>
+            </div>
+            @endif
             <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
                     <img src="{{ asset('images/menu_icon/3.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
