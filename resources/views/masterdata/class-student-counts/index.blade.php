@@ -38,6 +38,14 @@
         <div class="col-md-3">
             <div class="card mini-stats-wid">
                 <div class="card-body">
+                    <p class="text-muted fw-medium mb-1">Jumlah Siswa Total</p>
+                    <h4 class="mb-0 text-info">{{ number_format($stats['total_students']) }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mini-stats-wid">
+                <div class="card-body">
                     <p class="text-muted fw-medium mb-1">Sudah Tersimpan</p>
                     <h4 class="mb-0 text-success">{{ number_format($stats['saved_counts']) }}</h4>
                 </div>
@@ -48,14 +56,6 @@
                 <div class="card-body">
                     <p class="text-muted fw-medium mb-1">Belum Diinput</p>
                     <h4 class="mb-0 text-warning">{{ number_format($stats['missing_counts']) }}</h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card mini-stats-wid">
-                <div class="card-body">
-                    <p class="text-muted fw-medium mb-1">Ada Referensi Presensi</p>
-                    <h4 class="mb-0 text-info">{{ number_format($stats['attendance_references']) }}</h4>
                 </div>
             </div>
         </div>

@@ -51,6 +51,7 @@ class TeachingClassStudentCountController extends Controller
 
         $stats = [
             'total_classes' => $rows->count(),
+            'total_students' => $rows->sum(fn ($row) => $row['total_students'] ?? $row['latest_attendance_total'] ?? 0),
             'saved_counts' => $rows->whereNotNull('count_id')->count(),
             'missing_counts' => $rows->whereNull('count_id')->count(),
             'attendance_references' => $rows->whereNotNull('latest_attendance_total')->count(),
