@@ -60,11 +60,15 @@
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Nuist ID</th>
+                        <th>Kartanu</th>
+                        <th>NUPTK</th>
+                        <th>Pendidikan Terakhir</th>
                         <th>Madrasah</th>
                         <th>Status Kepegawaian</th>
                         <th>TMT</th>
                         <th>Ketugasan</th>
                         <th>Mengajar</th>
+                        <th>Alamat</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -85,11 +89,15 @@
                             <td>{{ $tp->name }}</td>
                             <td>{{ $tp->email }}</td>
                             <td>{{ $tp->nuist_id ?? '-' }}</td>
+                            <td>{{ $tp->kartanu ?? '-' }}</td>
+                            <td>{{ $tp->nuptk ?? '-' }}</td>
+                            <td>{{ $tp->pendidikan_terakhir ?? '-' }}</td>
                             <td>{{ $tp->madrasah?->name ?? '-' }}</td>
                             <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
                             <td>{{ $tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->translatedFormat('j F Y') : '-' }}</td>
                             <td>{{ $tp->ketugasan ?? '-' }}</td>
                             <td>{{ $tp->mengajar ?? '-' }}</td>
+                            <td>{{ $tp->alamat ?? '-' }}</td>
                             <td>
                                 @if(strtolower(auth()->user()->role) == 'admin')
                                     <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalViewTP{{ $tp->id }}">
@@ -793,4 +801,3 @@
         });
     </script>
 @endsection
-
