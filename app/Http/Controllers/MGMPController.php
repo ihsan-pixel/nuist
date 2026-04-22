@@ -208,6 +208,36 @@ class MGMPController extends Controller
     }
 
     /**
+     * Remove an MGMP member from their group without deleting the user account.
+     */
+    public function destroyMember(MgmpMember $member)
+    {
+        $user = auth()->user();
+        $allowedRoles = ['super_admin', 'admin', 'pengurus'];
+        $memberName = $member->name;
+
+        if (!in_array($user->role, $allowedRoles)) {
+            $currentMgmpGroup = MgmpGroup::where('user_id', $user->id)->first();
+
+            if (
+                $user->role !== 'mgmp'
+                || !$currentMgmpGroup
+                || (int) $member->mgmp_group_id !== (int) $currentMgmpGroup->id
+            ) {
+                return redirect()
+                    ->route('mgmp.data-anggota')
+                    ->with('error', 'Anda tidak memiliki akses untuk mengeluarkan anggota ini.');
+            }
+        }
+
+        $member->delete();
+
+        return redirect()
+            ->route('mgmp.data-anggota')
+            ->with('success', $memberName . ' berhasil dikeluarkan dari anggota MGMP.');
+    }
+
+    /**
      * Show Data MGMP (management UI)
      */
     public function manage()

@@ -51,6 +51,20 @@
     </div>
 </div>
 
+@if(session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+</div>
+@endif
+
+@if(session('error'))
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bx bx-error-circle me-2"></i>{{ session('error') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+</div>
+@endif
+
 <div class="card mgmp-panel mb-4">
     <div class="card-body">
 
@@ -91,12 +105,18 @@
                         <td>{{ $member->sekolah }}</td>
                         <td>{{ $member->mgmpGroup->name ?? '-' }}</td>
                         <td>
-                            @if(auth()->user()->role === 'mgmp' && $member->mgmpGroup->user_id === auth()->id() || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus']))
-                            <form action="#" method="POST" style="display:inline-block;">
+                            @php
+                                $canRemoveMember = (
+                                    auth()->user()->role === 'mgmp'
+                                    && optional($member->mgmpGroup)->user_id === auth()->id()
+                                ) || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus']);
+                            @endphp
+                            @if($canRemoveMember)
+                            <form action="{{ route('mgmp.members.destroy', $member) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin keluarkan anggota ini dari MGMP? Data akun guru tidak akan dihapus.');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin hapus anggota ini?')">
-                                    <i class="bx bx-trash"></i> Hapus
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bx bx-trash"></i> Keluarkan
                                 </button>
                             </form>
                             @else

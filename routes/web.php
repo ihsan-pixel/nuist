@@ -810,6 +810,7 @@ Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgm
 
     // Member management routes
     Route::post('/store-member', [App\Http\Controllers\MGMPController::class, 'storeMember'])->name('store-member');
+    Route::delete('/members/{member}', [App\Http\Controllers\MGMPController::class, 'destroyMember'])->name('members.destroy');
 
     // Academica proposals page and upload
     Route::get('/academica', [App\Http\Controllers\MGMPController::class, 'academica'])->name('academica');
