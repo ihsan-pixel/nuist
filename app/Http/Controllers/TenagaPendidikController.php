@@ -19,11 +19,15 @@ class TenagaPendidikController extends Controller
         $user = auth()->user();
 
         $tenagaPendidikQuery = User::with('madrasah')
+            ->leftJoin('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
+            ->select('users.*')
             ->where('role', 'tenaga_pendidik')
-            ->whereNotNull('madrasah_id');
+            ->whereNotNull('users.madrasah_id')
+            ->orderBy('madrasahs.scod')
+            ->orderBy('users.name');
 
         if ($user->role === 'admin') {
-            $tenagaPendidikQuery->where('madrasah_id', $user->madrasah_id);
+            $tenagaPendidikQuery->where('users.madrasah_id', $user->madrasah_id);
         } elseif ($user->role === 'pengurus' || $user->role === 'super_admin') {
             // Super admin and pengurus can see all assigned tenaga pendidik.
         } else {
