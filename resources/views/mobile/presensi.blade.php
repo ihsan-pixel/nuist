@@ -1104,7 +1104,7 @@
     </div>
 
     <!-- Monitoring Presensi: Map View -->
-    @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
+    {{-- @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
     <div class="presensi-form">
         <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
@@ -1140,7 +1140,7 @@
             </div>
         </div>
     </div>
-    @endif
+    @endif --}}
 </div>
 
 <div class="presensi-action-bar">
