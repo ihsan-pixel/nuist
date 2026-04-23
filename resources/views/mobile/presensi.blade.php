@@ -8,35 +8,98 @@
     <meta name="presensi-endpoint" content="{{ route('mobile.presensi.store') }}">
     <style>
         body {
-            background: #f8f9fb;
             font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            background: #f8f9fb;
+            min-height: 100vh;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #f8f9fb;
+            padding-bottom: 14px;
+        }
+
+        .page-heading {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .page-heading h5 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .page-heading small {
             font-size: 12px;
+            color: #6b7280;
+        }
+
+        .realtime-clock-card {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: #fff;
+            border-radius: 14px;
+            padding: 14px 16px;
+            text-align: center;
+            box-shadow: 0 10px 24px rgba(14, 133, 73, 0.18);
+            margin-bottom: 12px;
+        }
+
+        .clock-time {
+            font-size: 28px;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 4px;
+        }
+
+        .clock-caption {
+            font-size: 11px;
+            opacity: 0.84;
         }
 
         .presensi-header {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: #fff;
-            border-radius: 12px;
-            padding: 12px 10px;
-            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 8px 20px rgba(0, 75, 76, 0.18);
+            margin-bottom: 12px;
         }
 
         .presensi-header h6 {
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            opacity: 0.85;
         }
 
         .presensi-header h5 {
-            font-size: 14px;
+            font-size: 16px;
+        }
+
+        .school-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 6px;
         }
 
         .status-card {
             background: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .status-card.success {
@@ -48,35 +111,37 @@
         }
 
         .status-icon {
-            width: 28px;
-            height: 28px;
+            width: 34px;
+            height: 34px;
             background: rgba(14, 133, 73, 0.1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 8px;
+            margin-right: 10px;
+            flex-shrink: 0;
         }
 
         .status-icon i {
             color: #0e8549;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .presensi-form {
             background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
-
-
 
         .user-location-map-container {
             position: relative;
             overflow: hidden;
-            border-radius: 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(14, 133, 73, 0.14);
+            background: #f8fafc;
         }
 
         .map-placeholder {
@@ -105,73 +170,8 @@
             text-align: center;
         }
 
-        .izin-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 60px;
-        }
-
-        .izin-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        /* Responsive fallback: on narrow screens keep two-column layout */
-        @media (max-width: 420px) {
-            .izin-buttons {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .izin-btn {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            transition: all 0.2s;
-            min-height: 60px;
-        }
-
-        .izin-btn:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-        }
-
-        .izin-btn i {
-            font-size: 18px;
-            margin-bottom: 4px;
-            color: #0e8549;
-        }
-
-        .izin-terlambat {
-            border-color: rgba(255, 193, 7, 0.3);
-        }
-
-        .izin-terlambat:hover {
-            background: rgba(255, 193, 7, 0.1);
-        }
-
-        .izin-tugas-luar {
-            border-color: rgba(0, 123, 255, 0.3);
-        }
-
-        .izin-tugas-luar:hover {
-            background: rgba(0, 123, 255, 0.1);
-        }
-
         .form-section {
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
 
         .form-section:last-child {
@@ -180,17 +180,18 @@
 
         .section-title {
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
             margin-bottom: 6px;
-            color: #333;
+            color: #1f2937;
         }
 
         .location-info {
             background: #f8f9fa;
-            border-radius: 6px;
-            padding: 6px;
+            border-radius: 10px;
+            padding: 10px;
             margin-bottom: 6px;
             word-wrap: break-word;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .location-info.success {
@@ -210,19 +211,19 @@
 
         .coordinate-input {
             background: #fff;
-            border-radius: 4px;
-            padding: 4px 6px;
-            border: 1px solid #e9ecef;
-            font-size: 11px;
+            border-radius: 10px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            font-size: 12px;
             width: 100%;
         }
 
         .address-input {
             background: #fff;
-            border-radius: 4px;
-            padding: 4px 6px;
-            border: 1px solid #e9ecef;
-            font-size: 11px;
+            border-radius: 10px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            font-size: 12px;
             width: 100%;
             word-wrap: break-word;
         }
@@ -230,75 +231,80 @@
         .presensi-btn {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border: none;
-            border-radius: 6px;
-            padding: 8px;
+            border-radius: 10px;
+            padding: 12px 14px;
             color: #fff;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
             width: 100%;
-            margin-top: 6px;
+            margin-top: 8px;
+            box-shadow: 0 8px 18px rgba(14, 133, 73, 0.16);
         }
 
         .presensi-btn:disabled {
             background: #6c757d;
+            box-shadow: none;
         }
 
         .schedule-section {
             background: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
+            gap: 10px;
         }
 
         .schedule-item {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 6px;
+            background: rgba(248, 250, 252, 0.95);
+            border-radius: 12px;
+            padding: 10px;
             text-align: center;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .schedule-item.masuk {
-            border-left: 2px solid #0d6efd;
+            border-top: 3px solid #0d6efd;
         }
 
         .schedule-item.pulang {
-            border-left: 2px solid #0e8549;
+            border-top: 3px solid #0e8549;
         }
 
         .schedule-item i {
-            font-size: 14px;
-            margin-bottom: 2px;
+            font-size: 16px;
+            margin-bottom: 4px;
         }
 
         .schedule-item h6 {
-            font-size: 11px;
-            margin-bottom: 1px;
+            font-size: 12px;
+            margin-bottom: 2px;
             font-weight: 600;
         }
 
         .schedule-item p {
-            font-size: 10px;
-            margin-bottom: 1px;
+            font-size: 11px;
+            margin-bottom: 2px;
         }
 
         .schedule-item small {
-            font-size: 9px;
+            font-size: 10px;
             color: #6c757d;
         }
 
         .alert-custom {
             background: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .alert-custom.warning {
@@ -316,8 +322,8 @@
         .btn-primary-custom {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
+            border-radius: 10px;
+            padding: 10px 14px;
             color: #fff;
             font-weight: 600;
             font-size: 12px;
@@ -334,17 +340,144 @@
         #selfie-video {
             transform: scaleX(-1); /* tampilan jadi seperti cermin */
         }
+
+        .status-detail-list {
+            display: grid;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .status-detail-item {
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
+        }
+
+        .status-detail-item small {
+            display: block;
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .status-detail-item p {
+            margin-bottom: 0;
+            color: #1f2937;
+            font-size: 12px;
+        }
+
+        .status-inline-note {
+            margin-top: 10px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .metric-card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .metric-card .metric-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .metric-card .metric-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .action-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 6px;
+            min-height: 92px;
+            padding: 14px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: #1f2937;
+            background: #fff;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+        }
+
+        .action-tile i {
+            font-size: 20px;
+            color: #0e8549;
+        }
+
+        .action-tile strong {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .action-tile span {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .action-tile.full {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 380px) {
+            .action-grid,
+            .info-grid,
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
-    <!-- Header -->
-    <div class="presensi-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h6 class="mb-1">Presensi Digital</h6>
-                <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
+    @php
+        $headerDateLabel = $selectedDate->locale('id')->isoFormat('dddd, D MMMM YYYY');
+    @endphp
+
+    <div class="sticky-header">
+        <div class="page-heading">
+            <h5>Presensi</h5>
+            <small>{{ $headerDateLabel }}</small>
+        </div>
+
+        <div class="realtime-clock-card">
+            <div class="clock-time" id="realtimeClock">--:--:--</div>
+            <div class="clock-caption">Waktu lokal Asia/Jakarta</div>
+        </div>
+
+        <!-- Header -->
+        <div class="presensi-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">Presensi Digital</h6>
+                    <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
+                    <div class="school-meta">
+                        <i class="bx bx-user-circle"></i>
+                        <span>{{ Auth::user()->name }}</span>
+                    </div>
+                </div>
+                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}"
+                     class="rounded-circle border border-white" width="42" height="42" alt="User">
             </div>
-            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
 
@@ -405,44 +538,50 @@
             <div class="status-icon">
                 <i class="bx bx-check-circle"></i>
             </div>
-            <div>
+            <div class="w-100">
                 <h6 class="mb-1">Presensi Sudah Dicatat</h6>
                 @if($isPenjagaSekolah && isset($openPresensi))
-                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-                        <small class="text-white-50">{{ $openPresensi->madrasah?->name ?? 'Madrasah' }}</small>
-                        <p class="mb-1">Masuk: <strong>{{ $openPresensi->waktu_masuk->format('H:i') }}</strong> ({{ \Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y') }})</p>
+                    <div class="status-detail-list">
+                        <div class="status-detail-item">
+                            <small>{{ $openPresensi->madrasah?->name ?? 'Madrasah' }} • {{ \Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y') }}</small>
+                            <p>Masuk: <strong>{{ $openPresensi->waktu_masuk->format('H:i') }}</strong></p>
+                        </div>
                         @if($openPresensi->keterangan)
-                        <p class="mb-1 text-muted">Keterangan: <strong>{{ $openPresensi->keterangan }}</strong></p>
+                        <div class="status-detail-item">
+                            <small>Keterangan</small>
+                            <p><strong>{{ $openPresensi->keterangan }}</strong></p>
+                        </div>
                         @endif
-                        <p class="mb-0 text-muted">Belum presensi keluar</p>
                     </div>
-                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
+                    <p class="status-inline-note mb-0">Belum presensi keluar. Lakukan presensi keluar jika sudah selesai.</p>
                 @else
-                    @foreach($presensiHariIni as $presensi)
-                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-                        <small class="text-white-50">{{ $presensi->madrasah?->name ?? 'Madrasah' }} ({{ \Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y') }})</small>
-                        @if($presensi->waktu_masuk)
-                        <p class="mb-1">Masuk: <strong>{{ $presensi->waktu_masuk->format('H:i') }}</strong></p>
-                        @if($presensi->waktu_keluar)
-                        <p class="mb-0">Keluar: <strong>{{ $presensi->waktu_keluar->format('H:i') }}</strong></p>
-                        @else
-                        <p class="mb-0 text-muted">Belum presensi keluar</p>
-                        @endif
-                        @if($presensi->keterangan)
-                        <p class="mb-0 text-muted">Keterangan: <strong>{{ $presensi->keterangan }}</strong></p>
-                        @endif
-                        @else
-                        <p class="mb-1">Masuk: <strong>-</strong></p>
-                        <p class="mb-0 text-muted">Belum presensi masuk</p>
-                        @endif
+                    <div class="status-detail-list">
+                        @foreach($presensiHariIni as $presensi)
+                        <div class="status-detail-item">
+                            <small>{{ $presensi->madrasah?->name ?? 'Madrasah' }} • {{ \Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y') }}</small>
+                            @if($presensi->waktu_masuk)
+                            <p>Masuk: <strong>{{ $presensi->waktu_masuk->format('H:i') }}</strong></p>
+                            @if($presensi->waktu_keluar)
+                            <p>Keluar: <strong>{{ $presensi->waktu_keluar->format('H:i') }}</strong></p>
+                            @else
+                            <p class="text-muted">Belum presensi keluar</p>
+                            @endif
+                            @if($presensi->keterangan)
+                            <p class="text-muted">Keterangan: <strong>{{ $presensi->keterangan }}</strong></p>
+                            @endif
+                            @else
+                            <p>Masuk: <strong>-</strong></p>
+                            <p class="text-muted">Belum presensi masuk</p>
+                            @endif
+                        </div>
+                        @endforeach
                     </div>
-                    @endforeach
                     @if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count())
                     <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
                         <small><i class="bx bx-check me-1"></i> Semua presensi hari ini lengkap!</small>
                     </div>
                     @else
-                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
+                    <p class="status-inline-note mb-0">Lakukan presensi keluar jika sudah selesai.</p>
                     @endif
                 @endif
             </div>
@@ -682,30 +821,27 @@
         </div>
     </div>
 
-    <!-- Riwayat Presensi Button -->
-    <div class="presensi-form">
-        <a href="{{ route('mobile.riwayat-presensi') }}" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
-            <i class="bx bx-history me-1"></i>
-            Riwayat Presensi
+    <div class="action-grid">
+        <a href="{{ route('mobile.riwayat-presensi') }}" class="action-tile">
+            <i class="bx bx-history"></i>
+            <strong>Riwayat Presensi</strong>
+            <span>Lihat catatan hadir, pulang, dan status sebelumnya.</span>
         </a>
-    </div>
 
-    <!-- Izin: single button to mobile izin menu -->
-    <div class="presensi-form">
-        <a href="{{ route('mobile.izin') }}" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
-            <i class="bx bx-calendar-minus me-1"></i>
-            Izin
+        <a href="{{ route('mobile.izin') }}" class="action-tile">
+            <i class="bx bx-calendar-minus"></i>
+            <strong>Izin</strong>
+            <span>Ajukan izin sakit, terlambat, cuti, dan kebutuhan lainnya.</span>
         </a>
     </div>
 
     <!-- Monitor Map: dedicated button for kepala madrasah -->
     @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-    <div class="presensi-form">
-        <a href="{{ route('mobile.monitor-map') }}" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
-            <i class="bx bx-map me-1"></i>
-            Monitor Map Presensi
-        </a>
-    </div>
+    <a href="{{ route('mobile.monitor-map') }}" class="action-tile full">
+        <i class="bx bx-map"></i>
+        <strong>Monitor Map Presensi</strong>
+        <span>Pantau posisi presensi tenaga pendidik pada peta sekolah.</span>
+    </a>
     @endif
 
     <!-- Monitoring Presensi: Map View -->
@@ -734,14 +870,14 @@
         </div>
 
         <!-- Summary Stats -->
-        <div class="mt-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-            <div style="background: rgba(14, 133, 73, 0.1); padding: 6px; border-radius: 6px; text-align: center;">
-                <div style="font-weight: 600; font-size: 12px; color: #0e8549;">{{ $presensis->count() }}</div>
-                <small style="font-size: 10px; color: #0e8549;">Sudah Presensi</small>
+        <div class="info-grid mt-2">
+            <div class="metric-card">
+                <div class="metric-label">Sudah Presensi</div>
+                <div class="metric-value" style="color: #0e8549;">{{ $presensis->count() }}</div>
             </div>
-            <div style="background: rgba(220, 53, 69, 0.1); padding: 6px; border-radius: 6px; text-align: center;">
-                <div style="font-weight: 600; font-size: 12px; color: #dc3545;">{{ $belumPresensi->count() }}</div>
-                <small style="font-size: 10px; color: #dc3545;">Belum Presensi</small>
+            <div class="metric-card">
+                <div class="metric-label">Belum Presensi</div>
+                <div class="metric-value" style="color: #dc3545;">{{ $belumPresensi->count() }}</div>
             </div>
         </div>
     </div>
@@ -757,6 +893,24 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 window.addEventListener('load', function() {
+    function updateRealtimeClock() {
+        const clockEl = document.getElementById('realtimeClock');
+        if (!clockEl) return;
+
+        const formatter = new Intl.DateTimeFormat('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+            timeZone: 'Asia/Jakarta'
+        });
+
+        clockEl.textContent = formatter.format(new Date());
+    }
+
+    updateRealtimeClock();
+    setInterval(updateRealtimeClock, 1000);
+
     let latitude, longitude, lokasi;
     let locationReadings = [];
     let readingCount = 0;
