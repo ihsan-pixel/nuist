@@ -194,11 +194,66 @@
             margin-bottom: 0;
         }
 
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .section-header-main {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+        }
+
         .section-title {
             font-weight: 600;
             font-size: 13px;
             margin-bottom: 6px;
             color: #1f2937;
+        }
+
+        #location-info.location-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            margin-bottom: 0;
+            font-size: 11px;
+            line-height: 1;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        #location-info .badge-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        #location-info .badge-title {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        #location-info.info .badge-title {
+            color: #0c5460;
+        }
+
+        #location-info.success .badge-title {
+            color: #0e8549;
+        }
+
+        #location-info.warning .badge-title {
+            color: #9a6700;
+        }
+
+        #location-info.error .badge-title {
+            color: #b42318;
         }
 
         .location-info {
@@ -606,10 +661,11 @@
 
     <!-- Presensi Form -->
     <div class="presensi-form">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-{{ $presensiHariIni ? 'log-out-circle' : 'log-in-circle' }}"></i>
-            </div>
+        <div class="section-header">
+            <div class="section-header-main">
+                <div class="status-icon">
+                    <i class="bx bx-{{ $presensiHariIni ? 'log-out-circle' : 'log-in-circle' }}"></i>
+                </div>
         @php
             $showKeluar = false;
             if ($isPenjagaSekolah && isset($openPresensi)) {
@@ -618,19 +674,11 @@
                 $showKeluar = $presensiHariIni->where('waktu_keluar', null)->count() > 0;
             }
         @endphp
-        <h6 class="section-title mb-0">{{ $showKeluar ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
-        </div>
-
-    <!-- Location Status -->
-        <div class="form-section">
-            <div id="location-info" class="location-info info">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-loader-alt bx-spin me-1"></i>
-                    <div>
-                        <strong>Mengumpulkan data lokasi...</strong>
-                        <br><small class="text-muted">Reading 1/1 - Pastikan GPS aktif</small>
-                    </div>
-                </div>
+                <h6 class="section-title mb-0">{{ $showKeluar ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
+            </div>
+            <div id="location-info" class="location-info location-badge info">
+                <span class="badge-icon"><i class="bx bx-loader-alt bx-spin"></i></span>
+                <span class="badge-title">GPS aktif</span>
             </div>
         </div>
 
@@ -926,6 +974,19 @@ window.addEventListener('load', function() {
     updateRealtimeClock();
     setInterval(updateRealtimeClock, 1000);
 
+    function setLocationIndicator(state, title, iconClass = 'bx bx-loader-alt bx-spin') {
+        const indicator = document.getElementById('location-info');
+        if (!indicator) return;
+
+        indicator.className = `location-info location-badge ${state}`;
+        indicator.innerHTML = `
+            <span class="badge-icon"><i class="${iconClass}"></i></span>
+            <span class="badge-title">${title}</span>
+        `;
+    }
+
+    setLocationIndicator('info', 'GPS aktif', 'bx bx-loader-alt bx-spin');
+
     let latitude, longitude, lokasi;
     let locationReadings = [];
     let readingCount = 0;
@@ -1095,21 +1156,11 @@ window.addEventListener('load', function() {
 
                     // Update UI with smooth progress
                     const isComplete = readingCount >= totalReadings;
-                    const progressText = isComplete ? 'Data lengkap!' : 'Mengumpulkan...';
-                    const iconClass = isComplete ? 'bx bx-check-circle text-success me-2' : 'bx bx-loader-alt bx-spin me-2';
-                    const infoClass = isComplete ? 'location-info success' : 'location-info info';
-
-                    $('#location-info').html(`
-                        <div class="${infoClass}">
-                            <div class="d-flex align-items-center">
-                                <i class="${iconClass}"></i>
-                                <div>
-                                    <strong class="small">Reading ${readingCount}/${totalReadings} - ${progressText}</strong>
-                                    <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
-                                </div>
-                            </div>
-                        </div>
-                    `);
+                    setLocationIndicator(
+                        isComplete ? 'success' : 'info',
+                        isComplete ? 'Lokasi siap' : `GPS ${readingCount}/${totalReadings}`,
+                        isComplete ? 'bx bx-check-circle' : 'bx bx-loader-alt bx-spin'
+                    );
 
                     // Update coordinates display with latest reading
                     $('#latitude').val(reading.latitude.toFixed(6));
@@ -1139,17 +1190,7 @@ window.addEventListener('load', function() {
                                        error.code === 2 ? 'Sinyal GPS lemah' :
                                        error.code === 3 ? 'Waktu habis' : 'Error tidak diketahui';
 
-                    $('#location-info').html(`
-                        <div class="location-info warning">
-                            <div class="d-flex align-items-center">
-                                <i class="bx bx-error-circle me-2"></i>
-                                <div>
-                                <strong class="small">Reading ${readingNumber} gagal</strong>
-                                <br><small class="text-muted">${errorMessage} - Melanjutkan...</small>
-                                </div>
-                            </div>
-                        </div>
-                    `);
+                    setLocationIndicator('warning', 'GPS lemah', 'bx bx-error-circle');
 
                     reject(error);
                 },
@@ -1220,20 +1261,7 @@ window.addEventListener('load', function() {
                 latitude = lastSuccessfulReading.latitude;
                 longitude = lastSuccessfulReading.longitude;
 
-                const successMessage = successfulReadings === totalReadings ?
-                    'Semua reading berhasil!' : `${successfulReadings}/${totalReadings} reading berhasil`;
-
-                $('#location-info').html(`
-                    <div class="location-info success">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle text-success me-2"></i>
-                            <div>
-                                <strong class="small">Data lokasi lengkap!</strong>
-                                <br><small class="text-muted">${successMessage}</small>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                setLocationIndicator('success', 'Lokasi siap', 'bx bx-check-circle');
             } else {
                 // No successful readings at all - provide detailed troubleshooting
                 await showGPSTroubleshootingGuide();
@@ -1269,17 +1297,7 @@ window.addEventListener('load', function() {
                     };
 
                     // Update UI with success message
-                    $('#location-info').html(`
-                        <div class="location-info success">
-                            <div class="d-flex align-items-center">
-                                <i class="bx bx-check-circle text-success me-2"></i>
-                                <div>
-                                <strong class="small">Reading ${readingNumber} berhasil (alt)</strong>
-                                <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
-                                </div>
-                            </div>
-                        </div>
-                    `);
+                    setLocationIndicator('success', 'GPS alternatif', 'bx bx-check-circle');
 
                     resolve(reading);
                 },
@@ -1298,23 +1316,7 @@ window.addEventListener('load', function() {
 
     // Comprehensive GPS troubleshooting guide
     async function showGPSTroubleshootingGuide() {
-        $('#location-info').html(`
-            <div class="location-info error">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-error-circle me-2"></i>
-                    <div>
-                        <strong class="small">GPS Tidak Tersedia</strong>
-                        <br><small class="text-muted">Coba langkah berikut:</small>
-                    </div>
-                </div>
-                <div style="margin-top: 8px; font-size: 11px;">
-                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Pastikan GPS aktif</div>
-                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Berikan izin lokasi ke browser</div>
-                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Coba di luar ruangan</div>
-                    <div style="margin-bottom: 4px;"><i class="bx bx-refresh text-primary me-1"></i> Refresh halaman</div>
-                </div>
-            </div>
-        `);
+        setLocationIndicator('error', 'GPS error', 'bx bx-error-circle');
 
         $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Error');
 
@@ -1322,17 +1324,7 @@ window.addEventListener('load', function() {
         setTimeout(() => {
             if (locationReadings.length === 0) {
                 console.log('Auto-retrying GPS collection...');
-                $('#location-info').html(`
-                    <div class="location-info info">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-loader-alt bx-spin me-2"></i>
-                            <div>
-                                <strong class="small">Mencoba lagi...</strong>
-                                <br><small class="text-muted">Reading 1/1 - Auto retry</small>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                setLocationIndicator('info', 'Coba lagi', 'bx bx-loader-alt bx-spin');
                 startLocationCollection();
             }
         }, 10000);
@@ -1389,17 +1381,7 @@ window.addEventListener('load', function() {
         if (navigator.geolocation) {
             startLocationCollection();
         } else {
-            $('#location-info').html(`
-                <div class="location-info error">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-2"></i>
-                        <div>
-                            <strong class="small">Browser tidak mendukung GPS</strong>
-                            <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
-                        </div>
-                    </div>
-                </div>
-            `);
+            setLocationIndicator('error', 'GPS tidak didukung', 'bx bx-error-circle');
             $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Tidak Didukung');
         }
 
@@ -1764,16 +1746,7 @@ window.addEventListener('load', function() {
                 // Get address
                 getAddressFromCoordinates(reading4Lat, reading4Lng);
 
-                $('#location-info').html(`
-                    <div class="location-info success">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle text-success me-2"></i>
-                            <div>
-                                <strong class="small">Lokasi berhasil didapatkan!</strong>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                setLocationIndicator('success', 'Lokasi valid', 'bx bx-check-circle');
 
                 $.ajax({
                     url: '{{ route("mobile.presensi.store") }}',
