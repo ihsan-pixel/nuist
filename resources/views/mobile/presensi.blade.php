@@ -619,7 +619,7 @@
         </div>
 
         <!-- Coordinates -->
-        <div class="form-section">
+        {{-- <div class="form-section">
             <div class="d-flex align-items-center mb-1">
                 <i class="bx bx-target-lock text-success me-1"></i>
                 <label class="section-title mb-0">Koordinat Lokasi</label>
@@ -628,7 +628,7 @@
                 <input type="text" id="latitude" class="coordinate-input" placeholder="Latitude" readonly>
                 <input type="text" id="longitude" class="coordinate-input" placeholder="Longitude" readonly>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Address -->
         <div class="form-section">
@@ -645,9 +645,9 @@
                 <i class="bx bx-camera text-primary me-1"></i>
                 <label class="section-title mb-0">Foto Selfie</label>
             </div>
-            <div class="alert-custom info" style="margin-bottom: 8px;">
+            {{-- <div class="alert-custom info" style="margin-bottom: 8px;">
                 <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
-            </div>
+            </div> --}}
             <div id="selfie-container" style="position: relative;">
                 <div class="text-center" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 2px dashed #dee2e6;">
                     <i class="bx bx-camera" style="font-size: 48px; color: #6c757d; margin-bottom: 8px;"></i>
@@ -778,7 +778,7 @@
             </div>
         </div>
 
-        <div class="alert-custom info" style="margin-top: 6px;">
+        {{-- <div class="alert-custom info" style="margin-top: 6px;">
             <small>
                 <i class="bx bx-info-circle me-1"></i>
                 <strong>Catatan:</strong>
@@ -798,7 +798,7 @@
                     Pulang dapat dilakukan mulai pukul {{ $pulangStart }} hingga {{ $pulangEnd }}.
                 @endif
             </small>
-        </div>
+        </div> --}}
     </div>
     @else
     <div class="alert-custom warning">
@@ -810,7 +810,7 @@
 
 
     <!-- Important Notice -->
-    <div class="alert-custom info">
+    {{-- <div class="alert-custom info">
         <div class="d-flex">
             <i class="bx bx-info-circle text-info me-1"></i>
             <div>
@@ -818,7 +818,7 @@
                 <p class="mb-0 text-muted">Pastikan Anda berada di lingkungan madrasah saat melakukan presensi. Sistem menggunakan validasi lokasi koordinat madrasah.</p>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="action-grid">
         <a href="{{ route('mobile.riwayat-presensi') }}" class="action-tile">
