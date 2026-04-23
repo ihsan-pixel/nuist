@@ -140,7 +140,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek; // 0=Sunday, 5=Friday
 
             // Defaults
-            $masukStart = $user->madrasah->presensi_masuk_start ?? '05:00';
+            $masukStart = $user->madrasah->presensi_masuk_start ?? '00:01';
             $masukEnd = $user->madrasah->presensi_masuk_end ?? '07:00';
             $pulangEnd = $user->madrasah->presensi_pulang_end ?? '22:00';
 
@@ -398,8 +398,8 @@ class PresensiController extends \App\Http\Controllers\Controller
                 // Penjaga sekolah: no time restrictions for presensi masuk
                 // Can presensi anytime 24 hours
             } elseif ($user->pemenuhan_beban_kerja_lain) {
-                // User with beban kerja lain: presensi masuk 05:00 - 22:00
-                // Prefer madrasah-specific presensi_masuk_start if present else default 05:00
+                // User with beban kerja lain: presensi masuk 00:01 - 22:00
+                // Prefer madrasah-specific presensi_masuk_start if present else default 00:01
                 $minTimeMasuk = '00:01:00';
                 if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
                     $v = $user->madrasah->presensi_masuk_start;
@@ -502,7 +502,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 }
             }
 
-            // Special handling for early presensi (between 01:00 and 05:00)
+            // Special handling for early presensi (between 01:00 and 00:01)
             if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '00:01:00') {
                 $keterangan = "Presensi dini";
             }
