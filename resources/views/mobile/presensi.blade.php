@@ -4,7 +4,7 @@
 @section('subtitle', 'Catat Kehadiran')
 
 @section('content')
-<div class="container py-3" style="max-width: 420px; margin: auto;">
+<div class="container py-3 presensi-screen" style="max-width: 420px; margin: auto;">
     <meta name="presensi-endpoint" content="{{ route('mobile.presensi.store') }}">
     <style>
         body {
@@ -12,6 +12,14 @@
             font-size: 13px;
             background: #f8f9fb;
             min-height: 100vh;
+        }
+
+        body.selfie-modal-open {
+            overflow: hidden;
+        }
+
+        .presensi-screen {
+            padding-bottom: 170px;
         }
 
         .sticky-header {
@@ -511,11 +519,219 @@
             margin-top: 10px;
         }
 
+        .selfie-callout {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .selfie-callout i {
+            font-size: 18px;
+            color: #0e8549;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .selfie-callout strong {
+            display: block;
+            font-size: 12px;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .selfie-callout span {
+            display: block;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .presensi-action-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 82px;
+            z-index: 1045;
+            padding: 0 14px 14px;
+            pointer-events: none;
+        }
+
+        .presensi-action-bar-inner {
+            max-width: 420px;
+            margin: 0 auto;
+            background: rgba(248, 249, 251, 0.92);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 10px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            pointer-events: auto;
+        }
+
+        .presensi-action-hint {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .selfie-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.58);
+            z-index: 2100;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .selfie-modal.show {
+            display: flex;
+        }
+
+        .selfie-modal-dialog {
+            width: min(100%, 420px);
+            max-height: calc(100vh - 24px);
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .selfie-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .selfie-modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .selfie-modal-subtitle {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .selfie-modal-close {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            border-radius: 50%;
+            color: #475467;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .selfie-modal-body {
+            padding: 14px 16px;
+            overflow-y: auto;
+        }
+
+        .selfie-note {
+            background: rgba(14, 133, 73, 0.08);
+            border: 1px solid rgba(14, 133, 73, 0.14);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .selfie-note i {
+            color: #0e8549;
+            margin-right: 6px;
+        }
+
+        .selfie-stage {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            min-height: 420px;
+        }
+
+        .selfie-placeholder,
+        #selfie-video,
+        #selfie-canvas,
+        #selfie-preview {
+            width: 100%;
+            height: 420px;
+            border-radius: 16px;
+        }
+
+        .selfie-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #6b7280;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .selfie-placeholder i {
+            font-size: 44px;
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        .selfie-overlay-actions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 14px;
+        }
+
+        .selfie-overlay-actions .btn {
+            padding: 10px 14px;
+            font-size: 12px;
+        }
+
+        .selfie-modal-footer {
+            padding: 14px 16px 16px;
+            border-top: 1px solid #eef2f7;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
         @media (max-width: 380px) {
             .action-grid,
             .info-grid,
             .schedule-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .selfie-stage,
+            .selfie-placeholder,
+            #selfie-video,
+            #selfie-canvas,
+            #selfie-preview {
+                height: 360px;
+                min-height: 360px;
             }
         }
     </style>
@@ -707,34 +923,13 @@
         <div class="form-section">
             <div class="d-flex align-items-center mb-1">
                 <i class="bx bx-camera text-primary me-1"></i>
-                <label class="section-title mb-0">Foto Selfie</label>
+                <label class="section-title mb-0">Selfie Presensi</label>
             </div>
-            {{-- <div class="alert-custom info" style="margin-bottom: 8px;">
-                <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
-            </div> --}}
-            <div id="selfie-container" style="position: relative;">
-                <div class="text-center" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 2px dashed #dee2e6;">
-                    <i class="bx bx-camera" style="font-size: 48px; color: #6c757d; margin-bottom: 8px;"></i>
-                    <span style="color: #6c757d; font-size: 14px;">Kamera akan muncul di sini</span>
-                </div>
-                <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; display: none; object-fit: cover;"></video>
-                <canvas id="selfie-canvas" style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; display: none; justify-content: center;"></canvas>
-                <img id="selfie-preview" style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
-                <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none;">
-                    <i class="bx bx-camera me-1"></i>Ambil Foto
-                </button>
-                <button type="button" id="btn-retake-selfie" class="btn btn-secondary" style="position: absolute; bottom: 8px; right: 8px; display: none;">
-                    <i class="bx bx-refresh me-1"></i>Ulang
-                </button>
-            </div>
-            <input type="hidden" id="selfie-data" name="selfie_data">
-            <div id="selfie-status" class="location-info info" style="margin-top: 8px;">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-camera-off me-1"></i>
-                    <div>
-                        <strong>Selfie belum diambil</strong>
-                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
-                    </div>
+            <div class="selfie-callout">
+                <i class="bx bx-camera"></i>
+                <div>
+                    <strong>Selfie dilakukan di modal</strong>
+                    <span>Tekan tombol presensi di bagian bawah, ambil foto, lalu kirim untuk menyelesaikan presensi.</span>
                 </div>
             </div>
         </div>
@@ -742,13 +937,13 @@
         <!-- Presensi Button -->
         @php
             $isDisabled = false;
-            $buttonText = 'Ambil Selfie';
+            $buttonText = 'Presensi Sekarang';
             $buttonIcon = 'check-circle';
 
             if ($isPenjagaSekolah) {
                 // For penjaga sekolah, always allow presensi
                 $isDisabled = false;
-                $buttonText = isset($openPresensi) ? 'Presensi Keluar' : 'Presensi Masuk';
+                $buttonText = 'Presensi Sekarang';
             } elseif ($isHoliday) {
                 $isDisabled = true;
                 $buttonText = 'Hari Libur - Presensi Ditutup';
@@ -756,25 +951,9 @@
             } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
                 $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
                 $isDisabled = $allComplete;
-                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Keluar';
+                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Sekarang';
             }
         @endphp
-
-        <button type="button" id="btn-presensi"
-                class="presensi-btn"
-                disabled
-                {{ $isDisabled ? 'disabled' : '' }}>
-            <i class="bx bx-{{ $buttonIcon }} me-1"></i>
-            {{ $buttonText }}
-        </button>
-
-        <!-- Submit Button (hidden initially) -->
-        <button type="button" id="btn-submit-presensi"
-                class="presensi-btn"
-                style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-            <i class="bx bx-send me-1"></i>
-            Kirim Presensi
-        </button>
     </div>
 
     <!-- Time Information -->
@@ -946,6 +1125,80 @@
     </div>
     @endif
 </div>
+
+<div class="presensi-action-bar">
+    <div class="presensi-action-bar-inner">
+        <div class="presensi-action-hint">Selfie dan konfirmasi presensi dilakukan pada langkah berikutnya.</div>
+        <button type="button" id="btn-presensi"
+                class="presensi-btn"
+                disabled
+                {{ $isDisabled ? 'disabled' : '' }}>
+            <i class="bx bx-{{ $buttonIcon }} me-1"></i>
+            {{ $buttonText }}
+        </button>
+    </div>
+</div>
+
+<div id="selfie-modal" class="selfie-modal" aria-hidden="true">
+    <div class="selfie-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="selfie-modal-title">
+        <div class="selfie-modal-header">
+            <div>
+                <div id="selfie-modal-title" class="selfie-modal-title">Selfie Presensi</div>
+                <div id="selfie-modal-subtitle" class="selfie-modal-subtitle">Ambil foto selfie lalu kirim presensi.</div>
+            </div>
+            <button type="button" id="btn-close-selfie-modal" class="selfie-modal-close" aria-label="Tutup">
+                <i class="bx bx-x"></i>
+            </button>
+        </div>
+
+        <div class="selfie-modal-body">
+            <div class="selfie-note">
+                <i class="bx bx-info-circle"></i>
+                Pastikan wajah terlihat jelas dan foto diambil di lingkungan madrasah/sekolah.
+            </div>
+
+            <div id="selfie-container" class="selfie-stage">
+                <div class="selfie-placeholder">
+                    <i class="bx bx-camera"></i>
+                    <strong class="mb-1">Menyiapkan kamera</strong>
+                    <span>Izinkan akses kamera jika diminta.</span>
+                </div>
+                <video id="selfie-video" autoplay playsinline style="display: none; object-fit: cover;"></video>
+                <canvas id="selfie-canvas" style="display: none;"></canvas>
+                <img id="selfie-preview" style="object-fit: cover; display: none;" alt="Selfie Preview">
+
+                <div class="selfie-overlay-actions">
+                    <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="display: none;">
+                        <i class="bx bx-camera me-1"></i>Ambil Foto
+                    </button>
+                    <button type="button" id="btn-retake-selfie" class="btn btn-outline-secondary" style="display: none;">
+                        <i class="bx bx-refresh me-1"></i>Ulang
+                    </button>
+                </div>
+            </div>
+
+            <input type="hidden" id="selfie-data" name="selfie_data">
+            <div id="selfie-status" class="location-info info" style="margin-top: 12px;">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-camera-off me-1"></i>
+                    <div>
+                        <strong>Selfie belum diambil</strong>
+                        <br><small class="text-muted">Kamera akan aktif otomatis saat modal dibuka.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="selfie-modal-footer">
+            <button type="button" id="btn-submit-presensi"
+                    class="presensi-btn"
+                    style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <i class="bx bx-send me-1"></i>
+                Kirim Presensi
+            </button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
@@ -992,6 +1245,7 @@ window.addEventListener('load', function() {
     let readingCount = 0;
     const totalReadings = 3;
     const readingInterval = 1200;
+    const presensiActionLocked = {{ $isDisabled ? 'true' : 'false' }};
 
     // Presensi mode: apakah tombol saat ini adalah untuk keluar (checkout)
     const isPresensiKeluar = {{ isset($showKeluar) && $showKeluar ? 'true' : 'false' }};
@@ -1172,13 +1426,6 @@ window.addEventListener('load', function() {
                     // Get address from latest reading
                     getAddressFromCoordinates(reading.latitude, reading.longitude);
 
-                    // Enable selfie camera after first successful location reading
-                    if (readingNumber === 1 && !selfieCaptured) {
-                        setTimeout(() => {
-                            initializeSelfieCamera();
-                        }, 1000); // Small delay to ensure UI is updated
-                    }
-
                     resolve(reading);
                 },
                 function(error) {
@@ -1224,10 +1471,9 @@ window.addEventListener('load', function() {
                         longitude = reading.longitude;
 
                         // Enable presensi button early
-                        var hasPresensi = {{ $presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false' }};
-                        var allPresensiComplete = {{ ($presensiHariIni && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) ? 'true' : 'false' }};
-                        var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Ambil Selfie";
-                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>' + buttonText);
+                        if (!presensiActionLocked) {
+                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi Sekarang');
+                        }
                     }
 
                     // Wait between readings (except for the last one)
@@ -1420,6 +1666,96 @@ window.addEventListener('load', function() {
     // Selfie variables
     let selfieStream = null;
     let selfieCaptured = false;
+    const selfieModal = document.getElementById('selfie-modal');
+    const selfieModalSubtitle = document.getElementById('selfie-modal-subtitle');
+
+    function stopSelfieStream() {
+        if (selfieStream) {
+            selfieStream.getTracks().forEach(track => track.stop());
+            selfieStream = null;
+        }
+    }
+
+    function resetSelfieModalState() {
+        const video = document.getElementById('selfie-video');
+        const preview = document.getElementById('selfie-preview');
+        const canvas = document.getElementById('selfie-canvas');
+        const captureBtn = document.getElementById('btn-capture-selfie');
+        const retakeBtn = document.getElementById('btn-retake-selfie');
+        const submitBtn = document.getElementById('btn-submit-presensi');
+        const selfieDataInput = document.getElementById('selfie-data');
+        const statusElement = document.getElementById('selfie-status');
+        const placeholder = document.querySelector('#selfie-container .selfie-placeholder');
+
+        if (video) {
+            video.style.display = 'none';
+            video.srcObject = null;
+        }
+        if (preview) {
+            preview.style.display = 'none';
+            preview.src = '';
+        }
+        if (canvas) {
+            canvas.style.display = 'none';
+        }
+        if (captureBtn) {
+            captureBtn.style.display = 'none';
+        }
+        if (retakeBtn) {
+            retakeBtn.style.display = 'none';
+        }
+        if (submitBtn) {
+            submitBtn.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bx bx-send me-1"></i>Kirim Presensi';
+        }
+        if (selfieDataInput) {
+            selfieDataInput.value = '';
+        }
+        if (placeholder) {
+            placeholder.style.display = 'flex';
+        }
+        if (statusElement) {
+            statusElement.innerHTML = `
+                <div class="location-info info">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-camera-off me-1"></i>
+                        <div>
+                            <strong>Selfie belum diambil</strong>
+                            <br><small class="text-muted">Kamera akan aktif otomatis saat modal dibuka.</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        stopSelfieStream();
+        selfieCaptured = false;
+    }
+
+    function openSelfieModal() {
+        if (!selfieModal) return;
+
+        resetSelfieModalState();
+        selfieModal.classList.add('show');
+        selfieModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('selfie-modal-open');
+
+        if (selfieModalSubtitle) {
+            selfieModalSubtitle.textContent = isPresensiKeluar
+                ? 'Ambil foto selfie untuk presensi keluar, lalu kirim.'
+                : 'Ambil foto selfie untuk presensi masuk, lalu kirim.';
+        }
+    }
+
+    function closeSelfieModal() {
+        if (!selfieModal) return;
+
+        resetSelfieModalState();
+        selfieModal.classList.remove('show');
+        selfieModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('selfie-modal-open');
+    }
 
     // Initialize selfie camera
     async function initializeSelfieCamera() {
@@ -1435,6 +1771,8 @@ window.addEventListener('load', function() {
                 throw new Error('DOM elements not ready');
             }
 
+            stopSelfieStream();
+
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: 'user',
@@ -1449,7 +1787,7 @@ window.addEventListener('load', function() {
             video.style.display = 'block';
 
             // Hide the placeholder and show video
-            const placeholder = container.querySelector('.text-center');
+            const placeholder = container.querySelector('.selfie-placeholder');
             if (placeholder) {
                 placeholder.style.display = 'none';
             }
@@ -1544,11 +1882,8 @@ window.addEventListener('load', function() {
             retakeBtn.style.display = 'block';
         }
 
-        // Stop camera stream
-        if (selfieStream) {
-            selfieStream.getTracks().forEach(track => track.stop());
-            selfieStream = null;
-        }
+        // Stop camera stream after capture to freeze result
+        stopSelfieStream();
 
         selfieCaptured = true;
         document.getElementById('selfie-status').innerHTML = `
@@ -1570,8 +1905,6 @@ window.addEventListener('load', function() {
             console.log('Selfie captured with data length:', selfieData.length);
 
             if (selfieData && selfieData.length > 100) {
-                // Show submit button and hide presensi button
-                $('#btn-presensi').hide();
                 $('#btn-submit-presensi').show();
                 $('#btn-submit-presensi').prop('disabled', false);
             } else {
@@ -1582,7 +1915,6 @@ window.addEventListener('load', function() {
                     text: 'Foto selfie tidak berhasil diambil. Silakan coba lagi.',
                     confirmButtonText: 'Oke'
                 });
-                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>Ambil Selfie');
             }
         }, 1000);
     }
@@ -1601,9 +1933,7 @@ window.addEventListener('load', function() {
         }
 
         selfieCaptured = false;
-        // Hide submit button and show presensi button again
         $('#btn-submit-presensi').hide();
-        $('#btn-presensi').show();
         initializeSelfieCamera();
     }
 
@@ -1621,23 +1951,31 @@ window.addEventListener('load', function() {
 
     // Handle presensi button (Ambil Selfie)
     $('#btn-presensi').click(async function() {
-        // First, request camera access and show camera interface
-        if (!selfieCaptured) {
-            try {
-                await initializeSelfieCamera();
-                // Camera initialized, user can now click the capture button manually
-                return;
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kamera Tidak Dapat Diakses',
-                    text: 'Tidak dapat mengakses kamera. Pastikan memberikan izin kamera dan coba lagi.',
-                    confirmButtonText: 'Oke'
-                });
-                return;
-            }
+        try {
+            openSelfieModal();
+            await initializeSelfieCamera();
+        } catch (error) {
+            closeSelfieModal();
+            Swal.fire({
+                icon: 'error',
+                title: 'Kamera Tidak Dapat Diakses',
+                text: 'Tidak dapat mengakses kamera. Pastikan memberikan izin kamera dan coba lagi.',
+                confirmButtonText: 'Oke'
+            });
         }
     });
+
+    $('#btn-close-selfie-modal').click(function() {
+        closeSelfieModal();
+    });
+
+    if (selfieModal) {
+        selfieModal.addEventListener('click', function(event) {
+            if (event.target === selfieModal) {
+                closeSelfieModal();
+            }
+        });
+    }
 
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
@@ -1762,13 +2100,14 @@ window.addEventListener('load', function() {
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {
+                                closeSelfieModal();
                                 window.location.reload();
                             });
                         } else {
                             Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal',
-                                text: resp.message || 'Gagal melakukan presensi. Coba lagi.',
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: resp.message || 'Gagal melakukan presensi. Coba lagi.',
                             });
                             $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                         }
@@ -1794,6 +2133,12 @@ window.addEventListener('load', function() {
                 });
                 $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && selfieModal && selfieModal.classList.contains('show')) {
+            closeSelfieModal();
+        }
     });
 });
 
