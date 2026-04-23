@@ -2002,6 +2002,8 @@ window.addEventListener('load', function() {
 
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
+        closeSelfieModal(false);
+
         // If selfie is already captured, proceed with location validation
         // If this action is a checkout and current time is before pulangStart, ask for confirmation
         if (isPresensiKeluar && pulangStartSeconds) {
@@ -2017,6 +2019,7 @@ window.addEventListener('load', function() {
                     cancelButtonText: 'Batal'
                 });
                 if (!res.isConfirmed) {
+                    resetSelfieModalState();
                     return; // user cancelled early checkout
                 }
             }
@@ -2026,6 +2029,7 @@ window.addEventListener('load', function() {
                 'Lokasi Belum Siap',
                 'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu hingga proses pembacaan lokasi selesai.'
             );
+            resetSelfieModalState();
             return;
         }
 
@@ -2035,10 +2039,10 @@ window.addEventListener('load', function() {
                 'Lokasi Tidak Tersedia',
                 'Lokasi belum dapat diperoleh. Pastikan GPS aktif, lalu coba kembali.'
             );
+            resetSelfieModalState();
             return;
         }
 
-        closeSelfieModal(false);
         showFormalLoadingAlert(
             'Sedang Memproses Presensi',
             'Mohon menunggu. Data presensi sedang dikirim ke sistem.'
