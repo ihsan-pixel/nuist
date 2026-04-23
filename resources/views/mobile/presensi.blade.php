@@ -723,6 +723,10 @@
             gap: 10px;
         }
 
+        .swal2-container {
+            z-index: 2600 !important;
+        }
+
         @media (max-width: 380px) {
             .action-grid,
             .info-grid,
@@ -2038,7 +2042,6 @@ window.addEventListener('load', function() {
             return;
         }
 
-        closeSelfieModal(false);
         showFormalLoadingAlert(
             'Sedang Memproses Presensi',
             'Mohon menunggu. Data presensi sedang dikirim ke sistem.'
@@ -2124,7 +2127,7 @@ window.addEventListener('load', function() {
                                     showConfirmButton: false
                                 }
                             ).then(() => {
-                                resetSelfieModalState();
+                                closeSelfieModal();
                                 window.location.reload();
                             });
                         } else {
@@ -2132,7 +2135,6 @@ window.addEventListener('load', function() {
                                 'Presensi Ditolak',
                                 showFormalRejectMessage(resp.message, 'Presensi tidak dapat diproses. Silakan periksa kembali data yang dikirim.')
                             );
-                            resetSelfieModalState();
                             $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                         }
                     },
@@ -2147,7 +2149,6 @@ window.addEventListener('load', function() {
                             title,
                             showFormalRejectMessage(message, 'Permintaan presensi tidak dapat diproses saat ini.')
                         );
-                        resetSelfieModalState();
                         $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     }
                 });
@@ -2158,7 +2159,6 @@ window.addEventListener('load', function() {
                     'Pembacaan Lokasi Gagal',
                     showFormalRejectMessage(err.message, 'Lokasi terakhir tidak dapat diperoleh. Silakan pastikan GPS aktif, lalu coba kembali.')
                 );
-                resetSelfieModalState();
                 $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
     });
