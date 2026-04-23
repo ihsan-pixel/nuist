@@ -1748,10 +1748,14 @@ window.addEventListener('load', function() {
         }
     }
 
-    function closeSelfieModal() {
+    function closeSelfieModal(resetState = true) {
         if (!selfieModal) return;
 
-        resetSelfieModalState();
+        if (resetState) {
+            resetSelfieModalState();
+        } else {
+            stopSelfieStream();
+        }
         selfieModal.classList.remove('show');
         selfieModal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('selfie-modal-open');
@@ -2018,6 +2022,18 @@ window.addEventListener('load', function() {
             return;
         }
 
+        closeSelfieModal(false);
+        Swal.fire({
+            title: 'Memproses Presensi',
+            text: 'Mohon tunggu, data sedang dikirim.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Get final location reading (button click) as reading4
@@ -2099,7 +2115,7 @@ window.addEventListener('load', function() {
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {
-                                closeSelfieModal();
+                                resetSelfieModalState();
                                 window.location.reload();
                             });
                         } else {
@@ -2108,6 +2124,7 @@ window.addEventListener('load', function() {
                             title: 'Gagal',
                             text: resp.message || 'Gagal melakukan presensi. Coba lagi.',
                             });
+                            resetSelfieModalState();
                             $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                         }
                     },
@@ -2119,6 +2136,7 @@ window.addEventListener('load', function() {
                             title: 'Kesalahan',
                             text: message
                         });
+                        resetSelfieModalState();
                         $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     }
                 });
@@ -2130,6 +2148,7 @@ window.addEventListener('load', function() {
                     title: 'Kesalahan GPS',
                     text: err.message || 'Tidak dapat mengambil lokasi terakhir.'
                 });
+                resetSelfieModalState();
                 $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
     });
