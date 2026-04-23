@@ -173,18 +173,18 @@ class MobileController extends Controller
             $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek; // 0=Sunday, 5=Friday
 
             if ($hariKbm == '5') {
-                $masukStart = '05:00';
+                $masukStart = '00:01';
                 $masukEnd = '07:00';
                 $pulangStart = '15:00';
                 $pulangEnd = '22:00';
             } elseif ($hariKbm == '6') {
-                $masukStart = '05:00';
+                $masukStart = '00:01';
                 $masukEnd = '07:00';
                 // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30, Sabtu pukul 12:00
                 $pulangStart = ($dayOfWeek == 5) ? '14:30' : (($dayOfWeek == 6) ? '12:00' : '15:00');
                 $pulangEnd = '22:00';
             } else {
-                $masukStart = '05:00';
+                $masukStart = '00:01';
                 $masukEnd = '07:00';
                 $pulangStart = '15:00';
                 $pulangEnd = '22:00';
@@ -239,11 +239,11 @@ class MobileController extends Controller
         // Check if entry presensi is attempted before allowed time
         if ($isPresensiMasuk) {
             if ($user->pemenuhan_beban_kerja_lain) {
-                // User with beban kerja lain: presensi masuk 05:00 - 22:00
+                // User with beban kerja lain: presensi masuk 00:01 - 22:00
                 if ($now->format('H:i:s') < '00:01:00') {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
+                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 00:01.'
                     ], 400);
                 }
             } else {
@@ -252,7 +252,7 @@ class MobileController extends Controller
                 if ($now->format('H:i:s') < $minTimeMasuk) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
+                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 00:01.'
                     ], 400);
                 }
             }
