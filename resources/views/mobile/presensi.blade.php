@@ -1398,6 +1398,29 @@ window.addEventListener('load', function() {
         return (message && String(message).trim()) || fallback;
     }
 
+    function syncLatestLocationState() {
+        const lastReading = locationReadings.length > 0 ? locationReadings[locationReadings.length - 1] : null;
+
+        if ((!latitude || !longitude) && lastReading) {
+            latitude = Number(lastReading.latitude);
+            longitude = Number(lastReading.longitude);
+        }
+
+        if (!lokasi) {
+            const lokasiInput = document.getElementById('lokasi');
+            if (lokasiInput && lokasiInput.value) {
+                lokasi = lokasiInput.value;
+            }
+        }
+
+        return {
+            latitude,
+            longitude,
+            lokasi,
+            lastReading
+        };
+    }
+
 
 
     // Map variables
@@ -1435,6 +1458,8 @@ window.addEventListener('load', function() {
 
                     locationReadings.push(reading);
                     readingCount++;
+                    latitude = reading.latitude;
+                    longitude = reading.longitude;
 
                     // Update UI with smooth progress
                     const isComplete = readingCount >= totalReadings;
@@ -1569,6 +1594,20 @@ window.addEventListener('load', function() {
                         altitude: position.coords.altitude,
                         speed: position.coords.speed
                     };
+
+                    locationReadings.push(reading);
+                    readingCount++;
+                    latitude = reading.latitude;
+                    longitude = reading.longitude;
+
+                    $('#latitude').val(reading.latitude.toFixed(6));
+                    $('#longitude').val(reading.longitude.toFixed(6));
+                    updateUserLocationMap(reading.latitude, reading.longitude);
+                    getAddressFromCoordinates(reading.latitude, reading.longitude);
+
+                    if (!presensiActionLocked) {
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi Sekarang');
+                    }
 
                     // Update UI with success message
                     setLocationIndicator('success', 'GPS alternatif', 'bx bx-check-circle');
@@ -2006,6 +2045,8 @@ window.addEventListener('load', function() {
 
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
+        const latestLocationState = syncLatestLocationState();
+
         // If selfie is already captured, proceed with location validation
         // If this action is a checkout and current time is before pulangStart, ask for confirmation
         if (isPresensiKeluar && pulangStartSeconds) {
@@ -2025,19 +2066,10 @@ window.addEventListener('load', function() {
                 }
             }
         }
-        if (!latitude || !longitude) {
+        if (!latestLocationState.latitude || !latestLocationState.longitude) {
             showFormalErrorAlert(
                 'Lokasi Belum Siap',
                 'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu hingga proses pembacaan lokasi selesai.'
-            );
-            return;
-        }
-
-        // Allow presensi even if location reading failed (single reading is enough)
-        if (locationReadings.length === 0) {
-            showFormalErrorAlert(
-                'Lokasi Tidak Tersedia',
-                'Lokasi belum dapat diperoleh. Pastikan GPS aktif, lalu coba kembali.'
             );
             return;
         }
