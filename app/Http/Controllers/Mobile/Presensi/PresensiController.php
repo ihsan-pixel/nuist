@@ -414,7 +414,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             } else {
                 // User biasa: presensi masuk sesuai hari KBM
                 // Use madrasah-specific presensi_masuk_start when available
-                $minTimeMasuk = '05:00:00';
+                $minTimeMasuk = '00:01:00';
                 if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
                     $v = $user->madrasah->presensi_masuk_start;
                     $minTimeMasuk = (strlen($v) == 5) ? $v . ':00' : $v;
@@ -503,8 +503,8 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
 
             // Special handling for early presensi (between 01:00 and 05:00)
-            if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '05:00:00') {
-                $keterangan = "Presensi dini (sebelum pukul 05:00)";
+            if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '00:01:00') {
+                $keterangan = "Presensi dini";
             }
 
 

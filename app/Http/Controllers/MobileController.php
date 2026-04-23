@@ -240,7 +240,7 @@ class MobileController extends Controller
         if ($isPresensiMasuk) {
             if ($user->pemenuhan_beban_kerja_lain) {
                 // User with beban kerja lain: presensi masuk 05:00 - 22:00
-                if ($now->format('H:i:s') < '05:00:00') {
+                if ($now->format('H:i:s') < '00:01:00') {
                     return response()->json([
                         'success' => false,
                         'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
@@ -248,7 +248,7 @@ class MobileController extends Controller
                 }
             } else {
                 // User biasa: presensi masuk sesuai hari KBM
-                $minTimeMasuk = '05:00:00'; // Default for all days
+                $minTimeMasuk = '00:01:00'; // Default for all days
                 if ($now->format('H:i:s') < $minTimeMasuk) {
                     return response()->json([
                         'success' => false,
