@@ -1127,7 +1127,7 @@
 </div>
 
 <div class="presensi-action-bar">
-    {{-- <div class="presensi-action-bar-inner"> --}}
+    <div class="presensi-action-bar-inner">
         {{-- <div class="presensi-action-hint">Selfie dan konfirmasi presensi dilakukan pada langkah berikutnya.</div> --}}
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
@@ -1136,7 +1136,7 @@
             <i class="bx bx-{{ $buttonIcon }} me-1"></i>
             {{ $buttonText }}
         </button>
-    {{-- </div> --}}
+    </div>
 </div>
 
 <div id="selfie-modal" class="selfie-modal" aria-hidden="true">
