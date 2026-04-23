@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\Presensi;
@@ -251,7 +252,7 @@ class PresensiController extends \App\Http\Controllers\Controller
 
                 if (!$existingPresensi) {
                     // Create alpha record without saving selfie
-                    Presensi::create([
+                    Presensi::create($this->filterPresensiAttributes([
                         'user_id' => $user->id,
                         'tanggal' => $tanggal,
                         'status' => 'alpha',
@@ -266,7 +267,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                         'location_readings' => $request->location_readings,
                         'selfie_masuk_path' => null, // Don't save selfie for failed presensi
                         'status_kepegawaian_id' => $user->status_kepegawaian_id,
-                    ]);
+                    ]));
 
                     return response()->json([
                         'success' => false,
@@ -510,7 +511,7 @@ class PresensiController extends \App\Http\Controllers\Controller
 
 
             // Create new presensi record
-            $presensi = Presensi::create([
+            $presensi = Presensi::create($this->filterPresensiAttributes([
                 'user_id' => $user->id,
                 'madrasah_id' => $determinedMadrasahId,
                 'tanggal' => $tanggal,
@@ -530,7 +531,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 'is_fake_location' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis' => $locationValidation['analysis'] ?? null,
-            ]);
+            ]));
 
             $message = 'Presensi masuk berhasil dicatat!';
 
@@ -586,7 +587,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 }
             }
 
-            $existingPresensi->update([
+            $existingPresensi->update($this->filterPresensiAttributes([
                 'waktu_keluar' => $now,
                 'latitude_keluar' => $request->latitude,
                 'longitude_keluar' => $request->longitude,
@@ -600,7 +601,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'keterangan' => $newKeterangan,
                 'is_fake_location_keluar' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis_keluar' => $locationValidation['analysis'] ?? null,
-            ]);
+            ]));
 
             $presensi = $existingPresensi;
             $message = 'Presensi keluar berhasil dicatat!';
@@ -1186,6 +1187,41 @@ class PresensiController extends \App\Http\Controllers\Controller
             // Throw exception instead of returning empty string to prevent blank photos
             throw new \Exception('Gagal memproses foto selfie: ' . $e->getMessage());
         }
+    }
+
+    private function filterPresensiAttributes(array $attributes): array
+    {
+        $availableColumns = $this->getPresensiTableColumns();
+
+        if (empty($availableColumns)) {
+            return $attributes;
+        }
+
+        return array_filter(
+            $attributes,
+            fn ($key) => isset($availableColumns[$key]),
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    private function getPresensiTableColumns(): array
+    {
+        static $columns = null;
+
+        if ($columns !== null) {
+            return $columns;
+        }
+
+        try {
+            $columns = array_flip(Schema::getColumnListing('presensis'));
+        } catch (\Throwable $e) {
+            Log::warning('Gagal membaca struktur tabel presensis.', [
+                'message' => $e->getMessage(),
+            ]);
+            $columns = [];
+        }
+
+        return $columns;
     }
 
     /**
