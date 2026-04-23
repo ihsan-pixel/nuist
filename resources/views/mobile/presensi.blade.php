@@ -461,9 +461,12 @@
 
         <div class="realtime-clock-card">
             <div class="clock-time" id="realtimeClock">--:--:--</div>
-            <div class="clock-caption">Waktu lokal Asia/Jakarta</div>
+            {{-- <div class="clock-caption">Waktu lokal Asia/Jakarta</div> --}}
         </div>
+    </div>
 
+    <!-- User Location Map -->
+    <div class="presensi-form">
         <!-- Header -->
         <div class="presensi-header">
             <div class="d-flex justify-content-between align-items-center">
@@ -479,10 +482,6 @@
                      class="rounded-circle border border-white" width="42" height="42" alt="User">
             </div>
         </div>
-    </div>
-
-    <!-- User Location Map -->
-    <div class="presensi-form">
         <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
                 <i class="bx bx-map-pin"></i>
