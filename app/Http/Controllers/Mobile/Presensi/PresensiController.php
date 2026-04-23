@@ -811,7 +811,9 @@ class PresensiController extends \App\Http\Controllers\Controller
     }
 
     /**
-     * Validates location consistency in readings to detect potential fake locations.
+     * Validates location readings to catch impossible location jumps.
+     * Stable readings in the same place are considered valid.
+     *
      * @param string $locationReadingsJson JSON string containing location readings array
      * @return array ['valid' => bool, 'message' => string]
      */
@@ -820,44 +822,60 @@ class PresensiController extends \App\Http\Controllers\Controller
         try {
             $readings = json_decode($locationReadingsJson, true);
 
-            if (!is_array($readings) || count($readings) < 4) {
-                // If less than 4 readings, allow presensi (backward compatibility)
+            if (!is_array($readings) || count($readings) < 2) {
                 return ['valid' => true, 'message' => ''];
             }
 
-            // Take first 4 readings for validation (exclude the final reading on button click)
-            $firstFourReadings = array_slice($readings, 0, 4);
+            $previousReading = null;
+            $suspiciousJumpCount = 0;
 
-            // Tolerance for location consistency (approximately 10 meters)
-            $tolerance = 0.0001; // degrees
-
-            // Check if all 4 readings are within tolerance of each other
-            $referenceLat = $firstFourReadings[0]['latitude'];
-            $referenceLng = $firstFourReadings[0]['longitude'];
-
-            $consistentCount = 0;
-            foreach ($firstFourReadings as $reading) {
-                $latDiff = abs($reading['latitude'] - $referenceLat);
-                $lngDiff = abs($reading['longitude'] - $referenceLng);
-
-                if ($latDiff <= $tolerance && $lngDiff <= $tolerance) {
-                    $consistentCount++;
+            foreach ($readings as $reading) {
+                if (
+                    !is_array($reading)
+                    || !isset($reading['latitude'], $reading['longitude'])
+                    || !is_numeric($reading['latitude'])
+                    || !is_numeric($reading['longitude'])
+                ) {
+                    continue;
                 }
+
+                if ($previousReading) {
+                    $distanceKm = $this->calculateDistance(
+                        (float) $previousReading['latitude'],
+                        (float) $previousReading['longitude'],
+                        (float) $reading['latitude'],
+                        (float) $reading['longitude']
+                    );
+
+                    $timeDiffSeconds = null;
+                    if (
+                        isset($previousReading['timestamp'], $reading['timestamp'])
+                        && is_numeric($previousReading['timestamp'])
+                        && is_numeric($reading['timestamp'])
+                    ) {
+                        $timeDiffSeconds = max(1, abs(((int) $reading['timestamp']) - ((int) $previousReading['timestamp'])) / 1000);
+                    }
+
+                    // Real user can stay in the same spot. Yang dicurigai hanya loncatan lokasi
+                    // yang sangat jauh dalam waktu sangat singkat.
+                    if ($timeDiffSeconds !== null && $timeDiffSeconds <= 60 && $distanceKm > 2) {
+                        $suspiciousJumpCount++;
+                    }
+                }
+
+                $previousReading = $reading;
             }
 
-            // If all 4 readings are consistent (same location), reject presensi
-            if ($consistentCount >= 4) {
+            if ($suspiciousJumpCount >= 2) {
                 return [
                     'valid' => false,
-                    'message' => 'Peringatan, presensi anda terindikasi sebagai lokasi tidak sesuai. Silahkan geser atau pindah dari posisi sebelumnya.'
+                    'message' => 'Pembacaan lokasi terdeteksi berpindah sangat jauh dalam waktu singkat. Silakan pastikan GPS aktif dan coba kembali.'
                 ];
             }
 
-            // If only 3 or fewer are consistent, allow presensi
             return ['valid' => true, 'message' => ''];
-
-        } catch (\Exception $e) {
-            // If there's any error parsing readings, allow presensi for safety
+        } catch (\Throwable $e) {
+            // Jangan blok presensi hanya karena parsing reading bermasalah.
             return ['valid' => true, 'message' => ''];
         }
     }
