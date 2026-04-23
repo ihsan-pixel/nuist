@@ -17,9 +17,25 @@
         .sticky-header {
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1200;
             background: #f8f9fb;
             padding-bottom: 14px;
+        }
+
+        .user-location-map-container,
+        #presensi-map,
+        .leaflet-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .leaflet-pane,
+        .leaflet-top,
+        .leaflet-bottom,
+        .leaflet-control,
+        .leaflet-tooltip,
+        .leaflet-popup {
+            z-index: 10;
         }
 
         .page-heading {
