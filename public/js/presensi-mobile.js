@@ -75,9 +75,13 @@ async function takePhoto() {
     source: CameraSource.Camera,
   });
 
-  // photo.base64String is the raw base64 (no mime prefix)
-  // For easier backend handling, we send raw base64 string
-  return photo.base64String;
+  if (!photo?.base64String) {
+    throw new Error('Foto selfie tidak tersedia');
+  }
+
+  const format = (photo.format || 'jpeg').toLowerCase();
+
+  return `data:image/${format};base64,${photo.base64String}`;
 }
 
 async function registerPushIfNeeded() {
