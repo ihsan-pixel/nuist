@@ -484,7 +484,7 @@
     <!-- User Location Map -->
     <div class="presensi-form">
         <!-- Header -->
-        <div class="presensi-header">
+        {{-- <div class="presensi-header">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h6 class="mb-1">Presensi Digital</h6>
@@ -497,7 +497,7 @@
                 <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}"
                      class="rounded-circle border border-white" width="42" height="42" alt="User">
             </div>
-        </div>
+        </div> --}}
         <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
                 <i class="bx bx-map-pin"></i>
