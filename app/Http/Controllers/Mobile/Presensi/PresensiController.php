@@ -133,13 +133,45 @@ class PresensiController extends \App\Http\Controllers\Controller
 
 
 
-        // Mobile presensi dibuka penuh selama satu hari.
-        $timeRanges = [
-            'masuk_start' => '00:00:00',
-            'masuk_end' => '23:59:59',
-            'pulang_start' => '00:00:00',
-            'pulang_end' => '23:59:59',
-        ];
+        // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)
+        $timeRanges = null;
+        if ($user->madrasah && $user->madrasah->hari_kbm) {
+            $hariKbm = $user->madrasah->hari_kbm;
+            $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek; // 0=Sunday, 5=Friday
+
+            // Defaults
+            $masukStart = $user->madrasah->presensi_masuk_start ?? '00:01';
+            $masukEnd = $user->madrasah->presensi_masuk_end ?? '07:00';
+            $pulangEnd = $user->madrasah->presensi_pulang_end ?? '22:00';
+
+            // Determine pulang start using day-specific overrides if present
+            if ($dayOfWeek == 5 && $user->madrasah->presensi_pulang_jumat) {
+                $pulangStart = $user->madrasah->presensi_pulang_jumat;
+            } elseif ($dayOfWeek == 6 && $user->madrasah->presensi_pulang_sabtu) {
+                $pulangStart = $user->madrasah->presensi_pulang_sabtu;
+            } elseif ($user->madrasah->presensi_pulang_start) {
+                $pulangStart = $user->madrasah->presensi_pulang_start;
+            } else {
+                // Fallbacks depending on KBM policy
+                if ($hariKbm == '5') {
+                    $pulangStart = ($dayOfWeek == 5) ? '11:15' : '13:35';
+                } elseif ($hariKbm == '6') {
+                    $pulangStart = ($dayOfWeek == 5) ? '13:00' : (($dayOfWeek == 6) ? '12:00' : '14:00');
+                } else {
+                    $pulangStart = '15:00';
+                }
+            }
+
+            $timeRanges = [
+                'masuk_start' => $masukStart,
+                'masuk_end' => $masukEnd,
+                'pulang_start' => $pulangStart,
+                'pulang_end' => $pulangEnd,
+            ];
+
+            // Remove masuk_end to indicate no time limit for presensi entry
+            $timeRanges['masuk_end'] = null;
+        }
 
         return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData', 'user'));
     }
@@ -194,7 +226,12 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         // Special handling for penjaga sekolah - no time restrictions
         if ($user->ketugasan !== 'penjaga sekolah') {
+            // Use madrasah-specific presensi_pulang_end as end-of-day cutoff if available
             $endOfDayCutoff = '23:59:59';
+            if ($user->madrasah && $user->madrasah->presensi_pulang_end) {
+                $val = $user->madrasah->presensi_pulang_end;
+                $endOfDayCutoff = (strlen($val) == 5) ? $val . ':00' : $val;
+            }
 
             // Check if time is after endOfDayCutoff - mark as alpha (only for non-penjaga sekolah)
             if ($now->format('H:i:s') > $endOfDayCutoff) {
@@ -361,7 +398,13 @@ class PresensiController extends \App\Http\Controllers\Controller
                 // Penjaga sekolah: no time restrictions for presensi masuk
                 // Can presensi anytime 24 hours
             } elseif ($user->pemenuhan_beban_kerja_lain) {
-                $minTimeMasuk = '00:00:00';
+                // User with beban kerja lain: presensi masuk 00:01 - 22:00
+                // Prefer madrasah-specific presensi_masuk_start if present else default 00:01
+                $minTimeMasuk = '00:01:00';
+                if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
+                    $v = $user->madrasah->presensi_masuk_start;
+                    $minTimeMasuk = (strlen($v) == 5) ? $v . ':00' : $v;
+                }
                 if ($now->format('H:i:s') < $minTimeMasuk) {
                     return response()->json([
                         'success' => false,
@@ -369,7 +412,13 @@ class PresensiController extends \App\Http\Controllers\Controller
                     ], 400);
                 }
             } else {
-                $minTimeMasuk = '00:00:00';
+                // User biasa: presensi masuk sesuai hari KBM
+                // Use madrasah-specific presensi_masuk_start when available
+                $minTimeMasuk = '00:01:00';
+                if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
+                    $v = $user->madrasah->presensi_masuk_start;
+                    $minTimeMasuk = (strlen($v) == 5) ? $v . ':00' : $v;
+                }
                 if ($now->format('H:i:s') < $minTimeMasuk) {
                     return response()->json([
                         'success' => false,
@@ -491,7 +540,31 @@ class PresensiController extends \App\Http\Controllers\Controller
                 // Penjaga sekolah: no time restrictions for presensi keluar
                 // Can presensi anytime 24 hours
             } elseif (!$user->pemenuhan_beban_kerja_lain) {
-                $pulangStart = '00:00:00';
+                // User biasa: presensi keluar sesuai hari KBM
+                $pulangStart = '15:00:00'; // Default fallback
+                // Prefer madrasah-specific settings when available
+                if ($user->madrasah) {
+                    $ms = $user->madrasah;
+                    $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek;
+
+                    if ($dayOfWeek == 5 && $ms->presensi_pulang_jumat) {
+                        $pulangStart = (strlen($ms->presensi_pulang_jumat) == 5) ? $ms->presensi_pulang_jumat . ':00' : $ms->presensi_pulang_jumat;
+                    } elseif ($dayOfWeek == 6 && $ms->presensi_pulang_sabtu) {
+                        $pulangStart = (strlen($ms->presensi_pulang_sabtu) == 5) ? $ms->presensi_pulang_sabtu . ':00' : $ms->presensi_pulang_sabtu;
+                    } elseif ($ms->presensi_pulang_start) {
+                        $pulangStart = (strlen($ms->presensi_pulang_start) == 5) ? $ms->presensi_pulang_start . ':00' : $ms->presensi_pulang_start;
+                    } else {
+                        // fallback based on hari_kbm
+                        $hariKbm = $ms->hari_kbm;
+                        if ($hariKbm == '5') {
+                            $pulangStart = ($dayOfWeek == 5) ? '11:15:00' : '13:35:00';
+                        } elseif ($hariKbm == '6') {
+                            $pulangStart = ($dayOfWeek == 5) ? '13:00:00' : (($dayOfWeek == 6) ? '12:00:00' : '14:00:00');
+                        }
+                    }
+                }
+
+                // If it's before pulangStart, allow checkout but mark as pulang awal
                 $isPulangAwal = false;
                 if ($now->format('H:i:s') < $pulangStart) {
                     $isPulangAwal = true;

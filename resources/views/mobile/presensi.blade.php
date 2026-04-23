@@ -996,26 +996,51 @@
             <h6 class="section-title">Jadwal Presensi</h6>
         </div>
         @php
-            $masukStart = $timeRanges['masuk_start'] ? \Carbon\Carbon::parse($timeRanges['masuk_start'])->format('H:i') : '-';
-            $masukEnd = $timeRanges['masuk_end'] ? \Carbon\Carbon::parse($timeRanges['masuk_end'])->format('H:i') : '-';
-            $pulangStart = $timeRanges['pulang_start'] ? \Carbon\Carbon::parse($timeRanges['pulang_start'])->format('H:i') : '-';
-            $pulangEnd = $timeRanges['pulang_end'] ? \Carbon\Carbon::parse($timeRanges['pulang_end'])->format('H:i') : '-';
+            // prefer madrasah-specific values when present
+            $ms = $user->madrasah ?? null;
+            $masukStart = $ms && $ms->presensi_masuk_start ? \Carbon\Carbon::parse($ms->presensi_masuk_start)->format('H:i') : ($timeRanges['masuk_start'] ? \Carbon\Carbon::parse($timeRanges['masuk_start'])->format('H:i') : '-');
+            $masukEnd = $ms && $ms->presensi_masuk_end ? \Carbon\Carbon::parse($ms->presensi_masuk_end)->format('H:i') : '07:00';
+            $pulangStart = null;
+            $pulangEnd = $ms && $ms->presensi_pulang_end ? \Carbon\Carbon::parse($ms->presensi_pulang_end)->format('H:i') : ($timeRanges['pulang_end'] ? \Carbon\Carbon::parse($timeRanges['pulang_end'])->format('H:i') : '22:00');
+
+            // Day specific overrides
+            $dayOfWeek = \Carbon\Carbon::parse($selectedDate)->dayOfWeek; // 0=Sun,5=Fri,6=Sat
+            if ($ms) {
+                if ($dayOfWeek == 5 && $ms->presensi_pulang_jumat) {
+                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_jumat)->format('H:i');
+                } elseif ($dayOfWeek == 6 && $ms->presensi_pulang_sabtu) {
+                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_sabtu)->format('H:i');
+                } elseif ($ms->presensi_pulang_start) {
+                    $pulangStart = \Carbon\Carbon::parse($ms->presensi_pulang_start)->format('H:i');
+                }
+            }
+
+            // fallback to controller-provided range if still null
+            if (!$pulangStart) {
+                $pulangStart = $timeRanges['pulang_start'] ? \Carbon\Carbon::parse($timeRanges['pulang_start'])->format('H:i') : '-';
+            }
         @endphp
 
         <div class="schedule-grid">
             <div class="schedule-item masuk">
                 <h6 class="text-primary">Masuk</h6>
                 <p>{{ $masukStart }} - {{ $masukEnd }}</p>
-                <small>Presensi mobile dibuka penuh selama 1 hari.</small>
+                <small>Terlambat setelah 07:00</small>
             </div>
             <div class="schedule-item pulang">
                 <h6 class="text-success">Pulang</h6>
                 <p>{{ $pulangStart }} - {{ $pulangEnd }}</p>
-                <small>Batas akhir presensi pukul {{ $pulangEnd }}</small>
+                <small>Mulai pukul {{ $pulangStart }}</small>
             </div>
         </div>
         <div class="compact-note">
-            Presensi mobile dapat dilakukan mulai pukul 00:00 sampai 23:59.
+            @if($ms && $ms->hari_kbm == '6' && $dayOfWeek == 6 && !$ms->presensi_pulang_sabtu)
+                Jam pulang Sabtu belum diatur pada data madrasah.
+            @elseif($ms && $ms->hari_kbm == '6' && $dayOfWeek == 5 && !$ms->presensi_pulang_jumat)
+                Jam pulang Jumat masih memakai pengaturan umum.
+            @else
+                Jadwal ditampilkan sesuai pengaturan madrasah untuk hari ini.
+            @endif
         </div>
     </div>
     @else
@@ -1206,8 +1231,27 @@ window.addEventListener('load', function() {
 
     // Presensi mode: apakah tombol saat ini adalah untuk keluar (checkout)
     const isPresensiKeluar = {{ isset($showKeluar) && $showKeluar ? 'true' : 'false' }};
-    // Mobile presensi checkout juga dibuka sejak awal hari.
-    let pulangStartStr = @json($timeRanges['pulang_start'] ?? '00:00:00');
+    // Determine pulang start time to be used for early-check detection.
+    // Prefer madrasah-specific overrides, else use controller-provided timeRanges
+    let pulangStartStr = null;
+    @php
+        $ms = Auth::user()->madrasah ?? null;
+        $dayOfWeek = \Carbon\Carbon::parse($selectedDate)->dayOfWeek;
+        if ($ms) {
+            if ($dayOfWeek == 5 && $ms->presensi_pulang_jumat) {
+                $ps = \Carbon\Carbon::parse($ms->presensi_pulang_jumat)->format('H:i');
+            } elseif ($dayOfWeek == 6 && $ms->presensi_pulang_sabtu) {
+                $ps = \Carbon\Carbon::parse($ms->presensi_pulang_sabtu)->format('H:i');
+            } elseif ($ms->presensi_pulang_start) {
+                $ps = \Carbon\Carbon::parse($ms->presensi_pulang_start)->format('H:i');
+            } else {
+                $ps = null;
+            }
+        } else {
+            $ps = null;
+        }
+    @endphp
+    pulangStartStr = @json($ps ?? ($timeRanges['pulang_start'] ?? null));
 
     function timeStringToSeconds(t) {
         if (!t) return null;
