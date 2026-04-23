@@ -117,7 +117,12 @@ class IzinController extends \App\Http\Controllers\Controller
                 $request->validate([
                     'tanggal' => 'required|date',
                     'keterangan' => 'required|string',
-                    'surat_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                    'surat_izin' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                ], [
+                    'surat_izin.required' => 'File surat atau keterangan dokter wajib diunggah untuk izin sakit.',
+                    'surat_izin.file' => 'Berkas surat sakit tidak valid.',
+                    'surat_izin.mimes' => 'File surat sakit harus berformat PDF, JPG, JPEG, atau PNG.',
+                    'surat_izin.max' => 'Ukuran file surat sakit maksimal 5MB.',
                 ]);
 
                 $alasan = $request->input('keterangan');
