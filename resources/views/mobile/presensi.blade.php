@@ -2002,6 +2002,9 @@ window.addEventListener('load', function() {
 
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
+        const selfieDataInput = document.getElementById('selfie-data');
+        const capturedSelfieData = selfieDataInput ? selfieDataInput.value : '';
+
         closeSelfieModal(false);
 
         // If selfie is already captured, proceed with location validation
@@ -2070,8 +2073,7 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed
                 });
 
-                const selfieDataInput = document.getElementById('selfie-data');
-                let selfieDataValue = selfieDataInput ? selfieDataInput.value : '';
+                let selfieDataValue = capturedSelfieData;
                 console.log('Final selfie data length:', selfieDataValue.length);
                 console.log('Final selfie data starts with:', selfieDataValue.substring(0, 50));
 
