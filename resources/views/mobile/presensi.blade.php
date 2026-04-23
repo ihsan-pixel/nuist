@@ -2002,11 +2002,6 @@ window.addEventListener('load', function() {
 
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
-        const selfieDataInput = document.getElementById('selfie-data');
-        const capturedSelfieData = selfieDataInput ? selfieDataInput.value : '';
-
-        closeSelfieModal(false);
-
         // If selfie is already captured, proceed with location validation
         // If this action is a checkout and current time is before pulangStart, ask for confirmation
         if (isPresensiKeluar && pulangStartSeconds) {
@@ -2022,7 +2017,6 @@ window.addEventListener('load', function() {
                     cancelButtonText: 'Batal'
                 });
                 if (!res.isConfirmed) {
-                    resetSelfieModalState();
                     return; // user cancelled early checkout
                 }
             }
@@ -2032,7 +2026,6 @@ window.addEventListener('load', function() {
                 'Lokasi Belum Siap',
                 'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu hingga proses pembacaan lokasi selesai.'
             );
-            resetSelfieModalState();
             return;
         }
 
@@ -2042,10 +2035,10 @@ window.addEventListener('load', function() {
                 'Lokasi Tidak Tersedia',
                 'Lokasi belum dapat diperoleh. Pastikan GPS aktif, lalu coba kembali.'
             );
-            resetSelfieModalState();
             return;
         }
 
+        closeSelfieModal(false);
         showFormalLoadingAlert(
             'Sedang Memproses Presensi',
             'Mohon menunggu. Data presensi sedang dikirim ke sistem.'
@@ -2073,7 +2066,8 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed
                 });
 
-                let selfieDataValue = capturedSelfieData;
+                const selfieDataInput = document.getElementById('selfie-data');
+                let selfieDataValue = selfieDataInput ? selfieDataInput.value : '';
                 console.log('Final selfie data length:', selfieDataValue.length);
                 console.log('Final selfie data starts with:', selfieDataValue.substring(0, 50));
 
