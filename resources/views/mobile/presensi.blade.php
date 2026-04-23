@@ -300,11 +300,13 @@
         .address-input {
             background: #fff;
             border-radius: 10px;
-            padding: 10px 12px;
-            border: 1px solid #e5e7eb;
-            font-size: 12px;
+            padding: 8px 10px;
+            border: none;
+            font-size: 11px;
             width: 100%;
             word-wrap: break-word;
+            color: #475467;
+            background: transparent;
         }
 
         .presensi-btn {
@@ -328,7 +330,7 @@
         .schedule-section {
             background: #fff;
             border-radius: 14px;
-            padding: 14px;
+            padding: 12px;
             box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
             margin-bottom: 12px;
             border: 1px solid rgba(226, 232, 240, 0.9);
@@ -337,14 +339,14 @@
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
 
         .schedule-item {
             background: rgba(248, 250, 252, 0.95);
             border-radius: 12px;
-            padding: 10px;
-            text-align: center;
+            padding: 9px 10px;
+            text-align: left;
             border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
@@ -357,24 +359,46 @@
         }
 
         .schedule-item i {
-            font-size: 16px;
-            margin-bottom: 4px;
+            font-size: 14px;
+            margin-bottom: 3px;
         }
 
         .schedule-item h6 {
-            font-size: 12px;
-            margin-bottom: 2px;
+            font-size: 11px;
+            margin-bottom: 1px;
             font-weight: 600;
         }
 
         .schedule-item p {
             font-size: 11px;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
+            font-weight: 600;
+            color: #1f2937;
         }
 
         .schedule-item small {
-            font-size: 10px;
+            font-size: 9px;
             color: #6c757d;
+        }
+
+        .compact-section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .compact-section-head .section-title {
+            margin-bottom: 0;
+            font-size: 12px;
+        }
+
+        .compact-note {
+            font-size: 10px;
+            color: #667085;
+            line-height: 1.4;
+            margin-top: 6px;
         }
 
         .alert-custom {
@@ -479,19 +503,20 @@
 
         .action-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
         }
 
         .action-tile {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            gap: 6px;
-            min-height: 92px;
-            padding: 14px;
-            border-radius: 14px;
+            text-align: center;
+            gap: 5px;
+            min-height: 74px;
+            padding: 10px 8px;
+            border-radius: 12px;
             text-decoration: none;
             color: #1f2937;
             background: #fff;
@@ -500,23 +525,36 @@
         }
 
         .action-tile i {
-            font-size: 20px;
+            font-size: 18px;
             color: #0e8549;
         }
 
         .action-tile strong {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
             color: #1f2937;
+            line-height: 1.2;
         }
 
         .action-tile span {
-            font-size: 11px;
-            color: #6b7280;
+            display: none;
         }
 
-        .action-tile.full {
-            margin-top: 10px;
+        .address-compact {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .address-compact i {
+            color: #0ea5e9;
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
         }
 
         .selfie-callout {
@@ -725,6 +763,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .action-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
             .selfie-stage,
             .selfie-placeholder,
             #selfie-video,
@@ -912,11 +954,13 @@
 
         <!-- Address -->
         <div class="form-section">
-            <div class="d-flex align-items-center mb-1">
-                <i class="bx bx-home text-info me-1"></i>
-                <label class="section-title mb-0">Alamat Lokasi</label>
+            <div class="compact-section-head">
+                <label class="section-title">Alamat Lokasi</label>
             </div>
-            <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
+            <div class="address-compact">
+                <i class="bx bx-map-pin"></i>
+                <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
+            </div>
         </div>
 
         <!-- Selfie Section -->
@@ -959,26 +1003,19 @@
     <!-- Time Information -->
     @if($isPenjagaSekolah)
     <div class="schedule-section">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-calendar-check"></i>
-            </div>
-            <h6 class="section-title mb-0">Jadwal Presensi Penjaga Sekolah</h6>
+        <div class="compact-section-head">
+            <h6 class="section-title">Jadwal Presensi</h6>
         </div>
-        <div class="alert-custom info">
-            <small>
-                <i class="bx bx-info-circle me-1"></i>
-                <strong>Penjaga Sekolah:</strong> Dapat melakukan presensi masuk dan keluar kapan saja dalam 24 jam. Presensi keluar dapat dilakukan pada tanggal berbeda dengan presensi masuk.
-            </small>
+        <div class="schedule-item pulang">
+            <h6 class="text-success mb-1">Penjaga Sekolah</h6>
+            <p>24 Jam</p>
+            <small>Masuk dan keluar dapat dilakukan kapan saja.</small>
         </div>
     </div>
     @elseif(isset($timeRanges) && $timeRanges)
     <div class="schedule-section">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-calendar-check"></i>
-            </div>
-            <h6 class="section-title mb-0">Jadwal Presensi</h6>
+        <div class="compact-section-head">
+            <h6 class="section-title">Jadwal Presensi</h6>
         </div>
         @php
             // prefer madrasah-specific values when present
@@ -1008,40 +1045,25 @@
 
         <div class="schedule-grid">
             <div class="schedule-item masuk">
-                <i class="bx bx-log-in-circle text-primary"></i>
                 <h6 class="text-primary">Masuk</h6>
                 <p>{{ $masukStart }} - {{ $masukEnd }}</p>
                 <small>Terlambat setelah 07:00</small>
             </div>
             <div class="schedule-item pulang">
-                <i class="bx bx-log-out-circle text-success"></i>
                 <h6 class="text-success">Pulang</h6>
                 <p>{{ $pulangStart }} - {{ $pulangEnd }}</p>
                 <small>Mulai pukul {{ $pulangStart }}</small>
             </div>
         </div>
-
-        {{-- <div class="alert-custom info" style="margin-top: 6px;">
-            <small>
-                <i class="bx bx-info-circle me-1"></i>
-                <strong>Catatan:</strong>
-                @if($ms && $ms->hari_kbm == '6' && $dayOfWeek == 5)
-                    @if($ms->presensi_pulang_jumat)
-                        Pulang dapat dilakukan mulai pukul {{ \Carbon\Carbon::parse($ms->presensi_pulang_jumat)->format('H:i') }} hingga {{ $pulangEnd }} (khusus Jumat).
-                    @else
-                        Pulang dapat dilakukan sesuai pengaturan umum; catatan: jadwal pulang Jumat belum diisi pada data madrasah.
-                    @endif
-                @elseif($ms && $ms->hari_kbm == '6' && $dayOfWeek == 6)
-                    @if($ms->presensi_pulang_sabtu)
-                        Pulang dapat dilakukan mulai pukul {{ \Carbon\Carbon::parse($ms->presensi_pulang_sabtu)->format('H:i') }} hingga {{ $pulangEnd }} (khusus Sabtu).
-                    @else
-                        Perhatian: untuk madrasah dengan KBM 6 hari, jam pulang Sabtu belum diatur. Silakan isi kolom "Jam Pulang Khusus Sabtu" pada masterdata madrasah.
-                    @endif
-                @else
-                    Pulang dapat dilakukan mulai pukul {{ $pulangStart }} hingga {{ $pulangEnd }}.
-                @endif
-            </small>
-        </div> --}}
+        <div class="compact-note">
+            @if($ms && $ms->hari_kbm == '6' && $dayOfWeek == 6 && !$ms->presensi_pulang_sabtu)
+                Jam pulang Sabtu belum diatur pada data madrasah.
+            @elseif($ms && $ms->hari_kbm == '6' && $dayOfWeek == 5 && !$ms->presensi_pulang_jumat)
+                Jam pulang Jumat masih memakai pengaturan umum.
+            @else
+                Jadwal ditampilkan sesuai pengaturan madrasah untuk hari ini.
+            @endif
+        </div>
     </div>
     @else
     <div class="alert-custom warning">
@@ -1066,25 +1088,20 @@
     <div class="action-grid">
         <a href="{{ route('mobile.riwayat-presensi') }}" class="action-tile">
             <i class="bx bx-history"></i>
-            <strong>Riwayat Presensi</strong>
-            <span>Lihat catatan hadir, pulang, dan status sebelumnya.</span>
+            <strong>Riwayat</strong>
         </a>
 
         <a href="{{ route('mobile.izin') }}" class="action-tile">
             <i class="bx bx-calendar-minus"></i>
             <strong>Izin</strong>
-            <span>Ajukan izin sakit, terlambat, cuti, dan kebutuhan lainnya.</span>
         </a>
+        @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
+        <a href="{{ route('mobile.monitor-map') }}" class="action-tile">
+            <i class="bx bx-map"></i>
+            <strong>Monitor Map</strong>
+        </a>
+        @endif
     </div>
-
-    <!-- Monitor Map: dedicated button for kepala madrasah -->
-    @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-    <a href="{{ route('mobile.monitor-map') }}" class="action-tile full">
-        <i class="bx bx-map"></i>
-        <strong>Monitor Map Presensi</strong>
-        <span>Pantau posisi presensi tenaga pendidik pada peta sekolah.</span>
-    </a>
-    @endif
 
     <!-- Monitoring Presensi: Map View -->
     @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
