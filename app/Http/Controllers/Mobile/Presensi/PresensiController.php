@@ -227,7 +227,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         // Special handling for penjaga sekolah - no time restrictions
         if ($user->ketugasan !== 'penjaga sekolah') {
             // Use madrasah-specific presensi_pulang_end as end-of-day cutoff if available
-            $endOfDayCutoff = '22:00:00';
+            $endOfDayCutoff = '23:59:59';
             if ($user->madrasah && $user->madrasah->presensi_pulang_end) {
                 $val = $user->madrasah->presensi_pulang_end;
                 $endOfDayCutoff = (strlen($val) == 5) ? $val . ':00' : $val;
@@ -400,7 +400,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             } elseif ($user->pemenuhan_beban_kerja_lain) {
                 // User with beban kerja lain: presensi masuk 05:00 - 22:00
                 // Prefer madrasah-specific presensi_masuk_start if present else default 05:00
-                $minTimeMasuk = '05:00:00';
+                $minTimeMasuk = '00:01:00';
                 if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
                     $v = $user->madrasah->presensi_masuk_start;
                     $minTimeMasuk = (strlen($v) == 5) ? $v . ':00' : $v;
