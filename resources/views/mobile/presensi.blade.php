@@ -18,10 +18,6 @@
             overflow: hidden;
         }
 
-        .presensi-screen {
-            padding-bottom: 170px;
-        }
-
         .sticky-header {
             position: sticky;
             top: 0;
@@ -588,35 +584,6 @@
             color: #6b7280;
         }
 
-        .presensi-action-bar {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 82px;
-            z-index: 1045;
-            padding: 0 14px 14px;
-            pointer-events: none;
-        }
-
-        .presensi-action-bar-inner {
-            max-width: 420px;
-            margin: 0 auto;
-            background: rgba(248, 249, 251, 0.92);
-            backdrop-filter: blur(10px);
-            border-radius: 18px;
-            padding: 10px;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            pointer-events: auto;
-        }
-
-        .presensi-action-hint {
-            font-size: 11px;
-            color: #6b7280;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
         .selfie-modal {
             position: fixed;
             inset: 0;
@@ -963,21 +930,6 @@
             </div>
         </div>
 
-        <!-- Selfie Section -->
-        {{-- <div class="form-section">
-            <div class="d-flex align-items-center mb-1">
-                <i class="bx bx-camera text-primary me-1"></i>
-                <label class="section-title mb-0">Presensi Selfie </label>
-            </div>
-            <div class="selfie-callout">
-                <i class="bx bx-camera"></i>
-                <div>
-                    <strong>Selfie dilakukan di modal</strong>
-                    <span>Tekan tombol presensi di bagian bawah, ambil foto, lalu kirim untuk menyelesaikan presensi.</span>
-                </div>
-            </div>
-        </div> --}}
-
         <!-- Presensi Button -->
         @php
             $isDisabled = false;
@@ -998,6 +950,32 @@
                 $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Sekarang';
             }
         @endphp
+
+        <div class="form-section">
+            <button type="button" id="btn-presensi"
+                    class="presensi-btn"
+                    disabled
+                    {{ $isDisabled ? 'disabled' : '' }}>
+                <i class="bx bx-{{ $buttonIcon }} me-1"></i>
+                {{ $buttonText }}
+            </button>
+        </div>
+
+        <!-- Selfie Section -->
+        {{-- <div class="form-section">
+            <div class="d-flex align-items-center mb-1">
+                <i class="bx bx-camera text-primary me-1"></i>
+                <label class="section-title mb-0">Presensi Selfie </label>
+            </div>
+            <div class="selfie-callout">
+                <i class="bx bx-camera"></i>
+                <div>
+                    <strong>Selfie dilakukan di modal</strong>
+                    <span>Tekan tombol presensi di bagian bawah, ambil foto, lalu kirim untuk menyelesaikan presensi.</span>
+                </div>
+            </div>
+        </div> --}}
+
     </div>
 
     <!-- Time Information -->
@@ -1141,19 +1119,6 @@
         </div>
     </div>
     @endif --}}
-</div>
-
-<div class="presensi-action-bar">
-    <div class="presensi-action-bar-inner">
-        {{-- <div class="presensi-action-hint">Selfie dan konfirmasi presensi dilakukan pada langkah berikutnya.</div> --}}
-        <button type="button" id="btn-presensi"
-                class="presensi-btn"
-                disabled
-                {{ $isDisabled ? 'disabled' : '' }}>
-            <i class="bx bx-{{ $buttonIcon }} me-1"></i>
-            {{ $buttonText }}
-        </button>
-    </div>
 </div>
 
 <div id="selfie-modal" class="selfie-modal" aria-hidden="true">
