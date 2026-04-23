@@ -1128,7 +1128,7 @@
 
 <div class="presensi-action-bar">
     <div class="presensi-action-bar-inner">
-        <div class="presensi-action-hint">Selfie dan konfirmasi presensi dilakukan pada langkah berikutnya.</div>
+        {{-- <div class="presensi-action-hint">Selfie dan konfirmasi presensi dilakukan pada langkah berikutnya.</div> --}}
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
                 disabled
