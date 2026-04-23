@@ -920,7 +920,7 @@
         </div>
 
         <!-- Selfie Section -->
-        <div class="form-section">
+        {{-- <div class="form-section">
             <div class="d-flex align-items-center mb-1">
                 <i class="bx bx-camera text-primary me-1"></i>
                 <label class="section-title mb-0">Presensi Selfie </label>
@@ -932,7 +932,7 @@
                     <span>Tekan tombol presensi di bagian bawah, ambil foto, lalu kirim untuk menyelesaikan presensi.</span>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Presensi Button -->
         @php
