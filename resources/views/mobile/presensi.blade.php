@@ -923,7 +923,7 @@
         <div class="form-section">
             <div class="d-flex align-items-center mb-1">
                 <i class="bx bx-camera text-primary me-1"></i>
-                <label class="section-title mb-0">Selfie Presensi</label>
+                <label class="section-title mb-0">Presensi Selfie </label>
             </div>
             <div class="selfie-callout">
                 <i class="bx bx-camera"></i>
@@ -1144,7 +1144,7 @@
         <div class="selfie-modal-header">
             <div>
                 <div id="selfie-modal-title" class="selfie-modal-title">Selfie Presensi</div>
-                <div id="selfie-modal-subtitle" class="selfie-modal-subtitle">Ambil foto selfie lalu kirim presensi.</div>
+                {{-- <div id="selfie-modal-subtitle" class="selfie-modal-subtitle">Ambil foto selfie lalu kirim presensi.</div> --}}
             </div>
             <button type="button" id="btn-close-selfie-modal" class="selfie-modal-close" aria-label="Tutup">
                 <i class="bx bx-x"></i>
@@ -1802,7 +1802,6 @@ window.addEventListener('load', function() {
                         <i class="bx bx-camera me-1"></i>
                         <div>
                             <strong>Kamera aktif</strong>
-                            <br><small class="text-muted">Klik tombol "Ambil Foto" untuk mengambil selfie</small>
                         </div>
                     </div>
                 </div>
