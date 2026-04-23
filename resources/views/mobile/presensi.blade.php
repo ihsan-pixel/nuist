@@ -1352,6 +1352,48 @@ window.addEventListener('load', function() {
         }
     }
 
+    function showFormalAlert(options = {}) {
+        return Swal.fire({
+            confirmButtonText: 'Tutup',
+            ...options
+        });
+    }
+
+    function showFormalErrorAlert(title, text, options = {}) {
+        return showFormalAlert({
+            icon: 'error',
+            title,
+            text,
+            ...options
+        });
+    }
+
+    function showFormalSuccessAlert(title, text, options = {}) {
+        return showFormalAlert({
+            icon: 'success',
+            title,
+            text,
+            ...options
+        });
+    }
+
+    function showFormalLoadingAlert(title, text) {
+        return Swal.fire({
+            title,
+            text,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    function showFormalRejectMessage(message, fallback = 'Permintaan presensi tidak dapat diproses saat ini.') {
+        return (message && String(message).trim()) || fallback;
+    }
+
 
 
     // Map variables
@@ -1894,12 +1936,10 @@ window.addEventListener('load', function() {
                 $('#btn-submit-presensi').prop('disabled', false);
             } else {
                 console.error('Selfie data not properly set, length:', selfieData.length);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kesalahan',
-                    text: 'Foto selfie tidak berhasil diambil. Silakan coba lagi.',
-                    confirmButtonText: 'Oke'
-                });
+                showFormalErrorAlert(
+                    'Foto Selfie Tidak Valid',
+                    'Foto selfie belum berhasil diproses. Silakan ambil ulang foto selfie Anda.'
+                );
             }
         }, 1000);
     }
@@ -1941,12 +1981,10 @@ window.addEventListener('load', function() {
             await initializeSelfieCamera();
         } catch (error) {
             closeSelfieModal();
-            Swal.fire({
-                icon: 'error',
-                title: 'Kamera Tidak Dapat Diakses',
-                text: 'Tidak dapat mengakses kamera. Pastikan memberikan izin kamera dan coba lagi.',
-                confirmButtonText: 'Oke'
-            });
+            showFormalErrorAlert(
+                'Akses Kamera Tidak Tersedia',
+                'Kamera tidak dapat diakses. Pastikan izin kamera telah diberikan, lalu coba kembali.'
+            );
         }
     });
 
@@ -1970,12 +2008,12 @@ window.addEventListener('load', function() {
             const now = new Date();
             const nowSeconds = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
             if (nowSeconds < pulangStartSeconds) {
-                const res = await Swal.fire({
-                    title: 'Pulang Awal',
-                    text: 'Apakah Anda yakin ingin melakukan presensi pulang sebelum waktunya?',
+                const res = await showFormalAlert({
+                    title: 'Konfirmasi Presensi Pulang',
+                    text: 'Anda akan melakukan presensi pulang sebelum waktu yang ditetapkan. Lanjutkan proses presensi?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Ya, saya yakin',
+                    confirmButtonText: 'Lanjutkan',
                     cancelButtonText: 'Batal'
                 });
                 if (!res.isConfirmed) {
@@ -1984,37 +2022,27 @@ window.addEventListener('load', function() {
             }
         }
         if (!latitude || !longitude) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Kesalahan',
-                text: 'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu proses pengumpulan data selesai.',
-                confirmButtonText: 'Oke'
-            });
+            showFormalErrorAlert(
+                'Lokasi Belum Siap',
+                'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu hingga proses pembacaan lokasi selesai.'
+            );
             return;
         }
 
         // Allow presensi even if location reading failed (single reading is enough)
         if (locationReadings.length === 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Kesalahan',
-                text: 'Tidak dapat mendapatkan lokasi. Pastikan GPS aktif dan coba lagi.',
-                confirmButtonText: 'Oke'
-            });
+            showFormalErrorAlert(
+                'Lokasi Tidak Tersedia',
+                'Lokasi belum dapat diperoleh. Pastikan GPS aktif, lalu coba kembali.'
+            );
             return;
         }
 
         closeSelfieModal(false);
-        Swal.fire({
-            title: 'Memproses Presensi',
-            text: 'Mohon tunggu, data sedang dikirim.',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showConfirmButton: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+        showFormalLoadingAlert(
+            'Sedang Memproses Presensi',
+            'Mohon menunggu. Data presensi sedang dikirim ke sistem.'
+        );
 
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
@@ -2047,12 +2075,10 @@ window.addEventListener('load', function() {
                 if (!selfieDataValue || selfieDataValue.length < 100) {
                     console.error('Selfie data validation failed, length:', selfieDataValue.length);
                     $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Kesalahan',
-                        text: 'Data foto selfie tidak valid. Silakan ambil foto lagi.',
-                        confirmButtonText: 'Oke'
-                    });
+                    showFormalErrorAlert(
+                        'Data Selfie Tidak Valid',
+                        'Data foto selfie belum valid. Silakan ambil ulang foto selfie Anda.'
+                    );
                     return;
                 }
 
@@ -2090,34 +2116,37 @@ window.addEventListener('load', function() {
                     timeout: 30000,
                     success: function(resp) {
                         if (resp && resp.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: resp.message || 'Presensi berhasil dicatat',
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => {
+                            showFormalSuccessAlert(
+                                'Presensi Berhasil Direkam',
+                                resp.message || 'Data presensi telah berhasil dicatat.',
+                                {
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }
+                            ).then(() => {
                                 resetSelfieModalState();
                                 window.location.reload();
                             });
                         } else {
-                            Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: resp.message || 'Gagal melakukan presensi. Coba lagi.',
-                            });
+                            showFormalErrorAlert(
+                                'Presensi Ditolak',
+                                showFormalRejectMessage(resp.message, 'Presensi tidak dapat diproses. Silakan periksa kembali data yang dikirim.')
+                            );
                             resetSelfieModalState();
                             $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                         }
                     },
                     error: function(xhr, status, err) {
-                        let message = 'Gagal menghubungi server.';
-                        if (xhr && xhr.responseJSON && xhr.responseJSON.message) message = xhr.responseJSON.message;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: message
-                        });
+                        let message = 'Sistem tidak dapat dihubungi saat ini. Silakan coba beberapa saat lagi.';
+                        let title = 'Permintaan Presensi Gagal';
+                        if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                            title = xhr.status >= 400 && xhr.status < 500 ? 'Presensi Ditolak' : 'Permintaan Presensi Gagal';
+                        }
+                        showFormalErrorAlert(
+                            title,
+                            showFormalRejectMessage(message, 'Permintaan presensi tidak dapat diproses saat ini.')
+                        );
                         resetSelfieModalState();
                         $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     }
@@ -2125,11 +2154,10 @@ window.addEventListener('load', function() {
 
             },
             function(err){
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kesalahan GPS',
-                    text: err.message || 'Tidak dapat mengambil lokasi terakhir.'
-                });
+                showFormalErrorAlert(
+                    'Pembacaan Lokasi Gagal',
+                    showFormalRejectMessage(err.message, 'Lokasi terakhir tidak dapat diperoleh. Silakan pastikan GPS aktif, lalu coba kembali.')
+                );
                 resetSelfieModalState();
                 $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
