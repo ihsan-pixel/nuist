@@ -1733,6 +1733,7 @@ window.addEventListener('load', function() {
     // Selfie variables
     let selfieStream = null;
     let selfieCaptured = false;
+    let presensiSubmitInFlight = false;
     const selfieModal = document.getElementById('selfie-modal');
     const selfieModalSubtitle = document.getElementById('selfie-modal-subtitle');
 
@@ -2045,6 +2046,14 @@ window.addEventListener('load', function() {
 
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
+        if (presensiSubmitInFlight) {
+            return;
+        }
+
+        presensiSubmitInFlight = true;
+        const submitButton = $(this);
+        submitButton.prop('disabled', true);
+
         const latestLocationState = syncLatestLocationState();
         const presensiMode = isPresensiKeluar ? 'keluar' : 'masuk';
 
@@ -2063,6 +2072,8 @@ window.addEventListener('load', function() {
                     cancelButtonText: 'Batal'
                 });
                 if (!res.isConfirmed) {
+                    presensiSubmitInFlight = false;
+                    submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     return; // user cancelled early checkout
                 }
             }
@@ -2072,6 +2083,8 @@ window.addEventListener('load', function() {
                 'Lokasi Belum Siap',
                 'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu hingga proses pembacaan lokasi selesai.'
             );
+            presensiSubmitInFlight = false;
+            submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             return;
         }
 
@@ -2080,7 +2093,7 @@ window.addEventListener('load', function() {
             'Mohon menunggu. Data presensi sedang dikirim ke sistem.'
         );
 
-        $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
+        submitButton.html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Get final location reading (button click) as reading4
         navigator.geolocation.getCurrentPosition(
@@ -2110,6 +2123,7 @@ window.addEventListener('load', function() {
                 // Ensure selfie data is valid before sending
                 if (!selfieDataValue || selfieDataValue.length < 100) {
                     console.error('Selfie data validation failed, length:', selfieDataValue.length);
+                    presensiSubmitInFlight = false;
                     $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     showFormalErrorAlert(
                         'Data Selfie Tidak Valid',
@@ -2161,10 +2175,12 @@ window.addEventListener('load', function() {
                                     showConfirmButton: false
                                 }
                             ).then(() => {
+                                presensiSubmitInFlight = false;
                                 closeSelfieModal();
                                 window.location.reload();
                             });
                         } else {
+                            presensiSubmitInFlight = false;
                             showFormalErrorAlert(
                                 'Presensi Ditolak',
                                 showFormalRejectMessage(resp.message, 'Presensi tidak dapat diproses. Silakan periksa kembali data yang dikirim.')
@@ -2179,6 +2195,7 @@ window.addEventListener('load', function() {
                             message = xhr.responseJSON.message;
                             title = xhr.status >= 400 && xhr.status < 500 ? 'Presensi Ditolak' : 'Permintaan Presensi Gagal';
                         }
+                        presensiSubmitInFlight = false;
                         showFormalErrorAlert(
                             title,
                             showFormalRejectMessage(message, 'Permintaan presensi tidak dapat diproses saat ini.')
@@ -2189,6 +2206,7 @@ window.addEventListener('load', function() {
 
             },
             function(err){
+                presensiSubmitInFlight = false;
                 showFormalErrorAlert(
                     'Pembacaan Lokasi Gagal',
                     showFormalRejectMessage(err.message, 'Lokasi terakhir tidak dapat diperoleh. Silakan pastikan GPS aktif, lalu coba kembali.')

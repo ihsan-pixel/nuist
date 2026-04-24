@@ -383,6 +383,20 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         $requestedMode = $request->input('presensi_mode');
 
+        if ($user->ketugasan !== 'penjaga sekolah' && !in_array($requestedMode, ['masuk', 'keluar'], true)) {
+            if ($existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Presensi masuk sudah tercatat. Muat ulang halaman terlebih dahulu sebelum melakukan presensi keluar.',
+                    'presensi' => $existingPresensi,
+                    'madrasah_name' => $existingPresensi->madrasah?->name ?? $user->madrasah?->name ?? 'Madrasah',
+                    'waktu_masuk' => $existingPresensi->waktu_masuk ? $existingPresensi->waktu_masuk->format('H:i') : now()->format('H:i')
+                ]);
+            }
+
+            $requestedMode = 'masuk';
+        }
+
         if ($requestedMode === 'masuk') {
             if ($existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar) {
                 return response()->json([
