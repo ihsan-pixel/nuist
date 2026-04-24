@@ -116,9 +116,7 @@
         isSubmitting = true;
         var fd = new FormData(this);
         var submitBtn = $(this).find('button[type="submit"]');
-        var originalText = submitBtn.html();
-
-        submitBtn.html('<i class="bx bx-loader-alt bx-spin"></i> Mengirim...').prop('disabled', true);
+        submitBtn.prop('disabled', true);
 
         $.ajax({
             url: '{{ route("mobile.izin.store") }}',
@@ -133,7 +131,7 @@
                     });
                 } else {
                     Swal.fire({ icon: 'error', title: 'Gagal', text: res.message || 'Surat gagal terkirim.' });
-                    submitBtn.html(originalText).prop('disabled', false);
+                    submitBtn.prop('disabled', false);
                     isSubmitting = false;
                 }
             },
@@ -141,7 +139,7 @@
                 var msg = 'Surat gagal terkirim.';
                 if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
                 Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
-                submitBtn.html(originalText).prop('disabled', false);
+                submitBtn.prop('disabled', false);
                 isSubmitting = false;
             }
         });
