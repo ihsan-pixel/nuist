@@ -187,6 +187,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         $request->validate([
+            'presensi_mode' => 'nullable|in:masuk,keluar',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'lokasi' => 'nullable|string',
@@ -380,10 +381,53 @@ class PresensiController extends \App\Http\Controllers\Controller
             ], 400);
         }
 
+        $requestedMode = $request->input('presensi_mode');
+
+        if ($requestedMode === 'masuk') {
+            if ($existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Presensi masuk sudah tercatat.',
+                    'presensi' => $existingPresensi,
+                    'madrasah_name' => $existingPresensi->madrasah?->name ?? $user->madrasah?->name ?? 'Madrasah',
+                    'waktu_masuk' => $existingPresensi->waktu_masuk ? $existingPresensi->waktu_masuk->format('H:i') : now()->format('H:i')
+                ]);
+            }
+
+            if ($existingPresensi && $existingPresensi->waktu_masuk && $existingPresensi->waktu_keluar) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi hari ini sudah lengkap.'
+                ], 400);
+            }
+        }
+
+        if ($requestedMode === 'keluar') {
+            if (!$existingPresensi || !$existingPresensi->waktu_masuk) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi keluar belum dapat dilakukan karena presensi masuk belum tercatat.'
+                ], 400);
+            }
+
+            if ($existingPresensi->waktu_keluar) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi keluar hari ini sudah dicatat.'
+                ], 400);
+            }
+        }
+
 
 
         // Determine presensi type with additional checks
-        if ($user->ketugasan === 'penjaga sekolah') {
+        if ($requestedMode === 'masuk') {
+            $isPresensiMasuk = true;
+            $isPresensiKeluar = false;
+        } elseif ($requestedMode === 'keluar') {
+            $isPresensiMasuk = false;
+            $isPresensiKeluar = true;
+        } elseif ($user->ketugasan === 'penjaga sekolah') {
             // For penjaga sekolah: if there's an open presensi, this is keluar; otherwise masuk
             $isPresensiMasuk = !$existingPresensi;
             $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;

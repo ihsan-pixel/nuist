@@ -2046,6 +2046,7 @@ window.addEventListener('load', function() {
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
         const latestLocationState = syncLatestLocationState();
+        const presensiMode = isPresensiKeluar ? 'keluar' : 'masuk';
 
         // If selfie is already captured, proceed with location validation
         // If this action is a checkout and current time is before pulangStart, ask for confirmation
@@ -2119,6 +2120,7 @@ window.addEventListener('load', function() {
 
                 let postData = {
                     _token: '{{ csrf_token() }}',
+                    presensi_mode: presensiMode,
                     latitude: reading4Lat,
                     longitude: reading4Lng,
                     lokasi: lokasi,
