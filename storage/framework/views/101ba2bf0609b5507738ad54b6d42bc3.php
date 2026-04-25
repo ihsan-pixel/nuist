@@ -148,7 +148,7 @@
         <div class="sheet">
             <div class="header">
                 <div>
-                    <p class="muted" style="margin:0 0 6px;">Billing Pembayaran SPP Siswa</p>
+                    <p class="muted" style="margin:0 0 6px;">Billing Pembayaran <?php echo e($selectedTagihan->jenis_tagihan ?? 'SPP'); ?></p>
                     <h1 class="title"><?php echo e($selectedTagihan->nomor_tagihan); ?></h1>
                     <div class="muted"><?php echo e($studentSchool->name ?? 'Madrasah'); ?></div>
                 </div>
@@ -170,6 +170,10 @@
                 <div class="box">
                     <small>Kelas / Jurusan</small>
                     <strong><?php echo e(trim(($studentRecord->kelas ?? '-') . ' / ' . ($studentRecord->jurusan ?? '-'))); ?></strong>
+                </div>
+                <div class="box">
+                    <small>Jenis Tagihan</small>
+                    <strong><?php echo e($selectedTagihan->jenis_tagihan ?? 'SPP'); ?></strong>
                 </div>
                 <div class="box">
                     <small>Periode</small>

@@ -2,39 +2,122 @@
 <?php $__env->startSection('subtitle', 'Catat Kehadiran'); ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="container py-3" style="max-width: 420px; margin: auto;">
+<div class="container py-3 presensi-screen" style="max-width: 420px; margin: auto;">
     <meta name="presensi-endpoint" content="<?php echo e(route('mobile.presensi.store')); ?>">
     <style>
         body {
-            background: #f8f9fb;
             font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            background: #f8f9fb;
+            min-height: 100vh;
+        }
+
+        body.selfie-modal-open {
+            overflow: hidden;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 1200;
+            background: #f8f9fb;
+            padding-bottom: 14px;
+        }
+
+        .user-location-map-container,
+        #presensi-map,
+        .leaflet-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .leaflet-pane,
+        .leaflet-top,
+        .leaflet-bottom,
+        .leaflet-control,
+        .leaflet-tooltip,
+        .leaflet-popup {
+            z-index: 10;
+        }
+
+        .page-heading {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .page-heading h5 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .page-heading small {
             font-size: 12px;
+            color: #6b7280;
+        }
+
+        .realtime-clock-card {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: #fff;
+            border-radius: 14px;
+            padding: 14px 16px;
+            text-align: center;
+            box-shadow: 0 10px 24px rgba(14, 133, 73, 0.18);
+            margin-bottom: 12px;
+        }
+
+        .clock-time {
+            font-size: 28px;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 4px;
+        }
+
+        .clock-caption {
+            font-size: 11px;
+            opacity: 0.84;
         }
 
         .presensi-header {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: #fff;
-            border-radius: 12px;
-            padding: 12px 10px;
-            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 8px 20px rgba(0, 75, 76, 0.18);
+            margin-bottom: 12px;
         }
 
         .presensi-header h6 {
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            opacity: 0.85;
         }
 
         .presensi-header h5 {
-            font-size: 14px;
+            font-size: 16px;
+        }
+
+        .school-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 6px;
         }
 
         .status-card {
             background: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .status-card.success {
@@ -46,35 +129,37 @@
         }
 
         .status-icon {
-            width: 28px;
-            height: 28px;
+            width: 34px;
+            height: 34px;
             background: rgba(14, 133, 73, 0.1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 8px;
+            margin-right: 10px;
+            flex-shrink: 0;
         }
 
         .status-icon i {
             color: #0e8549;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .presensi-form {
             background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
-
-
 
         .user-location-map-container {
             position: relative;
             overflow: hidden;
-            border-radius: 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(14, 133, 73, 0.14);
+            background: #f8fafc;
         }
 
         .map-placeholder {
@@ -103,92 +188,83 @@
             text-align: center;
         }
 
-        .izin-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 60px;
-        }
-
-        .izin-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        /* Responsive fallback: on narrow screens keep two-column layout */
-        @media (max-width: 420px) {
-            .izin-buttons {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .izin-btn {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            transition: all 0.2s;
-            min-height: 60px;
-        }
-
-        .izin-btn:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-        }
-
-        .izin-btn i {
-            font-size: 18px;
-            margin-bottom: 4px;
-            color: #0e8549;
-        }
-
-        .izin-terlambat {
-            border-color: rgba(255, 193, 7, 0.3);
-        }
-
-        .izin-terlambat:hover {
-            background: rgba(255, 193, 7, 0.1);
-        }
-
-        .izin-tugas-luar {
-            border-color: rgba(0, 123, 255, 0.3);
-        }
-
-        .izin-tugas-luar:hover {
-            background: rgba(0, 123, 255, 0.1);
-        }
-
         .form-section {
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
 
         .form-section:last-child {
             margin-bottom: 0;
         }
 
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .section-header-main {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+        }
+
         .section-title {
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
             margin-bottom: 6px;
-            color: #333;
+            color: #1f2937;
+        }
+
+        #location-info.location-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            margin-bottom: 0;
+            font-size: 11px;
+            line-height: 1;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        #location-info .badge-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        #location-info .badge-title {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        #location-info.info .badge-title {
+            color: #0c5460;
+        }
+
+        #location-info.success .badge-title {
+            color: #0e8549;
+        }
+
+        #location-info.warning .badge-title {
+            color: #9a6700;
+        }
+
+        #location-info.error .badge-title {
+            color: #b42318;
         }
 
         .location-info {
             background: #f8f9fa;
-            border-radius: 6px;
-            padding: 6px;
+            border-radius: 10px;
+            padding: 10px;
             margin-bottom: 6px;
             word-wrap: break-word;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .location-info.success {
@@ -208,71 +284,77 @@
 
         .coordinate-input {
             background: #fff;
-            border-radius: 4px;
-            padding: 4px 6px;
-            border: 1px solid #e9ecef;
-            font-size: 11px;
+            border-radius: 10px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            font-size: 12px;
             width: 100%;
         }
 
         .address-input {
             background: #fff;
-            border-radius: 4px;
-            padding: 4px 6px;
-            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 8px 10px;
+            border: none;
             font-size: 11px;
             width: 100%;
             word-wrap: break-word;
+            color: #475467;
+            background: transparent;
         }
 
         .presensi-btn {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border: none;
-            border-radius: 6px;
-            padding: 8px;
+            border-radius: 10px;
+            padding: 12px 14px;
             color: #fff;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
             width: 100%;
-            margin-top: 6px;
+            margin-top: 8px;
+            box-shadow: 0 8px 18px rgba(14, 133, 73, 0.16);
         }
 
         .presensi-btn:disabled {
             background: #6c757d;
+            box-shadow: none;
         }
 
         .schedule-section {
             background: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
+            gap: 8px;
         }
 
         .schedule-item {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 6px;
-            text-align: center;
+            background: rgba(248, 250, 252, 0.95);
+            border-radius: 12px;
+            padding: 9px 10px;
+            text-align: left;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .schedule-item.masuk {
-            border-left: 2px solid #0d6efd;
+            border-top: 3px solid #0d6efd;
         }
 
         .schedule-item.pulang {
-            border-left: 2px solid #0e8549;
+            border-top: 3px solid #0e8549;
         }
 
         .schedule-item i {
             font-size: 14px;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
 
         .schedule-item h6 {
@@ -282,8 +364,10 @@
         }
 
         .schedule-item p {
-            font-size: 10px;
+            font-size: 11px;
             margin-bottom: 1px;
+            font-weight: 600;
+            color: #1f2937;
         }
 
         .schedule-item small {
@@ -291,12 +375,33 @@
             color: #6c757d;
         }
 
+        .compact-section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .compact-section-head .section-title {
+            margin-bottom: 0;
+            font-size: 12px;
+        }
+
+        .compact-note {
+            font-size: 10px;
+            color: #667085;
+            line-height: 1.4;
+            margin-top: 6px;
+        }
+
         .alert-custom {
             background: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+            margin-bottom: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
         }
 
         .alert-custom.warning {
@@ -314,8 +419,8 @@
         .btn-primary-custom {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
+            border-radius: 10px;
+            padding: 10px 14px;
             color: #fff;
             font-weight: 600;
             font-size: 12px;
@@ -332,22 +437,336 @@
         #selfie-video {
             transform: scaleX(-1); /* tampilan jadi seperti cermin */
         }
+
+        .status-detail-list {
+            display: grid;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .status-detail-item {
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
+        }
+
+        .status-detail-item small {
+            display: block;
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .status-detail-item p {
+            margin-bottom: 0;
+            color: #1f2937;
+            font-size: 12px;
+        }
+
+        .status-inline-note {
+            margin-top: 10px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .metric-card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .metric-card .metric-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .metric-card .metric-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .action-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 5px;
+            min-height: 74px;
+            padding: 10px 8px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1f2937;
+            background: #fff;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
+        }
+
+        .action-tile i {
+            font-size: 18px;
+            color: #0e8549;
+        }
+
+        .action-tile strong {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 1.2;
+        }
+
+        .action-tile span {
+            display: none;
+        }
+
+        .address-compact {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .address-compact i {
+            color: #0ea5e9;
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .selfie-callout {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .selfie-callout i {
+            font-size: 18px;
+            color: #0e8549;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .selfie-callout strong {
+            display: block;
+            font-size: 12px;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .selfie-callout span {
+            display: block;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .selfie-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.58);
+            z-index: 2100;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .selfie-modal.show {
+            display: flex;
+        }
+
+        .selfie-modal-dialog {
+            width: min(100%, 420px);
+            max-height: calc(100vh - 24px);
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .selfie-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .selfie-modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .selfie-modal-subtitle {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .selfie-modal-close {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            border-radius: 50%;
+            color: #475467;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .selfie-modal-body {
+            padding: 14px 16px;
+            overflow-y: auto;
+        }
+
+        .selfie-note {
+            background: rgba(14, 133, 73, 0.08);
+            border: 1px solid rgba(14, 133, 73, 0.14);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .selfie-note i {
+            color: #0e8549;
+            margin-right: 6px;
+        }
+
+        .selfie-stage {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            min-height: 420px;
+        }
+
+        .selfie-placeholder,
+        #selfie-video,
+        #selfie-canvas,
+        #selfie-preview {
+            width: 100%;
+            height: 420px;
+            border-radius: 16px;
+        }
+
+        .selfie-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #6b7280;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .selfie-placeholder i {
+            font-size: 44px;
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        .selfie-overlay-actions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 14px;
+        }
+
+        .selfie-overlay-actions .btn {
+            padding: 10px 14px;
+            font-size: 12px;
+        }
+
+        .selfie-modal-footer {
+            padding: 14px 16px 16px;
+            border-top: 1px solid #eef2f7;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .swal2-container {
+            z-index: 2600 !important;
+        }
+
+        @media (max-width: 380px) {
+            .action-grid,
+            .info-grid,
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .selfie-stage,
+            .selfie-placeholder,
+            #selfie-video,
+            #selfie-canvas,
+            #selfie-preview {
+                height: 360px;
+                min-height: 360px;
+            }
+        }
     </style>
 
-    <!-- Header -->
-    <div class="presensi-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h6 class="mb-1">Presensi Digital</h6>
-                <h5 class="fw-bold mb-0"><?php echo e(Auth::user()->madrasah?->name ?? 'Madrasah'); ?></h5>
-            </div>
-            <img src="<?php echo e(isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg')); ?>"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
+    <?php
+        $headerDateLabel = $selectedDate->locale('id')->isoFormat('dddd, D MMMM YYYY');
+    ?>
+
+    <div class="sticky-header">
+        <div class="page-heading">
+            <h5>Presensi</h5>
+            <small><?php echo e($headerDateLabel); ?></small>
+        </div>
+
+        <div class="realtime-clock-card">
+            <div class="clock-time" id="realtimeClock">--:--:--</div>
+            
         </div>
     </div>
 
     <!-- User Location Map -->
     <div class="presensi-form">
+        <!-- Header -->
+        
         <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
                 <i class="bx bx-map-pin"></i>
@@ -403,44 +822,50 @@
             <div class="status-icon">
                 <i class="bx bx-check-circle"></i>
             </div>
-            <div>
+            <div class="w-100">
                 <h6 class="mb-1">Presensi Sudah Dicatat</h6>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isPenjagaSekolah && isset($openPresensi)): ?>
-                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-                        <small class="text-white-50"><?php echo e($openPresensi->madrasah?->name ?? 'Madrasah'); ?></small>
-                        <p class="mb-1">Masuk: <strong><?php echo e($openPresensi->waktu_masuk->format('H:i')); ?></strong> (<?php echo e(\Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y')); ?>)</p>
+                    <div class="status-detail-list">
+                        <div class="status-detail-item">
+                            <small><?php echo e($openPresensi->madrasah?->name ?? 'Madrasah'); ?> • <?php echo e(\Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y')); ?></small>
+                            <p>Masuk: <strong><?php echo e($openPresensi->waktu_masuk->format('H:i')); ?></strong></p>
+                        </div>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($openPresensi->keterangan): ?>
-                        <p class="mb-1 text-muted">Keterangan: <strong><?php echo e($openPresensi->keterangan); ?></strong></p>
+                        <div class="status-detail-item">
+                            <small>Keterangan</small>
+                            <p><strong><?php echo e($openPresensi->keterangan); ?></strong></p>
+                        </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <p class="mb-0 text-muted">Belum presensi keluar</p>
                     </div>
-                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
+                    <p class="status-inline-note mb-0">Belum presensi keluar. Lakukan presensi keluar jika sudah selesai.</p>
                 <?php else: ?>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $presensiHariIni; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-                        <small class="text-white-50"><?php echo e($presensi->madrasah?->name ?? 'Madrasah'); ?> (<?php echo e(\Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y')); ?>)</small>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_masuk): ?>
-                        <p class="mb-1">Masuk: <strong><?php echo e($presensi->waktu_masuk->format('H:i')); ?></strong></p>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_keluar): ?>
-                        <p class="mb-0">Keluar: <strong><?php echo e($presensi->waktu_keluar->format('H:i')); ?></strong></p>
-                        <?php else: ?>
-                        <p class="mb-0 text-muted">Belum presensi keluar</p>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->keterangan): ?>
-                        <p class="mb-0 text-muted">Keterangan: <strong><?php echo e($presensi->keterangan); ?></strong></p>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <?php else: ?>
-                        <p class="mb-1">Masuk: <strong>-</strong></p>
-                        <p class="mb-0 text-muted">Belum presensi masuk</p>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <div class="status-detail-list">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $presensiHariIni; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <div class="status-detail-item">
+                            <small><?php echo e($presensi->madrasah?->name ?? 'Madrasah'); ?> • <?php echo e(\Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y')); ?></small>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_masuk): ?>
+                            <p>Masuk: <strong><?php echo e($presensi->waktu_masuk->format('H:i')); ?></strong></p>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_keluar): ?>
+                            <p>Keluar: <strong><?php echo e($presensi->waktu_keluar->format('H:i')); ?></strong></p>
+                            <?php else: ?>
+                            <p class="text-muted">Belum presensi keluar</p>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->keterangan): ?>
+                            <p class="text-muted">Keterangan: <strong><?php echo e($presensi->keterangan); ?></strong></p>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php else: ?>
+                            <p>Masuk: <strong>-</strong></p>
+                            <p class="text-muted">Belum presensi masuk</p>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     </div>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()): ?>
                     <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
                         <small><i class="bx bx-check me-1"></i> Semua presensi hari ini lengkap!</small>
                     </div>
                     <?php else: ?>
-                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
+                    <p class="status-inline-note mb-0">Lakukan presensi keluar jika sudah selesai.</p>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
@@ -450,10 +875,11 @@
 
     <!-- Presensi Form -->
     <div class="presensi-form">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-<?php echo e($presensiHariIni ? 'log-out-circle' : 'log-in-circle'); ?>"></i>
-            </div>
+        <div class="section-header">
+            <div class="section-header-main">
+                <div class="status-icon">
+                    <i class="bx bx-<?php echo e($presensiHariIni ? 'log-out-circle' : 'log-in-circle'); ?>"></i>
+                </div>
         <?php
             $showKeluar = false;
             if ($isPenjagaSekolah && isset($openPresensi)) {
@@ -462,89 +888,38 @@
                 $showKeluar = $presensiHariIni->where('waktu_keluar', null)->count() > 0;
             }
         ?>
-        <h6 class="section-title mb-0"><?php echo e($showKeluar ? 'Presensi Keluar' : 'Presensi Masuk'); ?></h6>
-        </div>
-
-    <!-- Location Status -->
-        <div class="form-section">
-            <div id="location-info" class="location-info info">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-loader-alt bx-spin me-1"></i>
-                    <div>
-                        <strong>Mengumpulkan data lokasi...</strong>
-                        <br><small class="text-muted">Reading 1/1 - Pastikan GPS aktif</small>
-                    </div>
-                </div>
+                <h6 class="section-title mb-0"><?php echo e($showKeluar ? 'Presensi Keluar' : 'Presensi Masuk'); ?></h6>
+            </div>
+            <div id="location-info" class="location-info location-badge info">
+                <span class="badge-icon"><i class="bx bx-loader-alt bx-spin"></i></span>
+                <span class="badge-title">GPS aktif</span>
             </div>
         </div>
 
         <!-- Coordinates -->
-        <div class="form-section">
-            <div class="d-flex align-items-center mb-1">
-                <i class="bx bx-target-lock text-success me-1"></i>
-                <label class="section-title mb-0">Koordinat Lokasi</label>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                <input type="text" id="latitude" class="coordinate-input" placeholder="Latitude" readonly>
-                <input type="text" id="longitude" class="coordinate-input" placeholder="Longitude" readonly>
-            </div>
-        </div>
+        
 
         <!-- Address -->
         <div class="form-section">
-            <div class="d-flex align-items-center mb-1">
-                <i class="bx bx-home text-info me-1"></i>
-                <label class="section-title mb-0">Alamat Lokasi</label>
+            <div class="compact-section-head">
+                <label class="section-title">Alamat Lokasi</label>
             </div>
-            <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
-        </div>
-
-        <!-- Selfie Section -->
-        <div class="form-section">
-            <div class="d-flex align-items-center mb-1">
-                <i class="bx bx-camera text-primary me-1"></i>
-                <label class="section-title mb-0">Foto Selfie</label>
-            </div>
-            <div class="alert-custom info" style="margin-bottom: 8px;">
-                <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
-            </div>
-            <div id="selfie-container" style="position: relative;">
-                <div class="text-center" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 2px dashed #dee2e6;">
-                    <i class="bx bx-camera" style="font-size: 48px; color: #6c757d; margin-bottom: 8px;"></i>
-                    <span style="color: #6c757d; font-size: 14px;">Kamera akan muncul di sini</span>
-                </div>
-                <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; display: none; object-fit: cover;"></video>
-                <canvas id="selfie-canvas" style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; display: none; justify-content: center;"></canvas>
-                <img id="selfie-preview" style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
-                <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none;">
-                    <i class="bx bx-camera me-1"></i>Ambil Foto
-                </button>
-                <button type="button" id="btn-retake-selfie" class="btn btn-secondary" style="position: absolute; bottom: 8px; right: 8px; display: none;">
-                    <i class="bx bx-refresh me-1"></i>Ulang
-                </button>
-            </div>
-            <input type="hidden" id="selfie-data" name="selfie_data">
-            <div id="selfie-status" class="location-info info" style="margin-top: 8px;">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-camera-off me-1"></i>
-                    <div>
-                        <strong>Selfie belum diambil</strong>
-                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
-                    </div>
-                </div>
+            <div class="address-compact">
+                <i class="bx bx-map-pin"></i>
+                <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
             </div>
         </div>
 
         <!-- Presensi Button -->
         <?php
             $isDisabled = false;
-            $buttonText = 'Ambil Selfie';
+            $buttonText = 'Presensi Sekarang';
             $buttonIcon = 'check-circle';
 
             if ($isPenjagaSekolah) {
                 // For penjaga sekolah, always allow presensi
                 $isDisabled = false;
-                $buttonText = isset($openPresensi) ? 'Presensi Keluar' : 'Presensi Masuk';
+                $buttonText = 'Presensi Sekarang';
             } elseif ($isHoliday) {
                 $isDisabled = true;
                 $buttonText = 'Hari Libur - Presensi Ditutup';
@@ -552,51 +927,42 @@
             } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
                 $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
                 $isDisabled = $allComplete;
-                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Keluar';
+                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Sekarang';
             }
         ?>
 
-        <button type="button" id="btn-presensi"
-                class="presensi-btn"
-                disabled
-                <?php echo e($isDisabled ? 'disabled' : ''); ?>>
-            <i class="bx bx-<?php echo e($buttonIcon); ?> me-1"></i>
-            <?php echo e($buttonText); ?>
+        <div class="form-section">
+            <button type="button" id="btn-presensi"
+                    class="presensi-btn"
+                    disabled
+                    <?php echo e($isDisabled ? 'disabled' : ''); ?>>
+                <i class="bx bx-<?php echo e($buttonIcon); ?> me-1"></i>
+                <?php echo e($buttonText); ?>
 
-        </button>
+            </button>
+        </div>
 
-        <!-- Submit Button (hidden initially) -->
-        <button type="button" id="btn-submit-presensi"
-                class="presensi-btn"
-                style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-            <i class="bx bx-send me-1"></i>
-            Kirim Presensi
-        </button>
+        <!-- Selfie Section -->
+        
+
     </div>
 
     <!-- Time Information -->
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isPenjagaSekolah): ?>
     <div class="schedule-section">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-calendar-check"></i>
-            </div>
-            <h6 class="section-title mb-0">Jadwal Presensi Penjaga Sekolah</h6>
+        <div class="compact-section-head">
+            <h6 class="section-title">Jadwal Presensi</h6>
         </div>
-        <div class="alert-custom info">
-            <small>
-                <i class="bx bx-info-circle me-1"></i>
-                <strong>Penjaga Sekolah:</strong> Dapat melakukan presensi masuk dan keluar kapan saja dalam 24 jam. Presensi keluar dapat dilakukan pada tanggal berbeda dengan presensi masuk.
-            </small>
+        <div class="schedule-item pulang">
+            <h6 class="text-success mb-1">Penjaga Sekolah</h6>
+            <p>24 Jam</p>
+            <small>Masuk dan keluar dapat dilakukan kapan saja.</small>
         </div>
     </div>
     <?php elseif(isset($timeRanges) && $timeRanges): ?>
     <div class="schedule-section">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-calendar-check"></i>
-            </div>
-            <h6 class="section-title mb-0">Jadwal Presensi</h6>
+        <div class="compact-section-head">
+            <h6 class="section-title">Jadwal Presensi</h6>
         </div>
         <?php
             // prefer madrasah-specific values when present
@@ -626,39 +992,24 @@
 
         <div class="schedule-grid">
             <div class="schedule-item masuk">
-                <i class="bx bx-log-in-circle text-primary"></i>
                 <h6 class="text-primary">Masuk</h6>
                 <p><?php echo e($masukStart); ?> - <?php echo e($masukEnd); ?></p>
                 <small>Terlambat setelah 07:00</small>
             </div>
             <div class="schedule-item pulang">
-                <i class="bx bx-log-out-circle text-success"></i>
                 <h6 class="text-success">Pulang</h6>
                 <p><?php echo e($pulangStart); ?> - <?php echo e($pulangEnd); ?></p>
                 <small>Mulai pukul <?php echo e($pulangStart); ?></small>
             </div>
         </div>
-
-        <div class="alert-custom info" style="margin-top: 6px;">
-            <small>
-                <i class="bx bx-info-circle me-1"></i>
-                <strong>Catatan:</strong>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ms && $ms->hari_kbm == '6' && $dayOfWeek == 5): ?>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ms->presensi_pulang_jumat): ?>
-                        Pulang dapat dilakukan mulai pukul <?php echo e(\Carbon\Carbon::parse($ms->presensi_pulang_jumat)->format('H:i')); ?> hingga <?php echo e($pulangEnd); ?> (khusus Jumat).
-                    <?php else: ?>
-                        Pulang dapat dilakukan sesuai pengaturan umum; catatan: jadwal pulang Jumat belum diisi pada data madrasah.
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                <?php elseif($ms && $ms->hari_kbm == '6' && $dayOfWeek == 6): ?>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ms->presensi_pulang_sabtu): ?>
-                        Pulang dapat dilakukan mulai pukul <?php echo e(\Carbon\Carbon::parse($ms->presensi_pulang_sabtu)->format('H:i')); ?> hingga <?php echo e($pulangEnd); ?> (khusus Sabtu).
-                    <?php else: ?>
-                        Perhatian: untuk madrasah dengan KBM 6 hari, jam pulang Sabtu belum diatur. Silakan isi kolom "Jam Pulang Khusus Sabtu" pada masterdata madrasah.
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                <?php else: ?>
-                    Pulang dapat dilakukan mulai pukul <?php echo e($pulangStart); ?> hingga <?php echo e($pulangEnd); ?>.
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-            </small>
+        <div class="compact-note">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ms && $ms->hari_kbm == '6' && $dayOfWeek == 6 && !$ms->presensi_pulang_sabtu): ?>
+                Jam pulang Sabtu belum diatur pada data madrasah.
+            <?php elseif($ms && $ms->hari_kbm == '6' && $dayOfWeek == 5 && !$ms->presensi_pulang_jumat): ?>
+                Jam pulang Jumat masih memakai pengaturan umum.
+            <?php else: ?>
+                Jadwal ditampilkan sesuai pengaturan madrasah untuk hari ini.
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
     <?php else: ?>
@@ -671,80 +1022,89 @@
 
 
     <!-- Important Notice -->
-    <div class="alert-custom info">
-        <div class="d-flex">
-            <i class="bx bx-info-circle text-info me-1"></i>
-            <div>
-                <strong class="text-info">Informasi Sistem</strong>
-                <p class="mb-0 text-muted">Pastikan Anda berada di lingkungan madrasah saat melakukan presensi. Sistem menggunakan validasi lokasi koordinat madrasah.</p>
-            </div>
-        </div>
-    </div>
+    
 
-    <!-- Riwayat Presensi Button -->
-    <div class="presensi-form">
-        <a href="<?php echo e(route('mobile.riwayat-presensi')); ?>" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
-            <i class="bx bx-history me-1"></i>
-            Riwayat Presensi
+    <div class="action-grid">
+        <a href="<?php echo e(route('mobile.riwayat-presensi')); ?>" class="action-tile">
+            <i class="bx bx-history"></i>
+            <strong>Riwayat</strong>
         </a>
-    </div>
 
-    <!-- Izin: single button to mobile izin menu -->
-    <div class="presensi-form">
-        <a href="<?php echo e(route('mobile.izin')); ?>" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
-            <i class="bx bx-calendar-minus me-1"></i>
-            Izin
+        <a href="<?php echo e(route('mobile.izin')); ?>" class="action-tile">
+            <i class="bx bx-calendar-minus"></i>
+            <strong>Izin</strong>
         </a>
-    </div>
-
-    <!-- Monitor Map: dedicated button for kepala madrasah -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
-    <div class="presensi-form">
-        <a href="<?php echo e(route('mobile.monitor-map')); ?>" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
-            <i class="bx bx-map me-1"></i>
-            Monitor Map Presensi
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
+        <a href="<?php echo e(route('mobile.monitor-map')); ?>" class="action-tile">
+            <i class="bx bx-map"></i>
+            <strong>Monitor Map</strong>
         </a>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Monitoring Presensi: Map View -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
-    <div class="presensi-form">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-map"></i>
+    
+</div>
+
+<div id="selfie-modal" class="selfie-modal" aria-hidden="true">
+    <div class="selfie-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="selfie-modal-title">
+        <div class="selfie-modal-header">
+            <div>
+                <div id="selfie-modal-title" class="selfie-modal-title">Selfie Presensi</div>
+                
             </div>
-            <h6 class="section-title mb-0">Monitoring Lokasi Presensi</h6>
+            <button type="button" id="btn-close-selfie-modal" class="selfie-modal-close" aria-label="Tutup">
+                <i class="bx bx-x"></i>
+            </button>
         </div>
 
-        <!-- Map Container -->
-        <div id="presensi-map" style="height: 300px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
-
-        <!-- Legend -->
-        <div class="d-flex justify-content-center mt-2" style="gap: 12px;">
-            <div class="d-flex align-items-center">
-                <div style="width: 12px; height: 12px; background: #0e8549; border-radius: 50%; margin-right: 4px;"></div>
-                <small style="font-size: 10px;">Sudah Presensi</small>
+        <div class="selfie-modal-body">
+            <div class="selfie-note">
+                <i class="bx bx-info-circle"></i>
+                Pastikan wajah terlihat jelas dan foto diambil di lingkungan madrasah/sekolah.
             </div>
-            <div class="d-flex align-items-center">
-                <div style="width: 12px; height: 12px; background: #dc3545; border-radius: 50%; margin-right: 4px;"></div>
-                <small style="font-size: 10px;">Belum Presensi</small>
+
+            <div id="selfie-container" class="selfie-stage">
+                <div class="selfie-placeholder">
+                    <i class="bx bx-camera"></i>
+                    <strong class="mb-1">Menyiapkan kamera</strong>
+                    <span>Izinkan akses kamera jika diminta.</span>
+                </div>
+                <video id="selfie-video" autoplay playsinline style="display: none; object-fit: cover;"></video>
+                <canvas id="selfie-canvas" style="display: none;"></canvas>
+                <img id="selfie-preview" style="object-fit: cover; display: none;" alt="Selfie Preview">
+
+                <div class="selfie-overlay-actions">
+                    <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="display: none;">
+                        <i class="bx bx-camera me-1"></i>Ambil Foto
+                    </button>
+                    <button type="button" id="btn-retake-selfie" class="btn btn-outline-secondary" style="display: none;">
+                        <i class="bx bx-refresh me-1"></i>Ulang
+                    </button>
+                </div>
+            </div>
+
+            <input type="hidden" id="selfie-data" name="selfie_data">
+            <div id="selfie-status" class="location-info info" style="margin-top: 12px;">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-camera-off me-1"></i>
+                    <div>
+                        <strong>Selfie belum diambil</strong>
+                        <br><small class="text-muted">Kamera akan aktif otomatis saat modal dibuka.</small>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Summary Stats -->
-        <div class="mt-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-            <div style="background: rgba(14, 133, 73, 0.1); padding: 6px; border-radius: 6px; text-align: center;">
-                <div style="font-weight: 600; font-size: 12px; color: #0e8549;"><?php echo e($presensis->count()); ?></div>
-                <small style="font-size: 10px; color: #0e8549;">Sudah Presensi</small>
-            </div>
-            <div style="background: rgba(220, 53, 69, 0.1); padding: 6px; border-radius: 6px; text-align: center;">
-                <div style="font-weight: 600; font-size: 12px; color: #dc3545;"><?php echo e($belumPresensi->count()); ?></div>
-                <small style="font-size: 10px; color: #dc3545;">Belum Presensi</small>
-            </div>
+        <div class="selfie-modal-footer">
+            <button type="button" id="btn-submit-presensi"
+                    class="presensi-btn"
+                    style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <i class="bx bx-send me-1"></i>
+                Kirim Presensi
+            </button>
         </div>
     </div>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 <?php $__env->stopSection(); ?>
 
@@ -756,11 +1116,43 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 window.addEventListener('load', function() {
+    function updateRealtimeClock() {
+        const clockEl = document.getElementById('realtimeClock');
+        if (!clockEl) return;
+
+        const formatter = new Intl.DateTimeFormat('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+            timeZone: 'Asia/Jakarta'
+        });
+
+        clockEl.textContent = formatter.format(new Date());
+    }
+
+    updateRealtimeClock();
+    setInterval(updateRealtimeClock, 1000);
+
+    function setLocationIndicator(state, title, iconClass = 'bx bx-loader-alt bx-spin') {
+        const indicator = document.getElementById('location-info');
+        if (!indicator) return;
+
+        indicator.className = `location-info location-badge ${state}`;
+        indicator.innerHTML = `
+            <span class="badge-icon"><i class="${iconClass}"></i></span>
+            <span class="badge-title">${title}</span>
+        `;
+    }
+
+    setLocationIndicator('info', 'GPS aktif', 'bx bx-loader-alt bx-spin');
+
     let latitude, longitude, lokasi;
     let locationReadings = [];
     let readingCount = 0;
-    const totalReadings = 1; // Single location reading only
-    const readingInterval = 5000; // 5 seconds
+    const totalReadings = 3;
+    const readingInterval = 1200;
+    const presensiActionLocked = <?php echo e($isDisabled ? 'true' : 'false'); ?>;
 
     // Presensi mode: apakah tombol saat ini adalah untuk keluar (checkout)
     const isPresensiKeluar = <?php echo e(isset($showKeluar) && $showKeluar ? 'true' : 'false'); ?>;
@@ -885,6 +1277,71 @@ window.addEventListener('load', function() {
         }
     }
 
+    function showFormalAlert(options = {}) {
+        return Swal.fire({
+            confirmButtonText: 'Tutup',
+            ...options
+        });
+    }
+
+    function showFormalErrorAlert(title, text, options = {}) {
+        return showFormalAlert({
+            icon: 'error',
+            title,
+            text,
+            ...options
+        });
+    }
+
+    function showFormalSuccessAlert(title, text, options = {}) {
+        return showFormalAlert({
+            icon: 'success',
+            title,
+            text,
+            ...options
+        });
+    }
+
+    function showFormalLoadingAlert(title, text) {
+        return Swal.fire({
+            title,
+            text,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    function showFormalRejectMessage(message, fallback = 'Permintaan presensi tidak dapat diproses saat ini.') {
+        return (message && String(message).trim()) || fallback;
+    }
+
+    function syncLatestLocationState() {
+        const lastReading = locationReadings.length > 0 ? locationReadings[locationReadings.length - 1] : null;
+
+        if ((!latitude || !longitude) && lastReading) {
+            latitude = Number(lastReading.latitude);
+            longitude = Number(lastReading.longitude);
+        }
+
+        if (!lokasi) {
+            const lokasiInput = document.getElementById('lokasi');
+            if (lokasiInput && lokasiInput.value) {
+                lokasi = lokasiInput.value;
+            }
+        }
+
+        return {
+            latitude,
+            longitude,
+            lokasi,
+            lastReading
+        };
+    }
+
 
 
     // Map variables
@@ -922,24 +1379,16 @@ window.addEventListener('load', function() {
 
                     locationReadings.push(reading);
                     readingCount++;
+                    latitude = reading.latitude;
+                    longitude = reading.longitude;
 
                     // Update UI with smooth progress
                     const isComplete = readingCount >= totalReadings;
-                    const progressText = isComplete ? 'Data lengkap!' : 'Mengumpulkan...';
-                    const iconClass = isComplete ? 'bx bx-check-circle text-success me-2' : 'bx bx-loader-alt bx-spin me-2';
-                    const infoClass = isComplete ? 'location-info success' : 'location-info info';
-
-                    $('#location-info').html(`
-                        <div class="${infoClass}">
-                            <div class="d-flex align-items-center">
-                                <i class="${iconClass}"></i>
-                                <div>
-                                    <strong class="small">Reading ${readingCount}/${totalReadings} - ${progressText}</strong>
-                                    <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
-                                </div>
-                            </div>
-                        </div>
-                    `);
+                    setLocationIndicator(
+                        isComplete ? 'success' : 'info',
+                        isComplete ? 'Lokasi siap' : `GPS ${readingCount}/${totalReadings}`,
+                        isComplete ? 'bx bx-check-circle' : 'bx bx-loader-alt bx-spin'
+                    );
 
                     // Update coordinates display with latest reading
                     $('#latitude').val(reading.latitude.toFixed(6));
@@ -950,13 +1399,6 @@ window.addEventListener('load', function() {
 
                     // Get address from latest reading
                     getAddressFromCoordinates(reading.latitude, reading.longitude);
-
-                    // Enable selfie camera after first successful location reading
-                    if (readingNumber === 1 && !selfieCaptured) {
-                        setTimeout(() => {
-                            initializeSelfieCamera();
-                        }, 1000); // Small delay to ensure UI is updated
-                    }
 
                     resolve(reading);
                 },
@@ -969,17 +1411,7 @@ window.addEventListener('load', function() {
                                        error.code === 2 ? 'Sinyal GPS lemah' :
                                        error.code === 3 ? 'Waktu habis' : 'Error tidak diketahui';
 
-                    $('#location-info').html(`
-                        <div class="location-info warning">
-                            <div class="d-flex align-items-center">
-                                <i class="bx bx-error-circle me-2"></i>
-                                <div>
-                                <strong class="small">Reading ${readingNumber} gagal</strong>
-                                <br><small class="text-muted">${errorMessage} - Melanjutkan...</small>
-                                </div>
-                            </div>
-                        </div>
-                    `);
+                    setLocationIndicator('warning', 'GPS lemah', 'bx bx-error-circle');
 
                     reject(error);
                 },
@@ -1013,10 +1445,9 @@ window.addEventListener('load', function() {
                         longitude = reading.longitude;
 
                         // Enable presensi button early
-                        var hasPresensi = <?php echo e($presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false'); ?>;
-                        var allPresensiComplete = <?php echo e(($presensiHariIni && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) ? 'true' : 'false'); ?>;
-                        var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Ambil Selfie";
-                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>' + buttonText);
+                        if (!presensiActionLocked) {
+                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi Sekarang');
+                        }
                     }
 
                     // Wait between readings (except for the last one)
@@ -1050,20 +1481,7 @@ window.addEventListener('load', function() {
                 latitude = lastSuccessfulReading.latitude;
                 longitude = lastSuccessfulReading.longitude;
 
-                const successMessage = successfulReadings === totalReadings ?
-                    'Semua reading berhasil!' : `${successfulReadings}/${totalReadings} reading berhasil`;
-
-                $('#location-info').html(`
-                    <div class="location-info success">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle text-success me-2"></i>
-                            <div>
-                                <strong class="small">Data lokasi lengkap!</strong>
-                                <br><small class="text-muted">${successMessage}</small>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                setLocationIndicator('success', 'Lokasi siap', 'bx bx-check-circle');
             } else {
                 // No successful readings at all - provide detailed troubleshooting
                 await showGPSTroubleshootingGuide();
@@ -1098,18 +1516,22 @@ window.addEventListener('load', function() {
                         speed: position.coords.speed
                     };
 
+                    locationReadings.push(reading);
+                    readingCount++;
+                    latitude = reading.latitude;
+                    longitude = reading.longitude;
+
+                    $('#latitude').val(reading.latitude.toFixed(6));
+                    $('#longitude').val(reading.longitude.toFixed(6));
+                    updateUserLocationMap(reading.latitude, reading.longitude);
+                    getAddressFromCoordinates(reading.latitude, reading.longitude);
+
+                    if (!presensiActionLocked) {
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi Sekarang');
+                    }
+
                     // Update UI with success message
-                    $('#location-info').html(`
-                        <div class="location-info success">
-                            <div class="d-flex align-items-center">
-                                <i class="bx bx-check-circle text-success me-2"></i>
-                                <div>
-                                <strong class="small">Reading ${readingNumber} berhasil (alt)</strong>
-                                <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
-                                </div>
-                            </div>
-                        </div>
-                    `);
+                    setLocationIndicator('success', 'GPS alternatif', 'bx bx-check-circle');
 
                     resolve(reading);
                 },
@@ -1128,23 +1550,7 @@ window.addEventListener('load', function() {
 
     // Comprehensive GPS troubleshooting guide
     async function showGPSTroubleshootingGuide() {
-        $('#location-info').html(`
-            <div class="location-info error">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-error-circle me-2"></i>
-                    <div>
-                        <strong class="small">GPS Tidak Tersedia</strong>
-                        <br><small class="text-muted">Coba langkah berikut:</small>
-                    </div>
-                </div>
-                <div style="margin-top: 8px; font-size: 11px;">
-                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Pastikan GPS aktif</div>
-                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Berikan izin lokasi ke browser</div>
-                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Coba di luar ruangan</div>
-                    <div style="margin-bottom: 4px;"><i class="bx bx-refresh text-primary me-1"></i> Refresh halaman</div>
-                </div>
-            </div>
-        `);
+        setLocationIndicator('error', 'GPS error', 'bx bx-error-circle');
 
         $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Error');
 
@@ -1152,17 +1558,7 @@ window.addEventListener('load', function() {
         setTimeout(() => {
             if (locationReadings.length === 0) {
                 console.log('Auto-retrying GPS collection...');
-                $('#location-info').html(`
-                    <div class="location-info info">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-loader-alt bx-spin me-2"></i>
-                            <div>
-                                <strong class="small">Mencoba lagi...</strong>
-                                <br><small class="text-muted">Reading 1/1 - Auto retry</small>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                setLocationIndicator('info', 'Coba lagi', 'bx bx-loader-alt bx-spin');
                 startLocationCollection();
             }
         }, 10000);
@@ -1219,17 +1615,7 @@ window.addEventListener('load', function() {
         if (navigator.geolocation) {
             startLocationCollection();
         } else {
-            $('#location-info').html(`
-                <div class="location-info error">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-2"></i>
-                        <div>
-                            <strong class="small">Browser tidak mendukung GPS</strong>
-                            <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
-                        </div>
-                    </div>
-                </div>
-            `);
+            setLocationIndicator('error', 'GPS tidak didukung', 'bx bx-error-circle');
             $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Tidak Didukung');
         }
 
@@ -1268,6 +1654,101 @@ window.addEventListener('load', function() {
     // Selfie variables
     let selfieStream = null;
     let selfieCaptured = false;
+    let presensiSubmitInFlight = false;
+    const selfieModal = document.getElementById('selfie-modal');
+    const selfieModalSubtitle = document.getElementById('selfie-modal-subtitle');
+
+    function stopSelfieStream() {
+        if (selfieStream) {
+            selfieStream.getTracks().forEach(track => track.stop());
+            selfieStream = null;
+        }
+    }
+
+    function resetSelfieModalState() {
+        const video = document.getElementById('selfie-video');
+        const preview = document.getElementById('selfie-preview');
+        const canvas = document.getElementById('selfie-canvas');
+        const captureBtn = document.getElementById('btn-capture-selfie');
+        const retakeBtn = document.getElementById('btn-retake-selfie');
+        const submitBtn = document.getElementById('btn-submit-presensi');
+        const selfieDataInput = document.getElementById('selfie-data');
+        const statusElement = document.getElementById('selfie-status');
+        const placeholder = document.querySelector('#selfie-container .selfie-placeholder');
+
+        if (video) {
+            video.style.display = 'none';
+            video.srcObject = null;
+        }
+        if (preview) {
+            preview.style.display = 'none';
+            preview.src = '';
+        }
+        if (canvas) {
+            canvas.style.display = 'none';
+        }
+        if (captureBtn) {
+            captureBtn.style.display = 'none';
+        }
+        if (retakeBtn) {
+            retakeBtn.style.display = 'none';
+        }
+        if (submitBtn) {
+            submitBtn.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bx bx-send me-1"></i>Kirim Presensi';
+        }
+        if (selfieDataInput) {
+            selfieDataInput.value = '';
+        }
+        if (placeholder) {
+            placeholder.style.display = 'flex';
+        }
+        if (statusElement) {
+            statusElement.innerHTML = `
+                <div class="location-info info">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-camera-off me-1"></i>
+                        <div>
+                            <strong>Selfie belum diambil</strong>
+                            <br><small class="text-muted">Kamera akan aktif otomatis saat modal dibuka.</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        stopSelfieStream();
+        selfieCaptured = false;
+    }
+
+    function openSelfieModal() {
+        if (!selfieModal) return;
+
+        resetSelfieModalState();
+        selfieModal.classList.add('show');
+        selfieModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('selfie-modal-open');
+
+        if (selfieModalSubtitle) {
+            selfieModalSubtitle.textContent = isPresensiKeluar
+                ? 'Ambil foto selfie untuk presensi keluar, lalu kirim.'
+                : 'Ambil foto selfie untuk presensi masuk, lalu kirim.';
+        }
+    }
+
+    function closeSelfieModal(resetState = true) {
+        if (!selfieModal) return;
+
+        if (resetState) {
+            resetSelfieModalState();
+        } else {
+            stopSelfieStream();
+        }
+        selfieModal.classList.remove('show');
+        selfieModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('selfie-modal-open');
+    }
 
     // Initialize selfie camera
     async function initializeSelfieCamera() {
@@ -1283,6 +1764,8 @@ window.addEventListener('load', function() {
                 throw new Error('DOM elements not ready');
             }
 
+            stopSelfieStream();
+
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: 'user',
@@ -1297,7 +1780,7 @@ window.addEventListener('load', function() {
             video.style.display = 'block';
 
             // Hide the placeholder and show video
-            const placeholder = container.querySelector('.text-center');
+            const placeholder = container.querySelector('.selfie-placeholder');
             if (placeholder) {
                 placeholder.style.display = 'none';
             }
@@ -1312,7 +1795,6 @@ window.addEventListener('load', function() {
                         <i class="bx bx-camera me-1"></i>
                         <div>
                             <strong>Kamera aktif</strong>
-                            <br><small class="text-muted">Klik tombol "Ambil Foto" untuk mengambil selfie</small>
                         </div>
                     </div>
                 </div>
@@ -1392,11 +1874,8 @@ window.addEventListener('load', function() {
             retakeBtn.style.display = 'block';
         }
 
-        // Stop camera stream
-        if (selfieStream) {
-            selfieStream.getTracks().forEach(track => track.stop());
-            selfieStream = null;
-        }
+        // Stop camera stream after capture to freeze result
+        stopSelfieStream();
 
         selfieCaptured = true;
         document.getElementById('selfie-status').innerHTML = `
@@ -1418,19 +1897,14 @@ window.addEventListener('load', function() {
             console.log('Selfie captured with data length:', selfieData.length);
 
             if (selfieData && selfieData.length > 100) {
-                // Show submit button and hide presensi button
-                $('#btn-presensi').hide();
                 $('#btn-submit-presensi').show();
                 $('#btn-submit-presensi').prop('disabled', false);
             } else {
                 console.error('Selfie data not properly set, length:', selfieData.length);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kesalahan',
-                    text: 'Foto selfie tidak berhasil diambil. Silakan coba lagi.',
-                    confirmButtonText: 'Oke'
-                });
-                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>Ambil Selfie');
+                showFormalErrorAlert(
+                    'Foto Selfie Tidak Valid',
+                    'Foto selfie belum berhasil diproses. Silakan ambil ulang foto selfie Anda.'
+                );
             }
         }, 1000);
     }
@@ -1449,9 +1923,7 @@ window.addEventListener('load', function() {
         }
 
         selfieCaptured = false;
-        // Hide submit button and show presensi button again
         $('#btn-submit-presensi').hide();
-        $('#btn-presensi').show();
         initializeSelfieCamera();
     }
 
@@ -1469,67 +1941,80 @@ window.addEventListener('load', function() {
 
     // Handle presensi button (Ambil Selfie)
     $('#btn-presensi').click(async function() {
-        // First, request camera access and show camera interface
-        if (!selfieCaptured) {
-            try {
-                await initializeSelfieCamera();
-                // Camera initialized, user can now click the capture button manually
-                return;
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kamera Tidak Dapat Diakses',
-                    text: 'Tidak dapat mengakses kamera. Pastikan memberikan izin kamera dan coba lagi.',
-                    confirmButtonText: 'Oke'
-                });
-                return;
-            }
+        try {
+            openSelfieModal();
+            await initializeSelfieCamera();
+        } catch (error) {
+            closeSelfieModal();
+            showFormalErrorAlert(
+                'Akses Kamera Tidak Tersedia',
+                'Kamera tidak dapat diakses. Pastikan izin kamera telah diberikan, lalu coba kembali.'
+            );
         }
     });
 
+    $('#btn-close-selfie-modal').click(function() {
+        closeSelfieModal();
+    });
+
+    if (selfieModal) {
+        selfieModal.addEventListener('click', function(event) {
+            if (event.target === selfieModal) {
+                closeSelfieModal();
+            }
+        });
+    }
+
     // Handle submit presensi button
     $('#btn-submit-presensi').click(async function() {
+        if (presensiSubmitInFlight) {
+            return;
+        }
+
+        presensiSubmitInFlight = true;
+        const submitButton = $(this);
+        submitButton.prop('disabled', true);
+
+        const latestLocationState = syncLatestLocationState();
+        const presensiMode = isPresensiKeluar ? 'keluar' : 'masuk';
+
         // If selfie is already captured, proceed with location validation
         // If this action is a checkout and current time is before pulangStart, ask for confirmation
         if (isPresensiKeluar && pulangStartSeconds) {
             const now = new Date();
             const nowSeconds = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
             if (nowSeconds < pulangStartSeconds) {
-                const res = await Swal.fire({
-                    title: 'Pulang Awal',
-                    text: 'Apakah Anda yakin ingin melakukan presensi pulang sebelum waktunya?',
+                const res = await showFormalAlert({
+                    title: 'Konfirmasi Presensi Pulang',
+                    text: 'Anda akan melakukan presensi pulang sebelum waktu yang ditetapkan. Lanjutkan proses presensi?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Ya, saya yakin',
+                    confirmButtonText: 'Lanjutkan',
                     cancelButtonText: 'Batal'
                 });
                 if (!res.isConfirmed) {
+                    presensiSubmitInFlight = false;
+                    submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     return; // user cancelled early checkout
                 }
             }
         }
-        if (!latitude || !longitude) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Kesalahan',
-                text: 'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu proses pengumpulan data selesai.',
-                confirmButtonText: 'Oke'
-            });
+        if (!latestLocationState.latitude || !latestLocationState.longitude) {
+            showFormalErrorAlert(
+                'Lokasi Belum Siap',
+                'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu hingga proses pembacaan lokasi selesai.'
+            );
+            presensiSubmitInFlight = false;
+            submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             return;
         }
 
-        // Allow presensi even if location reading failed (single reading is enough)
-        if (locationReadings.length === 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Kesalahan',
-                text: 'Tidak dapat mendapatkan lokasi. Pastikan GPS aktif dan coba lagi.',
-                confirmButtonText: 'Oke'
-            });
-            return;
-        }
+        showFormalLoadingAlert(
+            'Sedang Memproses Presensi',
+            'Mohon menunggu. Data presensi sedang dikirim ke sistem.'
+        );
 
-        $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
+        submitButton.html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Get final location reading (button click) as reading4
         navigator.geolocation.getCurrentPosition(
@@ -1559,18 +2044,18 @@ window.addEventListener('load', function() {
                 // Ensure selfie data is valid before sending
                 if (!selfieDataValue || selfieDataValue.length < 100) {
                     console.error('Selfie data validation failed, length:', selfieDataValue.length);
+                    presensiSubmitInFlight = false;
                     $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Kesalahan',
-                        text: 'Data foto selfie tidak valid. Silakan ambil foto lagi.',
-                        confirmButtonText: 'Oke'
-                    });
+                    showFormalErrorAlert(
+                        'Data Selfie Tidak Valid',
+                        'Data foto selfie belum valid. Silakan ambil ulang foto selfie Anda.'
+                    );
                     return;
                 }
 
                 let postData = {
                     _token: '<?php echo e(csrf_token()); ?>',
+                    presensi_mode: presensiMode,
                     latitude: reading4Lat,
                     longitude: reading4Lng,
                     lokasi: lokasi,
@@ -1594,16 +2079,7 @@ window.addEventListener('load', function() {
                 // Get address
                 getAddressFromCoordinates(reading4Lat, reading4Lng);
 
-                $('#location-info').html(`
-                    <div class="location-info success">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle text-success me-2"></i>
-                            <div>
-                                <strong class="small">Lokasi berhasil didapatkan!</strong>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                setLocationIndicator('success', 'Lokasi valid', 'bx bx-check-circle');
 
                 $.ajax({
                     url: '<?php echo e(route("mobile.presensi.store")); ?>',
@@ -1612,158 +2088,60 @@ window.addEventListener('load', function() {
                     timeout: 30000,
                     success: function(resp) {
                         if (resp && resp.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: resp.message || 'Presensi berhasil dicatat',
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => {
-                                // Instead of full reload, update the UI dynamically
-                                updatePresensiUI(resp);
+                            showFormalSuccessAlert(
+                                'Presensi Berhasil Direkam',
+                                resp.message || 'Data presensi telah berhasil dicatat.',
+                                {
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }
+                            ).then(() => {
+                                presensiSubmitInFlight = false;
+                                closeSelfieModal();
+                                window.location.reload();
                             });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal',
-                                text: resp.message || 'Gagal melakukan presensi. Coba lagi.',
-                            });
+                            presensiSubmitInFlight = false;
+                            showFormalErrorAlert(
+                                'Presensi Ditolak',
+                                showFormalRejectMessage(resp.message, 'Presensi tidak dapat diproses. Silakan periksa kembali data yang dikirim.')
+                            );
                             $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                         }
                     },
                     error: function(xhr, status, err) {
-                        let message = 'Gagal menghubungi server.';
-                        if (xhr && xhr.responseJSON && xhr.responseJSON.message) message = xhr.responseJSON.message;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: message
-                        });
+                        let message = 'Sistem tidak dapat dihubungi saat ini. Silakan coba beberapa saat lagi.';
+                        let title = 'Permintaan Presensi Gagal';
+                        if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                            title = xhr.status >= 400 && xhr.status < 500 ? 'Presensi Ditolak' : 'Permintaan Presensi Gagal';
+                        }
+                        presensiSubmitInFlight = false;
+                        showFormalErrorAlert(
+                            title,
+                            showFormalRejectMessage(message, 'Permintaan presensi tidak dapat diproses saat ini.')
+                        );
                         $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     }
                 });
 
             },
             function(err){
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kesalahan GPS',
-                    text: err.message || 'Tidak dapat mengambil lokasi terakhir.'
-                });
+                presensiSubmitInFlight = false;
+                showFormalErrorAlert(
+                    'Pembacaan Lokasi Gagal',
+                    showFormalRejectMessage(err.message, 'Lokasi terakhir tidak dapat diperoleh. Silakan pastikan GPS aktif, lalu coba kembali.')
+                );
                 $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
     });
-});
 
-// Function to update presensi UI after successful submission
-function updatePresensiUI(resp) {
-    // Update the status card to show presensi has been recorded
-    const statusCardHtml = `
-        <div class="status-card success">
-            <div class="d-flex align-items-center">
-                <div class="status-icon">
-                    <i class="bx bx-check-circle"></i>
-                </div>
-                <div>
-                    <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-                        <small class="text-white-50">${resp.madrasah_name || 'Madrasah'}</small>
-                        <p class="mb-1">Masuk: <strong>${resp.waktu_masuk || new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}</strong></p>
-                        <p class="mb-0 text-muted">Belum presensi keluar</p>
-                    </div>
-                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Find and replace the status card
-    const statusCardContainer = document.querySelector('.alert-custom.warning, .alert-custom.success, .status-card');
-    if (statusCardContainer) {
-        statusCardContainer.outerHTML = statusCardHtml;
-    }
-
-    // Update the presensi button to show "Presensi Keluar"
-    const presensiBtn = document.getElementById('btn-presensi');
-    if (presensiBtn) {
-        presensiBtn.innerHTML = '<i class="bx bx-log-out-circle me-1"></i>Presensi Keluar';
-        presensiBtn.disabled = false;
-    }
-
-    // Hide submit button
-    const submitBtn = document.getElementById('btn-submit-presensi');
-    if (submitBtn) {
-        submitBtn.style.display = 'none';
-    }
-
-    // Reset selfie section for next use
-    resetSelfieSection();
-
-    // Update the header subtitle if needed
-    const subtitle = document.querySelector('.presensi-header h5');
-    if (subtitle && resp.madrasah_name) {
-        subtitle.textContent = resp.madrasah_name;
-    }
-}
-
-// Function to reset selfie section
-function resetSelfieSection() {
-    // Hide video and preview
-    const video = document.getElementById('selfie-video');
-    const preview = document.getElementById('selfie-preview');
-    const canvas = document.getElementById('selfie-canvas');
-
-    if (video) video.style.display = 'none';
-    if (preview) preview.style.display = 'none';
-    if (canvas) canvas.style.display = 'none';
-
-    // Hide buttons
-    const captureBtn = document.getElementById('btn-capture-selfie');
-    const retakeBtn = document.getElementById('btn-retake-selfie');
-
-    if (captureBtn) captureBtn.style.display = 'none';
-    if (retakeBtn) retakeBtn.style.display = 'none';
-
-    // Show placeholder
-    const container = document.getElementById('selfie-container');
-    if (container) {
-        const placeholder = container.querySelector('.text-center');
-        if (placeholder) {
-            placeholder.style.display = 'block';
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && selfieModal && selfieModal.classList.contains('show')) {
+            closeSelfieModal();
         }
-    }
-
-    // Reset status
-    const statusElement = document.getElementById('selfie-status');
-    if (statusElement) {
-        statusElement.innerHTML = `
-            <div class="location-info info">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-camera-off me-1"></i>
-                    <div>
-                        <strong>Selfie belum diambil</strong>
-                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // Clear selfie data
-    const selfieDataInput = document.getElementById('selfie-data');
-    if (selfieDataInput) {
-        selfieDataInput.value = '';
-    }
-
-    // Reset flag
-    selfieCaptured = false;
-
-    // Stop any active camera stream
-    if (selfieStream) {
-        selfieStream.getTracks().forEach(track => track.stop());
-        selfieStream = null;
-    }
-}
+    });
+});
 
 // Initialize map for kepala madrasah monitoring
 <?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah' && !empty($mapData)): ?>

@@ -353,16 +353,7 @@
                     $isIzinApprovedToday = !empty($approvedIzinPresensi);
                 ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                    <div
-                        class="schedule-item"
-                        data-schedule-id="<?php echo e($schedule->id); ?>"
-                        data-subject="<?php echo e(e($schedule->subject)); ?>"
-                        data-class-name="<?php echo e(e($schedule->class_name)); ?>"
-                        data-school-name="<?php echo e(e($schedule->school->name ?? 'N/A')); ?>"
-                        data-start-time="<?php echo e($schedule->start_time); ?>"
-                        data-end-time="<?php echo e($schedule->end_time); ?>"
-                        data-day-marker="<?php echo e($schedule->day_marker ?? 'normal'); ?>"
-                    >
+                    <div class="schedule-item">
                         <div class="schedule-icon">
                             <i class="bx bx-book"></i>
                         </div>
@@ -375,11 +366,6 @@
                                         <i class="bx bx-time-five"></i> <?php echo e($schedule->start_time); ?> - <?php echo e($schedule->end_time); ?>
 
                                     </div>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($schedule->day_marker) && $schedule->day_marker !== 'normal'): ?>
-                                        <div class="mt-1">
-                                            <span class="badge bg-info text-dark"><?php echo e($schedule->day_marker_label ?? 'Keterangan Hari'); ?></span>
-                                        </div>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     <div class="school-badge">
                                         <?php echo e(Str::limit($schedule->school->name ?? 'N/A', 100)); ?>
 
@@ -429,19 +415,6 @@
                                                     </div>
                                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </div>
-                                            <?php if(($schedule->attendance->status ?? 'hadir') !== 'izin'): ?>
-                                                <div class="ms-auto">
-                                                    <button
-                                                        type="button"
-                                                        class="btn btn-sm btn-outline-primary edit-attendance-btn"
-                                                        data-attendance='<?php echo json_encode([
-                                                            "id" => $schedule->attendance->id, "schedule_id" => $schedule->id, "subject" => $schedule->subject) ?>'
-                                                        title="Edit presensi"
-                                                    >
-                                                        <i class="bx bx-edit-alt"></i>
-                                                    </button>
-                                                </div>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </div>
                                 <?php else: ?>
@@ -456,17 +429,6 @@
                                             </div>
                                         </div>
                                     <?php else: ?>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($schedule->day_marker ?? 'normal') === 'libur'): ?>
-                                        <div class="alert alert-info mb-0">
-                                            <div class="d-flex align-items-center">
-                                                <i class="bx bx-calendar-x fs-4 me-2"></i>
-                                                <div>
-                                                    <div class="fw-semibold"><?php echo e($schedule->day_marker_label ?? 'Hari Libur'); ?></div>
-                                                    <small class="small-muted">Presensi mengajar dinonaktifkan untuk kelas ini hari ini.</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php else: ?>
                                     <div
                                         class="time-status-container"
                                         data-schedule-id="<?php echo e($schedule->id); ?>"
@@ -476,7 +438,6 @@
                                         data-start-time="<?php echo e($schedule->start_time); ?>"
                                         data-end-time="<?php echo e($schedule->end_time); ?>"
                                         data-class-total-students="<?php echo e($schedule->class_student_count->total_students ?? ''); ?>"
-                                        data-day-marker="<?php echo e($schedule->day_marker ?? 'normal'); ?>"
                                     >
                                         <?php
                                             $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
@@ -497,7 +458,6 @@
                                                 data-start-time="<?php echo e($schedule->start_time); ?>"
                                                 data-end-time="<?php echo e($schedule->end_time); ?>"
                                                 data-class-total-students="<?php echo e($schedule->class_student_count->total_students ?? ''); ?>"
-                                                data-day-marker="<?php echo e($schedule->day_marker ?? 'normal'); ?>"
                                             >
                                                 <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
                                             </button>
@@ -511,20 +471,6 @@
 
                                                 </small>
                                             </div>
-                                            <button
-                                                class="presensi-btn outline manual-attendance-btn mt-2"
-                                                data-force-reason="outside_time"
-                                                data-schedule-id="<?php echo e($schedule->id); ?>"
-                                                data-subject="<?php echo e(e($schedule->subject)); ?>"
-                                                data-class-name="<?php echo e(e($schedule->class_name)); ?>"
-                                                data-school-name="<?php echo e(e($schedule->school->name ?? 'N/A')); ?>"
-                                                data-start-time="<?php echo e($schedule->start_time); ?>"
-                                                data-end-time="<?php echo e($schedule->end_time); ?>"
-                                                data-class-total-students="<?php echo e($schedule->class_student_count->total_students ?? ''); ?>"
-                                                data-day-marker="<?php echo e($schedule->day_marker ?? 'normal'); ?>"
-                                            >
-                                                <i class="bx bx-error-circle me-1"></i> Input Manual
-                                            </button>
                                         <?php else: ?>
                                             <button class="presensi-btn outline" disabled>
                                                 <i class="bx bx-time me-1"></i> Waktu Mengajar Berakhir
@@ -535,23 +481,8 @@
 
                                                 </small>
                                             </div>
-                                            <button
-                                                class="presensi-btn outline manual-attendance-btn mt-2"
-                                                data-force-reason="outside_time"
-                                                data-schedule-id="<?php echo e($schedule->id); ?>"
-                                                data-subject="<?php echo e(e($schedule->subject)); ?>"
-                                                data-class-name="<?php echo e(e($schedule->class_name)); ?>"
-                                                data-school-name="<?php echo e(e($schedule->school->name ?? 'N/A')); ?>"
-                                                data-start-time="<?php echo e($schedule->start_time); ?>"
-                                                data-end-time="<?php echo e($schedule->end_time); ?>"
-                                                data-class-total-students="<?php echo e($schedule->class_student_count->total_students ?? ''); ?>"
-                                                data-day-marker="<?php echo e($schedule->day_marker ?? 'normal'); ?>"
-                                            >
-                                                <i class="bx bx-error-circle me-1"></i> Input Manual
-                                            </button>
                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
@@ -769,7 +700,6 @@ function initializeScheduleData() {
             startTime: container.dataset.startTime,
             endTime: container.dataset.endTime,
             classTotalStudents: container.dataset.classTotalStudents,
-            dayMarker: container.dataset.dayMarker || 'normal',
             container: container
         };
     });
@@ -792,7 +722,6 @@ function renderScheduleAction(data, state, minutesUntilStart = 0) {
     const escapedStartTime = escapeHtml(data.startTime);
     const escapedEndTime = escapeHtml(data.endTime);
     const escapedClassTotalStudents = escapeHtml(data.classTotalStudents);
-    const escapedDayMarker = escapeHtml(data.dayMarker || 'normal');
 
     if (state === 'within') {
         container.innerHTML = `
@@ -805,7 +734,6 @@ function renderScheduleAction(data, state, minutesUntilStart = 0) {
                 data-start-time="${escapedStartTime}"
                 data-end-time="${escapedEndTime}"
                 data-class-total-students="${escapedClassTotalStudents}"
-                data-day-marker="${escapedDayMarker}"
             >
                 <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
             </button>
@@ -823,20 +751,6 @@ function renderScheduleAction(data, state, minutesUntilStart = 0) {
                     <i class="bx bx-info-circle me-1"></i>Waktu mengajar: ${escapedStartTime} - ${escapedEndTime}
                 </small>
             </div>
-            <button
-                class="presensi-btn outline manual-attendance-btn mt-2"
-                data-force-reason="outside_time"
-                data-schedule-id="${data.scheduleId}"
-                data-subject="${escapedSubject}"
-                data-class-name="${escapedClassName}"
-                data-school-name="${escapedSchoolName}"
-                data-start-time="${escapedStartTime}"
-                data-end-time="${escapedEndTime}"
-                data-class-total-students="${escapedClassTotalStudents}"
-                data-day-marker="${escapedDayMarker}"
-            >
-                <i class="bx bx-error-circle me-1"></i> Input Manual
-            </button>
         `;
         return;
     }
@@ -850,20 +764,6 @@ function renderScheduleAction(data, state, minutesUntilStart = 0) {
                 <i class="bx bx-info-circle me-1"></i>Waktu mengajar: ${escapedStartTime} - ${escapedEndTime}
             </small>
         </div>
-        <button
-            class="presensi-btn outline manual-attendance-btn mt-2"
-            data-force-reason="outside_time"
-            data-schedule-id="${data.scheduleId}"
-            data-subject="${escapedSubject}"
-            data-class-name="${escapedClassName}"
-            data-school-name="${escapedSchoolName}"
-            data-start-time="${escapedStartTime}"
-            data-end-time="${escapedEndTime}"
-            data-class-total-students="${escapedClassTotalStudents}"
-            data-day-marker="${escapedDayMarker}"
-        >
-            <i class="bx bx-error-circle me-1"></i> Input Manual
-        </button>
     `;
 }
 
@@ -946,7 +846,6 @@ function stopTimeChecking() {
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
     initializeScheduleData();
-    buildScheduleMeta();
     startTimeChecking();
 });
 
@@ -956,14 +855,9 @@ window.addEventListener('beforeunload', function() {
 });
 
 let currentScheduleId = null;
-let currentAttendanceId = null;
 let userLocation = null;
 let isLocationValid = false;
 let currentClassTotalStudents = null;
-let isEditMode = false;
-let requiresLocationValidation = true;
-let currentForce = false;
-let currentForceReason = '';
 const confirmAttendanceBtn = document.getElementById('confirmAttendanceBtn');
 const attendanceMateriInput = document.getElementById('attendanceMateri');
 const classTotalStudentsInput = document.getElementById('classTotalStudents');
@@ -971,40 +865,6 @@ const presentStudentsInput = document.getElementById('presentStudents');
 const classTotalInputGroup = document.getElementById('classTotalInputGroup');
 const classTotalInfo = document.getElementById('classTotalInfo');
 const studentAttendancePreview = document.getElementById('studentAttendancePreview');
-const scheduleMeta = {};
-
-function parseTimeToMinutes(value) {
-    const parts = String(value ?? '').split(':').map(v => Number(v));
-    const hours = Number.isFinite(parts[0]) ? parts[0] : 0;
-    const minutes = Number.isFinite(parts[1]) ? parts[1] : 0;
-    return (hours * 60) + minutes;
-}
-
-function buildScheduleMeta() {
-    document.querySelectorAll('.schedule-item[data-schedule-id]').forEach(el => {
-        const scheduleId = String(el.dataset.scheduleId);
-        scheduleMeta[scheduleId] = {
-            scheduleId,
-            subject: el.dataset.subject || '',
-            className: el.dataset.className || '',
-            schoolName: el.dataset.schoolName || '',
-            startTime: el.dataset.startTime || '',
-            endTime: el.dataset.endTime || '',
-            dayMarker: el.dataset.dayMarker || 'normal',
-            startMinutes: parseTimeToMinutes(el.dataset.startTime),
-            endMinutes: parseTimeToMinutes(el.dataset.endTime),
-        };
-    });
-}
-
-function getOverlappingSchedules(scheduleId) {
-    const base = scheduleMeta[String(scheduleId)];
-    if (!base) return [];
-    return Object.values(scheduleMeta).filter(other => {
-        if (other.scheduleId === base.scheduleId) return false;
-        return base.startMinutes < other.endMinutes && base.endMinutes > other.startMinutes;
-    });
-}
 
 function getStudentAttendanceNumbers() {
     const totalRaw = currentClassTotalStudents || Number(classTotalStudentsInput?.value || 0);
@@ -1042,39 +902,26 @@ function refreshConfirmAttendanceButton() {
     const hasMateri = attendanceMateriInput && attendanceMateriInput.value.trim().length > 0;
     const { total, present } = getStudentAttendanceNumbers();
     const hasValidStudentAttendance = total > 0 && present >= 0 && present <= total && !!presentStudentsInput?.value;
-    const locationOk = requiresLocationValidation ? isLocationValid : true;
-    confirmAttendanceBtn.disabled = !(locationOk && hasMateri && hasValidStudentAttendance);
+    confirmAttendanceBtn.disabled = !(isLocationValid && hasMateri && hasValidStudentAttendance);
     updateStudentAttendancePreview();
 }
 
-function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime, classTotalStudents, options = {}) {
+function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime, classTotalStudents) {
     currentScheduleId = scheduleId;
     userLocation = null;
     isLocationValid = false;
-    isEditMode = options.mode === 'edit';
-    currentAttendanceId = options.attendanceId || null;
-    requiresLocationValidation = !isEditMode;
-    currentForce = !!options.force;
-    currentForceReason = String(options.forceReason || '');
-
     currentClassTotalStudents = classTotalStudents ? Number(classTotalStudents) : null;
     confirmAttendanceBtn.disabled = true;
-    confirmAttendanceBtn.innerHTML = isEditMode
-        ? '<i class="bx bx-save me-1"></i>Simpan'
-        : confirmAttendanceBtnLabel;
+    confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
     if (attendanceMateriInput) {
-        attendanceMateriInput.value = options.materi ? String(options.materi) : '';
+        attendanceMateriInput.value = '';
     }
     if (presentStudentsInput) {
-        presentStudentsInput.value = (options.presentStudents ?? '') === null ? '' : String(options.presentStudents ?? '');
+        presentStudentsInput.value = '';
         presentStudentsInput.removeAttribute('max');
     }
     if (classTotalStudentsInput) {
-        classTotalStudentsInput.value = (options.classTotalStudents ?? '') === null ? '' : String(options.classTotalStudents ?? '');
-    }
-
-    if (!currentClassTotalStudents && options.classTotalStudents) {
-        currentClassTotalStudents = Number(options.classTotalStudents);
+        classTotalStudentsInput.value = '';
     }
 
     if (currentClassTotalStudents) {
@@ -1085,7 +932,7 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     } else {
         classTotalInputGroup.style.display = '';
         classTotalInfo.className = 'alert alert-warning border mb-2';
-        classTotalInfo.textContent = 'Jumlah siswa kelas belum tersimpan. Isi sekali untuk kelas ini.';
+        classTotalInfo.textContent = 'Jumlah siswa kelas belum tersimpan. Isi sekali untuk kelas ini sebelum presensi.';
     }
     updateStudentAttendancePreview();
 
@@ -1109,15 +956,6 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     $('#map-loading').show();
     $('#map-placeholder').hide();
     $('#locationMap').hide();
-
-    if (isEditMode) {
-        $('#map-loading').hide();
-        $('#map-placeholder').hide();
-        $('#locationMap').hide();
-        updateLocationStatus('success', 'Mode edit: lokasi tidak perlu divalidasi.', true);
-        refreshConfirmAttendanceButton();
-        return;
-    }
 
     // Initialize map first, then get location
     initializeMap();
@@ -1221,94 +1059,17 @@ function checkLocationInPolygon(lat, lng, scheduleId) {
 }
 
 document.addEventListener('click', function (e) {
-    const editTrigger = e.target.closest('.edit-attendance-btn');
-    if (editTrigger) {
-        let payload = null;
-        try { payload = JSON.parse(editTrigger.dataset.attendance || 'null'); } catch (err) {}
-        if (!payload || !payload.id) return;
-
+    const attendanceTrigger = e.target.closest('.attendance-btn');
+    if (attendanceTrigger) {
         openAttendanceModal(
-            payload.schedule_id,
-            payload.subject,
-            payload.class_name,
-            payload.school_name,
-            payload.start_time,
-            payload.end_time,
-            payload.class_total_students,
-            {
-                mode: 'edit',
-                attendanceId: payload.id,
-                materi: payload.materi,
-                presentStudents: payload.present_students,
-                classTotalStudents: payload.class_total_students,
-            }
+            attendanceTrigger.dataset.scheduleId,
+            attendanceTrigger.dataset.subject,
+            attendanceTrigger.dataset.className,
+            attendanceTrigger.dataset.schoolName,
+            attendanceTrigger.dataset.startTime,
+            attendanceTrigger.dataset.endTime,
+            attendanceTrigger.dataset.classTotalStudents
         );
-        return;
-    }
-
-    const actionTrigger = e.target.closest('.attendance-btn, .manual-attendance-btn');
-    if (actionTrigger) {
-        const scheduleId = actionTrigger.dataset.scheduleId;
-        const overlaps = getOverlappingSchedules(scheduleId);
-        const warnings = [];
-        const isManual = actionTrigger.classList.contains('manual-attendance-btn');
-        const dayMarker = actionTrigger.dataset.dayMarker || scheduleMeta[String(scheduleId)]?.dayMarker || 'normal';
-        const isKegiatanKhusus = dayMarker === 'kegiatan_khusus';
-        const isLibur = dayMarker === 'libur';
-
-        if (isLibur) {
-            Swal.fire({ icon: 'info', title: 'Hari Libur', text: 'Presensi mengajar dinonaktifkan untuk kelas ini hari ini.' });
-            return;
-        }
-
-        if (overlaps.length > 0) {
-            const list = overlaps.slice(0, 3).map(o => `${escapeHtml(o.subject)} (${escapeHtml(o.startTime)}-${escapeHtml(o.endTime)})`).join('<br>');
-            warnings.push(`<div class="text-start"><b>Jadwal bentrok</b><br>${list}${overlaps.length > 3 ? '<br>...' : ''}</div>`);
-        }
-
-        if (isManual) {
-            warnings.push('<div class="text-start"><b>Input manual</b><br>Anda akan menginput presensi di luar jam mengajar. Lanjutkan?</div>');
-        }
-
-        if (isKegiatanKhusus) {
-            warnings.push('<div class="text-start"><b>Kegiatan Khusus</b><br>Hari ini ditandai sebagai kegiatan khusus (PKL/Study Tour/dll). Presensi diperbolehkan meski di luar jam/lokasi sekolah.</div>');
-        }
-
-        const shouldForce = isManual || isKegiatanKhusus;
-        const forceReason = isKegiatanKhusus
-            ? 'kegiatan_khusus'
-            : (isManual ? (actionTrigger.dataset.forceReason || 'outside_time') : '');
-
-        const proceed = () => openAttendanceModal(
-            actionTrigger.dataset.scheduleId,
-            actionTrigger.dataset.subject,
-            actionTrigger.dataset.className,
-            actionTrigger.dataset.schoolName,
-            actionTrigger.dataset.startTime,
-            actionTrigger.dataset.endTime,
-            actionTrigger.dataset.classTotalStudents,
-            {
-                mode: 'create',
-                force: shouldForce,
-                forceReason: forceReason,
-            }
-        );
-
-        if (warnings.length === 0) {
-            proceed();
-            return;
-        }
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Konfirmasi',
-            html: warnings.join('<hr class="my-2">'),
-            showCancelButton: true,
-            confirmButtonText: 'Ya, lanjutkan',
-            cancelButtonText: 'Batal',
-        }).then(res => {
-            if (res.isConfirmed) proceed();
-        });
         return;
     }
 
@@ -1335,52 +1096,19 @@ document.addEventListener('click', function (e) {
             return;
         }
 
-        confirmAttendanceBtn.disabled = true;
-        confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLoadingLabel;
-
-        if (isEditMode) {
-            const updateUrl = `<?php echo e(url('/teaching-attendances')); ?>/${currentAttendanceId}`;
-            fetch(updateUrl, {
-                method: 'PUT',
-                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' },
-                body: JSON.stringify({
-                    materi: materi,
-                    class_total_students: currentClassTotalStudents ? currentClassTotalStudents : total,
-                    present_students: present,
-                })
-            }).then(async res => {
-                const json = await res.json();
-                return { ok: res.ok, json };
-            }).then(({ ok, json }) => {
-                confirmAttendanceBtn.disabled = false;
-                confirmAttendanceBtn.innerHTML = '<i class="bx bx-save me-1"></i>Simpan';
-                if (ok && json.success) {
-                    Swal.fire({ icon: 'success', title: 'Berhasil', text: json.message, timer: 2000 }).then(() => location.reload());
-                    return;
-                }
-                Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Terjadi kesalahan' });
-            }).catch(err => {
-                confirmAttendanceBtn.disabled = false;
-                confirmAttendanceBtn.innerHTML = '<i class="bx bx-save me-1"></i>Simpan';
-                Swal.fire({ icon: 'error', title: 'Error', text: err?.message || String(err) });
-            });
-            return;
-        }
-
         if (!userLocation || !currentScheduleId) {
-            confirmAttendanceBtn.disabled = false;
-            confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
             Swal.fire({ icon: 'error', title: 'Kesalahan', text: 'Lokasi belum didapatkan atau jadwal tidak valid.' });
             return;
         }
 
         checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
             if (!isValid) {
-                confirmAttendanceBtn.disabled = false;
-                confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
                 Swal.fire({ icon: 'warning', title: 'Diluar Area', text: 'Lokasi Anda berada di luar area sekolah.' });
                 return;
             }
+
+            confirmAttendanceBtn.disabled = true;
+            confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLoadingLabel;
 
             fetch('<?php echo e(route('teaching-attendances.store')); ?>', {
                 method: 'POST',
@@ -1392,9 +1120,7 @@ document.addEventListener('click', function (e) {
                     lokasi: 'Presensi Mengajar',
                     materi: materi,
                     class_total_students: currentClassTotalStudents ? null : total,
-                    present_students: present,
-                    force: currentForce ? 1 : 0,
-                    force_reason: currentForceReason || null,
+                    present_students: present
                 })
             }).then(async res => {
                 const json = await res.json();
@@ -1414,11 +1140,7 @@ document.addEventListener('click', function (e) {
                 confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
                 Swal.fire({ icon: 'error', title: 'Error', text: err?.message || String(err) });
             });
-        }).catch(err => {
-            confirmAttendanceBtn.disabled = false;
-            confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLabel;
-            Swal.fire({ icon: 'error', title: 'Error', text: err });
-        });
+        }).catch(err => Swal.fire({ icon: 'error', title: 'Error', text: err }));
     }
 });
 

@@ -93,17 +93,18 @@
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-sm align-middle">
-                        <thead><tr><th>No Tagihan</th><th>Siswa</th><th>Status</th><th>Total</th></tr></thead>
+                        <thead><tr><th>No Tagihan</th><th>Jenis</th><th>Siswa</th><th>Status</th><th>Total</th></tr></thead>
                         <tbody>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $recentBills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $bill): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr>
                                 <td><?php echo e($bill->nomor_tagihan); ?></td>
+                                <td><?php echo e($bill->jenis_tagihan ?? 'SPP'); ?></td>
                                 <td><?php echo e($bill->siswa->nama_lengkap ?? '-'); ?></td>
                                 <td><span class="badge bg-<?php echo e($bill->status === 'lunas' ? 'success' : ($bill->status === 'sebagian' ? 'warning' : 'danger')); ?>"><?php echo e(ucfirst(str_replace('_', ' ', $bill->status))); ?></span></td>
                                 <td>Rp <?php echo e(number_format($bill->total_tagihan, 0, ',', '.')); ?></td>
                             </tr>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                            <tr><td colspan="4" class="text-center text-muted">Belum ada tagihan SPP siswa.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted">Belum ada tagihan siswa.</td></tr>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>

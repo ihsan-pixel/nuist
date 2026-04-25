@@ -36,8 +36,8 @@
 
         <div class="form-group">
             <label for="surat_izin" class="form-label">Upload Surat / Keterangan Dokter (PDF/JPG/PNG)</label>
-            <input type="file" class="form-control" id="surat_izin" name="surat_izin" accept=".pdf,.jpg,.jpeg,.png">
-            <small class="text-muted">Jika ada, unggah keterangan dokter. Maks 5MB.</small>
+            <input type="file" class="form-control" id="surat_izin" name="surat_izin" accept=".pdf,.jpg,.jpeg,.png" required>
+            <small class="text-muted">Wajib diunggah. Maks 5MB.</small>
         </div>
 
         <button type="submit" class="btn-submit">Kirim Izin Sakit</button>

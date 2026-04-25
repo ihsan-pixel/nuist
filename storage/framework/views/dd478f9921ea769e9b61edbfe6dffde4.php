@@ -48,6 +48,22 @@
     </div>
 </div>
 
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bx bx-check-circle me-2"></i><?php echo e(session('success')); ?>
+
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+</div>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bx bx-error-circle me-2"></i><?php echo e(session('error')); ?>
+
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+</div>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
 <div class="card mgmp-panel mb-4">
     <div class="card-body">
 
@@ -88,12 +104,18 @@
                         <td><?php echo e($member->sekolah); ?></td>
                         <td><?php echo e($member->mgmpGroup->name ?? '-'); ?></td>
                         <td>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->role === 'mgmp' && $member->mgmpGroup->user_id === auth()->id() || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus'])): ?>
-                            <form action="#" method="POST" style="display:inline-block;">
+                            <?php
+                                $canRemoveMember = (
+                                    auth()->user()->role === 'mgmp'
+                                    && optional($member->mgmpGroup)->user_id === auth()->id()
+                                ) || in_array(auth()->user()->role, ['super_admin', 'admin', 'pengurus']);
+                            ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canRemoveMember): ?>
+                            <form action="<?php echo e(route('mgmp.members.destroy', $member)); ?>" method="POST" class="d-inline" onsubmit="return confirm('Yakin keluarkan anggota ini dari MGMP? Data akun guru tidak akan dihapus.');">
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('DELETE'); ?>
-                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin hapus anggota ini?')">
-                                    <i class="bx bx-trash"></i> Hapus
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bx bx-trash"></i> Keluarkan
                                 </button>
                             </form>
                             <?php else: ?>

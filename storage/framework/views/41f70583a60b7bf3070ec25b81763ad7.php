@@ -210,6 +210,8 @@
                             $jenisIzin = 'Izin Tugas Luar';
                         } elseif ($izin->type === 'cuti') {
                             $jenisIzin = 'Izin Cuti';
+                        } elseif ($izin->type === 'mengajar_sekolah_lain') {
+                            $jenisIzin = 'Mengajar di Sekolah Lain';
                         }
                     ?>
                     <div class="izin-type"><?php echo e($jenisIzin); ?></div>
@@ -228,6 +230,20 @@
                     <strong>Lokasi:</strong> <?php echo e($izin->lokasi_tugas); ?><br>
                     <strong>Waktu:</strong> <?php echo e($izin->waktu_masuk); ?> - <?php echo e($izin->waktu_keluar); ?>
 
+                <?php elseif($izin->type === 'mengajar_sekolah_lain'): ?>
+                    <?php
+                        $dayLabels = [1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu'];
+                        $hariPresensi = collect($izin->hari_presensi ?? [])->map(fn($day) => $dayLabels[(int) $day] ?? null)->filter()->implode(', ');
+                        $hariTidakPresensi = collect($izin->hari_tidak_presensi ?? [])->map(fn($day) => $dayLabels[(int) $day] ?? null)->filter()->implode(', ');
+                    ?>
+                    <strong>Periode:</strong> <?php echo e($izin->tanggal->format('d M Y')); ?> - <?php echo e(optional($izin->tanggal_selesai)->format('d M Y')); ?><br>
+                    <strong>Sekolah lain:</strong> <?php echo e($izin->lokasi_tugas ?: ($izin->user->madrasahTambahan->name ?? '-')); ?><br>
+                    <strong>Hari presensi:</strong> <?php echo e($hariPresensi ?: '-'); ?><br>
+                    <strong>Hari tidak presensi:</strong> <?php echo e($hariTidakPresensi ?: '-'); ?><br>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($izin->alasan): ?>
+                        <strong>Keterangan:</strong> <?php echo e($izin->alasan); ?>
+
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php else: ?>
                     <?php echo e($izin->alasan); ?>
 

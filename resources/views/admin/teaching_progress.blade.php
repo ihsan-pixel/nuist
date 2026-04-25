@@ -37,12 +37,12 @@
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
                                 <th rowspan="2" class="text-center align-middle">Hari KBM</th>
                                 <th colspan="3" class="text-center">Jumlah Tenaga Pendidik</th>
-                                <th colspan="2" class="text-center">Senin</th>
-                                <th colspan="2" class="text-center">Selasa</th>
-                                <th colspan="2" class="text-center">Rabu</th>
-                                <th colspan="2" class="text-center">Kamis</th>
-                                <th colspan="2" class="text-center">Jumat</th>
-                                <th colspan="2" class="text-center">Sabtu</th>
+                                <th colspan="3" class="text-center">Senin</th>
+                                <th colspan="3" class="text-center">Selasa</th>
+                                <th colspan="3" class="text-center">Rabu</th>
+                                <th colspan="3" class="text-center">Kamis</th>
+                                <th colspan="3" class="text-center">Jumat</th>
+                                <th colspan="3" class="text-center">Sabtu</th>
                                 <th rowspan="2" class="text-center align-middle">Persentase Kehadiran (%)</th>
                             </tr>
                             <tr>
@@ -51,6 +51,7 @@
                                 <th class="text-center">Total</th>
                                 @for($i = 0; $i < 6; $i++)
                                 <th class="text-center">Hadir</th>
+                                <th class="text-center">Izin</th>
                                 <th class="text-center">Alpha</th>
                                 @endfor
                             </tr>
@@ -58,7 +59,7 @@
                         <tbody>
                             @foreach($laporanData as $kabupaten)
                             <tr class="bg-info">
-                                <td colspan="22" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
+                                <td colspan="25" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
                             </tr>
                             @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
                             <tr>
@@ -70,6 +71,7 @@
                                 <td class="text-center">{{ $madrasah['total'] }}</td>
                                 @foreach($madrasah['presensi'] as $presensi)
                                 <td class="text-center">{{ $presensi['hadir'] }}</td>
+                                <td class="text-center">{{ $presensi['izin'] }}</td>
                                 <td class="text-center">{{ $presensi['alpha'] }}</td>
                                 @endforeach
                                 <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
@@ -81,8 +83,9 @@
                                 <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('belum') }}</td>
                                 <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('total') }}</td>
                                 @for($i = 0; $i < 6; $i++)
-                                <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
-                                <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
+                                <td class="text-center">{{ $kabupaten['daily_totals'][$i]['hadir'] }}</td>
+                                <td class="text-center">{{ $kabupaten['daily_totals'][$i]['izin'] }}</td>
+                                <td class="text-center">{{ $kabupaten['daily_totals'][$i]['alpha'] }}</td>
                                 @endfor
                                 <td class="text-center">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
                             </tr>
@@ -123,6 +126,7 @@
                                 <th class="text-center align-middle">Belum</th>
                                 <th class="text-center align-middle">Total</th>
                                 <th class="text-center align-middle">Total Hadir</th>
+                                <th class="text-center align-middle">Total Izin</th>
                                 <th class="text-center align-middle">Total Alpha</th>
                                 <th class="text-center align-middle">Persentase Kehadiran (%)</th>
                             </tr>
@@ -133,15 +137,16 @@
                                 $monthlyGrandBelum = collect($laporanBulananData)->sum(fn ($kabupaten) => collect($kabupaten['madrasahs'])->sum('belum'));
                                 $monthlyGrandTotal = collect($laporanBulananData)->sum(fn ($kabupaten) => collect($kabupaten['madrasahs'])->sum('total'));
                                 $monthlyGrandHadir = collect($laporanBulananData)->sum('total_hadir');
+                                $monthlyGrandIzin = collect($laporanBulananData)->sum('total_izin');
                                 $monthlyGrandAlpha = collect($laporanBulananData)->sum('total_alpha');
                                 $monthlyGrandPresensi = collect($laporanBulananData)->sum('total_presensi');
                                 $monthlyGrandPercentage = $monthlyGrandPresensi > 0
-                                    ? ($monthlyGrandHadir / $monthlyGrandPresensi) * 100
+                                    ? (($monthlyGrandHadir + $monthlyGrandIzin) / $monthlyGrandPresensi) * 100
                                     : 0;
                             @endphp
                             @foreach($laporanBulananData as $kabupaten)
                             <tr class="bg-info">
-                                <td colspan="9" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }} - {{ $startOfMonth->translatedFormat('F Y') }}</td>
+                                <td colspan="10" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }} - {{ $startOfMonth->translatedFormat('F Y') }}</td>
                             </tr>
                             @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
                             <tr>
@@ -152,6 +157,7 @@
                                 <td class="text-center">{{ $madrasah['belum'] }}</td>
                                 <td class="text-center">{{ $madrasah['total'] }}</td>
                                 <td class="text-center">{{ $madrasah['total_hadir'] }}</td>
+                                <td class="text-center">{{ $madrasah['total_izin'] }}</td>
                                 <td class="text-center">{{ $madrasah['total_alpha'] }}</td>
                                 <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
                             </tr>
@@ -162,6 +168,7 @@
                                 <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('belum') }}</td>
                                 <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('total') }}</td>
                                 <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
+                                <td class="text-center">{{ $kabupaten['total_izin'] }}</td>
                                 <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
                                 <td class="text-center">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
                             </tr>
@@ -172,6 +179,7 @@
                                 <td class="text-center">{{ $monthlyGrandBelum }}</td>
                                 <td class="text-center">{{ $monthlyGrandTotal }}</td>
                                 <td class="text-center">{{ $monthlyGrandHadir }}</td>
+                                <td class="text-center">{{ $monthlyGrandIzin }}</td>
                                 <td class="text-center">{{ $monthlyGrandAlpha }}</td>
                                 <td class="text-center">{{ number_format($monthlyGrandPercentage, 2) }}%</td>
                             </tr>
@@ -265,6 +273,7 @@
                                     <th class="text-center">Status Jadwal</th>
                                     <th class="text-center">Jadwal Berjalan</th>
                                     <th class="text-center">Sudah Presensi</th>
+                                    <th class="text-center">Izin</th>
                                     <th class="text-center">Tidak Presensi</th>
                                     <th class="text-center">% Tidak Presensi</th>
                                     <th class="text-center">Status Presensi</th>
@@ -288,6 +297,11 @@
                                     </td>
                                     <td class="text-center">{{ $teacher['total_jadwal_berjalan'] }}</td>
                                     <td class="text-center">{{ $teacher['total_presensi'] }}</td>
+                                    <td class="text-center">
+                                        <span class="badge {{ $teacher['total_izin'] > 0 ? 'bg-info text-dark' : 'bg-light text-dark' }}">
+                                            {{ $teacher['total_izin'] }}
+                                        </span>
+                                    </td>
                                     <td class="text-center">
                                         <span class="badge {{ $teacher['total_belum_presensi'] > 0 ? 'bg-danger' : 'bg-success' }}">
                                             {{ $teacher['total_belum_presensi'] }}
@@ -380,7 +394,7 @@ $(document).ready(function () {
             responsive: true,
             lengthChange: true,
             autoWidth: false,
-            order: [[10, 'desc'], [1, 'asc']],
+            order: [[11, 'desc'], [1, 'asc']],
             buttons: ['copy', 'excel', 'pdf', 'print', 'colvis']
         });
 

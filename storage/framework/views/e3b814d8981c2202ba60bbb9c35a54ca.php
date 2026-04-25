@@ -60,11 +60,15 @@
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Nuist ID</th>
+                        <th>Kartanu</th>
+                        <th>NUPTK</th>
+                        <th>Pendidikan Terakhir</th>
                         <th>Madrasah</th>
                         <th>Status Kepegawaian</th>
                         <th>TMT</th>
                         <th>Ketugasan</th>
                         <th>Mengajar</th>
+                        <th>Alamat</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -76,11 +80,15 @@
                             <td><?php echo e($tp->name); ?></td>
                             <td><?php echo e($tp->email); ?></td>
                             <td><?php echo e($tp->nuist_id ?? '-'); ?></td>
+                            <td><?php echo e($tp->kartanu ?? '-'); ?></td>
+                            <td><?php echo e($tp->nuptk ?? '-'); ?></td>
+                            <td><?php echo e($tp->pendidikan_terakhir ?? '-'); ?></td>
                             <td><?php echo e($tp->madrasah?->name ?? '-'); ?></td>
                             <td><?php echo e($tp->statusKepegawaian->name ?? '-'); ?></td>
                             <td><?php echo e($tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->translatedFormat('j F Y') : '-'); ?></td>
                             <td><?php echo e($tp->ketugasan ?? '-'); ?></td>
                             <td><?php echo e($tp->mengajar ?? '-'); ?></td>
+                            <td><?php echo e($tp->alamat ?? '-'); ?></td>
                             <td>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(strtolower(auth()->user()->role) == 'admin'): ?>
                                     <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalViewTP<?php echo e($tp->id); ?>">
@@ -771,6 +779,5 @@
         });
     </script>
 <?php $__env->stopSection(); ?>
-
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/masterdata/tenaga-pendidik/index.blade.php ENDPATH**/ ?>

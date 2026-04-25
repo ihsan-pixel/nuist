@@ -24,6 +24,10 @@
                 <strong><?php echo e($selectedTagihan->nomor_tagihan); ?></strong>
             </div>
             <div class="detail-box">
+                <small>Jenis tagihan</small>
+                <strong><?php echo e($selectedTagihan->jenis_tagihan ?? 'SPP'); ?></strong>
+            </div>
+            <div class="detail-box">
                 <small>Periode</small>
                 <strong><?php echo e(\Carbon\Carbon::createFromFormat('Y-m', $selectedTagihan->periode)->translatedFormat('F Y')); ?></strong>
             </div>

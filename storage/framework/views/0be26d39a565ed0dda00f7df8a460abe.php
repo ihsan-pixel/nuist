@@ -36,6 +36,7 @@
                         <li><a href="<?php echo e(route('admin.index')); ?>">Data Admin</a></li>
                         <li><a href="<?php echo e(route('madrasah.index')); ?>">Data Madrasah/Sekolah</a></li>
                         <li><a href="<?php echo e(route('tenaga-pendidik.index')); ?>">Data Tenaga Pendidik</a></li>
+                        <li><a href="<?php echo e(route('class-student-counts.index')); ?>">Data Jml Siswa per Kelas</a></li>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
                         <li><a href="<?php echo e(route('dps.index')); ?>">Data DPS</a></li>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -91,12 +92,6 @@
                     <a href="<?php echo e(route('teaching-schedules.index')); ?>" class="waves-effect">
                         <i class="bx bx-calendar"></i>
                         <span>Jadwal Mengajar</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo e(route('day-markers.index')); ?>" class="waves-effect">
-                        <i class="bx bx-calendar-event"></i>
-                        <span>Penanda Hari</span>
                     </a>
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

@@ -1,4 +1,4 @@
-<?php $__env->startSection('title'); ?>Tagihan SPP Siswa <?php $__env->stopSection(); ?>
+<?php $__env->startSection('title'); ?>Tagihan Siswa <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
 <?php $__env->startComponent('components.breadcrumb'); ?>
@@ -28,10 +28,12 @@
     <div class="card-body">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
             <div>
-                <h4 class="mb-1">Tagihan SPP Siswa</h4>
-                <p class="text-muted mb-0">Semua tagihan di halaman ini memakai tabel baru `spp_siswa_bills` dan relasi ke data siswa.</p>
+                <h4 class="mb-1">Tagihan Siswa</h4>
+                <p class="text-muted mb-0">Tagihan dapat dibuat untuk SPP maupun jenis tagihan lain sesuai kebutuhan masing-masing sekolah.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-secondary" href="<?php echo e(route('spp-siswa.tagihan.template', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>"><i class="bx bx-download me-1"></i>Template Import</a>
+                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#importTagihanModal" <?php echo e($userRole === 'admin' && !$hasActiveBniVaSetting ? 'disabled' : ''); ?>><i class="bx bx-upload me-1"></i>Import Tagihan</button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkTagihanModal" <?php echo e($userRole === 'admin' && !$hasActiveBniVaSetting ? 'disabled' : ''); ?>><i class="bx bx-layer-plus me-1"></i>Buat Tagihan Massal</button>
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTagihanModal" <?php echo e($userRole === 'admin' && !$hasActiveBniVaSetting ? 'disabled' : ''); ?>><i class="bx bx-plus me-1"></i>Buat Tagihan</button>
             </div>
@@ -56,6 +58,7 @@
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <div class="col-md-2"><label class="form-label">Kelas</label><input type="text" name="kelas" value="<?php echo e(request('kelas')); ?>" class="form-control"></div>
                 <div class="col-md-2"><label class="form-label">Jurusan</label><input type="text" name="jurusan" value="<?php echo e(request('jurusan')); ?>" class="form-control"></div>
+                <div class="col-md-2"><label class="form-label">Jenis Tagihan</label><input type="text" name="jenis_tagihan" value="<?php echo e(request('jenis_tagihan')); ?>" class="form-control" list="jenisTagihanSuggestions" placeholder="SPP"></div>
                 <div class="col-md-2">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
@@ -65,7 +68,7 @@
                         <option value="lunas" <?php if(request('status') === 'lunas'): echo 'selected'; endif; ?>>Lunas</option>
                     </select>
                 </div>
-                <div class="col-md-3"><label class="form-label">Pencarian</label><input type="text" name="q" value="<?php echo e(request('q')); ?>" class="form-control" placeholder="No tagihan, nama, NIS"></div>
+                <div class="col-md-3"><label class="form-label">Pencarian</label><input type="text" name="q" value="<?php echo e(request('q')); ?>" class="form-control" placeholder="No tagihan, jenis, nama, NIS"></div>
                 <div class="col-md-2 d-grid"><button class="btn btn-primary">Filter</button></div>
             </div>
         </form>
@@ -80,6 +83,7 @@
                     <tr>
                         <th>No</th>
                         <th>No Tagihan</th>
+                        <th>Jenis</th>
                         <th>Siswa</th>
                         <th>Periode</th>
                         <th>Jatuh Tempo</th>
@@ -95,6 +99,7 @@
                     <tr>
                         <td><?php echo e($bills->firstItem() + $index); ?></td>
                         <td><?php echo e($bill->nomor_tagihan); ?></td>
+                        <td><?php echo e($bill->jenis_tagihan ?? 'SPP'); ?></td>
                         <td>
                             <div class="fw-semibold"><?php echo e($bill->siswa->nama_lengkap ?? '-'); ?></div>
                             <small class="text-muted"><?php echo e($bill->siswa->nis ?? '-'); ?> | <?php echo e($bill->siswa->kelas ?? '-'); ?></small>
@@ -124,7 +129,7 @@
                         </td>
                     </tr>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                    <tr><td colspan="9" class="text-center text-muted">Belum ada tagihan SPP siswa.</td></tr>
+                    <tr><td colspan="10" class="text-center text-muted">Belum ada tagihan siswa.</td></tr>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </tbody>
             </table>
@@ -134,18 +139,24 @@
     </div>
 </div>
 
+<datalist id="jenisTagihanSuggestions">
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = collect(['SPP', 'UANG GEDUNG', 'SERAGAM', 'KEGIATAN'])->merge($jenisTagihanOptions)->unique(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jenisTagihan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+        <option value="<?php echo e($jenisTagihan); ?>">
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+</datalist>
+
 <div class="modal fade" id="bulkTagihanModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="POST" action="<?php echo e(route('spp-siswa.tagihan.bulk-store')); ?>">
                 <?php echo csrf_field(); ?>
                 <div class="modal-header">
-                    <h5 class="modal-title">Buat Tagihan Massal SPP Siswa</h5>
+                    <h5 class="modal-title">Buat Tagihan Massal Siswa</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
-                        Tagihan massal dibuat untuk semua siswa di sekolah terpilih. Jurusan dan kelas bisa dikosongkan jika ingin membuat tagihan untuk seluruh siswa sekolah tersebut.
+                        Tagihan massal dibuat untuk semua siswa di sekolah terpilih. Isi jenis tagihan sesuai kebutuhan, misalnya SPP, Uang Gedung, Seragam, atau Kegiatan.
                     </div>
                     <div class="row g-3">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin'): ?>
@@ -189,6 +200,7 @@
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             </select>
                         </div>
+                        <div class="col-md-4"><label class="form-label">Jenis Tagihan</label><input type="text" name="jenis_tagihan" class="form-control" value="<?php echo e(old('jenis_tagihan', 'SPP')); ?>" list="jenisTagihanSuggestions" maxlength="100" required></div>
                         <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" placeholder="Isi nominal tagihan" required></div>
@@ -212,13 +224,69 @@
     </div>
 </div>
 
+<div class="modal fade" id="importTagihanModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="<?php echo e(route('spp-siswa.tagihan.import')); ?>" enctype="multipart/form-data">
+                <?php echo csrf_field(); ?>
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Tagihan Siswa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        Gunakan template import dan isi kolom `jenis_tagihan` untuk membedakan SPP dengan tagihan lain.
+                    </div>
+                    <div class="row g-3">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin'): ?>
+                            <div class="col-md-6">
+                                <label class="form-label">Madrasah</label>
+                                <select name="madrasah_id" class="form-select" required>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <option value="<?php echo e($madrasah->id); ?>" <?php echo e((string) $selectedMadrasahId === (string) $madrasah->id ? 'selected' : ''); ?>><?php echo e($madrasah->name); ?></option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </select>
+                            </div>
+                        <?php else: ?>
+                            <input type="hidden" name="madrasah_id" value="<?php echo e($selectedMadrasahId); ?>">
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <div class="col-md-6">
+                            <label class="form-label">Pengaturan</label>
+                            <select name="setting_id" class="form-select" <?php echo e($userRole === 'admin' ? 'required' : ''); ?>>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin'): ?>
+                                    <option value="">Manual tanpa pengaturan</option>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $settings; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $setting): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <option value="<?php echo e($setting->id); ?>"><?php echo e($setting->tahun_ajaran); ?> - <?php echo e(strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual'))); ?></option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">File Excel / CSV</label>
+                            <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                            <div class="form-text">Kolom wajib: nis, jenis_tagihan, periode, jatuh_tempo, nominal.</div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <a class="btn btn-outline-secondary w-100" href="<?php echo e(route('spp-siswa.tagihan.template', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>"><i class="bx bx-download me-1"></i>Template Import</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-info text-white">Import Tagihan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="createTagihanModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="POST" action="<?php echo e(route('spp-siswa.tagihan.store')); ?>">
                 <?php echo csrf_field(); ?>
                 <div class="modal-header">
-                    <h5 class="modal-title">Buat Tagihan SPP Siswa</h5>
+                    <h5 class="modal-title">Buat Tagihan Siswa</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -255,6 +323,7 @@
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             </select>
                         </div>
+                        <div class="col-md-4"><label class="form-label">Jenis Tagihan</label><input type="text" name="jenis_tagihan" class="form-control" value="<?php echo e(old('jenis_tagihan', 'SPP')); ?>" list="jenisTagihanSuggestions" maxlength="100" required></div>
                         <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" required></div>

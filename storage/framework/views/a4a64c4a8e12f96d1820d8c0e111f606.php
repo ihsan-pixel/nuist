@@ -13,7 +13,7 @@
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tagihans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tagihan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
             <div class="list-item">
                 <h6><?php echo e($tagihan->nomor_tagihan); ?></h6>
-                <p>SPP / Iuran Sekolah periode <?php echo e(\Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y')); ?></p>
+                <p><?php echo e($tagihan->jenis_tagihan ?? 'SPP'); ?> periode <?php echo e(\Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y')); ?></p>
                 <div class="meta-row">
                     <span><?php echo e(optional($tagihan->jatuh_tempo)->translatedFormat('d M Y')); ?></span>
                     <strong>Rp <?php echo e(number_format($tagihan->total_tagihan, 0, ',', '.')); ?></strong>
