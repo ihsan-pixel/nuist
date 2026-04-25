@@ -993,7 +993,7 @@ class PresensiAdminController extends Controller
                 $currentDate->addDay();
             }
 
-            $persentase = $totalPresensi > 0 ? ($totalHadir / $totalPresensi) * 100 : 0;
+            $persentase = $totalPresensi > 0 ? (($totalHadir + $totalIzin) / $totalPresensi) * 100 : 0;
 
             $madrasahPercentages[] = [
                 'nama' => $madrasah->name,
@@ -1062,6 +1062,7 @@ class PresensiAdminController extends Controller
 
                 $presensiMingguan = [];
                 $totalHadir = 0;
+                $totalIzin = 0;
                 $totalPresensi = 0;
 
                 $currentDate = $startOfWeek->copy();
@@ -1094,6 +1095,7 @@ class PresensiAdminController extends Controller
                         $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
 
                         $totalHadir += $hadir;
+                        $totalIzin += $izin;
                         $totalPresensi += ($hadir + $izin + $alpha);
                     }
 
@@ -1106,7 +1108,7 @@ class PresensiAdminController extends Controller
                 }
 
                 $persentase = $totalPresensi > 0
-                    ? ($totalHadir / $totalPresensi) * 100
+                    ? (($totalHadir + $totalIzin) / $totalPresensi) * 100
                     : 0;
 
                 $kabupatenData['madrasahs'][] = [
@@ -1130,7 +1132,7 @@ class PresensiAdminController extends Controller
 
             $kabupatenData['persentase_kehadiran'] =
                 $kabupatenData['total_presensi'] > 0
-                    ? ($kabupatenData['total_hadir'] / $kabupatenData['total_presensi']) * 100
+                    ? (($kabupatenData['total_hadir'] + $kabupatenData['total_izin']) / $kabupatenData['total_presensi']) * 100
                     : 0;
 
             $laporanData[] = $kabupatenData;
@@ -1199,7 +1201,7 @@ class PresensiAdminController extends Controller
                 }
 
                 $persentaseBulanan = $totalPresensiBulanan > 0
-                    ? ($totalHadirBulanan / $totalPresensiBulanan) * 100
+                    ? (($totalHadirBulanan + $totalIzinBulanan) / $totalPresensiBulanan) * 100
                     : 0;
 
                 $kabupatenBulananData['madrasahs'][] = [
@@ -1221,7 +1223,7 @@ class PresensiAdminController extends Controller
 
             $kabupatenBulananData['persentase_kehadiran'] =
                 $kabupatenBulananData['total_presensi'] > 0
-                    ? ($kabupatenBulananData['total_hadir'] / $kabupatenBulananData['total_presensi']) * 100
+                    ? (($kabupatenBulananData['total_hadir'] + $kabupatenBulananData['total_izin']) / $kabupatenBulananData['total_presensi']) * 100
                     : 0;
 
             $laporanBulananData[] = $kabupatenBulananData;
@@ -1275,6 +1277,7 @@ class PresensiAdminController extends Controller
 
                 $row = [$madrasah->scod, $madrasah->name, $madrasah->hari_kbm];
                 $totalHadir = 0;
+                $totalIzin = 0;
                 $totalPresensi = 0;
 
                 $currentDate = $startOfWeek->copy();
@@ -1311,6 +1314,7 @@ class PresensiAdminController extends Controller
                         $row[] = $alpha;
 
                         $totalHadir += $hadir;
+                        $totalIzin += $izin;
                         $totalPresensi += $hadir + $izin + $alpha;
                     }
 
@@ -1324,7 +1328,7 @@ class PresensiAdminController extends Controller
                     $row[] = '-';
                 }
 
-                $persentase = $totalPresensi > 0 ? ($totalHadir / $totalPresensi) * 100 : 0;
+                $persentase = $totalPresensi > 0 ? (($totalHadir + $totalIzin) / $totalPresensi) * 100 : 0;
                 $row[] = number_format($persentase, 2) . '%';
 
                 $data[] = $row;

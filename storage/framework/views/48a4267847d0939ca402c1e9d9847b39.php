@@ -266,8 +266,8 @@
                 <div class="label">Hari Kerja</div>
             </div>
             <div class="summary-metric">
-                <div class="value"><?php echo e($weeklySummary['total_hadir']); ?></div>
-                <div class="label">Hadir</div>
+                <div class="value"><?php echo e($weeklySummary['total_hadir_efektif']); ?></div>
+                <div class="label">Hadir + Izin</div>
             </div>
             <div class="summary-metric">
                 <div class="value"><?php echo e($weeklySummary['total_izin']); ?></div>
@@ -297,8 +297,8 @@
                 <div class="label">Hari Kerja</div>
             </div>
             <div class="summary-metric">
-                <div class="value"><?php echo e($monthlySummary['total_hadir']); ?></div>
-                <div class="label">Hadir</div>
+                <div class="value"><?php echo e($monthlySummary['total_hadir_efektif']); ?></div>
+                <div class="label">Hadir + Izin</div>
             </div>
             <div class="summary-metric">
                 <div class="value"><?php echo e($monthlySummary['total_izin']); ?></div>

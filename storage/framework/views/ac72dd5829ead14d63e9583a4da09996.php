@@ -196,9 +196,9 @@
                 <div class="label">Hari Kerja</div>
             </button>
             <button type="button" class="summary-metric"
-                onclick='showBreakdownModal("Sudah Hadir Mingguan", <?php echo json_encode($weeklySummary["breakdown"]["hadir"], 15, 512) ?>)'>
-                <div class="value"><?php echo e($weeklySummary['total_hadir']); ?></div>
-                <div class="label">Sudah Hadir</div>
+                onclick='showBreakdownModal("Hadir + Izin Mingguan", <?php echo json_encode($weeklySummary["breakdown"]["hadir_efektif"], 15, 512) ?>)'>
+                <div class="value"><?php echo e($weeklySummary['total_hadir_efektif']); ?></div>
+                <div class="label">Hadir + Izin</div>
             </button>
             <button type="button" class="summary-metric"
                 onclick='showBreakdownModal("Izin Mingguan", <?php echo json_encode($weeklySummary["breakdown"]["izin"], 15, 512) ?>)'>
@@ -231,9 +231,9 @@
                 <div class="label">Hari Kerja</div>
             </button>
             <button type="button" class="summary-metric"
-                onclick='showBreakdownModal("Sudah Hadir Bulanan", <?php echo json_encode($monthlySummary["breakdown"]["hadir"], 15, 512) ?>)'>
-                <div class="value"><?php echo e($monthlySummary['total_hadir']); ?></div>
-                <div class="label">Sudah Hadir</div>
+                onclick='showBreakdownModal("Hadir + Izin Bulanan", <?php echo json_encode($monthlySummary["breakdown"]["hadir_efektif"], 15, 512) ?>)'>
+                <div class="value"><?php echo e($monthlySummary['total_hadir_efektif']); ?></div>
+                <div class="label">Hadir + Izin</div>
             </button>
             <button type="button" class="summary-metric"
                 onclick='showBreakdownModal("Izin Bulanan", <?php echo json_encode($monthlySummary["breakdown"]["izin"], 15, 512) ?>)'>
