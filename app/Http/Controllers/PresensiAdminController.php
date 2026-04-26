@@ -484,6 +484,8 @@ class PresensiAdminController extends Controller
                 'face_verified' => $dailyPresensi['face_verified'],
                 'face_similarity_score' => $dailyPresensi['face_similarity_score'],
                 'liveness_score' => $dailyPresensi['liveness_score'],
+                'foto_masuk_url' => $this->buildAttendancePhotoUrl($presensi, 'masuk'),
+                'foto_keluar_url' => $this->buildAttendancePhotoUrl($presensi, 'keluar'),
             ];
         });
 
@@ -580,6 +582,8 @@ class PresensiAdminController extends Controller
                 'face_verified' => $dailyPresensi['face_verified'],
                 'face_similarity_score' => $dailyPresensi['face_similarity_score'],
                 'liveness_score' => $dailyPresensi['liveness_score'],
+                'foto_masuk_url' => $this->buildAttendancePhotoUrl($presensi, 'masuk'),
+                'foto_keluar_url' => $this->buildAttendancePhotoUrl($presensi, 'keluar'),
             ];
         });
 
@@ -1380,6 +1384,8 @@ class PresensiAdminController extends Controller
                 'face_verified' => $presensi->face_verified,
                 'face_similarity_score' => $presensi->face_similarity_score,
                 'liveness_score' => $presensi->liveness_score,
+                'selfie_masuk_path' => $presensi->selfie_masuk_path,
+                'selfie_keluar_path' => $presensi->selfie_keluar_path,
             ];
         }
 
@@ -1398,6 +1404,8 @@ class PresensiAdminController extends Controller
                 'face_verified' => false,
                 'face_similarity_score' => null,
                 'liveness_score' => null,
+                'selfie_masuk_path' => null,
+                'selfie_keluar_path' => null,
             ];
         }
 
@@ -1415,7 +1423,30 @@ class PresensiAdminController extends Controller
             'face_verified' => false,
             'face_similarity_score' => null,
             'liveness_score' => null,
+            'selfie_masuk_path' => null,
+            'selfie_keluar_path' => null,
         ];
+    }
+
+    private function buildAttendancePhotoUrl(?Presensi $presensi, string $type): ?string
+    {
+        if (!$presensi) {
+            return null;
+        }
+
+        $photoPath = $type === 'masuk'
+            ? $presensi->selfie_masuk_path
+            : $presensi->selfie_keluar_path;
+
+        if (empty($photoPath)) {
+            return null;
+        }
+
+        return route('foto.show', [
+            'type' => $type,
+            'id' => $presensi->id,
+            'format' => 'webp',
+        ]);
     }
 
     private function isTeacherIzinForDate(User $teacher, Carbon $date, ?Presensi $presensi = null): bool

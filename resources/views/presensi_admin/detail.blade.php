@@ -287,6 +287,36 @@
     font-family: 'Courier New', monospace;
 }
 
+.attendance-photo-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.attendance-photo-thumb {
+    width: 58px;
+    height: 58px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    background: #f8f9fa;
+}
+
+.attendance-photo-empty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 58px;
+    height: 58px;
+    border-radius: 10px;
+    border: 1px dashed #ced4da;
+    color: #6c757d;
+    font-size: 0.75rem;
+    background: #f8f9fa;
+}
+
 .empty-table-state {
     text-align: center;
     padding: 3rem 1rem;
@@ -1130,12 +1160,13 @@
                                             <tr>
                                                 <th>No</th>
                                                 <th>Nama</th>
-                                                <th>NIP</th>
                                                 <th>NUPTK</th>
                                                 <th>Status Kepegawaian</th>
                                                 <th>Status Presensi</th>
                                                 <th>Waktu Masuk</th>
                                                 <th>Waktu Keluar</th>
+                                                <th>Foto Masuk</th>
+                                                <th>Foto Keluar</th>
                                                 <th>Lokasi</th>
                                                 <th>Keterangan</th>
                                             </tr>
@@ -1149,7 +1180,6 @@
                                                 @endphp
                                                 <td>{{ $rowNumber }}</td>
                                                 <td><strong>{{ $tp['nama'] }}</strong></td>
-                                                <td><code class="nip-code">{{ $tp['nip'] ?? '-' }}</code></td>
                                                 <td><code class="nuptk-code">{{ $tp['nuptk'] ?? '-' }}</code></td>
                                                 <td><small>{{ $tp['status_kepegawaian'] }}</small></td>
                                                 <td>
@@ -1167,6 +1197,24 @@
                                                 </td>
                                                 <td><small>{{ $tp['waktu_masuk'] ?? '-' }}</small></td>
                                                 <td><small>{{ $tp['waktu_keluar'] ?? '-' }}</small></td>
+                                                <td class="text-center">
+                                                    @if($tp['foto_masuk_url'])
+                                                        <a href="{{ $tp['foto_masuk_url'] }}" target="_blank" class="attendance-photo-link" title="Lihat foto masuk">
+                                                            <img src="{{ $tp['foto_masuk_url'] }}" alt="Foto masuk {{ $tp['nama'] }}" class="attendance-photo-thumb">
+                                                        </a>
+                                                    @else
+                                                        <span class="attendance-photo-empty">Tidak ada</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($tp['foto_keluar_url'])
+                                                        <a href="{{ $tp['foto_keluar_url'] }}" target="_blank" class="attendance-photo-link" title="Lihat foto keluar">
+                                                            <img src="{{ $tp['foto_keluar_url'] }}" alt="Foto keluar {{ $tp['nama'] }}" class="attendance-photo-thumb">
+                                                        </a>
+                                                    @else
+                                                        <span class="attendance-photo-empty">Tidak ada</span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     @if($tp['lokasi'])
                                                         <small class="text-muted">{{ Str::limit($tp['lokasi'], 25) }}</small>
@@ -1178,7 +1226,7 @@
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="10" class="text-center p-4">
+                                                <td colspan="11" class="text-center p-4">
                                                     <div class="alert alert-info d-inline-block text-center" role="alert">
                                                         <i class="bx bx-info-circle bx-lg me-2"></i>
                                                         <strong>Belum ada data Tenaga Pendidik</strong><br>
