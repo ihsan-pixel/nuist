@@ -98,7 +98,7 @@
             <tr>
                 <th>Persentase Kehadiran</th>
                 <th>Total Hari Kerja</th>
-                <th>Total Hadir + Izin</th>
+                <th>Total Hadir</th>
                 <th>Total Izin Disetujui</th>
                 <th>Total Belum Hadir</th>
             </tr>
@@ -107,7 +107,7 @@
             <tr>
                 <td><?php echo e($summary['persentase_kehadiran'] ?? 0); ?>%</td>
                 <td><?php echo e($summary['total_hari_kerja'] ?? 0); ?></td>
-                <td><?php echo e($summary['total_hadir_efektif'] ?? 0); ?></td>
+                <td><?php echo e($summary['total_hadir'] ?? 0); ?></td>
                 <td><?php echo e($summary['total_izin'] ?? 0); ?></td>
                 <td><?php echo e($summary['total_belum_hadir'] ?? 0); ?></td>
             </tr>

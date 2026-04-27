@@ -5,7 +5,7 @@
     <div class="container py-3" style="max-width: 600px; margin: auto;">
     <div class="sticky-header">
         <div class="text-center mb-4">
-            <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Presensi Mengajar</h5>
+            <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Jurnal Mengajar</h5>
             <small class="text-muted" style="font-size: 12px;"><?php echo e(\Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY')); ?></small>
         </div>
         <div class="realtime-clock-card mb-3">
