@@ -667,87 +667,24 @@
 }
 
 .presensi-admin-page .welcome-section {
-    background: linear-gradient(180deg, #ffffff 0%, #f7fbfa 100%) !important;
-    border: 1px solid var(--pa-line) !important;
-    border-radius: 24px !important;
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    border-radius: 15px !important;
     padding: 2rem !important;
-    color: var(--pa-text) !important;
-    box-shadow: var(--pa-shadow) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;
 }
 
 .presensi-admin-page .welcome-section::before {
-    width: 280px !important;
-    height: 280px !important;
-    right: -80px !important;
-    top: -120px !important;
-    background: radial-gradient(circle, rgba(15, 118, 110, 0.14) 0%, rgba(15, 118, 110, 0) 70%) !important;
-    transform: none !important;
+    width: 200px !important;
+    height: 200px !important;
+    right: 0 !important;
+    top: 0 !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translate(50px, -50px) !important;
 }
 
 .presensi-admin-page .welcome-content {
-    z-index: 2 !important;
-}
-
-.presensi-admin-page .hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.85rem;
-    padding: 0.45rem 0.8rem;
-    border-radius: 999px;
-    background: var(--pa-primary-soft);
-    color: var(--pa-primary-strong);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.presensi-admin-page .hero-title {
-    margin-bottom: 0.75rem;
-    font-size: clamp(1.65rem, 2vw, 2.3rem);
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--pa-text);
-}
-
-.presensi-admin-page .hero-subtitle {
-    max-width: 640px;
-    margin-bottom: 1.25rem;
-    color: var(--pa-muted);
-    font-size: 0.98rem;
-    line-height: 1.7;
-}
-
-.presensi-admin-page .hero-date-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.7rem 1rem;
-    border: 1px solid var(--pa-line);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.92);
-    color: #334155;
-    font-weight: 600;
-}
-
-.presensi-admin-page .hero-toolbar {
-    margin-left: auto;
-    max-width: 360px;
-    padding: 1.1rem;
-    border: 1px solid var(--pa-line);
-    border-radius: 20px;
-    background: rgba(248, 250, 252, 0.92);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.presensi-admin-page .hero-toolbar-label {
-    margin-bottom: 0.8rem;
-    color: var(--pa-muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    z-index: 1 !important;
 }
 
 .presensi-admin-page .dashboard-input,
@@ -804,77 +741,45 @@
 }
 
 .presensi-admin-page .stat-card {
-    border: 1px solid var(--pa-line) !important;
-    border-radius: 20px !important;
-    background: var(--pa-surface) !important;
-    color: var(--pa-text) !important;
-    box-shadow: var(--pa-shadow) !important;
-    padding: 0 !important;
-}
-
-.presensi-admin-page .stat-card::after {
-    content: "";
-    position: absolute;
-    inset: 0 auto auto 0;
-    width: 100%;
-    height: 4px;
-    background: var(--stat-accent, var(--pa-primary));
-}
-
-.presensi-admin-page .stat-card .card-body {
+    border-radius: 15px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
     padding: 1.5rem !important;
 }
 
-.presensi-admin-page .stat-card-present {
-    --stat-accent: var(--pa-primary);
-    --stat-soft: var(--pa-primary-soft);
+.presensi-admin-page .stat-card.total-sekolah {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
 }
 
-.presensi-admin-page .stat-card-izin {
-    --stat-accent: var(--pa-info);
-    --stat-soft: var(--pa-info-soft);
+.presensi-admin-page .stat-card.sekolah-buka {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
 }
 
-.presensi-admin-page .stat-card-sekolah {
-    --stat-accent: var(--pa-success);
-    --stat-soft: var(--pa-success-soft);
+.presensi-admin-page .stat-card.pending {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    color: white !important;
 }
 
-.presensi-admin-page .stat-card-absent {
-    --stat-accent: var(--pa-warning);
-    --stat-soft: var(--pa-warning-soft);
+.presensi-admin-page .stat-number {
+    font-size: 2.5rem !important;
+    font-weight: bold !important;
+    margin-bottom: 0.5rem !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
-.presensi-admin-page .stat-value {
-    margin-bottom: 0.35rem;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--pa-text);
-    letter-spacing: -0.03em;
+.presensi-admin-page .stat-label {
+    font-size: 0.9rem !important;
+    opacity: 0.9 !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
-.presensi-admin-page .stat-title {
-    margin-bottom: 0.25rem;
-    color: #334155;
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.presensi-admin-page .stat-helper {
-    margin-bottom: 0;
-    color: var(--pa-muted);
-    font-size: 0.82rem;
-}
-
-.presensi-admin-page .stat-icon-wrap {
-    width: 56px;
-    height: 56px;
-    border-radius: 18px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--stat-soft, var(--pa-primary-soft));
-    color: var(--stat-accent, var(--pa-primary));
+.presensi-admin-page .stat-icon {
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .presensi-admin-page .kabupaten-group {
@@ -1285,111 +1190,131 @@
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($user->role, ['super_admin', 'pengurus'])): ?>
     <!-- Header Section - Modern PPDB Style -->
-    <div class="welcome-section mb-4">
-        <div class="welcome-content">
-            <div class="row g-4 align-items-center">
+    <div class="welcome-section mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; border-radius: 15px !important; padding: 2rem !important; margin-bottom: 2rem !important; color: white !important; position: relative !important; overflow: hidden !important; box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;">
+        <div class="welcome-content" style="position: relative !important; z-index: 1 !important;">
+            <div class="row align-items-center">
                 <div class="col-lg-8">
-                    <span class="hero-eyebrow">
-                        <i class="mdi mdi-chart-box-outline"></i>
-                        Dashboard Presensi
-                    </span>
-                    <h2 class="hero-title">Data Presensi Tenaga Pendidik</h2>
-                    <p class="hero-subtitle">Pantau kehadiran, izin, dan capaian presensi setiap madrasah dalam tampilan yang lebih ringkas dan mudah dibaca.</p>
-                    <div class="hero-date-pill">
-                        <i class="mdi mdi-calendar-clock-outline"></i>
-                        Tanggal laporan: <?php echo e($selectedDate->format('d F Y')); ?>
-
-                    </div>
+                    <h2 class="mb-2">
+                        <i class="mdi mdi-view-dashboard me-2"></i>
+                        Data Presensi Tenaga Pendidik
+                    </h2>
+                    <p class="mb-0 opacity-75">Pantau dan kelola presensi tenaga pendidik di seluruh madrasah Ma'arif</p>
                 </div>
-                <div class="col-lg-4">
-                    <div class="hero-toolbar">
-                        <div class="hero-toolbar-label">Filter dan export</div>
-                        <div class="d-flex flex-column gap-2">
-                            <form method="GET" action="<?php echo e(route('presensi_admin.index')); ?>" class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 mb-0">
-                                <input type="date" name="date" id="filterDate" class="form-control form-control-sm dashboard-input"
-                                    value="<?php echo e($selectedDate->format('Y-m-d')); ?>">
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-flex align-items-center justify-content-lg-end">
+                        <i class="mdi mdi-calendar-clock me-2"></i>
+                        <span class="fw-semibold"><?php echo e($selectedDate->format('d F Y')); ?></span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-3 justify-content-end w-100">
+                        <form method="GET" action="<?php echo e(route('presensi_admin.index')); ?>" class="d-flex align-items-center gap-2 mb-0">
+                            <input type="date" name="date" id="filterDate" class="form-control form-control-sm rounded-pill"
+                                value="<?php echo e($selectedDate->format('Y-m-d')); ?>" style="min-width: 140px;">
 
-                                <button type="submit" id="filterBtn" class="btn btn-dashboard-secondary btn-sm">
-                                    Terapkan
-                                </button>
-                            </form>
+                            <button type="submit" id="filterBtn" class="btn btn-warning btn-sm rounded-pill px-3">
+                                view
+                            </button>
+                        </form>
 
-                            <a href="<?php echo e(route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')])); ?>"
-                                class="btn btn-dashboard-primary btn-sm w-100">
-                                <i class="bx bx-download me-1"></i>Export Data Harian
-                            </a>
-                        </div>
+                        <a href="<?php echo e(route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')])); ?>"
+                        class="btn btn-success btn-sm rounded-pill px-3">
+                            <i class="bx bx-download me-1"></i>Export
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
+        <div style="content: '' !important; position: absolute !important; top: 0 !important; right: 0 !important; width: 200px !important; height: 200px !important; background: rgba(255, 255, 255, 0.1) !important; border-radius: 50% !important; transform: translate(50px, -50px) !important;"></div>
     </div>
 
     <!-- Primary Statistics Row -->
     <div class="section-wrapper mb-4">
         <div class="row g-3">
-            <div class="col-lg-3 col-sm-6">
-                <div class="stat-card stat-card-present h-100 hover-lift">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="col-lg-3">
+                <div class="stat-card h-100 hover-lift total-sekolah" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <div class="stat-title">Sudah Presensi</div>
-                                <h3 class="stat-value"><?php echo e(number_format($summary['users_presensi'])); ?></h3>
-                                <p class="stat-helper">Tenaga pendidik tercatat hadir hari ini.</p>
+                                <h3 class="text-white mb-1" style="color: white !important;"><?php echo e(number_format($summary['users_presensi'])); ?></h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Presensi (Hadir)</p>
                             </div>
-                            <div class="stat-icon-wrap">
-                                <i class="mdi mdi-account-check fs-3"></i>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-account-check fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-sm-6">
-                <div class="stat-card stat-card-izin h-100 hover-lift">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="col-lg-3">
+                <div class="stat-card h-100 hover-lift" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <div class="stat-title">Izin Tercatat</div>
-                                <h3 class="stat-value"><?php echo e(number_format($summary['users_izin'])); ?></h3>
-                                <p class="stat-helper">Pengajuan izin yang tercatat pada tanggal ini.</p>
+                                <h3 class="text-white mb-1" style="color: white !important;"><?php echo e(number_format($summary['users_izin'])); ?></h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Izin</p>
                             </div>
-                            <div class="stat-icon-wrap">
-                                <i class="mdi mdi-calendar-check-outline fs-3"></i>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-calendar-exclamation fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-sm-6">
-                <div class="stat-card stat-card-sekolah h-100 hover-lift">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="col-lg-3">
+                <div class="stat-card h-100 hover-lift sekolah-buka" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <div class="stat-title">Madrasah Aktif</div>
-                                <h3 class="stat-value"><?php echo e(number_format($summary['sekolah_presensi'])); ?></h3>
-                                <p class="stat-helper">Madrasah dengan presensi masuk pada hari ini.</p>
+                                <h3 class="text-white mb-1" style="color: white !important;"><?php echo e(number_format($summary['sekolah_presensi'])); ?></h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Sekolah Presensi</p>
                             </div>
-                            <div class="stat-icon-wrap">
-                                <i class="mdi mdi-school-outline fs-3"></i>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-school fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-sm-6">
-                <div class="stat-card stat-card-absent h-100 hover-lift">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="col-lg-3">
+                <div class="stat-card h-100 hover-lift pending" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <div class="stat-title">Belum Presensi</div>
-                                <h3 class="stat-value"><?php echo e(number_format($summary['guru_tidak_presensi'])); ?></h3>
-                                <p class="stat-helper">Tenaga pendidik yang belum tercatat presensi.</p>
+                                <h3 class="text-white mb-1" style="color: white !important;"><?php echo e(number_format($summary['guru_tidak_presensi'])); ?></h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Belum Presensi (Tidak Hadir)</p>
                             </div>
-                            <div class="stat-icon-wrap">
-                                <i class="mdi mdi-account-clock-outline fs-3"></i>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-account-clock fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
