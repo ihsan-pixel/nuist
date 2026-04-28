@@ -7,9 +7,22 @@
     @include('mobile.siswa.partials.styles')
     @include('mobile.siswa.partials.header', ['title' => 'Bukti Pembayaran', 'subtitle' => 'Dokumen transaksi siswa'])
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-badge-check"></i>Receipt pembayaran</span>
+        <h4>Rp {{ number_format($selectedPayment->nominal_bayar, 0, ',', '.') }}</h4>
+        <p class="mb-0">Dokumen transaksi ini menampilkan rincian pembayaran yang sudah tercatat pada sistem sekolah.</p>
+        <div class="hero-meta">
+            <span class="hero-chip"><i class="bx bx-receipt"></i>{{ $selectedTagihan->nomor_tagihan ?? '-' }}</span>
+            <span class="hero-chip"><i class="bx bx-shield"></i>{{ ucfirst($selectedPayment->status_verifikasi) }}</span>
+        </div>
+    </section>
+
     <section class="receipt-card">
         <div class="section-title">
-            <h5>Receipt</h5>
+            <div>
+                <h5>Receipt</h5>
+                <p class="section-subtitle">Bukti transaksi pembayaran siswa</p>
+            </div>
             <span class="pill {{ $selectedPayment->status_verifikasi === 'diverifikasi' ? 'pill-success' : ($selectedPayment->status_verifikasi === 'menunggu' ? 'pill-warning' : 'pill-danger') }}">{{ ucfirst($selectedPayment->status_verifikasi) }}</span>
         </div>
         <div class="detail-grid">

@@ -9,9 +9,22 @@
         <section class="section-card"><div class="list-item"><h6>BNI VA</h6><p><?php echo e($errors->first('bni_va')); ?></p></div></section>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-file"></i>Detail invoice</span>
+        <h4>Rp <?php echo e(number_format($selectedTagihan->total_tagihan, 0, ',', '.')); ?></h4>
+        <p class="mb-0"><?php echo e($selectedTagihan->jenis_tagihan ?? 'SPP'); ?> untuk periode <?php echo e(\Carbon\Carbon::createFromFormat('Y-m', $selectedTagihan->periode)->translatedFormat('F Y')); ?>.</p>
+        <div class="hero-meta">
+            <span class="hero-chip"><i class="bx bx-purchase-tag"></i><?php echo e(ucfirst(str_replace('_', ' ', $selectedTagihan->status))); ?></span>
+            <span class="hero-chip"><i class="bx bx-time"></i><?php echo e(optional($selectedTagihan->jatuh_tempo)->translatedFormat('d M Y')); ?></span>
+        </div>
+    </section>
+
     <section class="section-card">
         <div class="section-title">
-            <h5>Detail invoice</h5>
+            <div>
+                <h5>Detail invoice</h5>
+                <p class="section-subtitle">Rincian tagihan yang sedang dipilih</p>
+            </div>
             <span class="pill <?php echo e($selectedTagihan->status === 'lunas' ? 'pill-success' : ($selectedTagihan->status === 'sebagian' ? 'pill-warning' : 'pill-danger')); ?>">
                 <?php echo e(ucfirst(str_replace('_', ' ', $selectedTagihan->status))); ?>
 
@@ -46,7 +59,7 @@
         </div>
 
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selectedTagihan->catatan): ?>
-            <div class="list-item mt-3">
+            <div class="note-card mt-3">
                 <h6>Catatan</h6>
                 <p><?php echo e($selectedTagihan->catatan); ?></p>
             </div>
@@ -55,10 +68,14 @@
 
     <section class="section-card">
         <div class="section-title">
-            <h5>Status pembayaran</h5>
+            <div>
+                <h5>Status pembayaran</h5>
+                <p class="section-subtitle">Informasi transaksi yang terhubung dengan tagihan ini</p>
+            </div>
         </div>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selectedPayment): ?>
             <div class="list-item">
+                <div class="list-kicker"><i class="bx bx-check-shield"></i>Status transaksi</div>
                 <h6><?php echo e(ucfirst($selectedPayment->status_verifikasi)); ?></h6>
                 <p><?php echo e(optional($selectedPayment->tanggal_bayar)->translatedFormat('d M Y') ?? 'Belum ada waktu pembayaran'); ?></p>
                 <div class="meta-row">
@@ -73,14 +90,17 @@
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         <?php else: ?>
-            <div class="list-item">
+            <div class="empty-state">
+                <i class="bx bx-credit-card"></i>
                 <h6>Belum ada pembayaran</h6>
                 <p>Tagihan ini belum memiliki transaksi yang tercatat.</p>
             </div>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($selectedTagihan->setting->payment_provider ?? 'manual') === 'bni_va'): ?>
-                <a href="<?php echo e(route('mobile.siswa.billing', $selectedTagihan->id)); ?>" class="cta-btn">
-                    <i class="bx bx-printer"></i>Cetak Billing & Terbitkan VA
-                </a>
+                <div class="action-row mt-3">
+                    <a href="<?php echo e(route('mobile.siswa.billing', $selectedTagihan->id)); ?>" class="cta-btn">
+                        <i class="bx bx-printer"></i>Cetak Billing & Terbitkan VA
+                    </a>
+                </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </section>

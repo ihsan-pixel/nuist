@@ -6,12 +6,13 @@
         <div>
             <small>{{ $subtitle ?? 'Portal siswa digital' }}</small>
             <strong>{{ $title ?? 'Menu Siswa' }}</strong>
+            <div class="topbar-caption">{{ $studentUser->name ?? 'Siswa' }}</div>
         </div>
     </div>
-    <a href="{{ route('mobile.siswa.notifikasi') }}" class="ghost-btn" style="width:auto; padding:10px 12px;">
+    <a href="{{ route('mobile.siswa.notifikasi') }}" class="ghost-btn topbar-action" aria-label="Lihat notifikasi">
         <i class="bx bx-bell"></i>
         @if(($notifications ?? collect())->where('is_read', false)->count() > 0)
-            {{ ($notifications ?? collect())->where('is_read', false)->count() }}
+            <span class="notif-count">{{ ($notifications ?? collect())->where('is_read', false)->count() }}</span>
         @endif
     </a>
 </div>

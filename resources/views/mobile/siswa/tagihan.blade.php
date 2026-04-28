@@ -7,13 +7,23 @@
     @include('mobile.siswa.partials.styles')
     @include('mobile.siswa.partials.header', ['title' => 'Tagihan', 'subtitle' => 'Daftar tagihan siswa'])
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-receipt"></i>Monitoring tagihan</span>
+        <h4>{{ $tagihans->count() }} invoice tercatat</h4>
+        <p class="mb-0">Lihat seluruh tagihan, status pembayaran, dan akses cepat ke detail atau billing Virtual Account.</p>
+    </section>
+
     <section class="section-card">
         <div class="section-title">
-            <h5>Semua tagihan</h5>
+            <div>
+                <h5>Semua tagihan</h5>
+                <p class="section-subtitle">Daftar invoice yang dibuat oleh sekolah</p>
+            </div>
             <span class="pill pill-info">{{ $tagihans->count() }} data</span>
         </div>
         @forelse($tagihans as $tagihan)
             <div class="list-item">
+                <div class="list-kicker"><i class="bx bx-calendar"></i>{{ \Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y') }}</div>
                 <h6>{{ $tagihan->nomor_tagihan }}</h6>
                 <p>{{ $tagihan->jenis_tagihan ?? 'SPP' }} periode {{ \Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y') }}</p>
                 <div class="meta-row">
@@ -31,7 +41,8 @@
                 </div>
             </div>
         @empty
-            <div class="list-item">
+            <div class="empty-state">
+                <i class="bx bx-folder-open"></i>
                 <h6>Belum ada tagihan</h6>
                 <p>Daftar tagihan akan muncul di sini setelah dibuat oleh admin sekolah.</p>
             </div>

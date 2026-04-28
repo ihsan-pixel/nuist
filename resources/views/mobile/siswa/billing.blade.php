@@ -5,56 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Billing {{ $selectedTagihan->nomor_tagihan }}</title>
     <style>
+        :root {
+            --billing-bg: #eef5ef;
+            --billing-surface: rgba(255, 255, 255, 0.95);
+            --billing-border: rgba(12, 71, 60, 0.10);
+            --billing-text: #16302d;
+            --billing-soft: #6a7d7a;
+            --billing-primary: #0d6b58;
+            --billing-primary-deep: #093f36;
+            --billing-highlight: #f7f1dc;
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', Arial, sans-serif;
             margin: 0;
-            background: #eef3f7;
-            color: #132238;
+            background:
+                radial-gradient(circle at top left, rgba(23, 160, 108, 0.16), transparent 24%),
+                linear-gradient(180deg, #f8fbf8 0%, var(--billing-bg) 100%);
+            color: var(--billing-text);
         }
         .page {
             max-width: 820px;
             margin: 0 auto;
-            padding: 24px 16px 48px;
+            padding: 22px 16px 48px;
         }
         .toolbar {
             display: flex;
             gap: 12px;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             flex-wrap: wrap;
+            padding: 14px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            box-shadow: 0 18px 34px rgba(16, 43, 41, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 12px 16px;
-            border-radius: 10px;
+            border-radius: 16px;
             text-decoration: none;
             border: none;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
         }
         .btn-primary {
-            background: #0f6b5c;
+            background: linear-gradient(135deg, var(--billing-primary) 0%, var(--billing-primary-deep) 100%);
             color: #fff;
+            box-shadow: 0 16px 28px rgba(13, 107, 88, 0.24);
         }
         .btn-light {
-            background: #fff;
-            color: #132238;
-            border: 1px solid #d7e0ea;
+            background: rgba(13, 107, 88, 0.08);
+            color: var(--billing-text);
+            border: 1px solid rgba(13, 107, 88, 0.08);
         }
         .sheet {
-            background: #fff;
-            border-radius: 20px;
+            background: var(--billing-surface);
+            border-radius: 28px;
             padding: 28px;
-            box-shadow: 0 12px 40px rgba(19, 34, 56, 0.08);
+            box-shadow: 0 24px 48px rgba(16, 43, 41, 0.08);
+            border: 1px solid var(--billing-border);
         }
         .header {
             display: flex;
             justify-content: space-between;
             gap: 20px;
-            border-bottom: 2px solid #e8edf3;
+            border-bottom: 1px solid rgba(16, 43, 41, 0.10);
             padding-bottom: 18px;
             margin-bottom: 24px;
         }
@@ -64,7 +85,7 @@
             margin: 0 0 6px;
         }
         .muted {
-            color: #64748b;
+            color: var(--billing-soft);
         }
         .grid {
             display: grid;
@@ -73,28 +94,41 @@
             margin-bottom: 24px;
         }
         .box {
-            background: #f8fbfd;
-            border: 1px solid #e5edf5;
-            border-radius: 14px;
+            background: rgba(248, 251, 249, 0.96);
+            border: 1px solid rgba(16, 43, 41, 0.08);
+            border-radius: 18px;
             padding: 14px 16px;
         }
         .box small {
             display: block;
-            color: #64748b;
+            color: var(--billing-soft);
             margin-bottom: 6px;
         }
         .box strong {
             font-size: 16px;
         }
         .va-card {
-            background: linear-gradient(135deg, #0f5f57 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #093c37 0%, #0d6b58 50%, #17a06c 100%);
             color: #fff;
-            border-radius: 18px;
+            border-radius: 24px;
             padding: 20px;
             margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
         }
         .va-card small {
             color: rgba(255,255,255,.82);
+        }
+        .va-card::after {
+            content: "";
+            position: absolute;
+            right: -24px;
+            top: -18px;
+            width: 110px;
+            height: 110px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.10);
+            transform: rotate(18deg);
         }
         .va-number {
             font-size: 28px;
@@ -102,11 +136,13 @@
             font-weight: 800;
             margin: 10px 0;
             word-break: break-all;
+            position: relative;
+            z-index: 1;
         }
         .notes {
-            background: #fff8e8;
-            border: 1px solid #f8dd96;
-            border-radius: 14px;
+            background: var(--billing-highlight);
+            border: 1px solid rgba(212, 133, 31, 0.18);
+            border-radius: 20px;
             padding: 16px;
         }
         .notes h4 {
@@ -134,6 +170,23 @@
                 box-shadow: none;
                 border-radius: 0;
                 padding: 0;
+                border: 0;
+            }
+        }
+        @media (max-width: 640px) {
+            .page {
+                padding: 14px 12px 36px;
+            }
+            .sheet {
+                padding: 20px 18px;
+                border-radius: 24px;
+            }
+            .header,
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .title {
+                font-size: 24px;
             }
         }
     </style>
@@ -141,8 +194,8 @@
 <body>
     <div class="page">
         <div class="toolbar">
-            <a href="{{ route('mobile.siswa.detail', $selectedTagihan->id) }}" class="btn btn-light">Kembali</a>
-            <button type="button" class="btn btn-primary" onclick="window.print()">Cetak Billing</button>
+            <a href="{{ route('mobile.siswa.detail', $selectedTagihan->id) }}" class="btn btn-light">Kembali ke detail</a>
+            <button type="button" class="btn btn-primary" onclick="window.print()">Cetak billing</button>
         </div>
 
         <div class="sheet">

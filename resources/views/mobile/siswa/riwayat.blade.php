@@ -7,9 +7,18 @@
     @include('mobile.siswa.partials.styles')
     @include('mobile.siswa.partials.header', ['title' => 'Riwayat Pembayaran', 'subtitle' => 'Filter transaksi siswa'])
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-history"></i>Riwayat transaksi</span>
+        <h4>{{ $filteredPayments->count() }} hasil ditemukan</h4>
+        <p class="mb-0">Gunakan filter untuk menelusuri transaksi berdasarkan status verifikasi dan bulan pembayaran.</p>
+    </section>
+
     <section class="section-card">
         <div class="section-title">
-            <h5>🔍 Filter riwayat pembayaran</h5>
+            <div>
+                <h5>Filter riwayat pembayaran</h5>
+                <p class="section-subtitle">Persempit daftar transaksi sesuai kebutuhan</p>
+            </div>
         </div>
         <form method="GET" class="filter-form">
             <select name="status" class="form-control">
@@ -34,11 +43,15 @@
 
     <section class="list-card">
         <div class="section-title">
-            <h5>Daftar transaksi</h5>
+            <div>
+                <h5>Daftar transaksi</h5>
+                <p class="section-subtitle">Histori pembayaran siswa yang sudah tercatat</p>
+            </div>
             <span class="pill pill-info">{{ $filteredPayments->count() }} hasil</span>
         </div>
         @forelse($filteredPayments as $payment)
             <div class="list-item">
+                <div class="list-kicker"><i class="bx bx-transfer-alt"></i>{{ strtoupper($payment->payment_channel ?? 'manual') }}</div>
                 <h6>{{ $payment->nomor_transaksi }}</h6>
                 <p>{{ $payment->bill?->nomor_tagihan ?? 'Tagihan tidak ditemukan' }}</p>
                 <div class="meta-row">
@@ -57,7 +70,8 @@
                 </div>
             </div>
         @empty
-            <div class="list-item">
+            <div class="empty-state">
+                <i class="bx bx-folder"></i>
                 <h6>Belum ada riwayat pembayaran</h6>
                 <p>Transaksi yang sudah diproses akan muncul di sini dan bisa difilter per status atau bulan.</p>
             </div>

@@ -11,9 +11,19 @@
         <div class="siswa-avatar">{{ strtoupper(substr($studentUser->name ?? 'S', 0, 1)) }}</div>
         <h5 class="mb-1">{{ $studentUser->name }}</h5>
         <p class="text-soft mb-0">{{ $studentUser->email }}</p>
+        <div class="profile-meta">
+            <span class="page-chip"><i class="bx bx-id-card"></i>{{ $studentRecord->nis ?? 'NIS belum ada' }}</span>
+            <span class="page-chip"><i class="bx bx-buildings"></i>{{ $studentSchool->name ?? 'Sekolah belum terhubung' }}</span>
+        </div>
     </section>
 
     <section class="section-card">
+        <div class="section-title">
+            <div>
+                <h5>Data utama siswa</h5>
+                <p class="section-subtitle">Informasi identitas yang terhubung dengan akun mobile</p>
+            </div>
+        </div>
         <div class="detail-grid">
             <div class="detail-box">
                 <small>NIS</small>

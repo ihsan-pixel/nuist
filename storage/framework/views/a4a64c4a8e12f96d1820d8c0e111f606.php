@@ -5,13 +5,23 @@
     <?php echo $__env->make('mobile.siswa.partials.styles', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php echo $__env->make('mobile.siswa.partials.header', ['title' => 'Tagihan', 'subtitle' => 'Daftar tagihan siswa'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-receipt"></i>Monitoring tagihan</span>
+        <h4><?php echo e($tagihans->count()); ?> invoice tercatat</h4>
+        <p class="mb-0">Lihat seluruh tagihan, status pembayaran, dan akses cepat ke detail atau billing Virtual Account.</p>
+    </section>
+
     <section class="section-card">
         <div class="section-title">
-            <h5>Semua tagihan</h5>
+            <div>
+                <h5>Semua tagihan</h5>
+                <p class="section-subtitle">Daftar invoice yang dibuat oleh sekolah</p>
+            </div>
             <span class="pill pill-info"><?php echo e($tagihans->count()); ?> data</span>
         </div>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tagihans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tagihan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
             <div class="list-item">
+                <div class="list-kicker"><i class="bx bx-calendar"></i><?php echo e(\Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y')); ?></div>
                 <h6><?php echo e($tagihan->nomor_tagihan); ?></h6>
                 <p><?php echo e($tagihan->jenis_tagihan ?? 'SPP'); ?> periode <?php echo e(\Carbon\Carbon::createFromFormat('Y-m', $tagihan->periode)->translatedFormat('F Y')); ?></p>
                 <div class="meta-row">
@@ -29,7 +39,8 @@
                 </div>
             </div>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-            <div class="list-item">
+            <div class="empty-state">
+                <i class="bx bx-folder-open"></i>
                 <h6>Belum ada tagihan</h6>
                 <p>Daftar tagihan akan muncul di sini setelah dibuat oleh admin sekolah.</p>
             </div>

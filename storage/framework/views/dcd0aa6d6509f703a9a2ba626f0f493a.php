@@ -5,9 +5,18 @@
     <?php echo $__env->make('mobile.siswa.partials.styles', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php echo $__env->make('mobile.siswa.partials.header', ['title' => 'Riwayat Pembayaran', 'subtitle' => 'Filter transaksi siswa'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-history"></i>Riwayat transaksi</span>
+        <h4><?php echo e($filteredPayments->count()); ?> hasil ditemukan</h4>
+        <p class="mb-0">Gunakan filter untuk menelusuri transaksi berdasarkan status verifikasi dan bulan pembayaran.</p>
+    </section>
+
     <section class="section-card">
         <div class="section-title">
-            <h5>🔍 Filter riwayat pembayaran</h5>
+            <div>
+                <h5>Filter riwayat pembayaran</h5>
+                <p class="section-subtitle">Persempit daftar transaksi sesuai kebutuhan</p>
+            </div>
         </div>
         <form method="GET" class="filter-form">
             <select name="status" class="form-control">
@@ -33,11 +42,15 @@
 
     <section class="list-card">
         <div class="section-title">
-            <h5>Daftar transaksi</h5>
+            <div>
+                <h5>Daftar transaksi</h5>
+                <p class="section-subtitle">Histori pembayaran siswa yang sudah tercatat</p>
+            </div>
             <span class="pill pill-info"><?php echo e($filteredPayments->count()); ?> hasil</span>
         </div>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $filteredPayments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $payment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
             <div class="list-item">
+                <div class="list-kicker"><i class="bx bx-transfer-alt"></i><?php echo e(strtoupper($payment->payment_channel ?? 'manual')); ?></div>
                 <h6><?php echo e($payment->nomor_transaksi); ?></h6>
                 <p><?php echo e($payment->bill?->nomor_tagihan ?? 'Tagihan tidak ditemukan'); ?></p>
                 <div class="meta-row">
@@ -56,7 +69,8 @@
                 </div>
             </div>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-            <div class="list-item">
+            <div class="empty-state">
+                <i class="bx bx-folder"></i>
                 <h6>Belum ada riwayat pembayaran</h6>
                 <p>Transaksi yang sudah diproses akan muncul di sini dan bisa difilter per status atau bulan.</p>
             </div>

@@ -14,9 +14,18 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-message-dots"></i>Komunikasi sekolah</span>
+        <h4>{{ $adminContact->name ?? 'Admin belum tersedia' }}</h4>
+        <p class="mb-0">Gunakan chat ini untuk konfirmasi pembayaran, pertanyaan tagihan, atau klarifikasi transaksi.</p>
+    </section>
+
     <section class="chat-card">
         <div class="section-title">
-            <h5>💬 Chat admin sekolah</h5>
+            <div>
+                <h5>Chat admin sekolah</h5>
+                <p class="section-subtitle">Percakapan tersimpan langsung dari akun siswa</p>
+            </div>
             @if($adminContact)
                 <span class="pill pill-info">{{ $adminContact->role }}</span>
             @endif
@@ -37,16 +46,18 @@
             @endforelse
         </div>
 
-        <form method="POST" action="{{ route('mobile.siswa.chat.send') }}">
-            @csrf
-            <textarea name="message" class="form-control" rows="3" placeholder="Tulis pesan ke admin sekolah..." required>{{ old('message') }}</textarea>
-            @error('message')
-                <small class="text-danger d-block mt-2">{{ $message }}</small>
-            @enderror
-            <button type="submit" class="cta-btn mt-3">
-                <i class="bx bx-send"></i>Kirim pesan
-            </button>
-        </form>
+        <div class="composer-card">
+            <form method="POST" action="{{ route('mobile.siswa.chat.send') }}">
+                @csrf
+                <textarea name="message" class="form-control" rows="3" placeholder="Tulis pesan ke admin sekolah..." required>{{ old('message') }}</textarea>
+                @error('message')
+                    <small class="text-danger d-block mt-2">{{ $message }}</small>
+                @enderror
+                <button type="submit" class="cta-btn mt-3">
+                    <i class="bx bx-send"></i>Kirim pesan
+                </button>
+            </form>
+        </div>
     </section>
 </div>
 

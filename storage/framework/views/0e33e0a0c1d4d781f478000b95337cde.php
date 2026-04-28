@@ -12,9 +12,18 @@
         <div class="alert alert-danger"><?php echo e(session('error')); ?></div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-message-dots"></i>Komunikasi sekolah</span>
+        <h4><?php echo e($adminContact->name ?? 'Admin belum tersedia'); ?></h4>
+        <p class="mb-0">Gunakan chat ini untuk konfirmasi pembayaran, pertanyaan tagihan, atau klarifikasi transaksi.</p>
+    </section>
+
     <section class="chat-card">
         <div class="section-title">
-            <h5>💬 Chat admin sekolah</h5>
+            <div>
+                <h5>Chat admin sekolah</h5>
+                <p class="section-subtitle">Percakapan tersimpan langsung dari akun siswa</p>
+            </div>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($adminContact): ?>
                 <span class="pill pill-info"><?php echo e($adminContact->role); ?></span>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -37,23 +46,25 @@
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
-        <form method="POST" action="<?php echo e(route('mobile.siswa.chat.send')); ?>">
-            <?php echo csrf_field(); ?>
-            <textarea name="message" class="form-control" rows="3" placeholder="Tulis pesan ke admin sekolah..." required><?php echo e(old('message')); ?></textarea>
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['message'];
+        <div class="composer-card">
+            <form method="POST" action="<?php echo e(route('mobile.siswa.chat.send')); ?>">
+                <?php echo csrf_field(); ?>
+                <textarea name="message" class="form-control" rows="3" placeholder="Tulis pesan ke admin sekolah..." required><?php echo e(old('message')); ?></textarea>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['message'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                <small class="text-danger d-block mt-2"><?php echo e($message); ?></small>
-            <?php unset($message);
+                    <small class="text-danger d-block mt-2"><?php echo e($message); ?></small>
+                <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-            <button type="submit" class="cta-btn mt-3">
-                <i class="bx bx-send"></i>Kirim pesan
-            </button>
-        </form>
+                <button type="submit" class="cta-btn mt-3">
+                    <i class="bx bx-send"></i>Kirim pesan
+                </button>
+            </form>
+        </div>
     </section>
 </div>
 

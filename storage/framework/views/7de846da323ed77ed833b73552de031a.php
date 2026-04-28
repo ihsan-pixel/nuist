@@ -5,9 +5,22 @@
     <?php echo $__env->make('mobile.siswa.partials.styles', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php echo $__env->make('mobile.siswa.partials.header', ['title' => 'Bukti Pembayaran', 'subtitle' => 'Dokumen transaksi siswa'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
+    <section class="hero-card">
+        <span class="hero-eyebrow"><i class="bx bx-badge-check"></i>Receipt pembayaran</span>
+        <h4>Rp <?php echo e(number_format($selectedPayment->nominal_bayar, 0, ',', '.')); ?></h4>
+        <p class="mb-0">Dokumen transaksi ini menampilkan rincian pembayaran yang sudah tercatat pada sistem sekolah.</p>
+        <div class="hero-meta">
+            <span class="hero-chip"><i class="bx bx-receipt"></i><?php echo e($selectedTagihan->nomor_tagihan ?? '-'); ?></span>
+            <span class="hero-chip"><i class="bx bx-shield"></i><?php echo e(ucfirst($selectedPayment->status_verifikasi)); ?></span>
+        </div>
+    </section>
+
     <section class="receipt-card">
         <div class="section-title">
-            <h5>Receipt</h5>
+            <div>
+                <h5>Receipt</h5>
+                <p class="section-subtitle">Bukti transaksi pembayaran siswa</p>
+            </div>
             <span class="pill <?php echo e($selectedPayment->status_verifikasi === 'diverifikasi' ? 'pill-success' : ($selectedPayment->status_verifikasi === 'menunggu' ? 'pill-warning' : 'pill-danger')); ?>"><?php echo e(ucfirst($selectedPayment->status_verifikasi)); ?></span>
         </div>
         <div class="detail-grid">
