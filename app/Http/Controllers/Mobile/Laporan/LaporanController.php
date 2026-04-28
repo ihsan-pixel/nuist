@@ -11,6 +11,7 @@ use App\Models\Presensi;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\User;
+use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class LaporanController extends \App\Http\Controllers\Controller
@@ -114,6 +115,8 @@ class LaporanController extends \App\Http\Controllers\Controller
         $selectedDate = Carbon::today('Asia/Jakarta');
         $todayName = $selectedDate->locale('id')->dayName;
 
+        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $selectedDate);
+
         $approvedIzinPresensi = Presensi::query()
             ->where('user_id', $user->id)
             ->whereDate('tanggal', $selectedDate)
@@ -201,6 +204,11 @@ class LaporanController extends \App\Http\Controllers\Controller
             ];
         }
 
+        $summaryUser = User::with('madrasah')->find($userId);
+        if ($summaryUser) {
+            ApprovedIzinSyncService::syncApprovedIzinPresensiInRange($summaryUser, $startDate, $effectiveEndDate);
+        }
+
         $presensiByDate = Presensi::query()
             ->where('user_id', $userId)
             ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
@@ -208,7 +216,6 @@ class LaporanController extends \App\Http\Controllers\Controller
             ->get()
             ->groupBy(fn ($item) => $item->tanggal->toDateString());
 
-        $summaryUser = User::with('madrasah')->find($userId);
         $details = collect();
         $totalHariKerja = 0;
         $totalHadir = 0;

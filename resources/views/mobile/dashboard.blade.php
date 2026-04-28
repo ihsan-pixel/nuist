@@ -1430,7 +1430,7 @@ $progressColor = "rgb($red, $green, 0)";
             <div class="schedule-carousel">
                 @foreach($todaySchedulesWithAttendance as $schedule)
                     <div class="schedule-card">
-                        <div class="attendance-indicator {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : 'bg-danger' }}"></div>
+                        <div class="attendance-indicator {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : ($schedule->attendance_status == 'izin' ? 'bg-info' : 'bg-danger') }}"></div>
                         <div class="schedule-header">
                             <strong class="d-block">{{ $schedule->subject }}</strong>
                             <small class="d-block text-dark">{{ $schedule->class_name }}</small>
@@ -1439,9 +1439,9 @@ $progressColor = "rgb($red, $green, 0)";
                             <small class="d-block text-muted"><i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}</small>
                         </div>
                         <div class="schedule-status">
-                            <span class="badge {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : 'bg-warning' }}">
-                                <i class="bx {{ $schedule->attendance_status == 'sudah' ? 'bx-check-circle' : 'bx-time' }}"></i>
-                                Presensi {{ $schedule->attendance_status == 'sudah' ? 'Sudah' : 'Belum' }}
+                            <span class="badge {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : ($schedule->attendance_status == 'izin' ? 'bg-info text-dark' : 'bg-warning') }}">
+                                <i class="bx {{ $schedule->attendance_status == 'sudah' ? 'bx-check-circle' : ($schedule->attendance_status == 'izin' ? 'bx-info-circle' : 'bx-time') }}"></i>
+                                Presensi {{ $schedule->attendance_status == 'sudah' ? 'Sudah' : ($schedule->attendance_status == 'izin' ? 'Izin' : 'Belum') }}
                             </span>
                         </div>
                     </div>

@@ -11,12 +11,19 @@ use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
 use App\Models\AppSetting;
 use App\Models\Holiday;
+use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class DashboardController extends \App\Http\Controllers\Controller
 {
     private function calculateMonthlyAttendanceStats(User $user, int $currentYear, int $currentMonth): array
     {
+        ApprovedIzinSyncService::syncApprovedIzinPresensiInRange(
+            $user,
+            Carbon::create($currentYear, $currentMonth, 1)->startOfMonth(),
+            Carbon::create($currentYear, $currentMonth, 1)->endOfMonth()
+        );
+
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
         $monthlyHolidays = Holiday::whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonth)
@@ -154,12 +161,19 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->orderBy('start_time')
             ->get();
 
+        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $today);
+        $approvedIzinToday = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $today->toDateString())
+            ->where('status', 'izin')
+            ->where('status_izin', 'approved')
+            ->first();
+
         // Add attendance status to each schedule
-        $todaySchedulesWithAttendance = $todaySchedules->map(function ($schedule) use ($today) {
+        $todaySchedulesWithAttendance = $todaySchedules->map(function ($schedule) use ($today, $approvedIzinToday) {
             $attendance = TeachingAttendance::where('teaching_schedule_id', $schedule->id)
                 ->where('tanggal', $today->toDateString())
                 ->first();
-            $schedule->attendance_status = $attendance ? 'sudah' : 'belum';
+            $schedule->attendance_status = $attendance ? 'sudah' : ($approvedIzinToday ? 'izin' : 'belum');
             return $schedule;
         });
 
@@ -268,6 +282,12 @@ class DashboardController extends \App\Http\Controllers\Controller
         // Validate month and year
         $currentMonth = max(1, min(12, (int)$currentMonth));
         $currentYear = max(2020, min(2030, (int)$currentYear));
+
+        ApprovedIzinSyncService::syncApprovedIzinPresensiInRange(
+            $user,
+            Carbon::create($currentYear, $currentMonth, 1)->startOfMonth(),
+            Carbon::create($currentYear, $currentMonth, 1)->endOfMonth()
+        );
 
         // Get presensi data for selected month for calendar
         $monthlyPresensi = Presensi::where('user_id', $user->id)

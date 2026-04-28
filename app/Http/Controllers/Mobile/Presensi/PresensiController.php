@@ -13,6 +13,7 @@ use App\Models\Izin;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
+use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -112,6 +113,8 @@ class PresensiController extends \App\Http\Controllers\Controller
         // Check holiday
         $isHoliday = Holiday::isHoliday($dateString);
         $holiday = $isHoliday ? Holiday::getHoliday($dateString) : null;
+
+        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $selectedDate);
 
         // Presensi of the current user for the selected date (all madrasahs for dual presensi)
         // Only get actual presensi records (status = 'hadir'), not izin records
@@ -1343,6 +1346,11 @@ class PresensiController extends \App\Http\Controllers\Controller
             ];
         }
 
+        $summaryUser = User::with('madrasah')->find($userId);
+        if ($summaryUser) {
+            ApprovedIzinSyncService::syncApprovedIzinPresensiInRange($summaryUser, $startDate, $effectiveEndDate);
+        }
+
         $presensiByDate = Presensi::query()
             ->where('user_id', $userId)
             ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
@@ -1350,7 +1358,6 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->get()
             ->groupBy(fn ($item) => $item->tanggal->toDateString());
 
-        $summaryUser = User::with('madrasah')->find($userId);
         $details = collect();
         $totalHariKerja = 0;
         $totalHadir = 0;
@@ -1423,24 +1430,6 @@ class PresensiController extends \App\Http\Controllers\Controller
 
     private function findApprovedBlockingIzin(User $user, Carbon|string $date): ?Izin
     {
-        $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
-
-        return Izin::query()
-            ->where('user_id', $user->id)
-            ->where('status', 'approved')
-            ->where('type', '!=', 'terlambat')
-            ->where('type', '!=', ExternalTeachingPermissionService::TYPE)
-            ->where(function ($query) use ($date) {
-                $query->where(function ($singleDayQuery) use ($date) {
-                    $singleDayQuery->whereNull('tanggal_selesai')
-                        ->whereDate('tanggal', $date->toDateString());
-                })->orWhere(function ($rangeQuery) use ($date) {
-                    $rangeQuery->whereNotNull('tanggal_selesai')
-                        ->whereDate('tanggal', '<=', $date->toDateString())
-                        ->whereDate('tanggal_selesai', '>=', $date->toDateString());
-                });
-            })
-            ->orderByDesc('approved_at')
-            ->first();
+        return ApprovedIzinSyncService::approvedRequestForDate($user, $date);
     }
 }
