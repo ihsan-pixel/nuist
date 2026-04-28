@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PresensiPerBulanExport;
 use App\Exports\PresensiSemuaExport;
+use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class PresensiAdminController extends Controller
@@ -290,7 +291,7 @@ class PresensiAdminController extends Controller
             $belumPresensi = $belumPresensiQuery->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
                 $q->whereDate('tanggal', $selectedDate);
             })->with('madrasah')->get()
-                ->reject(fn ($teacher) => ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate))
+                ->reject(fn ($teacher) => $this->isTeacherIzinForDate($teacher, $selectedDate))
                 ->values();
 
             return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData', 'teacherAbsenceRecapData'));
@@ -1369,6 +1370,15 @@ class PresensiAdminController extends Controller
      */
     private function resolveDailyPresensiData(User $teacher, Carbon $selectedDate, ?Presensi $presensi = null): array
     {
+        if (!$presensi) {
+            ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($teacher, $selectedDate);
+
+            $presensi = Presensi::query()
+                ->where('user_id', $teacher->id)
+                ->whereDate('tanggal', $selectedDate)
+                ->first();
+        }
+
         if ($presensi) {
             return [
                 'status' => $presensi->status,
@@ -1386,6 +1396,27 @@ class PresensiAdminController extends Controller
                 'liveness_score' => $presensi->liveness_score,
                 'selfie_masuk_path' => $presensi->selfie_masuk_path,
                 'selfie_keluar_path' => $presensi->selfie_keluar_path,
+            ];
+        }
+
+        $approvedIzin = ApprovedIzinSyncService::approvedRequestForDate($teacher, $selectedDate);
+        if ($approvedIzin) {
+            return [
+                'status' => 'izin',
+                'waktu_masuk' => null,
+                'waktu_keluar' => null,
+                'latitude' => null,
+                'longitude' => null,
+                'lokasi' => null,
+                'keterangan' => $approvedIzin->alasan ?: 'izin disetujui',
+                'is_fake_location' => false,
+                'accuracy' => null,
+                'created_at' => null,
+                'face_verified' => false,
+                'face_similarity_score' => null,
+                'liveness_score' => null,
+                'selfie_masuk_path' => null,
+                'selfie_keluar_path' => null,
             ];
         }
 
@@ -1455,7 +1486,8 @@ class PresensiAdminController extends Controller
             return $presensi->status === 'izin';
         }
 
-        return ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $date);
+        return ApprovedIzinSyncService::approvedRequestForDate($teacher, $date) !== null
+            || ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $date);
     }
 
     private function calculatePresensiSummary($selectedDate, $user)
@@ -1480,6 +1512,12 @@ class PresensiAdminController extends Controller
                 ->distinct()
                 ->pluck('user_id');
 
+            $approvedIzinUserIds = User::with('madrasah')
+                ->where('role', 'tenaga_pendidik')
+                ->get()
+                ->filter(fn ($teacher) => ApprovedIzinSyncService::approvedRequestForDate($teacher, $selectedDate))
+                ->pluck('id');
+
             $externalTeachingIzinUserIds = User::with('madrasah')
                 ->where('role', 'tenaga_pendidik')
                 ->get()
@@ -1487,6 +1525,7 @@ class PresensiAdminController extends Controller
                 ->pluck('id');
 
             $izinUserIds = $izinUserIds
+                ->merge($approvedIzinUserIds)
                 ->merge($externalTeachingIzinUserIds)
                 ->diff($hadirUserIds)
                 ->unique()
@@ -1538,6 +1577,13 @@ class PresensiAdminController extends Controller
                     ->distinct()
                     ->pluck('user_id');
 
+                $approvedIzinUserIds = User::with('madrasah')
+                    ->where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $user->madrasah_id)
+                    ->get()
+                    ->filter(fn ($teacher) => ApprovedIzinSyncService::approvedRequestForDate($teacher, $selectedDate))
+                    ->pluck('id');
+
                 $externalTeachingIzinUserIds = User::with('madrasah')
                     ->where('role', 'tenaga_pendidik')
                     ->where('madrasah_id', $user->madrasah_id)
@@ -1546,6 +1592,7 @@ class PresensiAdminController extends Controller
                     ->pluck('id');
 
                 $izinUserIds = $izinUserIds
+                    ->merge($approvedIzinUserIds)
                     ->merge($externalTeachingIzinUserIds)
                     ->diff($hadirUserIds)
                     ->unique()
@@ -1761,6 +1808,16 @@ class PresensiAdminController extends Controller
             ->groupBy(fn ($item) => $item->tanggal->toDateString());
 
         $summaryUser = User::with('madrasah')->find($userId);
+        if ($summaryUser) {
+            ApprovedIzinSyncService::syncApprovedIzinPresensiInRange($summaryUser, $startDate, $effectiveEndDate);
+
+            $presensiByDate = Presensi::query()
+                ->where('user_id', $userId)
+                ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+                ->orderBy('tanggal')
+                ->get()
+                ->groupBy(fn ($item) => $item->tanggal->toDateString());
+        }
         $totalHariKerja = 0;
         $totalHadir = 0;
         $totalIzinApproved = 0;
