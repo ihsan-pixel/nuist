@@ -831,6 +831,37 @@
         </div>
     </div>
 
+    @elseif($approvedBlockingIzin && (!$presensiHariIni || $presensiHariIni->count() === 0))
+    <div class="status-card success">
+        <div class="d-flex align-items-center">
+            <div class="status-icon">
+                <i class="bx bx-file"></i>
+            </div>
+            <div class="w-100">
+                <h6 class="mb-1">Izin {{ ucfirst(str_replace('_', ' ', $approvedBlockingIzin->type)) }} Disetujui</h6>
+                <div class="status-detail-list">
+                    <div class="status-detail-item">
+                        <small>{{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}</small>
+                        <p>Hari ini otomatis tercatat sebagai <strong>izin</strong>.</p>
+                    </div>
+                    @if($approvedBlockingIzin->tanggal_selesai)
+                    <div class="status-detail-item">
+                        <small>Periode izin</small>
+                        <p><strong>{{ $approvedBlockingIzin->tanggal->format('d/m/Y') }} - {{ $approvedBlockingIzin->tanggal_selesai->format('d/m/Y') }}</strong></p>
+                    </div>
+                    @endif
+                    @if($approvedBlockingIzin->alasan)
+                    <div class="status-detail-item">
+                        <small>Keterangan</small>
+                        <p><strong>{{ $approvedBlockingIzin->alasan }}</strong></p>
+                    </div>
+                    @endif
+                </div>
+                <p class="status-inline-note mb-0">Presensi manual dinonaktifkan selama izin ini berlaku.</p>
+            </div>
+        </div>
+    </div>
+
     @elseif(($presensiHariIni && $presensiHariIni->count() > 0) || ($isPenjagaSekolah && isset($openPresensi)))
     <div class="status-card success">
         <div class="d-flex align-items-center">
@@ -948,6 +979,10 @@
                 $isDisabled = true;
                 $buttonText = 'Hari Libur - Presensi Ditutup';
                 $buttonIcon = 'calendar-x';
+            } elseif($approvedBlockingIzin && (!$presensiHariIni || $presensiHariIni->count() === 0)) {
+                $isDisabled = true;
+                $buttonText = 'Izin Disetujui';
+                $buttonIcon = 'file';
             } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
                 $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
                 $isDisabled = $allComplete;

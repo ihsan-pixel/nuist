@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use App\Models\Izin;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
@@ -120,6 +121,8 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->where('status', 'hadir')
             ->get();
 
+        $approvedBlockingIzin = $this->findApprovedBlockingIzin($user, $selectedDate);
+
         // For penjaga sekolah, if no presensi for today, show the last presensi to display status
         if ($user->ketugasan === 'penjaga sekolah' && $presensiHariIni->isEmpty()) {
             $lastPresensi = Presensi::with('madrasah')
@@ -174,7 +177,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             $timeRanges['masuk_end'] = null;
         }
 
-        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData', 'user'));
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'approvedBlockingIzin', 'timeRanges', 'mapData', 'user'));
     }
 
     // Store presensi (mobile)
@@ -223,6 +226,19 @@ class PresensiController extends \App\Http\Controllers\Controller
             return response()->json([
                 'success' => false,
                 'message' => "Presensi tidak dapat dilakukan pada {$reason}."
+            ], 400);
+        }
+
+        $approvedBlockingIzin = $this->findApprovedBlockingIzin($user, $tanggal);
+        if ($approvedBlockingIzin) {
+            $izinLabel = ucfirst(str_replace('_', ' ', $approvedBlockingIzin->type));
+            $periodLabel = $approvedBlockingIzin->tanggal_selesai
+                ? ' untuk periode ' . $approvedBlockingIzin->tanggal->format('d/m/Y') . ' - ' . $approvedBlockingIzin->tanggal_selesai->format('d/m/Y')
+                : '';
+
+            return response()->json([
+                'success' => false,
+                'message' => "{$izinLabel} Anda sudah disetujui{$periodLabel}. Hari ini otomatis tercatat sebagai izin."
             ], 400);
         }
 
@@ -1403,5 +1419,28 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         return true;
+    }
+
+    private function findApprovedBlockingIzin(User $user, Carbon|string $date): ?Izin
+    {
+        $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
+
+        return Izin::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->where('type', '!=', 'terlambat')
+            ->where('type', '!=', ExternalTeachingPermissionService::TYPE)
+            ->where(function ($query) use ($date) {
+                $query->where(function ($singleDayQuery) use ($date) {
+                    $singleDayQuery->whereNull('tanggal_selesai')
+                        ->whereDate('tanggal', $date->toDateString());
+                })->orWhere(function ($rangeQuery) use ($date) {
+                    $rangeQuery->whereNotNull('tanggal_selesai')
+                        ->whereDate('tanggal', '<=', $date->toDateString())
+                        ->whereDate('tanggal_selesai', '>=', $date->toDateString());
+                });
+            })
+            ->orderByDesc('approved_at')
+            ->first();
     }
 }

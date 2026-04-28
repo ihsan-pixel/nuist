@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Mobile\Izin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use App\Models\Izin;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Services\ExternalTeachingPermissionService;
@@ -43,6 +45,80 @@ class IzinController extends \App\Http\Controllers\Controller
 
         // Return path yang disimpan ke database
         return 'surat_izin/' . $namaFile;
+    }
+
+    private function syncApprovedIzinPresensi(Izin $izin, int $approvedBy): void
+    {
+        if ($izin->type === 'terlambat') {
+            return;
+        }
+
+        if ($izin->type === ExternalTeachingPermissionService::TYPE) {
+            ExternalTeachingPermissionService::syncApprovedNoPresencePresensi($izin, Carbon::today('Asia/Jakarta'));
+
+            return;
+        }
+
+        $izin->loadMissing('user');
+
+        if (!$izin->user) {
+            return;
+        }
+
+        $startDate = Carbon::parse($izin->tanggal)->startOfDay();
+        $endDate = $izin->type === 'cuti' && $izin->tanggal_selesai
+            ? Carbon::parse($izin->tanggal_selesai)->startOfDay()
+            : $startDate->copy();
+
+        foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+            $this->syncApprovedIzinPresensiForDate($izin, $date, $approvedBy);
+        }
+    }
+
+    private function syncApprovedIzinPresensiForDate(Izin $izin, Carbon $date, int $approvedBy): void
+    {
+        $existingPresensi = Presensi::where('user_id', $izin->user_id)
+            ->whereDate('tanggal', $date->toDateString())
+            ->first();
+
+        $izinPresensiData = [
+            'madrasah_id' => $izin->user->madrasah_id,
+            'waktu_masuk' => $izin->waktu_masuk,
+            'waktu_keluar' => $izin->waktu_keluar,
+            'status' => 'izin',
+            'keterangan' => $izin->alasan ?: $izin->deskripsi_tugas,
+            'status_izin' => 'approved',
+            'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
+            'approved_by' => $approvedBy,
+            'surat_izin_path' => $izin->file_path,
+        ];
+
+        if (!$existingPresensi) {
+            Presensi::create(array_merge($izinPresensiData, [
+                'user_id' => $izin->user_id,
+                'tanggal' => $date->toDateString(),
+            ]));
+
+            return;
+        }
+
+        if ($existingPresensi->status === 'hadir') {
+            if (!$existingPresensi->waktu_keluar && $izin->waktu_keluar) {
+                $existingPresensi->update([
+                    'waktu_keluar' => $izin->waktu_keluar,
+                    'status_izin' => 'approved',
+                    'approved_by' => $approvedBy,
+                    'surat_izin_path' => $izin->file_path,
+                ]);
+            }
+
+            return;
+        }
+
+        $hasNoAttendanceTime = !$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+        if ($existingPresensi->status === 'izin' || ($existingPresensi->status === 'alpha' && $hasNoAttendanceTime) || $hasNoAttendanceTime) {
+            $existingPresensi->update($izinPresensiData);
+        }
     }
 
     public function storeIzin(Request $request)
@@ -438,41 +514,7 @@ class IzinController extends \App\Http\Controllers\Controller
         $izin->approved_at = now();
         $izin->save();
 
-        if ($izin->type === ExternalTeachingPermissionService::TYPE) {
-            ExternalTeachingPermissionService::syncApprovedNoPresencePresensi($izin, Carbon::today('Asia/Jakarta'));
-        }
-
-        // Auto-fill presensi record for approved izin types except 'terlambat'
-        if ($izin->type !== 'terlambat' && $izin->type !== ExternalTeachingPermissionService::TYPE) {
-            $existingPresensi = Presensi::where('user_id', $izin->user_id)
-                ->where('tanggal', $izin->tanggal)
-                ->first();
-
-            if ($existingPresensi) {
-                // If presensi exists, update waktu_keluar if not set, status remains unchanged
-                if (!$existingPresensi->waktu_keluar) {
-                    $existingPresensi->update([
-                        'waktu_keluar' => $izin->waktu_keluar,
-                        'status_izin' => 'approved',
-                    ]);
-                }
-            } else {
-                // If no presensi exists, create new presensi with izin
-                Presensi::create([
-                    'user_id' => $izin->user_id,
-                    'madrasah_id' => $izin->user->madrasah_id,
-                    'tanggal' => $izin->tanggal,
-                    'waktu_masuk' => $izin->waktu_masuk,
-                    'waktu_keluar' => $izin->waktu_keluar,
-                    'status' => 'izin',
-                    'keterangan' => $izin->alasan,
-                    'status_izin' => 'approved',
-                    'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
-                    'approved_by' => $user->id,
-                    'surat_izin_path' => $izin->file_path,
-                ]);
-            }
-        }
+        $this->syncApprovedIzinPresensi($izin, $user->id);
 
         // Create notification for user about approval
         \App\Models\Notification::create([
