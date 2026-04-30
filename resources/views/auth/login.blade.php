@@ -78,6 +78,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         <label class="form-check-label" for="remember">
                             Remember me
                         </label>
+                        <a href="{{ route('mobile.password.request') }}">Forgot password?</a>
                     </div>
 
                     <button class="btn btn-primary login-btn" type="submit">Log In</button>

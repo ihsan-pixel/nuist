@@ -1317,7 +1317,7 @@ $progressColor = "rgb($red, $green, 0)";
             <div class="schedule-carousel">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $todaySchedulesWithAttendance; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                     <div class="schedule-card">
-                        <div class="attendance-indicator <?php echo e($schedule->attendance_status == 'sudah' ? 'bg-success' : 'bg-danger'); ?>"></div>
+                        <div class="attendance-indicator <?php echo e($schedule->attendance_status == 'sudah' ? 'bg-success' : ($schedule->attendance_status == 'izin' ? 'bg-info' : 'bg-danger')); ?>"></div>
                         <div class="schedule-header">
                             <strong class="d-block"><?php echo e($schedule->subject); ?></strong>
                             <small class="d-block text-dark"><?php echo e($schedule->class_name); ?></small>
@@ -1326,9 +1326,9 @@ $progressColor = "rgb($red, $green, 0)";
                             <small class="d-block text-muted"><i class="bx bx-time-five"></i> <?php echo e($schedule->start_time); ?> - <?php echo e($schedule->end_time); ?></small>
                         </div>
                         <div class="schedule-status">
-                            <span class="badge <?php echo e($schedule->attendance_status == 'sudah' ? 'bg-success' : 'bg-warning'); ?>">
-                                <i class="bx <?php echo e($schedule->attendance_status == 'sudah' ? 'bx-check-circle' : 'bx-time'); ?>"></i>
-                                Presensi <?php echo e($schedule->attendance_status == 'sudah' ? 'Sudah' : 'Belum'); ?>
+                            <span class="badge <?php echo e($schedule->attendance_status == 'sudah' ? 'bg-success' : ($schedule->attendance_status == 'izin' ? 'bg-info text-dark' : 'bg-warning')); ?>">
+                                <i class="bx <?php echo e($schedule->attendance_status == 'sudah' ? 'bx-check-circle' : ($schedule->attendance_status == 'izin' ? 'bx-info-circle' : 'bx-time')); ?>"></i>
+                                Presensi <?php echo e($schedule->attendance_status == 'sudah' ? 'Sudah' : ($schedule->attendance_status == 'izin' ? 'Izin' : 'Belum')); ?>
 
                             </span>
                         </div>

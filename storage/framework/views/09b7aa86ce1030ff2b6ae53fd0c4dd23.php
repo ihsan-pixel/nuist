@@ -816,6 +816,37 @@
         </div>
     </div>
 
+    <?php elseif($approvedBlockingIzin && (!$presensiHariIni || $presensiHariIni->count() === 0)): ?>
+    <div class="status-card success">
+        <div class="d-flex align-items-center">
+            <div class="status-icon">
+                <i class="bx bx-file"></i>
+            </div>
+            <div class="w-100">
+                <h6 class="mb-1">Izin <?php echo e(ucfirst(str_replace('_', ' ', $approvedBlockingIzin->type))); ?> Disetujui</h6>
+                <div class="status-detail-list">
+                    <div class="status-detail-item">
+                        <small><?php echo e(\Carbon\Carbon::parse($selectedDate)->format('d/m/Y')); ?></small>
+                        <p>Hari ini otomatis tercatat sebagai <strong>izin</strong>.</p>
+                    </div>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($approvedBlockingIzin->tanggal_selesai): ?>
+                    <div class="status-detail-item">
+                        <small>Periode izin</small>
+                        <p><strong><?php echo e($approvedBlockingIzin->tanggal->format('d/m/Y')); ?> - <?php echo e($approvedBlockingIzin->tanggal_selesai->format('d/m/Y')); ?></strong></p>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($approvedBlockingIzin->alasan): ?>
+                    <div class="status-detail-item">
+                        <small>Keterangan</small>
+                        <p><strong><?php echo e($approvedBlockingIzin->alasan); ?></strong></p>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </div>
+                <p class="status-inline-note mb-0">Presensi manual dinonaktifkan selama izin ini berlaku.</p>
+            </div>
+        </div>
+    </div>
+
     <?php elseif(($presensiHariIni && $presensiHariIni->count() > 0) || ($isPenjagaSekolah && isset($openPresensi))): ?>
     <div class="status-card success">
         <div class="d-flex align-items-center">
@@ -924,6 +955,10 @@
                 $isDisabled = true;
                 $buttonText = 'Hari Libur - Presensi Ditutup';
                 $buttonIcon = 'calendar-x';
+            } elseif($approvedBlockingIzin && (!$presensiHariIni || $presensiHariIni->count() === 0)) {
+                $isDisabled = true;
+                $buttonText = 'Izin Disetujui';
+                $buttonIcon = 'file';
             } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
                 $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
                 $isDisabled = $allComplete;
