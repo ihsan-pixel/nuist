@@ -78,7 +78,6 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         <label class="form-check-label" for="remember">
                             Remember me
                         </label>
-                        <a href="{{ route('mobile.password.request') }}">Forgot password?</a>
                     </div>
 
                     <button class="btn btn-primary login-btn" type="submit">Log In</button>
@@ -100,6 +99,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
                 <div class="mt-3 text-center">
                     <p class="mb-0">Don't have an account? <a href="{{ url('register') }}" class="text-primary">Register here</a></p>
+                    <a href="{{ route('mobile.password.request') }}">Forgot password?</a>
                 </div>
 
                 <div class="mt-2 text-center">
