@@ -18,21 +18,19 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '
 android {
     namespace "com.example.nuist_flutter"
 
-    // 🔥 WAJIB untuk plugin modern
-    compileSdk 34
+    compileSdk 33
+    buildToolsVersion "36.1.0"
 
     defaultConfig {
         applicationId "com.example.nuist_flutter"
 
-        // 🔥 Sesuaikan dengan requirement plugin
         minSdk 21
-        targetSdk 34
+        targetSdk 33
 
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
 
-    // 🔥 Gunakan Java 17 (recommended Flutter terbaru)
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
