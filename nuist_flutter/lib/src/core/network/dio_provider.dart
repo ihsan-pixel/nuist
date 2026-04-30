@@ -2,15 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../config/app_config.dart';
+import '../config/api_base_url_controller.dart';
 import '../storage/token_storage.dart';
 import 'api_exception.dart';
 
 final dioProvider = Provider<Dio>((ref) {
   final storage = ref.watch(tokenStorageProvider);
+  final baseUrl = ref.watch(apiBaseUrlProvider);
   final dio = Dio(
     BaseOptions(
-      baseUrl: AppConfig.baseUrl,
+      baseUrl: baseUrl,
       connectTimeout: const Duration(seconds: 20),
       receiveTimeout: const Duration(seconds: 20),
       headers: <String, String>{
@@ -34,7 +35,7 @@ final dioProvider = Provider<Dio>((ref) {
         final message = responseData is Map<String, dynamic>
             ? responseData['message']?.toString()
             : null;
-        final fallbackMessage = _buildFallbackMessage(error);
+        final fallbackMessage = _buildFallbackMessage(error, baseUrl);
 
         handler.reject(
           DioException(
@@ -54,9 +55,7 @@ final dioProvider = Provider<Dio>((ref) {
   return dio;
 });
 
-String _buildFallbackMessage(DioException error) {
-  final baseUrl = AppConfig.baseUrl;
-
+String _buildFallbackMessage(DioException error, String baseUrl) {
   if (error.response == null) {
     if (kIsWeb) {
       return 'Tidak bisa terhubung ke API $baseUrl. Pastikan Laravel aktif, URL API benar, dan endpoint ini bisa diakses dari browser.';

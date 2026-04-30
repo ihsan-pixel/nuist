@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/config/api_base_url_controller.dart';
+import '../../core/config/app_config.dart';
 import '../home/home_screen.dart';
 import 'auth_controller.dart';
 
@@ -15,12 +17,18 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _apiBaseUrlController = TextEditingController(
+    text: AppConfig.baseUrl,
+  );
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _apiBaseUrlFocusNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
+    _apiBaseUrlController.dispose();
+    _apiBaseUrlFocusNode.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -28,6 +36,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final apiBaseUrl = ref.watch(apiBaseUrlProvider);
+
+    if (!_apiBaseUrlFocusNode.hasFocus && _apiBaseUrlController.text != apiBaseUrl) {
+      _apiBaseUrlController.text = apiBaseUrl;
+    }
+
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
       if (next.status == SessionStatus.authenticated) {
         context.go(HomeScreen.routePath);
@@ -104,6 +118,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               return null;
                             },
                           ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _apiBaseUrlController,
+                            focusNode: _apiBaseUrlFocusNode,
+                            keyboardType: TextInputType.url,
+                            decoration: const InputDecoration(
+                              labelText: 'API Base URL',
+                              hintText: 'https://domain-anda.com/',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) {
+                              final normalizedBaseUrl = AppConfig.normalizeBaseUrl(value ?? '');
+                              if (normalizedBaseUrl == null) {
+                                return 'API Base URL wajib diisi.';
+                              }
+
+                              final uri = Uri.tryParse(normalizedBaseUrl);
+                              if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
+                                return 'Format API Base URL tidak valid.';
+                              }
+
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Untuk web localhost, isi dengan domain hosting Laravel Anda. Contoh: https://nuist.id/',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                           if (authState.errorMessage != null) ...<Widget>[
                             const SizedBox(height: 12),
                             Text(
@@ -119,9 +162,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: FilledButton(
                               onPressed: authState.isSubmitting
                                   ? null
-                                  : () {
+                                  : () async {
                                       if (_formKey.currentState?.validate() ?? false) {
-                                        ref.read(authControllerProvider.notifier).login(
+                                        await ref
+                                            .read(apiBaseUrlProvider.notifier)
+                                            .setBaseUrl(_apiBaseUrlController.text);
+                                        if (!mounted) {
+                                          return;
+                                        }
+                                        await ref.read(authControllerProvider.notifier).login(
                                               email: _emailController.text.trim(),
                                               password: _passwordController.text,
                                             );

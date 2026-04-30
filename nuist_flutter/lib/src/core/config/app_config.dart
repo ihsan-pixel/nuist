@@ -7,7 +7,7 @@ class AppConfig {
   );
 
   static String get baseUrl {
-    final configuredBaseUrl = _normalizeBaseUrl(_definedBaseUrl);
+    final configuredBaseUrl = normalizeBaseUrl(_definedBaseUrl);
     if (configuredBaseUrl != null) {
       return configuredBaseUrl;
     }
@@ -29,7 +29,7 @@ class AppConfig {
     }
   }
 
-  static String? _normalizeBaseUrl(String value) {
+  static String? normalizeBaseUrl(String value) {
     final trimmedValue = value.trim();
     if (trimmedValue.isEmpty) {
       return null;

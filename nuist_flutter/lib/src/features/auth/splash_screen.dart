@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/config/api_base_url_controller.dart';
 import '../home/home_screen.dart';
 import 'auth_controller.dart';
 import 'login_screen.dart';
@@ -19,9 +20,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future<void>.microtask(
-      () => ref.read(authControllerProvider.notifier).restoreSession(),
-    );
+    Future<void>.microtask(() async {
+      await ref.read(apiBaseUrlProvider.notifier).hydrate();
+      if (!mounted) {
+        return;
+      }
+      await ref.read(authControllerProvider.notifier).restoreSession();
+    });
   }
 
   @override
