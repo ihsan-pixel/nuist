@@ -1,7 +1,5 @@
 name: nuist_flutter
-description: A native Flutter mobile client for the Nuist Laravel backend.
-publish_to: "none"
-version: 0.1.0+1
+description: A new Flutter project.
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -9,16 +7,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  dio: ^5.9.2
-  flutter_riverpod: ^3.2.1
-  flutter_secure_storage: ^10.0.0
-  go_router: ^16.3.0
-  intl: ^0.18.1
+
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_lints: ^3.0.0
 
 flutter:
