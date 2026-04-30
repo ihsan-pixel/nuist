@@ -68,16 +68,16 @@ class AuthController extends StateNotifier<AuthState> {
       clearErrorMessage: true,
     );
 
-    final token = await _tokenStorage.readToken();
-    if (token == null || token.isEmpty) {
-      state = state.copyWith(
-        status: SessionStatus.unauthenticated,
-        clearUser: true,
-      );
-      return;
-    }
-
     try {
+      final token = await _tokenStorage.readToken();
+      if (token == null || token.isEmpty) {
+        state = state.copyWith(
+          status: SessionStatus.unauthenticated,
+          clearUser: true,
+        );
+        return;
+      }
+
       final user = await _authRepository.me();
       state = state.copyWith(
         status: SessionStatus.authenticated,
@@ -89,6 +89,12 @@ class AuthController extends StateNotifier<AuthState> {
       state = state.copyWith(
         status: SessionStatus.unauthenticated,
         errorMessage: error.message,
+        clearUser: true,
+      );
+    } catch (_) {
+      await _tokenStorage.clear();
+      state = state.copyWith(
+        status: SessionStatus.unauthenticated,
         clearUser: true,
       );
     }

@@ -21,10 +21,14 @@ class ApiBaseUrlController extends StateNotifier<String> {
   final TokenStorage _tokenStorage;
 
   Future<void> hydrate() async {
-    final savedBaseUrl = await _tokenStorage.readBaseUrl();
-    final normalizedBaseUrl = AppConfig.normalizeBaseUrl(savedBaseUrl ?? '');
-    if (normalizedBaseUrl != null && normalizedBaseUrl != state) {
-      state = normalizedBaseUrl;
+    try {
+      final savedBaseUrl = await _tokenStorage.readBaseUrl();
+      final normalizedBaseUrl = AppConfig.normalizeBaseUrl(savedBaseUrl ?? '');
+      if (normalizedBaseUrl != null && normalizedBaseUrl != state) {
+        state = normalizedBaseUrl;
+      }
+    } catch (_) {
+      state = AppConfig.baseUrl;
     }
   }
 

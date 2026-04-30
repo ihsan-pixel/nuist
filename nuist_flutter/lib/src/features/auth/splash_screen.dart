@@ -21,11 +21,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
     Future<void>.microtask(() async {
-      await ref.read(apiBaseUrlProvider.notifier).hydrate();
-      if (!mounted) {
-        return;
+      try {
+        await ref.read(apiBaseUrlProvider.notifier).hydrate();
+        if (!mounted) {
+          return;
+        }
+        await ref.read(authControllerProvider.notifier).restoreSession();
+      } catch (_) {
+        if (!mounted) {
+          return;
+        }
+        context.go(LoginScreen.routePath);
       }
-      await ref.read(authControllerProvider.notifier).restoreSession();
     });
   }
 

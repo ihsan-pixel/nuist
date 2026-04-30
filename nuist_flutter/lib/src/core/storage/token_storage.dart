@@ -14,28 +14,41 @@ class TokenStorage {
 
   static const _tokenKey = 'nuist_access_token';
   static const _baseUrlKey = 'nuist_api_base_url';
+  static const _storageTimeout = Duration(seconds: 3);
 
-  Future<String?> readToken() {
-    return _storage.read(key: _tokenKey);
+  Future<String?> readToken() async {
+    try {
+      return await _storage.read(key: _tokenKey).timeout(_storageTimeout);
+    } catch (_) {
+      return null;
+    }
   }
 
-  Future<void> writeToken(String token) {
-    return _storage.write(key: _tokenKey, value: token);
+  Future<void> writeToken(String token) async {
+    await _storage.write(key: _tokenKey, value: token).timeout(_storageTimeout);
   }
 
-  Future<void> clear() {
-    return _storage.delete(key: _tokenKey);
+  Future<void> clear() async {
+    try {
+      await _storage.delete(key: _tokenKey).timeout(_storageTimeout);
+    } catch (_) {}
   }
 
-  Future<String?> readBaseUrl() {
-    return _storage.read(key: _baseUrlKey);
+  Future<String?> readBaseUrl() async {
+    try {
+      return await _storage.read(key: _baseUrlKey).timeout(_storageTimeout);
+    } catch (_) {
+      return null;
+    }
   }
 
-  Future<void> writeBaseUrl(String baseUrl) {
-    return _storage.write(key: _baseUrlKey, value: baseUrl);
+  Future<void> writeBaseUrl(String baseUrl) async {
+    await _storage.write(key: _baseUrlKey, value: baseUrl).timeout(_storageTimeout);
   }
 
-  Future<void> clearBaseUrl() {
-    return _storage.delete(key: _baseUrlKey);
+  Future<void> clearBaseUrl() async {
+    try {
+      await _storage.delete(key: _baseUrlKey).timeout(_storageTimeout);
+    } catch (_) {}
   }
 }
