@@ -1,0 +1,53 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../config/app_config.dart';
+import '../storage/token_storage.dart';
+import 'api_exception.dart';
+
+final dioProvider = Provider<Dio>((ref) {
+  final storage = ref.watch(tokenStorageProvider);
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: AppConfig.baseUrl,
+      connectTimeout: const Duration(seconds: 20),
+      receiveTimeout: const Duration(seconds: 20),
+      headers: <String, String>{
+        'Accept': 'application/json',
+      },
+    ),
+  );
+
+  dio.interceptors.add(
+    QueuedInterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final token = await storage.readToken();
+        if (token != null && token.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        handler.next(options);
+      },
+      onError: (error, handler) {
+        final statusCode = error.response?.statusCode;
+        final responseData = error.response?.data;
+        final message = responseData is Map<String, dynamic>
+            ? responseData['message']?.toString()
+            : null;
+
+        handler.reject(
+          DioException(
+            requestOptions: error.requestOptions,
+            response: error.response,
+            type: error.type,
+            error: ApiException(
+              message ?? 'Terjadi kesalahan jaringan.',
+              statusCode: statusCode,
+            ),
+          ),
+        );
+      },
+    ),
+  );
+
+  return dio;
+});
