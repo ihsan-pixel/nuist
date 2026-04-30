@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/app_config.dart';
@@ -33,6 +34,7 @@ final dioProvider = Provider<Dio>((ref) {
         final message = responseData is Map<String, dynamic>
             ? responseData['message']?.toString()
             : null;
+        final fallbackMessage = _buildFallbackMessage(error);
 
         handler.reject(
           DioException(
@@ -40,7 +42,7 @@ final dioProvider = Provider<Dio>((ref) {
             response: error.response,
             type: error.type,
             error: ApiException(
-              message ?? 'Terjadi kesalahan jaringan.',
+              message ?? fallbackMessage,
               statusCode: statusCode,
             ),
           ),
@@ -51,3 +53,17 @@ final dioProvider = Provider<Dio>((ref) {
 
   return dio;
 });
+
+String _buildFallbackMessage(DioException error) {
+  final baseUrl = AppConfig.baseUrl;
+
+  if (error.response == null) {
+    if (kIsWeb) {
+      return 'Tidak bisa terhubung ke API $baseUrl. Pastikan Laravel aktif, URL API benar, dan endpoint ini bisa diakses dari browser.';
+    }
+
+    return 'Tidak bisa terhubung ke API $baseUrl. Pastikan Laravel aktif dan BASE_URL sudah benar.';
+  }
+
+  return 'Terjadi kesalahan jaringan.';
+}

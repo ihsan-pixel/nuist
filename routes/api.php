@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GithubWebhookController;
 use App\Http\Controllers\Api\FaceController;
+use App\Http\Controllers\Api\MobileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Mobile token login/logout for Capacitor apps (token-based auth)
 Route::post('/mobile/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
+    Route::get('/me', [MobileController::class, 'me']);
+    Route::get('/dashboard', [MobileController::class, 'dashboard']);
+    Route::get('/tagihan', [MobileController::class, 'tagihan']);
+    Route::get('/izin', [MobileController::class, 'izinIndex']);
+    Route::get('/izin/{izin}', [MobileController::class, 'izinShow']);
+});
 
 Route::middleware('auth')->get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'apiIndex']);
 
