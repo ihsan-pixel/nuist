@@ -17,10 +17,12 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _hasNavigated = false;
+
   @override
   void initState() {
     super.initState();
-    Future<void>.microtask(() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         await ref.read(apiBaseUrlProvider.notifier).hydrate();
         if (!mounted) {
@@ -38,13 +40,21 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AuthState>(authControllerProvider, (previous, next) {
-      if (next.status == SessionStatus.authenticated) {
-        context.go(HomeScreen.routePath);
-      } else if (next.status == SessionStatus.unauthenticated) {
-        context.go(LoginScreen.routePath);
-      }
-    });
+    final authState = ref.watch(authControllerProvider);
+
+    if (!_hasNavigated && authState.status != SessionStatus.checking) {
+      _hasNavigated = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        if (authState.status == SessionStatus.authenticated) {
+          context.go(HomeScreen.routePath);
+        } else {
+          context.go(LoginScreen.routePath);
+        }
+      });
+    }
 
     return const Scaffold(
       body: Center(

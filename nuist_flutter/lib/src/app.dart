@@ -63,7 +63,12 @@ class NuistApp extends StatelessWidget {
         ),
       ),
       routerConfig: _router,
-      builder: (context, child) => child ?? const SizedBox.shrink(),
+      builder: (context, child) {
+        if (child != null) {
+          return child;
+        }
+        return const SplashScreen();
+      },
     );
   }
 }
