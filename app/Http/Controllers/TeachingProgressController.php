@@ -130,6 +130,16 @@ class TeachingProgressController extends Controller
         $laporanBulananData = [];
         $teachingRecapData = $this->getTeachingRecapData($request);
         $weeklyHolidayKeys = $this->getHolidayKeys($startOfWeek, $endOfWeek);
+        $weeklyDayMarkers = [];
+
+        $weeklyCursor = $startOfWeek->copy();
+        for ($i = 0; $i < 6; $i++) {
+            $weeklyDayMarkers[] = [
+                'date' => $weeklyCursor->toDateString(),
+                'is_holiday' => $weeklyHolidayKeys->has($weeklyCursor->toDateString()),
+            ];
+            $weeklyCursor->addDay();
+        }
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = Madrasah::where('kabupaten', $kabupaten)
@@ -205,34 +215,45 @@ class TeachingProgressController extends Controller
                 $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
 
                 for ($i = 0; $i < $daysToCount; $i++) {
+                    if ($weeklyHolidayKeys->has($currentDate->toDateString())) {
+                        $presensiMingguan[] = [
+                            'jadwal' => '-',
+                            'hadir' => '-',
+                            'izin' => '-',
+                            'tidak_presensi_jurnal' => '-',
+                            'alpha' => '-',
+                        ];
+
+                        $currentDate->addDay();
+                        continue;
+                    }
+
                     $jadwal = 0;
                     $hadir = 0;
                     $izin = 0;
                     $tidakPresensiJurnal = 0;
                     $alpha = 0;
 
-                    if (!$weeklyHolidayKeys->has($currentDate->toDateString())) {
-                        foreach ($teachers as $guru) {
-                            $teachingStatus = $this->resolveTeacherDailyTeachingStatus(
-                                $guru->id,
-                                $currentDate,
-                                $teacherDailyStatusKeys['attendance'],
-                                $teacherDailyStatusKeys['izin'],
-                                $teacherScheduleDayCounts
-                            );
+                    foreach ($teachers as $guru) {
+                        $teachingStatus = $this->resolveTeacherDailyTeachingStatus(
+                            $guru->id,
+                            $currentDate,
+                            $teacherDailyStatusKeys['attendance'],
+                            $teacherDailyStatusKeys['izin'],
+                            $teacherScheduleDayCounts
+                        );
 
-                            if ($teachingStatus === 'hadir') {
-                                $jadwal++;
-                                $hadir++;
-                            } elseif ($teachingStatus === 'izin') {
-                                $jadwal++;
-                                $izin++;
-                            } elseif ($teachingStatus === 'tidak_presensi_jurnal') {
-                                $jadwal++;
-                                $tidakPresensiJurnal++;
-                            } elseif ($teachingStatus === 'alpha') {
-                                $alpha++;
-                            }
+                        if ($teachingStatus === 'hadir') {
+                            $jadwal++;
+                            $hadir++;
+                        } elseif ($teachingStatus === 'izin') {
+                            $jadwal++;
+                            $izin++;
+                        } elseif ($teachingStatus === 'tidak_presensi_jurnal') {
+                            $jadwal++;
+                            $tidakPresensiJurnal++;
+                        } elseif ($teachingStatus === 'alpha') {
+                            $alpha++;
                         }
                     }
 
@@ -452,7 +473,8 @@ class TeachingProgressController extends Controller
             'startOfMonth',
             'month',
             'top10Madrasah',
-            'teachingRecapData'
+            'teachingRecapData',
+            'weeklyDayMarkers'
         ));
     }
 

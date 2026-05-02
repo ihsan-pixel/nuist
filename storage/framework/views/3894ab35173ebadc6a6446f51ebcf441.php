@@ -101,11 +101,19 @@
                                 <td class="text-center"><?php echo e(collect($kabupaten['madrasahs'])->sum('belum')); ?></td>
                                 <td class="text-center"><?php echo e(collect($kabupaten['madrasahs'])->sum('total')); ?></td>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 0; $i < 6; $i++): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($weeklyDayMarkers[$i]['is_holiday'])): ?>
+                                <td class="text-center">-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">-</td>
+                                <?php else: ?>
                                 <td class="text-center"><?php echo e($kabupaten['daily_totals'][$i]['jadwal']); ?></td>
                                 <td class="text-center"><?php echo e($kabupaten['daily_totals'][$i]['hadir']); ?></td>
                                 <td class="text-center"><?php echo e($kabupaten['daily_totals'][$i]['izin']); ?></td>
                                 <td class="text-center"><?php echo e($kabupaten['daily_totals'][$i]['tidak_presensi_jurnal']); ?></td>
                                 <td class="text-center"><?php echo e($kabupaten['daily_totals'][$i]['alpha']); ?></td>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <td class="text-center"><?php echo e($kabupaten['total_jadwal_berjalan']); ?></td>
                                 <td class="text-center"><?php echo e($kabupaten['total_hadir']); ?></td>

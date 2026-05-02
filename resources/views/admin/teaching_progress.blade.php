@@ -103,11 +103,19 @@
                                 <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('belum') }}</td>
                                 <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('total') }}</td>
                                 @for($i = 0; $i < 6; $i++)
+                                @if(!empty($weeklyDayMarkers[$i]['is_holiday']))
+                                <td class="text-center">-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">-</td>
+                                <td class="text-center">-</td>
+                                @else
                                 <td class="text-center">{{ $kabupaten['daily_totals'][$i]['jadwal'] }}</td>
                                 <td class="text-center">{{ $kabupaten['daily_totals'][$i]['hadir'] }}</td>
                                 <td class="text-center">{{ $kabupaten['daily_totals'][$i]['izin'] }}</td>
                                 <td class="text-center">{{ $kabupaten['daily_totals'][$i]['tidak_presensi_jurnal'] }}</td>
                                 <td class="text-center">{{ $kabupaten['daily_totals'][$i]['alpha'] }}</td>
+                                @endif
                                 @endfor
                                 <td class="text-center">{{ $kabupaten['total_jadwal_berjalan'] }}</td>
                                 <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
