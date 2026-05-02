@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
 use App\Models\Presensi;
+use App\Models\Holiday;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -38,6 +39,7 @@ class TeachingProgressController extends Controller
 
         $madrasahPercentages = [];
         $allMadrasahs = Madrasah::orderByRaw("CAST(scod AS UNSIGNED) ASC")->get();
+        $monthlyHolidayKeys = $this->getHolidayKeys($startOfMonth, $effectiveEndOfMonth);
 
         foreach ($allMadrasahs as $madrasah) {
             $teachers = $this->getEligibleTeachers($madrasah->id, false);
@@ -65,7 +67,7 @@ class TeachingProgressController extends Controller
                 $dayOfWeek = $currentDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
                 $isWorkingDay = ($madrasah->hari_kbm == 5) ? ($dayOfWeek >= 1 && $dayOfWeek <= 5) : ($dayOfWeek >= 1 && $dayOfWeek <= 6);
 
-                if ($isWorkingDay) {
+                if ($isWorkingDay && !$monthlyHolidayKeys->has($currentDate->toDateString())) {
                     foreach ($teachers as $guru) {
                         $teachingStatus = $this->resolveTeacherDailyTeachingStatus(
                             $guru->id,
@@ -127,6 +129,7 @@ class TeachingProgressController extends Controller
         $laporanData = [];
         $laporanBulananData = [];
         $teachingRecapData = $this->getTeachingRecapData($request);
+        $weeklyHolidayKeys = $this->getHolidayKeys($startOfWeek, $endOfWeek);
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = Madrasah::where('kabupaten', $kabupaten)
@@ -208,26 +211,28 @@ class TeachingProgressController extends Controller
                     $tidakPresensiJurnal = 0;
                     $alpha = 0;
 
-                    foreach ($teachers as $guru) {
-                        $teachingStatus = $this->resolveTeacherDailyTeachingStatus(
-                            $guru->id,
-                            $currentDate,
-                            $teacherDailyStatusKeys['attendance'],
-                            $teacherDailyStatusKeys['izin'],
-                            $teacherScheduleDayCounts
-                        );
+                    if (!$weeklyHolidayKeys->has($currentDate->toDateString())) {
+                        foreach ($teachers as $guru) {
+                            $teachingStatus = $this->resolveTeacherDailyTeachingStatus(
+                                $guru->id,
+                                $currentDate,
+                                $teacherDailyStatusKeys['attendance'],
+                                $teacherDailyStatusKeys['izin'],
+                                $teacherScheduleDayCounts
+                            );
 
-                        if ($teachingStatus === 'hadir') {
-                            $jadwal++;
-                            $hadir++;
-                        } elseif ($teachingStatus === 'izin') {
-                            $jadwal++;
-                            $izin++;
-                        } elseif ($teachingStatus === 'tidak_presensi_jurnal') {
-                            $jadwal++;
-                            $tidakPresensiJurnal++;
-                        } elseif ($teachingStatus === 'alpha') {
-                            $alpha++;
+                            if ($teachingStatus === 'hadir') {
+                                $jadwal++;
+                                $hadir++;
+                            } elseif ($teachingStatus === 'izin') {
+                                $jadwal++;
+                                $izin++;
+                            } elseif ($teachingStatus === 'tidak_presensi_jurnal') {
+                                $jadwal++;
+                                $tidakPresensiJurnal++;
+                            } elseif ($teachingStatus === 'alpha') {
+                                $alpha++;
+                            }
                         }
                     }
 
@@ -364,7 +369,7 @@ class TeachingProgressController extends Controller
                         ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
                         : ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY);
 
-                    if ($isWorkingDay) {
+                    if ($isWorkingDay && !$monthlyHolidayKeys->has($currentDate->toDateString())) {
                         $jadwal = 0;
                         $hadir = 0;
                         $izin = 0;
@@ -532,6 +537,7 @@ class TeachingProgressController extends Controller
         }
 
         $approvedIzinKeys = $this->getApprovedIzinKeys($teacherIds, $startDate, $effectiveEndDate);
+        $holidayKeys = $this->getHolidayKeys($startDate, $effectiveEndDate);
 
         $recapRows = collect();
 
@@ -543,7 +549,8 @@ class TeachingProgressController extends Controller
                 $endDate,
                 $effectiveEndDate,
                 $attendanceKeys,
-                $approvedIzinKeys
+                $approvedIzinKeys,
+                $holidayKeys
             );
 
             $hasSchedule = $teacherSchedules->count() > 0;
@@ -630,7 +637,8 @@ class TeachingProgressController extends Controller
         Carbon $endDate,
         Carbon $effectiveEndDate,
         $attendanceKeys,
-        $approvedIzinKeys
+        $approvedIzinKeys,
+        $holidayKeys
     ): array {
         $totalJadwalPeriode = 0;
         $totalJadwalBerjalan = 0;
@@ -643,6 +651,10 @@ class TeachingProgressController extends Controller
         foreach ($schedules as $schedule) {
             foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
                 if ($this->getTeachingDayName($date) !== $schedule->day) {
+                    continue;
+                }
+
+                if ($holidayKeys->has($date->toDateString())) {
                     continue;
                 }
 
@@ -724,6 +736,21 @@ class TeachingProgressController extends Controller
             'attendance' => $attendanceKeys,
             'izin' => $this->getApprovedIzinKeys($teacherIds, $startDate, $endDate),
         ];
+    }
+
+    private function getHolidayKeys(Carbon $startDate, Carbon $endDate)
+    {
+        if ($endDate->lt($startDate)) {
+            return collect();
+        }
+
+        return Holiday::query()
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->where('is_active', true)
+            ->get(['date'])
+            ->mapWithKeys(function ($holiday) {
+                return [Carbon::parse($holiday->date)->toDateString() => true];
+            });
     }
 
     private function getTeacherScheduleDayCounts($teacherIds)
