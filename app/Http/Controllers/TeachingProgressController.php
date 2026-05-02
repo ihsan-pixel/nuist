@@ -56,6 +56,7 @@ class TeachingProgressController extends Controller
                 $startOfMonth,
                 $effectiveEndOfMonth
             );
+            $teacherScheduleDayCounts = $this->getTeacherScheduleDayCounts($teachers->pluck('id'));
             $totalHadir = 0;
             $totalPresensi = 0;
             $currentDate = $startOfMonth->copy();
@@ -70,13 +71,16 @@ class TeachingProgressController extends Controller
                             $guru->id,
                             $currentDate,
                             $teacherDailyStatusKeys['attendance'],
-                            $teacherDailyStatusKeys['izin']
+                            $teacherDailyStatusKeys['izin'],
+                            $teacherScheduleDayCounts
                         );
 
                         if (in_array($teachingStatus, ['hadir', 'izin'], true)) {
                             $totalHadir++;
                         }
-                        $totalPresensi++;
+                        if ($teachingStatus !== 'off_schedule') {
+                            $totalPresensi++;
+                        }
                     }
                 }
 
@@ -132,21 +136,28 @@ class TeachingProgressController extends Controller
             $kabupatenData = [
                 'kabupaten' => $kabupaten,
                 'madrasahs' => [],
+                'total_jadwal_berjalan' => 0,
                 'total_hadir' => 0,
                 'total_izin' => 0,
+                'total_tidak_presensi_jurnal' => 0,
                 'total_alpha' => 0,
                 'total_presensi' => 0,
                 'persentase_kehadiran' => 0,
-                'daily_totals' => array_fill(0, 6, ['hadir' => 0, 'izin' => 0, 'alpha' => 0]),
+                'daily_totals' => array_fill(0, 6, [
+                    'jadwal' => 0,
+                    'hadir' => 0,
+                    'izin' => 0,
+                    'tidak_presensi_jurnal' => 0,
+                    'alpha' => 0,
+                ]),
             ];
 
             foreach ($madrasahs as $madrasah) {
                 $teachers = $this->getEligibleTeachers($madrasah->id);
-
                 $totalTeachers = $teachers->count();
-
-                $teachersWithSchedule = $teachers->filter(function ($teacher) {
-                    return TeachingSchedule::where('teacher_id', $teacher->id)->exists();
+                $teacherScheduleDayCounts = $this->getTeacherScheduleDayCounts($teachers->pluck('id'));
+                $teachersWithSchedule = $teacherScheduleDayCounts->filter(function ($dayCounts) {
+                    return $dayCounts->isNotEmpty();
                 })->count();
                 $teachersWithoutSchedule = $totalTeachers - $teachersWithSchedule;
 
@@ -158,7 +169,18 @@ class TeachingProgressController extends Controller
                         'sudah' => 0,
                         'belum' => 0,
                         'total' => 0,
-                        'presensi' => array_fill(0, 6, ['hadir' => 0, 'izin' => 0, 'alpha' => 0]),
+                        'presensi' => array_fill(0, 6, [
+                            'jadwal' => 0,
+                            'hadir' => 0,
+                            'izin' => 0,
+                            'tidak_presensi_jurnal' => 0,
+                            'alpha' => 0,
+                        ]),
+                        'total_jadwal_berjalan' => 0,
+                        'total_hadir' => 0,
+                        'total_izin' => 0,
+                        'total_tidak_presensi_jurnal' => 0,
+                        'total_alpha' => 0,
                         'persentase_kehadiran' => 0
                     ];
                     continue;
@@ -170,16 +192,20 @@ class TeachingProgressController extends Controller
                     $endOfWeek
                 );
                 $presensiMingguan = [];
+                $totalJadwalBerjalan = 0;
                 $totalHadir = 0;
                 $totalIzin = 0;
+                $totalTidakPresensiJurnal = 0;
                 $totalPresensi = 0;
 
                 $currentDate = $startOfWeek->copy();
                 $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
 
                 for ($i = 0; $i < $daysToCount; $i++) {
+                    $jadwal = 0;
                     $hadir = 0;
                     $izin = 0;
+                    $tidakPresensiJurnal = 0;
                     $alpha = 0;
 
                     foreach ($teachers as $guru) {
@@ -187,38 +213,61 @@ class TeachingProgressController extends Controller
                             $guru->id,
                             $currentDate,
                             $teacherDailyStatusKeys['attendance'],
-                            $teacherDailyStatusKeys['izin']
+                            $teacherDailyStatusKeys['izin'],
+                            $teacherScheduleDayCounts
                         );
 
                         if ($teachingStatus === 'hadir') {
+                            $jadwal++;
                             $hadir++;
                         } elseif ($teachingStatus === 'izin') {
+                            $jadwal++;
                             $izin++;
-                        } else {
+                        } elseif ($teachingStatus === 'tidak_presensi_jurnal') {
+                            $jadwal++;
+                            $tidakPresensiJurnal++;
+                        } elseif ($teachingStatus === 'alpha') {
                             $alpha++;
                         }
                     }
 
-                    $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
+                    $presensiMingguan[] = [
+                        'jadwal' => $jadwal,
+                        'hadir' => $hadir,
+                        'izin' => $izin,
+                        'tidak_presensi_jurnal' => $tidakPresensiJurnal,
+                        'alpha' => $alpha,
+                    ];
+                    $kabupatenData['daily_totals'][$i]['jadwal'] += $jadwal;
                     $kabupatenData['daily_totals'][$i]['hadir'] += $hadir;
                     $kabupatenData['daily_totals'][$i]['izin'] += $izin;
+                    $kabupatenData['daily_totals'][$i]['tidak_presensi_jurnal'] += $tidakPresensiJurnal;
                     $kabupatenData['daily_totals'][$i]['alpha'] += $alpha;
 
+                    $totalJadwalBerjalan += $jadwal;
                     $totalHadir += $hadir;
                     $totalIzin += $izin;
-                    $totalPresensi += ($hadir + $izin + $alpha);
+                    $totalTidakPresensiJurnal += $tidakPresensiJurnal;
+                    $totalPresensi += ($jadwal + $alpha);
 
                     $currentDate->addDay();
                 }
 
                 // Jika 5 hari kerja, tambahkan data kosong untuk Sabtu agar tetap 6 kolom
                 if ($madrasah->hari_kbm == 5) {
-                    $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
+                    $presensiMingguan[] = [
+                        'jadwal' => '-',
+                        'hadir' => '-',
+                        'izin' => '-',
+                        'tidak_presensi_jurnal' => '-',
+                        'alpha' => '-',
+                    ];
                 }
 
                 $persentase = $totalPresensi > 0
                     ? (($totalHadir + $totalIzin) / $totalPresensi) * 100
                     : 0;
+                $totalAlpha = $totalPresensi - $totalJadwalBerjalan;
 
                 $kabupatenData['madrasahs'][] = [
                     'scod' => $madrasah->scod,
@@ -228,18 +277,18 @@ class TeachingProgressController extends Controller
                     'belum' => $teachersWithoutSchedule,
                     'total' => $totalTeachers,
                     'presensi' => $presensiMingguan,
+                    'total_jadwal_berjalan' => $totalJadwalBerjalan,
                     'total_hadir' => $totalHadir,
                     'total_izin' => $totalIzin,
-                    'total_alpha' => $totalPresensi - $totalHadir - $totalIzin,
+                    'total_tidak_presensi_jurnal' => $totalTidakPresensiJurnal,
+                    'total_alpha' => $totalAlpha,
                     'persentase_kehadiran' => $persentase
                 ];
 
-                $totalAlpha = collect($presensiMingguan)->sum(function ($item) {
-                    return is_numeric($item['alpha']) ? $item['alpha'] : 0;
-                });
-
+                $kabupatenData['total_jadwal_berjalan'] += $totalJadwalBerjalan;
                 $kabupatenData['total_hadir'] += $totalHadir;
                 $kabupatenData['total_izin'] += $totalIzin;
+                $kabupatenData['total_tidak_presensi_jurnal'] += $totalTidakPresensiJurnal;
                 $kabupatenData['total_alpha'] += $totalAlpha;
                 $kabupatenData['total_presensi'] += $totalPresensi;
             }
@@ -260,8 +309,10 @@ class TeachingProgressController extends Controller
             $kabupatenBulananData = [
                 'kabupaten' => $kabupaten,
                 'madrasahs' => [],
+                'total_jadwal_berjalan' => 0,
                 'total_hadir' => 0,
                 'total_izin' => 0,
+                'total_tidak_presensi_jurnal' => 0,
                 'total_alpha' => 0,
                 'total_presensi' => 0,
                 'persentase_kehadiran' => 0
@@ -270,8 +321,9 @@ class TeachingProgressController extends Controller
             foreach ($madrasahs as $madrasah) {
                 $teachers = $this->getEligibleTeachers($madrasah->id);
                 $totalTeachers = $teachers->count();
-                $teachersWithSchedule = $teachers->filter(function ($teacher) {
-                    return TeachingSchedule::where('teacher_id', $teacher->id)->exists();
+                $teacherScheduleDayCounts = $this->getTeacherScheduleDayCounts($teachers->pluck('id'));
+                $teachersWithSchedule = $teacherScheduleDayCounts->filter(function ($dayCounts) {
+                    return $dayCounts->isNotEmpty();
                 })->count();
                 $teachersWithoutSchedule = $totalTeachers - $teachersWithSchedule;
 
@@ -283,8 +335,10 @@ class TeachingProgressController extends Controller
                         'sudah' => 0,
                         'belum' => 0,
                         'total' => 0,
+                        'total_jadwal_berjalan' => 0,
                         'total_hadir' => 0,
                         'total_izin' => 0,
+                        'total_tidak_presensi_jurnal' => 0,
                         'total_alpha' => 0,
                         'persentase_kehadiran' => 0
                     ];
@@ -296,8 +350,10 @@ class TeachingProgressController extends Controller
                     $startOfMonth,
                     $effectiveEndOfMonth
                 );
+                $totalJadwalBerjalanBulanan = 0;
                 $totalHadirBulanan = 0;
                 $totalIzinBulanan = 0;
+                $totalTidakPresensiJurnalBulanan = 0;
                 $totalAlphaBulanan = 0;
                 $totalPresensiBulanan = 0;
                 $currentDate = $startOfMonth->copy();
@@ -309,30 +365,41 @@ class TeachingProgressController extends Controller
                         : ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY);
 
                     if ($isWorkingDay) {
+                        $jadwal = 0;
                         $hadir = 0;
                         $izin = 0;
+                        $tidakPresensiJurnal = 0;
+                        $alpha = 0;
 
                         foreach ($teachers as $guru) {
                             $teachingStatus = $this->resolveTeacherDailyTeachingStatus(
                                 $guru->id,
                                 $currentDate,
                                 $teacherDailyStatusKeys['attendance'],
-                                $teacherDailyStatusKeys['izin']
+                                $teacherDailyStatusKeys['izin'],
+                                $teacherScheduleDayCounts
                             );
 
                             if ($teachingStatus === 'hadir') {
+                                $jadwal++;
                                 $hadir++;
                             } elseif ($teachingStatus === 'izin') {
+                                $jadwal++;
                                 $izin++;
+                            } elseif ($teachingStatus === 'tidak_presensi_jurnal') {
+                                $jadwal++;
+                                $tidakPresensiJurnal++;
+                            } elseif ($teachingStatus === 'alpha') {
+                                $alpha++;
                             }
                         }
 
-                        $alpha = $totalTeachers - $hadir - $izin;
-
+                        $totalJadwalBerjalanBulanan += $jadwal;
                         $totalHadirBulanan += $hadir;
                         $totalIzinBulanan += $izin;
+                        $totalTidakPresensiJurnalBulanan += $tidakPresensiJurnal;
                         $totalAlphaBulanan += $alpha;
-                        $totalPresensiBulanan += $totalTeachers;
+                        $totalPresensiBulanan += ($jadwal + $alpha);
                     }
 
                     $currentDate->addDay();
@@ -349,14 +416,18 @@ class TeachingProgressController extends Controller
                     'sudah' => $teachersWithSchedule,
                     'belum' => $teachersWithoutSchedule,
                     'total' => $totalTeachers,
+                    'total_jadwal_berjalan' => $totalJadwalBerjalanBulanan,
                     'total_hadir' => $totalHadirBulanan,
                     'total_izin' => $totalIzinBulanan,
+                    'total_tidak_presensi_jurnal' => $totalTidakPresensiJurnalBulanan,
                     'total_alpha' => $totalAlphaBulanan,
                     'persentase_kehadiran' => $persentaseBulanan
                 ];
 
+                $kabupatenBulananData['total_jadwal_berjalan'] += $totalJadwalBerjalanBulanan;
                 $kabupatenBulananData['total_hadir'] += $totalHadirBulanan;
                 $kabupatenBulananData['total_izin'] += $totalIzinBulanan;
+                $kabupatenBulananData['total_tidak_presensi_jurnal'] += $totalTidakPresensiJurnalBulanan;
                 $kabupatenBulananData['total_alpha'] += $totalAlphaBulanan;
                 $kabupatenBulananData['total_presensi'] += $totalPresensiBulanan;
             }
@@ -387,7 +458,10 @@ class TeachingProgressController extends Controller
             ->whereNotIn('status_kepegawaian_id', [7, 8]);
 
         if ($excludePrincipal) {
-            $query->where('ketugasan', '!=', 'kepala madrasah/sekolah');
+            $query->where(function ($subQuery) {
+                $subQuery->whereNull('ketugasan')
+                    ->orWhereRaw('LOWER(ketugasan) NOT LIKE ?', ['%kepala%']);
+            });
         }
 
         return $query->get();
@@ -652,6 +726,23 @@ class TeachingProgressController extends Controller
         ];
     }
 
+    private function getTeacherScheduleDayCounts($teacherIds)
+    {
+        $teacherIds = collect($teacherIds)->filter()->unique()->values();
+
+        if ($teacherIds->isEmpty()) {
+            return collect();
+        }
+
+        return TeachingSchedule::query()
+            ->whereIn('teacher_id', $teacherIds)
+            ->get(['teacher_id', 'day'])
+            ->groupBy('teacher_id')
+            ->map(function ($schedules) {
+                return $schedules->groupBy('day')->map->count();
+            });
+    }
+
     private function getApprovedIzinKeys($teacherIds, Carbon $startDate, Carbon $endDate)
     {
         $teacherIds = collect($teacherIds)->filter()->unique()->values();
@@ -675,8 +766,19 @@ class TeachingProgressController extends Controller
         int $teacherId,
         Carbon $date,
         $attendanceKeys,
-        $approvedIzinKeys
+        $approvedIzinKeys,
+        $teacherScheduleDayCounts
     ): string {
+        $teacherScheduleByDay = $teacherScheduleDayCounts->get($teacherId, collect());
+        if ($teacherScheduleByDay->isEmpty()) {
+            return 'alpha';
+        }
+
+        $teachingDayName = $this->getTeachingDayName($date);
+        if (!$teachingDayName || !$teacherScheduleByDay->has($teachingDayName)) {
+            return 'off_schedule';
+        }
+
         $dateKey = $date->toDateString();
         $teacherDateKey = $teacherId . '|' . $dateKey;
 
@@ -688,7 +790,7 @@ class TeachingProgressController extends Controller
             return 'izin';
         }
 
-        return 'alpha';
+        return 'tidak_presensi_jurnal';
     }
 
     private function getTeachingDayName(Carbon $date): ?string

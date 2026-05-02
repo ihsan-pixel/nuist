@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/config/api_base_url_controller.dart';
 import '../../core/config/app_config.dart';
-import '../home/home_screen.dart';
+import '../../core/navigation/app_navigation.dart';
 import 'auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -44,7 +43,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
       if (next.status == SessionStatus.authenticated) {
-        context.go(HomeScreen.routePath);
+        AppNavigation.goHome(context);
       }
     });
 

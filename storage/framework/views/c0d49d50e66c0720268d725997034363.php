@@ -120,6 +120,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
                 <div class="mt-3 text-center">
                     <p class="mb-0">Don't have an account? <a href="<?php echo e(url('register')); ?>" class="text-primary">Register here</a></p>
+                    <a href="<?php echo e(route('mobile.password.request')); ?>">Forgot password?</a>
                 </div>
 
                 <div class="mt-2 text-center">

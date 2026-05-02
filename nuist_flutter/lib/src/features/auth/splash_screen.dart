@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/config/api_base_url_controller.dart';
-import '../home/home_screen.dart';
+import '../../core/navigation/app_navigation.dart';
 import 'auth_controller.dart';
-import 'login_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -33,7 +31,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         if (!mounted) {
           return;
         }
-        context.go(LoginScreen.routePath);
+        AppNavigation.goLogin(context);
       }
     });
   }
@@ -49,9 +47,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           return;
         }
         if (authState.status == SessionStatus.authenticated) {
-          context.go(HomeScreen.routePath);
+          AppNavigation.goHome(context);
         } else {
-          context.go(LoginScreen.routePath);
+          AppNavigation.goLogin(context);
         }
       });
     }

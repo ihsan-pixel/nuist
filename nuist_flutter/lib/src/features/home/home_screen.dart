@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../core/navigation/app_navigation.dart';
 import '../auth/auth_controller.dart';
-import '../auth/login_screen.dart';
 import '../billing/billing_tab.dart';
 import '../dashboard/dashboard_tab.dart';
 import '../izin/izin_tab.dart';
@@ -39,7 +38,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
       if (next.status == SessionStatus.unauthenticated) {
-        context.go(LoginScreen.routePath);
+        AppNavigation.goLogin(context);
       }
     });
 

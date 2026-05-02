@@ -1,35 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import 'features/auth/login_screen.dart';
-import 'features/auth/splash_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/izin/izin_detail_screen.dart';
-
-final GoRouter _router = GoRouter(
-  initialLocation: SplashScreen.routePath,
-  routes: <RouteBase>[
-    GoRoute(
-      path: SplashScreen.routePath,
-      builder: (context, state) => const SplashScreen(),
-    ),
-    GoRoute(
-      path: LoginScreen.routePath,
-      builder: (context, state) => const LoginScreen(),
-    ),
-    GoRoute(
-      path: HomeScreen.routePath,
-      builder: (context, state) => const HomeScreen(),
-    ),
-    GoRoute(
-      path: IzinDetailScreen.routePath,
-      builder: (context, state) {
-        final izinId = state.pathParameters['id'] ?? '';
-        return IzinDetailScreen(izinId: izinId);
-      },
-    ),
-  ],
-);
 
 class NuistApp extends StatelessWidget {
   const NuistApp({super.key});
@@ -38,7 +11,7 @@ class NuistApp extends StatelessWidget {
   Widget build(BuildContext context) {
     const seedColor = Color(0xFF135D66);
 
-    return MaterialApp.router(
+    return MaterialApp(
       title: 'Nuist Flutter',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -62,12 +35,27 @@ class NuistApp extends StatelessWidget {
           ),
         ),
       ),
-      routerConfig: _router,
-      builder: (context, child) {
-        if (child != null) {
-          return child;
+      home: const LoginScreen(),
+      onGenerateRoute: (settings) {
+        if (settings.name == HomeScreen.routePath) {
+          return MaterialPageRoute<void>(
+            builder: (_) => const HomeScreen(),
+            settings: settings,
+          );
         }
-        return const SplashScreen();
+
+        if (settings.name != null && settings.name!.startsWith('/izin/')) {
+          final izinId = settings.name!.replaceFirst('/izin/', '');
+          return MaterialPageRoute<void>(
+            builder: (_) => IzinDetailScreen(izinId: izinId),
+            settings: settings,
+          );
+        }
+
+        return MaterialPageRoute<void>(
+          builder: (_) => const LoginScreen(),
+          settings: settings,
+        );
       },
     );
   }

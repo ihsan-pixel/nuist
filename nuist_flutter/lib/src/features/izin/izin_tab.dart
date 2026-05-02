@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../core/navigation/app_navigation.dart';
 import '../../core/widgets/async_value_section.dart';
 import 'izin_provider.dart';
 
@@ -26,7 +26,10 @@ class IzinTab extends ConsumerWidget {
               Card(
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
-                  onTap: () => context.go('/izin/${item.id}'),
+                  onTap: () => AppNavigation.goIzinDetail(
+                    context,
+                    item.id.toString(),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(18),
                     child: Column(
