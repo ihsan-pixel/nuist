@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GithubWebhookController;
 use App\Http\Controllers\Api\FaceController;
 use App\Http\Controllers\Api\MobileController;
+use App\Http\Controllers\Api\TeacherAppController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Mobile token login/logout for Capacitor apps (token-based auth)
+Route::get('/mobile/register/options', [App\Http\Controllers\Api\AuthController::class, 'registerOptions']);
+Route::post('/mobile/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
+Route::post('/mobile/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
 Route::post('/mobile/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
@@ -30,6 +34,14 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
     Route::get('/tagihan', [MobileController::class, 'tagihan']);
     Route::get('/izin', [MobileController::class, 'izinIndex']);
     Route::get('/izin/{izin}', [MobileController::class, 'izinShow']);
+    Route::prefix('/app/teacher')->group(function () {
+        Route::get('/dashboard', [TeacherAppController::class, 'dashboard']);
+        Route::get('/schedule', [TeacherAppController::class, 'schedule']);
+        Route::get('/attendance', [TeacherAppController::class, 'attendance']);
+        Route::get('/teaching-journal', [TeacherAppController::class, 'teachingJournal']);
+        Route::get('/profile', [TeacherAppController::class, 'profile']);
+        Route::get('/izin', [TeacherAppController::class, 'izin']);
+    });
 });
 
 Route::middleware('auth')->get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'apiIndex']);

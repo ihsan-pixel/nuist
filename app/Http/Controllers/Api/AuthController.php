@@ -3,14 +3,93 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Mail\RegistrationPendingNotification;
+use App\Models\Madrasah;
+use App\Models\PendingRegistration;
 use App\Services\SiswaMobileAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function registerOptions()
+    {
+        $madrasahs = Madrasah::query()
+            ->orderBy('scod')
+            ->get(['id', 'name']);
+
+        return response()->json([
+            'madrasahs' => $madrasahs,
+        ]);
+    }
+
+    public function register(Request $request)
+    {
+        $role = $request->input('role');
+
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'role' => ['required', 'in:pengurus,tenaga_pendidik'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ];
+
+        if ($role === 'pengurus') {
+            $rules['jabatan'] = ['required', 'string', 'max:255'];
+        }
+
+        if ($role === 'tenaga_pendidik') {
+            $rules['asal_sekolah'] = ['required', 'exists:madrasahs,id'];
+        }
+
+        $data = $request->validate($rules);
+
+        $pendingRegistration = PendingRegistration::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => $data['role'],
+            'jabatan' => $data['jabatan'] ?? null,
+            'asal_sekolah' => $data['asal_sekolah'] ?? null,
+            'submitted_at' => now(),
+        ]);
+
+        Mail::to($data['email'])->send(
+            new RegistrationPendingNotification($pendingRegistration)
+        );
+
+        return response()->json([
+            'message' => 'Registration submitted successfully. Please wait for admin approval.',
+            'data' => $pendingRegistration,
+        ], 201);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $status = Password::sendResetLink($data);
+
+        if ($status !== Password::RESET_LINK_SENT) {
+            return response()->json([
+                'message' => __($status),
+                'errors' => [
+                    'email' => [__($status)],
+                ],
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => __($status),
+        ]);
+    }
+
     /**
      * Mobile login: issue a personal access token for the user.
      * Expected payload: { email, password }
