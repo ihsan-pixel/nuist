@@ -129,6 +129,10 @@ class _DashboardContent extends StatelessWidget {
             .whereType<Map>()
             .map((item) => Map<String, dynamic>.from(item))
             .toList();
+    final holidayNotes = ((data['holiday_notes'] as List?) ?? const [])
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
     final todayAttendance = Map<String, dynamic>.from(
       (data['today_attendance'] as Map?) ?? const <String, dynamic>{},
     );
@@ -330,6 +334,7 @@ class _DashboardContent extends StatelessWidget {
           monthLabel: currentMonthLabel,
           leadingEmptyDays: calendarLeadingEmptyDays,
           items: attendanceCalendar,
+          holidayNotes: holidayNotes,
         ),
         const SizedBox(height: 18),
         const _SectionHeading(
@@ -582,41 +587,47 @@ class _DashboardHeader extends StatelessWidget {
 class _HeaderActionButton extends StatelessWidget {
   const _HeaderActionButton({
     required this.icon,
-    required this.onTap,
+    this.onTap,
   });
 
   final IconData icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final button = Ink(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFD8E6E4)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x10003B39),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Icon(
+        icon,
+        color: const Color(0xFF214845),
+        size: 22,
+      ),
+    );
+
+    if (onTap == null) {
+      return button;
+    }
+
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
-        child: Ink(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFD8E6E4)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x10003B39),
-                blurRadius: 18,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Icon(
-            icon,
-            color: const Color(0xFF214845),
-            size: 22,
-          ),
-        ),
+        child: button,
       ),
     );
   }
@@ -680,10 +691,7 @@ class _HeaderMoreMenu extends StatelessWidget {
           ),
         ),
       ],
-      child: const _HeaderActionButton(
-        icon: Icons.more_horiz_rounded,
-        onTap: _noop,
-      ),
+      child: const _HeaderActionButton(icon: Icons.more_horiz_rounded),
     );
   }
 }
@@ -719,8 +727,6 @@ class _HeaderMenuItem extends StatelessWidget {
     );
   }
 }
-
-void _noop() {}
 
 class _PerformanceCard extends StatelessWidget {
   const _PerformanceCard({
@@ -858,11 +864,13 @@ class _AttendanceCalendarCard extends StatelessWidget {
     required this.monthLabel,
     required this.leadingEmptyDays,
     required this.items,
+    required this.holidayNotes,
   });
 
   final String monthLabel;
   final int leadingEmptyDays;
   final List<Map<String, dynamic>> items;
+  final List<Map<String, dynamic>> holidayNotes;
 
   @override
   Widget build(BuildContext context) {
@@ -913,6 +921,10 @@ class _AttendanceCalendarCard extends StatelessWidget {
                 color: Color(0xFFB42318),
               ),
               _CalendarLegendChip(
+                label: 'Tanggal Merah',
+                color: Color(0xFFD92D20),
+              ),
+              _CalendarLegendChip(
                 label: 'Libur',
                 color: Color(0xFF6B7A99),
               ),
@@ -957,6 +969,84 @@ class _AttendanceCalendarCard extends StatelessWidget {
                   item: items[index - leadingEmptyDays],
                 );
               },
+            ),
+          const SizedBox(height: 16),
+          const _SectionTitle('Keterangan Tanggal Merah'),
+          const SizedBox(height: 10),
+          if (holidayNotes.isEmpty)
+            const AppEmptyState(
+              title: 'Tidak ada tanggal merah bulan ini',
+              message:
+                  'Daftar hari libur nasional untuk bulan ini belum tersedia.',
+              icon: Icons.event_available_rounded,
+            )
+          else
+            ...holidayNotes.map(
+              (item) => Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF6F5),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFF3C9C5)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD92D20).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.event_busy_rounded,
+                        color: Color(0xFFD92D20),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['name'] as String? ?? 'Tanggal merah',
+                            style: const TextStyle(
+                              color: Color(0xFF7A271A),
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item['date_label'] as String? ?? '-',
+                            style: const TextStyle(
+                              color: Color(0xFFAF5A4F),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if ((item['description'] as String?)
+                                  ?.trim()
+                                  .isNotEmpty ==
+                              true) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              item['description'] as String,
+                              style: const TextStyle(
+                                color: Color(0xFF8E4A40),
+                                fontSize: 12,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
         ],
       ),
@@ -1040,14 +1130,23 @@ class _CalendarDayTile extends StatelessWidget {
     final status = item['status'] as String? ?? 'belum_tercatat';
     final isToday = item['is_today'] == true;
     final color = _calendarStatusColor(status);
+    final isHoliday = status == 'tanggal_merah';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       decoration: BoxDecoration(
-        color: isToday ? const Color(0xFFF2FBFA) : const Color(0xFFF9FCFC),
+        color: isHoliday
+            ? const Color(0xFFFFF3F2)
+            : isToday
+                ? const Color(0xFFF2FBFA)
+                : const Color(0xFFF9FCFC),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isToday ? const Color(0xFF0D8E89) : const Color(0xFFDDEBE9),
+          color: isHoliday
+              ? const Color(0xFFF1B5AE)
+              : isToday
+                  ? const Color(0xFF0D8E89)
+                  : const Color(0xFFDDEBE9),
           width: isToday ? 1.5 : 1,
         ),
       ),
@@ -1057,8 +1156,11 @@ class _CalendarDayTile extends StatelessWidget {
           Text(
             '${item['day_number'] ?? '-'}',
             style: TextStyle(
-              color:
-                  isToday ? const Color(0xFF0D8E89) : const Color(0xFF1F4F4C),
+              color: isHoliday
+                  ? const Color(0xFFD92D20)
+                  : isToday
+                      ? const Color(0xFF0D8E89)
+                      : const Color(0xFF1F4F4C),
               fontSize: 15,
               fontWeight: FontWeight.w800,
             ),
@@ -1626,6 +1728,8 @@ Color _statusColor(String value) {
 
 Color _calendarStatusColor(String value) {
   switch (value) {
+    case 'tanggal_merah':
+      return const Color(0xFFD92D20);
     case 'hadir':
       return const Color(0xFF2E8B57);
     case 'izin':

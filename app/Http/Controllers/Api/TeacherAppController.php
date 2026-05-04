@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Holiday;
 use App\Models\Izin;
 use App\Models\MgmpMember;
 use App\Models\MgmpReport;
@@ -26,6 +27,11 @@ class TeacherAppController extends Controller
         $presensiThisMonth = Presensi::query()
             ->where('user_id', $user->id)
             ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->get();
+        $holidaysThisMonth = Holiday::query()
+            ->where('is_active', true)
+            ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->orderBy('date')
             ->get();
 
         $todayPresensi = Presensi::query()
@@ -129,7 +135,10 @@ class TeacherAppController extends Controller
                     'steps' => $performanceSteps,
                 ],
                 'attendance_calendar_leading_empty_days' => $monthStart->dayOfWeekIso - 1,
-                'attendance_calendar' => $this->buildAttendanceCalendar($presensiThisMonth, $today),
+                'attendance_calendar' => $this->buildAttendanceCalendar($presensiThisMonth, $holidaysThisMonth, $today),
+                'holiday_notes' => $holidaysThisMonth
+                    ->map(fn (Holiday $holiday) => $this->serializeHoliday($holiday))
+                    ->values(),
                 'today_attendance' => $this->serializeTodayAttendance($todayPresensi),
                 'today_schedules' => $scheduleItems,
                 'recent_izin' => Izin::query()
@@ -414,20 +423,26 @@ class TeacherAppController extends Controller
         ];
     }
 
-    private function buildAttendanceCalendar($items, Carbon $today)
+    private function buildAttendanceCalendar($items, $holidays, Carbon $today)
     {
         $monthStart = $today->copy()->startOfMonth();
         $daysInMonth = $monthStart->daysInMonth;
         $groupedItems = $items->groupBy(function ($item) {
             return Carbon::parse($item->tanggal)->toDateString();
         });
+        $holidayMap = $holidays->keyBy(function (Holiday $holiday) {
+            return optional($holiday->date)->toDateString();
+        });
 
-        return collect(range(1, $daysInMonth))->map(function (int $day) use ($groupedItems, $monthStart, $today) {
+        return collect(range(1, $daysInMonth))->map(function (int $day) use ($groupedItems, $holidayMap, $monthStart, $today) {
             $date = $monthStart->copy()->day($day);
             $dayItems = collect($groupedItems->get($date->toDateString(), []));
+            $holiday = $holidayMap->get($date->toDateString());
             $status = 'belum_tercatat';
 
-            if ($dayItems->where('status', 'hadir')->isNotEmpty()) {
+            if ($holiday) {
+                $status = 'tanggal_merah';
+            } elseif ($dayItems->where('status', 'hadir')->isNotEmpty()) {
                 $status = 'hadir';
             } elseif ($dayItems->where('status', 'izin')->isNotEmpty()) {
                 $status = 'izin';
@@ -445,6 +460,7 @@ class TeacherAppController extends Controller
                 'weekday_short' => $date->locale('id')->isoFormat('dd'),
                 'status' => $status,
                 'status_label' => match ($status) {
+                    'tanggal_merah' => 'Tanggal Merah',
                     'hadir' => 'Hadir',
                     'izin' => 'Izin',
                     'alpha' => 'Alpha',
@@ -452,9 +468,23 @@ class TeacherAppController extends Controller
                     'akan_datang' => 'Akan Datang',
                     default => 'Belum Tercatat',
                 },
+                'holiday_name' => $holiday?->name,
                 'is_today' => $date->isSameDay($today),
             ];
         })->values();
+    }
+
+    private function serializeHoliday(Holiday $holiday): array
+    {
+        return [
+            'date' => optional($holiday->date)->toDateString(),
+            'date_label' => $holiday->date
+                ? Carbon::parse($holiday->date)->locale('id')->isoFormat('D MMMM YYYY')
+                : '-',
+            'name' => $holiday->name ?? 'Tanggal merah',
+            'description' => $holiday->description,
+            'type' => $holiday->type,
+        ];
     }
 
     private function serializeIzin(Izin $izin): array
