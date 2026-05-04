@@ -135,14 +135,13 @@ class _DashboardContent extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 4,
           shrinkWrap: true,
-          childAspectRatio: 0.72,
+          childAspectRatio: 0.82,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           children: [
             _MonthlyStatTile(
               label: 'Kehadiran',
               value: '${summary['attendance_percent'] ?? 0}%',
-              caption: 'Persentase bulan ini',
               gradient: const [
                 Color(0xFF0D8E89),
                 Color(0xFF005E5A),
@@ -152,7 +151,6 @@ class _DashboardContent extends StatelessWidget {
             _MonthlyStatTile(
               label: 'Presensi',
               value: '${monthlyStats['present_count'] ?? 0}',
-              caption: 'Hadir tercatat',
               gradient: const [
                 Color(0xFF1F9D73),
                 Color(0xFF17634B),
@@ -162,7 +160,6 @@ class _DashboardContent extends StatelessWidget {
             _MonthlyStatTile(
               label: 'Izin',
               value: '${monthlyStats['izin_count'] ?? 0}',
-              caption: 'Termasuk sakit/cuti',
               gradient: const [
                 Color(0xFFF4B860),
                 Color(0xFFE28B2D),
@@ -172,7 +169,6 @@ class _DashboardContent extends StatelessWidget {
             _MonthlyStatTile(
               label: 'Alpha',
               value: '${monthlyStats['alpha_count'] ?? 0}',
-              caption: 'Tidak hadir',
               gradient: const [
                 Color(0xFFEE6B5F),
                 Color(0xFFB83A36),
@@ -944,21 +940,19 @@ class _MonthlyStatTile extends StatelessWidget {
   const _MonthlyStatTile({
     required this.label,
     required this.value,
-    required this.caption,
     required this.gradient,
     required this.icon,
   });
 
   final String label;
   final String value;
-  final String caption;
   final List<Color> gradient;
   final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+      padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
@@ -975,15 +969,25 @@ class _MonthlyStatTile extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.white, size: 18),
-          const SizedBox(height: 18),
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.16),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 18),
+          ),
+          const SizedBox(height: 10),
           Text(
             value,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.w800,
               height: 1,
             ),
@@ -991,20 +995,12 @@ class _MonthlyStatTile extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
               fontWeight: FontWeight.w700,
               height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            caption,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.86),
-              fontSize: 9,
-              height: 1.25,
             ),
           ),
         ],
