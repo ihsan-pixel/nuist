@@ -865,17 +865,6 @@ class _CalendarDayTile extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            _calendarStatusShort(status),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: color,
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
         ],
       ),
     );
@@ -1442,23 +1431,6 @@ Color _calendarStatusColor(String value) {
       return const Color(0xFFC8D3D1);
     default:
       return const Color(0xFF90A4A1);
-  }
-}
-
-String _calendarStatusShort(String value) {
-  switch (value) {
-    case 'hadir':
-      return 'H';
-    case 'izin':
-      return 'I';
-    case 'alpha':
-      return 'A';
-    case 'libur':
-      return 'L';
-    case 'akan_datang':
-      return '...';
-    default:
-      return '-';
   }
 }
 
