@@ -10,11 +10,19 @@ class TeacherDashboardPage extends StatefulWidget {
     required this.repository,
     required this.onOpenIzin,
     required this.onSelectTab,
+    required this.onOpenProfile,
+    required this.onOpenSettings,
+    required this.onOpenNotifications,
+    required this.onLogout,
   });
 
   final TeacherMobileRepository repository;
   final Future<void> Function() onOpenIzin;
   final ValueChanged<int> onSelectTab;
+  final VoidCallback onOpenProfile;
+  final VoidCallback onOpenSettings;
+  final VoidCallback onOpenNotifications;
+  final Future<void> Function() onLogout;
 
   @override
   State<TeacherDashboardPage> createState() => _TeacherDashboardPageState();
@@ -59,6 +67,10 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                   data: snapshot.data ?? const <String, dynamic>{},
                   onOpenIzin: widget.onOpenIzin,
                   onSelectTab: widget.onSelectTab,
+                  onOpenProfile: widget.onOpenProfile,
+                  onOpenSettings: widget.onOpenSettings,
+                  onOpenNotifications: widget.onOpenNotifications,
+                  onLogout: widget.onLogout,
                 ),
             ],
           ),
@@ -73,11 +85,19 @@ class _DashboardContent extends StatelessWidget {
     required this.data,
     required this.onOpenIzin,
     required this.onSelectTab,
+    required this.onOpenProfile,
+    required this.onOpenSettings,
+    required this.onOpenNotifications,
+    required this.onLogout,
   });
 
   final Map<String, dynamic> data;
   final Future<void> Function() onOpenIzin;
   final ValueChanged<int> onSelectTab;
+  final VoidCallback onOpenProfile;
+  final VoidCallback onOpenSettings;
+  final VoidCallback onOpenNotifications;
+  final Future<void> Function() onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +107,12 @@ class _DashboardContent extends StatelessWidget {
     final monthlyStats = Map<String, dynamic>.from(
       (data['monthly_stats'] as Map?) ?? const <String, dynamic>{},
     );
+    final greeting = (data['greeting'] as String?)?.trim().isNotEmpty == true
+        ? data['greeting'] as String
+        : 'Selamat datang';
+    final userName = (data['user_name'] as String?)?.trim().isNotEmpty == true
+        ? data['user_name'] as String
+        : 'Pengguna';
     final performance = Map<String, dynamic>.from(
       (data['performance'] as Map?) ?? const <String, dynamic>{},
     );
@@ -118,6 +144,15 @@ class _DashboardContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _DashboardHeader(
+          greeting: greeting,
+          userName: userName,
+          onOpenNotifications: onOpenNotifications,
+          onOpenProfile: onOpenProfile,
+          onOpenSettings: onOpenSettings,
+          onLogout: onLogout,
+        ),
+        const SizedBox(height: 18),
         _PerformanceCard(
           level: (performance['level'] as String?) ?? 'Belum Ada Progress',
           percent: (performance['percent'] as num?)?.toInt() ?? 0,
@@ -126,8 +161,6 @@ class _DashboardContent extends StatelessWidget {
         _SectionHeading(
           eyebrow: 'Aktivitas Presensi',
           title: currentMonthLabel,
-          subtitle:
-              'Ringkasan kehadiran, izin, dan ritme kerja Anda pada bulan berjalan.',
         ),
         const SizedBox(height: 12),
         GridView.count(
@@ -139,7 +172,7 @@ class _DashboardContent extends StatelessWidget {
           mainAxisSpacing: 10,
           children: [
             _MonthlyStatTile(
-              label: 'Kehadiran',
+              label: 'Kehadir',
               value: '${summary['attendance_percent'] ?? 0}%',
               gradient: const [
                 Color(0xFF0D8E89),
@@ -180,7 +213,6 @@ class _DashboardContent extends StatelessWidget {
         const _SectionHeading(
           eyebrow: 'Layanan',
           title: 'Akses Cepat',
-          subtitle: 'Pintasan utama untuk alur kerja harian tenaga pendidik.',
         ),
         const SizedBox(height: 12),
         AppSectionCard(
@@ -253,11 +285,9 @@ class _DashboardContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        _SectionHeading(
+        const _SectionHeading(
           eyebrow: 'Jadwal Hari Ini',
           title: 'Agenda Mengajar',
-          subtitle:
-              'Terdapat ${summary['teaching_today_count'] ?? 0} agenda mengajar yang terjadwal hari ini.',
         ),
         const SizedBox(height: 12),
         AppSectionCard(
@@ -294,8 +324,6 @@ class _DashboardContent extends StatelessWidget {
         _SectionHeading(
           eyebrow: 'Kalender Presensi',
           title: 'Kalender $currentMonthLabel',
-          subtitle:
-              'Warna pada setiap tanggal menunjukkan status presensi bulan ini.',
         ),
         const SizedBox(height: 12),
         _AttendanceCalendarCard(
@@ -307,7 +335,6 @@ class _DashboardContent extends StatelessWidget {
         const _SectionHeading(
           eyebrow: 'Presensi Hari Ini',
           title: 'Status Kehadiran',
-          subtitle: 'Lihat check-in, check-out, dan lokasi presensi hari ini.',
         ),
         const SizedBox(height: 12),
         AppSectionCard(
@@ -397,13 +424,6 @@ class _DashboardContent extends StatelessWidget {
               tilePadding: EdgeInsets.zero,
               childrenPadding: EdgeInsets.zero,
               title: const _SectionTitle('Detail Aktivitas Hari Ini'),
-              subtitle: const Text(
-                'Presensi masuk, mengajar, dan presensi keluar.',
-                style: TextStyle(
-                  color: Color(0xFF6D7F7D),
-                  fontSize: 12,
-                ),
-              ),
               children: [
                 const SizedBox(height: 4),
                 ...steps.map(
@@ -495,6 +515,213 @@ class _DashboardContent extends StatelessWidget {
   }
 }
 
+class _DashboardHeader extends StatelessWidget {
+  const _DashboardHeader({
+    required this.greeting,
+    required this.userName,
+    required this.onOpenNotifications,
+    required this.onOpenProfile,
+    required this.onOpenSettings,
+    required this.onLogout,
+  });
+
+  final String greeting;
+  final String userName;
+  final VoidCallback onOpenNotifications;
+  final VoidCallback onOpenProfile;
+  final VoidCallback onOpenSettings;
+  final Future<void> Function() onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                greeting,
+                style: const TextStyle(
+                  color: Color(0xFF6D7F7D),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                userName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFF1F4F4C),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  height: 1.05,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        _HeaderActionButton(
+          icon: Icons.notifications_none_rounded,
+          onTap: onOpenNotifications,
+        ),
+        const SizedBox(width: 10),
+        _HeaderMoreMenu(
+          onOpenProfile: onOpenProfile,
+          onOpenSettings: onOpenSettings,
+          onLogout: onLogout,
+        ),
+      ],
+    );
+  }
+}
+
+class _HeaderActionButton extends StatelessWidget {
+  const _HeaderActionButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Ink(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFD8E6E4)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x10003B39),
+                blurRadius: 18,
+                offset: Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Icon(
+            icon,
+            color: const Color(0xFF214845),
+            size: 22,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderMoreMenu extends StatelessWidget {
+  const _HeaderMoreMenu({
+    required this.onOpenProfile,
+    required this.onOpenSettings,
+    required this.onLogout,
+  });
+
+  final VoidCallback onOpenProfile;
+  final VoidCallback onOpenSettings;
+  final Future<void> Function() onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      tooltip: 'Menu',
+      elevation: 12,
+      color: Colors.white,
+      surfaceTintColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
+      onSelected: (value) async {
+        switch (value) {
+          case 'profile':
+            onOpenProfile();
+            break;
+          case 'settings':
+            onOpenSettings();
+            break;
+          case 'logout':
+            await onLogout();
+            break;
+        }
+      },
+      itemBuilder: (context) => const [
+        PopupMenuItem<String>(
+          value: 'profile',
+          child: _HeaderMenuItem(
+            icon: Icons.person_outline_rounded,
+            label: 'Profile',
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'settings',
+          child: _HeaderMenuItem(
+            icon: Icons.settings_outlined,
+            label: 'Pengaturan',
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'logout',
+          child: _HeaderMenuItem(
+            icon: Icons.logout_rounded,
+            label: 'Logout',
+            isDestructive: true,
+          ),
+        ),
+      ],
+      child: const _HeaderActionButton(
+        icon: Icons.more_horiz_rounded,
+        onTap: _noop,
+      ),
+    );
+  }
+}
+
+class _HeaderMenuItem extends StatelessWidget {
+  const _HeaderMenuItem({
+    required this.icon,
+    required this.label,
+    this.isDestructive = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isDestructive;
+
+  @override
+  Widget build(BuildContext context) {
+    final color =
+        isDestructive ? const Color(0xFFB42318) : const Color(0xFF214845);
+
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: color),
+        const SizedBox(width: 10),
+        Text(
+          label,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+void _noop() {}
+
 class _PerformanceCard extends StatelessWidget {
   const _PerformanceCard({
     required this.level,
@@ -570,15 +797,6 @@ class _PerformanceCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            'Ringkasan progress aktivitas presensi dan mengajar hari ini.',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.84),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
           const SizedBox(height: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
@@ -601,12 +819,10 @@ class _SectionHeading extends StatelessWidget {
   const _SectionHeading({
     required this.eyebrow,
     required this.title,
-    required this.subtitle,
   });
 
   final String eyebrow;
   final String title;
-  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -630,15 +846,6 @@ class _SectionHeading extends StatelessWidget {
             fontWeight: FontWeight.w800,
             color: Color(0xFF1F4F4C),
             height: 1.1,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          subtitle,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Color(0xFF6D7F7D),
-            height: 1.35,
           ),
         ),
       ],

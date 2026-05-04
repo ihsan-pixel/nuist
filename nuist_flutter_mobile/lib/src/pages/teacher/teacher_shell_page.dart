@@ -40,6 +40,10 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
         repository: widget.repository,
         onOpenIzin: _openIzinPage,
         onSelectTab: _selectTab,
+        onOpenProfile: _openProfile,
+        onOpenSettings: _openSettings,
+        onOpenNotifications: _openNotifications,
+        onLogout: _logout,
       ),
     ),
     _ShellItem(
@@ -95,6 +99,26 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
     await widget.controller.logout();
   }
 
+  void _openProfile() {
+    _selectTab(4);
+  }
+
+  void _openSettings() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Halaman pengaturan akan segera tersedia.'),
+      ),
+    );
+  }
+
+  void _openNotifications() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Belum ada notifikasi baru.'),
+      ),
+    );
+  }
+
   void _selectTab(int index) {
     if (!mounted) {
       return;
@@ -108,42 +132,26 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
   @override
   Widget build(BuildContext context) {
     final currentItem = _items[_currentIndex];
+    final showDashboardHeader = _currentIndex == 0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7F6),
-      appBar: AppBar(
-        title: Text(currentItem.title),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textMain,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'izin') {
-                _openIzinPage();
-                return;
-              }
-              if (value == 'logout') {
-                _logout();
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem<String>(
-                value: 'izin',
-                child: Text('Daftar Izin'),
-              ),
-              PopupMenuItem<String>(
-                value: 'logout',
-                child: Text('Logout'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _items.map((item) => item.page).toList(),
+      appBar: showDashboardHeader
+          ? null
+          : AppBar(
+              title: Text(currentItem.title),
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.textMain,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+            ),
+      body: SafeArea(
+        top: showDashboardHeader,
+        bottom: false,
+        child: IndexedStack(
+          index: _currentIndex,
+          children: _items.map((item) => item.page).toList(),
+        ),
       ),
       bottomNavigationBar: TeacherBottomNav(
         items: _items.map((item) => item.navItem).toList(),
