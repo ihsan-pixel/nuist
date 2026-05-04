@@ -29,6 +29,7 @@ class TeacherAppController extends Controller
             ->get();
 
         $todayPresensi = Presensi::query()
+            ->with('madrasah')
             ->where('user_id', $user->id)
             ->whereDate('tanggal', $today->toDateString())
             ->orderBy('tanggal')
@@ -56,6 +57,39 @@ class TeacherAppController extends Controller
             ];
         })->values();
 
+        $monthlyPresentCount = $presensiThisMonth->where('status', 'hadir')->count();
+        $monthlyIzinCount = $presensiThisMonth->where('status', 'izin')->count();
+        $monthlyAlphaCount = $presensiThisMonth->where('status', 'alpha')->count();
+
+        $checkInDone = $todayPresensi->contains(fn ($item) => !empty($item->waktu_masuk));
+        $checkOutDone = $todayPresensi->contains(fn ($item) => !empty($item->waktu_keluar));
+        $performanceSteps = collect([
+            [
+                'label' => 'Presensi Masuk',
+                'status' => $checkInDone ? 'completed' : 'pending',
+                'icon' => 'login',
+            ],
+            ...$scheduleItems->values()->map(function ($schedule, $index) {
+                return [
+                    'label' => 'Mengajar ' . ($index + 1),
+                    'status' => $schedule['attendance_status'],
+                    'icon' => 'school',
+                ];
+            })->all(),
+            [
+                'label' => 'Presensi Keluar',
+                'status' => $checkOutDone ? 'completed' : 'pending',
+                'icon' => 'logout',
+            ],
+        ])->values();
+
+        $performanceCompleted = $performanceSteps
+            ->where('status', 'completed')
+            ->count();
+        $performancePercent = $performanceSteps->isEmpty()
+            ? 0
+            : (int) round(($performanceCompleted / $performanceSteps->count()) * 100);
+
         return response()->json([
             'message' => 'OK',
             'data' => [
@@ -64,6 +98,14 @@ class TeacherAppController extends Controller
                 'role' => $user->role,
                 'school_name' => $user->madrasah?->name ?? '-',
                 'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+                'user_card' => [
+                    'name' => $user->name,
+                    'school_name' => $user->madrasah?->name ?? '-',
+                    'avatar_url' => $user->avatar ? asset('storage/' . ltrim($user->avatar, '/')) : null,
+                    'nuist_id' => $user->nuist_id ?? '-',
+                    'status_kepegawaian' => $user->statusKepegawaian?->name ?? '-',
+                    'ketugasan' => $user->ketugasan ?? '-',
+                ],
                 'summary' => [
                     'attendance_percent' => $this->attendancePercent($presensiThisMonth),
                     'pending_izin_count' => Izin::query()
@@ -74,6 +116,16 @@ class TeacherAppController extends Controller
                     'completed_teaching_today_count' => $scheduleItems
                         ->where('attendance_status', 'completed')
                         ->count(),
+                ],
+                'monthly_stats' => [
+                    'present_count' => $monthlyPresentCount,
+                    'izin_count' => $monthlyIzinCount,
+                    'alpha_count' => $monthlyAlphaCount,
+                ],
+                'performance' => [
+                    'percent' => $performancePercent,
+                    'level' => $this->performanceLevel($performancePercent),
+                    'steps' => $performanceSteps,
                 ],
                 'today_attendance' => $this->serializeTodayAttendance($todayPresensi),
                 'today_schedules' => $scheduleItems,
@@ -386,6 +438,17 @@ class TeacherAppController extends Controller
             'sakit' => 'Izin Sakit',
             'terlambat' => 'Izin Terlambat',
             default => 'Izin ' . ucwords(str_replace('_', ' ', (string) $type)),
+        };
+    }
+
+    private function performanceLevel(int $percent): string
+    {
+        return match (true) {
+            $percent >= 100 => 'Teladan',
+            $percent >= 80 => 'Baik Sekali',
+            $percent >= 50 => 'Baik',
+            $percent >= 10 => 'Cukup Baik',
+            default => 'Belum Ada Progress',
         };
     }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../controllers/session_controller.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app/teacher_bottom_nav.dart';
 import 'attendance_page.dart';
 import 'dashboard_page.dart';
 import 'izin_page.dart';
@@ -30,30 +31,51 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
   late final List<_ShellItem> _items = [
     _ShellItem(
       title: 'Dashboard',
-      icon: Icons.home_rounded,
+      navItem: const TeacherBottomNavItem(
+        label: 'Home',
+        icon: Icons.home_rounded,
+        isCenter: false,
+      ),
       page: TeacherDashboardPage(
         repository: widget.repository,
         onOpenIzin: _openIzinPage,
+        onSelectTab: _selectTab,
       ),
     ),
     _ShellItem(
       title: 'Jadwal',
-      icon: Icons.calendar_month_rounded,
+      navItem: const TeacherBottomNavItem(
+        label: 'Jadwal',
+        icon: Icons.calendar_month_rounded,
+        isCenter: false,
+      ),
       page: TeacherSchedulePage(repository: widget.repository),
     ),
     _ShellItem(
       title: 'Presensi',
-      icon: Icons.fact_check_rounded,
+      navItem: const TeacherBottomNavItem(
+        label: 'Presensi',
+        icon: Icons.verified_user_rounded,
+        isCenter: true,
+      ),
       page: TeacherAttendancePage(repository: widget.repository),
     ),
     _ShellItem(
       title: 'Jurnal',
-      icon: Icons.menu_book_rounded,
+      navItem: const TeacherBottomNavItem(
+        label: 'Jurnal',
+        icon: Icons.menu_book_rounded,
+        isCenter: false,
+      ),
       page: TeacherTeachingJournalPage(repository: widget.repository),
     ),
     _ShellItem(
       title: 'Profile',
-      icon: Icons.person_rounded,
+      navItem: const TeacherBottomNavItem(
+        label: 'Profile',
+        icon: Icons.person_rounded,
+        isCenter: false,
+      ),
       page: TeacherProfilePage(
         repository: widget.repository,
         onOpenIzin: _openIzinPage,
@@ -71,6 +93,16 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
 
   Future<void> _logout() async {
     await widget.controller.logout();
+  }
+
+  void _selectTab(int index) {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _currentIndex = index;
+    });
   }
 
   @override
@@ -113,21 +145,10 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
         index: _currentIndex,
         children: _items.map((item) => item.page).toList(),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (value) {
-          setState(() {
-            _currentIndex = value;
-          });
-        },
-        destinations: _items
-            .map(
-              (item) => NavigationDestination(
-                icon: Icon(item.icon),
-                label: item.title,
-              ),
-            )
-            .toList(),
+      bottomNavigationBar: TeacherBottomNav(
+        items: _items.map((item) => item.navItem).toList(),
+        currentIndex: _currentIndex,
+        onSelect: _selectTab,
       ),
     );
   }
@@ -136,11 +157,11 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
 class _ShellItem {
   const _ShellItem({
     required this.title,
-    required this.icon,
+    required this.navItem,
     required this.page,
   });
 
   final String title;
-  final IconData icon;
+  final TeacherBottomNavItem navItem;
   final Widget page;
 }
