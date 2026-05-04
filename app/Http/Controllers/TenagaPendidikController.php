@@ -101,7 +101,12 @@ class TenagaPendidikController extends Controller
 
     public function update(Request $request, $id)
     {
+        $actor = auth()->user();
         $user = User::where('role', 'tenaga_pendidik')->findOrFail($id);
+
+        if ($actor->role === 'admin' && (int) $user->madrasah_id !== (int) $actor->madrasah_id) {
+            abort(403, 'Unauthorized access');
+        }
 
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
@@ -120,6 +125,10 @@ class TenagaPendidikController extends Controller
             $user->avatar = $request->file('avatar')->store('tenaga_pendidik', 'public');
         }
 
+        $madrasahId = $actor->role === 'super_admin'
+            ? $request->madrasah_id
+            : $user->madrasah_id;
+
         $user->name = $validated['nama'];
         $user->email = $validated['email'];
         if(!empty($validated['password'])){
@@ -132,7 +141,7 @@ class TenagaPendidikController extends Controller
         $user->nip = $request->nip;
         $user->nuptk = $request->nuptk;
         $user->npk = $request->npk;
-        $user->madrasah_id = $request->madrasah_id;
+        $user->madrasah_id = $madrasahId;
         $user->pendidikan_terakhir = $request->pendidikan_terakhir;
         $user->tahun_lulus = $request->tahun_lulus;
         $user->program_studi = $request->program_studi;
@@ -150,7 +159,12 @@ class TenagaPendidikController extends Controller
 
     public function destroy($id)
     {
+        $actor = auth()->user();
         $user = User::where('role', 'tenaga_pendidik')->findOrFail($id);
+
+        if ($actor->role === 'admin' && (int) $user->madrasah_id !== (int) $actor->madrasah_id) {
+            abort(403, 'Unauthorized access');
+        }
 
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);

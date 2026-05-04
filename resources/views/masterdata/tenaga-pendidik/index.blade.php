@@ -181,8 +181,19 @@
 
                                             <div class="col-md-6">
                                                 <label>Madrasah</label>
-                                                <input type="text" class="form-control" value="{{ $tp->madrasah ? $tp->madrasah->name : '-' }}" readonly>
-                                                <input type="hidden" name="madrasah_id" value="{{ $tp->madrasah_id }}">
+                                                @if($userRole === 'super_admin')
+                                                    <select name="madrasah_id" class="form-control">
+                                                        <option value="">-- Pilih Madrasah --</option>
+                                                        @foreach($madrasahs as $madrasah)
+                                                            <option value="{{ $madrasah->id }}" {{ (string) $tp->madrasah_id === (string) $madrasah->id ? 'selected' : '' }}>
+                                                                {{ $madrasah->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                @else
+                                                    <input type="text" class="form-control" value="{{ $tp->madrasah ? $tp->madrasah->name : '-' }}" readonly>
+                                                    <input type="hidden" name="madrasah_id" value="{{ $tp->madrasah_id }}">
+                                                @endif
                                             </div>
 
                                             <div class="col-md-6">
