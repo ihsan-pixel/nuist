@@ -81,9 +81,6 @@ class _DashboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userCard = Map<String, dynamic>.from(
-      (data['user_card'] as Map?) ?? const <String, dynamic>{},
-    );
     final summary = Map<String, dynamic>.from(
       (data['summary'] as Map?) ?? const <String, dynamic>{},
     );
@@ -97,6 +94,15 @@ class _DashboardContent extends StatelessWidget {
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
+    final currentMonthLabel =
+        (data['current_month_label'] as String?) ?? 'Bulan Ini';
+    final calendarLeadingEmptyDays =
+        (data['attendance_calendar_leading_empty_days'] as num?)?.toInt() ?? 0;
+    final attendanceCalendar =
+        ((data['attendance_calendar'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
     final todayAttendance = Map<String, dynamic>.from(
       (data['today_attendance'] as Map?) ?? const <String, dynamic>{},
     );
@@ -112,31 +118,26 @@ class _DashboardContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _DashboardHeroCard(
-          greeting: (data['greeting'] as String?) ?? 'Selamat datang',
-          todayLabel: (data['today_label'] as String?) ?? '-',
-          userCard: userCard,
-        ),
-        const SizedBox(height: 18),
         _PerformanceCard(
           level: (performance['level'] as String?) ?? 'Belum Ada Progress',
           percent: (performance['percent'] as num?)?.toInt() ?? 0,
           steps: steps,
         ),
-        const SizedBox(height: 18),
-        const _SectionHeading(
+        const SizedBox(height: 20),
+        _SectionHeading(
           eyebrow: 'Aktivitas Presensi',
-          title: 'Ringkasan Bulan Ini',
-          subtitle: 'Pantau kehadiran, izin, dan ritme mengajar Anda.',
+          title: currentMonthLabel,
+          subtitle:
+              'Ringkasan kehadiran, izin, dan ritme kerja Anda pada bulan berjalan.',
         ),
         const SizedBox(height: 12),
         GridView.count(
           physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
+          crossAxisCount: 4,
           shrinkWrap: true,
-          childAspectRatio: 1.38,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+          childAspectRatio: 0.72,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
           children: [
             _MonthlyStatTile(
               label: 'Kehadiran',
@@ -257,10 +258,61 @@ class _DashboardContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
+        _SectionHeading(
+          eyebrow: 'Jadwal Hari Ini',
+          title: 'Agenda Mengajar',
+          subtitle:
+              'Terdapat ${summary['teaching_today_count'] ?? 0} agenda mengajar yang terjadwal hari ini.',
+        ),
+        const SizedBox(height: 12),
+        AppSectionCard(
+          padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (schedules.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18),
+                  child: AppEmptyState(
+                    title: 'Tidak ada jadwal hari ini',
+                    message: 'Belum ada jadwal mengajar untuk hari ini.',
+                    icon: Icons.event_busy_outlined,
+                  ),
+                )
+              else
+                SizedBox(
+                  height: 172,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      return _ScheduleShowcaseCard(item: schedules[index]);
+                    },
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemCount: schedules.length,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+        _SectionHeading(
+          eyebrow: 'Kalender Presensi',
+          title: 'Kalender $currentMonthLabel',
+          subtitle:
+              'Warna pada setiap tanggal menunjukkan status presensi bulan ini.',
+        ),
+        const SizedBox(height: 12),
+        _AttendanceCalendarCard(
+          monthLabel: currentMonthLabel,
+          leadingEmptyDays: calendarLeadingEmptyDays,
+          items: attendanceCalendar,
+        ),
+        const SizedBox(height: 18),
         const _SectionHeading(
-          eyebrow: 'Hari Ini',
-          title: 'Presensi dan Jadwal',
-          subtitle: 'Lihat posisi aktivitas harian Anda secara cepat.',
+          eyebrow: 'Presensi Hari Ini',
+          title: 'Status Kehadiran',
+          subtitle: 'Lihat check-in, check-out, dan lokasi presensi hari ini.',
         ),
         const SizedBox(height: 12),
         AppSectionCard(
@@ -339,42 +391,6 @@ class _DashboardContent extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        AppSectionCard(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18),
-                child: _SectionTitle('Jadwal Mengajar Hari Ini'),
-              ),
-              const SizedBox(height: 12),
-              if (schedules.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18),
-                  child: AppEmptyState(
-                    title: 'Tidak ada jadwal hari ini',
-                    message: 'Belum ada jadwal mengajar untuk hari ini.',
-                    icon: Icons.event_busy_outlined,
-                  ),
-                )
-              else
-                SizedBox(
-                  height: 172,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return _ScheduleShowcaseCard(item: schedules[index]);
-                    },
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemCount: schedules.length,
-                  ),
-                ),
             ],
           ),
         ),
@@ -480,201 +496,6 @@ class _DashboardContent extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _DashboardHeroCard extends StatelessWidget {
-  const _DashboardHeroCard({
-    required this.greeting,
-    required this.todayLabel,
-    required this.userCard,
-  });
-
-  final String greeting;
-  final String todayLabel;
-  final Map<String, dynamic> userCard;
-
-  @override
-  Widget build(BuildContext context) {
-    final avatarUrl = userCard['avatar_url'] as String?;
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFF6C36F),
-            Color(0xFFECA13A),
-            Color(0xFF0D8E89),
-            Color(0xFF004B48),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: [0, 0.24, 0.72, 1],
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x1C003B39),
-            blurRadius: 28,
-            offset: Offset(0, 14),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: -18,
-            right: -8,
-            child: Container(
-              width: 110,
-              height: 110,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -36,
-            left: -24,
-            child: Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.white.withOpacity(0.24),
-                      backgroundImage:
-                          avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                      child: avatarUrl == null
-                          ? const Icon(
-                              Icons.person_rounded,
-                              size: 28,
-                              color: Colors.white,
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            greeting,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            userCard['name'] as String? ?? '-',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                              height: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            userCard['school_name'] as String? ?? '-',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.88),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _HeroChip(
-                      icon: Icons.badge_rounded,
-                      label: 'NUIST ID ${userCard['nuist_id'] ?? '-'}',
-                    ),
-                    _HeroChip(
-                      icon: Icons.verified_user_rounded,
-                      label: userCard['status_kepegawaian'] as String? ?? '-',
-                    ),
-                    _HeroChip(
-                      icon: Icons.school_rounded,
-                      label: userCard['ketugasan'] as String? ?? '-',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  todayLabel,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.86),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroChip extends StatelessWidget {
-  const _HeroChip({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withOpacity(0.12)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: Colors.white),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -883,6 +704,242 @@ class _SectionHeading extends StatelessWidget {
   }
 }
 
+class _AttendanceCalendarCard extends StatelessWidget {
+  const _AttendanceCalendarCard({
+    required this.monthLabel,
+    required this.leadingEmptyDays,
+    required this.items,
+  });
+
+  final String monthLabel;
+  final int leadingEmptyDays;
+  final List<Map<String, dynamic>> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final totalCells = leadingEmptyDays + items.length;
+
+    return AppSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: _SectionTitle('Kalender Presensi Bulan Ini'),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2FBFA),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  monthLabel,
+                  style: const TextStyle(
+                    color: Color(0xFF0D8E89),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _CalendarLegendChip(
+                label: 'Hadir',
+                color: Color(0xFF2E8B57),
+              ),
+              _CalendarLegendChip(
+                label: 'Izin',
+                color: Color(0xFFF4A12A),
+              ),
+              _CalendarLegendChip(
+                label: 'Alpha',
+                color: Color(0xFFB42318),
+              ),
+              _CalendarLegendChip(
+                label: 'Libur',
+                color: Color(0xFF6B7A99),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Row(
+            children: [
+              _CalendarWeekday('Sen'),
+              _CalendarWeekday('Sel'),
+              _CalendarWeekday('Rab'),
+              _CalendarWeekday('Kam'),
+              _CalendarWeekday('Jum'),
+              _CalendarWeekday('Sab'),
+              _CalendarWeekday('Min'),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (items.isEmpty)
+            const AppEmptyState(
+              title: 'Kalender belum tersedia',
+              message: 'Data kalender presensi bulan ini belum dapat dimuat.',
+              icon: Icons.calendar_today_outlined,
+            )
+          else
+            GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: totalCells,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                childAspectRatio: 0.76,
+              ),
+              itemBuilder: (context, index) {
+                if (index < leadingEmptyDays) {
+                  return const SizedBox.shrink();
+                }
+
+                return _CalendarDayTile(
+                  item: items[index - leadingEmptyDays],
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarLegendChip extends StatelessWidget {
+  const _CalendarLegendChip({
+    required this.label,
+    required this.color,
+  });
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarWeekday extends StatelessWidget {
+  const _CalendarWeekday(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Color(0xFF7A8F8C),
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _CalendarDayTile extends StatelessWidget {
+  const _CalendarDayTile({
+    required this.item,
+  });
+
+  final Map<String, dynamic> item;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = item['status'] as String? ?? 'belum_tercatat';
+    final isToday = item['is_today'] == true;
+    final color = _calendarStatusColor(status);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      decoration: BoxDecoration(
+        color: isToday ? const Color(0xFFF2FBFA) : const Color(0xFFF9FCFC),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isToday ? const Color(0xFF0D8E89) : const Color(0xFFDDEBE9),
+          width: isToday ? 1.5 : 1,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '${item['day_number'] ?? '-'}',
+            style: TextStyle(
+              color:
+                  isToday ? const Color(0xFF0D8E89) : const Color(0xFF1F4F4C),
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            width: 9,
+            height: 9,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            _calendarStatusShort(status),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _MonthlyStatTile extends StatelessWidget {
   const _MonthlyStatTile({
     required this.label,
@@ -901,9 +958,9 @@ class _MonthlyStatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
           colors: gradient,
           begin: Alignment.topLeft,
@@ -920,31 +977,34 @@ class _MonthlyStatTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.white, size: 24),
-          const Spacer(),
+          Icon(icon, color: Colors.white, size: 18),
+          const SizedBox(height: 18),
           Text(
             value,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
+              height: 1,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             label,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 13,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
+              height: 1.1,
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(
             caption,
             style: TextStyle(
               color: Colors.white.withOpacity(0.86),
-              fontSize: 11,
+              fontSize: 9,
+              height: 1.25,
             ),
           ),
         ],
@@ -1423,6 +1483,40 @@ Color _statusColor(String value) {
       return const Color(0xFFB42318);
     default:
       return const Color(0xFF6D7F7D);
+  }
+}
+
+Color _calendarStatusColor(String value) {
+  switch (value) {
+    case 'hadir':
+      return const Color(0xFF2E8B57);
+    case 'izin':
+      return const Color(0xFFF4A12A);
+    case 'alpha':
+      return const Color(0xFFB42318);
+    case 'libur':
+      return const Color(0xFF6B7A99);
+    case 'akan_datang':
+      return const Color(0xFFC8D3D1);
+    default:
+      return const Color(0xFF90A4A1);
+  }
+}
+
+String _calendarStatusShort(String value) {
+  switch (value) {
+    case 'hadir':
+      return 'H';
+    case 'izin':
+      return 'I';
+    case 'alpha':
+      return 'A';
+    case 'libur':
+      return 'L';
+    case 'akan_datang':
+      return '...';
+    default:
+      return '-';
   }
 }
 

@@ -98,6 +98,7 @@ class TeacherAppController extends Controller
                 'role' => $user->role,
                 'school_name' => $user->madrasah?->name ?? '-',
                 'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+                'current_month_label' => $today->locale('id')->isoFormat('MMMM YYYY'),
                 'user_card' => [
                     'name' => $user->name,
                     'school_name' => $user->madrasah?->name ?? '-',
@@ -127,6 +128,8 @@ class TeacherAppController extends Controller
                     'level' => $this->performanceLevel($performancePercent),
                     'steps' => $performanceSteps,
                 ],
+                'attendance_calendar_leading_empty_days' => $monthStart->dayOfWeekIso - 1,
+                'attendance_calendar' => $this->buildAttendanceCalendar($presensiThisMonth, $today),
                 'today_attendance' => $this->serializeTodayAttendance($todayPresensi),
                 'today_schedules' => $scheduleItems,
                 'recent_izin' => Izin::query()
@@ -409,6 +412,49 @@ class TeacherAppController extends Controller
             'check_out' => optional($checkOut?->waktu_keluar)->format('H:i'),
             'location' => $checkIn?->lokasi ?: $checkIn?->madrasah?->name,
         ];
+    }
+
+    private function buildAttendanceCalendar($items, Carbon $today)
+    {
+        $monthStart = $today->copy()->startOfMonth();
+        $daysInMonth = $monthStart->daysInMonth;
+        $groupedItems = $items->groupBy(function ($item) {
+            return Carbon::parse($item->tanggal)->toDateString();
+        });
+
+        return collect(range(1, $daysInMonth))->map(function (int $day) use ($groupedItems, $monthStart, $today) {
+            $date = $monthStart->copy()->day($day);
+            $dayItems = collect($groupedItems->get($date->toDateString(), []));
+            $status = 'belum_tercatat';
+
+            if ($dayItems->where('status', 'hadir')->isNotEmpty()) {
+                $status = 'hadir';
+            } elseif ($dayItems->where('status', 'izin')->isNotEmpty()) {
+                $status = 'izin';
+            } elseif ($dayItems->where('status', 'alpha')->isNotEmpty()) {
+                $status = 'alpha';
+            } elseif ($date->isFuture()) {
+                $status = 'akan_datang';
+            } elseif ($date->isWeekend()) {
+                $status = 'libur';
+            }
+
+            return [
+                'date' => $date->toDateString(),
+                'day_number' => $day,
+                'weekday_short' => $date->locale('id')->isoFormat('dd'),
+                'status' => $status,
+                'status_label' => match ($status) {
+                    'hadir' => 'Hadir',
+                    'izin' => 'Izin',
+                    'alpha' => 'Alpha',
+                    'libur' => 'Libur',
+                    'akan_datang' => 'Akan Datang',
+                    default => 'Belum Tercatat',
+                },
+                'is_today' => $date->isSameDay($today),
+            ];
+        })->values();
     }
 
     private function serializeIzin(Izin $izin): array
