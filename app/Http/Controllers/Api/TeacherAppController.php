@@ -431,7 +431,7 @@ class TeacherAppController extends Controller
             return Carbon::parse($item->tanggal)->toDateString();
         });
         $holidayMap = $holidays->keyBy(function (Holiday $holiday) {
-            return optional($holiday->date)->toDateString();
+            return $holiday->getRawOriginal('date');
         });
 
         return collect(range(1, $daysInMonth))->map(function (int $day) use ($groupedItems, $holidayMap, $monthStart, $today) {
@@ -476,10 +476,14 @@ class TeacherAppController extends Controller
 
     private function serializeHoliday(Holiday $holiday): array
     {
+        $rawDate = $holiday->getRawOriginal('date');
+
         return [
-            'date' => optional($holiday->date)->toDateString(),
-            'date_label' => $holiday->date
-                ? Carbon::parse($holiday->date)->locale('id')->isoFormat('D MMMM YYYY')
+            'date' => $rawDate,
+            'date_label' => $rawDate
+                ? Carbon::createFromFormat('Y-m-d', $rawDate, 'Asia/Jakarta')
+                    ->locale('id')
+                    ->isoFormat('D MMMM YYYY')
                 : '-',
             'name' => $holiday->name ?? 'Tanggal merah',
             'description' => $holiday->description,

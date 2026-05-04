@@ -975,7 +975,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
           const SizedBox(height: 10),
           if (holidayNotes.isEmpty)
             const AppEmptyState(
-              title: 'Tidak ada tanggal merah bulan ini',
+              title: 'Tidak ada tanggal merah bulan ini.',
               message:
                   'Daftar hari libur nasional untuk bulan ini belum tersedia.',
               icon: Icons.event_available_rounded,
