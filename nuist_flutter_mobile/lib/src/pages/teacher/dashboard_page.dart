@@ -121,7 +121,6 @@ class _DashboardContent extends StatelessWidget {
         _PerformanceCard(
           level: (performance['level'] as String?) ?? 'Belum Ada Progress',
           percent: (performance['percent'] as num?)?.toInt() ?? 0,
-          steps: steps,
         ),
         const SizedBox(height: 20),
         _SectionHeading(
@@ -500,12 +499,10 @@ class _PerformanceCard extends StatelessWidget {
   const _PerformanceCard({
     required this.level,
     required this.percent,
-    required this.steps,
   });
 
   final String level;
   final int percent;
-  final List<Map<String, dynamic>> steps;
 
   @override
   Widget build(BuildContext context) {
@@ -592,57 +589,6 @@ class _PerformanceCard extends StatelessWidget {
               valueColor: const AlwaysStoppedAnimation<Color>(
                 Color(0xFFF4C36F),
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children:
-                steps.map((step) => _PerformanceStepChip(step: step)).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PerformanceStepChip extends StatelessWidget {
-  const _PerformanceStepChip({
-    required this.step,
-  });
-
-  final Map<String, dynamic> step;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDone = (step['status'] as String?) == 'completed';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color:
-            isDone ? const Color(0x26FFFFFF) : Colors.white.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.white.withOpacity(isDone ? 0.22 : 0.12),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            _stepIcon(step['icon'] as String?),
-            size: 16,
-            color: isDone ? const Color(0xFFF4C36F) : Colors.white,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            step['label'] as String? ?? '-',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
             ),
           ),
         ],
