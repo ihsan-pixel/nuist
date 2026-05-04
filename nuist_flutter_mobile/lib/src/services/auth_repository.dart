@@ -249,20 +249,36 @@ class AuthRepository {
     required Future<Response<T>> Function() request,
     required String actionLabel,
   }) async {
-    try {
-      return await request();
-    } on DioException catch (error) {
-      if (!_isTransientDioError(error)) {
-        rethrow;
+    var retriedOnSameHost = false;
+
+    while (true) {
+      try {
+        return await request();
+      } on DioException catch (error) {
+        if (!_isTransientDioError(error)) {
+          rethrow;
+        }
+
+        if (_shouldFailoverBaseUrl(error) && _apiClient.switchToNextBaseUrl()) {
+          debugPrint(
+            'Retrying $actionLabel using fallback API host ${_apiClient.baseUrl} '
+            'after transient network error: type=${error.type} message=${error.message}',
+          );
+          continue;
+        }
+
+        if (retriedOnSameHost) {
+          rethrow;
+        }
+
+        retriedOnSameHost = true;
+        debugPrint(
+          'Retrying $actionLabel on API host ${_apiClient.baseUrl} '
+          'after transient network error: type=${error.type} message=${error.message}',
+        );
+
+        await Future<void>.delayed(const Duration(milliseconds: 700));
       }
-
-      debugPrint(
-        'Retrying $actionLabel after transient network error: '
-        'type=${error.type} message=${error.message}',
-      );
-
-      await Future<void>.delayed(const Duration(milliseconds: 700));
-      return request();
     }
   }
 
@@ -271,6 +287,16 @@ class AuthRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
+      case DioExceptionType.connectionError:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool _shouldFailoverBaseUrl(DioException error) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
       case DioExceptionType.connectionError:
         return true;
       default:
@@ -312,13 +338,13 @@ class AuthRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
-        return 'Server terlalu lama merespons. Periksa koneksi internet Anda lalu coba lagi.';
+        return 'Server terlalu lama merespons dari ${_apiClient.baseUrl}. Periksa koneksi internet Anda lalu coba lagi.';
       case DioExceptionType.connectionError:
         final message = error.message?.trim();
         if (message != null && message.isNotEmpty) {
-          return 'Tidak bisa terhubung ke server. Detail: $message';
+          return 'Tidak bisa terhubung ke server ${_apiClient.baseUrl}. Detail: $message';
         }
-        return 'Tidak bisa terhubung ke server Laravel.';
+        return 'Tidak bisa terhubung ke server ${_apiClient.baseUrl}.';
       default:
         final message = error.message?.trim();
         if (message != null && message.isNotEmpty) {

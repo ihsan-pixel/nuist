@@ -27,7 +27,7 @@ class _NuistMobileAppState extends State<NuistMobileApp> {
   void initState() {
     super.initState();
     final tokenStorage = TokenStorage();
-    final apiClient = ApiClient(baseUrl: AppConfig.apiBaseUrl);
+    final apiClient = ApiClient(baseUrls: AppConfig.apiBaseUrls);
     _authRepository = AuthRepository(
       apiClient: apiClient,
       tokenStorage: tokenStorage,
