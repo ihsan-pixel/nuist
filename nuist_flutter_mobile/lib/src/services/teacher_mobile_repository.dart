@@ -187,8 +187,170 @@ class TeacherMobileRepository {
     return _get('/mobile/app/teacher/profile', actionLabel: 'profil');
   }
 
+  Future<Map<String, dynamic>> updateProfile({
+    required Map<String, dynamic> payload,
+  }) async {
+    try {
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/app/teacher/profile/update',
+          data: payload,
+        ),
+        actionLabel: 'ubah profil',
+      );
+      return _responseDataWithMessage(response.data);
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher ubah profil request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> updateProfileAvatar({
+    required String filePath,
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        'avatar': await MultipartFile.fromFile(filePath),
+      });
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/app/teacher/profile/avatar',
+          data: formData,
+          options: Options(
+            headers: const {
+              'Accept': 'application/json',
+            },
+            contentType: 'multipart/form-data',
+          ),
+        ),
+        actionLabel: 'ubah foto profil',
+      );
+      return _responseDataWithMessage(response.data);
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher ubah foto profil request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> updateProfilePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/app/teacher/profile/password',
+          data: {
+            'current_password': currentPassword,
+            'password': password,
+            'password_confirmation': passwordConfirmation,
+          },
+        ),
+        actionLabel: 'ubah password',
+      );
+      return _responseDataWithMessage(response.data);
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher ubah password request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> getIzin() {
     return _get('/mobile/app/teacher/izin', actionLabel: 'izin');
+  }
+
+  Future<Map<String, dynamic>> submitIzin({
+    required String type,
+    required Map<String, dynamic> payload,
+    String? attachmentField,
+    String? attachmentPath,
+  }) async {
+    try {
+      final data = Map<String, dynamic>.from(payload)
+        ..['type'] = type;
+
+      final formMap = <String, dynamic>{};
+      data.forEach((key, value) {
+        if (value == null) {
+          return;
+        }
+        formMap[key] = value;
+      });
+
+      if (attachmentField != null &&
+          attachmentPath != null &&
+          attachmentPath.trim().isNotEmpty) {
+        formMap[attachmentField] = await MultipartFile.fromFile(attachmentPath);
+      }
+
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/app/teacher/izin',
+          data: FormData.fromMap(formMap),
+          options: Options(
+            headers: const {
+              'Accept': 'application/json',
+            },
+            contentType: 'multipart/form-data',
+          ),
+        ),
+        actionLabel: 'ajukan izin',
+      );
+      return _responseDataWithMessage(response.data);
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher ajukan izin request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> getManagedIzin({
+    String status = 'pending',
+  }) {
+    return _get(
+      '/mobile/app/teacher/izin/manage?status=$status',
+      actionLabel: 'kelola izin',
+    );
+  }
+
+  Future<Map<String, dynamic>> approveManagedIzin({
+    required int izinId,
+    String? approvalNotes,
+  }) {
+    return _send(
+      '/mobile/app/teacher/izin/$izinId/approve',
+      actionLabel: 'setujui izin',
+      method: 'POST',
+      data: {
+        'approval_notes': approvalNotes,
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> rejectManagedIzin({
+    required int izinId,
+    String? approvalNotes,
+  }) {
+    return _send(
+      '/mobile/app/teacher/izin/$izinId/reject',
+      actionLabel: 'tolak izin',
+      method: 'POST',
+      data: {
+        'approval_notes': approvalNotes,
+      },
+    );
   }
 
   Future<Map<String, dynamic>> _get(
@@ -323,6 +485,22 @@ class TeacherMobileRepository {
       default:
         return false;
     }
+  }
+
+  Map<String, dynamic> _responseDataWithMessage(Map<String, dynamic>? body) {
+    final responseBody = body ?? const <String, dynamic>{};
+    final responseData = responseBody['data'];
+    final result = responseData is Map<String, dynamic>
+        ? Map<String, dynamic>.from(responseData)
+        : responseData is Map
+            ? Map<String, dynamic>.from(responseData)
+            : <String, dynamic>{};
+
+    if (responseBody['message'] is String) {
+      result['_message'] = responseBody['message'];
+    }
+
+    return result;
   }
 
   String _mapDioError(DioException error) {

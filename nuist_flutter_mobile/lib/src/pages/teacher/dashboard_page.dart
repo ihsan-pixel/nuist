@@ -9,6 +9,7 @@ class TeacherDashboardPage extends StatefulWidget {
     super.key,
     required this.repository,
     required this.onOpenIzin,
+    required this.onOpenManageIzin,
     required this.onSelectTab,
     required this.onOpenProfile,
     required this.onOpenSettings,
@@ -18,6 +19,7 @@ class TeacherDashboardPage extends StatefulWidget {
 
   final TeacherMobileRepository repository;
   final Future<void> Function() onOpenIzin;
+  final Future<void> Function() onOpenManageIzin;
   final ValueChanged<int> onSelectTab;
   final VoidCallback onOpenProfile;
   final VoidCallback onOpenSettings;
@@ -66,6 +68,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                 _DashboardContent(
                   data: snapshot.data ?? const <String, dynamic>{},
                   onOpenIzin: widget.onOpenIzin,
+                  onOpenManageIzin: widget.onOpenManageIzin,
                   onSelectTab: widget.onSelectTab,
                   onOpenProfile: widget.onOpenProfile,
                   onOpenSettings: widget.onOpenSettings,
@@ -84,6 +87,7 @@ class _DashboardContent extends StatelessWidget {
   const _DashboardContent({
     required this.data,
     required this.onOpenIzin,
+    required this.onOpenManageIzin,
     required this.onSelectTab,
     required this.onOpenProfile,
     required this.onOpenSettings,
@@ -93,6 +97,7 @@ class _DashboardContent extends StatelessWidget {
 
   final Map<String, dynamic> data;
   final Future<void> Function() onOpenIzin;
+  final Future<void> Function() onOpenManageIzin;
   final ValueChanged<int> onSelectTab;
   final VoidCallback onOpenProfile;
   final VoidCallback onOpenSettings;
@@ -103,6 +108,9 @@ class _DashboardContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final summary = Map<String, dynamic>.from(
       (data['summary'] as Map?) ?? const <String, dynamic>{},
+    );
+    final permissions = Map<String, dynamic>.from(
+      (data['permissions'] as Map?) ?? const <String, dynamic>{},
     );
     final monthlyStats = Map<String, dynamic>.from(
       (data['monthly_stats'] as Map?) ?? const <String, dynamic>{},
@@ -278,6 +286,16 @@ class _DashboardContent extends StatelessWidget {
                   onOpenIzin();
                 },
               ),
+              if (permissions['can_manage_izin'] == true)
+                _ServiceShortcutTile(
+                  label: 'Kelola Izin',
+                  colors: const [Color(0xFFFFA94D), Color(0xFFD97706)],
+                  icon: Icons.approval_rounded,
+                  badgeText: '${summary['pending_approval_izin_count'] ?? 0}',
+                  onTap: () {
+                    onOpenManageIzin();
+                  },
+                ),
               _ServiceShortcutTile(
                 label: 'Jadwal Hari Ini',
                 colors: const [Color(0xFF57C1E8), Color(0xFF2D7DA8)],

@@ -47,7 +47,14 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
         Route::post('/teaching-journal/check-location', [TeacherAppController::class, 'checkTeachingJournalLocation']);
         Route::post('/teaching-journal/attendance', [TeacherAppController::class, 'storeTeachingJournalAttendance']);
         Route::get('/profile', [TeacherAppController::class, 'profile']);
+        Route::post('/profile/update', [TeacherAppController::class, 'updateProfile']);
+        Route::post('/profile/avatar', [TeacherAppController::class, 'updateProfileAvatar']);
+        Route::post('/profile/password', [TeacherAppController::class, 'updateProfilePassword']);
         Route::get('/izin', [TeacherAppController::class, 'izin']);
+        Route::post('/izin', [TeacherAppController::class, 'storeIzin']);
+        Route::get('/izin/manage', [TeacherAppController::class, 'manageIzin']);
+        Route::post('/izin/{izin}/approve', [TeacherAppController::class, 'approveIzin']);
+        Route::post('/izin/{izin}/reject', [TeacherAppController::class, 'rejectIzin']);
     });
 });
 

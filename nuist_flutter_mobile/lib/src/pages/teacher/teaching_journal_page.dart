@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
@@ -11,9 +12,9 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
-const _journalPrimary = Color(0xFF0E8549);
-const _journalPrimaryDark = Color(0xFF004B4C);
-const _journalText = Color(0xFF163B33);
+const _journalPrimary = Color(0xFFF49637);
+const _journalPrimaryDark = Color(0xFFC96A19);
+const _journalText = Color(0xFF7A4212);
 const _journalMuted = Color(0xFF6F8580);
 const _journalSoft = Color(0xFFF2FBF7);
 const _journalWarning = Color(0xFFF4A12A);
@@ -214,7 +215,7 @@ class _TeacherTeachingJournalPageState
     int? classTotalStudents,
   }) async {
     if (_position == null) {
-      throw Exception('Lokasi belum tersedia. Ambil lokasi terlebih dahulu.');
+      throw Exception('Lokasi belum tersedia. Ambil lokasi terlebih dahulu');
     }
 
     final locationCheck = await widget.repository.checkTeachingJournalLocation(
@@ -236,6 +237,11 @@ class _TeacherTeachingJournalPageState
         'latitude': _position!.latitude,
         'longitude': _position!.longitude,
         'lokasi': _locationAddress ?? _coordinateLabel(_position!),
+        'accuracy': _position!.accuracy,
+        'altitude': _position!.altitude,
+        'speed': _position!.speed,
+        'device_info': 'flutter_mobile_${defaultTargetPlatform.name}',
+        'location_readings': _locationReadings,
         'materi': materi,
         'present_students': presentStudents,
         'class_total_students': classTotalStudents,

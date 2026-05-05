@@ -16,13 +16,17 @@ use App\Models\User;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class TeacherAppController extends Controller
 {
@@ -125,12 +129,23 @@ class TeacherAppController extends Controller
                     'status_kepegawaian' => $user->statusKepegawaian?->name ?? '-',
                     'ketugasan' => $user->ketugasan ?? '-',
                 ],
+                'permissions' => [
+                    'can_manage_izin' => $this->canManageIzinRequests($user),
+                ],
                 'summary' => [
                     'attendance_percent' => $this->attendancePercent($presensiThisMonth),
                     'pending_izin_count' => Izin::query()
                         ->where('user_id', $user->id)
                         ->where('status', 'pending')
                         ->count(),
+                    'pending_approval_izin_count' => $this->canManageIzinRequests($user)
+                        ? Izin::query()
+                            ->whereHas('user', function ($query) use ($user) {
+                                $query->where('madrasah_id', $user->madrasah_id);
+                            })
+                            ->where('status', 'pending')
+                            ->count()
+                        : 0,
                     'teaching_today_count' => $todaySchedules->count(),
                     'completed_teaching_today_count' => $scheduleItems
                         ->where('attendance_status', 'completed')
@@ -707,6 +722,11 @@ class TeacherAppController extends Controller
             'latitude' => ['required', 'numeric'],
             'longitude' => ['required', 'numeric'],
             'lokasi' => ['nullable', 'string'],
+            'accuracy' => ['nullable', 'numeric'],
+            'altitude' => ['nullable', 'numeric'],
+            'speed' => ['nullable', 'numeric'],
+            'device_info' => ['nullable', 'string'],
+            'location_readings' => ['nullable'],
             'materi' => ['required', 'string', 'max:1000'],
             'present_students' => ['required', 'integer', 'min:0', 'max:10000'],
             'class_total_students' => ['nullable', 'integer', 'min:1', 'max:10000'],
@@ -768,6 +788,18 @@ class TeacherAppController extends Controller
         if (!$locationState['is_within_polygon']) {
             throw ValidationException::withMessages([
                 'location' => $locationState['message'],
+            ]);
+        }
+
+        $locationValidation = $this->validateLocationForFakeGps(
+            $validated,
+            $user,
+            true,
+        );
+
+        if ($locationValidation['is_fake']) {
+            throw ValidationException::withMessages([
+                'location' => $locationValidation['message'],
             ]);
         }
 
@@ -897,7 +929,22 @@ class TeacherAppController extends Controller
                     'email' => $user->email,
                     'phone' => $user->no_hp,
                     'role' => $user->role,
+                    'ketugasan' => $user->ketugasan,
                     'school_name' => $user->madrasah?->name,
+                    'avatar_url' => $user->avatar ? asset('storage/' . ltrim($user->avatar, '/')) : null,
+                ],
+                'permissions' => [
+                    'can_manage_izin' => $this->canManageIzinRequests($user),
+                ],
+                'editable_profile' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->no_hp,
+                    'tempat_lahir' => $user->tempat_lahir,
+                    'tanggal_lahir' => $user->tanggal_lahir?->format('Y-m-d'),
+                    'tmt' => $user->tmt?->format('Y-m-d'),
+                    'pendidikan_terakhir' => $user->pendidikan_terakhir,
+                    'nip' => $user->nip,
                     'avatar_url' => $user->avatar ? asset('storage/' . ltrim($user->avatar, '/')) : null,
                 ],
                 'details' => [
@@ -935,6 +982,127 @@ class TeacherAppController extends Controller
         ]);
     }
 
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'tempat_lahir' => ['nullable', 'string', 'max:255'],
+            'tanggal_lahir' => ['nullable', 'date'],
+            'tmt' => ['nullable', 'date'],
+            'pendidikan_terakhir' => ['nullable', 'string', 'max:255'],
+            'nip' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->no_hp = trim((string) ($validated['phone'] ?? '')) ?: null;
+        $user->tempat_lahir = trim((string) ($validated['tempat_lahir'] ?? '')) ?: null;
+        $user->tanggal_lahir = $validated['tanggal_lahir'] ?? null;
+        $user->tmt = $validated['tmt'] ?? null;
+        $user->pendidikan_terakhir = trim((string) ($validated['pendidikan_terakhir'] ?? '')) ?: null;
+        $user->nip = trim((string) ($validated['nip'] ?? '')) ?: null;
+        $user->save();
+
+        $user->refresh();
+
+        return response()->json([
+            'message' => 'Profil berhasil diperbarui.',
+            'data' => [
+                'user' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->no_hp,
+                    'avatar_url' => $user->avatar ? asset('storage/' . ltrim($user->avatar, '/')) : null,
+                ],
+                'editable_profile' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->no_hp,
+                    'tempat_lahir' => $user->tempat_lahir,
+                    'tanggal_lahir' => $user->tanggal_lahir?->format('Y-m-d'),
+                    'tmt' => $user->tmt?->format('Y-m-d'),
+                    'pendidikan_terakhir' => $user->pendidikan_terakhir,
+                    'nip' => $user->nip,
+                    'avatar_url' => $user->avatar ? asset('storage/' . ltrim($user->avatar, '/')) : null,
+                ],
+            ],
+        ]);
+    }
+
+    public function updateProfileAvatar(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
+        ]);
+
+        $file = $request->file('avatar');
+        abort_unless($file !== null, 422);
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('avatars', $filename, 'public');
+
+        $user->avatar = $path;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Foto profil berhasil diperbarui.',
+            'data' => [
+                'avatar_url' => asset('storage/' . ltrim($path, '/')),
+            ],
+        ]);
+    }
+
+    public function updateProfilePassword(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*?&]/',
+                'confirmed',
+            ],
+        ], [
+            'password.min' => 'Password baru minimal 8 karakter.',
+            'password.regex' => 'Password baru harus mengandung huruf kecil, huruf besar, angka, dan simbol (@$!%*?&).',
+        ]);
+
+        if (!Hash::check($validated['current_password'], (string) $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => 'Password lama tidak sesuai.',
+            ]);
+        }
+
+        $user->password = Hash::make($validated['password']);
+        if (isset($user->password_changed)) {
+            $user->password_changed = true;
+        }
+        $user->save();
+
+        return response()->json([
+            'message' => 'Password berhasil diperbarui.',
+            'data' => [
+                'password_changed' => (bool) $user->password_changed,
+            ],
+        ]);
+    }
+
     public function izin(Request $request): JsonResponse
     {
         $user = $this->resolveTeacher($request);
@@ -949,12 +1117,250 @@ class TeacherAppController extends Controller
         return response()->json([
             'message' => 'OK',
             'data' => [
+                'menu' => $this->izinMenu($user),
+                'form_meta' => [
+                    'external_school_name' => $user->madrasahTambahan?->name,
+                    'can_apply_external_teaching' => ExternalTeachingPermissionService::isEligibleUser($user),
+                    'day_options' => $this->izinDayOptions(),
+                ],
+                'permissions' => [
+                    'can_manage_izin' => $this->canManageIzinRequests($user),
+                ],
                 'summary' => [
                     'pending' => $items->where('status', 'pending')->count(),
                     'approved' => $items->where('status', 'approved')->count(),
                     'rejected' => $items->where('status', 'rejected')->count(),
                 ],
                 'items' => $items->map(fn (Izin $izin) => $this->serializeIzin($izin))->values(),
+            ],
+        ]);
+    }
+
+    public function storeIzin(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $type = strtolower(trim((string) $request->input('type')));
+
+        if ($type === '') {
+            throw ValidationException::withMessages([
+                'type' => 'Tipe izin tidak diketahui.',
+            ]);
+        }
+
+        $tanggal = $request->input('tanggal', $request->input('tanggal_mulai'));
+
+        if ($tanggal && !in_array($type, ['tugas_luar', 'cuti', ExternalTeachingPermissionService::TYPE], true)) {
+            $existingPresensi = Presensi::query()
+                ->where('user_id', $user->id)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+
+            if ($existingPresensi) {
+                throw ValidationException::withMessages([
+                    'tanggal' => 'Anda sudah memiliki catatan kehadiran pada tanggal ini.',
+                ]);
+            }
+        }
+
+        $pendingIzin = Izin::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($pendingIzin) {
+            throw ValidationException::withMessages([
+                'pending' => 'Anda masih memiliki pengajuan izin yang belum disetujui. Harap tunggu persetujuan kepala sekolah terlebih dahulu.',
+            ]);
+        }
+
+        $existingIzin = Izin::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $tanggal)
+            ->where('type', $type)
+            ->first();
+
+        if ($existingIzin) {
+            throw ValidationException::withMessages([
+                'tanggal' => 'Anda sudah mengajukan izin untuk tanggal ini.',
+            ]);
+        }
+
+        $izinData = match ($type) {
+            'sakit' => $this->buildSakitIzinPayload($request),
+            'tidak_masuk' => $this->buildTidakMasukIzinPayload($request),
+            'terlambat' => $this->buildTerlambatIzinPayload($request),
+            'tugas_luar' => $this->buildTugasLuarIzinPayload($request, $user),
+            'cuti' => $this->buildCutiIzinPayload($request),
+            ExternalTeachingPermissionService::TYPE => $this->buildMengajarSekolahLainIzinPayload($request, $user),
+            default => throw ValidationException::withMessages([
+                'type' => 'Tipe izin tidak dikenali.',
+            ]),
+        };
+
+        $izin = Izin::create(array_merge($izinData, [
+            'user_id' => $user->id,
+            'type' => $type,
+            'status' => 'pending',
+        ]));
+
+        Notification::create([
+            'user_id' => $user->id,
+            'type' => 'izin_submitted',
+            'title' => 'Izin Diajukan',
+            'message' => 'Pengajuan izin Anda telah dikirim dan menunggu persetujuan.',
+            'data' => [
+                'izin_id' => $izin->id,
+                'tanggal' => optional($izin->tanggal)->format('Y-m-d'),
+                'type' => $izin->type,
+            ],
+        ]);
+
+        return response()->json([
+            'message' => 'Izin berhasil diajukan dan menunggu persetujuan.',
+            'data' => [
+                'item' => $this->serializeIzin($izin),
+            ],
+        ]);
+    }
+
+    public function manageIzin(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $this->ensureCanManageIzinRequests($user);
+
+        $status = strtolower(trim((string) $request->query('status', 'pending')));
+        if (!in_array($status, ['pending', 'approved', 'rejected', 'all'], true)) {
+            $status = 'pending';
+        }
+
+        $query = Izin::query()
+            ->with('user')
+            ->whereHas('user', function ($builder) use ($user) {
+                $builder->where('madrasah_id', $user->madrasah_id);
+            });
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $items = $query
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get();
+
+        return response()->json([
+            'message' => 'OK',
+            'data' => [
+                'permissions' => [
+                    'can_manage_izin' => true,
+                ],
+                'summary' => [
+                    'pending' => Izin::query()
+                        ->whereHas('user', function ($builder) use ($user) {
+                            $builder->where('madrasah_id', $user->madrasah_id);
+                        })
+                        ->where('status', 'pending')
+                        ->count(),
+                    'approved' => Izin::query()
+                        ->whereHas('user', function ($builder) use ($user) {
+                            $builder->where('madrasah_id', $user->madrasah_id);
+                        })
+                        ->where('status', 'approved')
+                        ->count(),
+                    'rejected' => Izin::query()
+                        ->whereHas('user', function ($builder) use ($user) {
+                            $builder->where('madrasah_id', $user->madrasah_id);
+                        })
+                        ->where('status', 'rejected')
+                        ->count(),
+                ],
+                'current_filter' => $status,
+                'items' => $items->map(fn (Izin $izin) => $this->serializeManagedIzin($izin))->values(),
+            ],
+        ]);
+    }
+
+    public function approveIzin(Request $request, Izin $izin): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $this->ensureCanManageIzin($user, $izin);
+
+        if ($izin->status !== 'pending') {
+            throw ValidationException::withMessages([
+                'status' => 'Pengajuan ini sudah diproses sebelumnya.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'approval_notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $izin->status = 'approved';
+        $izin->approved_by = $user->id;
+        $izin->approved_at = now();
+        $izin->approval_notes = trim((string) ($validated['approval_notes'] ?? '')) ?: null;
+        $izin->save();
+
+        $this->syncApprovedIzinAfterApproval($izin);
+
+        Notification::create([
+            'user_id' => $izin->user_id,
+            'type' => 'izin_approved',
+            'title' => 'Izin Disetujui',
+            'message' => 'Pengajuan izin Anda pada tanggal ' . optional($izin->tanggal)->format('d F Y') . ' telah disetujui.',
+            'data' => [
+                'izin_id' => $izin->id,
+                'tanggal' => $izin->tanggal,
+                'approved_by' => $user->name,
+            ],
+        ]);
+
+        return response()->json([
+            'message' => 'Izin berhasil disetujui.',
+            'data' => [
+                'item' => $this->serializeManagedIzin($izin->fresh(['user', 'approver'])),
+            ],
+        ]);
+    }
+
+    public function rejectIzin(Request $request, Izin $izin): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $this->ensureCanManageIzin($user, $izin);
+
+        if ($izin->status !== 'pending') {
+            throw ValidationException::withMessages([
+                'status' => 'Pengajuan ini sudah diproses sebelumnya.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'approval_notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $izin->status = 'rejected';
+        $izin->approved_by = $user->id;
+        $izin->approved_at = now();
+        $izin->approval_notes = trim((string) ($validated['approval_notes'] ?? '')) ?: null;
+        $izin->save();
+
+        Notification::create([
+            'user_id' => $izin->user_id,
+            'type' => 'izin_rejected',
+            'title' => 'Izin Ditolak',
+            'message' => 'Pengajuan izin Anda pada tanggal ' . optional($izin->tanggal)->format('d F Y') . ' telah ditolak.',
+            'data' => [
+                'izin_id' => $izin->id,
+                'tanggal' => $izin->tanggal,
+                'rejected_by' => $user->name,
+            ],
+        ]);
+
+        return response()->json([
+            'message' => 'Izin berhasil ditolak.',
+            'data' => [
+                'item' => $this->serializeManagedIzin($izin->fresh(['user', 'approver'])),
             ],
         ]);
     }
@@ -2004,7 +2410,338 @@ class TeacherAppController extends Controller
             'end_date_label' => $izin->tanggal_selesai
                 ? Carbon::parse($izin->tanggal_selesai)->locale('id')->isoFormat('D MMMM YYYY')
                 : null,
+            'location' => $izin->lokasi_tugas,
+            'start_time' => $this->formatTimeValue($izin->waktu_masuk),
+            'end_time' => $this->formatTimeValue($izin->waktu_keluar),
+            'file_url' => $izin->file_path ? asset('storage/' . ltrim($izin->file_path, '/')) : null,
+            'day_presence_labels' => $this->izinDayLabels($izin->hari_presensi),
+            'day_no_presence_labels' => $this->izinDayLabels($izin->hari_tidak_presensi),
         ];
+    }
+
+    private function serializeManagedIzin(Izin $izin): array
+    {
+        $base = $this->serializeIzin($izin);
+        $requester = $izin->relationLoaded('user') ? $izin->user : $izin->user()->first();
+        $approver = $izin->relationLoaded('approver') ? $izin->approver : $izin->approver()->first();
+
+        return array_merge($base, [
+            'requester_name' => $requester?->name,
+            'requester_email' => $requester?->email,
+            'requester_avatar_url' => $requester?->avatar
+                ? asset('storage/' . ltrim((string) $requester->avatar, '/'))
+                : null,
+            'requester_school_name' => $requester?->madrasah?->name,
+            'approval_notes' => $izin->approval_notes,
+            'approved_at_label' => $izin->approved_at
+                ? Carbon::parse($izin->approved_at)->locale('id')->isoFormat('D MMMM YYYY, HH:mm')
+                : null,
+            'approver_name' => $approver?->name,
+            'can_approve' => $izin->status === 'pending',
+            'can_reject' => $izin->status === 'pending',
+        ]);
+    }
+
+    private function izinMenu(User $user): array
+    {
+        $items = [
+            [
+                'type' => 'tidak_masuk',
+                'title' => 'Izin Tidak Masuk',
+                'subtitle' => 'Pengajuan tidak hadir pada tanggal tertentu.',
+                'icon' => 'person_off',
+            ],
+            [
+                'type' => 'sakit',
+                'title' => 'Izin Sakit',
+                'subtitle' => 'Lampirkan surat atau keterangan dokter.',
+                'icon' => 'medical_information',
+            ],
+            [
+                'type' => 'terlambat',
+                'title' => 'Izin Terlambat',
+                'subtitle' => 'Ajukan keterlambatan sebelum presensi masuk.',
+                'icon' => 'schedule',
+            ],
+            [
+                'type' => 'tugas_luar',
+                'title' => 'Izin Tugas Diluar',
+                'subtitle' => 'Tugas resmi di luar sekolah dengan rentang waktu.',
+                'icon' => 'work_history',
+            ],
+            [
+                'type' => 'cuti',
+                'title' => 'Izin Cuti',
+                'subtitle' => 'Pengajuan cuti beberapa hari.',
+                'icon' => 'event_available',
+            ],
+        ];
+
+        if (ExternalTeachingPermissionService::isEligibleUser($user)) {
+            $items[] = [
+                'type' => ExternalTeachingPermissionService::TYPE,
+                'title' => 'Mengajar Sekolah Lain',
+                'subtitle' => 'Atur hari presensi utama dan hari tanpa presensi.',
+                'icon' => 'domain',
+            ];
+        }
+
+        return $items;
+    }
+
+    private function canManageIzinRequests(User $user): bool
+    {
+        return $user->role === 'tenaga_pendidik'
+            && $user->ketugasan === 'kepala madrasah/sekolah'
+            && (int) $user->madrasah_id > 0;
+    }
+
+    private function ensureCanManageIzinRequests(User $user): void
+    {
+        if (!$this->canManageIzinRequests($user)) {
+            abort(403, 'Unauthorized');
+        }
+    }
+
+    private function ensureCanManageIzin(User $user, Izin $izin): void
+    {
+        $this->ensureCanManageIzinRequests($user);
+        $izin->loadMissing(['user.madrasah', 'approver']);
+
+        abort_unless((int) ($izin->user?->madrasah_id ?? 0) === (int) $user->madrasah_id, 403, 'Unauthorized');
+    }
+
+    private function syncApprovedIzinAfterApproval(Izin $izin): void
+    {
+        if ($izin->type === ExternalTeachingPermissionService::TYPE) {
+            ExternalTeachingPermissionService::syncApprovedNoPresencePresensi(
+                $izin,
+                Carbon::today('Asia/Jakarta'),
+            );
+
+            return;
+        }
+
+        ApprovedIzinSyncService::syncApprovedIzinPresensi($izin);
+    }
+
+    private function izinDayOptions(): array
+    {
+        return [
+            ['value' => 1, 'label' => 'Senin'],
+            ['value' => 2, 'label' => 'Selasa'],
+            ['value' => 3, 'label' => 'Rabu'],
+            ['value' => 4, 'label' => 'Kamis'],
+            ['value' => 5, 'label' => 'Jumat'],
+            ['value' => 6, 'label' => 'Sabtu'],
+        ];
+    }
+
+    private function izinDayLabels(array|string|null $days): array
+    {
+        $labelMap = collect($this->izinDayOptions())
+            ->mapWithKeys(fn (array $item) => [$item['value'] => $item['label']]);
+
+        $normalized = collect($this->normalizeIzinDays($days));
+
+        return $normalized
+            ->map(fn (int $day) => $labelMap->get($day))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function normalizeIzinDays(array|string|null $days): array
+    {
+        if (is_string($days) && trim($days) !== '') {
+            $decoded = json_decode($days, true);
+            $days = is_array($decoded) ? $decoded : [];
+        }
+
+        return collect($days ?? [])
+            ->map(fn ($day) => (int) $day)
+            ->filter(fn (int $day) => $day >= 1 && $day <= 6)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function storeIzinAttachment(?UploadedFile $file): array
+    {
+        if (!$file) {
+            return [
+                'file_path' => null,
+                'file_name' => null,
+            ];
+        }
+
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('surat_izin', $filename, 'public');
+
+        return [
+            'file_path' => $path,
+            'file_name' => $file->getClientOriginalName(),
+        ];
+    }
+
+    private function buildSakitIzinPayload(Request $request): array
+    {
+        $validated = $request->validate([
+            'tanggal' => ['required', 'date'],
+            'keterangan' => ['required', 'string'],
+            'surat_izin' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ], [
+            'surat_izin.required' => 'File surat atau keterangan dokter wajib diunggah untuk izin sakit.',
+            'surat_izin.file' => 'Berkas surat sakit tidak valid.',
+            'surat_izin.mimes' => 'File surat sakit harus berformat PDF, JPG, JPEG, atau PNG.',
+            'surat_izin.max' => 'Ukuran file surat sakit maksimal 5MB.',
+        ]);
+
+        return array_merge([
+            'tanggal' => $validated['tanggal'],
+            'alasan' => trim((string) $validated['keterangan']),
+        ], $this->storeIzinAttachment($request->file('surat_izin')));
+    }
+
+    private function buildTidakMasukIzinPayload(Request $request): array
+    {
+        $validated = $request->validate([
+            'tanggal' => ['required', 'date'],
+            'alasan' => ['required', 'string'],
+            'file_izin' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ]);
+
+        return array_merge([
+            'tanggal' => $validated['tanggal'],
+            'alasan' => trim((string) $validated['alasan']),
+        ], $this->storeIzinAttachment($request->file('file_izin')));
+    }
+
+    private function buildTerlambatIzinPayload(Request $request): array
+    {
+        $validated = $request->validate([
+            'tanggal' => ['required', 'date'],
+            'alasan' => ['required', 'string'],
+            'waktu_masuk' => ['required'],
+            'file_izin' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ]);
+
+        return array_merge([
+            'tanggal' => $validated['tanggal'],
+            'alasan' => trim((string) $validated['alasan']),
+            'waktu_masuk' => $validated['waktu_masuk'],
+        ], $this->storeIzinAttachment($request->file('file_izin')));
+    }
+
+    private function buildTugasLuarIzinPayload(Request $request, User $user): array
+    {
+        $validated = $request->validate([
+            'tanggal' => ['required', 'date'],
+            'deskripsi_tugas' => ['required', 'string'],
+            'lokasi_tugas' => ['required', 'string'],
+            'waktu_masuk' => ['required'],
+            'waktu_keluar' => ['required'],
+            'file_tugas' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ]);
+
+        $existing = Izin::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $validated['tanggal'])
+            ->where('type', 'tugas_luar')
+            ->first();
+
+        if ($existing) {
+            throw ValidationException::withMessages([
+                'tanggal' => 'Anda sudah memiliki pengajuan izin tugas luar pada tanggal ini.',
+            ]);
+        }
+
+        return array_merge([
+            'tanggal' => $validated['tanggal'],
+            'alasan' => trim((string) $validated['deskripsi_tugas']),
+            'deskripsi_tugas' => trim((string) $validated['deskripsi_tugas']),
+            'lokasi_tugas' => trim((string) $validated['lokasi_tugas']),
+            'waktu_masuk' => $validated['waktu_masuk'],
+            'waktu_keluar' => $validated['waktu_keluar'],
+        ], $this->storeIzinAttachment($request->file('file_tugas')));
+    }
+
+    private function buildCutiIzinPayload(Request $request): array
+    {
+        $validated = $request->validate([
+            'tanggal_mulai' => ['required', 'date'],
+            'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
+            'alasan' => ['required', 'string'],
+            'file_izin' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ]);
+
+        return array_merge([
+            'tanggal' => $validated['tanggal_mulai'],
+            'tanggal_selesai' => $validated['tanggal_selesai'],
+            'alasan' => trim((string) $validated['alasan']) . ' (Tanggal: ' . $validated['tanggal_mulai'] . ' sampai ' . $validated['tanggal_selesai'] . ')',
+        ], $this->storeIzinAttachment($request->file('file_izin')));
+    }
+
+    private function buildMengajarSekolahLainIzinPayload(Request $request, User $user): array
+    {
+        if (!ExternalTeachingPermissionService::isEligibleUser($user)) {
+            throw ValidationException::withMessages([
+                'type' => 'Pengajuan ini hanya untuk guru yang memiliki beban kerja di sekolah lain.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'tanggal_mulai' => ['required', 'date'],
+            'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
+            'hari_presensi' => ['required', 'array', 'min:1'],
+            'hari_presensi.*' => ['integer', 'between:1,6'],
+            'hari_tidak_presensi' => ['required', 'array', 'min:1'],
+            'hari_tidak_presensi.*' => ['integer', 'between:1,6'],
+            'alasan' => ['nullable', 'string'],
+            'file_izin' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ]);
+
+        $hariPresensi = $this->normalizeIzinDays($validated['hari_presensi']);
+        $hariTidakPresensi = $this->normalizeIzinDays($validated['hari_tidak_presensi']);
+
+        if ($hariPresensi === [] || $hariTidakPresensi === []) {
+            throw ValidationException::withMessages([
+                'hari_presensi' => 'Pilih minimal satu hari aktif presensi dan satu hari izin tidak presensi.',
+            ]);
+        }
+
+        if (!empty(array_intersect($hariPresensi, $hariTidakPresensi))) {
+            throw ValidationException::withMessages([
+                'hari_tidak_presensi' => 'Hari aktif presensi dan hari izin tidak presensi tidak boleh sama.',
+            ]);
+        }
+
+        $overlappingSchedule = Izin::query()
+            ->where('user_id', $user->id)
+            ->where('type', ExternalTeachingPermissionService::TYPE)
+            ->whereIn('status', ['pending', 'approved'])
+            ->whereDate('tanggal', '<=', $validated['tanggal_selesai'])
+            ->where(function ($query) use ($validated) {
+                $query->whereNull('tanggal_selesai')
+                    ->orWhereDate('tanggal_selesai', '>=', $validated['tanggal_mulai']);
+            })
+            ->exists();
+
+        if ($overlappingSchedule) {
+            throw ValidationException::withMessages([
+                'tanggal_mulai' => 'Anda sudah memiliki pengajuan jadwal mengajar di sekolah lain pada periode tersebut.',
+            ]);
+        }
+
+        return array_merge([
+            'tanggal' => $validated['tanggal_mulai'],
+            'tanggal_selesai' => $validated['tanggal_selesai'],
+            'alasan' => trim((string) ($validated['alasan'] ?? '')) ?: 'Pengaturan presensi karena mengajar di sekolah lain.',
+            'deskripsi_tugas' => 'Mengajar di sekolah lain',
+            'lokasi_tugas' => $user->madrasahTambahan?->name ?? 'Sekolah lain',
+            'hari_presensi' => $hariPresensi,
+            'hari_tidak_presensi' => $hariTidakPresensi,
+        ], $this->storeIzinAttachment($request->file('file_izin')));
     }
 
     private function izinTitle(?string $type): string

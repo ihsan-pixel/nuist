@@ -5,6 +5,7 @@ import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/teacher_bottom_nav.dart';
 import 'attendance_page.dart';
 import 'dashboard_page.dart';
+import 'izin_manage_page.dart';
 import 'izin_page.dart';
 import 'profile_page.dart';
 import 'schedule_page.dart';
@@ -58,7 +59,18 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
   Future<void> _openIzinPage() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => TeacherIzinPage(repository: widget.repository),
+        builder: (_) => TeacherIzinPage(
+          repository: widget.repository,
+          onOpenManageIzin: _openManageIzinPage,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openManageIzinPage() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TeacherIzinManagePage(repository: widget.repository),
       ),
     );
   }
@@ -114,6 +126,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
             TeacherDashboardPage(
               repository: widget.repository,
               onOpenIzin: _openIzinPage,
+              onOpenManageIzin: _openManageIzinPage,
               onSelectTab: _selectTab,
               onOpenProfile: _openProfile,
               onOpenSettings: _openSettings,
@@ -137,6 +150,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
             TeacherProfilePage(
               repository: widget.repository,
               onOpenIzin: _openIzinPage,
+              onOpenManageIzin: _openManageIzinPage,
               onBackToHome: _openDashboard,
             ),
           ],

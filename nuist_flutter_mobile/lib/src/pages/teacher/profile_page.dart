@@ -4,17 +4,21 @@ import 'package:flutter/services.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
+import 'profile_change_password_page.dart';
+import 'profile_settings_page.dart';
 
 class TeacherProfilePage extends StatefulWidget {
   const TeacherProfilePage({
     super.key,
     required this.repository,
     required this.onOpenIzin,
+    required this.onOpenManageIzin,
     required this.onBackToHome,
   });
 
   final TeacherMobileRepository repository;
   final Future<void> Function() onOpenIzin;
+  final Future<void> Function() onOpenManageIzin;
   final VoidCallback onBackToHome;
 
   @override
@@ -38,6 +42,32 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
     await future;
   }
 
+  Future<void> _openSettings(Map<String, dynamic> data) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TeacherProfileSettingsPage(
+          repository: widget.repository,
+          initialData: data,
+          onOpenChangePassword: () {
+            return Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => TeacherProfileChangePasswordPage(
+                  repository: widget.repository,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    await _refresh();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -59,6 +89,11 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                 children: [
                   _ProfileTopHeader(
                     onBack: widget.onBackToHome,
+                    onOpenSettings: snapshot.hasData
+                        ? () => _openSettings(
+                              snapshot.data ?? const <String, dynamic>{},
+                            )
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   if (snapshot.connectionState == ConnectionState.waiting)
@@ -72,6 +107,10 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                     _ProfileContent(
                       data: snapshot.data ?? const <String, dynamic>{},
                       onOpenIzin: widget.onOpenIzin,
+                      onOpenManageIzin: widget.onOpenManageIzin,
+                      onOpenSettings: () => _openSettings(
+                        snapshot.data ?? const <String, dynamic>{},
+                      ),
                     ),
                 ],
               ),
@@ -86,9 +125,11 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
 class _ProfileTopHeader extends StatelessWidget {
   const _ProfileTopHeader({
     required this.onBack,
+    this.onOpenSettings,
   });
 
   final VoidCallback onBack;
+  final VoidCallback? onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -140,16 +181,22 @@ class _ProfileTopHeader extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            width: 42,
-            height: 42,
-            alignment: Alignment.center,
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF49637),
-                shape: BoxShape.circle,
+          Material(
+            color: const Color(0xFFFFF4E8),
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              onTap: onOpenSettings,
+              borderRadius: BorderRadius.circular(16),
+              child: SizedBox(
+                width: 42,
+                height: 42,
+                child: Icon(
+                  Icons.settings_outlined,
+                  color: onOpenSettings == null
+                      ? const Color(0xFFD1B28D)
+                      : const Color(0xFFF49637),
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -163,15 +210,22 @@ class _ProfileContent extends StatelessWidget {
   const _ProfileContent({
     required this.data,
     required this.onOpenIzin,
+    required this.onOpenManageIzin,
+    required this.onOpenSettings,
   });
 
   final Map<String, dynamic> data;
   final Future<void> Function() onOpenIzin;
+  final Future<void> Function() onOpenManageIzin;
+  final VoidCallback onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
     final user = Map<String, dynamic>.from(
       (data['user'] as Map?) ?? const <String, dynamic>{},
+    );
+    final permissions = Map<String, dynamic>.from(
+      (data['permissions'] as Map?) ?? const <String, dynamic>{},
     );
     final details = ((data['details'] as List?) ?? const [])
         .whereType<Map>()
@@ -234,21 +288,31 @@ class _ProfileContent extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _ActionShortcut(
-                      icon: Icons.badge_rounded,
-                      label: 'Profil',
-                      caption: '${details.length} data',
+                      icon: Icons.settings_rounded,
+                      label: 'Pengaturan',
+                      caption: 'Edit data',
                       accent: const Color(0xFFF49637),
                       background: const Color(0xFFFFF4E8),
+                      onTap: onOpenSettings,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _ActionShortcut(
                       icon: Icons.event_note_rounded,
-                      label: 'Agenda',
-                      caption: '${activities.length} item',
+                      label: permissions['can_manage_izin'] == true
+                          ? 'Kelola Izin'
+                          : 'Agenda',
+                      caption: permissions['can_manage_izin'] == true
+                          ? 'Approval'
+                          : '${activities.length} item',
                       accent: const Color(0xFFF49637),
                       background: const Color(0xFFFFF6EC),
+                      onTap: permissions['can_manage_izin'] == true
+                          ? () {
+                              onOpenManageIzin();
+                            }
+                          : null,
                     ),
                   ),
                 ],
@@ -327,11 +391,11 @@ class _ProfileContent extends StatelessWidget {
                 )
               else
                 ...activities.take(3).map(
-                  (item) => _AgendaRow(
-                    title: item['title'] as String? ?? 'Agenda',
-                    subtitle: _activitySubtitle(item),
-                  ),
-                ),
+                      (item) => _AgendaRow(
+                        title: item['title'] as String? ?? 'Agenda',
+                        subtitle: _activitySubtitle(item),
+                      ),
+                    ),
             ],
           ),
         ),
@@ -416,10 +480,9 @@ class _ProfileHeroCard extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 31,
                     backgroundColor: Colors.white,
-                    backgroundImage:
-                        avatarUrl != null && avatarUrl!.isNotEmpty
-                            ? NetworkImage(avatarUrl!)
-                            : null,
+                    backgroundImage: avatarUrl != null && avatarUrl!.isNotEmpty
+                        ? NetworkImage(avatarUrl!)
+                        : null,
                     child: avatarUrl == null || avatarUrl!.isEmpty
                         ? const Icon(
                             Icons.person_rounded,

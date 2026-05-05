@@ -164,7 +164,19 @@ class ProfileController extends \App\Http\Controllers\Controller
 
         $validated = $request->validate([
             'current_password' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*?&]/',
+                'confirmed',
+            ],
+        ], [
+            'password.min' => 'Password baru minimal 8 karakter',
+            'password.regex' => 'Password baru harus mengandung huruf kecil, huruf besar, angka, dan simbol (@$!%*?&)',
         ]);
 
         if (!Hash::check($validated['current_password'], $user->password)) {

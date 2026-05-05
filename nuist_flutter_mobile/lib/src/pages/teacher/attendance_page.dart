@@ -429,9 +429,6 @@ class _AttendanceContent extends StatelessWidget {
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
     );
-    final timeRanges = Map<String, dynamic>.from(
-      (data['time_ranges'] as Map?) ?? const <String, dynamic>{},
-    );
     final recent = ((data['recent'] as List?) ?? const [])
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
@@ -472,11 +469,11 @@ class _AttendanceContent extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 14),
-        _AttendanceActionCard(
-          form: form,
-          timeRanges: timeRanges,
-        ),
+        // const SizedBox(height: 14),
+        // _AttendanceActionCard(
+        //   form: form,
+        //   timeRanges: timeRanges,
+        // ),
         const SizedBox(height: 14),
         _AttendanceLocationCard(
           position: position,
@@ -783,7 +780,7 @@ class _MiniAttendanceCard extends StatelessWidget {
     return AppSectionCard(
       padding: const EdgeInsets.all(14),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 36,
@@ -801,6 +798,7 @@ class _MiniAttendanceCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             value,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: _attendanceText,
               fontSize: 20,
@@ -810,6 +808,7 @@ class _MiniAttendanceCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: _attendanceMuted,
               fontWeight: FontWeight.w700,
@@ -822,108 +821,81 @@ class _MiniAttendanceCard extends StatelessWidget {
   }
 }
 
-class _AttendanceActionCard extends StatelessWidget {
-  const _AttendanceActionCard({
-    required this.form,
-    required this.timeRanges,
-  });
-
-  final Map<String, dynamic> form;
-  final Map<String, dynamic> timeRanges;
-
-  @override
-  Widget build(BuildContext context) {
-    final blockedMessage = form['blocked_message'] as String?;
-    final nextModeLabel = form['next_mode_label'] as String? ?? '-';
-
-    return AppSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Status Presensi',
-            style: TextStyle(
-              color: _attendanceText,
-              fontWeight: FontWeight.w800,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: blockedMessage == null
-                  ? _attendanceSoft
-                  : const Color(0xFFFFF2F0),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: blockedMessage == null
-                    ? const Color(0xFFF8D7B1)
-                    : const Color(0xFFFFD0CB),
-              ),
-            ),
-            child: Text(
-              blockedMessage ?? 'Mode aktif saat ini: $nextModeLabel',
-              style: TextStyle(
-                color: blockedMessage == null
-                    ? _attendanceText
-                    : const Color(0xFFB42318),
-                height: 1.4,
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _RangeChip(
-                label: 'Masuk ${timeRanges['masuk_start'] ?? '-'}',
-              ),
-              _RangeChip(
-                label: 'Pulang ${timeRanges['pulang_start'] ?? '-'}',
-              ),
-              if ((timeRanges['pulang_end'] as String?)?.isNotEmpty == true)
-                _RangeChip(
-                  label: 'Batas ${timeRanges['pulang_end']}',
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RangeChip extends StatelessWidget {
-  const _RangeChip({
-    required this.label,
-  });
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: _attendanceSoft,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: _attendanceText,
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-    );
-  }
-}
+// class _AttendanceActionCard extends StatelessWidget {
+//   const _AttendanceActionCard({
+//     required this.form,
+//     required this.timeRanges,
+//   });
+//
+//   final Map<String, dynamic> form;
+//   final Map<String, dynamic> timeRanges;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final blockedMessage = form['blocked_message'] as String?;
+//     final nextModeLabel = form['next_mode_label'] as String? ?? '-';
+//
+//     return AppSectionCard(
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+          // const Text(
+          //   'Status Presensi',
+          //   style: TextStyle(
+          //     color: _attendanceText,
+          //     fontWeight: FontWeight.w800,
+          //     fontSize: 16,
+          //   ),
+          // ),
+          // const SizedBox(height: 10),
+          // Container(
+          //   width: double.infinity,
+          //   padding: const EdgeInsets.all(14),
+          //   decoration: BoxDecoration(
+          //     color: blockedMessage == null
+          //         ? _attendanceSoft
+          //         : const Color(0xFFFFF2F0),
+          //     borderRadius: BorderRadius.circular(18),
+          //     border: Border.all(
+          //       color: blockedMessage == null
+          //           ? const Color(0xFFF8D7B1)
+          //           : const Color(0xFFFFD0CB),
+          //     ),
+          //   ),
+          //   child: Text(
+          //     blockedMessage ?? 'Mode aktif saat ini: $nextModeLabel',
+          //     style: TextStyle(
+          //       color: blockedMessage == null
+          //           ? _attendanceText
+          //           : const Color(0xFFB42318),
+          //       height: 1.4,
+          //       fontWeight: FontWeight.w700,
+          //       fontSize: 13,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(height: 12),
+          // Wrap(
+          //   spacing: 8,
+          //   runSpacing: 8,
+          //   children: [
+          //     _RangeChip(
+          //       label: 'Masuk ${timeRanges['masuk_start'] ?? '-'}',
+          //     ),
+          //     _RangeChip(
+          //       label: 'Pulang ${timeRanges['pulang_start'] ?? '-'}',
+          //     ),
+          //     if ((timeRanges['pulang_end'] as String?)?.isNotEmpty == true)
+          //       _RangeChip(
+          //         label: 'Batas ${timeRanges['pulang_end']}',
+          //       ),
+          //   ],
+          // ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class _AttendanceLocationCard extends StatelessWidget {
   const _AttendanceLocationCard({

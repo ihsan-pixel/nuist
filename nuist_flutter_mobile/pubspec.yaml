@@ -41,6 +41,7 @@ dependencies:
   flutter_map: ^6.1.0
   image_picker: ^0.8.7+5
   latlong2: ^0.9.1
+  file_picker: ^8.0.0+1
 
 dev_dependencies:
   flutter_test:
