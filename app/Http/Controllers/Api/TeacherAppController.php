@@ -293,7 +293,7 @@ class TeacherAppController extends Controller
                 'waktu_masuk',
                 'waktu_keluar',
                 'lokasi',
-                'lokasi_keluar',
+                // 'lokasi_keluar',
                 'status',
                 'keterangan',
                 'selfie_masuk_path',
@@ -315,7 +315,7 @@ class TeacherAppController extends Controller
                 'waktu_masuk',
                 'waktu_keluar',
                 'lokasi',
-                'lokasi_keluar',
+                // 'lokasi_keluar',
                 'status',
                 'keterangan',
             ])
@@ -368,7 +368,7 @@ class TeacherAppController extends Controller
                         'check_in' => optional($item->waktu_masuk)->format('H:i'),
                         'check_out' => optional($item->waktu_keluar)->format('H:i'),
                         'location' => $item->lokasi ?: $item->madrasah?->name,
-                        'location_out' => $item->lokasi_keluar,
+                        // 'location_out' => $item->lokasi_keluar,
                         'school_name' => $item->madrasah?->name,
                         'note' => $item->keterangan,
                     ];
@@ -543,7 +543,7 @@ class TeacherAppController extends Controller
                 'waktu_keluar' => $now,
                 'latitude_keluar' => $validated['latitude'],
                 'longitude_keluar' => $validated['longitude'],
-                'lokasi_keluar' => $validated['lokasi'] ?? null,
+                // 'lokasi_keluar' => $validated['lokasi'] ?? null,
                 'accuracy_keluar' => $validated['accuracy'] ?? null,
                 'altitude_keluar' => $validated['altitude'] ?? null,
                 'speed_keluar' => $validated['speed'] ?? null,
@@ -868,7 +868,7 @@ class TeacherAppController extends Controller
             'check_in' => optional($checkIn?->waktu_masuk)->format('H:i'),
             'check_out' => optional($checkOut?->waktu_keluar)->format('H:i'),
             'location' => $checkIn?->lokasi ?: $checkIn?->madrasah?->name,
-            'location_out' => $checkOut?->lokasi_keluar,
+            // 'location_out' => $checkOut?->lokasi_keluar,
             'entries' => $items->map(function (Presensi $item) {
                 return [
                     'id' => $item->id,
@@ -877,7 +877,7 @@ class TeacherAppController extends Controller
                     'check_in' => optional($item->waktu_masuk)->format('H:i'),
                     'check_out' => optional($item->waktu_keluar)->format('H:i'),
                     'location' => $item->lokasi,
-                    'location_out' => $item->lokasi_keluar,
+                    // 'location_out' => $item->lokasi_keluar,
                     'note' => $item->keterangan,
                     'selfie_in_url' => $item->selfie_masuk_path ? asset('storage/' . ltrim($item->selfie_masuk_path, '/')) : null,
                     'selfie_out_url' => $item->selfie_keluar_path ? asset('storage/' . ltrim($item->selfie_keluar_path, '/')) : null,
