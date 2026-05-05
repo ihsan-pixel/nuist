@@ -52,8 +52,11 @@ class TeacherMobileRepository {
     required int scheduleId,
   }) async {
     try {
-      await _apiClient.dio.delete<Map<String, dynamic>>(
-        '/mobile/app/teacher/schedule/$scheduleId',
+      await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.delete<Map<String, dynamic>>(
+          '/mobile/app/teacher/schedule/$scheduleId',
+        ),
+        actionLabel: 'hapus jadwal',
       );
     } on DioException catch (error) {
       debugPrint(
@@ -72,9 +75,12 @@ class TeacherMobileRepository {
     required Map<String, dynamic> payload,
   }) async {
     try {
-      final response = await _apiClient.dio.post<Map<String, dynamic>>(
-        '/mobile/app/teacher/attendance',
-        data: payload,
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/app/teacher/attendance',
+          data: payload,
+        ),
+        actionLabel: 'submit presensi',
       );
       final body = response.data ?? const <String, dynamic>{};
       final responseData = body['data'];
@@ -118,7 +124,10 @@ class TeacherMobileRepository {
     required String actionLabel,
   }) async {
     try {
-      final response = await _apiClient.dio.get<Map<String, dynamic>>(path);
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.get<Map<String, dynamic>>(path),
+        actionLabel: actionLabel,
+      );
       final data = response.data?['data'];
       if (data is Map<String, dynamic>) {
         return data;
@@ -146,15 +155,21 @@ class TeacherMobileRepository {
       late final Response<Map<String, dynamic>> response;
       switch (method) {
         case 'POST':
-          response = await _apiClient.dio.post<Map<String, dynamic>>(
-            path,
-            data: data,
+          response = await _withRetry<Map<String, dynamic>>(
+            request: () => _apiClient.dio.post<Map<String, dynamic>>(
+              path,
+              data: data,
+            ),
+            actionLabel: actionLabel,
           );
           break;
         case 'PUT':
-          response = await _apiClient.dio.put<Map<String, dynamic>>(
-            path,
-            data: data,
+          response = await _withRetry<Map<String, dynamic>>(
+            request: () => _apiClient.dio.put<Map<String, dynamic>>(
+              path,
+              data: data,
+            ),
+            actionLabel: actionLabel,
           );
           break;
         default:
@@ -176,6 +191,65 @@ class TeacherMobileRepository {
         'status=${error.response?.statusCode} body=${error.response?.data}',
       );
       throw _mapDioError(error);
+    }
+  }
+
+  Future<Response<T>> _withRetry<T>({
+    required Future<Response<T>> Function() request,
+    required String actionLabel,
+  }) async {
+    var retriedOnSameHost = false;
+
+    while (true) {
+      try {
+        return await request();
+      } on DioException catch (error) {
+        if (!_isTransientDioError(error)) {
+          rethrow;
+        }
+
+        if (_shouldFailoverBaseUrl(error) && _apiClient.switchToNextBaseUrl()) {
+          debugPrint(
+            'Retrying teacher $actionLabel using fallback API host ${_apiClient.baseUrl} '
+            'after transient network error: type=${error.type} message=${error.message}',
+          );
+          continue;
+        }
+
+        if (retriedOnSameHost) {
+          rethrow;
+        }
+
+        retriedOnSameHost = true;
+        debugPrint(
+          'Retrying teacher $actionLabel on API host ${_apiClient.baseUrl} '
+          'after transient network error: type=${error.type} message=${error.message}',
+        );
+
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+      }
+    }
+  }
+
+  bool _isTransientDioError(DioException error) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.connectionError:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool _shouldFailoverBaseUrl(DioException error) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.connectionError:
+        return true;
+      default:
+        return false;
     }
   }
 
@@ -216,9 +290,13 @@ class TeacherMobileRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
-        return 'Server terlalu lama merespons. Coba lagi beberapa saat.';
+        return 'Server terlalu lama merespons dari ${_apiClient.baseUrl}. Periksa koneksi internet Anda lalu coba lagi.';
       case DioExceptionType.connectionError:
-        return 'Tidak bisa terhubung ke server.';
+        final message = error.message?.trim();
+        if (message != null && message.isNotEmpty) {
+          return 'Tidak bisa terhubung ke server ${_apiClient.baseUrl}. Detail: $message';
+        }
+        return 'Tidak bisa terhubung ke server ${_apiClient.baseUrl}.';
       default:
         final message = error.message?.trim();
         if (message != null && message.isNotEmpty) {
