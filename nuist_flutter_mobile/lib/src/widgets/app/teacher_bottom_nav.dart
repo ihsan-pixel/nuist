@@ -131,7 +131,7 @@ class _NavSideItem extends StatelessWidget {
             curve: Curves.easeOut,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
-              color: selected ? const Color(0xFFEAF7F6) : Colors.transparent,
+              color: selected ? const Color(0xFFFFF4E8) : Colors.transparent,
               borderRadius: BorderRadius.circular(22),
             ),
             child: Column(
@@ -141,7 +141,7 @@ class _NavSideItem extends StatelessWidget {
                   icon,
                   size: 22,
                   color: selected
-                      ? const Color(0xFF004B48)
+                      ? const Color(0xFFF49637)
                       : const Color(0xFF8BA3A1),
                 ),
                 const SizedBox(height: 4),
@@ -151,7 +151,7 @@ class _NavSideItem extends StatelessWidget {
                     fontSize: 11,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
-                        ? const Color(0xFF004B48)
+                        ? const Color(0xFFF49637)
                         : const Color(0xFF8BA3A1),
                   ),
                 ),
@@ -191,12 +191,12 @@ class _CenterNavItem extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color:
-                  selected ? const Color(0xFFF4C272) : const Color(0xFFEAF7F6),
+                  selected ? const Color(0xFFF49637) : const Color(0xFFFFF4E8),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x22004B48),
-                  blurRadius: 24,
-                  offset: Offset(0, 10),
+                  color: Color(0xFFF49637),
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
                 ),
               ],
             ),
@@ -207,8 +207,8 @@ class _CenterNavItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFF0D8E89),
-                    Color(0xFF004B48),
+                    Color(0xFFF49637),
+                    Color(0xFFC96A19),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -228,7 +228,7 @@ class _CenterNavItem extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.w800,
               color:
-                  selected ? const Color(0xFF004B48) : const Color(0xFF5B7673),
+                  selected ? const Color(0xFFA65612) : const Color(0xFFA07A52),
             ),
           ),
         ],

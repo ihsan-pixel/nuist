@@ -22,7 +22,7 @@ class AppEmptyState extends StatelessWidget {
             Icon(
               icon,
               size: 42,
-              color: const Color(0xFF8BA3A1),
+              color: const Color(0xFFF49637),
             ),
             const SizedBox(height: 10),
             Text(
@@ -30,18 +30,18 @@ class AppEmptyState extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1F4F4C),
+                color: Color(0xFF7A4212),
               ),
             ),
             const SizedBox(height: 6),
             Text(
               message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF6D7F7D),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF6D7F7D),
+                ),
               ),
-            ),
           ],
         ),
       ),

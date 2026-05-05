@@ -14,9 +14,14 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class TeacherAppController extends Controller
 {
+    private const SCHEDULE_DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    private const SCHEDULE_NEW_VALUE = '__new__';
+
     public function dashboard(Request $request): JsonResponse
     {
         $user = $this->resolveTeacher($request);
@@ -166,18 +171,102 @@ class TeacherAppController extends Controller
         return response()->json([
             'message' => 'OK',
             'data' => [
-                'items' => $schedules->map(function (TeachingSchedule $schedule) {
-                    return [
-                        'id' => $schedule->id,
-                        'day' => $schedule->day,
-                        'subject' => $schedule->subject,
-                        'class_name' => $schedule->class_name,
-                        'school_name' => $schedule->school?->name,
-                        'start_time' => $this->formatTime($schedule->start_time),
-                        'end_time' => $this->formatTime($schedule->end_time),
-                    ];
-                })->values(),
+                'items' => $schedules->map(fn (TeachingSchedule $schedule) => $this->serializeSchedule($schedule))->values(),
+                'can_manage' => (bool) $user->madrasah_id,
             ],
+        ]);
+    }
+
+    public function scheduleOptions(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $schoolId = $user->madrasah_id;
+
+        if (!$schoolId) {
+            throw ValidationException::withMessages([
+                'school' => 'Akun Anda belum terhubung ke madrasah, sehingga tidak bisa mengelola jadwal.',
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'OK',
+            'data' => [
+                'days' => self::SCHEDULE_DAYS,
+                'new_value' => self::SCHEDULE_NEW_VALUE,
+                'subjects' => $this->getScheduleSubjects($schoolId)->values(),
+                'classes' => $this->getScheduleClasses($schoolId)->values(),
+            ],
+        ]);
+    }
+
+    public function storeSchedule(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $schoolId = $user->madrasah_id;
+
+        if (!$schoolId) {
+            throw ValidationException::withMessages([
+                'school' => 'Akun Anda belum terhubung ke madrasah, sehingga tidak bisa membuat jadwal.',
+            ]);
+        }
+
+        $validated = $this->validateSchedulePayload($request);
+        $this->ensureScheduleDoesNotOverlap($user, $validated);
+
+        $schedule = TeachingSchedule::create([
+            'school_id' => $schoolId,
+            'teacher_id' => $user->id,
+            'day' => $validated['day'],
+            'subject' => $validated['subject'],
+            'class_name' => $validated['class_name'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'created_by' => $user->id,
+        ])->load('school');
+
+        return response()->json([
+            'message' => 'Jadwal mengajar berhasil ditambahkan.',
+            'data' => [
+                'item' => $this->serializeSchedule($schedule),
+            ],
+        ], 201);
+    }
+
+    public function updateSchedule(Request $request, TeachingSchedule $schedule): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        abort_unless($schedule->teacher_id === $user->id, 403);
+
+        $validated = $this->validateSchedulePayload($request);
+        $this->ensureScheduleDoesNotOverlap($user, $validated, $schedule->id);
+
+        $schedule->update([
+            'day' => $validated['day'],
+            'subject' => $validated['subject'],
+            'class_name' => $validated['class_name'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+        ]);
+
+        $schedule->load('school');
+
+        return response()->json([
+            'message' => 'Jadwal mengajar berhasil diperbarui.',
+            'data' => [
+                'item' => $this->serializeSchedule($schedule),
+            ],
+        ]);
+    }
+
+    public function destroySchedule(Request $request, TeachingSchedule $schedule): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        abort_unless($schedule->teacher_id === $user->id, 403);
+
+        $schedule->delete();
+
+        return response()->json([
+            'message' => 'Jadwal mengajar berhasil dihapus.',
         ]);
     }
 
@@ -369,6 +458,104 @@ class TeacherAppController extends Controller
         abort_unless($user && $user->role === 'tenaga_pendidik', 403);
 
         return $user->loadMissing(['madrasah', 'statusKepegawaian']);
+    }
+
+    private function validateSchedulePayload(Request $request): array
+    {
+        $validated = $request->validate([
+            'day' => ['required', Rule::in(self::SCHEDULE_DAYS)],
+            'subject' => ['required', 'string', 'max:255'],
+            'subject_new' => ['nullable', 'string', 'max:255'],
+            'class_name' => ['required', 'string', 'max:255'],
+            'class_name_new' => ['nullable', 'string', 'max:255'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+        ]);
+
+        $validated['subject'] = trim((string) $validated['subject']);
+        $validated['class_name'] = trim((string) $validated['class_name']);
+        $validated['subject_new'] = trim((string) ($validated['subject_new'] ?? ''));
+        $validated['class_name_new'] = trim((string) ($validated['class_name_new'] ?? ''));
+
+        if ($validated['subject'] === self::SCHEDULE_NEW_VALUE) {
+            if ($validated['subject_new'] === '') {
+                throw ValidationException::withMessages([
+                    'subject_new' => 'Mata pelajaran baru wajib diisi.',
+                ]);
+            }
+
+            $validated['subject'] = $validated['subject_new'];
+        }
+
+        if ($validated['class_name'] === self::SCHEDULE_NEW_VALUE) {
+            if ($validated['class_name_new'] === '') {
+                throw ValidationException::withMessages([
+                    'class_name_new' => 'Kelas baru wajib diisi.',
+                ]);
+            }
+
+            $validated['class_name'] = $validated['class_name_new'];
+        }
+
+        return $validated;
+    }
+
+    private function ensureScheduleDoesNotOverlap(User $user, array $validated, ?int $exceptId = null): void
+    {
+        $query = TeachingSchedule::query()
+            ->where('teacher_id', $user->id)
+            ->where('day', $validated['day'])
+            ->where(function ($builder) use ($validated) {
+                $builder->where('start_time', '<', $validated['end_time'])
+                    ->where('end_time', '>', $validated['start_time']);
+            });
+
+        if ($exceptId !== null) {
+            $query->where('id', '!=', $exceptId);
+        }
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'overlap' => 'Jadwal bentrok dengan jadwal Anda sendiri pada hari yang sama.',
+            ]);
+        }
+    }
+
+    private function getScheduleClasses(int|string $schoolId)
+    {
+        return TeachingSchedule::query()
+            ->where('school_id', $schoolId)
+            ->whereNotNull('class_name')
+            ->where('class_name', '!=', '')
+            ->select('class_name')
+            ->distinct()
+            ->orderBy('class_name')
+            ->pluck('class_name');
+    }
+
+    private function getScheduleSubjects(int|string $schoolId)
+    {
+        return TeachingSchedule::query()
+            ->where('school_id', $schoolId)
+            ->whereNotNull('subject')
+            ->where('subject', '!=', '')
+            ->select('subject')
+            ->distinct()
+            ->orderBy('subject')
+            ->pluck('subject');
+    }
+
+    private function serializeSchedule(TeachingSchedule $schedule): array
+    {
+        return [
+            'id' => $schedule->id,
+            'day' => $schedule->day,
+            'subject' => $schedule->subject,
+            'class_name' => $schedule->class_name,
+            'school_name' => $schedule->school?->name,
+            'start_time' => $this->formatTime($schedule->start_time),
+            'end_time' => $this->formatTime($schedule->end_time),
+        ];
     }
 
     private function todaySchedules(User $user, Carbon $today)

@@ -37,6 +37,10 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
     Route::prefix('/app/teacher')->group(function () {
         Route::get('/dashboard', [TeacherAppController::class, 'dashboard']);
         Route::get('/schedule', [TeacherAppController::class, 'schedule']);
+        Route::get('/schedule/options', [TeacherAppController::class, 'scheduleOptions']);
+        Route::post('/schedule', [TeacherAppController::class, 'storeSchedule']);
+        Route::put('/schedule/{schedule}', [TeacherAppController::class, 'updateSchedule']);
+        Route::delete('/schedule/{schedule}', [TeacherAppController::class, 'destroySchedule']);
         Route::get('/attendance', [TeacherAppController::class, 'attendance']);
         Route::get('/teaching-journal', [TeacherAppController::class, 'teachingJournal']);
         Route::get('/profile', [TeacherAppController::class, 'profile']);

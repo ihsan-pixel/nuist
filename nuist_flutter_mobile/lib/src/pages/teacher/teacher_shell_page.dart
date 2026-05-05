@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../controllers/session_controller.dart';
 import '../../services/teacher_mobile_repository.dart';
-import '../../theme/app_theme.dart';
 import '../../widgets/app/teacher_bottom_nav.dart';
 import 'attendance_page.dart';
 import 'dashboard_page.dart';
@@ -53,7 +52,10 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
         icon: Icons.calendar_month_rounded,
         isCenter: false,
       ),
-      page: TeacherSchedulePage(repository: widget.repository),
+      page: TeacherSchedulePage(
+        repository: widget.repository,
+        onBackToHome: _openDashboard,
+      ),
     ),
     _ShellItem(
       title: 'Presensi',
@@ -62,7 +64,10 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
         icon: Icons.verified_user_rounded,
         isCenter: true,
       ),
-      page: TeacherAttendancePage(repository: widget.repository),
+      page: TeacherAttendancePage(
+        repository: widget.repository,
+        onBackToHome: _openDashboard,
+      ),
     ),
     _ShellItem(
       title: 'Jurnal',
@@ -71,7 +76,10 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
         icon: Icons.menu_book_rounded,
         isCenter: false,
       ),
-      page: TeacherTeachingJournalPage(repository: widget.repository),
+      page: TeacherTeachingJournalPage(
+        repository: widget.repository,
+        onBackToHome: _openDashboard,
+      ),
     ),
     _ShellItem(
       title: 'Profile',
@@ -83,6 +91,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
       page: TeacherProfilePage(
         repository: widget.repository,
         onOpenIzin: _openIzinPage,
+        onBackToHome: _openDashboard,
       ),
     ),
   ];
@@ -101,6 +110,10 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
 
   void _openProfile() {
     _selectTab(4);
+  }
+
+  void _openDashboard() {
+    _selectTab(0);
   }
 
   void _openSettings() {
@@ -131,22 +144,10 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    final currentItem = _items[_currentIndex];
-    final showDashboardHeader = _currentIndex == 0;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F7F6),
-      appBar: showDashboardHeader
-          ? null
-          : AppBar(
-              title: Text(currentItem.title),
-              backgroundColor: Colors.white,
-              foregroundColor: AppColors.textMain,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-            ),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        top: showDashboardHeader,
+        top: _currentIndex != 4,
         bottom: false,
         child: IndexedStack(
           index: _currentIndex,

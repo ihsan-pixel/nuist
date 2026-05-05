@@ -171,12 +171,12 @@ class _DashboardContent extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 4,
           shrinkWrap: true,
-          childAspectRatio: 0.82,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          childAspectRatio: 0.9,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
           children: [
             _MonthlyStatTile(
-              label: 'Kehadir',
+              label: 'Kehadiran',
               value: '${summary['attendance_percent'] ?? 0}%',
               gradient: const [
                 Color(0xFF0D8E89),
@@ -262,7 +262,7 @@ class _DashboardContent extends StatelessWidget {
                 },
               ),
               _ServiceShortcutTile(
-                label: 'Presensi Hari Ini',
+                label: 'Presensi Today',
                 colors: const [Color(0xFF7BC7B2), Color(0xFF2C8B76)],
                 icon: _attendanceStatusIcon(
                   todayAttendance['status'] as String? ?? 'belum_presensi',
@@ -747,15 +747,15 @@ class _PerformanceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(26),
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF004B48),
-            Color(0xFF0D8E89),
+            Color(0xFFC96A19),
+            Color(0xFFF49637),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x18004B48),
+            color: Color(0x22C96A19),
             blurRadius: 24,
             offset: Offset(0, 12),
           ),
@@ -811,7 +811,7 @@ class _PerformanceCard extends StatelessWidget {
               value: progress.toDouble(),
               backgroundColor: Colors.white.withOpacity(0.16),
               valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFFF4C36F),
+                Color(0xFFFFE0BE),
               ),
             ),
           ),
@@ -840,7 +840,7 @@ class _SectionHeading extends StatelessWidget {
           style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF0D8E89),
+            color: Color(0xFFF49637),
             letterSpacing: 0.4,
           ),
         ),
@@ -975,7 +975,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
           const SizedBox(height: 10),
           if (holidayNotes.isEmpty)
             const AppEmptyState(
-              title: 'Tidak ada tanggal merah bulan ini.',
+              title: 'Tidak ada tanggal merah bulan ini',
               message:
                   'Daftar hari libur nasional untuk bulan ini belum tersedia.',
               icon: Icons.event_available_rounded,
@@ -983,61 +983,66 @@ class _AttendanceCalendarCard extends StatelessWidget {
           else
             ...holidayNotes.map(
               (item) => Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF6F5),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFF3C9C5)),
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Color(0xFFF1DEDB),
+                    ),
+                  ),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: 38,
-                      height: 38,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFD92D20).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Icon(
-                        Icons.event_busy_rounded,
-                        color: Color(0xFFD92D20),
-                        size: 20,
+                      child: Text(
+                        item['date_label'] as String? ?? '-',
+                        style: const TextStyle(
+                          color: Color(0xFFD92D20),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             item['name'] as String? ?? 'Tanggal merah',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: Color(0xFF7A271A),
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            item['date_label'] as String? ?? '-',
-                            style: const TextStyle(
-                              color: Color(0xFFAF5A4F),
+                              color: Color(0xFF385452),
                               fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
+                              height: 1.1,
                             ),
                           ),
                           if ((item['description'] as String?)
                                   ?.trim()
                                   .isNotEmpty ==
                               true) ...[
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 2),
                             Text(
                               item['description'] as String,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                color: Color(0xFF8E4A40),
-                                fontSize: 12,
-                                height: 1.3,
+                                color: Color(0xFF8A9B99),
+                                fontSize: 10,
+                                height: 1.2,
                               ),
                             ),
                           ],
@@ -1195,20 +1200,22 @@ class _MonthlyStatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = gradient.first;
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        border: Border.all(
+          color: accent.withOpacity(0.5),
+          width: 1.2,
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x15003B39),
-            blurRadius: 20,
-            offset: Offset(0, 8),
+            color: Color(0x0B003B39),
+            blurRadius: 12,
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -1217,32 +1224,32 @@ class _MonthlyStatTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 34,
-            height: 34,
+            width: 30,
+            height: 30,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
+              color: accent.withOpacity(0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: Colors.white, size: 18),
+            child: Icon(icon, color: accent, size: 16),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             value,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 17,
+            style: TextStyle(
+              color: accent,
+              fontSize: 15,
               fontWeight: FontWeight.w800,
               height: 1,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Text(
             label,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
+              color: Color(0xFF6D7F7D),
+              fontSize: 10,
               fontWeight: FontWeight.w700,
               height: 1.1,
             ),
