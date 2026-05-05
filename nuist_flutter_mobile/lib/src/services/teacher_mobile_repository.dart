@@ -111,6 +111,78 @@ class TeacherMobileRepository {
     );
   }
 
+  Future<Map<String, dynamic>> checkTeachingJournalLocation({
+    required int scheduleId,
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/app/teacher/teaching-journal/check-location',
+          data: {
+            'teaching_schedule_id': scheduleId,
+            'latitude': latitude,
+            'longitude': longitude,
+          },
+        ),
+        actionLabel: 'cek lokasi presensi mengajar',
+      );
+      final body = response.data ?? const <String, dynamic>{};
+      final responseData = body['data'];
+      final result = responseData is Map<String, dynamic>
+          ? Map<String, dynamic>.from(responseData)
+          : responseData is Map
+              ? Map<String, dynamic>.from(responseData)
+              : <String, dynamic>{};
+
+      if (body['message'] is String) {
+        result['_message'] = body['message'];
+      }
+
+      return result;
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher cek lokasi presensi mengajar request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> submitTeachingJournalAttendance({
+    required Map<String, dynamic> payload,
+  }) async {
+    try {
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/app/teacher/teaching-journal/attendance',
+          data: payload,
+        ),
+        actionLabel: 'presensi mengajar',
+      );
+      final body = response.data ?? const <String, dynamic>{};
+      final responseData = body['data'];
+      final result = responseData is Map<String, dynamic>
+          ? Map<String, dynamic>.from(responseData)
+          : responseData is Map
+              ? Map<String, dynamic>.from(responseData)
+              : <String, dynamic>{};
+
+      if (body['message'] is String) {
+        result['_message'] = body['message'];
+      }
+
+      return result;
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher presensi mengajar request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> getProfile() {
     return _get('/mobile/app/teacher/profile', actionLabel: 'profil');
   }

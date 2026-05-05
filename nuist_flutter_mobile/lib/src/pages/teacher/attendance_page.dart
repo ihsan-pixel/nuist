@@ -26,10 +26,12 @@ class TeacherAttendancePage extends StatefulWidget {
     super.key,
     required this.repository,
     required this.onBackToHome,
+    required this.isActive,
   });
 
   final TeacherMobileRepository repository;
   final VoidCallback onBackToHome;
+  final bool isActive;
 
   @override
   State<TeacherAttendancePage> createState() => _TeacherAttendancePageState();
@@ -55,6 +57,9 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
     super.initState();
     _future = widget.repository.getAttendance();
     _now = DateTime.now();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _triggerAutoLocationCapture();
+    });
     _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) {
         return;
@@ -63,6 +68,14 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
         _now = DateTime.now();
       });
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant TeacherAttendancePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      _triggerAutoLocationCapture();
+    }
   }
 
   @override
@@ -77,6 +90,14 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
       _future = future;
     });
     await future;
+  }
+
+  void _triggerAutoLocationCapture() {
+    if (!mounted || !widget.isActive || _loadingLocation) {
+      return;
+    }
+
+    unawaited(_captureLocation());
   }
 
   Future<void> _captureLocation() async {
@@ -134,6 +155,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
       setState(() {
         _position = latestPosition;
         _locationAddress = address;
+        _locationError = null;
         _locationReadings = readings;
       });
     } catch (error) {

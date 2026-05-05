@@ -7,8 +7,10 @@ use App\Models\Holiday;
 use App\Models\Izin;
 use App\Models\MgmpMember;
 use App\Models\MgmpReport;
+use App\Models\Notification;
 use App\Models\Presensi;
 use App\Models\TeachingAttendance;
+use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\User;
 use App\Services\ApprovedIzinSyncService;
@@ -16,6 +18,7 @@ use App\Services\ExternalTeachingPermissionService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
@@ -577,8 +580,24 @@ class TeacherAppController extends Controller
     {
         $user = $this->resolveTeacher($request);
         $today = Carbon::today('Asia/Jakarta');
+        $now = Carbon::now('Asia/Jakarta');
         $monthStart = $today->copy()->startOfMonth();
         $monthEnd = $today->copy()->endOfMonth();
+        $approvedIzinPresensi = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $today->toDateString())
+            ->where('status', 'izin')
+            ->where('status_izin', 'approved')
+            ->first();
+
+        $todaySchedules = $this->todaySchedules($user, $today);
+        $this->attachTeachingClassStudentCounts($todaySchedules);
+
+        $todayAttendances = TeachingAttendance::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $today->toDateString())
+            ->get()
+            ->keyBy('teaching_schedule_id');
 
         $items = TeachingAttendance::query()
             ->with(['teachingSchedule.school'])
@@ -591,31 +610,260 @@ class TeacherAppController extends Controller
         return response()->json([
             'message' => 'OK',
             'data' => [
+                'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+                'server_time' => $now->toIso8601String(),
                 'month_label' => $today->locale('id')->isoFormat('MMMM YYYY'),
+                'approved_izin_today' => $approvedIzinPresensi
+                    ? [
+                        'message' => 'Anda tercatat izin (disetujui) hari ini, sehingga presensi mengajar ditandai sebagai izin.',
+                        'note' => $approvedIzinPresensi->keterangan,
+                    ]
+                    : null,
                 'summary' => [
                     'total_entries' => $items->count(),
                     'total_present_students' => (int) $items->sum('present_students'),
                     'total_classes' => $items->pluck('teaching_schedule_id')->filter()->unique()->count(),
                 ],
-                'items' => $items->map(function (TeachingAttendance $item) {
+                'today_summary' => [
+                    'total_schedules' => $todaySchedules->count(),
+                    'completed_schedules' => $todaySchedules
+                        ->filter(fn (TeachingSchedule $schedule) => $todayAttendances->has($schedule->id))
+                        ->count(),
+                    'pending_schedules' => $todaySchedules
+                        ->filter(fn (TeachingSchedule $schedule) => !$todayAttendances->has($schedule->id))
+                        ->count(),
+                ],
+                'today_schedules' => $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $approvedIzinPresensi, $now) {
+                    $attendance = $todayAttendances->get($schedule->id);
+                    $timeState = $this->buildTeachingAttendanceTimeState($schedule, $now);
+                    $classTotalStudents = $schedule->class_student_count?->total_students;
+
                     return [
-                        'id' => $item->id,
-                        'date' => optional($item->tanggal)->format('Y-m-d'),
-                        'date_label' => $item->tanggal
-                            ? Carbon::parse($item->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY')
-                            : '-',
-                        'subject' => $item->teachingSchedule?->subject ?? '-',
-                        'class_name' => $item->teachingSchedule?->class_name ?? '-',
-                        'school_name' => $item->teachingSchedule?->school?->name,
-                        'time' => $this->formatTime($item->waktu),
-                        'materi' => $item->materi ?: 'Belum ada materi tercatat.',
-                        'present_students' => $item->present_students,
-                        'class_total_students' => $item->class_total_students,
-                        'student_attendance_percentage' => $item->student_attendance_percentage,
+                        'id' => $schedule->id,
+                        'subject' => $schedule->subject,
+                        'class_name' => $schedule->class_name,
+                        'school_name' => $schedule->school?->name,
+                        'start_time' => $this->formatTime($schedule->start_time),
+                        'end_time' => $this->formatTime($schedule->end_time),
+                        'class_total_students' => $classTotalStudents,
+                        'requires_class_total_students' => $classTotalStudents === null,
+                        'time_state' => $timeState['state'],
+                        'time_message' => $timeState['message'],
+                        'can_submit' => $attendance === null
+                            && $approvedIzinPresensi === null
+                            && $timeState['state'] === 'within',
+                        'status' => $attendance
+                            ? (($attendance->status ?: 'hadir') === 'izin' ? 'izin' : 'hadir')
+                            : ($approvedIzinPresensi ? 'izin' : 'pending'),
+                        'status_label' => $attendance
+                            ? (($attendance->status ?: 'hadir') === 'izin' ? 'Izin' : 'Presensi Berhasil')
+                            : ($approvedIzinPresensi ? 'Izin (Disetujui)' : 'Belum Presensi'),
+                        'attendance' => $attendance ? $this->serializeTeachingAttendanceEntry($attendance) : null,
                     ];
+                })->values(),
+                'items' => $items->map(function (TeachingAttendance $item) {
+                    return $this->serializeTeachingAttendanceEntry($item);
                 })->values(),
             ],
         ]);
+    }
+
+    public function checkTeachingJournalLocation(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $validated = $request->validate([
+            'teaching_schedule_id' => ['required', 'exists:teaching_schedules,id'],
+            'latitude' => ['required', 'numeric'],
+            'longitude' => ['required', 'numeric'],
+        ]);
+
+        $schedule = TeachingSchedule::query()
+            ->with('school')
+            ->findOrFail($validated['teaching_schedule_id']);
+
+        $today = Carbon::today('Asia/Jakarta');
+
+        $this->ensureTeachingJournalScheduleAllowed($user, $schedule, $today);
+
+        $locationState = $this->checkTeachingAttendanceLocationAgainstSchool(
+            $schedule,
+            (float) $validated['latitude'],
+            (float) $validated['longitude'],
+        );
+
+        return response()->json([
+            'message' => $locationState['message'],
+            'data' => [
+                'is_within_polygon' => $locationState['is_within_polygon'],
+            ],
+        ]);
+    }
+
+    public function storeTeachingJournalAttendance(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $validated = $request->validate([
+            'teaching_schedule_id' => ['required', 'exists:teaching_schedules,id'],
+            'latitude' => ['required', 'numeric'],
+            'longitude' => ['required', 'numeric'],
+            'lokasi' => ['nullable', 'string'],
+            'materi' => ['required', 'string', 'max:1000'],
+            'present_students' => ['required', 'integer', 'min:0', 'max:10000'],
+            'class_total_students' => ['nullable', 'integer', 'min:1', 'max:10000'],
+        ]);
+
+        $validated['materi'] = trim((string) $validated['materi']);
+        if ($validated['materi'] === '') {
+            throw ValidationException::withMessages([
+                'materi' => 'Materi atau topik yang disampaikan wajib diisi.',
+            ]);
+        }
+
+        $today = Carbon::today('Asia/Jakarta');
+        $now = Carbon::now('Asia/Jakarta');
+
+        $approvedIzinPresensi = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $today->toDateString())
+            ->where('status', 'izin')
+            ->where('status_izin', 'approved')
+            ->exists();
+
+        if ($approvedIzinPresensi) {
+            throw ValidationException::withMessages([
+                'attendance' => 'Anda tercatat izin (disetujui) hari ini, sehingga tidak dapat melakukan presensi mengajar.',
+            ]);
+        }
+
+        $schedule = TeachingSchedule::query()
+            ->with('school')
+            ->findOrFail($validated['teaching_schedule_id']);
+
+        $this->ensureTeachingJournalScheduleAllowed($user, $schedule, $today);
+
+        $existingAttendance = TeachingAttendance::query()
+            ->where('teaching_schedule_id', $schedule->id)
+            ->whereDate('tanggal', $today->toDateString())
+            ->first();
+
+        if ($existingAttendance) {
+            throw ValidationException::withMessages([
+                'attendance' => 'Anda sudah melakukan presensi untuk jadwal ini hari ini.',
+            ]);
+        }
+
+        $timeState = $this->buildTeachingAttendanceTimeState($schedule, $now);
+        if ($timeState['state'] !== 'within') {
+            throw ValidationException::withMessages([
+                'attendance' => $timeState['message'],
+            ]);
+        }
+
+        $locationState = $this->checkTeachingAttendanceLocationAgainstSchool(
+            $schedule,
+            (float) $validated['latitude'],
+            (float) $validated['longitude'],
+        );
+
+        if (!$locationState['is_within_polygon']) {
+            throw ValidationException::withMessages([
+                'location' => $locationState['message'],
+            ]);
+        }
+
+        $classStudentCount = TeachingClassStudentCount::query()
+            ->where('school_id', $schedule->school_id)
+            ->where('class_name', trim((string) $schedule->class_name))
+            ->first();
+
+        if (!$classStudentCount && empty($validated['class_total_students'])) {
+            throw ValidationException::withMessages([
+                'class_total_students' => 'Jumlah siswa di kelas wajib diisi untuk jadwal ini.',
+            ]);
+        }
+
+        $presentStudents = (int) $validated['present_students'];
+        $classTotalStudents = $classStudentCount
+            ? (int) $classStudentCount->total_students
+            : (int) $validated['class_total_students'];
+
+        if ($presentStudents > $classTotalStudents) {
+            throw ValidationException::withMessages([
+                'present_students' => 'Jumlah siswa hadir tidak boleh melebihi jumlah siswa di kelas.',
+            ]);
+        }
+
+        $studentAttendancePercentage = $classTotalStudents > 0
+            ? round(($presentStudents / $classTotalStudents) * 100, 2)
+            : 0;
+
+        $attendance = DB::transaction(function () use (
+            $classStudentCount,
+            $classTotalStudents,
+            $locationState,
+            $presentStudents,
+            $request,
+            $schedule,
+            $studentAttendancePercentage,
+            $today,
+            $now,
+            $user,
+            $validated
+        ) {
+            if (!$classStudentCount) {
+                TeachingClassStudentCount::create([
+                    'school_id' => $schedule->school_id,
+                    'class_name' => trim((string) $schedule->class_name),
+                    'total_students' => $classTotalStudents,
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ]);
+            }
+
+            $attendance = TeachingAttendance::create([
+                'teaching_schedule_id' => $schedule->id,
+                'user_id' => $user->id,
+                'tanggal' => $today->toDateString(),
+                'waktu' => $now->format('H:i:s'),
+                'status' => 'hadir',
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
+                'lokasi' => $validated['lokasi'] ?? $locationState['location_label'],
+                'materi' => $validated['materi'],
+                'class_total_students' => $classTotalStudents,
+                'present_students' => $presentStudents,
+                'student_attendance_percentage' => $studentAttendancePercentage,
+            ]);
+
+            Notification::create([
+                'user_id' => $user->id,
+                'type' => 'teaching_success',
+                'title' => 'Presensi Mengajar Berhasil',
+                'message' => 'Presensi mengajar berhasil dicatat pada ' . $now->format('H:i') . '.',
+                'data' => [
+                    'attendance_id' => $attendance->id,
+                    'schedule_id' => $schedule->id,
+                    'tanggal' => $today->toDateString(),
+                    'waktu' => $now->format('H:i:s'),
+                    'school_name' => $schedule->school?->name,
+                    'materi' => $attendance->materi,
+                    'class_total_students' => $attendance->class_total_students,
+                    'present_students' => $attendance->present_students,
+                    'student_attendance_percentage' => $attendance->student_attendance_percentage,
+                ],
+            ]);
+
+            return $attendance;
+        });
+
+        $attendance->loadMissing('teachingSchedule.school');
+
+        return response()->json([
+            'message' => 'Presensi mengajar berhasil dicatat pada ' . $now->format('H:i') . '.',
+            'data' => [
+                'item' => $this->serializeTeachingAttendanceEntry($attendance),
+            ],
+        ], 201);
     }
 
     public function profile(Request $request): JsonResponse
@@ -829,6 +1077,140 @@ class TeacherAppController extends Controller
             ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
             ->orderBy('start_time')
             ->get();
+    }
+
+    private function attachTeachingClassStudentCounts($schedules): void
+    {
+        $schoolIds = $schedules->pluck('school_id')->filter()->unique()->values();
+        $classNames = $schedules->pluck('class_name')
+            ->map(fn ($className) => trim((string) $className))
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($schoolIds->isEmpty() || $classNames->isEmpty()) {
+            return;
+        }
+
+        $counts = TeachingClassStudentCount::query()
+            ->whereIn('school_id', $schoolIds)
+            ->whereIn('class_name', $classNames)
+            ->get()
+            ->keyBy(fn ($count) => $this->teachingClassStudentCountKey($count->school_id, $count->class_name));
+
+        $schedules->each(function (TeachingSchedule $schedule) use ($counts) {
+            $schedule->class_student_count = $counts->get(
+                $this->teachingClassStudentCountKey($schedule->school_id, $schedule->class_name)
+            );
+        });
+    }
+
+    private function teachingClassStudentCountKey($schoolId, $className): string
+    {
+        return $schoolId . '|' . strtolower(trim((string) $className));
+    }
+
+    private function buildTeachingAttendanceTimeState(TeachingSchedule $schedule, Carbon $now): array
+    {
+        $startTime = Carbon::createFromTimeString((string) $schedule->start_time, 'Asia/Jakarta');
+        $endTime = Carbon::createFromTimeString((string) $schedule->end_time, 'Asia/Jakarta');
+
+        if ($now->between($startTime, $endTime)) {
+            return [
+                'state' => 'within',
+                'message' => 'Presensi mengajar tersedia untuk jadwal ini.',
+            ];
+        }
+
+        if ($now->lt($startTime)) {
+            return [
+                'state' => 'before',
+                'message' => 'Presensi mengajar belum dapat dilakukan. Waktu mengajar dimulai pada ' . $this->formatTime($schedule->start_time) . '.',
+            ];
+        }
+
+        return [
+            'state' => 'after',
+            'message' => 'Waktu presensi harus dilakukan dalam rentang waktu mengajar (' . $this->formatTime($schedule->start_time) . ' - ' . $this->formatTime($schedule->end_time) . ').',
+        ];
+    }
+
+    private function ensureTeachingJournalScheduleAllowed(User $user, TeachingSchedule $schedule, Carbon $today): void
+    {
+        if ($schedule->teacher_id !== $user->id) {
+            abort(403);
+        }
+
+        $todayName = $today->copy()->locale('id')->dayName;
+        if (strtolower((string) $schedule->day) !== strtolower((string) $todayName)) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_id' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.',
+            ]);
+        }
+    }
+
+    private function checkTeachingAttendanceLocationAgainstSchool(
+        TeachingSchedule $schedule,
+        float $latitude,
+        float $longitude,
+    ): array {
+        $madrasah = $schedule->school;
+        $polygonsToCheck = [];
+
+        if ($madrasah && $madrasah->polygon_koordinat) {
+            $polygonsToCheck[] = $madrasah->polygon_koordinat;
+        }
+        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
+            $polygonsToCheck[] = $madrasah->polygon_koordinat_2;
+        }
+
+        foreach ($polygonsToCheck as $polygonJson) {
+            try {
+                $polygonGeometry = json_decode($polygonJson, true);
+                if (isset($polygonGeometry['coordinates'][0])) {
+                    $polygon = $polygonGeometry['coordinates'][0];
+                    if ($this->isPointInPolygon([$longitude, $latitude], $polygon)) {
+                        return [
+                            'is_within_polygon' => true,
+                            'message' => 'Lokasi berada dalam area sekolah.',
+                            'location_label' => $madrasah?->name ?? 'Presensi Mengajar',
+                        ];
+                    }
+                }
+            } catch (\Throwable $exception) {
+                continue;
+            }
+        }
+
+        return [
+            'is_within_polygon' => false,
+            'message' => empty($polygonsToCheck)
+                ? 'Madrasah belum memiliki polygon koordinat yang ditentukan.'
+                : 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.',
+            'location_label' => $madrasah?->name ?? 'Presensi Mengajar',
+        ];
+    }
+
+    private function serializeTeachingAttendanceEntry(TeachingAttendance $item): array
+    {
+        return [
+            'id' => $item->id,
+            'date' => optional($item->tanggal)->format('Y-m-d'),
+            'date_label' => $item->tanggal
+                ? Carbon::parse($item->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY')
+                : '-',
+            'subject' => $item->teachingSchedule?->subject ?? '-',
+            'class_name' => $item->teachingSchedule?->class_name ?? '-',
+            'school_name' => $item->teachingSchedule?->school?->name,
+            'time' => $this->formatTime($item->waktu),
+            'status' => $item->status ?? 'hadir',
+            'status_label' => ($item->status ?? 'hadir') === 'izin' ? 'Izin' : 'Hadir',
+            'materi' => $item->materi ?: 'Belum ada materi tercatat.',
+            'present_students' => $item->present_students,
+            'class_total_students' => $item->class_total_students,
+            'student_attendance_percentage' => $item->student_attendance_percentage,
+            'location' => $item->lokasi,
+        ];
     }
 
     private function attendancePercent($items): float

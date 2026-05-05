@@ -163,7 +163,7 @@ class _DashboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         _SectionHeading(
-          eyebrow: 'Aktivitas Presensi',
+          eyebrow: 'Aktivitas Presensii',
           title: currentMonthLabel,
         ),
         const SizedBox(height: 12),
@@ -171,7 +171,7 @@ class _DashboardContent extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 4,
           shrinkWrap: true,
-          childAspectRatio: 0.9,
+          childAspectRatio: 0.78,
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
           children: [
@@ -883,7 +883,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
           Row(
             children: [
               const Expanded(
-                child: _SectionTitle('Kalender Presensi Bulan Ini'),
+                child: _SectionTitle('Kalender Presensi Bulan Ini i'),
               ),
               Container(
                 padding:
@@ -958,7 +958,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
                 crossAxisCount: 7,
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 8,
-                childAspectRatio: 0.76,
+                childAspectRatio: 0.66,
               ),
               itemBuilder: (context, index) {
                 if (index < leadingEmptyDays) {
@@ -1138,7 +1138,7 @@ class _CalendarDayTile extends StatelessWidget {
     final isHoliday = status == 'tanggal_merah';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
         color: isHoliday
             ? const Color(0xFFFFF3F2)
@@ -1156,24 +1156,26 @@ class _CalendarDayTile extends StatelessWidget {
         ),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text(
-            '${item['day_number'] ?? '-'}',
-            style: TextStyle(
-              color: isHoliday
-                  ? const Color(0xFFD92D20)
-                  : isToday
-                      ? const Color(0xFF0D8E89)
-                      : const Color(0xFF1F4F4C),
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '${item['day_number'] ?? '-'}',
+              style: TextStyle(
+                color: isHoliday
+                    ? const Color(0xFFD92D20)
+                    : isToday
+                        ? const Color(0xFF0D8E89)
+                        : const Color(0xFF1F4F4C),
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
-          const SizedBox(height: 6),
           Container(
-            width: 9,
-            height: 9,
+            width: 8,
+            height: 8,
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
@@ -1203,7 +1205,7 @@ class _MonthlyStatTile extends StatelessWidget {
     final accent = gradient.first;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
+      padding: const EdgeInsets.fromLTRB(8, 12, 8, 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1232,26 +1234,35 @@ class _MonthlyStatTile extends StatelessWidget {
             ),
             child: Icon(icon, color: accent, size: 16),
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: accent,
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              height: 1,
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: accent,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                height: 1,
+              ),
             ),
           ),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF6D7F7D),
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              height: 1.1,
+          const SizedBox(height: 4),
+          Flexible(
+            child: Center(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF6D7F7D),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  height: 1.1,
+                ),
+              ),
             ),
           ),
         ],
