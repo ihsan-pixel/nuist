@@ -24,7 +24,7 @@ class AppStatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (trailing != null) ...[
             trailing!,
@@ -32,6 +32,7 @@ class AppStatCard extends StatelessWidget {
           ],
           Text(
             value,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -41,6 +42,7 @@ class AppStatCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,

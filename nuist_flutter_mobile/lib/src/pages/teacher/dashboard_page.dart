@@ -10,6 +10,8 @@ class TeacherDashboardPage extends StatefulWidget {
     required this.repository,
     required this.onOpenIzin,
     required this.onOpenManageIzin,
+    required this.onOpenReports,
+    required this.onOpenStaffAttendance,
     required this.onSelectTab,
     required this.onOpenProfile,
     required this.onOpenSettings,
@@ -20,6 +22,8 @@ class TeacherDashboardPage extends StatefulWidget {
   final TeacherMobileRepository repository;
   final Future<void> Function() onOpenIzin;
   final Future<void> Function() onOpenManageIzin;
+  final Future<void> Function() onOpenReports;
+  final Future<void> Function() onOpenStaffAttendance;
   final ValueChanged<int> onSelectTab;
   final VoidCallback onOpenProfile;
   final VoidCallback onOpenSettings;
@@ -69,6 +73,8 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                   data: snapshot.data ?? const <String, dynamic>{},
                   onOpenIzin: widget.onOpenIzin,
                   onOpenManageIzin: widget.onOpenManageIzin,
+                  onOpenReports: widget.onOpenReports,
+                  onOpenStaffAttendance: widget.onOpenStaffAttendance,
                   onSelectTab: widget.onSelectTab,
                   onOpenProfile: widget.onOpenProfile,
                   onOpenSettings: widget.onOpenSettings,
@@ -88,6 +94,8 @@ class _DashboardContent extends StatelessWidget {
     required this.data,
     required this.onOpenIzin,
     required this.onOpenManageIzin,
+    required this.onOpenReports,
+    required this.onOpenStaffAttendance,
     required this.onSelectTab,
     required this.onOpenProfile,
     required this.onOpenSettings,
@@ -98,6 +106,8 @@ class _DashboardContent extends StatelessWidget {
   final Map<String, dynamic> data;
   final Future<void> Function() onOpenIzin;
   final Future<void> Function() onOpenManageIzin;
+  final Future<void> Function() onOpenReports;
+  final Future<void> Function() onOpenStaffAttendance;
   final ValueChanged<int> onSelectTab;
   final VoidCallback onOpenProfile;
   final VoidCallback onOpenSettings;
@@ -270,20 +280,17 @@ class _DashboardContent extends StatelessWidget {
                 },
               ),
               _ServiceShortcutTile(
-                label: 'Presensi Today',
+                label: 'Pengaturan',
                 colors: const [Color(0xFF7BC7B2), Color(0xFF2C8B76)],
-                icon: _attendanceStatusIcon(
-                  todayAttendance['status'] as String? ?? 'belum_presensi',
-                ),
-                onTap: () => onSelectTab(2),
+                icon: Icons.settings_rounded,
+                onTap: onOpenSettings,
               ),
               _ServiceShortcutTile(
-                label: 'Izin Pending',
+                label: 'Laporan',
                 colors: const [Color(0xFFFFC95C), Color(0xFFF0A019)],
-                icon: Icons.pending_actions_rounded,
-                badgeText: '${summary['pending_izin_count'] ?? 0}',
+                icon: Icons.summarize_rounded,
                 onTap: () {
-                  onOpenIzin();
+                  onOpenReports();
                 },
               ),
               if (permissions['can_manage_izin'] == true)
@@ -297,11 +304,19 @@ class _DashboardContent extends StatelessWidget {
                   },
                 ),
               _ServiceShortcutTile(
-                label: 'Jadwal Hari Ini',
+                label: permissions['can_manage_izin'] == true
+                    ? 'Data Presensi'
+                    : 'Jadwal Hari Ini',
                 colors: const [Color(0xFF57C1E8), Color(0xFF2D7DA8)],
-                icon: Icons.today_rounded,
-                badgeText: '${summary['teaching_today_count'] ?? 0}',
-                onTap: () => onSelectTab(1),
+                icon: permissions['can_manage_izin'] == true
+                    ? Icons.groups_rounded
+                    : Icons.today_rounded,
+                badgeText: permissions['can_manage_izin'] == true
+                    ? '${summary['pending_approval_izin_count'] ?? 0}'
+                    : '${summary['teaching_today_count'] ?? 0}',
+                onTap: () => permissions['can_manage_izin'] == true
+                    ? onOpenStaffAttendance()
+                    : onSelectTab(1),
               ),
             ],
           ),
@@ -1733,19 +1748,6 @@ IconData _stepIcon(String? icon) {
       return Icons.cast_for_education_rounded;
     default:
       return Icons.check_circle_outline_rounded;
-  }
-}
-
-IconData _attendanceStatusIcon(String value) {
-  switch (value) {
-    case 'hadir':
-      return Icons.verified_rounded;
-    case 'izin':
-      return Icons.schedule_rounded;
-    case 'alpha':
-      return Icons.cancel_rounded;
-    default:
-      return Icons.fact_check_rounded;
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../controllers/session_controller.dart';
@@ -7,8 +9,12 @@ import 'attendance_page.dart';
 import 'dashboard_page.dart';
 import 'izin_manage_page.dart';
 import 'izin_page.dart';
+import 'profile_change_password_page.dart';
 import 'profile_page.dart';
+import 'profile_settings_page.dart';
+import 'report_page.dart';
 import 'schedule_page.dart';
+import 'staff_attendance_page.dart';
 import 'teaching_journal_page.dart';
 
 class TeacherShellPage extends StatefulWidget {
@@ -75,6 +81,24 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
     );
   }
 
+  Future<void> _openReportPage() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TeacherReportPage(repository: widget.repository),
+      ),
+    );
+  }
+
+  Future<void> _openStaffAttendancePage() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TeacherStaffAttendancePage(
+          repository: widget.repository,
+        ),
+      ),
+    );
+  }
+
   Future<void> _logout() async {
     await widget.controller.logout();
   }
@@ -88,11 +112,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
   }
 
   void _openSettings() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Halaman pengaturan akan segera tersedia.'),
-      ),
-    );
+    unawaited(_openProfileSettingsPage());
   }
 
   void _openNotifications() {
@@ -113,6 +133,41 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
     });
   }
 
+  Future<void> _openProfileSettingsPage() async {
+    try {
+      final data = await widget.repository.getProfile();
+      if (!mounted) {
+        return;
+      }
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => TeacherProfileSettingsPage(
+            repository: widget.repository,
+            initialData: data,
+            onOpenChangePassword: () {
+              return Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TeacherProfileChangePasswordPage(
+                    repository: widget.repository,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,6 +182,8 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
               repository: widget.repository,
               onOpenIzin: _openIzinPage,
               onOpenManageIzin: _openManageIzinPage,
+              onOpenReports: _openReportPage,
+              onOpenStaffAttendance: _openStaffAttendancePage,
               onSelectTab: _selectTab,
               onOpenProfile: _openProfile,
               onOpenSettings: _openSettings,

@@ -353,6 +353,66 @@ class TeacherMobileRepository {
     );
   }
 
+  Future<Map<String, dynamic>> getAttendanceReports({
+    String scope = 'monthly',
+    String? month,
+    int? teacherId,
+  }) {
+    final params = <String>[
+      'scope=$scope',
+      if (month != null && month.trim().isNotEmpty) 'month=${month.trim()}',
+      if (teacherId != null) 'teacher_id=$teacherId',
+    ];
+    return _get(
+      '/mobile/app/teacher/reports?${params.join('&')}',
+      actionLabel: 'laporan presensi',
+    );
+  }
+
+  Future<Map<String, dynamic>> getStaffAttendance({
+    String? date,
+  }) {
+    final query = (date != null && date.trim().isNotEmpty)
+        ? '?date=${date.trim()}'
+        : '';
+    return _get(
+      '/mobile/app/teacher/staff-attendance$query',
+      actionLabel: 'data presensi guru',
+    );
+  }
+
+  Future<Map<String, dynamic>> downloadAttendanceReportPdf({
+    String scope = 'monthly',
+    String? month,
+    int? teacherId,
+  }) {
+    final params = <String>[
+      'scope=$scope',
+      if (month != null && month.trim().isNotEmpty) 'month=${month.trim()}',
+      if (teacherId != null) 'teacher_id=$teacherId',
+    ];
+    return _downloadPdf(
+      '/mobile/app/teacher/reports/export/attendance?${params.join('&')}',
+      actionLabel: 'export pdf presensi kehadiran',
+    );
+  }
+
+  Future<Map<String, dynamic>> downloadTeachingReportPdf({
+    String scope = 'monthly',
+    String? month,
+    int? teacherId,
+  }) {
+    final params = <String>[
+      'scope=$scope',
+      if (month != null && month.trim().isNotEmpty) 'month=${month.trim()}',
+      if (teacherId != null) 'teacher_id=$teacherId',
+    ];
+    return _downloadPdf(
+      '/mobile/app/teacher/reports/export/teaching?${params.join('&')}',
+      actionLabel: 'export pdf presensi mengajar',
+    );
+  }
+
   Future<Map<String, dynamic>> _get(
     String path, {
     required String actionLabel,
@@ -370,6 +430,39 @@ class TeacherMobileRepository {
         return Map<String, dynamic>.from(data);
       }
       return <String, dynamic>{};
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher $actionLabel request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> _downloadPdf(
+    String path, {
+    required String actionLabel,
+  }) async {
+    try {
+      final response = await _withRetry<List<int>>(
+        request: () => _apiClient.dio.get<List<int>>(
+          path,
+          options: Options(responseType: ResponseType.bytes),
+        ),
+        actionLabel: actionLabel,
+      );
+
+      final bytes = response.data ?? const <int>[];
+      final disposition = response.headers.value('content-disposition') ?? '';
+      final filenameMatch = RegExp(
+        r'filename="?([^";]+)"?',
+        caseSensitive: false,
+      ).firstMatch(disposition);
+
+      return {
+        'bytes': bytes,
+        'filename': filenameMatch?.group(1) ?? 'report.pdf',
+      };
     } on DioException catch (error) {
       debugPrint(
         'Teacher $actionLabel request failed: '

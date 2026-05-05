@@ -15,6 +15,7 @@ use App\Models\TeachingSchedule;
 use App\Models\User;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
@@ -383,8 +384,8 @@ class TeacherAppController extends Controller
                         'date' => optional($item->tanggal)->format('Y-m-d'),
                         'date_label' => $item->tanggal?->locale('id')->isoFormat('D MMMM YYYY') ?? '-',
                         'status' => $item->status ?? '-',
-                        'check_in' => optional($item->waktu_masuk)->format('H:i'),
-                        'check_out' => optional($item->waktu_keluar)->format('H:i'),
+                        'check_in' => $this->formatTimeValue($item->waktu_masuk),
+                        'check_out' => $this->formatTimeValue($item->waktu_keluar),
                         'location' => $item->lokasi ?: $item->madrasah?->name,
                         // 'location_out' => $item->lokasi_keluar,
                         'school_name' => $item->madrasah?->name,
@@ -1223,6 +1224,234 @@ class TeacherAppController extends Controller
         ]);
     }
 
+    public function attendanceReports(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $scope = $this->normalizeReportScope($request->query('scope'));
+        $month = $this->resolveReportMonth($request->query('month'));
+        $targetTeacher = $this->resolveReportTeacher(
+            $user,
+            $request->query('teacher_id')
+        );
+
+        [$attendanceSummary, $attendanceRecords, $attendanceRange] = $this->buildAttendanceReportPayload(
+            $targetTeacher,
+            $scope,
+            $month
+        );
+        [$teachingSummary, $teachingRecords, $teachingRange] = $this->buildTeachingReportPayload(
+            $targetTeacher,
+            $scope,
+            $month
+        );
+
+        return response()->json([
+            'message' => 'OK',
+            'data' => [
+                'permissions' => [
+                    'can_select_teacher' => $this->canManageIzinRequests($user),
+                ],
+                'filters' => [
+                    'scope' => $scope,
+                    'month' => $month->format('Y-m'),
+                    'selected_teacher_id' => $targetTeacher->id,
+                ],
+                'selected_teacher' => [
+                    'id' => $targetTeacher->id,
+                    'name' => $targetTeacher->name,
+                    'school_name' => $targetTeacher->madrasah?->name ?? '-',
+                    'ketugasan' => $targetTeacher->ketugasan,
+                ],
+                'teacher_options' => $this->reportTeacherOptions($user),
+                'attendance' => [
+                    'summary' => $attendanceSummary,
+                    'period_label' => $attendanceRange['label'],
+                    'records' => $attendanceRecords,
+                ],
+                'teaching' => [
+                    'summary' => $teachingSummary,
+                    'period_label' => $teachingRange['label'],
+                    'records' => $teachingRecords,
+                ],
+            ],
+        ]);
+    }
+
+    public function exportAttendanceReport(Request $request)
+    {
+        $user = $this->resolveTeacher($request);
+        $scope = $this->normalizeReportScope($request->query('scope'));
+        $month = $this->resolveReportMonth($request->query('month'));
+        $targetTeacher = $this->resolveReportTeacher(
+            $user,
+            $request->query('teacher_id')
+        );
+
+        [$summary, $records, $range] = $this->buildAttendanceReportPayload(
+            $targetTeacher,
+            $scope,
+            $month,
+            true
+        );
+
+        $filename = 'rekap-presensi-kehadiran-' . $targetTeacher->id . '-' . ($scope === 'all' ? 'keseluruhan' : $month->format('Y-m')) . '.pdf';
+
+        $pdf = Pdf::loadView('pdf.mobile-presensi-rekap', [
+            'user' => $targetTeacher,
+            'type' => $scope,
+            'summary' => $summary,
+            'records' => collect($records)->map(function (array $item) {
+                return (object) [
+                    'tanggal' => Carbon::parse($item['date'], 'Asia/Jakarta'),
+                    'model_type' => $item['record_type'] === 'izin' ? 'izin' : 'presensi',
+                    'status' => $item['status'],
+                    'waktu_masuk' => $item['check_in'],
+                    'waktu_keluar' => $item['check_out'],
+                    'deskripsi_tugas' => $item['description'],
+                    'alasan' => $item['reason'],
+                    'keterangan' => $item['note'],
+                ];
+            }),
+            'startDate' => $range['start'],
+            'endDate' => $range['end'],
+        ])->setPaper('A4', 'portrait');
+
+        return $pdf->download($filename);
+    }
+
+    public function exportTeachingReport(Request $request)
+    {
+        $user = $this->resolveTeacher($request);
+        $scope = $this->normalizeReportScope($request->query('scope'));
+        $month = $this->resolveReportMonth($request->query('month'));
+        $targetTeacher = $this->resolveReportTeacher(
+            $user,
+            $request->query('teacher_id')
+        );
+
+        [$summary, $records, $range] = $this->buildTeachingReportPayload(
+            $targetTeacher,
+            $scope,
+            $month
+        );
+
+        $filename = 'rekap-presensi-mengajar-' . $targetTeacher->id . '-' . ($scope === 'all' ? 'keseluruhan' : $month->format('Y-m')) . '.pdf';
+
+        $pdf = Pdf::loadView('pdf.mobile-teaching-attendance-rekap', [
+            'user' => $targetTeacher,
+            'summary' => $summary,
+            'records' => $records,
+            'scope' => $scope,
+            'startDate' => $range['start'],
+            'endDate' => $range['end'],
+            'periodLabel' => $range['label'],
+        ])->setPaper('A4', 'portrait');
+
+        return $pdf->download($filename);
+    }
+
+    public function staffAttendanceMonitor(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $this->ensureCanManageIzinRequests($user);
+
+        $selectedDate = $request->filled('date')
+            ? Carbon::parse((string) $request->query('date'), 'Asia/Jakarta')->startOfDay()
+            : Carbon::today('Asia/Jakarta');
+
+        $teachers = User::query()
+            ->with(['madrasah'])
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $user->madrasah_id)
+            ->orderBy('name')
+            ->get();
+
+        $attendanceRecords = Presensi::query()
+            ->whereIn('user_id', $teachers->pluck('id'))
+            ->whereDate('tanggal', $selectedDate->toDateString())
+            ->get()
+            ->groupBy('user_id');
+
+        $dayName = $selectedDate->locale('id')->dayName;
+        $teachingSchedules = TeachingSchedule::query()
+            ->whereIn('teacher_id', $teachers->pluck('id'))
+            ->whereRaw('LOWER(day) = ?', [strtolower((string) $dayName)])
+            ->get()
+            ->groupBy('teacher_id');
+        $teachingAttendances = TeachingAttendance::query()
+            ->whereIn('user_id', $teachers->pluck('id'))
+            ->whereDate('tanggal', $selectedDate->toDateString())
+            ->get()
+            ->groupBy('user_id');
+
+        $items = $teachers->map(function (User $teacher) use (
+            $attendanceRecords,
+            $selectedDate,
+            $teachingSchedules,
+            $teachingAttendances
+        ) {
+            ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate(
+                $teacher,
+                $selectedDate
+            );
+
+            $records = collect($attendanceRecords->get($teacher->id, collect()));
+            $hadir = $records->where('status', 'hadir');
+            $izin = $records->where('status', 'izin')->where('status_izin', 'approved');
+            $alpha = $records->where('status', 'alpha');
+            $externalIzin = ExternalTeachingPermissionService::approvedRequestForDate($teacher, $selectedDate);
+
+            $status = 'belum_presensi';
+            $statusLabel = 'Belum presensi';
+            if ($hadir->isNotEmpty()) {
+                $status = 'hadir';
+                $statusLabel = 'Hadir';
+            } elseif ($izin->isNotEmpty() || $externalIzin) {
+                $status = 'izin';
+                $statusLabel = 'Izin';
+            } elseif ($alpha->isNotEmpty()) {
+                $status = 'alpha';
+                $statusLabel = 'Alpha';
+            }
+
+            $todaySchedules = collect($teachingSchedules->get($teacher->id, collect()));
+            $todayTeachingAttendances = collect($teachingAttendances->get($teacher->id, collect()));
+
+            return [
+                'teacher_id' => $teacher->id,
+                'teacher_name' => $teacher->name,
+                'ketugasan' => $teacher->ketugasan,
+                'status' => $status,
+                'status_label' => $statusLabel,
+                'check_in' => $this->formatTimeValue($hadir->sortByDesc('waktu_masuk')->first()?->waktu_masuk),
+                'check_out' => $this->formatTimeValue($hadir->sortByDesc('waktu_keluar')->first()?->waktu_keluar),
+                'note' => $records->pluck('keterangan')->filter()->implode(' | '),
+                'teaching_total' => $todaySchedules->count(),
+                'teaching_completed' => $todayTeachingAttendances->count(),
+            ];
+        })->values();
+
+        return response()->json([
+            'message' => 'OK',
+            'data' => [
+                'today_label' => $selectedDate->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+                'selected_date' => $selectedDate->format('Y-m-d'),
+                'summary' => [
+                    'total_teacher' => $items->count(),
+                    'hadir' => $items->where('status', 'hadir')->count(),
+                    'izin' => $items->where('status', 'izin')->count(),
+                    'belum_presensi' => $items->where('status', 'belum_presensi')->count() + $items->where('status', 'alpha')->count(),
+                ],
+                'teacher_options' => $teachers->map(fn (User $teacher) => [
+                    'id' => $teacher->id,
+                    'name' => $teacher->name,
+                    'ketugasan' => $teacher->ketugasan,
+                ])->values(),
+                'items' => $items,
+            ],
+        ]);
+    }
+
     public function manageIzin(Request $request): JsonResponse
     {
         $user = $this->resolveTeacher($request);
@@ -1653,8 +1882,8 @@ class TeacherAppController extends Controller
                 'alpha' => 'Tercatat alpha',
                 default => 'Belum presensi',
             },
-            'check_in' => optional($checkIn?->waktu_masuk)->format('H:i'),
-            'check_out' => optional($checkOut?->waktu_keluar)->format('H:i'),
+            'check_in' => $this->formatTimeValue($checkIn?->waktu_masuk),
+            'check_out' => $this->formatTimeValue($checkOut?->waktu_keluar),
             'location' => $checkIn?->lokasi ?: $checkIn?->madrasah?->name,
             // 'location_out' => $checkOut?->lokasi_keluar,
             'entries' => $items->map(function (Presensi $item) {
@@ -1662,8 +1891,8 @@ class TeacherAppController extends Controller
                     'id' => $item->id,
                     'status' => $item->status,
                     'school_name' => $item->madrasah?->name,
-                    'check_in' => optional($item->waktu_masuk)->format('H:i'),
-                    'check_out' => optional($item->waktu_keluar)->format('H:i'),
+                    'check_in' => $this->formatTimeValue($item->waktu_masuk),
+                    'check_out' => $this->formatTimeValue($item->waktu_keluar),
                     'location' => $item->lokasi,
                     // 'location_out' => $item->lokasi_keluar,
                     'note' => $item->keterangan,
@@ -2487,6 +2716,315 @@ class TeacherAppController extends Controller
         }
 
         return $items;
+    }
+
+    private function normalizeReportScope(?string $scope): string
+    {
+        $normalized = strtolower(trim((string) $scope));
+
+        return in_array($normalized, ['monthly', 'all'], true)
+            ? $normalized
+            : 'monthly';
+    }
+
+    private function resolveReportMonth(?string $value): Carbon
+    {
+        if (is_string($value) && preg_match('/^\d{4}-\d{2}$/', $value)) {
+            return Carbon::createFromFormat('Y-m', $value, 'Asia/Jakarta')->startOfMonth();
+        }
+
+        return Carbon::today('Asia/Jakarta')->startOfMonth();
+    }
+
+    private function resolveReportTeacher(User $requestUser, mixed $teacherId): User
+    {
+        $selectedId = (int) $teacherId;
+
+        if ($selectedId <= 0 || !$this->canManageIzinRequests($requestUser)) {
+            return $requestUser;
+        }
+
+        $teacher = User::query()
+            ->with(['madrasah'])
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $requestUser->madrasah_id)
+            ->findOrFail($selectedId);
+
+        return $teacher;
+    }
+
+    private function reportTeacherOptions(User $requestUser)
+    {
+        if (!$this->canManageIzinRequests($requestUser)) {
+            return collect([
+                [
+                    'id' => $requestUser->id,
+                    'name' => $requestUser->name,
+                    'ketugasan' => $requestUser->ketugasan,
+                ],
+            ]);
+        }
+
+        return User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $requestUser->madrasah_id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'ketugasan'])
+            ->map(fn (User $teacher) => [
+                'id' => $teacher->id,
+                'name' => $teacher->name,
+                'ketugasan' => $teacher->ketugasan,
+            ])
+            ->values();
+    }
+
+    private function buildAttendanceReportPayload(
+        User $teacher,
+        string $scope,
+        Carbon $month,
+        bool $forPdf = false,
+    ): array {
+        $today = Carbon::today('Asia/Jakarta');
+        [$startDate, $endDate] = $this->resolveReportDateRange($teacher, $scope, $month, false);
+        $summary = $this->buildAttendanceHistorySummary(
+            $teacher,
+            $startDate,
+            $endDate,
+            $today
+        );
+        $effectiveEndDate = $endDate->copy()->min($today);
+
+        $presensiRecords = Presensi::query()
+            ->with('madrasah')
+            ->where('user_id', $teacher->id)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+            ->get();
+
+        $izinRecords = Izin::query()
+            ->where('user_id', $teacher->id)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+            ->get();
+
+        $records = $presensiRecords
+            ->map(function (Presensi $item) {
+                return [
+                    'record_type' => 'presensi',
+                    'date' => $item->tanggal?->toDateString(),
+                    'day_label' => $item->tanggal
+                        ? ucfirst($item->tanggal->locale('id')->dayName)
+                        : '-',
+                    'status' => (string) ($item->status ?? '-'),
+                    'status_label' => ucfirst(str_replace('_', ' ', (string) ($item->status ?? '-'))),
+                    'check_in' => $this->formatTimeValue($item->waktu_masuk),
+                    'check_out' => $this->formatTimeValue($item->waktu_keluar),
+                    'note' => $item->keterangan,
+                    'reason' => null,
+                    'description' => null,
+                ];
+            })
+            ->concat($izinRecords->map(function (Izin $item) {
+                return [
+                    'record_type' => 'izin',
+                    'date' => $item->tanggal?->toDateString(),
+                    'day_label' => $item->tanggal
+                        ? ucfirst($item->tanggal->locale('id')->dayName)
+                        : '-',
+                    'status' => (string) ($item->status ?? '-'),
+                    'status_label' => ucfirst(str_replace('_', ' ', (string) ($item->status ?? '-'))),
+                    'check_in' => $this->formatTimeValue($item->waktu_masuk),
+                    'check_out' => $this->formatTimeValue($item->waktu_keluar),
+                    'note' => $item->alasan ?: $item->deskripsi_tugas,
+                    'reason' => $item->alasan,
+                    'description' => $item->deskripsi_tugas,
+                ];
+            }))
+            ->sortByDesc('date')
+            ->values()
+            ->all();
+
+        return [
+            $summary,
+            $forPdf ? $records : $records,
+            [
+                'start' => $startDate,
+                'end' => $effectiveEndDate,
+                'label' => $summary['periode_label'],
+            ],
+        ];
+    }
+
+    private function buildTeachingReportPayload(
+        User $teacher,
+        string $scope,
+        Carbon $month,
+    ): array {
+        $today = Carbon::today('Asia/Jakarta');
+        [$startDate, $endDate] = $this->resolveReportDateRange($teacher, $scope, $month, true);
+        $effectiveEndDate = $endDate->copy()->min($today);
+
+        $records = TeachingAttendance::query()
+            ->with(['teachingSchedule.school'])
+            ->where('user_id', $teacher->id)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+            ->orderByDesc('tanggal')
+            ->orderByDesc('waktu')
+            ->get()
+            ->map(function (TeachingAttendance $item) {
+                return [
+                    'id' => $item->id,
+                    'date' => Carbon::parse($item->tanggal)->toDateString(),
+                    'date_label' => Carbon::parse($item->tanggal)->locale('id')->isoFormat('D MMMM YYYY'),
+                    'subject' => $item->teachingSchedule?->subject ?? '-',
+                    'class_name' => $item->teachingSchedule?->class_name ?? '-',
+                    'school_name' => $item->teachingSchedule?->school?->name ?? '-',
+                    'time' => $this->formatTimeValue($item->waktu),
+                    'status' => $item->status ?? 'hadir',
+                    'status_label' => ($item->status ?? 'hadir') === 'izin' ? 'Izin' : 'Hadir',
+                    'materi' => $item->materi,
+                    'present_students' => (int) ($item->present_students ?? 0),
+                    'class_total_students' => (int) ($item->class_total_students ?? 0),
+                    'student_attendance_percentage' => (float) ($item->student_attendance_percentage ?? 0),
+                    'location' => $item->lokasi,
+                ];
+            })
+            ->values()
+            ->all();
+
+        $totalEntries = count($records);
+        $averageStudentAttendance = $totalEntries > 0
+            ? round(collect($records)->avg('student_attendance_percentage') ?? 0, 1)
+            : 0.0;
+
+        $summary = [
+            'total_entries' => $totalEntries,
+            'total_present_students' => collect($records)->sum('present_students'),
+            'total_class_students' => collect($records)->sum('class_total_students'),
+            'average_student_attendance' => $averageStudentAttendance,
+        ];
+
+        return [
+            $summary,
+            $records,
+            [
+                'start' => $startDate,
+                'end' => $effectiveEndDate,
+                'label' => $startDate->locale('id')->isoFormat('D MMMM YYYY') . ' - ' . $effectiveEndDate->locale('id')->isoFormat('D MMMM YYYY'),
+            ],
+        ];
+    }
+
+    private function resolveReportDateRange(
+        User $teacher,
+        string $scope,
+        Carbon $month,
+        bool $teaching,
+    ): array {
+        $today = Carbon::today('Asia/Jakarta');
+
+        if ($scope === 'all') {
+            $firstDate = $teaching
+                ? TeachingAttendance::query()
+                    ->where('user_id', $teacher->id)
+                    ->orderBy('tanggal')
+                    ->value('tanggal')
+                : collect([
+                    Presensi::query()->where('user_id', $teacher->id)->orderBy('tanggal')->value('tanggal'),
+                    Izin::query()->where('user_id', $teacher->id)->orderBy('tanggal')->value('tanggal'),
+                ])->filter()->min();
+
+            $start = $firstDate
+                ? Carbon::parse((string) $firstDate, 'Asia/Jakarta')->startOfDay()
+                : $today->copy()->startOfMonth();
+
+            return [$start, $today->copy()];
+        }
+
+        return [$month->copy()->startOfMonth(), $month->copy()->endOfMonth()];
+    }
+
+    private function buildAttendanceHistorySummary(
+        User $teacher,
+        Carbon $startDate,
+        Carbon $endDate,
+        Carbon $today,
+    ): array {
+        $effectiveEndDate = $endDate->copy()->min($today);
+
+        if ($effectiveEndDate->lt($startDate)) {
+            return [
+                'periode_label' => $startDate->locale('id')->isoFormat('D MMMM YYYY') . ' - ' . $endDate->locale('id')->isoFormat('D MMMM YYYY'),
+                'total_hari_kerja' => 0,
+                'total_hadir' => 0,
+                'total_izin' => 0,
+                'total_belum_hadir' => 0,
+                'persentase_kehadiran' => 0,
+            ];
+        }
+
+        ApprovedIzinSyncService::syncApprovedIzinPresensiInRange(
+            $teacher,
+            $startDate,
+            $effectiveEndDate
+        );
+
+        $presensiByDate = Presensi::query()
+            ->where('user_id', $teacher->id)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+            ->orderBy('tanggal')
+            ->get()
+            ->groupBy(fn (Presensi $item) => $item->tanggal->toDateString());
+
+        $totalHariKerja = 0;
+        $totalHadir = 0;
+        $totalIzinApproved = 0;
+
+        foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
+            if (!$this->isReportWorkingDay($date, $teacher->madrasah?->hari_kbm)) {
+                continue;
+            }
+
+            $records = collect($presensiByDate->get($date->toDateString(), []));
+            $hadirRecords = $records->where('status', 'hadir');
+            $izinApprovedRecords = $records
+                ->where('status', 'izin')
+                ->where('status_izin', 'approved');
+            $externalTeachingIzin = $hadirRecords->isEmpty()
+                ? ExternalTeachingPermissionService::approvedRequestForDate($teacher, $date)
+                : null;
+
+            $totalHariKerja++;
+            if ($hadirRecords->isNotEmpty()) {
+                $totalHadir++;
+            } elseif ($izinApprovedRecords->isNotEmpty() || $externalTeachingIzin) {
+                $totalIzinApproved++;
+            }
+        }
+
+        $totalDasarPersentase = max($totalHariKerja - $totalIzinApproved, 0);
+
+        return [
+            'periode_label' => $startDate->locale('id')->isoFormat('D MMMM YYYY') . ' - ' . $effectiveEndDate->locale('id')->isoFormat('D MMMM YYYY'),
+            'total_hari_kerja' => $totalHariKerja,
+            'total_hadir' => $totalHadir,
+            'total_izin' => $totalIzinApproved,
+            'total_belum_hadir' => max($totalHariKerja - $totalHadir - $totalIzinApproved, 0),
+            'persentase_kehadiran' => $totalDasarPersentase > 0
+                ? round(($totalHadir / $totalDasarPersentase) * 100, 1)
+                : 0,
+        ];
+    }
+
+    private function isReportWorkingDay(Carbon $date, ?string $hariKbm): bool
+    {
+        if ($date->isSunday() || Holiday::isHoliday($date->toDateString())) {
+            return false;
+        }
+
+        if ((string) $hariKbm === '5' && $date->isSaturday()) {
+            return false;
+        }
+
+        return true;
     }
 
     private function canManageIzinRequests(User $user): bool
