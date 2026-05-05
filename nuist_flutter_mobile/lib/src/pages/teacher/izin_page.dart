@@ -864,29 +864,32 @@ class _IzinContent extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              AppStatCard(
+        Row(
+          children: [
+            Expanded(
+              child: AppStatCard(
                 label: 'Pending',
                 value: '${summary['pending'] ?? 0}',
                 color: const Color(0xFFF4A12A),
               ),
-              const SizedBox(width: 12),
-              AppStatCard(
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: AppStatCard(
                 label: 'Disetujui',
                 value: '${summary['approved'] ?? 0}',
                 color: const Color(0xFF2E8B57),
               ),
-              const SizedBox(width: 12),
-              AppStatCard(
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: AppStatCard(
                 label: 'Ditolak',
                 value: '${summary['rejected'] ?? 0}',
                 color: const Color(0xFFB42318),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         AppSectionCard(
