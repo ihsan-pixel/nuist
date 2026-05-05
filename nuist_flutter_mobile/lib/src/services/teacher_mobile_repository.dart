@@ -68,6 +68,36 @@ class TeacherMobileRepository {
     return _get('/mobile/app/teacher/attendance', actionLabel: 'presensi');
   }
 
+  Future<Map<String, dynamic>> submitAttendance({
+    required Map<String, dynamic> payload,
+  }) async {
+    try {
+      final response = await _apiClient.dio.post<Map<String, dynamic>>(
+        '/mobile/app/teacher/attendance',
+        data: payload,
+      );
+      final body = response.data ?? const <String, dynamic>{};
+      final responseData = body['data'];
+      final result = responseData is Map<String, dynamic>
+          ? Map<String, dynamic>.from(responseData)
+          : responseData is Map
+              ? Map<String, dynamic>.from(responseData)
+              : <String, dynamic>{};
+
+      if (body['message'] is String) {
+        result['_message'] = body['message'];
+      }
+
+      return result;
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher submit presensi request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> getTeachingJournal() {
     return _get(
       '/mobile/app/teacher/teaching-journal',

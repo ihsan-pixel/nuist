@@ -259,7 +259,7 @@ class _ScheduleContent extends StatelessWidget {
             const Expanded(
               child: _PageSectionHeading(
                 eyebrow: 'Agenda Mengajar',
-                title: 'Ringkasan Jadwal',
+                title: 'Kelola Jadwal Mengajar',
               ),
             ),
             const SizedBox(width: 12),
@@ -270,12 +270,12 @@ class _ScheduleContent extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        _ScheduleHeroCard(
-          totalSchedules: items.length,
-          totalDays: grouped.length,
-          totalSchools: schools.length,
-        ),
+        // const SizedBox(height: 12),
+        // _ScheduleHeroCard(
+        //   totalSchedules: items.length,
+        //   totalDays: grouped.length,
+        //   totalSchools: schools.length,
+        // ),
         if (!canManage) ...[
           const SizedBox(height: 14),
           const AppSectionCard(
@@ -398,133 +398,90 @@ class _ScheduleContent extends StatelessWidget {
   }
 }
 
-class _ScheduleHeroCard extends StatelessWidget {
-  const _ScheduleHeroCard({
-    required this.totalSchedules,
-    required this.totalDays,
-    required this.totalSchools,
-  });
-
-  final int totalSchedules;
-  final int totalDays;
-  final int totalSchools;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFF49637),
-            Color(0xFFC96A19),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14003B39),
-            blurRadius: 22,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Jadwal Mengajar',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.88),
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Kelola Jadwal Anda',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              height: 1.05,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _ScheduleStatPill(
-                  label: 'Total Sesi',
-                  value: '$totalSchedules',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _ScheduleStatPill(
-                  label: 'Hari Aktif',
-                  value: '$totalDays',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _ScheduleStatPill(
-                  label: 'Madrasah',
-                  value: '$totalSchools',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ScheduleStatPill extends StatelessWidget {
-  const _ScheduleStatPill({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.14),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.84),
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// class _ScheduleHeroCard extends StatelessWidget {
+//   const _ScheduleHeroCard({
+//     required this.totalSchedules,
+//     required this.totalDays,
+//     required this.totalSchools,
+//   });
+//
+//   final int totalSchedules;
+//   final int totalDays;
+//   final int totalSchools;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(18),
+//       decoration: BoxDecoration(
+//         borderRadius: BorderRadius.circular(28),
+//         gradient: const LinearGradient(
+//           colors: [
+//             Color(0xFFF49637),
+//             Color(0xFFC96A19),
+//           ],
+//           begin: Alignment.topLeft,
+//           end: Alignment.bottomRight,
+//         ),
+//         boxShadow: const [
+//           BoxShadow(
+//             color: Color(0x14003B39),
+//             blurRadius: 22,
+//             offset: Offset(0, 10),
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             'Jadwal Mengajar',
+//             style: TextStyle(
+//               color: Colors.white.withOpacity(0.88),
+//               fontSize: 13,
+//               fontWeight: FontWeight.w700,
+//             ),
+//           ),
+//           const SizedBox(height: 6),
+//           const Text(
+//             'Kelola Jadwal Anda',
+//             style: TextStyle(
+//               color: Colors.white,
+//               fontSize: 24,
+//               fontWeight: FontWeight.w800,
+//               height: 1.05,
+//             ),
+//           ),
+//           const SizedBox(height: 16),
+//           Row(
+//             children: [
+//               Expanded(
+//                 child: _ScheduleStatPill(
+//                   label: 'Total Sesi',
+//                   value: '$totalSchedules',
+//                 ),
+//               ),
+//               const SizedBox(width: 10),
+//               Expanded(
+//                 child: _ScheduleStatPill(
+//                   label: 'Hari Aktif',
+//                   value: '$totalDays',
+//                 ),
+//               ),
+//               const SizedBox(width: 10),
+//               Expanded(
+//                 child: _ScheduleStatPill(
+//                   label: 'Madrasah',
+//                   value: '$totalSchools',
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class _ScheduleAgendaTile extends StatelessWidget {
   const _ScheduleAgendaTile({
@@ -992,17 +949,19 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                Text(
-                  _isEditing ? 'Edit Jadwal' : 'Tambah Jadwal',
-                  style: const TextStyle(
-                    color: Color(0xFF7A4212),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
+                Center(
+                  child: Text(
+                    _isEditing ? 'Edit Jadwal' : 'Tambah Jadwal',
+                    style: const TextStyle(
+                      color: Color(0xFF7A4212),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Gunakan skema yang sama dengan jadwal mobile yang sudah ada.',
+                  '',
                   style: TextStyle(
                     color: Color(0xFF6D7F7D),
                     fontSize: 12,

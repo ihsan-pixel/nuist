@@ -1,9 +1,25 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
+
+const _attendancePrimary = Color(0xFFF49637);
+const _attendancePrimaryDark = Color(0xFFC96A19);
+const _attendanceText = Color(0xFF7A4212);
+const _attendanceMuted = Color(0xFF7A8F8C);
+const _attendanceSoft = Color(0xFFFFF4E8);
 
 class TeacherAttendancePage extends StatefulWidget {
   const TeacherAttendancePage({
@@ -20,12 +36,39 @@ class TeacherAttendancePage extends StatefulWidget {
 }
 
 class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
+  final ImagePicker _imagePicker = ImagePicker();
+
   late Future<Map<String, dynamic>> _future;
+  Position? _position;
+  XFile? _selfieFile;
+  String? _locationAddress;
+  String? _locationError;
+  List<Map<String, dynamic>> _locationReadings = const [];
+  bool _loadingLocation = false;
+  bool _capturingSelfie = false;
+  bool _submitting = false;
+  late DateTime _now;
+  Timer? _clockTimer;
 
   @override
   void initState() {
     super.initState();
     _future = widget.repository.getAttendance();
+    _now = DateTime.now();
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _now = DateTime.now();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _clockTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _refresh() async {
@@ -34,6 +77,240 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
       _future = future;
     });
     await future;
+  }
+
+  Future<void> _captureLocation() async {
+    setState(() {
+      _loadingLocation = true;
+      _locationError = null;
+    });
+
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception('GPS belum aktif. Nyalakan lokasi lalu coba lagi.');
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        throw Exception('Izin lokasi ditolak. Presensi memerlukan akses lokasi.');
+      }
+
+      final readings = <Map<String, dynamic>>[];
+      Position? latestPosition;
+
+      for (var index = 0; index < 3; index++) {
+        final sampled = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best,
+        );
+        latestPosition = sampled;
+        readings.add({
+          'latitude': sampled.latitude,
+          'longitude': sampled.longitude,
+          'accuracy': sampled.accuracy,
+          'timestamp': DateTime.now().millisecondsSinceEpoch,
+        });
+
+        if (index < 2) {
+          await Future<void>.delayed(const Duration(milliseconds: 900));
+        }
+      }
+
+      if (latestPosition == null) {
+        throw Exception('Lokasi tidak berhasil dibaca.');
+      }
+
+      final address = await _resolveAddress(latestPosition);
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _position = latestPosition;
+        _locationAddress = address;
+        _locationReadings = readings;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _locationError = error.toString().replaceFirst('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingLocation = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _captureSelfie() async {
+    setState(() {
+      _capturingSelfie = true;
+    });
+
+    try {
+      final file = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        imageQuality: 70,
+        maxWidth: 1600,
+      );
+
+      if (!mounted || file == null) {
+        return;
+      }
+
+      setState(() {
+        _selfieFile = file;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error.toString().replaceFirst('Exception: ', ''),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _capturingSelfie = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _submitAttendance(Map<String, dynamic> data) async {
+    final form = Map<String, dynamic>.from(
+      (data['form'] as Map?) ?? const <String, dynamic>{},
+    );
+    final mode = form['next_mode'] as String?;
+
+    if (mode == null || mode.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mode presensi hari ini tidak tersedia.')),
+      );
+      return;
+    }
+
+    if (_position == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ambil lokasi terlebih dahulu.')),
+      );
+      return;
+    }
+
+    if (_selfieFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ambil foto selfie terlebih dahulu.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _submitting = true;
+    });
+
+    try {
+      final payload = {
+        'presensi_mode': mode,
+        'latitude': _position!.latitude,
+        'longitude': _position!.longitude,
+        'lokasi': _locationAddress ?? _coordinateLabel(_position!),
+        'accuracy': _position!.accuracy,
+        'altitude': _position!.altitude,
+        'speed': _position!.speed,
+        'device_info': 'flutter_mobile_${defaultTargetPlatform.name}',
+        'location_readings': _locationReadings,
+        'selfie_data': await _buildSelfieData(_selfieFile!),
+      };
+
+      final result = await widget.repository.submitAttendance(payload: payload);
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _selfieFile = null;
+      });
+
+      await _refresh();
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            (result['_message'] as String?) ?? 'Presensi berhasil dikirim.',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _submitting = false;
+        });
+      }
+    }
+  }
+
+  Future<String> _buildSelfieData(XFile file) async {
+    final bytes = await file.readAsBytes();
+    final lowerPath = file.path.toLowerCase();
+    final mime = lowerPath.endsWith('.png') ? 'image/png' : 'image/jpeg';
+    return 'data:$mime;base64,${base64Encode(bytes)}';
+  }
+
+  Future<String> _resolveAddress(Position position) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isEmpty) {
+        return _coordinateLabel(position);
+      }
+
+      final first = placemarks.first;
+      final parts = [
+        first.street,
+        first.subLocality,
+        first.locality,
+        first.subAdministrativeArea,
+      ]
+          .whereType<String>()
+          .map((part) => part.trim())
+          .where((part) => part.isNotEmpty)
+          .toList();
+
+      return parts.isEmpty ? _coordinateLabel(position) : parts.join(', ');
+    } catch (_) {
+      return _coordinateLabel(position);
+    }
   }
 
   @override
@@ -46,6 +323,11 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              TeacherPageHeader(
+                title: 'Presensi',
+                onBack: widget.onBackToHome,
+              ),
+              const SizedBox(height: 18),
               if (snapshot.connectionState == ConnectionState.waiting)
                 const _PageLoading()
               else if (snapshot.hasError)
@@ -56,7 +338,25 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
               else
                 _AttendanceContent(
                   data: snapshot.data ?? const <String, dynamic>{},
-                  onBackToHome: widget.onBackToHome,
+                  now: _now,
+                  position: _position,
+                  locationAddress: _locationAddress,
+                  selfieFile: _selfieFile,
+                  locationError: _locationError,
+                  locationReadingsCount: _locationReadings.length,
+                  loadingLocation: _loadingLocation,
+                  capturingSelfie: _capturingSelfie,
+                  submitting: _submitting,
+                  onCaptureLocation: _captureLocation,
+                  onCaptureSelfie: _captureSelfie,
+                  onClearSelfie: () {
+                    setState(() {
+                      _selfieFile = null;
+                    });
+                  },
+                  onSubmit: () => _submitAttendance(
+                    snapshot.data ?? const <String, dynamic>{},
+                  ),
                 ),
             ],
           ),
@@ -69,48 +369,65 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
 class _AttendanceContent extends StatelessWidget {
   const _AttendanceContent({
     required this.data,
-    required this.onBackToHome,
+    required this.now,
+    required this.position,
+    required this.locationAddress,
+    required this.selfieFile,
+    required this.locationError,
+    required this.locationReadingsCount,
+    required this.loadingLocation,
+    required this.capturingSelfie,
+    required this.submitting,
+    required this.onCaptureLocation,
+    required this.onCaptureSelfie,
+    required this.onClearSelfie,
+    required this.onSubmit,
   });
 
   final Map<String, dynamic> data;
-  final VoidCallback onBackToHome;
+  final DateTime now;
+  final Position? position;
+  final String? locationAddress;
+  final XFile? selfieFile;
+  final String? locationError;
+  final int locationReadingsCount;
+  final bool loadingLocation;
+  final bool capturingSelfie;
+  final bool submitting;
+  final Future<void> Function() onCaptureLocation;
+  final Future<void> Function() onCaptureSelfie;
+  final VoidCallback onClearSelfie;
+  final VoidCallback onSubmit;
 
   @override
   Widget build(BuildContext context) {
     final today = Map<String, dynamic>.from(
       (data['today_attendance'] as Map?) ?? const <String, dynamic>{},
     );
+    final form = Map<String, dynamic>.from(
+      (data['form'] as Map?) ?? const <String, dynamic>{},
+    );
+    final timeRanges = Map<String, dynamic>.from(
+      (data['time_ranges'] as Map?) ?? const <String, dynamic>{},
+    );
     final recent = ((data['recent'] as List?) ?? const [])
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
-    final hadirCount = recent
-        .where(
-          (item) => (item['status'] as String?)?.toLowerCase() == 'hadir',
-        )
-        .length;
-    final izinCount = recent
-        .where(
-          (item) => (item['status'] as String?)?.toLowerCase() == 'izin',
-        )
-        .length;
+    final canSubmit = form['can_submit'] == true;
+    final nextModeLabel =
+        form['next_mode_label'] as String? ?? 'Presensi Hari Ini';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TeacherPageHeader(
-          title: 'Presensi',
-          onBack: onBackToHome,
-        ),
-        const SizedBox(height: 18),
-        const _PageSectionHeading(
-          eyebrow: 'Kehadiran',
-          title: 'Presensi Hari Ini',
-        ),
-        const SizedBox(height: 12),
         _AttendanceHeroCard(
-          dateLabel: data['today_label'] as String? ?? '-',
+          teacherName: data['teacher_name'] as String? ?? '-',
+          schoolName: data['school_name'] as String? ?? '-',
+          todayLabel: data['today_label'] as String? ?? '-',
+          currentTime: _timeLabel(now),
           statusLabel: today['status_label'] as String? ?? 'Belum presensi',
+          nextModeLabel: nextModeLabel,
           status: today['status'] as String? ?? 'belum_presensi',
         ),
         const SizedBox(height: 18),
@@ -121,7 +438,6 @@ class _AttendanceContent extends StatelessWidget {
                 icon: Icons.login_rounded,
                 label: 'Masuk',
                 value: today['check_in'] as String? ?? '-',
-                accent: const Color(0xFFF49637),
               ),
             ),
             const SizedBox(width: 12),
@@ -130,82 +446,97 @@ class _AttendanceContent extends StatelessWidget {
                 icon: Icons.logout_rounded,
                 label: 'Keluar',
                 value: today['check_out'] as String? ?? '-',
-                accent: const Color(0xFFF49637),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
+        _AttendanceActionCard(
+          form: form,
+          timeRanges: timeRanges,
+        ),
+        const SizedBox(height: 14),
+        _AttendanceLocationCard(
+          position: position,
+          locationAddress: locationAddress,
+          locationError: locationError,
+          locationReadingsCount: locationReadingsCount,
+          loadingLocation: loadingLocation,
+          onRefreshLocation: onCaptureLocation,
+        ),
+        const SizedBox(height: 14),
+        _AttendanceSelfieCard(
+          selfieFile: selfieFile,
+          capturingSelfie: capturingSelfie,
+          onCaptureSelfie: onCaptureSelfie,
+          onClearSelfie: onClearSelfie,
+        ),
+        const SizedBox(height: 14),
         AppSectionCard(
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _CompactPresenceMetric(
-                  label: 'Riwayat Hadir',
-                  value: '$hadirCount',
-                  color: const Color(0xFFF49637),
+              const Text(
+                'Kirim Presensi',
+                style: TextStyle(
+                  color: _attendanceText,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              Container(
-                width: 1,
-                height: 36,
-                color: const Color(0xFFE2ECE5),
+              const SizedBox(height: 6),
+              Text(
+                canSubmit
+                    ? 'Lokasi dan selfie wajib tersedia sebelum presensi dikirim.'
+                    : (form['blocked_message'] as String? ??
+                        'Presensi untuk hari ini belum dapat dilakukan.'),
+                style: const TextStyle(
+                  color: _attendanceMuted,
+                  fontSize: 12,
+                  height: 1.4,
+                ),
               ),
-              Expanded(
-                child: _CompactPresenceMetric(
-                  label: 'Riwayat Izin',
-                  value: '$izinCount',
-                  color: const Color(0xFFF49637),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: canSubmit && !submitting ? onSubmit : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _attendancePrimary,
+                    disabledBackgroundColor: const Color(0xFFF8E3CD),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    elevation: 0,
+                  ),
+                  icon: submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.check_circle_outline_rounded),
+                  label: Text(
+                    submitting ? 'Mengirim...' : nextModeLabel,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
-        AppSectionCard(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF4E8),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.location_on_outlined,
-                  color: Color(0xFFF49637),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Lokasi Presensi Hari Ini',
-                      style: TextStyle(
-                        color: Color(0xFF7A4212),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      today['location'] as String? ?? '-',
-                      style: const TextStyle(
-                        color: Color(0xFF6D7F7D),
-                        fontSize: 12,
-                        height: 1.35,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        const SizedBox(height: 18),
+        _GuidanceCard(
+          guidance: ((form['guidance'] as List?) ?? const [])
+              .whereType<String>()
+              .toList(),
         ),
         const SizedBox(height: 18),
         const _PageSectionHeading(
@@ -235,27 +566,32 @@ class _AttendanceContent extends StatelessWidget {
 
 class _AttendanceHeroCard extends StatelessWidget {
   const _AttendanceHeroCard({
-    required this.dateLabel,
+    required this.teacherName,
+    required this.schoolName,
+    required this.todayLabel,
+    required this.currentTime,
     required this.statusLabel,
+    required this.nextModeLabel,
     required this.status,
   });
 
-  final String dateLabel;
+  final String teacherName;
+  final String schoolName;
+  final String todayLabel;
+  final String currentTime;
   final String statusLabel;
+  final String nextModeLabel;
   final String status;
 
   @override
   Widget build(BuildContext context) {
-    final color = _statusColor(status);
+    final statusColor = _statusColor(status);
 
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFFF49637),
-            Color(0xFFC96A19),
-          ],
+          colors: [_attendancePrimary, _attendancePrimaryDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -271,48 +607,137 @@ class _AttendanceHeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            dateLabel,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.78),
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: Text(
-                  statusLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    height: 1.05,
+                  todayLabel,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.82),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.16),
+                  color: Colors.white.withOpacity(0.18),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  _statusText(status),
-                  style: TextStyle(
-                    color: color == const Color(0xFFB42318)
-                        ? Colors.white
-                        : color,
-                    fontSize: 12,
+                  currentTime,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontWeight: FontWeight.w800,
+                    fontSize: 12,
                   ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            teacherName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              height: 1.05,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            schoolName,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.85),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _HeroInfoPill(
+                  icon: Icons.verified_user_outlined,
+                  label: statusLabel,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.bolt_rounded,
+                        color: statusColor,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          nextModeLabel,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroInfoPill extends StatelessWidget {
+  const _HeroInfoPill({
+    required this.icon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.16),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.verified_user_outlined,
+            color: Colors.white,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 12,
+              ),
+            ),
           ),
         ],
       ),
@@ -325,13 +750,11 @@ class _MiniAttendanceCard extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
-    required this.accent,
   });
 
   final IconData icon;
   final String label;
   final String value;
-  final Color accent;
 
   @override
   Widget build(BuildContext context) {
@@ -344,12 +767,12 @@ class _MiniAttendanceCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF4E8),
+              color: _attendanceSoft,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               icon,
-              color: accent,
+              color: _attendancePrimary,
               size: 18,
             ),
           ),
@@ -357,7 +780,7 @@ class _MiniAttendanceCard extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              color: Color(0xFF7A4212),
+              color: _attendanceText,
               fontSize: 20,
               fontWeight: FontWeight.w800,
             ),
@@ -366,7 +789,7 @@ class _MiniAttendanceCard extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFF7A8F8C),
+              color: _attendanceMuted,
               fontWeight: FontWeight.w700,
               fontSize: 12,
             ),
@@ -377,40 +800,483 @@ class _MiniAttendanceCard extends StatelessWidget {
   }
 }
 
-class _CompactPresenceMetric extends StatelessWidget {
-  const _CompactPresenceMetric({
-    required this.label,
-    required this.value,
-    required this.color,
+class _AttendanceActionCard extends StatelessWidget {
+  const _AttendanceActionCard({
+    required this.form,
+    required this.timeRanges,
   });
 
-  final String label;
-  final String value;
-  final Color color;
+  final Map<String, dynamic> form;
+  final Map<String, dynamic> timeRanges;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            color: color,
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
+    final blockedMessage = form['blocked_message'] as String?;
+    final nextModeLabel = form['next_mode_label'] as String? ?? '-';
+
+    return AppSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Status Presensi',
+            style: TextStyle(
+              color: _attendanceText,
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Color(0xFF7A8F8C),
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: blockedMessage == null
+                  ? _attendanceSoft
+                  : const Color(0xFFFFF2F0),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: blockedMessage == null
+                    ? const Color(0xFFF8D7B1)
+                    : const Color(0xFFFFD0CB),
+              ),
+            ),
+            child: Text(
+              blockedMessage ?? 'Mode aktif saat ini: $nextModeLabel',
+              style: TextStyle(
+                color: blockedMessage == null
+                    ? _attendanceText
+                    : const Color(0xFFB42318),
+                height: 1.4,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+            ),
           ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _RangeChip(
+                label: 'Masuk ${timeRanges['masuk_start'] ?? '-'}',
+              ),
+              _RangeChip(
+                label: 'Pulang ${timeRanges['pulang_start'] ?? '-'}',
+              ),
+              if ((timeRanges['pulang_end'] as String?)?.isNotEmpty == true)
+                _RangeChip(
+                  label: 'Batas ${timeRanges['pulang_end']}',
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RangeChip extends StatelessWidget {
+  const _RangeChip({
+    required this.label,
+  });
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: _attendanceSoft,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: _attendanceText,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _AttendanceLocationCard extends StatelessWidget {
+  const _AttendanceLocationCard({
+    required this.position,
+    required this.locationAddress,
+    required this.locationError,
+    required this.locationReadingsCount,
+    required this.loadingLocation,
+    required this.onRefreshLocation,
+  });
+
+  final Position? position;
+  final String? locationAddress;
+  final String? locationError;
+  final int locationReadingsCount;
+  final bool loadingLocation;
+  final Future<void> Function() onRefreshLocation;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _attendanceSoft,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.location_on_outlined,
+                  color: _attendancePrimary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Lokasi Presensi',
+                  style: TextStyle(
+                    color: _attendanceText,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: loadingLocation ? null : onRefreshLocation,
+                child: Text(
+                  loadingLocation ? 'Memuat...' : 'Ambil Lokasi',
+                  style: const TextStyle(
+                    color: _attendancePrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (position == null)
+            Text(
+              locationError ??
+                  'Lokasi belum diambil. Tekan tombol di atas untuk mengambil posisi terbaru.',
+              style: TextStyle(
+                color: locationError == null
+                    ? _attendanceMuted
+                    : const Color(0xFFB42318),
+                fontSize: 13,
+                height: 1.45,
+              ),
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _attendanceSoft,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFF8D7B1)),
+                  ),
+                  child: Text(
+                    locationAddress ?? _coordinateLabel(position!),
+                    style: const TextStyle(
+                      color: _attendanceText,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: SizedBox(
+                    height: 170,
+                    width: double.infinity,
+                    child: FlutterMap(
+                      options: MapOptions(
+                        initialCenter:
+                            LatLng(position!.latitude, position!.longitude),
+                        initialZoom: 16,
+                        interactionOptions: const InteractionOptions(
+                          flags: InteractiveFlag.drag |
+                              InteractiveFlag.pinchZoom |
+                              InteractiveFlag.doubleTapZoom,
+                        ),
+                      ),
+                      children: [
+                        TileLayer(
+                          urlTemplate:
+                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          userAgentPackageName: 'nuist_flutter_mobile',
+                        ),
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point:
+                                  LatLng(position!.latitude, position!.longitude),
+                              width: 54,
+                              height: 54,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: _attendancePrimary,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color(0x22003B39),
+                                      blurRadius: 14,
+                                      offset: Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.location_on_rounded,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _coordinateLabel(position!),
+                  style: const TextStyle(
+                    color: _attendanceText,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Akurasi ${position!.accuracy.toStringAsFixed(1)} m • Altitude ${position!.altitude.toStringAsFixed(1)} m • Sampel GPS $locationReadingsCount',
+                  style: const TextStyle(
+                    color: _attendanceMuted,
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttendanceSelfieCard extends StatelessWidget {
+  const _AttendanceSelfieCard({
+    required this.selfieFile,
+    required this.capturingSelfie,
+    required this.onCaptureSelfie,
+    required this.onClearSelfie,
+  });
+
+  final XFile? selfieFile;
+  final bool capturingSelfie;
+  final Future<void> Function() onCaptureSelfie;
+  final VoidCallback onClearSelfie;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _attendanceSoft,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.camera_alt_outlined,
+                  color: _attendancePrimary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Selfie Presensi',
+                  style: TextStyle(
+                    color: _attendanceText,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: capturingSelfie ? null : onCaptureSelfie,
+                child: Text(
+                  capturingSelfie ? 'Membuka...' : 'Ambil Selfie',
+                  style: const TextStyle(
+                    color: _attendancePrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (selfieFile == null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 14),
+              decoration: BoxDecoration(
+                color: _attendanceSoft,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFF8D7B1)),
+              ),
+              child: const Column(
+                children: [
+                  Icon(
+                    Icons.account_circle_outlined,
+                    size: 42,
+                    color: _attendancePrimary,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Belum ada selfie',
+                    style: TextStyle(
+                      color: _attendanceText,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Gunakan kamera depan untuk mengambil selfie presensi.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _attendanceMuted,
+                      fontSize: 12,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Image.file(
+                      File(selfieFile!.path),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: onClearSelfie,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    label: const Text('Hapus'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFFB42318),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuidanceCard extends StatelessWidget {
+  const _GuidanceCard({
+    required this.guidance,
+  });
+
+  final List<String> guidance;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _PageSectionHeading(
+            eyebrow: 'Panduan',
+            title: 'Langkah Presensi',
+          ),
+          const SizedBox(height: 12),
+          if (guidance.isEmpty)
+            const Text(
+              'Tidak ada panduan tambahan untuk hari ini.',
+              style: TextStyle(
+                color: _attendanceMuted,
+                fontSize: 12,
+              ),
+            )
+          else
+            ...guidance.asMap().entries.map(
+                  (entry) => Padding(
+                    padding: EdgeInsets.only(
+                      bottom: entry.key == guidance.length - 1 ? 0 : 10,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: _attendanceSoft,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${entry.key + 1}',
+                              style: const TextStyle(
+                                color: _attendancePrimary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            entry.value,
+                            style: const TextStyle(
+                              color: _attendanceMuted,
+                              fontSize: 12,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+        ],
+      ),
     );
   }
 }
@@ -436,7 +1302,7 @@ class _AttendanceHistoryTile extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.1),
+              color: statusColor.withOpacity(0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
@@ -460,7 +1326,7 @@ class _AttendanceHistoryTile extends StatelessWidget {
                       child: Text(
                         item['date_label'] as String? ?? '-',
                         style: const TextStyle(
-                          color: Color(0xFF7A4212),
+                          color: _attendanceText,
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
                         ),
@@ -478,15 +1344,26 @@ class _AttendanceHistoryTile extends StatelessWidget {
                     fontSize: 12,
                   ),
                 ),
-                if ((item['location'] as String?)?.trim().isNotEmpty ==
-                    true) ...[
+                if ((item['location'] as String?)?.trim().isNotEmpty == true) ...[
                   const SizedBox(height: 5),
                   Text(
                     item['location'] as String,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      color: Color(0xFF8A9B99),
+                      color: _attendanceMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+                if ((item['note'] as String?)?.trim().isNotEmpty == true) ...[
+                  const SizedBox(height: 5),
+                  Text(
+                    item['note'] as String,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF9A6A33),
                       fontSize: 12,
                     ),
                   ),
@@ -538,7 +1415,7 @@ class _PageLoading extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(top: 120),
         child: CircularProgressIndicator(
-          color: Color(0xFFF49637),
+          color: _attendancePrimary,
         ),
       ),
     );
@@ -578,19 +1455,6 @@ class _PageError extends StatelessWidget {
   }
 }
 
-Color _statusColor(String status) {
-  switch (status) {
-    case 'hadir':
-      return const Color(0xFFF49637);
-    case 'izin':
-      return const Color(0xFFF49637);
-    case 'alpha':
-      return const Color(0xFFB42318);
-    default:
-      return const Color(0xFF7A8F8C);
-  }
-}
-
 class _PageSectionHeading extends StatelessWidget {
   const _PageSectionHeading({
     required this.eyebrow,
@@ -608,7 +1472,7 @@ class _PageSectionHeading extends StatelessWidget {
         Text(
           eyebrow.toUpperCase(),
           style: const TextStyle(
-            color: Color(0xFFF49637),
+            color: _attendancePrimary,
             fontSize: 11,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.6,
@@ -618,7 +1482,7 @@ class _PageSectionHeading extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Color(0xFF7A4212),
+            color: _attendanceText,
             fontSize: 17,
             fontWeight: FontWeight.w800,
           ),
@@ -628,15 +1492,26 @@ class _PageSectionHeading extends StatelessWidget {
   }
 }
 
-String _statusText(String status) {
+Color _statusColor(String status) {
   switch (status) {
     case 'hadir':
-      return 'Hadir';
+      return _attendancePrimary;
     case 'izin':
-      return 'Izin';
+      return const Color(0xFFE3A320);
     case 'alpha':
-      return 'Alpha';
+      return const Color(0xFFB42318);
     default:
-      return 'Pending';
+      return _attendanceMuted;
   }
+}
+
+String _timeLabel(DateTime value) {
+  final hours = value.hour.toString().padLeft(2, '0');
+  final minutes = value.minute.toString().padLeft(2, '0');
+  final seconds = value.second.toString().padLeft(2, '0');
+  return '$hours:$minutes:$seconds';
+}
+
+String _coordinateLabel(Position position) {
+  return 'Lat ${position.latitude.toStringAsFixed(6)}, Lng ${position.longitude.toStringAsFixed(6)}';
 }

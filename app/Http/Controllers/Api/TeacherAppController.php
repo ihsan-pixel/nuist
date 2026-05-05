@@ -11,11 +11,15 @@ use App\Models\Presensi;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingSchedule;
 use App\Models\User;
+use App\Services\ApprovedIzinSyncService;
+use App\Services\ExternalTeachingPermissionService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class TeacherAppController extends Controller
 {
@@ -274,6 +278,9 @@ class TeacherAppController extends Controller
     {
         $user = $this->resolveTeacher($request);
         $today = Carbon::today('Asia/Jakarta');
+        $now = Carbon::now('Asia/Jakarta');
+
+        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $today);
 
         $todayPresensi = Presensi::query()
             ->with('madrasah')
@@ -286,13 +293,42 @@ class TeacherAppController extends Controller
             ->with('madrasah')
             ->where('user_id', $user->id)
             ->latest('tanggal')
+            ->latest('id')
             ->limit(10)
             ->get();
+
+        $holiday = Holiday::query()
+            ->where('is_active', true)
+            ->whereDate('date', $today->toDateString())
+            ->first();
+        $isSunday = $today->isSunday();
+        $approvedBlockingIzin = $this->findApprovedBlockingIzin($user, $today);
+        $pendingLatePermit = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $today->toDateString())
+            ->where('status', 'izin')
+            ->where('status_izin', 'pending')
+            ->where('keterangan', 'like', '%terlambat%')
+            ->exists();
+        $attendanceForm = $this->buildAttendanceFormState(
+            $user,
+            $today,
+            $todayPresensi,
+            $holiday,
+            $isSunday,
+            $approvedBlockingIzin,
+            $pendingLatePermit,
+        );
 
         return response()->json([
             'message' => 'OK',
             'data' => [
                 'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+                'server_time' => $now->toIso8601String(),
+                'school_name' => $user->madrasah?->name ?? '-',
+                'teacher_name' => $user->name,
+                'time_ranges' => $this->buildPresensiTimeRanges($user, $today),
+                'form' => $attendanceForm,
                 'today_attendance' => $this->serializeTodayAttendance($todayPresensi),
                 'recent' => $recent->map(function (Presensi $item) {
                     return [
@@ -305,9 +341,209 @@ class TeacherAppController extends Controller
                         'check_in' => optional($item->waktu_masuk)->format('H:i'),
                         'check_out' => optional($item->waktu_keluar)->format('H:i'),
                         'location' => $item->lokasi ?: $item->madrasah?->name,
+                        'location_out' => $item->lokasi_keluar,
                         'school_name' => $item->madrasah?->name,
+                        'note' => $item->keterangan,
                     ];
                 })->values(),
+            ],
+        ]);
+    }
+
+    public function storeAttendance(Request $request): JsonResponse
+    {
+        $user = $this->resolveTeacher($request);
+
+        $validated = $request->validate([
+            'presensi_mode' => ['required', Rule::in(['masuk', 'keluar'])],
+            'latitude' => ['required', 'numeric'],
+            'longitude' => ['required', 'numeric'],
+            'lokasi' => ['nullable', 'string'],
+            'accuracy' => ['nullable', 'numeric'],
+            'altitude' => ['nullable', 'numeric'],
+            'speed' => ['nullable', 'numeric'],
+            'device_info' => ['nullable', 'string'],
+            'location_readings' => ['nullable'],
+            'selfie_data' => ['required', 'string', 'min:100'],
+        ]);
+
+        if (!$this->isValidBase64Image($validated['selfie_data'])) {
+            throw ValidationException::withMessages([
+                'selfie_data' => 'Data foto selfie tidak valid. Silakan ambil foto lagi.',
+            ]);
+        }
+
+        $tanggal = Carbon::today('Asia/Jakarta');
+        $now = Carbon::now('Asia/Jakarta');
+
+        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $tanggal);
+
+        $holiday = Holiday::query()
+            ->where('is_active', true)
+            ->whereDate('date', $tanggal->toDateString())
+            ->first();
+
+        if ($holiday || $tanggal->isSunday()) {
+            $reason = $holiday
+                ? 'hari libur (' . $holiday->name . ')'
+                : 'hari Minggu';
+
+            throw ValidationException::withMessages([
+                'attendance' => "Presensi tidak dapat dilakukan pada {$reason}.",
+            ]);
+        }
+
+        $approvedBlockingIzin = $this->findApprovedBlockingIzin($user, $tanggal);
+        if ($approvedBlockingIzin) {
+            $izinLabel = ucfirst(str_replace('_', ' ', (string) $approvedBlockingIzin->type));
+
+            throw ValidationException::withMessages([
+                'attendance' => "{$izinLabel} Anda sudah disetujui. Hari ini otomatis tercatat sebagai izin.",
+            ]);
+        }
+
+        $pendingLatePermit = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $tanggal->toDateString())
+            ->where('status', 'izin')
+            ->where('status_izin', 'pending')
+            ->where('keterangan', 'like', '%terlambat%')
+            ->exists();
+
+        if ($pendingLatePermit) {
+            throw ValidationException::withMessages([
+                'attendance' => 'Izin terlambat Anda sedang menunggu persetujuan. Presensi belum dapat dilakukan.',
+            ]);
+        }
+
+        $existingPresensi = $user->ketugasan === 'penjaga sekolah'
+            ? Presensi::query()
+                ->where('user_id', $user->id)
+                ->whereNotNull('waktu_masuk')
+                ->whereNull('waktu_keluar')
+                ->latest('tanggal')
+                ->first()
+            : Presensi::query()
+                ->where('user_id', $user->id)
+                ->whereDate('tanggal', $tanggal->toDateString())
+                ->first();
+
+        if ($validated['presensi_mode'] === 'masuk' && $existingPresensi?->waktu_masuk && $existingPresensi?->waktu_keluar) {
+            throw ValidationException::withMessages([
+                'attendance' => 'Presensi hari ini sudah lengkap.',
+            ]);
+        }
+
+        if ($validated['presensi_mode'] === 'keluar' && (!$existingPresensi || !$existingPresensi->waktu_masuk)) {
+            throw ValidationException::withMessages([
+                'attendance' => 'Presensi keluar belum dapat dilakukan karena presensi masuk belum tercatat.',
+            ]);
+        }
+
+        if ($validated['presensi_mode'] === 'keluar' && $existingPresensi?->waktu_keluar) {
+            throw ValidationException::withMessages([
+                'attendance' => 'Presensi keluar hari ini sudah dicatat.',
+            ]);
+        }
+
+        $this->ensureAttendanceTimeAllowed($user, $validated['presensi_mode'], $now, $existingPresensi, $validated);
+
+        $determinedMadrasahId = $this->determineAttendanceMadrasahId(
+            $user,
+            (float) $validated['latitude'],
+            (float) $validated['longitude'],
+        );
+
+        if (!$determinedMadrasahId) {
+            throw ValidationException::withMessages([
+                'location' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan.',
+            ]);
+        }
+
+        $locationValidation = $this->validateLocationForFakeGps(
+            $validated,
+            $user,
+            $validated['presensi_mode'] === 'masuk',
+        );
+
+        if ($locationValidation['is_fake']) {
+            throw ValidationException::withMessages([
+                'location' => $locationValidation['message'],
+            ]);
+        }
+
+        $selfiePath = $this->processAndSaveSelfie(
+            $validated['selfie_data'],
+            $user->id,
+            $tanggal->toDateString(),
+            $validated['presensi_mode'] === 'masuk',
+        );
+
+        $message = '';
+
+        if ($validated['presensi_mode'] === 'masuk') {
+            $keterangan = $this->buildCheckInNote($user, $tanggal, $now);
+
+            Presensi::create($this->filterPresensiAttributes([
+                'user_id' => $user->id,
+                'madrasah_id' => $determinedMadrasahId,
+                'tanggal' => $tanggal->toDateString(),
+                'waktu_masuk' => $now,
+                'status' => 'hadir',
+                'keterangan' => $keterangan,
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
+                'lokasi' => $validated['lokasi'] ?? null,
+                'accuracy' => $validated['accuracy'] ?? null,
+                'altitude' => $validated['altitude'] ?? null,
+                'speed' => $validated['speed'] ?? null,
+                'device_info' => $validated['device_info'] ?? null,
+                'location_readings' => $this->normalizeLocationReadings($validated['location_readings'] ?? null),
+                'selfie_masuk_path' => $selfiePath,
+                'status_kepegawaian_id' => $user->status_kepegawaian_id,
+                'is_fake_location' => false,
+                'fake_location_analysis' => $locationValidation['analysis'] ?? null,
+            ]));
+
+            $message = 'Presensi masuk berhasil dicatat.';
+        } else {
+            $newKeterangan = trim((string) ($existingPresensi->keterangan ?? ''));
+            if ($this->isEarlyCheckout($user, $now)) {
+                $newKeterangan = $newKeterangan === ''
+                    ? 'pulang awal'
+                    : $newKeterangan . ' / pulang awal';
+            }
+
+            $existingPresensi->update($this->filterPresensiAttributes([
+                'waktu_keluar' => $now,
+                'latitude_keluar' => $validated['latitude'],
+                'longitude_keluar' => $validated['longitude'],
+                'lokasi_keluar' => $validated['lokasi'] ?? null,
+                'accuracy_keluar' => $validated['accuracy'] ?? null,
+                'altitude_keluar' => $validated['altitude'] ?? null,
+                'speed_keluar' => $validated['speed'] ?? null,
+                'device_info_keluar' => $validated['device_info'] ?? null,
+                'location_readings_keluar' => $this->normalizeLocationReadings($validated['location_readings'] ?? null),
+                'selfie_keluar_path' => $selfiePath,
+                'keterangan' => $newKeterangan,
+                'is_fake_location_keluar' => false,
+                'fake_location_analysis_keluar' => $locationValidation['analysis'] ?? null,
+            ]));
+
+            $message = 'Presensi keluar berhasil dicatat.';
+        }
+
+        $todayPresensi = Presensi::query()
+            ->with('madrasah')
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $tanggal->toDateString())
+            ->orderBy('tanggal')
+            ->get();
+
+        return response()->json([
+            'message' => $message,
+            'data' => [
+                'today_attendance' => $this->serializeTodayAttendance($todayPresensi),
             ],
         ]);
     }
@@ -457,7 +693,7 @@ class TeacherAppController extends Controller
 
         abort_unless($user && $user->role === 'tenaga_pendidik', 403);
 
-        return $user->loadMissing(['madrasah', 'statusKepegawaian']);
+        return $user->loadMissing(['madrasah', 'madrasahTambahan', 'statusKepegawaian']);
     }
 
     private function validateSchedulePayload(Request $request): array
@@ -607,7 +843,612 @@ class TeacherAppController extends Controller
             'check_in' => optional($checkIn?->waktu_masuk)->format('H:i'),
             'check_out' => optional($checkOut?->waktu_keluar)->format('H:i'),
             'location' => $checkIn?->lokasi ?: $checkIn?->madrasah?->name,
+            'location_out' => $checkOut?->lokasi_keluar,
+            'entries' => $items->map(function (Presensi $item) {
+                return [
+                    'id' => $item->id,
+                    'status' => $item->status,
+                    'school_name' => $item->madrasah?->name,
+                    'check_in' => optional($item->waktu_masuk)->format('H:i'),
+                    'check_out' => optional($item->waktu_keluar)->format('H:i'),
+                    'location' => $item->lokasi,
+                    'location_out' => $item->lokasi_keluar,
+                    'note' => $item->keterangan,
+                    'selfie_in_url' => $item->selfie_masuk_path ? asset('storage/' . ltrim($item->selfie_masuk_path, '/')) : null,
+                    'selfie_out_url' => $item->selfie_keluar_path ? asset('storage/' . ltrim($item->selfie_keluar_path, '/')) : null,
+                ];
+            })->values(),
         ];
+    }
+
+    private function buildAttendanceFormState(
+        User $user,
+        Carbon $today,
+        $todayPresensi,
+        ?Holiday $holiday,
+        bool $isSunday,
+        ?Izin $approvedBlockingIzin,
+        bool $pendingLatePermit,
+    ): array {
+        $blockedMessage = null;
+        $nextMode = null;
+        $nextModeLabel = null;
+
+        $hadirRecords = $todayPresensi->where('status', 'hadir');
+        $openRecord = $hadirRecords
+            ->filter(fn (Presensi $item) => !empty($item->waktu_masuk) && empty($item->waktu_keluar))
+            ->sortByDesc('waktu_masuk')
+            ->first();
+        $completedToday = $hadirRecords
+            ->contains(fn (Presensi $item) => !empty($item->waktu_masuk) && !empty($item->waktu_keluar));
+
+        if ($holiday) {
+            $blockedMessage = 'Hari ini libur: ' . $holiday->name . '.';
+        } elseif ($isSunday) {
+            $blockedMessage = 'Presensi tidak tersedia pada hari Minggu.';
+        } elseif ($approvedBlockingIzin) {
+            $blockedMessage = ucfirst(str_replace('_', ' ', (string) $approvedBlockingIzin->type)) . ' Anda sudah disetujui untuk hari ini.';
+        } elseif ($pendingLatePermit) {
+            $blockedMessage = 'Izin terlambat sedang menunggu persetujuan. Presensi belum dapat dilakukan.';
+        } elseif ($completedToday) {
+            $blockedMessage = 'Presensi hari ini sudah lengkap.';
+        } elseif ($todayPresensi->where('status', 'alpha')->isNotEmpty()) {
+            $blockedMessage = 'Hari ini sudah tercatat sebagai alpha.';
+        } elseif ($todayPresensi->where('status', 'izin')->isNotEmpty() && $hadirRecords->isEmpty()) {
+            $blockedMessage = 'Hari ini sudah tercatat sebagai izin.';
+        } elseif ($openRecord) {
+            $nextMode = 'keluar';
+            $nextModeLabel = 'Presensi Keluar';
+        } else {
+            $nextMode = 'masuk';
+            $nextModeLabel = 'Presensi Masuk';
+        }
+
+        return [
+            'can_submit' => $nextMode !== null && $blockedMessage === null,
+            'next_mode' => $nextMode,
+            'next_mode_label' => $nextModeLabel,
+            'blocked_message' => $blockedMessage,
+            'is_holiday' => (bool) $holiday,
+            'holiday_name' => $holiday?->name,
+            'pending_late_permit' => $pendingLatePermit,
+            'guidance' => [
+                'Aktifkan GPS dan ambil lokasi terbaru sebelum submit.',
+                'Ambil selfie langsung dari kamera depan saat presensi.',
+                'Mode presensi akan mengikuti status hari ini secara otomatis.',
+            ],
+            'school_name' => $user->madrasah?->name ?? '-',
+            'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+        ];
+    }
+
+    private function buildPresensiTimeRanges(User $user, Carbon $date): array
+    {
+        $dayOfWeek = $date->dayOfWeek;
+        $school = $user->madrasah;
+        $masukStart = $school?->presensi_masuk_start ?? '00:01';
+        $masukEnd = $school?->presensi_masuk_end;
+        $pulangEnd = $school?->presensi_pulang_end ?? '23:59';
+
+        if ($dayOfWeek === 5 && $school?->presensi_pulang_jumat) {
+            $pulangStart = $school->presensi_pulang_jumat;
+        } elseif ($dayOfWeek === 6 && $school?->presensi_pulang_sabtu) {
+            $pulangStart = $school->presensi_pulang_sabtu;
+        } elseif ($school?->presensi_pulang_start) {
+            $pulangStart = $school->presensi_pulang_start;
+        } else {
+            $hariKbm = (string) ($school?->hari_kbm ?? '');
+            if ($hariKbm === '5') {
+                $pulangStart = $dayOfWeek === 5 ? '11:15' : '13:35';
+            } elseif ($hariKbm === '6') {
+                $pulangStart = $dayOfWeek === 5
+                    ? '13:00'
+                    : ($dayOfWeek === 6 ? '12:00' : '14:00');
+            } else {
+                $pulangStart = '15:00';
+            }
+        }
+
+        return [
+            'masuk_start' => $this->formatTimeValue($masukStart),
+            'masuk_end' => $this->formatTimeValue($masukEnd),
+            'pulang_start' => $this->formatTimeValue($pulangStart),
+            'pulang_end' => $this->formatTimeValue($pulangEnd),
+        ];
+    }
+
+    private function ensureAttendanceTimeAllowed(
+        User $user,
+        string $mode,
+        Carbon $now,
+        ?Presensi $existingPresensi,
+        array $validated,
+    ): void {
+        if ($user->ketugasan !== 'penjaga sekolah') {
+            $endOfDayCutoff = $this->normalizeTimeValue($user->madrasah?->presensi_pulang_end ?? '23:59:59');
+            if ($mode === 'masuk' && $now->format('H:i:s') > $endOfDayCutoff) {
+                if (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $now)) {
+                    ExternalTeachingPermissionService::createOrUpdateNoPresenceRecord($user, $now);
+                }
+
+                if (!$existingPresensi) {
+                    Presensi::create($this->filterPresensiAttributes([
+                        'user_id' => $user->id,
+                        'tanggal' => $now->toDateString(),
+                        'status' => 'alpha',
+                        'keterangan' => 'Tidak masuk',
+                        'latitude' => $validated['latitude'],
+                        'longitude' => $validated['longitude'],
+                        'lokasi' => $validated['lokasi'] ?? null,
+                        'accuracy' => $validated['accuracy'] ?? null,
+                        'altitude' => $validated['altitude'] ?? null,
+                        'speed' => $validated['speed'] ?? null,
+                        'device_info' => $validated['device_info'] ?? null,
+                        'location_readings' => $this->normalizeLocationReadings($validated['location_readings'] ?? null),
+                        'status_kepegawaian_id' => $user->status_kepegawaian_id,
+                    ]));
+                }
+
+                throw ValidationException::withMessages([
+                    'attendance' => 'Presensi setelah batas waktu otomatis dicatat sebagai tidak masuk.',
+                ]);
+            }
+        }
+
+        if ($mode !== 'masuk' || $user->ketugasan === 'penjaga sekolah') {
+            return;
+        }
+
+        $minTimeMasuk = $this->normalizeTimeValue($user->madrasah?->presensi_masuk_start ?? '00:01:00');
+        if ($now->format('H:i:s') < $minTimeMasuk) {
+            throw ValidationException::withMessages([
+                'attendance' => 'Presensi masuk belum dapat dilakukan. Waktu presensi dimulai pukul ' . substr($minTimeMasuk, 0, 5) . '.',
+            ]);
+        }
+    }
+
+    private function determineAttendanceMadrasahId(User $user, float $latitude, float $longitude): ?int
+    {
+        $candidates = [];
+
+        if ($user->pemenuhan_beban_kerja_lain && $user->madrasahTambahan) {
+            $candidates[] = ['id' => $user->madrasah_id_tambahan, 'school' => $user->madrasahTambahan];
+        }
+
+        if ($user->madrasah) {
+            $candidates[] = ['id' => $user->madrasah_id, 'school' => $user->madrasah];
+        }
+
+        foreach ($candidates as $candidate) {
+            $school = $candidate['school'];
+            $polygons = [];
+
+            if (!empty($school?->polygon_koordinat)) {
+                $polygons[] = $school->polygon_koordinat;
+            }
+
+            if (!empty($school?->enable_dual_polygon) && !empty($school?->polygon_koordinat_2)) {
+                $polygons[] = $school->polygon_koordinat_2;
+            }
+
+            foreach ($polygons as $polygonJson) {
+                try {
+                    $geometry = json_decode($polygonJson, true, 512, JSON_THROW_ON_ERROR);
+                    $points = $geometry['coordinates'][0] ?? null;
+                    if (is_array($points) && $this->isPointInPolygon([$longitude, $latitude], $points)) {
+                        return (int) $candidate['id'];
+                    }
+                } catch (\Throwable $e) {
+                    continue;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function buildCheckInNote(User $user, Carbon $tanggal, Carbon $now): string
+    {
+        $approvedLatePermit = Presensi::query()
+            ->where('user_id', $user->id)
+            ->whereDate('tanggal', $tanggal->toDateString())
+            ->where('status', 'izin')
+            ->where('status_izin', 'approved')
+            ->where('keterangan', 'like', '%terlambat%')
+            ->first();
+
+        if ($approvedLatePermit) {
+            return 'terlambat sudah izin';
+        }
+
+        if ($now->format('H:i:s') > '07:00:00') {
+            $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+            $terlambatMenit = abs((int) round($now->floatDiffInMinutes($batas)));
+            return 'Terlambat ' . $terlambatMenit . ' menit';
+        }
+
+        return 'tidak terlambat';
+    }
+
+    private function isEarlyCheckout(User $user, Carbon $now): bool
+    {
+        if ($user->ketugasan === 'penjaga sekolah' || $user->pemenuhan_beban_kerja_lain) {
+            return false;
+        }
+
+        $pulangStart = $this->normalizeTimeValue(
+            $this->buildPresensiTimeRanges($user, $now)['pulang_start'] ?? '15:00',
+        );
+
+        return $now->format('H:i:s') < $pulangStart;
+    }
+
+    private function normalizeTimeValue($value): string
+    {
+        $time = trim((string) $value);
+        if ($time === '') {
+            return '00:00:00';
+        }
+
+        return strlen($time) === 5 ? $time . ':00' : $time;
+    }
+
+    private function formatTimeValue($value): ?string
+    {
+        $time = trim((string) $value);
+        if ($time === '') {
+            return null;
+        }
+
+        return substr($this->normalizeTimeValue($time), 0, 5);
+    }
+
+    private function validateLocationForFakeGps(array $payload, User $user, bool $isPresensiMasuk): array
+    {
+        $analysis = [
+            'accuracy_check' => false,
+            'consistency_check' => false,
+            'speed_check' => false,
+            'location_history_check' => false,
+            'suspicious_indicators' => [],
+        ];
+
+        $isFake = false;
+        $messages = [];
+        $accuracy = isset($payload['accuracy']) ? (float) $payload['accuracy'] : null;
+
+        if ($accuracy !== null && $accuracy > 0 && $accuracy < 3) {
+            $analysis['accuracy_check'] = true;
+            $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
+            $isFake = true;
+            $messages[] = 'Akurasi GPS terlalu sempurna (Terindikasi Lokasi Palsu)';
+        }
+
+        if (!empty($payload['location_readings'])) {
+            $consistency = $this->validateLocationConsistency($payload['location_readings']);
+            if (!$consistency['valid']) {
+                $analysis['consistency_check'] = true;
+                $analysis['suspicious_indicators'][] = 'location_consistency';
+                $isFake = true;
+                $messages[] = $consistency['message'];
+            }
+        }
+
+        $latitude = (float) $payload['latitude'];
+        $longitude = (float) $payload['longitude'];
+
+        if ($isPresensiMasuk) {
+            $lastPresensi = Presensi::query()
+                ->where('user_id', $user->id)
+                ->where('status', 'hadir')
+                ->whereDate('tanggal', '<', Carbon::today('Asia/Jakarta')->toDateString())
+                ->latest('tanggal')
+                ->first();
+
+            if ($lastPresensi?->latitude && $lastPresensi?->longitude) {
+                $distance = $this->calculateDistance(
+                    (float) $lastPresensi->latitude,
+                    (float) $lastPresensi->longitude,
+                    $latitude,
+                    $longitude,
+                );
+                $lastTime = $lastPresensi->waktu_keluar ?? $lastPresensi->waktu_masuk;
+                $hours = $lastTime ? max(Carbon::now('Asia/Jakarta')->diffInHours($lastTime), 1) : 24;
+                $speed = $distance / $hours;
+
+                if ($speed > 200) {
+                    $analysis['speed_check'] = true;
+                    $analysis['suspicious_indicators'][] = 'abnormal_speed';
+                    $isFake = true;
+                    $messages[] = 'Deteksi pergerakan tidak wajar (kemungkinan teleportasi GPS)';
+                }
+            }
+        } else {
+            $openPresensi = Presensi::query()
+                ->where('user_id', $user->id)
+                ->whereNotNull('waktu_masuk')
+                ->whereNull('waktu_keluar')
+                ->latest('tanggal')
+                ->first();
+
+            if ($openPresensi?->latitude && $openPresensi?->longitude) {
+                $distance = $this->calculateDistance(
+                    (float) $openPresensi->latitude,
+                    (float) $openPresensi->longitude,
+                    $latitude,
+                    $longitude,
+                );
+
+                if ($distance > 5) {
+                    $analysis['location_history_check'] = true;
+                    $analysis['suspicious_indicators'][] = 'location_jump';
+                    $isFake = true;
+                    $messages[] = 'Jarak lokasi masuk dan keluar terlalu jauh (kemungkinan fake GPS)';
+                }
+            }
+        }
+
+        $deviceInfo = strtolower(trim((string) ($payload['device_info'] ?? '')));
+        if ($deviceInfo !== '') {
+            foreach (['fake', 'mock', 'gps', 'location', 'spoof'] as $app) {
+                if (str_contains($deviceInfo, $app)) {
+                    $analysis['suspicious_indicators'][] = 'device_info_suspicious';
+                    $isFake = true;
+                    $messages[] = 'Informasi device menunjukkan penggunaan aplikasi GPS palsu';
+                    break;
+                }
+            }
+        }
+
+        $latitudeRaw = (string) ($payload['latitude'] ?? '');
+        $longitudeRaw = (string) ($payload['longitude'] ?? '');
+
+        if ($latitudeRaw !== '' && $longitudeRaw !== '') {
+            $latParts = explode('.', $latitudeRaw);
+            $lngParts = explode('.', $longitudeRaw);
+            $latDecimals = isset($latParts[1]) ? strlen($latParts[1]) : 0;
+            $lngDecimals = isset($lngParts[1]) ? strlen($lngParts[1]) : 0;
+
+            if ($latDecimals > 15 || $lngDecimals > 15) {
+                $analysis['suspicious_indicators'][] = 'precision_too_high';
+                $isFake = true;
+                $messages[] = 'Presisi koordinat GPS tidak wajar';
+            }
+
+            if (fmod((float) $payload['latitude'], 1) == 0.0 || fmod((float) $payload['longitude'], 1) == 0.0) {
+                $analysis['suspicious_indicators'][] = 'round_coordinates';
+                $isFake = true;
+                $messages[] = 'Koordinat GPS terlalu bulat (kemungkinan fake)';
+            }
+        }
+
+        return [
+            'is_fake' => $isFake,
+            'message' => $messages === [] ? 'Lokasi GPS valid.' : implode(' ', $messages),
+            'analysis' => $analysis,
+        ];
+    }
+
+    private function validateLocationConsistency($locationReadings): array
+    {
+        try {
+            $readings = $this->normalizeLocationReadings($locationReadings);
+            if (!is_array($readings) || count($readings) < 2) {
+                return ['valid' => true, 'message' => ''];
+            }
+
+            $suspiciousJumpCount = 0;
+            $previous = null;
+
+            foreach ($readings as $reading) {
+                if (
+                    !is_array($reading)
+                    || !isset($reading['latitude'], $reading['longitude'])
+                    || !is_numeric($reading['latitude'])
+                    || !is_numeric($reading['longitude'])
+                ) {
+                    continue;
+                }
+
+                if ($previous !== null) {
+                    $distance = $this->calculateDistance(
+                        (float) ($previous['latitude'] ?? 0),
+                        (float) ($previous['longitude'] ?? 0),
+                        (float) ($reading['latitude'] ?? 0),
+                        (float) ($reading['longitude'] ?? 0),
+                    );
+
+                    $timeDiffSeconds = null;
+                    if (
+                        isset($previous['timestamp'], $reading['timestamp'])
+                        && is_numeric($previous['timestamp'])
+                        && is_numeric($reading['timestamp'])
+                    ) {
+                        $timeDiffSeconds = max(
+                            1,
+                            abs(((int) $reading['timestamp']) - ((int) $previous['timestamp'])) / 1000,
+                        );
+                    }
+
+                    if ($timeDiffSeconds !== null && $timeDiffSeconds <= 60 && $distance > 2) {
+                        $suspiciousJumpCount++;
+                    }
+                }
+
+                $previous = $reading;
+            }
+
+            if ($suspiciousJumpCount >= 2) {
+                return [
+                    'valid' => false,
+                    'message' => 'Pembacaan lokasi terdeteksi berpindah sangat jauh dalam waktu singkat. Silakan pastikan GPS aktif dan coba kembali.',
+                ];
+            }
+
+            return ['valid' => true, 'message' => ''];
+        } catch (\Throwable $e) {
+            return ['valid' => true, 'message' => ''];
+        }
+    }
+
+    private function normalizeLocationReadings($locationReadings)
+    {
+        if (is_array($locationReadings)) {
+            return $locationReadings;
+        }
+
+        if (is_string($locationReadings) && trim($locationReadings) !== '') {
+            $decoded = json_decode($locationReadings, true);
+            return is_array($decoded) ? $decoded : null;
+        }
+
+        return null;
+    }
+
+    private function calculateDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $earthRadius = 6371;
+        $latDelta = deg2rad($lat2 - $lat1);
+        $lonDelta = deg2rad($lon2 - $lon1);
+        $a = sin($latDelta / 2) * sin($latDelta / 2)
+            + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
+            * sin($lonDelta / 2) * sin($lonDelta / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
+    }
+
+    private function isValidBase64Image(string $data): bool
+    {
+        if (strlen($data) < 100) {
+            return false;
+        }
+
+        if (!preg_match('/^data:image\/(jpeg|jpg|png);base64,/', $data)) {
+            return false;
+        }
+
+        $base64Data = preg_replace('/^data:image\/(jpeg|jpg|png);base64,/', '', $data);
+        if (!is_string($base64Data) || !preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $base64Data)) {
+            return false;
+        }
+
+        $decoded = base64_decode($base64Data, true);
+        if ($decoded === false) {
+            return false;
+        }
+
+        return str_starts_with($decoded, "\xFF\xD8\xFF") || str_starts_with($decoded, "\x89\x50\x4E\x47");
+    }
+
+    private function processAndSaveSelfie(string $selfieData, int $userId, string $tanggal, bool $isMasuk): string
+    {
+        $path = storage_path('app/public/presensi-selfies');
+        if (!file_exists($path)) {
+            mkdir($path, 0755, true);
+        }
+
+        $type = $isMasuk ? 'masuk' : 'keluar';
+        $filename = 'selfie_' . $userId . '_' . $type . '_' . time() . '.jpg';
+
+        try {
+            $imageData = base64_decode((string) preg_replace('#^data:image/\w+;base64,#i', '', $selfieData), true);
+            if ($imageData === false) {
+                throw new \RuntimeException('Selfie tidak dapat diproses.');
+            }
+
+            $tempFile = tempnam(sys_get_temp_dir(), 'selfie_');
+            file_put_contents($tempFile, $imageData);
+
+            $file = new \Illuminate\Http\UploadedFile(
+                $tempFile,
+                $filename,
+                'image/jpeg',
+                null,
+                true,
+            );
+
+            $file->move($path, $filename);
+
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Gagal menyimpan selfie presensi API.', [
+                'user_id' => $userId,
+                'tanggal' => $tanggal,
+                'message' => $e->getMessage(),
+            ]);
+
+            throw ValidationException::withMessages([
+                'selfie_data' => 'Gagal memproses foto selfie.',
+            ]);
+        }
+
+        return 'presensi-selfies/' . $filename;
+    }
+
+    private function filterPresensiAttributes(array $attributes): array
+    {
+        $availableColumns = $this->getPresensiTableColumns();
+
+        if ($availableColumns === []) {
+            return $attributes;
+        }
+
+        return array_filter(
+            $attributes,
+            static fn ($key) => isset($availableColumns[$key]),
+            ARRAY_FILTER_USE_KEY,
+        );
+    }
+
+    private function getPresensiTableColumns(): array
+    {
+        static $columns = null;
+
+        if ($columns !== null) {
+            return $columns;
+        }
+
+        try {
+            $columns = array_flip(Schema::getColumnListing('presensis'));
+        } catch (\Throwable $e) {
+            Log::warning('Gagal membaca kolom tabel presensis.', [
+                'message' => $e->getMessage(),
+            ]);
+            $columns = [];
+        }
+
+        return $columns;
+    }
+
+    private function isPointInPolygon(array $point, array $polygon): bool
+    {
+        $pointLng = $point[0];
+        $pointLat = $point[1];
+        $inside = false;
+        $j = count($polygon) - 1;
+
+        for ($i = 0; $i < count($polygon); $j = $i++) {
+            $vertexILat = $polygon[$i][1];
+            $vertexILng = $polygon[$i][0];
+            $vertexJLat = $polygon[$j][1];
+            $vertexJLng = $polygon[$j][0];
+
+            if ((($vertexILat > $pointLat) !== ($vertexJLat > $pointLat))
+                && ($pointLng < ($vertexJLng - $vertexILng) * ($pointLat - $vertexILat) / ($vertexJLat - $vertexILat) + $vertexILng)
+            ) {
+                $inside = !$inside;
+            }
+        }
+
+        return $inside;
+    }
+
+    private function findApprovedBlockingIzin(User $user, Carbon|string $date): ?Izin
+    {
+        return ApprovedIzinSyncService::approvedRequestForDate($user, $date);
     }
 
     private function buildAttendanceCalendar($items, $holidays, Carbon $today)
