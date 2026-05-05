@@ -141,8 +141,14 @@ class AuthRepository {
 
       if (rememberSession) {
         await _tokenStorage.writeToken(session.token);
+        await _tokenStorage.saveRememberedLogin(
+          email: email,
+          password: password,
+          remember: true,
+        );
       } else {
         await _tokenStorage.deleteToken();
+        await _tokenStorage.clearRememberedLogin();
       }
 
       return session;
@@ -217,6 +223,14 @@ class AuthRepository {
       _apiClient.setAuthToken(null);
       await _tokenStorage.deleteToken();
     }
+  }
+
+  Future<Map<String, dynamic>> readRememberedLogin() {
+    return _tokenStorage.readRememberedLogin();
+  }
+
+  Future<void> clearRememberedLogin() {
+    return _tokenStorage.clearRememberedLogin();
   }
 
   Future<AppUser> _fetchCurrentUser() async {
