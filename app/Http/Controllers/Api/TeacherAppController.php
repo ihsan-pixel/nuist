@@ -280,21 +280,45 @@ class TeacherAppController extends Controller
         $today = Carbon::today('Asia/Jakarta');
         $now = Carbon::now('Asia/Jakarta');
 
-        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $today);
-
         $todayPresensi = Presensi::query()
-            ->with('madrasah')
+            ->with('madrasah:id,name')
             ->where('user_id', $user->id)
             ->whereDate('tanggal', $today->toDateString())
             ->orderBy('tanggal')
+            ->select([
+                'id',
+                'user_id',
+                'madrasah_id',
+                'tanggal',
+                'waktu_masuk',
+                'waktu_keluar',
+                'lokasi',
+                'lokasi_keluar',
+                'status',
+                'keterangan',
+                'selfie_masuk_path',
+                'selfie_keluar_path',
+            ])
             ->get();
 
         $recent = Presensi::query()
-            ->with('madrasah')
+            ->with('madrasah:id,name')
             ->where('user_id', $user->id)
             ->latest('tanggal')
             ->latest('id')
             ->limit(10)
+            ->select([
+                'id',
+                'user_id',
+                'madrasah_id',
+                'tanggal',
+                'waktu_masuk',
+                'waktu_keluar',
+                'lokasi',
+                'lokasi_keluar',
+                'status',
+                'keterangan',
+            ])
             ->get();
 
         $holiday = Holiday::query()
@@ -329,14 +353,17 @@ class TeacherAppController extends Controller
                 'teacher_name' => $user->name,
                 'time_ranges' => $this->buildPresensiTimeRanges($user, $today),
                 'form' => $attendanceForm,
-                'today_attendance' => $this->serializeTodayAttendance($todayPresensi),
+                'today_attendance' => $this->buildTodayAttendanceState(
+                    $todayPresensi,
+                    $approvedBlockingIzin,
+                    $holiday,
+                    $isSunday,
+                ),
                 'recent' => $recent->map(function (Presensi $item) {
                     return [
                         'id' => $item->id,
                         'date' => optional($item->tanggal)->format('Y-m-d'),
-                        'date_label' => $item->tanggal
-                            ? Carbon::parse($item->tanggal)->locale('id')->isoFormat('D MMMM YYYY')
-                            : '-',
+                        'date_label' => $item->tanggal?->locale('id')->isoFormat('D MMMM YYYY') ?? '-',
                         'status' => $item->status ?? '-',
                         'check_in' => optional($item->waktu_masuk)->format('H:i'),
                         'check_out' => optional($item->waktu_keluar)->format('H:i'),
@@ -375,8 +402,6 @@ class TeacherAppController extends Controller
 
         $tanggal = Carbon::today('Asia/Jakarta');
         $now = Carbon::now('Asia/Jakarta');
-
-        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $tanggal);
 
         $holiday = Holiday::query()
             ->where('is_active', true)
@@ -858,6 +883,69 @@ class TeacherAppController extends Controller
                     'selfie_out_url' => $item->selfie_keluar_path ? asset('storage/' . ltrim($item->selfie_keluar_path, '/')) : null,
                 ];
             })->values(),
+        ];
+    }
+
+    private function buildTodayAttendanceState(
+        $items,
+        ?Izin $approvedBlockingIzin = null,
+        ?Holiday $holiday = null,
+        bool $isSunday = false,
+    ): array {
+        if ($items->isNotEmpty()) {
+            return $this->serializeTodayAttendance($items);
+        }
+
+        if ($approvedBlockingIzin) {
+            $izinLabel = ucfirst(str_replace('_', ' ', (string) $approvedBlockingIzin->type));
+
+            return [
+                'status' => 'izin',
+                'status_label' => 'Tercatat izin',
+                'check_in' => null,
+                'check_out' => null,
+                'location' => null,
+                'location_out' => null,
+                'entries' => [],
+                'note' => $izinLabel . ' disetujui untuk hari ini.',
+            ];
+        }
+
+        if ($holiday) {
+            return [
+                'status' => 'libur',
+                'status_label' => 'Hari libur',
+                'check_in' => null,
+                'check_out' => null,
+                'location' => null,
+                'location_out' => null,
+                'entries' => [],
+                'note' => $holiday->name,
+            ];
+        }
+
+        if ($isSunday) {
+            return [
+                'status' => 'libur',
+                'status_label' => 'Hari Minggu',
+                'check_in' => null,
+                'check_out' => null,
+                'location' => null,
+                'location_out' => null,
+                'entries' => [],
+                'note' => 'Presensi tidak tersedia pada hari Minggu.',
+            ];
+        }
+
+        return [
+            'status' => 'belum_presensi',
+            'status_label' => 'Belum presensi',
+            'check_in' => null,
+            'check_out' => null,
+            'location' => null,
+            'location_out' => null,
+            'entries' => [],
+            'note' => null,
         ];
     }
 
