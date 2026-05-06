@@ -92,7 +92,7 @@ class _NuistMobileAppState extends State<NuistMobileApp>
       builder: (context, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Nuist Login',
+          title: 'Nuist Mobile',
           theme: AppTheme.build(),
           home: _buildHome(),
         );
