@@ -29,6 +29,8 @@ Route::post('/mobile/forgot-password', [App\Http\Controllers\Api\AuthController:
 Route::post('/mobile/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
+    Route::post('/push-token', [App\Http\Controllers\Api\AuthController::class, 'registerPushToken']);
+    Route::delete('/push-token', [App\Http\Controllers\Api\AuthController::class, 'unregisterPushToken']);
     Route::get('/me', [MobileController::class, 'me']);
     Route::get('/dashboard', [MobileController::class, 'dashboard']);
     Route::get('/tagihan', [MobileController::class, 'tagihan']);

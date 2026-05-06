@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'config/app_config.dart';
@@ -7,6 +9,7 @@ import 'pages/home/home_page.dart';
 import 'pages/teacher/teacher_shell_page.dart';
 import 'services/api_client.dart';
 import 'services/auth_repository.dart';
+import 'services/push_notification_service.dart';
 import 'services/teacher_mobile_repository.dart';
 import 'services/token_storage.dart';
 import 'theme/app_theme.dart';
@@ -22,6 +25,8 @@ class _NuistMobileAppState extends State<NuistMobileApp> {
   late final AuthRepository _authRepository;
   late final TeacherMobileRepository _teacherMobileRepository;
   late final SessionController _sessionController;
+  late final PushNotificationService _pushNotificationService;
+  String? _lastSyncedPushUserKey;
 
   @override
   void initState() {
@@ -33,13 +38,40 @@ class _NuistMobileAppState extends State<NuistMobileApp> {
       tokenStorage: tokenStorage,
     );
     _teacherMobileRepository = TeacherMobileRepository(apiClient: apiClient);
+    _pushNotificationService = PushNotificationService(
+      authRepository: _authRepository,
+      tokenStorage: tokenStorage,
+    );
     _sessionController = SessionController(_authRepository)..bootstrap();
+    _sessionController.addListener(_handleSessionChanged);
+    unawaited(
+      _pushNotificationService.initialize(
+        canRegisterToken: () async => _sessionController.session != null,
+      ),
+    );
   }
 
   @override
   void dispose() {
+    _sessionController.removeListener(_handleSessionChanged);
     _sessionController.dispose();
     super.dispose();
+  }
+
+  void _handleSessionChanged() {
+    final session = _sessionController.session;
+    final sessionKey =
+        session == null ? null : '${session.user.id}:${session.token}';
+
+    if (sessionKey == null || sessionKey == _lastSyncedPushUserKey) {
+      if (sessionKey == null) {
+        _lastSyncedPushUserKey = null;
+      }
+      return;
+    }
+
+    _lastSyncedPushUserKey = sessionKey;
+    unawaited(_pushNotificationService.syncTokenIfNeeded());
   }
 
   @override

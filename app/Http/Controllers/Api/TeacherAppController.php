@@ -14,6 +14,7 @@ use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\User;
 use App\Services\ApprovedIzinSyncService;
+use App\Services\FcmPushService;
 use App\Services\ExternalTeachingPermissionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -577,6 +578,18 @@ class TeacherAppController extends Controller
             $message = 'Presensi keluar berhasil dicatat.';
         }
 
+        $this->notifyUserWithPush(
+            $user,
+            $validated['presensi_mode'] === 'masuk' ? 'attendance_check_in_success' : 'attendance_check_out_success',
+            $validated['presensi_mode'] === 'masuk' ? 'Presensi Masuk Berhasil' : 'Presensi Keluar Berhasil',
+            $message,
+            [
+                'tanggal' => $tanggal->toDateString(),
+                'waktu' => $now->format('H:i:s'),
+                'mode' => $validated['presensi_mode'],
+            ]
+        );
+
         $todayPresensi = Presensi::query()
             ->with('madrasah')
             ->where('user_id', $user->id)
@@ -868,12 +881,12 @@ class TeacherAppController extends Controller
                 'student_attendance_percentage' => $studentAttendancePercentage,
             ]);
 
-            Notification::create([
-                'user_id' => $user->id,
-                'type' => 'teaching_success',
-                'title' => 'Presensi Mengajar Berhasil',
-                'message' => 'Presensi mengajar berhasil dicatat pada ' . $now->format('H:i') . '.',
-                'data' => [
+            $this->notifyUserWithPush(
+                $user,
+                'teaching_success',
+                'Presensi Mengajar Berhasil',
+                'Presensi mengajar berhasil dicatat pada ' . $now->format('H:i') . '.',
+                [
                     'attendance_id' => $attendance->id,
                     'schedule_id' => $schedule->id,
                     'tanggal' => $today->toDateString(),
@@ -883,8 +896,8 @@ class TeacherAppController extends Controller
                     'class_total_students' => $attendance->class_total_students,
                     'present_students' => $attendance->present_students,
                     'student_attendance_percentage' => $attendance->student_attendance_percentage,
-                ],
-            ]);
+                ]
+            );
 
             return $attendance;
         });
@@ -1204,17 +1217,19 @@ class TeacherAppController extends Controller
             'status' => 'pending',
         ]));
 
-        Notification::create([
-            'user_id' => $user->id,
-            'type' => 'izin_submitted',
-            'title' => 'Izin Diajukan',
-            'message' => 'Pengajuan izin Anda telah dikirim dan menunggu persetujuan.',
-            'data' => [
+        $this->notifyUserWithPush(
+            $user,
+            'izin_submitted',
+            'Izin Diajukan',
+            'Pengajuan izin Anda telah dikirim dan menunggu persetujuan.',
+            [
                 'izin_id' => $izin->id,
                 'tanggal' => optional($izin->tanggal)->format('Y-m-d'),
                 'type' => $izin->type,
-            ],
-        ]);
+            ]
+        );
+
+        $this->notifyApprovalManagersAboutIncomingIzin($user, $izin);
 
         return response()->json([
             'message' => 'Izin berhasil diajukan dan menunggu persetujuan.',
@@ -1533,17 +1548,17 @@ class TeacherAppController extends Controller
 
         $this->syncApprovedIzinAfterApproval($izin);
 
-        Notification::create([
-            'user_id' => $izin->user_id,
-            'type' => 'izin_approved',
-            'title' => 'Izin Disetujui',
-            'message' => 'Pengajuan izin Anda pada tanggal ' . optional($izin->tanggal)->format('d F Y') . ' telah disetujui.',
-            'data' => [
+        $this->notifyUserIdWithPush(
+            $izin->user_id,
+            'izin_approved',
+            'Izin Disetujui',
+            'Pengajuan izin Anda pada tanggal ' . optional($izin->tanggal)->format('d F Y') . ' telah disetujui.',
+            [
                 'izin_id' => $izin->id,
                 'tanggal' => $izin->tanggal,
                 'approved_by' => $user->name,
-            ],
-        ]);
+            ]
+        );
 
         return response()->json([
             'message' => 'Izin berhasil disetujui.',
@@ -1574,17 +1589,17 @@ class TeacherAppController extends Controller
         $izin->approval_notes = trim((string) ($validated['approval_notes'] ?? '')) ?: null;
         $izin->save();
 
-        Notification::create([
-            'user_id' => $izin->user_id,
-            'type' => 'izin_rejected',
-            'title' => 'Izin Ditolak',
-            'message' => 'Pengajuan izin Anda pada tanggal ' . optional($izin->tanggal)->format('d F Y') . ' telah ditolak.',
-            'data' => [
+        $this->notifyUserIdWithPush(
+            $izin->user_id,
+            'izin_rejected',
+            'Izin Ditolak',
+            'Pengajuan izin Anda pada tanggal ' . optional($izin->tanggal)->format('d F Y') . ' telah ditolak.',
+            [
                 'izin_id' => $izin->id,
                 'tanggal' => $izin->tanggal,
                 'rejected_by' => $user->name,
-            ],
-        ]);
+            ]
+        );
 
         return response()->json([
             'message' => 'Izin berhasil ditolak.',
@@ -3280,6 +3295,76 @@ class TeacherAppController extends Controller
             'hari_presensi' => $hariPresensi,
             'hari_tidak_presensi' => $hariTidakPresensi,
         ], $this->storeIzinAttachment($request->file('file_izin')));
+    }
+
+    private function notifyUserWithPush(
+        User $user,
+        string $type,
+        string $title,
+        string $message,
+        array $data = []
+    ): void {
+        $notification = Notification::create([
+            'user_id' => $user->id,
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
+            'data' => $data,
+        ]);
+
+        $pushData = array_merge($data, [
+            'notification_id' => $notification->id,
+            'type' => $type,
+        ]);
+
+        app(FcmPushService::class)->sendToUser($user, $title, $message, $pushData);
+    }
+
+    private function notifyUserIdWithPush(
+        int $userId,
+        string $type,
+        string $title,
+        string $message,
+        array $data = []
+    ): void {
+        $targetUser = User::query()->find($userId);
+        if (!$targetUser) {
+            return;
+        }
+
+        $this->notifyUserWithPush($targetUser, $type, $title, $message, $data);
+    }
+
+    private function notifyApprovalManagersAboutIncomingIzin(User $requestUser, Izin $izin): void
+    {
+        if (!$requestUser->madrasah_id) {
+            return;
+        }
+
+        $managers = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $requestUser->madrasah_id)
+            ->where('ketugasan', 'kepala madrasah/sekolah')
+            ->where('id', '!=', $requestUser->id)
+            ->get();
+
+        if ($managers->isEmpty()) {
+            return;
+        }
+
+        $title = 'Pengajuan Izin Masuk';
+        $message = $requestUser->name . ' mengajukan ' . $this->izinTitle($izin->type) . ' dan menunggu persetujuan.';
+        $data = [
+            'izin_id' => $izin->id,
+            'requester_id' => $requestUser->id,
+            'requester_name' => $requestUser->name,
+            'tanggal' => optional($izin->tanggal)->format('Y-m-d'),
+            'type' => $izin->type,
+        ];
+
+        foreach ($managers as $manager) {
+            $this->notifyUserWithPush($manager, 'izin_incoming', $title, $message, $data);
+        }
     }
 
     private function izinTitle(?string $type): string

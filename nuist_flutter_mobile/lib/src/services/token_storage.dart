@@ -5,6 +5,7 @@ class TokenStorage {
   static const _rememberLoginKey = 'nuist_remember_login';
   static const _savedEmailKey = 'nuist_saved_email';
   static const _savedPasswordKey = 'nuist_saved_password';
+  static const _pushTokenKey = 'nuist_push_token';
 
   Future<void> writeToken(String token) async {
     final preferences = await SharedPreferences.getInstance();
@@ -53,5 +54,20 @@ class TokenStorage {
     await preferences.remove(_rememberLoginKey);
     await preferences.remove(_savedEmailKey);
     await preferences.remove(_savedPasswordKey);
+  }
+
+  Future<void> writePushToken(String token) async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString(_pushTokenKey, token);
+  }
+
+  Future<String?> readPushToken() async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.getString(_pushTokenKey);
+  }
+
+  Future<void> deletePushToken() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove(_pushTokenKey);
   }
 }

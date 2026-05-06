@@ -214,7 +214,22 @@ class AuthRepository {
   }
 
   Future<void> logout() async {
+    final storedPushToken = await _tokenStorage.readPushToken();
+
     try {
+      if (storedPushToken != null && storedPushToken.isNotEmpty) {
+        try {
+          await _apiClient.dio.delete<void>(
+            '/mobile/push-token',
+            data: {
+              'token': storedPushToken,
+            },
+          );
+        } on DioException {
+          // Abaikan kegagalan unregister push token saat logout.
+        }
+      }
+
       await _apiClient.dio.post<void>('/mobile/logout');
     } on DioException {
       // Token lokal tetap harus dibersihkan walau revoke gagal.
@@ -231,6 +246,32 @@ class AuthRepository {
 
   Future<void> clearRememberedLogin() {
     return _tokenStorage.clearRememberedLogin();
+  }
+
+  Future<void> registerPushToken({
+    required String token,
+    required String platform,
+    String? deviceName,
+  }) async {
+    try {
+      await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/push-token',
+          data: {
+            'token': token,
+            'platform': platform,
+            'device_name': deviceName,
+          },
+        ),
+        actionLabel: 'registrasi push token',
+      );
+    } on DioException catch (error) {
+      debugPrint(
+        'Register push token request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
   }
 
   Future<AppUser> _fetchCurrentUser() async {

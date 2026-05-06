@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\StatusKepegawaian;
 use App\Models\Madrasah;
+use App\Models\PushDeviceToken;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -99,5 +100,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function presensis()
     {
         return $this->hasMany(\App\Models\Presensi::class, 'user_id');
+    }
+
+    public function pushDeviceTokens()
+    {
+        return $this->hasMany(PushDeviceToken::class, 'user_id');
     }
 }
