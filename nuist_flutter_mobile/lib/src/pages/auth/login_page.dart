@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return AuthPageScaffold(
       title: 'Welcome Back!',
-      subtitle: 'Login to continue your daily activity',
+      subtitle: 'Login to Nuist LP. Maarif NU PWNU DIY',
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
