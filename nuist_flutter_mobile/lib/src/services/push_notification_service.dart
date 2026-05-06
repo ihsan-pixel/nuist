@@ -78,6 +78,7 @@ class PushNotificationService {
     );
 
     final messaging = FirebaseMessaging.instance;
+    await messaging.setAutoInitEnabled(true);
     await messaging.requestPermission(
       alert: true,
       announcement: false,
@@ -88,7 +89,7 @@ class PushNotificationService {
       sound: true,
     );
 
-    final token = await messaging.getToken();
+    final token = await _resolveCurrentToken();
     if (token != null && token.isNotEmpty) {
       await _tokenStorage.writePushToken(token);
       if (await canRegisterToken()) {
@@ -117,12 +118,29 @@ class PushNotificationService {
       return;
     }
 
-    final token = await _tokenStorage.readPushToken();
+    var token = await _tokenStorage.readPushToken();
     if (token == null || token.isEmpty) {
+      token = await _resolveCurrentToken();
+      if (token != null && token.isNotEmpty) {
+        await _tokenStorage.writePushToken(token);
+      }
+    }
+
+    if (token == null || token.isEmpty) {
+      debugPrint('Push token sync skipped: Firebase token still unavailable.');
       return;
     }
 
     await _registerTokenWithServer(token);
+  }
+
+  Future<String?> _resolveCurrentToken() async {
+    try {
+      return await FirebaseMessaging.instance.getToken();
+    } catch (error) {
+      debugPrint('Failed to resolve Firebase push token: $error');
+      return null;
+    }
   }
 
   Future<void> _registerTokenWithServer(String token) async {
