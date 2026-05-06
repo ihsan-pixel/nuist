@@ -33,6 +33,7 @@ class TeacherShellPage extends StatefulWidget {
 
 class _TeacherShellPageState extends State<TeacherShellPage> {
   int _currentIndex = 0;
+  int _scheduleRevision = 0;
 
   static const List<TeacherBottomNavItem> _navItems = [
     TeacherBottomNavItem(
@@ -133,6 +134,16 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
     });
   }
 
+  void _handleScheduleChanged() {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _scheduleRevision++;
+    });
+  }
+
   Future<void> _openProfileSettingsPage() async {
     try {
       final data = await widget.repository.getProfile();
@@ -180,6 +191,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
           children: [
             TeacherDashboardPage(
               repository: widget.repository,
+              isActive: _currentIndex == 0,
               onOpenIzin: _openIzinPage,
               onOpenManageIzin: _openManageIzinPage,
               onOpenReports: _openReportPage,
@@ -193,6 +205,8 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
             TeacherSchedulePage(
               repository: widget.repository,
               onBackToHome: _openDashboard,
+              isActive: _currentIndex == 1,
+              onScheduleChanged: _handleScheduleChanged,
             ),
             TeacherAttendancePage(
               repository: widget.repository,
@@ -203,9 +217,11 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
               repository: widget.repository,
               onBackToHome: _openDashboard,
               isActive: _currentIndex == 3,
+              scheduleRevision: _scheduleRevision,
             ),
             TeacherProfilePage(
               repository: widget.repository,
+              isActive: _currentIndex == 4,
               onOpenIzin: _openIzinPage,
               onOpenManageIzin: _openManageIzinPage,
               onBackToHome: _openDashboard,

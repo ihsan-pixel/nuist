@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -37,6 +39,7 @@ class _TeacherProfileSettingsPageState
   bool _savingProfile = false;
   bool _uploadingAvatar = false;
   String? _avatarUrl;
+  File? _localAvatarFile;
   String _currentName = '';
   String _currentEmail = '';
   String _currentPhone = '';
@@ -92,6 +95,7 @@ class _TeacherProfileSettingsPageState
     _tmtController.clear();
     _educationController.clear();
     _nipController.clear();
+    _localAvatarFile = null;
     _avatarUrl =
         (editable['avatar_url'] as String?) ?? (user['avatar_url'] as String?);
   }
@@ -108,6 +112,7 @@ class _TeacherProfileSettingsPageState
     }
 
     setState(() {
+      _localAvatarFile = File(file.path);
       _uploadingAvatar = true;
     });
 
@@ -121,7 +126,10 @@ class _TeacherProfileSettingsPageState
       }
 
       setState(() {
-        _avatarUrl = result['avatar_url'] as String? ?? _avatarUrl;
+        final avatarUrl = result['avatar_url'] as String?;
+        if (avatarUrl != null && avatarUrl.trim().isNotEmpty) {
+          _avatarUrl = _withAvatarCacheBuster(avatarUrl);
+        }
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -137,6 +145,10 @@ class _TeacherProfileSettingsPageState
         return;
       }
 
+      setState(() {
+        _localAvatarFile = null;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error.toString().replaceFirst('Exception: ', '')),
@@ -149,6 +161,18 @@ class _TeacherProfileSettingsPageState
         });
       }
     }
+  }
+
+  ImageProvider<Object>? _buildAvatarImage() {
+    if (_localAvatarFile != null) {
+      return FileImage(_localAvatarFile!);
+    }
+
+    if (_avatarUrl != null && _avatarUrl!.trim().isNotEmpty) {
+      return NetworkImage(_avatarUrl!.trim());
+    }
+
+    return null;
   }
 
   Future<void> _pickBirthDate() async {
@@ -287,10 +311,8 @@ class _TeacherProfileSettingsPageState
                       CircleAvatar(
                         radius: 44,
                         backgroundColor: const Color(0xFFFFF4E8),
-                        backgroundImage: _avatarUrl != null && _avatarUrl != ''
-                            ? NetworkImage(_avatarUrl!)
-                            : null,
-                        child: _avatarUrl == null || _avatarUrl == ''
+                        backgroundImage: _buildAvatarImage(),
+                        child: _buildAvatarImage() == null
                             ? const Icon(
                                 Icons.person_rounded,
                                 color: Color(0xFFF49637),
@@ -602,4 +624,9 @@ String _formatDate(DateTime value) {
   final month = value.month.toString().padLeft(2, '0');
   final day = value.day.toString().padLeft(2, '0');
   return '$year-$month-$day';
+}
+
+String _withAvatarCacheBuster(String url) {
+  final separator = url.contains('?') ? '&' : '?';
+  return '$url${separator}t=${DateTime.now().millisecondsSinceEpoch}';
 }

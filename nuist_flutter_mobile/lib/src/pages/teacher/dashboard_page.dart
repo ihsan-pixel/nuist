@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../services/teacher_mobile_repository.dart';
@@ -8,6 +10,7 @@ class TeacherDashboardPage extends StatefulWidget {
   const TeacherDashboardPage({
     super.key,
     required this.repository,
+    required this.isActive,
     required this.onOpenIzin,
     required this.onOpenManageIzin,
     required this.onOpenReports,
@@ -20,6 +23,7 @@ class TeacherDashboardPage extends StatefulWidget {
   });
 
   final TeacherMobileRepository repository;
+  final bool isActive;
   final Future<void> Function() onOpenIzin;
   final Future<void> Function() onOpenManageIzin;
   final Future<void> Function() onOpenReports;
@@ -34,13 +38,36 @@ class TeacherDashboardPage extends StatefulWidget {
   State<TeacherDashboardPage> createState() => _TeacherDashboardPageState();
 }
 
-class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
+class _TeacherDashboardPageState extends State<TeacherDashboardPage>
+    with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _future;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _future = widget.repository.getDashboard();
+  }
+
+  @override
+  void didUpdateWidget(covariant TeacherDashboardPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      unawaited(_refresh());
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && widget.isActive) {
+      unawaited(_refresh());
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<void> _refresh() async {

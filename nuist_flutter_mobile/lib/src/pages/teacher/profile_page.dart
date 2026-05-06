@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,12 +13,14 @@ class TeacherProfilePage extends StatefulWidget {
   const TeacherProfilePage({
     super.key,
     required this.repository,
+    required this.isActive,
     required this.onOpenIzin,
     required this.onOpenManageIzin,
     required this.onBackToHome,
   });
 
   final TeacherMobileRepository repository;
+  final bool isActive;
   final Future<void> Function() onOpenIzin;
   final Future<void> Function() onOpenManageIzin;
   final VoidCallback onBackToHome;
@@ -25,13 +29,36 @@ class TeacherProfilePage extends StatefulWidget {
   State<TeacherProfilePage> createState() => _TeacherProfilePageState();
 }
 
-class _TeacherProfilePageState extends State<TeacherProfilePage> {
+class _TeacherProfilePageState extends State<TeacherProfilePage>
+    with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _future;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _future = widget.repository.getProfile();
+  }
+
+  @override
+  void didUpdateWidget(covariant TeacherProfilePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      unawaited(_refresh());
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && widget.isActive) {
+      unawaited(_refresh());
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<void> _refresh() async {

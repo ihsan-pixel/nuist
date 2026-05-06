@@ -37,7 +37,8 @@ class TeacherAttendancePage extends StatefulWidget {
   State<TeacherAttendancePage> createState() => _TeacherAttendancePageState();
 }
 
-class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
+class _TeacherAttendancePageState extends State<TeacherAttendancePage>
+    with WidgetsBindingObserver {
   final ImagePicker _imagePicker = ImagePicker();
 
   late Future<Map<String, dynamic>> _future;
@@ -55,10 +56,11 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _future = widget.repository.getAttendance();
     _now = DateTime.now();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _triggerAutoLocationCapture();
+      _handlePageReactivated(refreshRemoteData: false);
     });
     _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) {
@@ -74,13 +76,21 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
   void didUpdateWidget(covariant TeacherAttendancePage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!oldWidget.isActive && widget.isActive) {
-      _triggerAutoLocationCapture();
+      unawaited(_handlePageReactivated());
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && widget.isActive) {
+      unawaited(_handlePageReactivated());
     }
   }
 
   @override
   void dispose() {
     _clockTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -90,6 +100,24 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage> {
       _future = future;
     });
     await future;
+  }
+
+  Future<void> _handlePageReactivated({
+    bool refreshRemoteData = true,
+  }) async {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _now = DateTime.now();
+    });
+
+    if (refreshRemoteData) {
+      await _refresh();
+    }
+
+    _triggerAutoLocationCapture();
   }
 
   void _triggerAutoLocationCapture() {

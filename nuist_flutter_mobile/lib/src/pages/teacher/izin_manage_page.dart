@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
@@ -24,6 +28,7 @@ class TeacherIzinManagePage extends StatefulWidget {
 class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
   String _status = 'pending';
   late Future<Map<String, dynamic>> _future;
+  int? _openingAttachmentId;
 
   @override
   void initState() {
@@ -155,6 +160,125 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
     }
   }
 
+  Future<void> _openAttachment(Map<String, dynamic> item) async {
+    final fileUrl = (item['file_url'] as String?)?.trim();
+    if (fileUrl == null || fileUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tenaga pendidik belum mengunggah lampiran izin.'),
+        ),
+      );
+      return;
+    }
+
+    final izinId = (item['id'] as num?)?.toInt();
+    setState(() {
+      _openingAttachmentId = izinId;
+    });
+
+    try {
+      if (_isImageAttachment(fileUrl)) {
+        if (!mounted) {
+          return;
+        }
+        await showDialog<void>(
+          context: context,
+          builder: (context) {
+            return Dialog(
+              backgroundColor: Colors.black,
+              insetPadding: const EdgeInsets.all(16),
+              child: Stack(
+                children: [
+                  InteractiveViewer(
+                    minScale: 0.8,
+                    maxScale: 4,
+                    child: Image.network(
+                      fileUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const SizedBox(
+                          height: 280,
+                          child: Center(
+                            child: Text(
+                              'Lampiran tidak dapat ditampilkan.',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+        return;
+      }
+
+      final result = await widget.repository.downloadAttachment(url: fileUrl);
+      final bytes = result['bytes'] as List<int>? ?? const <int>[];
+      if (bytes.isEmpty) {
+        throw Exception('Lampiran kosong atau gagal diunduh.');
+      }
+
+      final filename =
+          (result['filename'] as String?)?.trim().isNotEmpty == true
+              ? (result['filename'] as String).trim()
+              : 'lampiran-izin';
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$filename');
+      await file.writeAsBytes(bytes, flush: true);
+      final openResult = await OpenFilex.open(file.path);
+
+      if (openResult.type != ResultType.done && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              openResult.message.isNotEmpty
+                  ? openResult.message
+                  : 'Lampiran tidak dapat dibuka di perangkat ini.',
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _openingAttachmentId = null;
+        });
+      }
+    }
+  }
+
+  bool _isImageAttachment(String url) {
+    final lower = url.toLowerCase();
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') ||
+        lower.endsWith('.webp');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -194,7 +318,9 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
                   _ManageIzinContent(
                     data: snapshot.data ?? const <String, dynamic>{},
                     selectedStatus: _status,
+                    openingAttachmentId: _openingAttachmentId,
                     onStatusChange: _changeStatus,
+                    onOpenAttachment: _openAttachment,
                     onApprove: (item) => _handleDecision(
                       item: item,
                       approve: true,
@@ -217,14 +343,18 @@ class _ManageIzinContent extends StatelessWidget {
   const _ManageIzinContent({
     required this.data,
     required this.selectedStatus,
+    required this.openingAttachmentId,
     required this.onStatusChange,
+    required this.onOpenAttachment,
     required this.onApprove,
     required this.onReject,
   });
 
   final Map<String, dynamic> data;
   final String selectedStatus;
+  final int? openingAttachmentId;
   final ValueChanged<String> onStatusChange;
+  final Future<void> Function(Map<String, dynamic> item) onOpenAttachment;
   final Future<void> Function(Map<String, dynamic> item) onApprove;
   final Future<void> Function(Map<String, dynamic> item) onReject;
 
@@ -328,6 +458,90 @@ class _ManageIzinContent extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Builder(
+                          builder: (context) {
+                            final hasAttachment =
+                                (item['file_url'] as String?)
+                                        ?.trim()
+                                        .isNotEmpty ==
+                                    true;
+                            final itemId = (item['id'] as num?)?.toInt();
+                            final openingThisAttachment =
+                                openingAttachmentId != null &&
+                                openingAttachmentId == itemId;
+
+                            return Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: hasAttachment
+                                    ? const Color(0xFFFFF4E8)
+                                    : const Color(0xFFF5F7F7),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    hasAttachment
+                                        ? Icons.attach_file_rounded
+                                        : Icons.file_present_outlined,
+                                    size: 18,
+                                    color: hasAttachment
+                                        ? _manageIzinPrimary
+                                        : _manageIzinMuted,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      hasAttachment
+                                          ? 'Lampiran izin sudah diunggah'
+                                          : 'Belum ada lampiran izin',
+                                      style: TextStyle(
+                                        color: hasAttachment
+                                            ? _manageIzinText
+                                            : _manageIzinMuted,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  if (hasAttachment)
+                                    TextButton.icon(
+                                      onPressed: openingThisAttachment
+                                          ? null
+                                          : () => onOpenAttachment(item),
+                                      icon: openingThisAttachment
+                                          ? const SizedBox(
+                                              width: 14,
+                                              height: 14,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.visibility_outlined,
+                                              size: 16,
+                                            ),
+                                      label: Text(
+                                        openingThisAttachment
+                                            ? 'Membuka...'
+                                            : 'Lihat',
+                                      ),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: _manageIzinPrimary,
+                                        padding: EdgeInsets.zero,
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                         Row(
                           children: [
                             Expanded(

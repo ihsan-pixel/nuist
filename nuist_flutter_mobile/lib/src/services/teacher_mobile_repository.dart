@@ -353,6 +353,43 @@ class TeacherMobileRepository {
     );
   }
 
+  Future<Map<String, dynamic>> downloadAttachment({
+    required String url,
+  }) async {
+    try {
+      final response = await _withRetry<List<int>>(
+        request: () => _apiClient.dio.get<List<int>>(
+          url,
+          options: Options(responseType: ResponseType.bytes),
+        ),
+        actionLabel: 'unduh lampiran izin',
+      );
+
+      final bytes = response.data ?? const <int>[];
+      final disposition = response.headers.value('content-disposition') ?? '';
+      final filenameMatch = RegExp(
+        r'filename="?([^";]+)"?',
+        caseSensitive: false,
+      ).firstMatch(disposition);
+      final uri = Uri.tryParse(url);
+      final fallbackName = uri != null && uri.pathSegments.isNotEmpty
+          ? uri.pathSegments.last
+          : 'lampiran';
+
+      return {
+        'bytes': bytes,
+        'filename': filenameMatch?.group(1) ?? fallbackName,
+        'content_type': response.headers.value('content-type') ?? '',
+      };
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher unduh lampiran izin request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> getAttendanceReports({
     String scope = 'monthly',
     String? month,

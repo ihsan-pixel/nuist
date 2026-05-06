@@ -26,11 +26,13 @@ class TeacherTeachingJournalPage extends StatefulWidget {
     required this.repository,
     required this.onBackToHome,
     required this.isActive,
+    required this.scheduleRevision,
   });
 
   final TeacherMobileRepository repository;
   final VoidCallback onBackToHome;
   final bool isActive;
+  final int scheduleRevision;
 
   @override
   State<TeacherTeachingJournalPage> createState() =>
@@ -38,7 +40,7 @@ class TeacherTeachingJournalPage extends StatefulWidget {
 }
 
 class _TeacherTeachingJournalPageState
-    extends State<TeacherTeachingJournalPage> {
+    extends State<TeacherTeachingJournalPage> with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _future;
   Position? _position;
   String? _locationAddress;
@@ -47,6 +49,8 @@ class _TeacherTeachingJournalPageState
   bool _loadingLocation = false;
   late DateTime _now;
   Timer? _clockTimer;
+  String? _submissionFeedbackMessage;
+  bool? _submissionFeedbackSuccess;
 
   final TextEditingController _materiController = TextEditingController();
   final TextEditingController _classTotalController = TextEditingController();
@@ -55,10 +59,11 @@ class _TeacherTeachingJournalPageState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _future = widget.repository.getTeachingJournal();
     _now = DateTime.now();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _triggerAutoLocationCapture();
+      _handlePageReactivated(refreshRemoteData: false);
     });
     _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) {
@@ -73,14 +78,25 @@ class _TeacherTeachingJournalPageState
   @override
   void didUpdateWidget(covariant TeacherTeachingJournalPage oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.scheduleRevision != widget.scheduleRevision) {
+      unawaited(_refresh());
+    }
     if (!oldWidget.isActive && widget.isActive) {
-      _triggerAutoLocationCapture();
+      unawaited(_handlePageReactivated());
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && widget.isActive) {
+      unawaited(_handlePageReactivated());
     }
   }
 
   @override
   void dispose() {
     _clockTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     _materiController.dispose();
     _classTotalController.dispose();
     _presentController.dispose();
@@ -93,6 +109,38 @@ class _TeacherTeachingJournalPageState
       _future = future;
     });
     await future;
+  }
+
+  Future<void> _handlePageReactivated({
+    bool refreshRemoteData = true,
+  }) async {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _now = DateTime.now();
+    });
+
+    if (refreshRemoteData) {
+      await _refresh();
+    }
+
+    _triggerAutoLocationCapture();
+  }
+
+  void _setSubmissionFeedback({
+    required String message,
+    required bool isSuccess,
+  }) {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _submissionFeedbackMessage = message;
+      _submissionFeedbackSuccess = isSuccess;
+    });
   }
 
   void _triggerAutoLocationCapture() {
@@ -620,32 +668,36 @@ class _TeacherTeachingJournalPageState
 
                                       Navigator.of(sheetContext).pop();
 
-                                      if (!mounted) {
-                                        return;
-                                      }
-
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(content: Text(message)),
+                                      _setSubmissionFeedback(
+                                        message: message,
+                                        isSuccess: true,
                                       );
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(content: Text(message)),
+                                        );
+                                      }
                                     } catch (error) {
                                       if (!sheetContext.mounted) {
                                         return;
                                       }
 
-                                      sheetSetState(() {
-                                        isSubmitting = false;
-                                      });
+                                      Navigator.of(sheetContext).pop();
 
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            error.toString().replaceFirst(
-                                                'Exception: ', ''),
-                                          ),
-                                        ),
+                                      final message = error
+                                          .toString()
+                                          .replaceFirst('Exception: ', '');
+                                      _setSubmissionFeedback(
+                                        message: message,
+                                        isSuccess: false,
                                       );
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(content: Text(message)),
+                                        );
+                                      }
                                     }
                                   }
                                 : null,
@@ -718,6 +770,8 @@ class _TeacherTeachingJournalPageState
                 _JournalContent(
                   data: snapshot.data ?? const <String, dynamic>{},
                   now: _now,
+                  submissionFeedbackMessage: _submissionFeedbackMessage,
+                  submissionFeedbackSuccess: _submissionFeedbackSuccess,
                   position: _position,
                   locationAddress: _locationAddress,
                   locationError: _locationError,
@@ -738,6 +792,8 @@ class _JournalContent extends StatelessWidget {
   const _JournalContent({
     required this.data,
     required this.now,
+    required this.submissionFeedbackMessage,
+    required this.submissionFeedbackSuccess,
     required this.position,
     required this.locationAddress,
     required this.locationError,
@@ -749,6 +805,8 @@ class _JournalContent extends StatelessWidget {
 
   final Map<String, dynamic> data;
   final DateTime now;
+  final String? submissionFeedbackMessage;
+  final bool? submissionFeedbackSuccess;
   final Position? position;
   final String? locationAddress;
   final String? locationError;
@@ -781,6 +839,19 @@ class _JournalContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (submissionFeedbackMessage != null &&
+            submissionFeedbackMessage!.trim().isNotEmpty) ...[
+          _InfoBanner(
+            color: submissionFeedbackSuccess == true
+                ? const Color(0xFF2E8B57)
+                : _journalDanger,
+            icon: submissionFeedbackSuccess == true
+                ? Icons.check_circle_rounded
+                : Icons.error_rounded,
+            message: submissionFeedbackMessage!,
+          ),
+          const SizedBox(height: 14),
+        ],
         _JournalHeroCard(
           todayLabel: data['today_label'] as String? ?? '-',
           currentTime: _timeLabel(now),

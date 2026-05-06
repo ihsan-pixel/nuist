@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../services/teacher_mobile_repository.dart';
@@ -10,22 +12,49 @@ class TeacherSchedulePage extends StatefulWidget {
     super.key,
     required this.repository,
     required this.onBackToHome,
+    required this.isActive,
+    required this.onScheduleChanged,
   });
 
   final TeacherMobileRepository repository;
   final VoidCallback onBackToHome;
+  final bool isActive;
+  final VoidCallback onScheduleChanged;
 
   @override
   State<TeacherSchedulePage> createState() => _TeacherSchedulePageState();
 }
 
-class _TeacherSchedulePageState extends State<TeacherSchedulePage> {
+class _TeacherSchedulePageState extends State<TeacherSchedulePage>
+    with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _future;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _future = _loadSchedule();
+  }
+
+  @override
+  void didUpdateWidget(covariant TeacherSchedulePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      unawaited(_refresh());
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && widget.isActive) {
+      unawaited(_refresh());
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<Map<String, dynamic>> _loadSchedule() {
@@ -78,6 +107,7 @@ class _TeacherSchedulePageState extends State<TeacherSchedulePage> {
 
       if (saved == true) {
         await _refresh();
+        widget.onScheduleChanged();
         if (!mounted) {
           return;
         }
@@ -158,6 +188,7 @@ class _TeacherSchedulePageState extends State<TeacherSchedulePage> {
     try {
       await widget.repository.deleteSchedule(scheduleId: scheduleId);
       await _refresh();
+      widget.onScheduleChanged();
       if (!mounted) {
         return;
       }
