@@ -8,7 +8,14 @@
     <application
         android:label="Nuist Mobile"
         android:name=".NuistApplication"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@drawable/ic_nuist_app"
+        android:roundIcon="@drawable/ic_nuist_app">
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_nuist" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="nuist_general" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
