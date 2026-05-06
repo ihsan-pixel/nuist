@@ -7,7 +7,7 @@
 
     <application
         android:label="nuist_flutter_mobile"
-        android:name="${applicationName}"
+        android:name=".NuistApplication"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
