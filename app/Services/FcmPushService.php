@@ -46,6 +46,7 @@ class FcmPushService
     {
         $credentials = $this->firebaseCredentials();
         if ($credentials === null) {
+            Log::warning('FCM send skipped because Firebase credentials are missing or invalid.');
             return;
         }
 
@@ -56,6 +57,10 @@ class FcmPushService
             ->values();
 
         if ($tokenList->isEmpty()) {
+            Log::info('FCM send skipped because no registered device tokens were found.', [
+                'title' => $title,
+                'data_type' => $data['type'] ?? null,
+            ]);
             return;
         }
 
@@ -136,6 +141,10 @@ class FcmPushService
         } elseif ($jsonPath !== '' && is_file($jsonPath)) {
             $contents = file_get_contents($jsonPath);
             $payload = is_string($contents) ? json_decode($contents, true) : null;
+        } elseif ($jsonPath !== '') {
+            Log::warning('Firebase service account path does not exist.', [
+                'path' => $jsonPath,
+            ]);
         }
 
         $projectId = trim((string) config('services.firebase.project_id'));
