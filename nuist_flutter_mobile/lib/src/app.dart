@@ -21,7 +21,8 @@ class NuistMobileApp extends StatefulWidget {
   State<NuistMobileApp> createState() => _NuistMobileAppState();
 }
 
-class _NuistMobileAppState extends State<NuistMobileApp> {
+class _NuistMobileAppState extends State<NuistMobileApp>
+    with WidgetsBindingObserver {
   late final AuthRepository _authRepository;
   late final TeacherMobileRepository _teacherMobileRepository;
   late final SessionController _sessionController;
@@ -31,6 +32,7 @@ class _NuistMobileAppState extends State<NuistMobileApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final tokenStorage = TokenStorage();
     final apiClient = ApiClient(baseUrls: AppConfig.apiBaseUrls);
     _authRepository = AuthRepository(
@@ -53,9 +55,18 @@ class _NuistMobileAppState extends State<NuistMobileApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _sessionController.removeListener(_handleSessionChanged);
     _sessionController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        _sessionController.session != null) {
+      unawaited(_pushNotificationService.syncTokenIfNeeded());
+    }
   }
 
   void _handleSessionChanged() {

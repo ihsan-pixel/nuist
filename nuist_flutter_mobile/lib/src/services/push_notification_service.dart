@@ -134,13 +134,27 @@ class PushNotificationService {
     await _registerTokenWithServer(token);
   }
 
-  Future<String?> _resolveCurrentToken() async {
-    try {
-      return await FirebaseMessaging.instance.getToken();
-    } catch (error) {
-      debugPrint('Failed to resolve Firebase push token: $error');
-      return null;
+  Future<String?> _resolveCurrentToken({
+    int attempts = 4,
+    Duration delay = const Duration(seconds: 2),
+  }) async {
+    for (var index = 0; index < attempts; index++) {
+      try {
+        final token = await FirebaseMessaging.instance.getToken();
+        if (token != null && token.isNotEmpty) {
+          debugPrint('Firebase push token resolved.');
+          return token;
+        }
+      } catch (error) {
+        debugPrint('Failed to resolve Firebase push token: $error');
+      }
+
+      if (index < attempts - 1) {
+        await Future<void>.delayed(delay);
+      }
     }
+
+    return null;
   }
 
   Future<void> _registerTokenWithServer(String token) async {
