@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const _authAppVersionLabel = 'Nuist Mobile v1.0.0+1';
+
 class AuthPageScaffold extends StatelessWidget {
   const AuthPageScaffold({
     super.key,
@@ -7,12 +9,14 @@ class AuthPageScaffold extends StatelessWidget {
     required this.subtitle,
     required this.children,
     this.footer,
+    this.backgroundAsset,
   });
 
   final String title;
   final String subtitle;
   final List<Widget> children;
   final Widget? footer;
+  final String? backgroundAsset;
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +26,15 @@ class AuthPageScaffold extends StatelessWidget {
 
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
+          image: backgroundAsset == null
+              ? null
+              : DecorationImage(
+                  image: AssetImage(backgroundAsset!),
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                ),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
@@ -35,7 +46,7 @@ class AuthPageScaffold extends StatelessWidget {
                       screenHeight - safePadding.top - safePadding.bottom,
                 ),
                 child: Container(
-                  color: Colors.white,
+                  color: Colors.transparent,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -71,6 +82,16 @@ class AuthPageScaffold extends StatelessWidget {
                               const SizedBox(height: 16),
                               footer!,
                             ],
+                            const SizedBox(height: 18),
+                            const Text(
+                              _authAppVersionLabel,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFA07B57),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -144,7 +165,7 @@ class _MobileBrandPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x2E004B48),
+            color: Color(0x33C86A12),
             blurRadius: 24,
             offset: Offset(0, 10),
           ),

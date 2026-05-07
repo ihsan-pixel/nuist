@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const authBgStart = Color(0xFF0D8E89);
-  static const authBgEnd = Color(0xFF08756F);
-  static const accentMain = Color(0xFF004B48);
-  static const accentSoft = Color(0xFF2B7A76);
-  static const accentDeep = Color(0xFF003634);
-  static const textMain = Color(0xFF1F4F4C);
-  static const textBody = Color(0xFF244744);
-  static const textMuted = Color(0xFF6D7F7D);
-  static const inputBorder = Color(0xFFCFE3E1);
-  static const inputFill = Color(0xFFFBFDFD);
+  static const authBgStart = Color(0xFFFFF5EA);
+  static const authBgEnd = Color(0xFFFFECD6);
+  static const accentMain = Color(0xFFF28C28);
+  static const accentSoft = Color(0xFFF7B56B);
+  static const accentDeep = Color(0xFFC86A12);
+  static const textMain = Color(0xFF8B4F18);
+  static const textBody = Color(0xFF7A5B3F);
+  static const textMuted = Color(0xFFA07B57);
+  static const inputBorder = Color(0xFFF1D4B3);
+  static const inputFill = Color(0xFFFFFCF8);
   static const fieldError = Color(0xFFC44F4F);
 
   const AppColors._();
@@ -78,7 +78,7 @@ class AppTheme {
           ),
         ),
         hintStyle: const TextStyle(
-          color: Color(0xFF8BA3A1),
+          color: Color(0xFFC8A27E),
           fontSize: 14,
         ),
       ),

@@ -152,6 +152,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return AuthPageScaffold(
+      backgroundAsset: 'assets/images/login_bg.png',
       title: 'Welcome!',
       subtitle: 'Create your account to get started',
       footer: Row(

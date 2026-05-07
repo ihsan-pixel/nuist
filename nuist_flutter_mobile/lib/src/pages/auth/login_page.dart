@@ -143,6 +143,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     return AuthPageScaffold(
+      backgroundAsset: 'assets/images/login_bg.png',
       title: 'Welcome Back!',
       subtitle: 'Login to Nuist LP. Maarif NU PWNU DIY',
       footer: Row(

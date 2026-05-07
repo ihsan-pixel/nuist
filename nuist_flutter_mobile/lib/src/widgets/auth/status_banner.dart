@@ -42,15 +42,15 @@ class StatusBanner extends StatelessWidget {
     switch (type) {
       case StatusBannerType.success:
         return const _StatusBannerStyle(
-          background: Color(0xFFE8F8EE),
-          border: Color(0xFFBFE8CB),
-          foreground: Color(0xFF1D6B40),
+          background: Color(0xFFFFF3E3),
+          border: Color(0xFFF6D3A7),
+          foreground: Color(0xFFC86A12),
         );
       case StatusBannerType.info:
         return const _StatusBannerStyle(
-          background: Color(0xFFEAF7F6),
-          border: Color(0xFFB7E1DD),
-          foreground: Color(0xFF0D5C63),
+          background: Color(0xFFFFF7ED),
+          border: Color(0xFFF4C991),
+          foreground: Color(0xFFD97706),
         );
       case StatusBannerType.error:
         return const _StatusBannerStyle(
