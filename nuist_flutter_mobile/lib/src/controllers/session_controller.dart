@@ -27,7 +27,7 @@ class SessionController extends ChangeNotifier {
     try {
       _session = await _authRepository.restoreSession();
     } catch (_) {
-      _errorMessage = 'Sesi lama tidak bisa dipulihkan. Silakan login ulang.';
+      _errorMessage = 'Silakan login ulang.';
     } finally {
       _isBootstrapping = false;
       notifyListeners();
