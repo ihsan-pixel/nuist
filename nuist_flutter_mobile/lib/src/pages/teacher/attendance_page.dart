@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
@@ -487,9 +489,14 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
                 _AttendanceContent(
                   data: snapshot.data ?? const <String, dynamic>{},
                   now: _now,
+                  position: _position,
                   selfieFile: _selfieFile,
+                  locationError: _locationError,
+                  locationReadingsCount: _locationReadings.length,
+                  loadingLocation: _loadingLocation,
                   capturingSelfie: _capturingSelfie,
                   submitting: _submitting,
+                  onCaptureLocation: _captureLocation,
                   onCaptureSelfie: _captureSelfie,
                   onClearSelfie: () {
                     setState(() {
@@ -512,9 +519,14 @@ class _AttendanceContent extends StatelessWidget {
   const _AttendanceContent({
     required this.data,
     required this.now,
+    required this.position,
     required this.selfieFile,
+    required this.locationError,
+    required this.locationReadingsCount,
+    required this.loadingLocation,
     required this.capturingSelfie,
     required this.submitting,
+    required this.onCaptureLocation,
     required this.onCaptureSelfie,
     required this.onClearSelfie,
     required this.onSubmit,
@@ -522,9 +534,14 @@ class _AttendanceContent extends StatelessWidget {
 
   final Map<String, dynamic> data;
   final DateTime now;
+  final Position? position;
   final XFile? selfieFile;
+  final String? locationError;
+  final int locationReadingsCount;
+  final bool loadingLocation;
   final bool capturingSelfie;
   final bool submitting;
+  final Future<void> Function() onCaptureLocation;
   final Future<void> Function() onCaptureSelfie;
   final VoidCallback onClearSelfie;
   final VoidCallback onSubmit;
@@ -582,6 +599,14 @@ class _AttendanceContent extends StatelessWidget {
         //   form: form,
         //   timeRanges: timeRanges,
         // ),
+        const SizedBox(height: 14),
+        _AttendanceMapCard(
+          position: position,
+          locationError: locationError,
+          locationReadingsCount: locationReadingsCount,
+          loadingLocation: loadingLocation,
+          onRefreshLocation: onCaptureLocation,
+        ),
         const SizedBox(height: 14),
         _AttendanceSelfieCard(
           selfieFile: selfieFile,
@@ -688,8 +713,16 @@ String _displayAttendanceTime(String? value) {
     return '-';
   }
 
-  final match = RegExp(r'(\d{2}:\d{2})').firstMatch(raw);
-  return match?.group(1) ?? raw;
+  final match = RegExp(r'(\d{2}:\d{2})(?::\d{2})?').firstMatch(raw);
+  if (match != null) {
+    return match.group(1) ?? raw;
+  }
+
+  if (raw.length >= 5) {
+    return raw.substring(0, 5);
+  }
+
+  return raw;
 }
 
 class _AttendanceHeroCard extends StatelessWidget {
@@ -1005,6 +1038,147 @@ class _MiniAttendanceCard extends StatelessWidget {
 //     );
 //   }
 // }
+
+class _AttendanceMapCard extends StatelessWidget {
+  const _AttendanceMapCard({
+    required this.position,
+    required this.locationError,
+    required this.locationReadingsCount,
+    required this.loadingLocation,
+    required this.onRefreshLocation,
+  });
+
+  final Position? position;
+  final String? locationError;
+  final int locationReadingsCount;
+  final bool loadingLocation;
+  final Future<void> Function() onRefreshLocation;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: _attendanceSoft,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.map_outlined,
+                  color: _attendancePrimary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Peta Lokasi Presensi',
+                  style: TextStyle(
+                    color: _attendanceText,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: loadingLocation ? null : onRefreshLocation,
+                child: Text(
+                  loadingLocation ? 'Memuat...' : 'Perbarui',
+                  style: const TextStyle(
+                    color: _attendancePrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (position == null)
+            Text(
+              locationError?.trim().isNotEmpty == true
+                  ? locationError!
+                  : 'Lokasi belum tersedia. Halaman ini mengambil GPS otomatis saat dibuka.',
+              style: TextStyle(
+                color: locationError?.trim().isNotEmpty == true
+                    ? const Color(0xFFB42318)
+                    : _attendanceMuted,
+                fontSize: 13,
+                height: 1.45,
+              ),
+            )
+          else ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: SizedBox(
+                height: 180,
+                width: double.infinity,
+                child: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: LatLng(position!.latitude, position!.longitude),
+                    initialZoom: 16,
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.drag |
+                          InteractiveFlag.pinchZoom |
+                          InteractiveFlag.doubleTapZoom,
+                    ),
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'nuist_flutter_mobile',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: LatLng(position!.latitude, position!.longitude),
+                          width: 54,
+                          height: 54,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: _attendancePrimary,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x22003B39),
+                                  blurRadius: 14,
+                                  offset: Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.location_on_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Akurasi ${position!.accuracy.toStringAsFixed(1)} m • Sampel GPS $locationReadingsCount',
+              style: const TextStyle(
+                color: _attendanceMuted,
+                fontSize: 12,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
 
 class _AttendanceSelfieCard extends StatelessWidget {
   const _AttendanceSelfieCard({

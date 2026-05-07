@@ -133,8 +133,6 @@ class _TeacherProfilePageState extends State<TeacherProfilePage>
                   else
                     _ProfileContent(
                       data: snapshot.data ?? const <String, dynamic>{},
-                      onOpenIzin: widget.onOpenIzin,
-                      onOpenManageIzin: widget.onOpenManageIzin,
                       onOpenSettings: () => _openSettings(
                         snapshot.data ?? const <String, dynamic>{},
                       ),
@@ -236,23 +234,16 @@ class _ProfileTopHeader extends StatelessWidget {
 class _ProfileContent extends StatelessWidget {
   const _ProfileContent({
     required this.data,
-    required this.onOpenIzin,
-    required this.onOpenManageIzin,
     required this.onOpenSettings,
   });
 
   final Map<String, dynamic> data;
-  final Future<void> Function() onOpenIzin;
-  final Future<void> Function() onOpenManageIzin;
   final VoidCallback onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
     final user = Map<String, dynamic>.from(
       (data['user'] as Map?) ?? const <String, dynamic>{},
-    );
-    final permissions = Map<String, dynamic>.from(
-      (data['permissions'] as Map?) ?? const <String, dynamic>{},
     );
     final details = ((data['details'] as List?) ?? const [])
         .whereType<Map>()
@@ -284,68 +275,8 @@ class _ProfileContent extends StatelessWidget {
           schoolName: schoolName,
           email: email,
           avatarUrl: _cacheBustedAvatarUrl((user['avatar_url'] as String?)?.trim()),
-          detailCount: details.length,
           activityCount: activities.length,
           membershipCount: memberships.length,
-        ),
-        const SizedBox(height: 16),
-        AppSectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _SectionHeading(
-                eyebrow: 'Layanan',
-                title: 'Akses Cepat',
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ActionShortcut(
-                      icon: Icons.receipt_long_rounded,
-                      label: 'Izin',
-                      caption: 'Buka',
-                      accent: const Color(0xFFF49637),
-                      background: const Color(0xFFFFF4E8),
-                      onTap: () {
-                        onOpenIzin();
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _ActionShortcut(
-                      icon: Icons.settings_rounded,
-                      label: 'Pengaturan',
-                      caption: 'Edit data',
-                      accent: const Color(0xFFF49637),
-                      background: const Color(0xFFFFF4E8),
-                      onTap: onOpenSettings,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _ActionShortcut(
-                      icon: Icons.event_note_rounded,
-                      label: permissions['can_manage_izin'] == true
-                          ? 'Kelola Izin'
-                          : 'Agenda',
-                      caption: permissions['can_manage_izin'] == true
-                          ? 'Approval'
-                          : '${activities.length} item',
-                      accent: const Color(0xFFF49637),
-                      background: const Color(0xFFFFF6EC),
-                      onTap: permissions['can_manage_izin'] == true
-                          ? () {
-                              onOpenManageIzin();
-                            }
-                          : null,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
         ),
         const SizedBox(height: 16),
         AppSectionCard(
@@ -450,7 +381,6 @@ class _ProfileHeroCard extends StatelessWidget {
     required this.schoolName,
     required this.email,
     required this.avatarUrl,
-    required this.detailCount,
     required this.activityCount,
     required this.membershipCount,
   });
@@ -460,7 +390,6 @@ class _ProfileHeroCard extends StatelessWidget {
   final String? schoolName;
   final String? email;
   final String? avatarUrl;
-  final int detailCount;
   final int activityCount;
   final int membershipCount;
 
@@ -561,12 +490,6 @@ class _ProfileHeroCard extends StatelessWidget {
                   foreground: Color(0xFFF49637),
                   background: Color(0xFFFFF4E8),
                 ),
-                _HeroPill(
-                  icon: Icons.star_rounded,
-                  label: '4.8 Rating',
-                  foreground: Color(0xFFA65612),
-                  background: Color(0xFFFFF4E8),
-                ),
               ],
             ),
             const SizedBox(height: 18),
@@ -578,20 +501,9 @@ class _ProfileHeroCard extends StatelessWidget {
                 border: Border.all(
                   color: Colors.white.withOpacity(0.14),
                 ),
-              ),
+                ),
               child: Row(
                 children: [
-                  Expanded(
-                    child: _HeroStat(
-                      label: 'Profil',
-                      value: '$detailCount',
-                    ),
-                  ),
-                  Container(
-                    width: 1,
-                    height: 38,
-                    color: Colors.white.withOpacity(0.18),
-                  ),
                   Expanded(
                     child: _HeroStat(
                       label: 'Agenda',
@@ -764,81 +676,6 @@ class _SectionHeading extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ActionShortcut extends StatelessWidget {
-  const _ActionShortcut({
-    required this.icon,
-    required this.label,
-    required this.caption,
-    required this.accent,
-    required this.background,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final String caption;
-  final Color accent;
-  final Color background;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final content = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.88),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: accent, size: 21),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF7A4212),
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            caption,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xFF7C8F8D),
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (onTap == null) {
-      return content;
-    }
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: content,
-      ),
     );
   }
 }
