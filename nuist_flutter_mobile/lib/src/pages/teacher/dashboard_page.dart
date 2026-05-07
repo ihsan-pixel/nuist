@@ -943,7 +943,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
           Row(
             children: [
               const Expanded(
-                child: _SectionTitle('Kalender Presensi Bulan Ini i'),
+                child: _SectionTitle('Kalender Presensi Bulan Ini'),
               ),
               Container(
                 padding:
