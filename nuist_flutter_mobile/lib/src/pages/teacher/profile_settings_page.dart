@@ -96,8 +96,11 @@ class _TeacherProfileSettingsPageState
     _educationController.clear();
     _nipController.clear();
     _localAvatarFile = null;
-    _avatarUrl =
+    final avatarUrl =
         (editable['avatar_url'] as String?) ?? (user['avatar_url'] as String?);
+    _avatarUrl = avatarUrl != null && avatarUrl.trim().isNotEmpty
+        ? _withAvatarCacheBuster(avatarUrl)
+        : null;
   }
 
   Future<void> _pickAvatar() async {
@@ -161,18 +164,6 @@ class _TeacherProfileSettingsPageState
         });
       }
     }
-  }
-
-  ImageProvider<Object>? _buildAvatarImage() {
-    if (_localAvatarFile != null) {
-      return FileImage(_localAvatarFile!);
-    }
-
-    if (_avatarUrl != null && _avatarUrl!.trim().isNotEmpty) {
-      return NetworkImage(_avatarUrl!.trim());
-    }
-
-    return null;
   }
 
   Future<void> _pickBirthDate() async {
@@ -308,17 +299,10 @@ class _TeacherProfileSettingsPageState
                 children: [
                   Stack(
                     children: [
-                      CircleAvatar(
+                      _ProfileAvatarPreview(
                         radius: 44,
-                        backgroundColor: const Color(0xFFFFF4E8),
-                        backgroundImage: _buildAvatarImage(),
-                        child: _buildAvatarImage() == null
-                            ? const Icon(
-                                Icons.person_rounded,
-                                color: Color(0xFFF49637),
-                                size: 42,
-                              )
-                            : null,
+                        localAvatarFile: _localAvatarFile,
+                        avatarUrl: _avatarUrl,
                       ),
                       Positioned(
                         right: 0,
@@ -629,4 +613,56 @@ String _formatDate(DateTime value) {
 String _withAvatarCacheBuster(String url) {
   final separator = url.contains('?') ? '&' : '?';
   return '$url${separator}t=${DateTime.now().millisecondsSinceEpoch}';
+}
+
+class _ProfileAvatarPreview extends StatelessWidget {
+  const _ProfileAvatarPreview({
+    required this.radius,
+    required this.localAvatarFile,
+    required this.avatarUrl,
+  });
+
+  final double radius;
+  final File? localAvatarFile;
+  final String? avatarUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = radius * 2;
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        color: Color(0xFFFFF4E8),
+        shape: BoxShape.circle,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: localAvatarFile != null
+          ? Image.file(
+              localAvatarFile!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const _AvatarFallbackIcon(),
+            )
+          : (avatarUrl != null && avatarUrl!.trim().isNotEmpty)
+              ? Image.network(
+                  avatarUrl!.trim(),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const _AvatarFallbackIcon(),
+                )
+              : const _AvatarFallbackIcon(),
+    );
+  }
+}
+
+class _AvatarFallbackIcon extends StatelessWidget {
+  const _AvatarFallbackIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Icon(
+      Icons.person_rounded,
+      color: Color(0xFFF49637),
+      size: 42,
+    );
+  }
 }

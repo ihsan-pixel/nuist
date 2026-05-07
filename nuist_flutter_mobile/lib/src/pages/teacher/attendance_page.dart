@@ -564,7 +564,7 @@ class _AttendanceContent extends StatelessWidget {
               child: _MiniAttendanceCard(
                 icon: Icons.login_rounded,
                 label: 'Masuk',
-                value: today['check_in'] as String? ?? '-',
+                value: _displayAttendanceTime(today['check_in'] as String?),
               ),
             ),
             const SizedBox(width: 12),
@@ -572,7 +572,7 @@ class _AttendanceContent extends StatelessWidget {
               child: _MiniAttendanceCard(
                 icon: Icons.logout_rounded,
                 label: 'Keluar',
-                value: today['check_out'] as String? ?? '-',
+                value: _displayAttendanceTime(today['check_out'] as String?),
               ),
             ),
           ],
@@ -680,6 +680,16 @@ class _AttendanceContent extends StatelessWidget {
       ],
     );
   }
+}
+
+String _displayAttendanceTime(String? value) {
+  final raw = (value ?? '').trim();
+  if (raw.isEmpty || raw == '-') {
+    return '-';
+  }
+
+  final match = RegExp(r'(\d{2}:\d{2})').firstMatch(raw);
+  return match?.group(1) ?? raw;
 }
 
 class _AttendanceHeroCard extends StatelessWidget {

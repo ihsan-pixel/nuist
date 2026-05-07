@@ -29,6 +29,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TeacherAppController extends Controller
 {
@@ -1058,12 +1059,8 @@ class TeacherAppController extends Controller
         $file = $request->file('avatar');
         abort_unless($file !== null, 422);
 
-        if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
-        }
-
-        $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('avatars', $filename, 'public');
+        $this->deletePublicStoredFile($user->avatar);
+        $path = $this->storeUploadedFileForWeb($file, 'avatars');
 
         $user->avatar = $path;
         $user->save();
@@ -1074,6 +1071,27 @@ class TeacherAppController extends Controller
                 'avatar_url' => asset('storage/' . ltrim($path, '/')),
             ],
         ]);
+    }
+
+    public function downloadIzinAttachment(Request $request, Izin $izin): BinaryFileResponse
+    {
+        $user = $this->resolveTeacher($request);
+        $izin->loadMissing('user');
+
+        $canAccessOwnAttachment = (int) $izin->user_id === (int) $user->id;
+        $canAccessManagedAttachment = $this->canManageIzinRequests($user)
+            && (int) optional($izin->user)->madrasah_id === (int) $user->madrasah_id;
+
+        abort_unless($canAccessOwnAttachment || $canAccessManagedAttachment, 403);
+        abort_unless($izin->file_path, 404);
+
+        $filePath = $this->resolvePublicStoredFilePath($izin->file_path);
+        abort_unless($filePath !== null, 404);
+
+        return response()->download(
+            $filePath,
+            $izin->file_name ?: basename($filePath)
+        );
     }
 
     public function updateProfilePassword(Request $request): JsonResponse
@@ -2645,7 +2663,7 @@ class TeacherAppController extends Controller
             'location' => $izin->lokasi_tugas,
             'start_time' => $this->formatTimeValue($izin->waktu_masuk),
             'end_time' => $this->formatTimeValue($izin->waktu_keluar),
-            'file_url' => $izin->file_path ? asset('storage/' . ltrim($izin->file_path, '/')) : null,
+            'file_url' => $izin->file_path ? url('/api/mobile/app/teacher/izin/' . $izin->id . '/attachment') : null,
             'file_name' => $izin->file_name,
             'day_presence_labels' => $this->izinDayLabels($izin->hari_presensi),
             'day_no_presence_labels' => $this->izinDayLabels($izin->hari_tidak_presensi),
@@ -3154,11 +3172,8 @@ class TeacherAppController extends Controller
             ];
         }
 
-        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('surat_izin', $filename, 'public');
-
         return [
-            'file_path' => $path,
+            'file_path' => $this->storeUploadedFileForWeb($file, 'surat_izin'),
             'file_name' => $file->getClientOriginalName(),
         ];
     }
@@ -3173,10 +3188,70 @@ class TeacherAppController extends Controller
         }
 
         if ($izin->file_path) {
-            Storage::disk('public')->delete($izin->file_path);
+            $this->deletePublicStoredFile($izin->file_path);
         }
 
         return $izinData;
+    }
+
+    private function storeUploadedFileForWeb(UploadedFile $file, string $directory): string
+    {
+        $storageRoot = $this->webStorageRoot();
+        $targetDirectory = $storageRoot . '/' . trim($directory, '/');
+
+        if (!is_dir($targetDirectory)) {
+            mkdir($targetDirectory, 0755, true);
+        }
+
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->move($targetDirectory, $filename);
+
+        return trim($directory, '/') . '/' . $filename;
+    }
+
+    private function deletePublicStoredFile(?string $relativePath): void
+    {
+        $relative = ltrim((string) $relativePath, '/');
+        if ($relative === '') {
+            return;
+        }
+
+        $publicFile = $this->webStorageRoot() . '/' . $relative;
+        if (is_file($publicFile)) {
+            @unlink($publicFile);
+        }
+
+        Storage::disk('public')->delete($relative);
+    }
+
+    private function resolvePublicStoredFilePath(?string $relativePath): ?string
+    {
+        $relative = ltrim((string) $relativePath, '/');
+        if ($relative === '') {
+            return null;
+        }
+
+        $publicFile = $this->webStorageRoot() . '/' . $relative;
+        if (is_file($publicFile)) {
+            return $publicFile;
+        }
+
+        $storageDiskFile = Storage::disk('public')->path($relative);
+        if (is_file($storageDiskFile)) {
+            return $storageDiskFile;
+        }
+
+        return null;
+    }
+
+    private function webStorageRoot(): string
+    {
+        $documentRoot = trim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''));
+        if ($documentRoot !== '') {
+            return rtrim($documentRoot, '/') . '/storage';
+        }
+
+        return public_path('storage');
     }
 
     private function ensureIzinCanBeSubmitted(User $user, string $type, ?Izin $currentIzin = null): void

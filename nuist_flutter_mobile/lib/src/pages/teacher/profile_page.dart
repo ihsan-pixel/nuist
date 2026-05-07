@@ -283,7 +283,7 @@ class _ProfileContent extends StatelessWidget {
           role: role,
           schoolName: schoolName,
           email: email,
-          avatarUrl: (user['avatar_url'] as String?)?.trim(),
+          avatarUrl: _cacheBustedAvatarUrl((user['avatar_url'] as String?)?.trim()),
           detailCount: details.length,
           activityCount: activities.length,
           membershipCount: memberships.length,
@@ -504,20 +504,7 @@ class _ProfileHeroCard extends StatelessWidget {
                     color: Colors.white.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: CircleAvatar(
-                    radius: 31,
-                    backgroundColor: Colors.white,
-                    backgroundImage: avatarUrl != null && avatarUrl!.isNotEmpty
-                        ? NetworkImage(avatarUrl!)
-                        : null,
-                    child: avatarUrl == null || avatarUrl!.isEmpty
-                        ? const Icon(
-                            Icons.person_rounded,
-                            size: 34,
-                            color: Color(0xFF90A4A3),
-                          )
-                        : null,
-                  ),
+                  child: _ProfileHeaderAvatar(avatarUrl: avatarUrl),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -626,6 +613,43 @@ class _ProfileHeroCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileHeaderAvatar extends StatelessWidget {
+  const _ProfileHeaderAvatar({
+    required this.avatarUrl,
+  });
+
+  final String? avatarUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 31,
+      backgroundColor: Colors.white,
+      child: ClipOval(
+        child: SizedBox(
+          width: 62,
+          height: 62,
+          child: avatarUrl != null && avatarUrl!.trim().isNotEmpty
+              ? Image.network(
+                  avatarUrl!.trim(),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(
+                    Icons.person_rounded,
+                    size: 34,
+                    color: Color(0xFF90A4A3),
+                  ),
+                )
+              : const Icon(
+                  Icons.person_rounded,
+                  size: 34,
+                  color: Color(0xFF90A4A3),
+                ),
         ),
       ),
     );
@@ -1029,4 +1053,14 @@ String _roleLabel(String? role) {
     default:
       return 'Pengguna';
   }
+}
+
+String? _cacheBustedAvatarUrl(String? url) {
+  final value = url?.trim() ?? '';
+  if (value.isEmpty) {
+    return null;
+  }
+
+  final separator = value.contains('?') ? '&' : '?';
+  return '$value${separator}t=${DateTime.now().millisecondsSinceEpoch}';
 }
