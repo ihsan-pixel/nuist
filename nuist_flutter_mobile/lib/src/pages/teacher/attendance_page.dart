@@ -2,13 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
@@ -246,6 +244,9 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
     );
+    final timeRanges = Map<String, dynamic>.from(
+      (data['time_ranges'] as Map?) ?? const <String, dynamic>{},
+    );
     final mode = form['next_mode'] as String?;
 
     if (mode == null || mode.isEmpty) {
@@ -257,7 +258,13 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
     if (_position == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ambil lokasi terlebih dahulu.')),
+        SnackBar(
+          content: Text(
+            _locationError?.trim().isNotEmpty == true
+                ? _locationError!
+                : 'Lokasi belum tersedia. Tunggu GPS selesai dibaca lalu coba lagi.',
+          ),
+        ),
       );
       return;
     }
@@ -267,6 +274,21 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         const SnackBar(content: Text('Ambil foto selfie terlebih dahulu.')),
       );
       return;
+    }
+
+    if (mode == 'keluar') {
+      final shouldConfirmEarlyCheckout = _isBeforeCheckoutTime(
+        now: DateTime.now(),
+        pulangStart: timeRanges['pulang_start'] as String?,
+      );
+      if (shouldConfirmEarlyCheckout) {
+        final confirmed = await _confirmEarlyCheckout(
+          pulangStart: timeRanges['pulang_start'] as String?,
+        );
+        if (confirmed != true || !mounted) {
+          return;
+        }
+      }
     }
 
     setState(() {
@@ -334,6 +356,82 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     return 'data:$mime;base64,${base64Encode(bytes)}';
   }
 
+  Future<bool?> _confirmEarlyCheckout({
+    required String? pulangStart,
+  }) {
+    final pulangLabel =
+        pulangStart != null && pulangStart.trim().isNotEmpty
+            ? pulangStart.trim()
+            : null;
+
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Pulang Awal'),
+          content: Text(
+            pulangLabel == null
+                ? 'Jam pulang belum tiba. Apakah Anda yakin ingin pulang lebih awal?'
+                : 'Jam pulang dimulai pukul $pulangLabel. Apakah Anda yakin ingin pulang lebih awal?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _attendancePrimary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Ya, lanjutkan'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _isBeforeCheckoutTime({
+    required DateTime now,
+    required String? pulangStart,
+  }) {
+    final parsedCheckoutTime = _parseTodayTime(pulangStart, now);
+    if (parsedCheckoutTime == null) {
+      return false;
+    }
+    return now.isBefore(parsedCheckoutTime);
+  }
+
+  DateTime? _parseTodayTime(String? value, DateTime anchor) {
+    final raw = value?.trim() ?? '';
+    if (raw.isEmpty) {
+      return null;
+    }
+
+    final parts = raw.split(':');
+    if (parts.length < 2) {
+      return null;
+    }
+
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    final second = parts.length > 2 ? int.tryParse(parts[2]) ?? 0 : 0;
+    if (hour == null || minute == null) {
+      return null;
+    }
+
+    return DateTime(
+      anchor.year,
+      anchor.month,
+      anchor.day,
+      hour,
+      minute,
+      second,
+    );
+  }
+
   Future<String> _resolveAddress(Position position) async {
     try {
       final placemarks = await placemarkFromCoordinates(
@@ -389,15 +487,9 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
                 _AttendanceContent(
                   data: snapshot.data ?? const <String, dynamic>{},
                   now: _now,
-                  position: _position,
-                  locationAddress: _locationAddress,
                   selfieFile: _selfieFile,
-                  locationError: _locationError,
-                  locationReadingsCount: _locationReadings.length,
-                  loadingLocation: _loadingLocation,
                   capturingSelfie: _capturingSelfie,
                   submitting: _submitting,
-                  onCaptureLocation: _captureLocation,
                   onCaptureSelfie: _captureSelfie,
                   onClearSelfie: () {
                     setState(() {
@@ -420,15 +512,9 @@ class _AttendanceContent extends StatelessWidget {
   const _AttendanceContent({
     required this.data,
     required this.now,
-    required this.position,
-    required this.locationAddress,
     required this.selfieFile,
-    required this.locationError,
-    required this.locationReadingsCount,
-    required this.loadingLocation,
     required this.capturingSelfie,
     required this.submitting,
-    required this.onCaptureLocation,
     required this.onCaptureSelfie,
     required this.onClearSelfie,
     required this.onSubmit,
@@ -436,15 +522,9 @@ class _AttendanceContent extends StatelessWidget {
 
   final Map<String, dynamic> data;
   final DateTime now;
-  final Position? position;
-  final String? locationAddress;
   final XFile? selfieFile;
-  final String? locationError;
-  final int locationReadingsCount;
-  final bool loadingLocation;
   final bool capturingSelfie;
   final bool submitting;
-  final Future<void> Function() onCaptureLocation;
   final Future<void> Function() onCaptureSelfie;
   final VoidCallback onClearSelfie;
   final VoidCallback onSubmit;
@@ -502,15 +582,6 @@ class _AttendanceContent extends StatelessWidget {
         //   form: form,
         //   timeRanges: timeRanges,
         // ),
-        const SizedBox(height: 14),
-        _AttendanceLocationCard(
-          position: position,
-          locationAddress: locationAddress,
-          locationError: locationError,
-          locationReadingsCount: locationReadingsCount,
-          loadingLocation: loadingLocation,
-          onRefreshLocation: onCaptureLocation,
-        ),
         const SizedBox(height: 14),
         _AttendanceSelfieCard(
           selfieFile: selfieFile,
@@ -924,182 +995,6 @@ class _MiniAttendanceCard extends StatelessWidget {
 //     );
 //   }
 // }
-
-class _AttendanceLocationCard extends StatelessWidget {
-  const _AttendanceLocationCard({
-    required this.position,
-    required this.locationAddress,
-    required this.locationError,
-    required this.locationReadingsCount,
-    required this.loadingLocation,
-    required this.onRefreshLocation,
-  });
-
-  final Position? position;
-  final String? locationAddress;
-  final String? locationError;
-  final int locationReadingsCount;
-  final bool loadingLocation;
-  final Future<void> Function() onRefreshLocation;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _attendanceSoft,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.location_on_outlined,
-                  color: _attendancePrimary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Lokasi Presensi',
-                  style: TextStyle(
-                    color: _attendanceText,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: loadingLocation ? null : onRefreshLocation,
-                child: Text(
-                  loadingLocation ? 'Memuat...' : 'Ambil Lokasi',
-                  style: const TextStyle(
-                    color: _attendancePrimary,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (position == null)
-            Text(
-              locationError ??
-                  'Lokasi belum diambil. Tekan tombol di atas untuk mengambil posisi terbaru.',
-              style: TextStyle(
-                color: locationError == null
-                    ? _attendanceMuted
-                    : const Color(0xFFB42318),
-                fontSize: 13,
-                height: 1.45,
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: _attendanceSoft,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFF8D7B1)),
-                  ),
-                  child: Text(
-                    locationAddress ?? _coordinateLabel(position!),
-                    style: const TextStyle(
-                      color: _attendanceText,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: SizedBox(
-                    height: 170,
-                    width: double.infinity,
-                    child: FlutterMap(
-                      options: MapOptions(
-                        initialCenter:
-                            LatLng(position!.latitude, position!.longitude),
-                        initialZoom: 16,
-                        interactionOptions: const InteractionOptions(
-                          flags: InteractiveFlag.drag |
-                              InteractiveFlag.pinchZoom |
-                              InteractiveFlag.doubleTapZoom,
-                        ),
-                      ),
-                      children: [
-                        TileLayer(
-                          urlTemplate:
-                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'nuist_flutter_mobile',
-                        ),
-                        MarkerLayer(
-                          markers: [
-                            Marker(
-                              point:
-                                  LatLng(position!.latitude, position!.longitude),
-                              width: 54,
-                              height: 54,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  color: _attendancePrimary,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color(0x22003B39),
-                                      blurRadius: 14,
-                                      offset: Offset(0, 6),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.location_on_rounded,
-                                  color: Colors.white,
-                                  size: 28,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _coordinateLabel(position!),
-                  style: const TextStyle(
-                    color: _attendanceText,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Akurasi ${position!.accuracy.toStringAsFixed(1)} m • Altitude ${position!.altitude.toStringAsFixed(1)} m • Sampel GPS $locationReadingsCount',
-                  style: const TextStyle(
-                    color: _attendanceMuted,
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 class _AttendanceSelfieCard extends StatelessWidget {
   const _AttendanceSelfieCard({

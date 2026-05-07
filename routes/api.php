@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
         Route::post('/profile/password', [TeacherAppController::class, 'updateProfilePassword']);
         Route::get('/izin', [TeacherAppController::class, 'izin']);
         Route::post('/izin', [TeacherAppController::class, 'storeIzin']);
+        Route::post('/izin/{izin}/update', [TeacherAppController::class, 'updateIzin']);
         Route::get('/izin/manage', [TeacherAppController::class, 'manageIzin']);
         Route::post('/izin/{izin}/approve', [TeacherAppController::class, 'approveIzin']);
         Route::post('/izin/{izin}/reject', [TeacherAppController::class, 'rejectIzin']);

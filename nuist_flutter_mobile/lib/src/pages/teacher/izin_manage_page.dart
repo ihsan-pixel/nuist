@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
@@ -177,7 +178,23 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
     });
 
     try {
-      if (_isImageAttachment(fileUrl)) {
+      final result = await widget.repository.downloadAttachment(url: fileUrl);
+      final bytes = result['bytes'] as List<int>? ?? const <int>[];
+      if (bytes.isEmpty) {
+        throw Exception('Lampiran kosong atau gagal diunduh.');
+      }
+
+      final filename =
+          (result['filename'] as String?)?.trim().isNotEmpty == true
+              ? (result['filename'] as String).trim()
+              : 'lampiran-izin';
+      final contentType = (result['content_type'] as String?)?.trim() ?? '';
+
+      if (_isImageAttachment(
+        sourceUrl: fileUrl,
+        filename: filename,
+        contentType: contentType,
+      )) {
         if (!mounted) {
           return;
         }
@@ -192,8 +209,8 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
                   InteractiveViewer(
                     minScale: 0.8,
                     maxScale: 4,
-                    child: Image.network(
-                      fileUrl,
+                    child: Image.memory(
+                      Uint8List.fromList(bytes),
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return const SizedBox(
@@ -226,17 +243,6 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
         );
         return;
       }
-
-      final result = await widget.repository.downloadAttachment(url: fileUrl);
-      final bytes = result['bytes'] as List<int>? ?? const <int>[];
-      if (bytes.isEmpty) {
-        throw Exception('Lampiran kosong atau gagal diunduh.');
-      }
-
-      final filename =
-          (result['filename'] as String?)?.trim().isNotEmpty == true
-              ? (result['filename'] as String).trim()
-              : 'lampiran-izin';
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/$filename');
       await file.writeAsBytes(bytes, flush: true);
@@ -271,12 +277,34 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
     }
   }
 
-  bool _isImageAttachment(String url) {
-    final lower = url.toLowerCase();
-    return lower.endsWith('.jpg') ||
-        lower.endsWith('.jpeg') ||
-        lower.endsWith('.png') ||
-        lower.endsWith('.webp');
+  bool _isImageAttachment({
+    required String sourceUrl,
+    String? filename,
+    String? contentType,
+  }) {
+    final normalizedContentType = (contentType ?? '').toLowerCase();
+    if (normalizedContentType.startsWith('image/')) {
+      return true;
+    }
+
+    final candidates = <String>[
+      sourceUrl,
+      if (filename != null && filename.isNotEmpty) filename,
+    ];
+
+    for (final candidate in candidates) {
+      final uri = Uri.tryParse(candidate);
+      final value = (uri?.path.isNotEmpty == true ? uri!.path : candidate)
+          .toLowerCase();
+      if (value.endsWith('.jpg') ||
+          value.endsWith('.jpeg') ||
+          value.endsWith('.png') ||
+          value.endsWith('.webp')) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @override

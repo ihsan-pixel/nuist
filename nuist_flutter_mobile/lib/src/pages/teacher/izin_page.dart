@@ -46,13 +46,18 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
   Future<void> _openIzinForm({
     required Map<String, dynamic> action,
     required Map<String, dynamic> formMeta,
+    Map<String, dynamic>? existingItem,
   }) async {
+    final pageContext = context;
     final type = action['type'] as String? ?? '';
     if (type.isEmpty) {
       return;
     }
 
-    final title = action['title'] as String? ?? 'Pengajuan Izin';
+    final isEditing = existingItem != null;
+    final title = isEditing
+        ? 'Edit ${action['title'] as String? ?? 'Izin'}'
+        : (action['title'] as String? ?? 'Pengajuan Izin');
     final dateController = TextEditingController();
     final endDateController = TextEditingController();
     final reasonController = TextEditingController();
@@ -69,6 +74,38 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
+    final formValues = Map<String, dynamic>.from(
+      (existingItem?['form_values'] as Map?) ?? const <String, dynamic>{},
+    );
+    final existingAttachmentName =
+        (formValues['file_name'] as String?)?.trim().isNotEmpty == true
+            ? (formValues['file_name'] as String).trim()
+            : ((existingItem?['file_name'] as String?)?.trim().isNotEmpty ==
+                    true
+                ? (existingItem!['file_name'] as String).trim()
+                : null);
+
+    dateController.text = (formValues['tanggal_mulai'] as String?) ??
+        (formValues['tanggal'] as String?) ??
+        '';
+    endDateController.text = (formValues['tanggal_selesai'] as String?) ?? '';
+    reasonController.text = (formValues['alasan'] as String?) ?? '';
+    noteController.text = (formValues['keterangan'] as String?) ?? '';
+    descriptionController.text =
+        (formValues['deskripsi_tugas'] as String?) ?? '';
+    locationController.text = (formValues['lokasi_tugas'] as String?) ?? '';
+    startTimeController.text = (formValues['waktu_masuk'] as String?) ?? '';
+    endTimeController.text = (formValues['waktu_keluar'] as String?) ?? '';
+    selectedPresenceDays.addAll(
+      ((formValues['hari_presensi'] as List?) ?? const [])
+          .whereType<num>()
+          .map((value) => value.toInt()),
+    );
+    selectedNoPresenceDays.addAll(
+      ((formValues['hari_tidak_presensi'] as List?) ?? const [])
+          .whereType<num>()
+          .map((value) => value.toInt()),
+    );
 
     Future<void> pickDate(
       BuildContext context,
@@ -123,7 +160,10 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
       });
     }
 
-    Future<void> submit(StateSetter sheetSetState) async {
+    Future<void> submit(
+      BuildContext sheetContext,
+      StateSetter sheetSetState,
+    ) async {
       String? attachmentField;
       final payload = <String, dynamic>{};
 
@@ -170,68 +210,79 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
           break;
       }
 
+      final confirmed = await showDialog<bool>(
+        context: sheetContext,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Konfirmasi Pengajuan'),
+            content: const Text(
+              'Apakah Anda yakin data yang Anda ajukan sudah benar?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Periksa Lagi'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _izinPrimary,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Ya, Kirim'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmed != true || !sheetContext.mounted) {
+        return;
+      }
+
       sheetSetState(() {
         isSubmitting = true;
       });
 
       try {
-        final result = await widget.repository.submitIzin(
-          type: type,
-          payload: payload,
-          attachmentField: attachmentField,
-          attachmentPath: attachment?.path,
-        );
-
-        if (!mounted) {
-          return;
-        }
-
-        Navigator.of(context).pop();
-        await _refresh();
-
-        if (!mounted) {
-          return;
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              (result['_message'] as String?) ??
-                  'Izin berhasil diajukan dan menunggu persetujuan.',
-            ),
-          ),
-        );
-
-        if (type == 'terlambat') {
-          await showDialog<void>(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('Penting'),
-                content: const Text(
-                  'Jika izin terlambat disetujui, segera lakukan presensi setelah sampai di sekolah agar tidak tercatat alpha.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Mengerti'),
-                  ),
-                ],
+        final result = isEditing
+            ? await widget.repository.updateIzin(
+                izinId: (existingItem['id'] as num).toInt(),
+                type: type,
+                payload: payload,
+                attachmentField: attachmentField,
+                attachmentPath: attachment?.path,
+              )
+            : await widget.repository.submitIzin(
+                type: type,
+                payload: payload,
+                attachmentField: attachmentField,
+                attachmentPath: attachment?.path,
               );
-            },
-          );
-        }
-      } catch (error) {
-        if (!mounted) {
+
+        if (!sheetContext.mounted) {
           return;
         }
-        ScaffoldMessenger.of(context).showSnackBar(
+
+        Navigator.of(sheetContext).pop(<String, dynamic>{
+          'message': (result['_message'] as String?) ??
+              (isEditing
+                  ? 'Izin berhasil diperbarui.'
+                  : 'Izin berhasil diajukan dan menunggu persetujuan.'),
+          'show_late_notice': type == 'terlambat' && !isEditing,
+        });
+      } catch (error) {
+        if (!sheetContext.mounted) {
+          return;
+        }
+
+        ScaffoldMessenger.of(sheetContext).showSnackBar(
           SnackBar(
             content: Text(error.toString().replaceFirst('Exception: ', '')),
           ),
         );
       } finally {
-        if (mounted) {
+        if (sheetContext.mounted) {
           sheetSetState(() {
             isSubmitting = false;
           });
@@ -239,8 +290,8 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
       }
     }
 
-    await showModalBottomSheet<void>(
-      context: context,
+    final sheetResult = await showModalBottomSheet<Map<String, dynamic>>(
+      context: pageContext,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
@@ -289,8 +340,10 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          action['subtitle'] as String? ??
-                              'Lengkapi form pengajuan izin sesuai kebutuhan.',
+                          isEditing
+                              ? 'Perbarui data pengajuan izin sebelum diproses kepala sekolah.'
+                              : (action['subtitle'] as String? ??
+                                  'Lengkapi form pengajuan izin sesuai kebutuhan.'),
                           style: const TextStyle(
                             color: _izinMuted,
                             fontSize: 12,
@@ -580,9 +633,11 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                   Expanded(
                                     child: Text(
                                       attachment?.name ??
+                                          existingAttachmentName ??
                                           'PDF/JPG/PNG maksimal 5MB',
                                       style: TextStyle(
-                                        color: attachment == null
+                                        color: attachment == null &&
+                                                existingAttachmentName == null
                                             ? _izinMuted
                                             : _izinText,
                                         fontWeight: FontWeight.w600,
@@ -598,7 +653,9 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: isSubmitting ? null : () => submit(sheetSetState),
+                            onPressed: isSubmitting
+                                ? null
+                                : () => submit(context, sheetSetState),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _izinPrimary,
                               foregroundColor: Colors.white,
@@ -618,9 +675,11 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                       color: Colors.white,
                                     ),
                                   )
-                                : const Text(
-                                    'Kirim Pengajuan',
-                                    style: TextStyle(fontWeight: FontWeight.w800),
+                                : Text(
+                                    isEditing
+                                        ? 'Simpan Perubahan'
+                                        : 'Kirim Pengajuan',
+                                    style: const TextStyle(fontWeight: FontWeight.w800),
                                   ),
                           ),
                         ),
@@ -635,6 +694,63 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
         );
       },
     );
+
+    if (!mounted) {
+      dateController.dispose();
+      endDateController.dispose();
+      reasonController.dispose();
+      noteController.dispose();
+      descriptionController.dispose();
+      locationController.dispose();
+      startTimeController.dispose();
+      endTimeController.dispose();
+      return;
+    }
+
+    if (sheetResult != null) {
+      await _refresh();
+
+      if (!mounted) {
+        dateController.dispose();
+        endDateController.dispose();
+        reasonController.dispose();
+        noteController.dispose();
+        descriptionController.dispose();
+        locationController.dispose();
+        startTimeController.dispose();
+        endTimeController.dispose();
+        return;
+      }
+
+      ScaffoldMessenger.of(pageContext).showSnackBar(
+        SnackBar(
+          content: Text(
+            (sheetResult['message'] as String?) ??
+                'Izin berhasil diajukan dan menunggu persetujuan.',
+          ),
+        ),
+      );
+
+      if (sheetResult['show_late_notice'] == true) {
+        await showDialog<void>(
+          context: pageContext,
+          builder: (dialogContext) {
+            return AlertDialog(
+              title: const Text('Penting'),
+              content: const Text(
+                'Jika izin terlambat disetujui, segera lakukan presensi setelah sampai di sekolah agar tidak tercatat alpha.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Mengerti'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
 
     dateController.dispose();
     endDateController.dispose();
@@ -684,10 +800,15 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                 else
                   _IzinContent(
                     data: snapshot.data ?? const <String, dynamic>{},
-                    onCreate: ({required action, required formMeta}) {
+                    onCreate: ({
+                      required action,
+                      required formMeta,
+                      existingItem,
+                    }) {
                       return _openIzinForm(
                         action: action,
                         formMeta: formMeta,
+                        existingItem: existingItem,
                       );
                     },
                     onOpenManageIzin: widget.onOpenManageIzin,
@@ -712,6 +833,7 @@ class _IzinContent extends StatelessWidget {
   final Future<void> Function({
     required Map<String, dynamic> action,
     required Map<String, dynamic> formMeta,
+    Map<String, dynamic>? existingItem,
   }) onCreate;
   final Future<void> Function()? onOpenManageIzin;
 
@@ -808,6 +930,7 @@ class _IzinContent extends StatelessWidget {
                       onTap: () => onCreate(
                         action: action,
                         formMeta: formMeta,
+                        existingItem: null,
                       ),
                       child: Ink(
                         decoration: BoxDecoration(
@@ -1013,6 +1136,40 @@ class _IzinContent extends StatelessWidget {
                                     ),
                                   )),
                             ],
+                          ),
+                        ],
+                        if (item['can_edit'] == true) ...[
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () => onCreate(
+                                action: {
+                                  'type': item['type'],
+                                  'title': item['title'],
+                                  'subtitle': 'Perbarui pengajuan izin yang masih menunggu persetujuan.',
+                                },
+                                formMeta: formMeta,
+                                existingItem: item,
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: _izinPrimaryDark,
+                                side: const BorderSide(
+                                  color: Color(0xFFF0C28B),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              icon: const Icon(Icons.edit_rounded, size: 18),
+                              label: const Text(
+                                'Edit Izin',
+                                style: TextStyle(fontWeight: FontWeight.w800),
+                              ),
+                            ),
                           ),
                         ],
                       ],

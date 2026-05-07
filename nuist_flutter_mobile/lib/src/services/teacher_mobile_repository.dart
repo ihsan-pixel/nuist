@@ -316,6 +316,54 @@ class TeacherMobileRepository {
     }
   }
 
+  Future<Map<String, dynamic>> updateIzin({
+    required int izinId,
+    required String type,
+    required Map<String, dynamic> payload,
+    String? attachmentField,
+    String? attachmentPath,
+  }) async {
+    try {
+      final data = Map<String, dynamic>.from(payload)
+        ..['type'] = type;
+
+      final formMap = <String, dynamic>{};
+      data.forEach((key, value) {
+        if (value == null) {
+          return;
+        }
+        formMap[key] = value;
+      });
+
+      if (attachmentField != null &&
+          attachmentPath != null &&
+          attachmentPath.trim().isNotEmpty) {
+        formMap[attachmentField] = await MultipartFile.fromFile(attachmentPath);
+      }
+
+      final response = await _withRetry<Map<String, dynamic>>(
+        request: () => _apiClient.dio.post<Map<String, dynamic>>(
+          '/mobile/app/teacher/izin/$izinId/update',
+          data: FormData.fromMap(formMap),
+          options: Options(
+            headers: const {
+              'Accept': 'application/json',
+            },
+            contentType: 'multipart/form-data',
+          ),
+        ),
+        actionLabel: 'ubah izin',
+      );
+      return _responseDataWithMessage(response.data);
+    } on DioException catch (error) {
+      debugPrint(
+        'Teacher ubah izin request failed: '
+        'status=${error.response?.statusCode} body=${error.response?.data}',
+      );
+      throw _mapDioError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> getManagedIzin({
     String status = 'pending',
   }) {

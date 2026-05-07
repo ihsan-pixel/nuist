@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
@@ -263,7 +261,11 @@ class _TeacherTeachingJournalPageState
     int? classTotalStudents,
   }) async {
     if (_position == null) {
-      throw Exception('Lokasi belum tersedia. Ambil lokasi terlebih dahulu');
+      throw Exception(
+        _locationError?.trim().isNotEmpty == true
+            ? _locationError!
+            : 'Lokasi belum tersedia. Tunggu GPS selesai dibaca lalu coba lagi.',
+      );
     }
 
     final locationCheck = await widget.repository.checkTeachingJournalLocation(
@@ -416,90 +418,6 @@ class _TeacherTeachingJournalPageState
                                     '${schedule['start_time'] ?? '-'} - ${schedule['end_time'] ?? '-'}',
                                 color: _journalPrimary,
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        AppSectionCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Expanded(
-                                    child: Text(
-                                      'Lokasi Saat Ini',
-                                      style: TextStyle(
-                                        color: _journalText,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: _loadingLocation
-                                        ? null
-                                        : () async {
-                                            await _captureLocation();
-                                            if (sheetContext.mounted) {
-                                              sheetSetState(() {});
-                                            }
-                                          },
-                                    child: Text(
-                                      _loadingLocation
-                                          ? 'Memuat...'
-                                          : 'Perbarui',
-                                      style: const TextStyle(
-                                        color: _journalPrimary,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              if (_position == null)
-                                Text(
-                                  _locationError ??
-                                      'Lokasi belum tersedia. Ambil lokasi terlebih dahulu.',
-                                  style: TextStyle(
-                                    color: _locationError == null
-                                        ? _journalMuted
-                                        : _journalDanger,
-                                    fontSize: 12,
-                                    height: 1.45,
-                                  ),
-                                )
-                              else ...[
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: _journalSoft,
-                                    borderRadius: BorderRadius.circular(18),
-                                    border: Border.all(
-                                      color: const Color(0xFFD5EBE2),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    _locationAddress ??
-                                        _coordinateLabel(_position!),
-                                    style: const TextStyle(
-                                      color: _journalText,
-                                      fontWeight: FontWeight.w700,
-                                      height: 1.45,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Akurasi ${_position!.accuracy.toStringAsFixed(1)} m • Sampel GPS ${_locationReadings.length}',
-                                  style: const TextStyle(
-                                    color: _journalMuted,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                         ),
@@ -772,12 +690,6 @@ class _TeacherTeachingJournalPageState
                   now: _now,
                   submissionFeedbackMessage: _submissionFeedbackMessage,
                   submissionFeedbackSuccess: _submissionFeedbackSuccess,
-                  position: _position,
-                  locationAddress: _locationAddress,
-                  locationError: _locationError,
-                  loadingLocation: _loadingLocation,
-                  locationReadingsCount: _locationReadings.length,
-                  onRefreshLocation: _captureLocation,
                   onOpenAttendanceSheet: _openAttendanceSheet,
                 ),
             ],
@@ -794,12 +706,6 @@ class _JournalContent extends StatelessWidget {
     required this.now,
     required this.submissionFeedbackMessage,
     required this.submissionFeedbackSuccess,
-    required this.position,
-    required this.locationAddress,
-    required this.locationError,
-    required this.loadingLocation,
-    required this.locationReadingsCount,
-    required this.onRefreshLocation,
     required this.onOpenAttendanceSheet,
   });
 
@@ -807,12 +713,6 @@ class _JournalContent extends StatelessWidget {
   final DateTime now;
   final String? submissionFeedbackMessage;
   final bool? submissionFeedbackSuccess;
-  final Position? position;
-  final String? locationAddress;
-  final String? locationError;
-  final bool loadingLocation;
-  final int locationReadingsCount;
-  final Future<void> Function() onRefreshLocation;
   final Future<void> Function(Map<String, dynamic> schedule)
       onOpenAttendanceSheet;
 
@@ -898,15 +798,6 @@ class _JournalContent extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        const SizedBox(height: 18),
-        _AttendanceLocationCard(
-          position: position,
-          locationAddress: locationAddress,
-          locationError: locationError,
-          locationReadingsCount: locationReadingsCount,
-          loadingLocation: loadingLocation,
-          onRefreshLocation: onRefreshLocation,
         ),
         const SizedBox(height: 18),
         const _PageSectionHeading(
@@ -1157,180 +1048,6 @@ class _JournalSummaryTile extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttendanceLocationCard extends StatelessWidget {
-  const _AttendanceLocationCard({
-    required this.position,
-    required this.locationAddress,
-    required this.locationError,
-    required this.locationReadingsCount,
-    required this.loadingLocation,
-    required this.onRefreshLocation,
-  });
-
-  final Position? position;
-  final String? locationAddress;
-  final String? locationError;
-  final int locationReadingsCount;
-  final bool loadingLocation;
-  final Future<void> Function() onRefreshLocation;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _journalSoft,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.location_on_outlined,
-                  color: _journalPrimary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Lokasi Presensi Mengajar',
-                  style: TextStyle(
-                    color: _journalText,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: loadingLocation ? null : onRefreshLocation,
-                child: Text(
-                  loadingLocation ? 'Memuat...' : 'Perbarui',
-                  style: const TextStyle(
-                    color: _journalPrimary,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (position == null)
-            Text(
-              locationError ??
-                  'Lokasi belum diambil. Halaman ini akan mencoba mengambil lokasi otomatis saat dibuka.',
-              style: TextStyle(
-                color: locationError == null ? _journalMuted : _journalDanger,
-                fontSize: 13,
-                height: 1.45,
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: _journalSoft,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFD5EBE2)),
-                  ),
-                  child: Text(
-                    locationAddress ?? _coordinateLabel(position!),
-                    style: const TextStyle(
-                      color: _journalText,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: SizedBox(
-                    height: 170,
-                    width: double.infinity,
-                    child: FlutterMap(
-                      options: MapOptions(
-                        initialCenter:
-                            LatLng(position!.latitude, position!.longitude),
-                        initialZoom: 16,
-                        interactionOptions: const InteractionOptions(
-                          flags: InteractiveFlag.drag |
-                              InteractiveFlag.pinchZoom |
-                              InteractiveFlag.doubleTapZoom,
-                        ),
-                      ),
-                      children: [
-                        TileLayer(
-                          urlTemplate:
-                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'nuist_flutter_mobile',
-                        ),
-                        MarkerLayer(
-                          markers: [
-                            Marker(
-                              point: LatLng(
-                                  position!.latitude, position!.longitude),
-                              width: 54,
-                              height: 54,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  color: _journalPrimary,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color(0x22003B39),
-                                      blurRadius: 14,
-                                      offset: Offset(0, 6),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.location_on_rounded,
-                                  color: Colors.white,
-                                  size: 28,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _coordinateLabel(position!),
-                  style: const TextStyle(
-                    color: _journalText,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Akurasi ${position!.accuracy.toStringAsFixed(1)} m • Altitude ${position!.altitude.toStringAsFixed(1)} m • Sampel GPS $locationReadingsCount',
-                  style: const TextStyle(
-                    color: _journalMuted,
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
         ],
       ),
     );
