@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class AuthPageScaffold extends StatelessWidget {
   const AuthPageScaffold({
     super.key,
@@ -138,8 +136,9 @@ class _MobileBrandPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 64,
-      height: 64,
+      width: 72,
+      height: 72,
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.92),
         borderRadius: BorderRadius.circular(18),
@@ -151,10 +150,12 @@ class _MobileBrandPill extends StatelessWidget {
           ),
         ],
       ),
-      child: const Icon(
-        Icons.shield_rounded,
-        size: 34,
-        color: AppColors.accentMain,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Image.asset(
+          'assets/images/nuist_logo.png',
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
