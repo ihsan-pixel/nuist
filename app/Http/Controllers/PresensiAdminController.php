@@ -1117,6 +1117,7 @@ class PresensiAdminController extends Controller
                     : 0;
 
                 $kabupatenData['madrasahs'][] = [
+                    'id' => $madrasah->id,
                     'scod' => $madrasah->scod,
                     'nama' => $madrasah->name,
                     'hari_kbm' => $madrasah->hari_kbm,
@@ -1140,9 +1141,10 @@ class PresensiAdminController extends Controller
                     ? (($kabupatenData['total_hadir'] + $kabupatenData['total_izin']) / $kabupatenData['total_presensi']) * 100
                     : 0;
 
-            $kabupatenData['madrasahs'] = $this->assignMadrasahRanks($kabupatenData['madrasahs']);
             $laporanData[] = $kabupatenData;
         }
+
+        $laporanData = $this->assignGlobalMadrasahRanks($laporanData);
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
@@ -1211,6 +1213,7 @@ class PresensiAdminController extends Controller
                     : 0;
 
                 $kabupatenBulananData['madrasahs'][] = [
+                    'id' => $madrasah->id,
                     'scod' => $madrasah->scod,
                     'nama' => $madrasah->name,
                     'hari_kbm' => $madrasah->hari_kbm,
@@ -1232,9 +1235,10 @@ class PresensiAdminController extends Controller
                     ? (($kabupatenBulananData['total_hadir'] + $kabupatenBulananData['total_izin']) / $kabupatenBulananData['total_presensi']) * 100
                     : 0;
 
-            $kabupatenBulananData['madrasahs'] = $this->assignMadrasahRanks($kabupatenBulananData['madrasahs']);
             $laporanBulananData[] = $kabupatenBulananData;
         }
+
+        $laporanBulananData = $this->assignGlobalMadrasahRanks($laporanBulananData);
 
         return view('backend.presensi_admin.laporan_mingguan', compact(
             'laporanData',
@@ -1362,11 +1366,14 @@ class PresensiAdminController extends Controller
         }, $filename);
     }
 
-    private function assignMadrasahRanks(array $madrasahs): array
+    private function assignGlobalMadrasahRanks(array $kabupatenDataList): array
     {
         $rankMap = [];
 
-        $sortedMadrasahs = collect($madrasahs)
+        $sortedMadrasahs = collect($kabupatenDataList)
+            ->flatMap(function (array $kabupatenData) {
+                return $kabupatenData['madrasahs'] ?? [];
+            })
             ->sort(function (array $left, array $right) {
                 $percentageCompare = $right['persentase_kehadiran'] <=> $left['persentase_kehadiran'];
 
@@ -1379,15 +1386,18 @@ class PresensiAdminController extends Controller
             ->values();
 
         foreach ($sortedMadrasahs as $index => $madrasah) {
-            $rankMap[$madrasah['scod']] = $index + 1;
+            $rankMap[$madrasah['id']] = $index + 1;
         }
 
-        foreach ($madrasahs as &$madrasah) {
-            $madrasah['rank'] = $rankMap[$madrasah['scod']] ?? null;
+        foreach ($kabupatenDataList as &$kabupatenData) {
+            foreach ($kabupatenData['madrasahs'] as &$madrasah) {
+                $madrasah['rank'] = $rankMap[$madrasah['id']] ?? null;
+            }
+            unset($madrasah);
         }
-        unset($madrasah);
+        unset($kabupatenData);
 
-        return $madrasahs;
+        return $kabupatenDataList;
     }
 
     /**
