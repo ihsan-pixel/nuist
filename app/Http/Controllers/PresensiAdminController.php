@@ -1140,6 +1140,7 @@ class PresensiAdminController extends Controller
                     ? (($kabupatenData['total_hadir'] + $kabupatenData['total_izin']) / $kabupatenData['total_presensi']) * 100
                     : 0;
 
+            $kabupatenData['madrasahs'] = $this->assignMadrasahRanks($kabupatenData['madrasahs']);
             $laporanData[] = $kabupatenData;
         }
 
@@ -1231,6 +1232,7 @@ class PresensiAdminController extends Controller
                     ? (($kabupatenBulananData['total_hadir'] + $kabupatenBulananData['total_izin']) / $kabupatenBulananData['total_presensi']) * 100
                     : 0;
 
+            $kabupatenBulananData['madrasahs'] = $this->assignMadrasahRanks($kabupatenBulananData['madrasahs']);
             $laporanBulananData[] = $kabupatenBulananData;
         }
 
@@ -1358,6 +1360,34 @@ class PresensiAdminController extends Controller
                 return $this->data;
             }
         }, $filename);
+    }
+
+    private function assignMadrasahRanks(array $madrasahs): array
+    {
+        $rankMap = [];
+
+        $sortedMadrasahs = collect($madrasahs)
+            ->sort(function (array $left, array $right) {
+                $percentageCompare = $right['persentase_kehadiran'] <=> $left['persentase_kehadiran'];
+
+                if ($percentageCompare !== 0) {
+                    return $percentageCompare;
+                }
+
+                return ((int) ($left['scod'] ?? 0)) <=> ((int) ($right['scod'] ?? 0));
+            })
+            ->values();
+
+        foreach ($sortedMadrasahs as $index => $madrasah) {
+            $rankMap[$madrasah['scod']] = $index + 1;
+        }
+
+        foreach ($madrasahs as &$madrasah) {
+            $madrasah['rank'] = $rankMap[$madrasah['scod']] ?? null;
+        }
+        unset($madrasah);
+
+        return $madrasahs;
     }
 
     /**
