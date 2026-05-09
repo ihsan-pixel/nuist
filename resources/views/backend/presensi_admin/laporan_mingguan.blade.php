@@ -12,6 +12,7 @@
                     <div class="card-tools">
                         <form method="GET" class="d-inline">
                             <div class="input-group input-group-sm">
+                                <input type="hidden" name="week" value="{{ $startOfWeek->format('o-\WW') }}">
                                 <input type="month" name="month" value="{{ request('month', date('Y-m')) }}" class="form-control" onchange="this.form.submit()">
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-primary">
@@ -36,7 +37,7 @@
                             <tr>
                                 <td class="text-center">{{ $index + 1 }}</td>
                                 <td>{{ $madrasah['nama'] }}</td>
-                                <td class="text-center">{{ number_format($madrasah['persentase'], 2) }}%</td>
+                                <td class="text-center">{{ number_format($madrasah['persentase'], 2, ',', '.') }}%</td>
                             </tr>
                             @empty
                             <tr>
@@ -57,7 +58,8 @@
                     <div class="card-tools">
                         <form method="GET" class="d-inline">
                             <div class="input-group input-group-sm">
-                                <input type="week" name="week" value="{{ $startOfWeek->format('Y-W') }}" class="form-control" onchange="this.form.submit()">
+                                <input type="hidden" name="month" value="{{ request('month', $startOfMonth->format('Y-m')) }}">
+                                <input type="week" name="week" value="{{ $startOfWeek->format('o-\WW') }}" class="form-control" onchange="this.form.submit()">
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-search"></i>
@@ -65,7 +67,7 @@
                                 </div>
                             </div>
                         </form>
-                        <a href="{{ route('presensi_admin.laporan_mingguan', ['week' => $startOfWeek->format('Y-W'), 'export' => 'excel']) }}" class="btn btn-success btn-sm ml-2">
+                        <a href="{{ route('presensi_admin.laporan_mingguan', ['week' => $startOfWeek->format('o-\WW'), 'month' => request('month', $startOfMonth->format('Y-m')), 'export' => 'excel']) }}" class="btn btn-success btn-sm ml-2">
                             <i class="fas fa-download"></i> Export Excel
                         </a>
                     </div>
@@ -110,20 +112,9 @@
                                 <td class="text-center">{{ $presensi['izin'] }}</td>
                                 <td class="text-center">{{ $presensi['alpha'] }}</td>
                                 @endforeach
-                                <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
+                                <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2, ',', '.') }}%</td>
                             </tr>
                             @endforeach
-                            <tr class="bg-warning font-weight-bold">
-                                <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL {{ $kabupaten['kabupaten'] }}</td>
-                                <td></td>
-                                <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('total_tenaga_pendidik') }}</td>
-                                @for($i = 0; $i < 6; $i++)
-                                <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
-                                <td class="text-center">{{ $kabupaten['total_izin'] }}</td>
-                                <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
-                                @endfor
-                                <td class="text-center">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
-                            </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -170,18 +161,9 @@
                                 <td class="text-center">{{ $madrasah['total_hadir'] }}</td>
                                 <td class="text-center">{{ $madrasah['total_izin'] }}</td>
                                 <td class="text-center">{{ $madrasah['total_alpha'] }}</td>
-                                <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
+                                <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2, ',', '.') }}%</td>
                             </tr>
                             @endforeach
-                            <tr class="bg-warning font-weight-bold">
-                                <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL {{ $kabupaten['kabupaten'] }}</td>
-                                <td></td>
-                                <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('total_tenaga_pendidik') }}</td>
-                                <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
-                                <td class="text-center">{{ $kabupaten['total_izin'] }}</td>
-                                <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
-                                <td class="text-center">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
-                            </tr>
                             @endforeach
                         </tbody>
                     </table>

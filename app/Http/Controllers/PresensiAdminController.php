@@ -1009,7 +1009,7 @@ class PresensiAdminController extends Controller
         $top10Madrasah = collect($madrasahPercentages)->sortByDesc('persentase')->take(10)->values()->all();
 
         // Format input week: YYYY-Www (contoh: 2025-W49)
-        $weekInput = trim($request->input('week', now()->format('Y-\WW')));
+        $weekInput = trim($request->input('week', now()->format('o-\WW')));
 
         // Pecah format: 2025-W49
         if (!preg_match('/^(\d{4})-W(\d{2})$/', $weekInput, $matches)) {
@@ -1334,7 +1334,7 @@ class PresensiAdminController extends Controller
                 }
 
                 $persentase = $totalPresensi > 0 ? (($totalHadir + $totalIzin) / $totalPresensi) * 100 : 0;
-                $row[] = number_format($persentase, 2) . '%';
+                $row[] = number_format($persentase, 2, ',', '.') . '%';
 
                 $data[] = $row;
             }
@@ -1345,7 +1345,7 @@ class PresensiAdminController extends Controller
 
         $filename = 'laporan-presensi-mingguan-' . $startOfWeek->format('Y-m-d') . '.xlsx';
 
-        return \Maatwebsite\Excel\Facades\Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
+        return \Maatwebsite\Excel\Facades\Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromArray {
             private $data;
 
             public function __construct($data)
@@ -1356,11 +1356,6 @@ class PresensiAdminController extends Controller
             public function array(): array
             {
                 return $this->data;
-            }
-
-            public function headings(): array
-            {
-                return [];
             }
         }, $filename);
     }
