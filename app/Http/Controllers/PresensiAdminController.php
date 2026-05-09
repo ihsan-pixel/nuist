@@ -1040,111 +1040,8 @@ class PresensiAdminController extends Controller
             'Kota Yogyakarta'
         ];
 
-        $laporanData = [];
+        $laporanData = $this->buildWeeklyLaporanData($startOfWeek, $kabupatenOrder);
         $laporanBulananData = [];
-
-        foreach ($kabupatenOrder as $kabupaten) {
-
-            $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
-                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
-                ->get();
-
-            $kabupatenData = [
-                'kabupaten' => $kabupaten,
-                'madrasahs' => [],
-                'total_hadir' => 0,
-                'total_izin' => 0,
-                'total_alpha' => 0,
-                'total_presensi' => 0,
-                'persentase_kehadiran' => 0
-            ];
-
-            foreach ($madrasahs as $madrasah) {
-
-                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $madrasah->id)
-                    ->get();
-
-                $presensiMingguan = [];
-                $totalHadir = 0;
-                $totalIzin = 0;
-                $totalPresensi = 0;
-
-                $currentDate = $startOfWeek->copy();
-                $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
-
-                for ($i = 0; $i < $daysToCount; $i++) {
-                    $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
-
-                    if ($isHoliday) {
-                        $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
-                    } else {
-                        $hadir = 0;
-                        $izin = 0;
-                        $alpha = 0;
-
-                        foreach ($tenagaPendidik as $guru) {
-                            $presensi = Presensi::where('user_id', $guru->id)
-                                ->whereDate('tanggal', $currentDate)
-                                ->first();
-
-                            if ($presensi && $presensi->status === 'hadir') {
-                                $hadir++;
-                            } elseif ($this->isTeacherIzinForDate($guru, $currentDate, $presensi)) {
-                                $izin++;
-                            } else {
-                                $alpha++;
-                            }
-                        }
-
-                        $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
-
-                        $totalHadir += $hadir;
-                        $totalIzin += $izin;
-                        $totalPresensi += ($hadir + $izin + $alpha);
-                    }
-
-                    $currentDate->addDay();
-                }
-
-                // Jika 5 hari kerja, tambahkan data kosong untuk Sabtu agar tetap 6 kolom
-                if ($madrasah->hari_kbm == 5) {
-                    $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
-                }
-
-                $persentase = $totalPresensi > 0
-                    ? (($totalHadir + $totalIzin) / $totalPresensi) * 100
-                    : 0;
-
-                $kabupatenData['madrasahs'][] = [
-                    'id' => $madrasah->id,
-                    'scod' => $madrasah->scod,
-                    'nama' => $madrasah->name,
-                    'hari_kbm' => $madrasah->hari_kbm,
-                    'total_tenaga_pendidik' => $tenagaPendidik->count(),
-                    'presensi' => $presensiMingguan,
-                    'persentase_kehadiran' => $persentase
-                ];
-
-                $kabupatenData['total_hadir'] += $totalHadir;
-                $kabupatenData['total_izin'] += collect($presensiMingguan)->sum(function ($item) {
-                    return is_numeric($item['izin']) ? $item['izin'] : 0;
-                });
-                $kabupatenData['total_alpha'] += collect($presensiMingguan)->sum(function ($item) {
-                    return is_numeric($item['alpha']) ? $item['alpha'] : 0;
-                });
-                $kabupatenData['total_presensi'] += $totalPresensi;
-            }
-
-            $kabupatenData['persentase_kehadiran'] =
-                $kabupatenData['total_presensi'] > 0
-                    ? (($kabupatenData['total_hadir'] + $kabupatenData['total_izin']) / $kabupatenData['total_presensi']) * 100
-                    : 0;
-
-            $laporanData[] = $kabupatenData;
-        }
-
-        $laporanData = $this->assignGlobalMadrasahRanks($laporanData);
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
@@ -1253,54 +1150,107 @@ class PresensiAdminController extends Controller
     private function exportLaporanMingguan($startOfWeek, $endOfWeek)
     {
         $kabupatenOrder = [
-            'Kabupaten Gunungkidul',
             'Kabupaten Bantul',
+            'Kabupaten Gunungkidul',
             'Kabupaten Kulon Progo',
             'Kabupaten Sleman',
             'Kota Yogyakarta'
         ];
 
+        $laporanData = $this->buildWeeklyLaporanData($startOfWeek, $kabupatenOrder);
         $data = [];
+        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $headers = ['SCOD', 'Nama Sekolah / Madrasah', 'Hari KBM', 'Total Tenaga Pendidik'];
+
+        foreach ($days as $day) {
+            $headers[] = $day . ' - Hadir';
+            $headers[] = $day . ' - Izin';
+            $headers[] = $day . ' - Alpha';
+        }
+        $headers[] = 'Persentase Kehadiran (%)';
+        $headers[] = 'Rank';
+
+        foreach ($laporanData as $kabupatenData) {
+            $data[] = [$kabupatenData['kabupaten']];
+            $data[] = $headers;
+
+            foreach (collect($kabupatenData['madrasahs'])->sortBy(function ($madrasah) {
+                return (int) $madrasah['scod'];
+            }) as $madrasah) {
+                $row = [
+                    $madrasah['scod'],
+                    $madrasah['nama'],
+                    $madrasah['hari_kbm'],
+                    $madrasah['total_tenaga_pendidik'],
+                ];
+
+                foreach ($madrasah['presensi'] as $presensi) {
+                    $row[] = $presensi['hadir'];
+                    $row[] = $presensi['izin'];
+                    $row[] = $presensi['alpha'];
+                }
+
+                $row[] = number_format($madrasah['persentase_kehadiran'], 2, ',', '.') . '%';
+                $row[] = $madrasah['rank'];
+                $data[] = $row;
+            }
+
+            $data[] = [];
+        }
+
+        $filename = 'laporan-presensi-mingguan-' . $startOfWeek->format('Y-m-d') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromArray {
+            private $data;
+
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+
+            public function array(): array
+            {
+                return $this->data;
+            }
+        }, $filename);
+    }
+
+    private function buildWeeklyLaporanData(Carbon $startOfWeek, array $kabupatenOrder): array
+    {
+        $laporanData = [];
 
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
                 ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
                 ->get();
 
-            // Add kabupaten header
-            $data[] = [$kabupaten];
-
-            // Add column headers
-            $headers = ['SCOD', 'Nama Sekolah / Madrasah', 'Hari KBM'];
-            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            foreach ($days as $day) {
-                $headers[] = $day . ' - Hadir';
-                $headers[] = $day . ' - Izin';
-                $headers[] = $day . ' - Alpha';
-            }
-            $headers[] = 'Persentase Kehadiran (%)';
-            $data[] = $headers;
+            $kabupatenData = [
+                'kabupaten' => $kabupaten,
+                'madrasahs' => [],
+                'total_hadir' => 0,
+                'total_izin' => 0,
+                'total_alpha' => 0,
+                'total_presensi' => 0,
+                'persentase_kehadiran' => 0
+            ];
 
             foreach ($madrasahs as $madrasah) {
                 $tenagaPendidik = User::where('role', 'tenaga_pendidik')
                     ->where('madrasah_id', $madrasah->id)
                     ->get();
 
-                $row = [$madrasah->scod, $madrasah->name, $madrasah->hari_kbm];
+                $presensiMingguan = [];
                 $totalHadir = 0;
                 $totalIzin = 0;
                 $totalPresensi = 0;
-
                 $currentDate = $startOfWeek->copy();
-                $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
+                $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6;
 
                 for ($i = 0; $i < $daysToCount; $i++) {
                     $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
 
                     if ($isHoliday) {
-                        $row[] = '-';
-                        $row[] = '-';
-                        $row[] = '-';
+                        $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
                     } else {
                         $hadir = 0;
                         $izin = 0;
@@ -1320,50 +1270,52 @@ class PresensiAdminController extends Controller
                             }
                         }
 
-                        $row[] = $hadir;
-                        $row[] = $izin;
-                        $row[] = $alpha;
-
+                        $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
                         $totalHadir += $hadir;
                         $totalIzin += $izin;
-                        $totalPresensi += $hadir + $izin + $alpha;
+                        $totalPresensi += ($hadir + $izin + $alpha);
                     }
 
                     $currentDate->addDay();
                 }
 
-                // Jika 5 hari kerja, tambahkan kolom kosong untuk Sabtu
                 if ($madrasah->hari_kbm == 5) {
-                    $row[] = '-';
-                    $row[] = '-';
-                    $row[] = '-';
+                    $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
                 }
 
-                $persentase = $totalPresensi > 0 ? (($totalHadir + $totalIzin) / $totalPresensi) * 100 : 0;
-                $row[] = number_format($persentase, 2, ',', '.') . '%';
+                $persentase = $totalPresensi > 0
+                    ? (($totalHadir + $totalIzin) / $totalPresensi) * 100
+                    : 0;
 
-                $data[] = $row;
+                $kabupatenData['madrasahs'][] = [
+                    'id' => $madrasah->id,
+                    'scod' => $madrasah->scod,
+                    'nama' => $madrasah->name,
+                    'hari_kbm' => $madrasah->hari_kbm,
+                    'total_tenaga_pendidik' => $tenagaPendidik->count(),
+                    'presensi' => $presensiMingguan,
+                    'persentase_kehadiran' => $persentase
+                ];
+
+                $kabupatenData['total_hadir'] += $totalHadir;
+                $kabupatenData['total_izin'] += collect($presensiMingguan)->sum(function ($item) {
+                    return is_numeric($item['izin']) ? $item['izin'] : 0;
+                });
+                $kabupatenData['total_alpha'] += collect($presensiMingguan)->sum(function ($item) {
+                    return is_numeric($item['alpha']) ? $item['alpha'] : 0;
+                });
+                $kabupatenData['total_presensi'] += $totalPresensi;
             }
 
-            // Add empty row for separation
-            $data[] = [];
+            $kabupatenData['persentase_kehadiran'] =
+                $kabupatenData['total_presensi'] > 0
+                    ? (($kabupatenData['total_hadir'] + $kabupatenData['total_izin']) / $kabupatenData['total_presensi']) * 100
+                    : 0;
+
+            $laporanData[] = $kabupatenData;
         }
 
-        $filename = 'laporan-presensi-mingguan-' . $startOfWeek->format('Y-m-d') . '.xlsx';
-
-        return \Maatwebsite\Excel\Facades\Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromArray {
-            private $data;
-
-            public function __construct($data)
-            {
-                $this->data = $data;
-            }
-
-            public function array(): array
-            {
-                return $this->data;
-            }
-        }, $filename);
+        return $this->assignGlobalMadrasahRanks($laporanData);
     }
 
     private function assignGlobalMadrasahRanks(array $kabupatenDataList): array
