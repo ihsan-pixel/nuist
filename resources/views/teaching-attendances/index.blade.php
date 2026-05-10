@@ -107,8 +107,8 @@
             <div class="alert alert-info border-0 shadow-sm">
                 <i class="bx bx-info-circle me-1"></i>
                 Anda tercatat <strong>izin (disetujui)</strong> hari ini, sehingga presensi mengajar ditandai sebagai izin.
-                @if(!empty($approvedIzinPresensi->keterangan))
-                    <div class="small mt-1">{{ \Illuminate\Support\Str::limit((string) $approvedIzinPresensi->keterangan, 180) }}</div>
+                @if(!empty($approvedIzinNote))
+                    <div class="small mt-1">{{ \Illuminate\Support\Str::limit((string) $approvedIzinNote, 180) }}</div>
                 @endif
             </div>
         </div>

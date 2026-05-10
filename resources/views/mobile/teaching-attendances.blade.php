@@ -28,8 +28,8 @@
             <div class="alert alert-info border-0 rounded-3 mb-3" style="background: rgba(13, 202, 240, 0.12); color: #055160; border-radius: 12px; padding: 10px;">
                 <i class="bx bx-info-circle me-1"></i>
                 Anda tercatat <strong>izin (disetujui)</strong> hari ini, sehingga presensi mengajar ditandai sebagai izin.
-                @if(!empty($approvedIzinPresensi->keterangan))
-                    <div class="small mt-1">{{ Str::limit((string) $approvedIzinPresensi->keterangan, 140) }}</div>
+                @if(!empty($approvedIzinNote))
+                    <div class="small mt-1">{{ Str::limit((string) $approvedIzinNote, 140) }}</div>
                 @endif
             </div>
         @endif

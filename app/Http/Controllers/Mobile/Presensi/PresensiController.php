@@ -219,6 +219,8 @@ class PresensiController extends \App\Http\Controllers\Controller
     // default flag to mark early checkout; will be set later if checkout-before-pulang_start
     $isPulangAwal = false;
 
+        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $tanggal);
+
         // Check if it's a holiday or Sunday - prevent presensi
         $isHoliday = Holiday::isHoliday($tanggal);
         $isSunday = Carbon::parse($tanggal)->dayOfWeek === Carbon::SUNDAY;

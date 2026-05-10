@@ -117,12 +117,13 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $selectedDate);
 
-        $approvedIzinPresensi = Presensi::query()
-            ->where('user_id', $user->id)
-            ->whereDate('tanggal', $selectedDate)
-            ->where('status', 'izin')
-            ->where('status_izin', 'approved')
-            ->first();
+        $approvedIzinPresensi = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $selectedDate)
+            ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $selectedDate);
+        $approvedIzinNote = $approvedIzinPresensi
+            ? ($approvedIzinPresensi->type === ExternalTeachingPermissionService::TYPE
+                ? ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI
+                : ($approvedIzinPresensi->alasan ?: $approvedIzinPresensi->deskripsi_tugas))
+            : null;
 
         // Build schedule query with today's teaching attendances, filtered by current day
         $query = \App\Models\TeachingSchedule::with(['teacher', 'school', 'teachingAttendances' => function ($q) use ($selectedDate) {
@@ -149,7 +150,7 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         $today = $selectedDate->toDateString();
 
-        return view('mobile.teaching-attendances', compact('today', 'schedules', 'approvedIzinPresensi'));
+        return view('mobile.teaching-attendances', compact('today', 'schedules', 'approvedIzinPresensi', 'approvedIzinNote'));
     }
 
     private function attachClassStudentCounts($schedules): void

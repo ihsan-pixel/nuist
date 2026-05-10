@@ -162,11 +162,8 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->get();
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $today);
-        $approvedIzinToday = Presensi::where('user_id', $user->id)
-            ->whereDate('tanggal', $today->toDateString())
-            ->where('status', 'izin')
-            ->where('status_izin', 'approved')
-            ->first();
+        $approvedIzinToday = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today)
+            ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $today);
 
         // Add attendance status to each schedule
         $todaySchedulesWithAttendance = $todaySchedules->map(function ($schedule) use ($today, $approvedIzinToday) {
@@ -181,7 +178,9 @@ class DashboardController extends \App\Http\Controllers\Controller
         $teachingSteps = [];
         foreach ($todaySchedulesWithAttendance as $index => $schedule) {
             $stepNumber = $index + 1;
-            $status = $schedule->attendance_status === 'sudah' ? 'completed' : 'pending';
+            $status = $schedule->attendance_status === 'sudah'
+                ? 'completed'
+                : ($schedule->attendance_status === 'izin' ? 'excused' : 'pending');
             $teachingSteps[] = [
                 'label' => 'Mengajar ' . $stepNumber,
                 'status' => $status
@@ -215,7 +214,7 @@ class DashboardController extends \App\Http\Controllers\Controller
         if (count($teachingSteps) > 0) {
             $totalActivities += count($teachingSteps);
             $completedTeachingSteps = count(array_filter($teachingSteps, function($step) {
-                return $step['status'] === 'completed';
+                return in_array($step['status'], ['completed', 'excused'], true);
             }));
             $completedActivities += $completedTeachingSteps;
         }

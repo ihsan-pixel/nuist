@@ -7,10 +7,37 @@ use App\Models\Presensi;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Collection;
 
 class ApprovedIzinSyncService
 {
+    private const AUTO_PRESENT_TYPES = ['tugas_luar'];
+
     public static function approvedRequestForDate(User $user, Carbon|string $date): ?Izin
+    {
+        $izin = self::findApprovedRequestForDate($user, $date);
+
+        return $izin && !self::isAutoPresentType($izin->type)
+            ? $izin
+            : null;
+    }
+
+    public static function approvedTeachingJournalRequestForDate(User $user, Carbon|string $date): ?Izin
+    {
+        return self::findApprovedRequestForDate($user, $date);
+    }
+
+    public static function approvedPresenceSyncRequestForDate(User $user, Carbon|string $date): ?Izin
+    {
+        return self::findApprovedRequestForDate($user, $date);
+    }
+
+    public static function isAutoPresentType(?string $type): bool
+    {
+        return in_array((string) $type, self::AUTO_PRESENT_TYPES, true);
+    }
+
+    private static function findApprovedRequestForDate(User $user, Carbon|string $date): ?Izin
     {
         $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
 
@@ -75,7 +102,7 @@ class ApprovedIzinSyncService
     public static function syncApprovedIzinPresensiForUserDate(User $user, Carbon|string $date): bool
     {
         $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
-        $izin = self::approvedRequestForDate($user, $date);
+        $izin = self::approvedPresenceSyncRequestForDate($user, $date);
 
         if (!$izin) {
             return false;
@@ -113,6 +140,51 @@ class ApprovedIzinSyncService
         return $synced;
     }
 
+    public static function approvedTeachingJournalKeys(
+        Collection|array $userIds,
+        Carbon|string $startDate,
+        Carbon|string $endDate
+    ): Collection {
+        $userIds = collect($userIds)->filter()->unique()->values();
+        $startDate = $startDate instanceof Carbon ? $startDate->copy() : Carbon::parse($startDate, 'Asia/Jakarta');
+        $endDate = $endDate instanceof Carbon ? $endDate->copy() : Carbon::parse($endDate, 'Asia/Jakarta');
+
+        if ($userIds->isEmpty() || $endDate->lt($startDate)) {
+            return collect();
+        }
+
+        $approvedIzins = Izin::query()
+            ->whereIn('user_id', $userIds)
+            ->where('status', 'approved')
+            ->where('type', '!=', 'terlambat')
+            ->where('type', '!=', ExternalTeachingPermissionService::TYPE)
+            ->whereDate('tanggal', '<=', $endDate->toDateString())
+            ->where(function ($query) use ($startDate) {
+                $query->whereNull('tanggal_selesai')
+                    ->orWhereDate('tanggal_selesai', '>=', $startDate->toDateString());
+            })
+            ->get(['user_id', 'tanggal', 'tanggal_selesai', 'type']);
+
+        $keys = collect();
+
+        foreach ($approvedIzins as $izin) {
+            $periodStart = Carbon::parse($izin->tanggal)->startOfDay()->max($startDate->copy()->startOfDay());
+            $periodEnd = $izin->tanggal_selesai
+                ? Carbon::parse($izin->tanggal_selesai)->startOfDay()->min($endDate->copy()->startOfDay())
+                : $periodStart->copy();
+
+            if ($periodEnd->lt($periodStart)) {
+                continue;
+            }
+
+            foreach (CarbonPeriod::create($periodStart, $periodEnd) as $date) {
+                $keys->put($izin->user_id . '|' . $date->toDateString(), true);
+            }
+        }
+
+        return $keys;
+    }
+
     private static function syncApprovedIzinPresensiForDate(Izin $izin, Carbon $date): bool
     {
         $existingPresensi = Presensi::query()
@@ -120,11 +192,12 @@ class ApprovedIzinSyncService
             ->whereDate('tanggal', $date->toDateString())
             ->first();
 
+        $status = self::isAutoPresentType($izin->type) ? 'hadir' : 'izin';
         $izinPresensiData = [
             'madrasah_id' => $izin->user->madrasah_id,
             'waktu_masuk' => $izin->waktu_masuk,
             'waktu_keluar' => $izin->waktu_keluar,
-            'status' => 'izin',
+            'status' => $status,
             'keterangan' => $izin->alasan ?: $izin->deskripsi_tugas,
             'status_izin' => 'approved',
             'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
@@ -142,13 +215,22 @@ class ApprovedIzinSyncService
         }
 
         if ($existingPresensi->status === 'hadir') {
-            if (!$existingPresensi->waktu_keluar && $izin->waktu_keluar) {
-                $existingPresensi->update([
-                    'waktu_keluar' => $izin->waktu_keluar,
-                    'status_izin' => 'approved',
-                    'approved_by' => $izin->approved_by,
-                    'surat_izin_path' => $izin->file_path,
-                ]);
+            $updates = [
+                'status_izin' => 'approved',
+                'approved_by' => $izin->approved_by,
+                'surat_izin_path' => $izin->file_path,
+            ];
+
+            if (self::isAutoPresentType($izin->type)) {
+                $updates['keterangan'] = $izin->alasan ?: $izin->deskripsi_tugas;
+                $updates['waktu_masuk'] = $existingPresensi->waktu_masuk ?: $izin->waktu_masuk;
+                $updates['waktu_keluar'] = $existingPresensi->waktu_keluar ?: $izin->waktu_keluar;
+            } elseif (!$existingPresensi->waktu_keluar && $izin->waktu_keluar) {
+                $updates['waktu_keluar'] = $izin->waktu_keluar;
+            }
+
+            if (count($updates) > 3 || self::isAutoPresentType($izin->type)) {
+                $existingPresensi->update($updates);
 
                 return true;
             }
@@ -157,7 +239,11 @@ class ApprovedIzinSyncService
         }
 
         $hasNoAttendanceTime = !$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
-        if ($existingPresensi->status === 'izin' || ($existingPresensi->status === 'alpha' && $hasNoAttendanceTime) || $hasNoAttendanceTime) {
+        if (
+            $existingPresensi->status === 'izin'
+            || ($existingPresensi->status === 'alpha' && $hasNoAttendanceTime)
+            || $hasNoAttendanceTime
+        ) {
             $existingPresensi->update($izinPresensiData);
 
             return true;

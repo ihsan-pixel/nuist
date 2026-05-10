@@ -8,6 +8,8 @@ use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
 use App\Models\Presensi;
 use App\Models\Holiday;
+use App\Services\ApprovedIzinSyncService;
+use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -800,15 +802,22 @@ class TeachingProgressController extends Controller
             return collect();
         }
 
-        return Presensi::query()
-            ->whereIn('user_id', $teacherIds)
-            ->whereBetween('tanggal', [$startDate->toDateString(), $endDate->toDateString()])
-            ->where('status', 'izin')
-            ->where('status_izin', 'approved')
-            ->get(['user_id', 'tanggal'])
-            ->mapWithKeys(function ($presensi) {
-                return [$presensi->user_id . '|' . Carbon::parse($presensi->tanggal)->toDateString() => true];
-            });
+        $approvedKeys = ApprovedIzinSyncService::approvedTeachingJournalKeys($teacherIds, $startDate, $endDate);
+        $teachers = User::query()
+            ->whereIn('id', $teacherIds)
+            ->where('role', 'tenaga_pendidik')
+            ->with('madrasah')
+            ->get();
+
+        foreach ($teachers as $teacher) {
+            foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+                if (ExternalTeachingPermissionService::approvedRequestForDate($teacher, $date)) {
+                    $approvedKeys->put($teacher->id . '|' . $date->toDateString(), true);
+                }
+            }
+        }
+
+        return $approvedKeys;
     }
 
     private function resolveTeacherDailyTeachingStatus(

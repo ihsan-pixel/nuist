@@ -43,6 +43,8 @@ class TeacherAppController extends Controller
         $monthStart = $today->copy()->startOfMonth();
         $monthEnd = $today->copy()->endOfMonth();
 
+        ApprovedIzinSyncService::syncApprovedIzinPresensiInRange($user, $monthStart, $monthEnd);
+
         $presensiThisMonth = Presensi::query()
             ->where('user_id', $user->id)
             ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
@@ -66,9 +68,13 @@ class TeacherAppController extends Controller
             ->whereDate('tanggal', $today->toDateString())
             ->get()
             ->keyBy('teaching_schedule_id');
+        $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
 
-        $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances) {
+        $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $approvedTeachingJournalIzin) {
             $attendance = $todayAttendances->get($schedule->id);
+            $status = $attendance
+                ? 'completed'
+                : ($approvedTeachingJournalIzin ? 'izin' : 'pending');
 
             return [
                 'id' => $schedule->id,
@@ -77,7 +83,12 @@ class TeacherAppController extends Controller
                 'school_name' => $schedule->school?->name,
                 'start_time' => $this->formatTime($schedule->start_time),
                 'end_time' => $this->formatTime($schedule->end_time),
-                'attendance_status' => $attendance ? 'completed' : 'pending',
+                'attendance_status' => $status,
+                'attendance_status_label' => match ($status) {
+                    'completed' => 'Sudah Presensi',
+                    'izin' => 'Izin Disetujui',
+                    default => 'Belum Presensi',
+                },
                 'materi' => $attendance?->materi,
             ];
         })->values();
@@ -109,7 +120,7 @@ class TeacherAppController extends Controller
         ])->values();
 
         $performanceCompleted = $performanceSteps
-            ->where('status', 'completed')
+            ->filter(fn ($step) => in_array($step['status'] ?? 'pending', ['completed', 'izin'], true))
             ->count();
         $performancePercent = $performanceSteps->isEmpty()
             ? 0
@@ -151,7 +162,7 @@ class TeacherAppController extends Controller
                         : 0,
                     'teaching_today_count' => $todaySchedules->count(),
                     'completed_teaching_today_count' => $scheduleItems
-                        ->where('attendance_status', 'completed')
+                        ->filter(fn ($item) => in_array($item['attendance_status'] ?? 'pending', ['completed', 'izin'], true))
                         ->count(),
                 ],
                 'monthly_stats' => [
@@ -301,6 +312,8 @@ class TeacherAppController extends Controller
         $today = Carbon::today('Asia/Jakarta');
         $now = Carbon::now('Asia/Jakarta');
 
+        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $today);
+
         $todayPresensi = Presensi::query()
             ->with('madrasah:id,name')
             ->where('user_id', $user->id)
@@ -423,6 +436,8 @@ class TeacherAppController extends Controller
 
         $tanggal = Carbon::today('Asia/Jakarta');
         $now = Carbon::now('Asia/Jakarta');
+
+        ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $tanggal);
 
         $holiday = Holiday::query()
             ->where('is_active', true)
@@ -613,12 +628,7 @@ class TeacherAppController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $monthStart = $today->copy()->startOfMonth();
         $monthEnd = $today->copy()->endOfMonth();
-        $approvedIzinPresensi = Presensi::query()
-            ->where('user_id', $user->id)
-            ->whereDate('tanggal', $today->toDateString())
-            ->where('status', 'izin')
-            ->where('status_izin', 'approved')
-            ->first();
+        $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
 
         $todaySchedules = $this->todaySchedules($user, $today);
         $this->attachTeachingClassStudentCounts($todaySchedules);
@@ -643,10 +653,10 @@ class TeacherAppController extends Controller
                 'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
                 'server_time' => $now->toIso8601String(),
                 'month_label' => $today->locale('id')->isoFormat('MMMM YYYY'),
-                'approved_izin_today' => $approvedIzinPresensi
+                'approved_izin_today' => $approvedTeachingJournalIzin
                     ? [
-                        'message' => 'Anda tercatat izin (disetujui) hari ini, sehingga presensi mengajar ditandai sebagai izin.',
-                        'note' => $approvedIzinPresensi->keterangan,
+                        'message' => $this->teachingJournalIzinMessage($approvedTeachingJournalIzin),
+                        'note' => $this->teachingJournalIzinNote($approvedTeachingJournalIzin),
                     ]
                     : null,
                 'summary' => [
@@ -657,13 +667,13 @@ class TeacherAppController extends Controller
                 'today_summary' => [
                     'total_schedules' => $todaySchedules->count(),
                     'completed_schedules' => $todaySchedules
-                        ->filter(fn (TeachingSchedule $schedule) => $todayAttendances->has($schedule->id))
+                        ->filter(fn (TeachingSchedule $schedule) => $todayAttendances->has($schedule->id) || $approvedTeachingJournalIzin !== null)
                         ->count(),
                     'pending_schedules' => $todaySchedules
-                        ->filter(fn (TeachingSchedule $schedule) => !$todayAttendances->has($schedule->id))
+                        ->filter(fn (TeachingSchedule $schedule) => !$todayAttendances->has($schedule->id) && $approvedTeachingJournalIzin === null)
                         ->count(),
                 ],
-                'today_schedules' => $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $approvedIzinPresensi, $now) {
+                'today_schedules' => $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $approvedTeachingJournalIzin, $now) {
                     $attendance = $todayAttendances->get($schedule->id);
                     $timeState = $this->buildTeachingAttendanceTimeState($schedule, $now);
                     $classTotalStudents = $schedule->class_student_count?->total_students;
@@ -680,14 +690,14 @@ class TeacherAppController extends Controller
                         'time_state' => $timeState['state'],
                         'time_message' => $timeState['message'],
                         'can_submit' => $attendance === null
-                            && $approvedIzinPresensi === null
+                            && $approvedTeachingJournalIzin === null
                             && $timeState['state'] === 'within',
                         'status' => $attendance
                             ? (($attendance->status ?: 'hadir') === 'izin' ? 'izin' : 'hadir')
-                            : ($approvedIzinPresensi ? 'izin' : 'pending'),
+                            : ($approvedTeachingJournalIzin ? 'izin' : 'pending'),
                         'status_label' => $attendance
                             ? (($attendance->status ?: 'hadir') === 'izin' ? 'Izin' : 'Presensi Berhasil')
-                            : ($approvedIzinPresensi ? 'Izin (Disetujui)' : 'Belum Presensi'),
+                            : ($approvedTeachingJournalIzin ? 'Izin (Disetujui)' : 'Belum Presensi'),
                         'attendance' => $attendance ? $this->serializeTeachingAttendanceEntry($attendance) : null,
                     ];
                 })->values(),
@@ -756,17 +766,11 @@ class TeacherAppController extends Controller
 
         $today = Carbon::today('Asia/Jakarta');
         $now = Carbon::now('Asia/Jakarta');
+        $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
 
-        $approvedIzinPresensi = Presensi::query()
-            ->where('user_id', $user->id)
-            ->whereDate('tanggal', $today->toDateString())
-            ->where('status', 'izin')
-            ->where('status_izin', 'approved')
-            ->exists();
-
-        if ($approvedIzinPresensi) {
+        if ($approvedTeachingJournalIzin) {
             throw ValidationException::withMessages([
-                'attendance' => 'Anda tercatat izin (disetujui) hari ini, sehingga tidak dapat melakukan presensi mengajar.',
+                'attendance' => $this->teachingJournalIzinMessage($approvedTeachingJournalIzin),
             ]);
         }
 
@@ -2575,6 +2579,26 @@ class TeacherAppController extends Controller
     private function findApprovedBlockingIzin(User $user, Carbon|string $date): ?Izin
     {
         return ApprovedIzinSyncService::approvedRequestForDate($user, $date);
+    }
+
+    private function findApprovedTeachingJournalIzin(User $user, Carbon|string $date): ?Izin
+    {
+        return ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $date)
+            ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $date);
+    }
+
+    private function teachingJournalIzinMessage(Izin $izin): string
+    {
+        return 'Anda tercatat izin (disetujui) hari ini, sehingga presensi mengajar ditandai sebagai izin.';
+    }
+
+    private function teachingJournalIzinNote(Izin $izin): ?string
+    {
+        if ($izin->type === ExternalTeachingPermissionService::TYPE) {
+            return ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI;
+        }
+
+        return $izin->alasan ?: $izin->deskripsi_tugas;
     }
 
     private function buildAttendanceCalendar($items, $holidays, Carbon $today)

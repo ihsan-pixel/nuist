@@ -1133,13 +1133,13 @@ $progressColor = "rgb($red, $green, 0)";
                     <!-- Presensi Mengajar - tampilkan per jadwal -->
                     @if(count($teachingSteps) > 0)
                         @foreach($teachingSteps as $step)
-                        <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : '' }}">
+                        <div class="timeline-item-accordion {{ in_array($step['status'], ['completed', 'excused']) ? 'done' : '' }}">
                             <div class="timeline-icon">
                                 <i class="bx bx-chalkboard"></i>
                             </div>
                             <div class="timeline-content">
                                 <strong>{{ $step['label'] }}</strong>
-                                <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                                <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : ($step['status'] === 'excused' ? 'Izin disetujui' : 'Belum dilakukan') }}</small>
                             </div>
                         </div>
                         @endforeach
@@ -1623,13 +1623,13 @@ $progressColor = "rgb($red, $green, 0)";
                         <!-- Presensi Mengajar - tampilkan per jadwal -->
                         @if(count($teachingSteps) > 0)
                             @foreach($teachingSteps as $step)
-                            <div class="timeline-item-modal {{ $step['status'] === 'completed' ? 'done' : '' }}">
+                            <div class="timeline-item-modal {{ in_array($step['status'], ['completed', 'excused']) ? 'done' : '' }}">
                                 <div class="timeline-icon">
                                     <i class="bx bx-chalkboard"></i>
                                 </div>
                                 <div class="timeline-content">
                                     <strong>{{ $step['label'] }}</strong>
-                                    <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                                    <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : ($step['status'] === 'excused' ? 'Izin disetujui' : 'Belum dilakukan') }}</small>
                                 </div>
                             </div>
                             @endforeach

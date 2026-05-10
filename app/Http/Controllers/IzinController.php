@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Notification;
+use App\Services\ApprovedIzinSyncService;
+use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -156,36 +158,10 @@ class IzinController extends Controller
                 'approved_at' => now(),
             ]);
 
-            // Auto-fill presensi record for approved izins except 'terlambat'
-            if ($izin->type !== 'terlambat') {
-                $existingPresensi = Presensi::where('user_id', $izin->user_id)
-                    ->where('tanggal', $izin->tanggal)
-                    ->first();
-
-                if ($existingPresensi) {
-                    // If presensi exists, update waktu_keluar if not set, status remains unchanged
-                    if (!$existingPresensi->waktu_keluar && $izin->waktu_keluar) {
-                        $existingPresensi->update([
-                            'waktu_keluar' => $izin->waktu_keluar,
-                            'status_izin' => 'approved',
-                        ]);
-                    }
-                } else {
-                    // If no presensi exists, create new presensi with izin
-                    Presensi::create([
-                        'user_id' => $izin->user_id,
-                        'madrasah_id' => $izin->user->madrasah_id,
-                        'tanggal' => $izin->tanggal,
-                        'waktu_masuk' => $izin->waktu_masuk,
-                        'waktu_keluar' => $izin->waktu_keluar,
-                        'status' => 'izin',
-                        'keterangan' => $izin->alasan ?: $izin->deskripsi_tugas,
-                        'status_izin' => 'approved',
-                        'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
-                        'approved_by' => Auth::id(),
-                        'surat_izin_path' => $izin->file_path,
-                    ]);
-                }
+            if ($izin->type === ExternalTeachingPermissionService::TYPE) {
+                ExternalTeachingPermissionService::syncApprovedNoPresencePresensi($izin, now('Asia/Jakarta'));
+            } elseif ($izin->type !== 'terlambat') {
+                ApprovedIzinSyncService::syncApprovedIzinPresensi($izin);
             }
         } else {
             abort(404, 'Izin request not found.');

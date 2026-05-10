@@ -8,6 +8,8 @@ use App\Models\TeachingSchedule;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Notification;
+use App\Services\ApprovedIzinSyncService;
+use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -27,12 +29,13 @@ class TeachingAttendanceController extends Controller
         $today = Carbon::now('Asia/Jakarta')->toDateString();
         $dayOfWeek = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
 
-        $approvedIzinPresensi = Presensi::query()
-            ->where('user_id', $user->id)
-            ->whereDate('tanggal', $today)
-            ->where('status', 'izin')
-            ->where('status_izin', 'approved')
-            ->first();
+        $approvedIzinPresensi = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today)
+            ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $today);
+        $approvedIzinNote = $approvedIzinPresensi
+            ? ($approvedIzinPresensi->type === ExternalTeachingPermissionService::TYPE
+                ? ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI
+                : ($approvedIzinPresensi->alasan ?: $approvedIzinPresensi->deskripsi_tugas))
+            : null;
 
         // Get today's schedules for the teacher
         $schedules = TeachingSchedule::with(['school', 'teacher'])
@@ -54,7 +57,7 @@ class TeachingAttendanceController extends Controller
 
         $this->attachClassStudentCounts($schedules);
 
-        return view('teaching-attendances.index', compact('schedules', 'today', 'approvedIzinPresensi'));
+        return view('teaching-attendances.index', compact('schedules', 'today', 'approvedIzinPresensi', 'approvedIzinNote'));
     }
 
     public function store(Request $request)
@@ -77,12 +80,8 @@ class TeachingAttendanceController extends Controller
         $today = Carbon::now('Asia/Jakarta')->toDateString();
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
-        $hasApprovedIzinToday = Presensi::query()
-            ->where('user_id', $user->id)
-            ->whereDate('tanggal', $today)
-            ->where('status', 'izin')
-            ->where('status_izin', 'approved')
-            ->exists();
+        $hasApprovedIzinToday = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today) !== null
+            || ExternalTeachingPermissionService::approvedRequestForDate($user, $today) !== null;
 
         if ($hasApprovedIzinToday) {
             return response()->json([
@@ -284,12 +283,8 @@ class TeachingAttendanceController extends Controller
         $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        $hasApprovedIzinToday = Presensi::query()
-            ->where('user_id', $user->id)
-            ->whereDate('tanggal', $today)
-            ->where('status', 'izin')
-            ->where('status_izin', 'approved')
-            ->exists();
+        $hasApprovedIzinToday = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today) !== null
+            || ExternalTeachingPermissionService::approvedRequestForDate($user, $today) !== null;
 
         if ($hasApprovedIzinToday) {
             return response()->json([

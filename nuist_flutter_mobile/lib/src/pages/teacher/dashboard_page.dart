@@ -1493,6 +1493,15 @@ class _ScheduleShowcaseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = item['attendance_status'] as String? ?? 'pending';
     final isCompleted = status == 'completed';
+    final isExcused = status == 'izin';
+    final gradientColors = isCompleted
+        ? const [Color(0xFF1F9D73), Color(0xFF17634B)]
+        : (isExcused
+            ? const [Color(0xFF34B3E4), Color(0xFF1D6FA5)]
+            : const [Color(0xFFF4B860), Color(0xFFE5952D)]);
+    final dotColor = isCompleted
+        ? const Color(0xFFB7FFD0)
+        : (isExcused ? const Color(0xFFD9F3FF) : const Color(0xFFFFF1BE));
 
     return Container(
       width: 238,
@@ -1500,9 +1509,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
-          colors: isCompleted
-              ? const [Color(0xFF1F9D73), Color(0xFF17634B)]
-              : const [Color(0xFFF4B860), Color(0xFFE5952D)],
+          colors: gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -1530,9 +1537,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: isCompleted
-                      ? const Color(0xFFB7FFD0)
-                      : const Color(0xFFFFF1BE),
+                  color: dotColor,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
@@ -1584,15 +1589,35 @@ class _ActivityStepTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDone = (step['status'] as String?) == 'completed';
+    final status = step['status'] as String? ?? 'pending';
+    final isDone = status == 'completed';
+    final isExcused = status == 'izin' || status == 'excused';
+    final tileColor = isDone
+        ? const Color(0xFFE8F8EE)
+        : (isExcused ? const Color(0xFFE9F7FE) : const Color(0xFFF7FBFB));
+    final borderColor = isDone
+        ? const Color(0xFFBFE8CB)
+        : (isExcused ? const Color(0xFFB7E3F8) : const Color(0xFFDDEBE9));
+    final iconColor = isDone
+        ? const Color(0xFF2E8B57)
+        : (isExcused ? const Color(0xFF0E7490) : const Color(0xFFCFDEDC));
+    final iconForeground = isDone || isExcused
+        ? Colors.white
+        : const Color(0xFF52726E);
+    final textColor = isDone
+        ? const Color(0xFF1D6B40)
+        : (isExcused ? const Color(0xFF155E75) : const Color(0xFF1F4F4C));
+    final subtitle = isDone
+        ? 'Sudah dilakukan'
+        : (isExcused ? 'Izin disetujui' : 'Belum dilakukan');
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDone ? const Color(0xFFE8F8EE) : const Color(0xFFF7FBFB),
+        color: tileColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isDone ? const Color(0xFFBFE8CB) : const Color(0xFFDDEBE9),
+          color: borderColor,
         ),
       ),
       child: Row(
@@ -1601,12 +1626,12 @@ class _ActivityStepTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isDone ? const Color(0xFF2E8B57) : const Color(0xFFCFDEDC),
+              color: iconColor,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               _stepIcon(step['icon'] as String?),
-              color: isDone ? Colors.white : const Color(0xFF52726E),
+              color: iconForeground,
               size: 20,
             ),
           ),
@@ -1619,18 +1644,16 @@ class _ActivityStepTile extends StatelessWidget {
                   step['label'] as String? ?? '-',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: isDone
-                        ? const Color(0xFF1D6B40)
-                        : const Color(0xFF1F4F4C),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isDone ? 'Sudah dilakukan' : 'Belum dilakukan',
+                  subtitle,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDone
-                        ? const Color(0xFF1D6B40)
+                    color: isDone || isExcused
+                        ? textColor
                         : const Color(0xFF6D7F7D),
                   ),
                 ),

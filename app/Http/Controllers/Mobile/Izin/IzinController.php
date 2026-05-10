@@ -9,6 +9,7 @@ use Carbon\CarbonPeriod;
 use App\Models\Izin;
 use App\Models\Presensi;
 use App\Models\User;
+use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class IzinController extends \App\Http\Controllers\Controller
@@ -49,76 +50,13 @@ class IzinController extends \App\Http\Controllers\Controller
 
     private function syncApprovedIzinPresensi(Izin $izin, int $approvedBy): void
     {
-        if ($izin->type === 'terlambat') {
-            return;
-        }
-
         if ($izin->type === ExternalTeachingPermissionService::TYPE) {
             ExternalTeachingPermissionService::syncApprovedNoPresencePresensi($izin, Carbon::today('Asia/Jakarta'));
 
             return;
         }
 
-        $izin->loadMissing('user');
-
-        if (!$izin->user) {
-            return;
-        }
-
-        $startDate = Carbon::parse($izin->tanggal)->startOfDay();
-        $endDate = $izin->type === 'cuti' && $izin->tanggal_selesai
-            ? Carbon::parse($izin->tanggal_selesai)->startOfDay()
-            : $startDate->copy();
-
-        foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
-            $this->syncApprovedIzinPresensiForDate($izin, $date, $approvedBy);
-        }
-    }
-
-    private function syncApprovedIzinPresensiForDate(Izin $izin, Carbon $date, int $approvedBy): void
-    {
-        $existingPresensi = Presensi::where('user_id', $izin->user_id)
-            ->whereDate('tanggal', $date->toDateString())
-            ->first();
-
-        $izinPresensiData = [
-            'madrasah_id' => $izin->user->madrasah_id,
-            'waktu_masuk' => $izin->waktu_masuk,
-            'waktu_keluar' => $izin->waktu_keluar,
-            'status' => 'izin',
-            'keterangan' => $izin->alasan ?: $izin->deskripsi_tugas,
-            'status_izin' => 'approved',
-            'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
-            'approved_by' => $approvedBy,
-            'surat_izin_path' => $izin->file_path,
-        ];
-
-        if (!$existingPresensi) {
-            Presensi::create(array_merge($izinPresensiData, [
-                'user_id' => $izin->user_id,
-                'tanggal' => $date->toDateString(),
-            ]));
-
-            return;
-        }
-
-        if ($existingPresensi->status === 'hadir') {
-            if (!$existingPresensi->waktu_keluar && $izin->waktu_keluar) {
-                $existingPresensi->update([
-                    'waktu_keluar' => $izin->waktu_keluar,
-                    'status_izin' => 'approved',
-                    'approved_by' => $approvedBy,
-                    'surat_izin_path' => $izin->file_path,
-                ]);
-            }
-
-            return;
-        }
-
-        $hasNoAttendanceTime = !$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
-        if ($existingPresensi->status === 'izin' || ($existingPresensi->status === 'alpha' && $hasNoAttendanceTime) || $hasNoAttendanceTime) {
-            $existingPresensi->update($izinPresensiData);
-        }
+        ApprovedIzinSyncService::syncApprovedIzinPresensi($izin);
     }
 
     public function storeIzin(Request $request)
