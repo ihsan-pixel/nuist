@@ -782,7 +782,7 @@ class _JournalContent extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _JournalSummaryTile(
-                label: 'Sudah Presensi',
+                label: 'Selesai / Izin',
                 value: '${todaySummary['completed_schedules'] ?? 0}',
                 accent: const Color(0xFF1F9D73),
                 icon: Icons.check_circle_rounded,
@@ -946,7 +946,7 @@ class _JournalHeroCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _HeroMetric(
-                  label: 'Sudah Presensi',
+                  label: 'Selesai / Izin',
                   value: completedSchedules,
                 ),
               ),
@@ -1158,7 +1158,7 @@ class _TeachingScheduleTile extends StatelessWidget {
                 children: [
                   Text(
                     status == 'izin'
-                        ? 'Jadwal ini tercatat sebagai izin.'
+                        ? 'Jadwal ini dibebaskan karena izin sudah disetujui.'
                         : 'Presensi berhasil pada ${attendance['time'] ?? '-'}',
                     style: TextStyle(
                       color: status == 'izin'
@@ -1204,7 +1204,7 @@ class _TeachingScheduleTile extends StatelessWidget {
               color: Color(0xFF0EA5E9),
               icon: Icons.info_outline_rounded,
               message:
-                  'Anda tidak dapat melakukan presensi mengajar karena izin hari ini sudah disetujui.',
+                  'Jadwal mengajar hari ini dibebaskan karena izin sudah disetujui.',
             )
           else
             Column(

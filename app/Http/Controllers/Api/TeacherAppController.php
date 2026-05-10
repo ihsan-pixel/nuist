@@ -145,6 +145,7 @@ class TeacherAppController extends Controller
                 ],
                 'summary' => [
                     'attendance_percent' => $attendanceStats['attendance_percent'],
+                    'attendance_basis_label' => $attendanceStats['attendance_basis_label'],
                     'pending_izin_count' => Izin::query()
                         ->where('user_id', $user->id)
                         ->where('status', 'pending')
@@ -166,6 +167,8 @@ class TeacherAppController extends Controller
                     'present_count' => $attendanceStats['present_count'],
                     'izin_count' => $attendanceStats['izin_count'],
                     'alpha_count' => $attendanceStats['alpha_count'],
+                    'working_days' => $attendanceStats['working_days'],
+                    'hari_kbm' => $attendanceStats['hari_kbm'],
                 ],
                 'performance' => [
                     'percent' => $performancePercent,
@@ -391,11 +394,15 @@ class TeacherAppController extends Controller
                     $isSunday,
                 ),
                 'recent' => $recent->map(function (Presensi $item) {
+                    $autoPresentIzin = $this->findApprovedAutoPresentIzin($item->user_id, $item->tanggal);
+
                     return [
                         'id' => $item->id,
                         'date' => optional($item->tanggal)->format('Y-m-d'),
                         'date_label' => $item->tanggal?->locale('id')->isoFormat('D MMMM YYYY') ?? '-',
                         'status' => $item->status ?? '-',
+                        'status_label' => $this->presensiStatusLabel($item, $autoPresentIzin),
+                        'is_auto_present' => $autoPresentIzin !== null,
                         'check_in' => $this->formatTimeValue($item->waktu_masuk),
                         'check_out' => $this->formatTimeValue($item->waktu_keluar),
                         'location' => $item->lokasi ?: $item->madrasah?->name,
@@ -1909,6 +1916,10 @@ class TeacherAppController extends Controller
             'izin_count' => $izinCount,
             'alpha_count' => $alphaCount,
             'working_days' => $workingDays,
+            'hari_kbm' => (int) $hariKbm,
+            'attendance_basis_label' => $workingDays > 0
+                ? 'Dihitung dari ' . $workingDays . ' hari kerja bulan ini • KBM ' . $hariKbm . ' hari'
+                : 'Belum ada hari kerja bulan ini • KBM ' . $hariKbm . ' hari',
         ];
     }
 
@@ -1916,6 +1927,10 @@ class TeacherAppController extends Controller
     {
         $checkIn = $items->filter(fn ($item) => !empty($item->waktu_masuk))->sortBy('waktu_masuk')->first();
         $checkOut = $items->filter(fn ($item) => !empty($item->waktu_keluar))->sortByDesc('waktu_keluar')->first();
+        $referenceItem = $items->first();
+        $autoPresentIzin = $referenceItem
+            ? $this->findApprovedAutoPresentIzin($referenceItem->user_id, $referenceItem->tanggal)
+            : null;
 
         $status = 'belum_presensi';
         if ($items->where('status', 'hadir')->isNotEmpty()) {
@@ -1928,20 +1943,20 @@ class TeacherAppController extends Controller
 
         return [
             'status' => $status,
-            'status_label' => match ($status) {
-                'hadir' => 'Sudah presensi',
-                'izin' => 'Tercatat izin',
-                'alpha' => 'Tercatat alpha',
-                default => 'Belum presensi',
-            },
+            'status_label' => $this->attendanceSummaryStatusLabel($status, $autoPresentIzin !== null),
+            'is_auto_present' => $autoPresentIzin !== null,
             'check_in' => $this->formatTimeValue($checkIn?->waktu_masuk),
             'check_out' => $this->formatTimeValue($checkOut?->waktu_keluar),
             'location' => $checkIn?->lokasi ?: $checkIn?->madrasah?->name,
             // 'location_out' => $checkOut?->lokasi_keluar,
             'entries' => $items->map(function (Presensi $item) {
+                $entryAutoPresentIzin = $this->findApprovedAutoPresentIzin($item->user_id, $item->tanggal);
+
                 return [
                     'id' => $item->id,
                     'status' => $item->status,
+                    'status_label' => $this->presensiStatusLabel($item, $entryAutoPresentIzin),
+                    'is_auto_present' => $entryAutoPresentIzin !== null,
                     'school_name' => $item->madrasah?->name,
                     'check_in' => $this->formatTimeValue($item->waktu_masuk),
                     'check_out' => $this->formatTimeValue($item->waktu_keluar),
@@ -2606,6 +2621,47 @@ class TeacherAppController extends Controller
     private function findApprovedBlockingIzin(User $user, Carbon|string $date): ?Izin
     {
         return ApprovedIzinSyncService::approvedRequestForDate($user, $date);
+    }
+
+    private function findApprovedAutoPresentIzin(User|int $user, Carbon|string|null $date): ?Izin
+    {
+        if (!$date) {
+            return null;
+        }
+
+        $userId = $user instanceof User ? $user->id : (int) $user;
+        $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
+
+        return Izin::query()
+            ->where('user_id', $userId)
+            ->where('status', 'approved')
+            ->where('type', 'tugas_luar')
+            ->whereDate('tanggal', $date->toDateString())
+            ->orderByDesc('approved_at')
+            ->first();
+    }
+
+    private function attendanceSummaryStatusLabel(string $status, bool $isAutoPresent): string
+    {
+        if ($status === 'hadir' && $isAutoPresent) {
+            return 'Hadir (Tugas Luar)';
+        }
+
+        return match ($status) {
+            'hadir' => 'Sudah presensi',
+            'izin' => 'Tercatat izin',
+            'alpha' => 'Tercatat alpha',
+            default => 'Belum presensi',
+        };
+    }
+
+    private function presensiStatusLabel(Presensi $item, ?Izin $autoPresentIzin = null): string
+    {
+        if (($item->status ?? '') === 'hadir' && $autoPresentIzin) {
+            return 'Hadir (Tugas Luar)';
+        }
+
+        return ucfirst(str_replace('_', ' ', (string) ($item->status ?? '-')));
     }
 
     private function findApprovedTeachingJournalIzin(User $user, Carbon|string $date): ?Izin

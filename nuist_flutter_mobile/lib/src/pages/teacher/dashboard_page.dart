@@ -167,6 +167,11 @@ class _DashboardContent extends StatelessWidget {
         .toList();
     final currentMonthLabel =
         (data['current_month_label'] as String?) ?? 'Bulan Ini';
+    final attendanceBasisLabel =
+        (summary['attendance_basis_label'] as String?)?.trim().isNotEmpty ==
+                true
+            ? summary['attendance_basis_label'] as String
+            : null;
     final calendarLeadingEmptyDays =
         (data['attendance_calendar_leading_empty_days'] as num?)?.toInt() ?? 0;
     final attendanceCalendar =
@@ -258,6 +263,21 @@ class _DashboardContent extends StatelessWidget {
             ),
           ],
         ),
+        if (attendanceBasisLabel != null) ...[
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Text(
+              attendanceBasisLabel,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6D7F7D),
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 18),
         const _SectionHeading(
           eyebrow: 'Layanan',

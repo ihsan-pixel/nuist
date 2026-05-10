@@ -1392,6 +1392,8 @@ class _AttendanceHistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = (item['status'] as String? ?? '-').toLowerCase();
+    final statusLabel = item['status_label'] as String? ?? item['status'] as String? ?? '-';
+    final isAutoPresent = item['is_auto_present'] == true;
     final statusColor = _statusColor(status);
 
     return AppSectionCard(
@@ -1433,7 +1435,7 @@ class _AttendanceHistoryTile extends StatelessWidget {
                         ),
                       ),
                     ),
-                    _StatusPill(label: item['status'] as String? ?? '-'),
+                    _StatusPill(label: statusLabel),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -1466,6 +1468,18 @@ class _AttendanceHistoryTile extends StatelessWidget {
                     style: const TextStyle(
                       color: Color(0xFF9A6A33),
                       fontSize: 12,
+                    ),
+                  ),
+                ],
+                if (isAutoPresent) ...[
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Presensi hadir ini berasal dari izin tugas luar yang sudah disetujui.',
+                    style: TextStyle(
+                      color: Color(0xFF0D8E89),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      height: 1.35,
                     ),
                   ),
                 ],
