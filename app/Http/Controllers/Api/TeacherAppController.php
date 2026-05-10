@@ -69,6 +69,7 @@ class TeacherAppController extends Controller
             ->get()
             ->keyBy('teaching_schedule_id');
         $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
+        $attendanceStats = $this->calculateDashboardAttendanceStats($user, $presensiThisMonth, $today);
 
         $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $approvedTeachingJournalIzin) {
             $attendance = $todayAttendances->get($schedule->id);
@@ -92,10 +93,6 @@ class TeacherAppController extends Controller
                 'materi' => $attendance?->materi,
             ];
         })->values();
-
-        $monthlyPresentCount = $presensiThisMonth->where('status', 'hadir')->count();
-        $monthlyIzinCount = $presensiThisMonth->where('status', 'izin')->count();
-        $monthlyAlphaCount = $presensiThisMonth->where('status', 'alpha')->count();
 
         $checkInDone = $todayPresensi->contains(fn ($item) => !empty($item->waktu_masuk));
         $checkOutDone = $todayPresensi->contains(fn ($item) => !empty($item->waktu_keluar));
@@ -147,7 +144,7 @@ class TeacherAppController extends Controller
                     'can_manage_izin' => $this->canManageIzinRequests($user),
                 ],
                 'summary' => [
-                    'attendance_percent' => $this->attendancePercent($presensiThisMonth),
+                    'attendance_percent' => $attendanceStats['attendance_percent'],
                     'pending_izin_count' => Izin::query()
                         ->where('user_id', $user->id)
                         ->where('status', 'pending')
@@ -166,9 +163,9 @@ class TeacherAppController extends Controller
                         ->count(),
                 ],
                 'monthly_stats' => [
-                    'present_count' => $monthlyPresentCount,
-                    'izin_count' => $monthlyIzinCount,
-                    'alpha_count' => $monthlyAlphaCount,
+                    'present_count' => $attendanceStats['present_count'],
+                    'izin_count' => $attendanceStats['izin_count'],
+                    'alpha_count' => $attendanceStats['alpha_count'],
                 ],
                 'performance' => [
                     'percent' => $performancePercent,
@@ -1873,16 +1870,46 @@ class TeacherAppController extends Controller
         ];
     }
 
-    private function attendancePercent($items): float
+    private function calculateDashboardAttendanceStats(User $user, $items, Carbon $today): array
     {
-        $total = $items->count();
-        if ($total === 0) {
-            return 0;
+        $monthStart = $today->copy()->startOfMonth();
+        $monthEnd = $today->copy()->endOfMonth();
+        $effectiveEnd = $today->copy()->min($monthEnd);
+        $hariKbm = (string) ($user->madrasah?->hari_kbm ?? '6');
+        $recordsByDate = collect($items)->groupBy(fn ($item) => $item->tanggal->toDateString());
+        $workingDays = 0;
+        $presentCount = 0;
+        $izinCount = 0;
+        $alphaCount = 0;
+
+        foreach (CarbonPeriod::create($monthStart, $effectiveEnd) as $date) {
+            if (!$this->isReportWorkingDay($date, $hariKbm)) {
+                continue;
+            }
+
+            $workingDays++;
+            $dayItems = $recordsByDate->get($date->toDateString(), collect());
+
+            if ($dayItems->where('status', 'hadir')->isNotEmpty()) {
+                $presentCount++;
+            } elseif ($dayItems->where('status', 'izin')->isNotEmpty()) {
+                $izinCount++;
+            } elseif ($dayItems->where('status', 'alpha')->isNotEmpty()) {
+                $alphaCount++;
+            } else {
+                $alphaCount++;
+            }
         }
 
-        $present = $items->whereIn('status', ['hadir', 'izin'])->count();
-
-        return round(($present / $total) * 100, 1);
+        return [
+            'attendance_percent' => $workingDays > 0
+                ? round(($presentCount / $workingDays) * 100, 1)
+                : 0,
+            'present_count' => $presentCount,
+            'izin_count' => $izinCount,
+            'alpha_count' => $alphaCount,
+            'working_days' => $workingDays,
+        ];
     }
 
     private function serializeTodayAttendance($items): array
