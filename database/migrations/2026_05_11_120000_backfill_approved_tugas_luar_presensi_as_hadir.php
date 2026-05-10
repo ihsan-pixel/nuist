@@ -18,7 +18,7 @@ return new class extends Migration
             ->where('izins.status', 'approved')
             ->where('izins.type', 'tugas_luar')
             ->select([
-                'izins.id',
+                'izins.id as id',
                 'izins.user_id',
                 'izins.tanggal',
                 'izins.alasan',
@@ -102,7 +102,7 @@ return new class extends Migration
                             ->update($updates);
                     }
                 }
-            }, 'izins.id');
+            }, 'izins.id', 'id');
     }
 
     public function down(): void
