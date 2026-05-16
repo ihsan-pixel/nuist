@@ -97,12 +97,6 @@
                 <p>Tagihan ini masih menggunakan mekanisme pembayaran manual. Hubungi admin sekolah untuk konfirmasi pembayaran.</p>
             </div>
         @endif
-        @if($activeTagihan?->setting?->payment_notes)
-            <div class="note-card warning">
-                <h6>Catatan pembayaran</h6>
-                <p>{{ $activeTagihan->setting->payment_notes }}</p>
-            </div>
-        @endif
         <a href="{{ route('mobile.siswa.chat') }}" class="ghost-btn">
             <i class="bx bx-message-square-detail"></i>Hubungi admin sekolah
         </a>

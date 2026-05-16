@@ -420,10 +420,6 @@
                         </div>
                         <div class="border rounded-4 p-3 mb-3">
                             <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">VA Expired</span>
-                                <strong>{{ $activeSetting->va_expired_hours ?? 24 }} jam</strong>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Madrasah</span>
                                 <strong class="text-end">{{ $activeSetting->madrasah->name ?? $scopeLabel }}</strong>
                             </div>
@@ -432,9 +428,7 @@
                                 <strong class="text-success">{{ $activeSetting->is_active ? 'Aktif' : 'Nonaktif' }}</strong>
                             </div>
                         </div>
-                        <div class="small text-muted">
-                            {{ $activeSetting->payment_notes ?: 'Belum ada catatan pembayaran tambahan pada pengaturan aktif ini.' }}
-                        </div>
+                        <div class="small text-muted">{{ $activeSetting->catatan ?: 'Belum ada catatan tambahan pada pengaturan aktif ini.' }}</div>
                     @else
                         <div class="spp-empty">
                             <div>

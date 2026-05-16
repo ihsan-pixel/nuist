@@ -50,9 +50,7 @@
                                 <option value="bni_va">BNI Virtual Account</option>
                             </select>
                         </div>
-                        <div class="col-md-6"><label class="form-label">VA Expired (jam)</label><input type="number" min="1" max="720" name="va_expired_hours" class="form-control" value="24"></div>
                         <div class="col-12"><label class="form-label">Catatan</label><textarea name="catatan" rows="3" class="form-control"></textarea></div>
-                        <div class="col-12"><label class="form-label">Catatan Pembayaran</label><textarea name="payment_notes" rows="3" class="form-control" placeholder="Contoh: Pembayaran hanya melalui Virtual Account BNI."></textarea></div>
                         <div class="col-12">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="is_active" value="1" checked id="is_active">
@@ -76,7 +74,6 @@
                                 <th>Madrasah</th>
                                 <th>Tahun Ajaran</th>
                                 <th>Provider</th>
-                                <th>VA Expired</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -87,7 +84,6 @@
                                 <td>{{ $setting->madrasah->name ?? '-' }}</td>
                                 <td>{{ $setting->tahun_ajaran }}</td>
                                 <td>{{ strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual')) }}</td>
-                                <td>{{ $setting->va_expired_hours ?? 24 }} jam</td>
                                 <td><span class="badge bg-{{ $setting->is_active ? 'success' : 'secondary' }}">{{ $setting->is_active ? 'Aktif' : 'Nonaktif' }}</span></td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editSettingModal{{ $setting->id }}">
@@ -96,7 +92,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="text-center text-muted">Belum ada pengaturan SPP siswa.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted">Belum ada pengaturan SPP siswa.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -145,17 +141,9 @@
                                     <option value="bni_va" @selected($setting->payment_provider === 'bni_va')>BNI Virtual Account</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">VA Expired (jam)</label>
-                                <input type="number" min="1" max="720" name="va_expired_hours" class="form-control" value="{{ $setting->va_expired_hours ?? 24 }}">
-                            </div>
                             <div class="col-12">
                                 <label class="form-label">Catatan</label>
                                 <textarea name="catatan" rows="3" class="form-control">{{ $setting->catatan }}</textarea>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Catatan Pembayaran</label>
-                                <textarea name="payment_notes" rows="3" class="form-control">{{ $setting->payment_notes }}</textarea>
                             </div>
                             <div class="col-12">
                                 <div class="form-check">

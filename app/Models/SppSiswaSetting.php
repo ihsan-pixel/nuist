@@ -17,15 +17,12 @@ class SppSiswaSetting extends Model
         'nominal_spp',
         'tanggal_jatuh_tempo',
         'payment_provider',
-        'va_expired_hours',
         'is_active',
         'catatan',
-        'payment_notes',
     ];
 
     protected $casts = [
         'nominal_spp' => 'decimal:2',
-        'va_expired_hours' => 'integer',
         'is_active' => 'boolean',
     ];
 

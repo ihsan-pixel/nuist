@@ -267,10 +267,6 @@
                     </ol>
                 @endif
 
-                @if($selectedTagihan->setting?->payment_notes)
-                    <p style="margin-top:16px;"><strong>Catatan:</strong> {{ $selectedTagihan->setting->payment_notes }}</p>
-                @endif
-
                 @if($selectedTagihan->catatan)
                     <p style="margin-top:10px;"><strong>Keterangan Tagihan:</strong> {{ $selectedTagihan->catatan }}</p>
                 @endif

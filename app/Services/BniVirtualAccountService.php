@@ -12,6 +12,8 @@ use RuntimeException;
 
 class BniVirtualAccountService
 {
+    private const DEFAULT_VA_EXPIRED_HOURS = 24;
+
     public function createOrReuseForBill(SppSiswaBill $bill, ?int $createdBy = null): SppSiswaTransaction
     {
         $bill->loadMissing(['siswa', 'madrasah', 'setting', 'transactions']);
@@ -99,7 +101,7 @@ class BniVirtualAccountService
     public function buildCreateVaPayload(SppSiswaBill $bill, int $grossAmount): array
     {
         $settings = AppSetting::getSettings();
-        $expiredHours = max(1, (int) ($bill->setting?->va_expired_hours ?? 24));
+        $expiredHours = self::DEFAULT_VA_EXPIRED_HOURS;
 
         return [
             'merchant_id' => $settings->bni_va_merchant_id,

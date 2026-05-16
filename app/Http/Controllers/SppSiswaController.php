@@ -487,10 +487,8 @@ class SppSiswaController extends Controller
             ],
             [
                 'payment_provider' => $validated['payment_provider'],
-                'va_expired_hours' => $validated['va_expired_hours'] ?? 24,
                 'is_active' => $request->boolean('is_active', true),
                 'catatan' => $validated['catatan'] ?? null,
-                'payment_notes' => $validated['payment_notes'] ?? null,
             ]
         );
 
@@ -512,10 +510,8 @@ class SppSiswaController extends Controller
         $setting->update([
             'tahun_ajaran' => $validated['tahun_ajaran'],
             'payment_provider' => $validated['payment_provider'],
-            'va_expired_hours' => $validated['va_expired_hours'] ?? 24,
             'is_active' => $request->boolean('is_active', false),
             'catatan' => $validated['catatan'] ?? null,
-            'payment_notes' => $validated['payment_notes'] ?? null,
         ]);
 
         return back()->with('success', 'Pengaturan SPP siswa berhasil diperbarui.');
@@ -666,10 +662,8 @@ class SppSiswaController extends Controller
             'madrasah_id' => $this->madrasahRules(),
             'tahun_ajaran' => ['required', 'string', 'max:20'],
             'payment_provider' => ['required', Rule::in($this->allowedPaymentProviders())],
-            'va_expired_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
             'is_active' => ['nullable', 'boolean'],
             'catatan' => ['nullable', 'string'],
-            'payment_notes' => ['nullable', 'string'],
         ]);
     }
 
