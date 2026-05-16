@@ -40,7 +40,7 @@ class SppSiswaBillTemplateExport implements WithMultipleSheets
                     return [
                         ['nis', 'jenis_tagihan', 'periode', 'jatuh_tempo', 'nominal', 'status', 'catatan'],
                         [$sampleNis, 'SPP', now()->format('Y-m'), now()->startOfMonth()->addDays(9)->format('Y-m-d'), 250000, 'belum_lunas', 'Tagihan SPP bulan ini'],
-                        [$sampleNis, 'UANG GEDUNG', now()->format('Y-m'), now()->startOfMonth()->addDays(14)->format('Y-m-d'), 1000000, 'belum_lunas', 'Contoh tagihan selain SPP'],
+                        [$sampleNis, 'SPP', now()->addMonth()->format('Y-m'), now()->addMonth()->startOfMonth()->addDays(9)->format('Y-m-d'), 250000, 'belum_lunas', 'Tagihan SPP bulan berikutnya'],
                     ];
                 }
 
@@ -81,11 +81,11 @@ class SppSiswaBillTemplateExport implements WithMultipleSheets
                         ['panduan'],
                         ['1. Isi sheet template_import saat akan upload.'],
                         ['2. Kolom wajib: nis, jenis_tagihan, periode, jatuh_tempo, nominal.'],
-                        ['3. jenis_tagihan bebas diisi operator sekolah, contoh: SPP, UANG GEDUNG, SERAGAM, KEGIATAN.'],
+                        ['3. Kolom jenis_tagihan wajib diisi SPP. Nilai lain tidak diperbolehkan.'],
                         ['4. periode menggunakan format YYYY-MM, contoh: 2026-04.'],
                         ['5. jatuh_tempo menggunakan format YYYY-MM-DD, contoh: 2026-04-10.'],
                         ['6. status boleh kosong atau salah satu: belum_lunas, sebagian, lunas.'],
-                        ['7. Baris dengan siswa, periode, dan jenis_tagihan yang sudah ada akan dilewati.'],
+                        ['7. Baris dengan siswa, periode, dan jenis_tagihan SPP yang sudah ada akan dilewati.'],
                     ];
                 }
 

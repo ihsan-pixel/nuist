@@ -31,7 +31,7 @@
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
             <div>
                 <h4 class="mb-1">Tagihan Siswa</h4>
-                <p class="text-muted mb-0">Tagihan dapat dibuat untuk SPP maupun jenis tagihan lain sesuai kebutuhan masing-masing sekolah.</p>
+                <p class="text-muted mb-0">Tagihan pada modul ini dikunci khusus untuk pembuatan tagihan SPP siswa.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a class="btn btn-outline-secondary" href="{{ route('spp-siswa.tagihan.template', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}"><i class="bx bx-download me-1"></i>Template Import</a>
@@ -60,7 +60,7 @@
                 @endif
                 <div class="col-md-2"><label class="form-label">Kelas</label><input type="text" name="kelas" value="{{ request('kelas') }}" class="form-control"></div>
                 <div class="col-md-2"><label class="form-label">Jurusan</label><input type="text" name="jurusan" value="{{ request('jurusan') }}" class="form-control"></div>
-                <div class="col-md-2"><label class="form-label">Jenis Tagihan</label><input type="text" name="jenis_tagihan" value="{{ request('jenis_tagihan') }}" class="form-control" list="jenisTagihanSuggestions" placeholder="SPP"></div>
+                <div class="col-md-2"><label class="form-label">Jenis Tagihan</label><input type="text" name="jenis_tagihan" value="{{ request('jenis_tagihan') }}" class="form-control" placeholder="SPP"></div>
                 <div class="col-md-2">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
@@ -140,12 +140,6 @@
     </div>
 </div>
 
-<datalist id="jenisTagihanSuggestions">
-    @foreach(collect(['SPP', 'UANG GEDUNG', 'SERAGAM', 'KEGIATAN'])->merge($jenisTagihanOptions)->unique() as $jenisTagihan)
-        <option value="{{ $jenisTagihan }}">
-    @endforeach
-</datalist>
-
 <div class="modal fade" id="bulkTagihanModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -157,7 +151,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
-                        Tagihan massal dibuat untuk semua siswa di sekolah terpilih. Isi jenis tagihan sesuai kebutuhan, misalnya SPP, Uang Gedung, Seragam, atau Kegiatan.
+                        Tagihan massal pada modul ini hanya akan membuat tagihan SPP untuk semua siswa yang sesuai filter.
                     </div>
                     <div class="row g-3">
                         @if($userRole !== 'admin_spp')
@@ -201,7 +195,11 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4"><label class="form-label">Jenis Tagihan</label><input type="text" name="jenis_tagihan" class="form-control" value="{{ old('jenis_tagihan', 'SPP') }}" list="jenisTagihanSuggestions" maxlength="100" required></div>
+                        <input type="hidden" name="jenis_tagihan" value="SPP">
+                        <div class="col-md-4">
+                            <label class="form-label">Jenis Tagihan</label>
+                            <input type="text" class="form-control" value="SPP" readonly>
+                        </div>
                         <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" placeholder="Isi nominal tagihan" required></div>
@@ -236,7 +234,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
-                        Gunakan template import dan isi kolom `jenis_tagihan` untuk membedakan SPP dengan tagihan lain.
+                        Gunakan template import dan pastikan kolom `jenis_tagihan` berisi `SPP` pada semua baris.
                     </div>
                     <div class="row g-3">
                         @if($userRole !== 'admin_spp')
@@ -265,7 +263,7 @@
                         <div class="col-md-8">
                             <label class="form-label">File Excel / CSV</label>
                             <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
-                            <div class="form-text">Kolom wajib: nis, jenis_tagihan, periode, jatuh_tempo, nominal.</div>
+                            <div class="form-text">Kolom wajib: nis, jenis_tagihan, periode, jatuh_tempo, nominal. Nilai `jenis_tagihan` hanya boleh `SPP`.</div>
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
                             <a class="btn btn-outline-secondary w-100" href="{{ route('spp-siswa.tagihan.template', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}"><i class="bx bx-download me-1"></i>Template Import</a>
@@ -324,7 +322,11 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4"><label class="form-label">Jenis Tagihan</label><input type="text" name="jenis_tagihan" class="form-control" value="{{ old('jenis_tagihan', 'SPP') }}" list="jenisTagihanSuggestions" maxlength="100" required></div>
+                        <input type="hidden" name="jenis_tagihan" value="SPP">
+                        <div class="col-md-4">
+                            <label class="form-label">Jenis Tagihan</label>
+                            <input type="text" class="form-control" value="SPP" readonly>
+                        </div>
                         <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" required></div>

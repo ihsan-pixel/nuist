@@ -18,6 +18,7 @@ class SppSiswaBillImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 {
     public int $created = 0;
     public int $skipped = 0;
+    private const FIXED_BILL_TYPE = 'SPP';
 
     public function __construct(
         private readonly Madrasah $madrasah,
@@ -38,7 +39,11 @@ class SppSiswaBillImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 }
 
                 $nis = trim((string) $row['nis']);
-                $jenisTagihan = trim((string) $row['jenis_tagihan']);
+                $jenisTagihan = strtoupper(trim((string) $row['jenis_tagihan']));
+
+                if ($jenisTagihan !== self::FIXED_BILL_TYPE) {
+                    throw new \InvalidArgumentException("Baris {$line}: kolom jenis_tagihan hanya boleh berisi SPP.");
+                }
                 $periodeDate = $this->parsePeriod($row['periode'], $line);
                 $jatuhTempo = $this->parseDate($row['jatuh_tempo'], $line, 'jatuh_tempo');
                 $nominal = $this->parseNominal($row['nominal'], $line);
@@ -57,7 +62,7 @@ class SppSiswaBillImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                 $exists = SppSiswaBill::query()
                     ->where('siswa_id', $siswa->id)
                     ->where('periode', $periodeDate->format('Y-m'))
-                    ->where('jenis_tagihan', $jenisTagihan)
+                    ->where('jenis_tagihan', self::FIXED_BILL_TYPE)
                     ->exists();
 
                 if ($exists) {
@@ -69,8 +74,8 @@ class SppSiswaBillImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'siswa_id' => $siswa->id,
                     'madrasah_id' => $siswa->madrasah_id,
                     'setting_id' => $this->setting?->id,
-                    'jenis_tagihan' => $jenisTagihan,
-                    'nomor_tagihan' => SppSiswaBill::makeBillNumber($siswa, $periodeDate, $jenisTagihan),
+                    'jenis_tagihan' => self::FIXED_BILL_TYPE,
+                    'nomor_tagihan' => SppSiswaBill::makeBillNumber($siswa, $periodeDate, self::FIXED_BILL_TYPE),
                     'periode' => $periodeDate->format('Y-m'),
                     'jatuh_tempo' => $jatuhTempo,
                     'nominal' => $nominal,

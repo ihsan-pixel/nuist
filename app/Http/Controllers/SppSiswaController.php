@@ -149,7 +149,6 @@ class SppSiswaController extends Controller
             'madrasah_id' => $this->madrasahRules(),
             'siswa_id' => ['required', 'integer', Rule::exists('siswa', 'id')],
             'setting_id' => ['nullable', 'integer', Rule::exists('spp_siswa_settings', 'id')],
-            'jenis_tagihan' => ['required', 'string', 'max:100'],
             'periode' => ['required', 'date_format:Y-m'],
             'jatuh_tempo' => ['required', 'date'],
             'nominal' => ['required', 'numeric', 'min:0'],
@@ -175,7 +174,7 @@ class SppSiswaController extends Controller
 
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
         $nominal = (float) $validated['nominal'];
-        $jenisTagihan = trim((string) $validated['jenis_tagihan']);
+        $jenisTagihan = $this->fixedBillType();
 
         SppSiswaBill::create([
             'siswa_id' => $siswa->id,
@@ -199,7 +198,6 @@ class SppSiswaController extends Controller
         $validated = $request->validate([
             'madrasah_id' => $this->madrasahRules(),
             'setting_id' => ['nullable', 'integer', Rule::exists('spp_siswa_settings', 'id')],
-            'jenis_tagihan' => ['required', 'string', 'max:100'],
             'jurusan' => ['nullable', 'string', 'max:100'],
             'kelas' => ['nullable', 'string', 'max:50'],
             'periode' => ['required', 'date_format:Y-m'],
@@ -222,7 +220,7 @@ class SppSiswaController extends Controller
 
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
         $nominal = (float) $validated['nominal'];
-        $jenisTagihan = trim((string) $validated['jenis_tagihan']);
+        $jenisTagihan = $this->fixedBillType();
 
         $students = $this->studentQuery((int) $validated['madrasah_id'])
             ->when(!empty($validated['jurusan']), fn ($query) => $query->where('jurusan', trim((string) $validated['jurusan'])))
@@ -309,7 +307,7 @@ class SppSiswaController extends Controller
 
         return back()->with(
             'success',
-            "Import tagihan selesai. {$import->created} tagihan dibuat, {$import->skipped} dilewati karena siswa, periode, dan jenis tagihan yang sama sudah ada."
+            "Import tagihan SPP selesai. {$import->created} tagihan dibuat, {$import->skipped} dilewati karena siswa dan periode yang sama sudah ada."
         );
     }
 
@@ -693,6 +691,11 @@ class SppSiswaController extends Controller
         return $this->normalizedRole() === 'super_admin'
             ? ['manual', 'bni_va']
             : ['bni_va'];
+    }
+
+    private function fixedBillType(): string
+    {
+        return 'SPP';
     }
 
     private function isAdminSppRole(?string $role = null): bool
