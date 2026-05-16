@@ -229,10 +229,10 @@
         <div class="card-body p-4 p-xl-5 position-relative">
             <div class="row g-4 align-items-end">
                 <div class="col-xl-8">
-                    <div class="spp-kicker mb-2">Desktop Monitoring</div>
+                    {{-- <div class="spp-kicker mb-2">Desktop Monitoring</div> --}}
                     <div class="spp-hero-title mb-3">Pusat kontrol pembuatan tagihan SPP siswa</div>
                     <p class="spp-hero-summary mb-4">
-                        Panel ini disusun untuk operator `admin spp` agar proses create tagihan lebih terukur, cepat dipantau, dan mudah ditindaklanjuti dari satu halaman kerja desktop.
+                        Panel ini disusun untuk operator agar proses create tagihan lebih terukur, cepat dipantau, dan mudah ditindaklanjuti dari satu halaman kerja desktop.
                     </p>
                     <div class="d-flex flex-wrap gap-2">
                         <span class="spp-badge-soft"><i class="bx bx-buildings"></i>{{ $scopeLabel }}</span>
@@ -322,7 +322,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #9b4437, #d46e5c);"><i class="bx bx-revision"></i></span>
                 </div>
-                <div class="spp-stat-foot">Transaksi BNI Virtual Account yang masih pending sampai callback bank diproses.</div>
+                <div class="spp-stat-foot">Transaksi BNI Virtual Account yang masih pending.</div>
             </div>
         </div>
     </div>
