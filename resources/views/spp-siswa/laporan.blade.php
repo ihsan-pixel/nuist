@@ -340,7 +340,7 @@
             </div>
 
             <div class="mt-4">
-                {{ $reportRows->links() }}
+                {{ $reportRows->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>
