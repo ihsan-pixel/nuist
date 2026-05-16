@@ -91,20 +91,8 @@
     margin-top: 0.75rem;
 }
 
-.report-table thead th {
-    background: #f3f7f8;
-    border-bottom: 0;
-    color: #637884;
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+.table thead th {
     white-space: nowrap;
-}
-
-.report-table tbody td {
-    padding-bottom: 0.95rem;
-    padding-top: 0.95rem;
     vertical-align: middle;
 }
 
@@ -306,8 +294,8 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table report-table align-middle mb-0">
-                    <thead>
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light">
                         <tr>
                             <th>Siswa</th>
                             <th>Kelas</th>
