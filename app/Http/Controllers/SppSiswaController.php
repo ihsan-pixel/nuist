@@ -150,9 +150,8 @@ class SppSiswaController extends Controller
             'siswa_id' => ['required', 'integer', Rule::exists('siswa', 'id')],
             'setting_id' => ['nullable', 'integer', Rule::exists('spp_siswa_settings', 'id')],
             'periode' => ['required', 'date_format:Y-m'],
-            'jatuh_tempo' => ['required', 'date'],
+            'jatuh_tempo' => ['nullable', 'date'],
             'nominal' => ['required', 'numeric', 'min:0'],
-            'status' => ['required', Rule::in(['belum_lunas', 'sebagian', 'lunas'])],
             'catatan' => ['nullable', 'string'],
         ]);
 
@@ -175,6 +174,9 @@ class SppSiswaController extends Controller
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
         $nominal = (float) $validated['nominal'];
         $jenisTagihan = $this->fixedBillType();
+        $jatuhTempo = !empty($validated['jatuh_tempo'])
+            ? Carbon::parse($validated['jatuh_tempo'])->toDateString()
+            : $this->resolveMonthEndDueDate($periodeDate);
 
         SppSiswaBill::create([
             'siswa_id' => $siswa->id,
@@ -183,10 +185,10 @@ class SppSiswaController extends Controller
             'jenis_tagihan' => $jenisTagihan,
             'nomor_tagihan' => $this->generateBillNumber($siswa, $periodeDate, $jenisTagihan),
             'periode' => $periodeDate->format('Y-m'),
-            'jatuh_tempo' => $validated['jatuh_tempo'],
+            'jatuh_tempo' => $jatuhTempo,
             'nominal' => $nominal,
             'total_tagihan' => $nominal,
-            'status' => $validated['status'],
+            'status' => 'belum_lunas',
             'catatan' => $validated['catatan'] ?? null,
         ]);
 
@@ -690,6 +692,11 @@ class SppSiswaController extends Controller
     private function fixedBillType(): string
     {
         return 'SPP';
+    }
+
+    private function resolveMonthEndDueDate(Carbon $periodeDate): string
+    {
+        return $periodeDate->copy()->endOfMonth()->toDateString();
     }
 
     private function isAdminSppRole(?string $role = null): bool

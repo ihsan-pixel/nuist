@@ -327,18 +327,16 @@
                             <label class="form-label">Jenis Tagihan</label>
                             <input type="text" class="form-control" value="SPP" readonly>
                         </div>
-                        <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" required></div>
-                        <div class="col-md-6">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select" required>
-                                <option value="belum_lunas">Belum Lunas</option>
-                                <option value="sebagian">Sebagian</option>
-                                <option value="lunas">Lunas</option>
-                            </select>
+                        <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" id="createTagihanPeriode" class="form-control" value="{{ old('periode') }}" required></div>
+                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" id="createTagihanJatuhTempo" class="form-control" value="{{ old('jatuh_tempo') }}"></div>
+                        <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" value="{{ old('nominal') }}" required></div>
+                        <div class="col-md-12">
+                            <div class="alert alert-light border mb-0">
+                                Status tagihan akan otomatis disimpan sebagai <strong>Belum Lunas</strong>.
+                                Jatuh tempo akan otomatis terisi tanggal terakhir dari bulan dan tahun pada periode yang dipilih, tetapi masih bisa Anda edit manual.
+                            </div>
                         </div>
-                        <div class="col-md-6"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control"></div>
+                        <div class="col-md-12"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control" value="{{ old('catatan') }}"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -349,4 +347,42 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const periodeInput = document.getElementById('createTagihanPeriode');
+    const jatuhTempoInput = document.getElementById('createTagihanJatuhTempo');
+
+    if (!periodeInput || !jatuhTempoInput) {
+        return;
+    }
+
+    const formatMonthEnd = (periode) => {
+        if (!periode || !/^\d{4}-\d{2}$/.test(periode)) {
+            return '';
+        }
+
+        const [year, month] = periode.split('-').map(Number);
+        const lastDay = new Date(year, month, 0).getDate();
+
+        return `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    };
+
+    const syncJatuhTempo = () => {
+        const autoDate = formatMonthEnd(periodeInput.value);
+
+        if (autoDate) {
+            jatuhTempoInput.value = autoDate;
+        }
+    };
+
+    if (!jatuhTempoInput.value && periodeInput.value) {
+        syncJatuhTempo();
+    }
+
+    periodeInput.addEventListener('change', syncJatuhTempo);
+});
+</script>
 @endsection
