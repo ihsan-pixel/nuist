@@ -37,7 +37,7 @@
     </div>
     <div class="col-md-6">
         <label class="form-label">Madrasah/Sekolah</label>
-        <select name="madrasah_id" class="form-select" required {{ $userRole === 'admin' ? 'disabled' : '' }}>
+        <select name="madrasah_id" class="form-select" required {{ in_array($userRole, ['admin', 'admin_spp']) ? 'disabled' : '' }}>
             <option value="">Pilih Madrasah</option>
             @foreach($madrasahOptions as $madrasah)
                 <option value="{{ $madrasah->id }}" {{ (string) old('madrasah_id', $siswa->madrasah_id ?? $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : '' }}>
@@ -45,7 +45,7 @@
                 </option>
             @endforeach
         </select>
-        @if($userRole === 'admin')
+        @if(in_array($userRole, ['admin', 'admin_spp']))
             <input type="hidden" name="madrasah_id" value="{{ old('madrasah_id', $siswa->madrasah_id ?? $selectedMadrasahId) }}">
         @endif
     </div>

@@ -18,11 +18,12 @@ class DataSiswaController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $madrasahOptions = $user->role === 'admin'
+        $userRole = $this->normalizedRole($user->role);
+        $madrasahOptions = $this->hasRestrictedMadrasahScope($userRole)
             ? Madrasah::query()->whereKey($user->madrasah_id)->orderBy('name')->get()
             : Madrasah::query()->orderBy('name')->get();
 
-        $selectedMadrasahId = $user->role === 'admin'
+        $selectedMadrasahId = $this->hasRestrictedMadrasahScope($userRole)
             ? $user->madrasah_id
             : $request->integer('madrasah_id');
 
@@ -69,7 +70,7 @@ class DataSiswaController extends Controller
             'madrasahOptions' => $madrasahOptions,
             'selectedMadrasahId' => $selectedMadrasahId,
             'stats' => $stats,
-            'userRole' => $user->role,
+            'userRole' => $userRole,
         ]);
     }
 
@@ -137,8 +138,9 @@ class DataSiswaController extends Controller
     public function import(Request $request): RedirectResponse
     {
         $user = auth()->user();
+        $userRole = $this->normalizedRole($user->role);
 
-        $madrasahRule = $user->role === 'admin'
+        $madrasahRule = $this->hasRestrictedMadrasahScope($userRole)
             ? Rule::in([$user->madrasah_id])
             : Rule::exists('madrasahs', 'id');
 
@@ -167,7 +169,7 @@ class DataSiswaController extends Controller
 
     private function validateSiswa(Request $request, $user, ?Siswa $siswa = null): array
     {
-        $madrasahRule = $user->role === 'admin'
+        $madrasahRule = $this->hasRestrictedMadrasahScope($this->normalizedRole($user->role))
             ? Rule::in([$user->madrasah_id])
             : Rule::exists('madrasahs', 'id');
 
@@ -198,7 +200,7 @@ class DataSiswaController extends Controller
 
     private function resolveMadrasah(int $madrasahId, $user): Madrasah
     {
-        if ($user->role === 'admin') {
+        if ($this->hasRestrictedMadrasahScope($this->normalizedRole($user->role))) {
             return Madrasah::query()->whereKey($user->madrasah_id)->firstOrFail();
         }
 
@@ -207,6 +209,20 @@ class DataSiswaController extends Controller
 
     private function authorizeSiswaAccess(Siswa $siswa, $user): void
     {
-        abort_if($user->role === 'admin' && (int) $user->madrasah_id !== (int) $siswa->madrasah_id, 403);
+        abort_if(
+            $this->hasRestrictedMadrasahScope($this->normalizedRole($user->role))
+            && (int) $user->madrasah_id !== (int) $siswa->madrasah_id,
+            403
+        );
+    }
+
+    private function hasRestrictedMadrasahScope(string $userRole): bool
+    {
+        return in_array($userRole, ['admin', 'admin_spp'], true);
+    }
+
+    private function normalizedRole(?string $role): string
+    {
+        return preg_replace('/\s+/', '_', trim(strtolower((string) $role))) ?? '';
     }
 }

@@ -163,7 +163,7 @@
     <div class="card-body">
         <form method="GET" action="{{ route('data-sekolah.data-siswa.index') }}">
             <div class="row g-3 align-items-end">
-                @if($userRole !== 'admin')
+                @if(!in_array($userRole, ['admin', 'admin_spp']))
                 <div class="col-md-3">
                     <label for="madrasah_id" class="form-label">Madrasah</label>
                     <select name="madrasah_id" id="madrasah_id" class="form-select">
@@ -350,7 +350,7 @@
                     <div class="alert alert-warning mb-3">
                         Gunakan template resmi agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS atau email sudah ada, data akan diperbarui.
                     </div>
-                    @if($userRole !== 'admin')
+                    @if(!in_array($userRole, ['admin', 'admin_spp']))
                         <div class="mb-3">
                             <label for="import_madrasah_id" class="form-label">Madrasah/Sekolah</label>
                             <select class="form-select" id="import_madrasah_id" name="madrasah_id" required>
