@@ -343,13 +343,13 @@
                 @endif
 
                 @if(in_array($userRole, ['super_admin', 'admin_spp', 'pengurus']))
-                <li class="menu-title">SPP SISWA</li>
+                {{-- <li class="menu-title">SPP SISWA</li> --}}
 
                 @if($userRole === 'admin_spp')
                 <li>
                     <a href="{{ route('spp-siswa.dashboard') }}" class="waves-effect">
                         <i class="bx bx-grid-alt"></i>
-                        <span>Dashboard SPP Siswa</span>
+                        <span>Dashboard</span>
                     </a>
                 </li>
                 <li>
