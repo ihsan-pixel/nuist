@@ -211,7 +211,7 @@ Login Operator SPP
     }
 
     .brand-logo {
-        width: 72px;
+        width: 100px;
         height: auto;
     }
 
