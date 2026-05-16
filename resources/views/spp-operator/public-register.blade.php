@@ -18,9 +18,9 @@ Pendaftaran Operator SPP
 <div class="spp-register-shell">
     <div class="spp-register-grid">
         <section class="spp-register-hero">
-            <div class="spp-register-badge">Pendaftaran Public</div>
+            <div class="spp-register-badge">Pendaftaran</div>
             <h1>Pendaftaran Operator SPP Sekolah</h1>
-            <p>Ajukan akun <strong>Admin SPP</strong> untuk sekolah Anda. Setiap sekolah hanya dapat mengajukan satu permohonan pendaftaran.</p>
+            <p>Ajukan akun <strong>Operator SPP</strong> untuk sekolah Anda. Setiap sekolah hanya dapat mengajukan satu permohonan pendaftaran.</p>
 
             <div class="spp-register-points">
                 <div class="point-card">
@@ -28,11 +28,11 @@ Pendaftaran Operator SPP
                     <span>Sekolah yang sudah pernah mendaftar tidak dapat mengirim pendaftaran ulang.</span>
                 </div>
                 <div class="point-card">
-                    <strong>Email Harus Unik</strong>
+                    <strong>Email Aktif</strong>
                     <span>Email pendaftar wajib belum pernah dipakai di sistem dan akan menjadi email login.</span>
                 </div>
                 <div class="point-card">
-                    <strong>Approval Super Admin</strong>
+                    <strong>Approval Operator Nuist</strong>
                     <span>Akun dibuat otomatis setelah disetujui, lalu password dikirim ke email pendaftar.</span>
                 </div>
             </div>
@@ -43,7 +43,7 @@ Pendaftaran Operator SPP
                 <img src="{{ asset('images/logo1.png') }}" alt="NUist" class="brand-logo">
                 <div>
                     <h2>Form Operator SPP</h2>
-                    <p>Lengkapi data penanggung jawab akun sekolah.</p>
+                    <p>Lengkapi data Operator akun sekolah.</p>
                 </div>
             </div>
 
@@ -81,13 +81,13 @@ Pendaftaran Operator SPP
                     </div>
 
                     <div class="form-block">
-                        <label for="name">Nama Penanggung Jawab</label>
+                        <label for="name">Nama User Operator SPP Sekolah</label>
                         <input id="name" type="text" name="name" class="form-control" value="{{ old('name') }}" required>
                     </div>
 
                     <div class="form-block">
                         <label for="jabatan">Jabatan</label>
-                        <input id="jabatan" type="text" name="jabatan" class="form-control" value="{{ old('jabatan', 'Operator SPP') }}" required>
+                        <input id="jabatan" type="text" name="jabatan" class="form-control" value="{{ old('jabatan') }}" required>
                     </div>
 
                     <div class="form-block">
