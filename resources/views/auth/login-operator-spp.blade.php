@@ -97,7 +97,7 @@ Login Operator SPP
 
             <div class="action-links">
                 <a href="{{ route('spp-operator.register') }}">Ajukan akun Operator SPP</a>
-                <a href="{{ route('login') }}">Login umum NUist</a>
+                <a href="{{ route('login') }}">Login umum Nuist</a>
             </div>
         </section>
     </div>
