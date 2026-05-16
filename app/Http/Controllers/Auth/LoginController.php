@@ -39,6 +39,16 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+        if (isset($user->is_active) && !$user->is_active) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun Anda saat ini dinonaktifkan. Silakan hubungi Super Admin.',
+            ]);
+        }
+
         // Redirect pengurus users to mobile pengurus dashboard
         if ($user->role === 'pengurus') {
             return redirect()->route('dashboard');

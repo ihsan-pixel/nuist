@@ -41,6 +41,9 @@
                         <li><a href="{{ route('pengurus.index') }}">Data Pengurus</a></li>
                         @endif
                         <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
+                        @if($userRole === 'super_admin')
+                        <li><a href="{{ route('operator-spp.index') }}">Data Operator SPP</a></li>
+                        @endif
                         <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
                         <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
                         <li><a href="{{ route('class-student-counts.index') }}">Data Jml Siswa per Kelas</a></li>

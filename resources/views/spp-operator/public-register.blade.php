@@ -1,0 +1,328 @@
+@extends('layouts.master-without-nav')
+
+@section('title')
+Pendaftaran Operator SPP
+@endsection
+
+@section('css')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+@endsection
+
+@section('body')
+    <body>
+@endsection
+
+@section('content')
+<div class="spp-register-shell">
+    <div class="spp-register-grid">
+        <section class="spp-register-hero">
+            <div class="spp-register-badge">Pendaftaran Public</div>
+            <h1>Pendaftaran Operator SPP Sekolah</h1>
+            <p>Ajukan akun <strong>Admin SPP</strong> untuk sekolah Anda. Setiap sekolah hanya dapat mengajukan satu permohonan pendaftaran.</p>
+
+            <div class="spp-register-points">
+                <div class="point-card">
+                    <strong>1 Permohonan per Sekolah</strong>
+                    <span>Sekolah yang sudah pernah mendaftar tidak dapat mengirim pendaftaran ulang.</span>
+                </div>
+                <div class="point-card">
+                    <strong>Email Harus Unik</strong>
+                    <span>Email pendaftar wajib belum pernah dipakai di sistem dan akan menjadi email login.</span>
+                </div>
+                <div class="point-card">
+                    <strong>Approval Super Admin</strong>
+                    <span>Akun dibuat otomatis setelah disetujui, lalu password dikirim ke email pendaftar.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="spp-register-card">
+            <div class="card-top">
+                <img src="{{ asset('images/logo1.png') }}" alt="NUist" class="brand-logo">
+                <div>
+                    <h2>Form Operator SPP</h2>
+                    <p>Lengkapi data penanggung jawab akun sekolah.</p>
+                </div>
+            </div>
+
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0 ps-3">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if($madrasahs->isEmpty())
+                <div class="alert alert-info mb-0">
+                    Seluruh sekolah yang tersedia sudah memiliki akun atau sudah pernah mengajukan Operator SPP.
+                </div>
+            @else
+                <form method="POST" action="{{ route('spp-operator.register.store') }}" class="spp-register-form">
+                    @csrf
+                    <div class="form-block full">
+                        <label for="madrasah_id">Sekolah</label>
+                        <select id="madrasah_id" name="madrasah_id" class="form-select" required>
+                            <option value="">Pilih sekolah</option>
+                            @foreach($madrasahs as $madrasah)
+                                <option value="{{ $madrasah->id }}" {{ old('madrasah_id') == $madrasah->id ? 'selected' : '' }}>
+                                    {{ $madrasah->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-block">
+                        <label for="name">Nama Penanggung Jawab</label>
+                        <input id="name" type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                    </div>
+
+                    <div class="form-block">
+                        <label for="jabatan">Jabatan</label>
+                        <input id="jabatan" type="text" name="jabatan" class="form-control" value="{{ old('jabatan', 'Operator SPP') }}" required>
+                    </div>
+
+                    <div class="form-block">
+                        <label for="email">Email Aktif</label>
+                        <input id="email" type="email" name="email" class="form-control" value="{{ old('email') }}" required>
+                    </div>
+
+                    <div class="form-block">
+                        <label for="no_hp">No. HP</label>
+                        <input id="no_hp" type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
+                    </div>
+
+                    <div class="notice-box">
+                        <strong>Catatan</strong>
+                        <span>Status akun akan direview oleh Super Admin. Password tidak diisi manual karena akan dibuat otomatis saat approval.</span>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Kirim Pendaftaran</button>
+                    <a href="{{ route('login') }}" class="back-link">Kembali ke login</a>
+                </form>
+            @endif
+        </section>
+    </div>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        background:
+            radial-gradient(circle at top left, rgba(20, 83, 45, 0.16), transparent 34%),
+            radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.18), transparent 36%),
+            linear-gradient(180deg, #f7faf9 0%, #eef4f2 100%);
+        font-family: 'Poppins', sans-serif;
+        color: #12312b;
+    }
+
+    .spp-register-shell {
+        min-height: 100vh;
+        padding: 36px 20px;
+    }
+
+    .spp-register-grid {
+        max-width: 1180px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 28px;
+        align-items: stretch;
+    }
+
+    .spp-register-hero,
+    .spp-register-card {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+    }
+
+    .spp-register-hero {
+        padding: 38px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .spp-register-badge {
+        display: inline-flex;
+        width: fit-content;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #dff7ec;
+        color: #166534;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+    }
+
+    .spp-register-hero h1 {
+        font-size: 42px;
+        line-height: 1.08;
+        margin: 0 0 16px;
+    }
+
+    .spp-register-hero p {
+        font-size: 16px;
+        color: #4b635d;
+        margin: 0 0 28px;
+        max-width: 620px;
+    }
+
+    .spp-register-points {
+        display: grid;
+        gap: 14px;
+    }
+
+    .point-card {
+        padding: 18px 20px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #ffffff 0%, #f6fbf9 100%);
+        border: 1px solid #dbe8e3;
+    }
+
+    .point-card strong,
+    .point-card span {
+        display: block;
+    }
+
+    .point-card strong {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    .point-card span {
+        color: #5b706a;
+        font-size: 14px;
+    }
+
+    .spp-register-card {
+        padding: 30px;
+    }
+
+    .card-top {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .brand-logo {
+        width: 72px;
+        height: auto;
+    }
+
+    .card-top h2 {
+        margin: 0 0 4px;
+        font-size: 26px;
+    }
+
+    .card-top p {
+        margin: 0;
+        color: #61766f;
+    }
+
+    .spp-register-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .form-block.full,
+    .notice-box,
+    .submit-btn,
+    .back-link {
+        grid-column: 1 / -1;
+    }
+
+    .form-block label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid #d5e2dc;
+        padding: 12px 14px;
+        min-height: 48px;
+        background: #fff;
+    }
+
+    .notice-box {
+        padding: 16px 18px;
+        border-radius: 16px;
+        background: #f6fbf8;
+        border: 1px dashed #bfd8ce;
+    }
+
+    .notice-box strong,
+    .notice-box span {
+        display: block;
+    }
+
+    .notice-box span {
+        color: #5c726c;
+        margin-top: 6px;
+    }
+
+    .submit-btn {
+        border: 0;
+        border-radius: 16px;
+        padding: 14px 18px;
+        background: linear-gradient(135deg, #14532d, #0f766e);
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .back-link {
+        text-align: center;
+        color: #14532d;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    @media (max-width: 991px) {
+        .spp-register-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .spp-register-hero h1 {
+            font-size: 34px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .spp-register-shell {
+            padding: 18px 12px;
+        }
+
+        .spp-register-card,
+        .spp-register-hero {
+            border-radius: 22px;
+            padding: 22px;
+        }
+
+        .spp-register-form {
+            grid-template-columns: 1fr;
+        }
+
+        .spp-register-hero h1 {
+            font-size: 30px;
+        }
+    }
+</style>
+@endsection

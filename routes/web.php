@@ -229,6 +229,9 @@ Route::get('/mobile/register', function () {
     return view('mobile.register', compact('madrasahs'));
 })->name('mobile.register');
 
+Route::get('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerForm'])->name('spp-operator.register');
+Route::post('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerStore'])->name('spp-operator.register.store');
+
 // Bundled APK entry (Plan B) - serves a local view that will be bundled into the APK
 Route::view('/mobile-app', 'mobile.index')->name('mobile.app');
 
@@ -469,6 +472,14 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::post('/yayasan/store', [App\Http\Controllers\YayasanController::class, 'store'])->name('yayasan.store');
     Route::put('/yayasan/update/{id}', [App\Http\Controllers\YayasanController::class, 'update'])->name('yayasan.update');
     Route::delete('/yayasan/destroy/{id}', [App\Http\Controllers\YayasanController::class, 'destroy'])->name('yayasan.destroy');
+});
+
+Route::prefix('masterdata')->middleware(['auth', 'role:super_admin'])->group(function () {
+    Route::get('/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'index'])->name('operator-spp.index');
+    Route::post('/operator-spp/{registration}/approve', [App\Http\Controllers\SppOperatorController::class, 'approve'])->name('operator-spp.approve');
+    Route::post('/operator-spp/{registration}/reject', [App\Http\Controllers\SppOperatorController::class, 'reject'])->name('operator-spp.reject');
+    Route::put('/operator-spp/accounts/{user}', [App\Http\Controllers\SppOperatorController::class, 'updateAccount'])->name('operator-spp.accounts.update');
+    Route::patch('/operator-spp/accounts/{user}/status', [App\Http\Controllers\SppOperatorController::class, 'updateAccountStatus'])->name('operator-spp.accounts.status');
 });
 
 // DPS (Dewan Pengawas Sekolah) - Super Admin only

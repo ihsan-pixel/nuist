@@ -121,6 +121,11 @@ class Madrasah extends Model
         return $this->hasMany(User::class, 'madrasah_id');
     }
 
+    public function sppOperatorRegistration()
+    {
+        return $this->hasOne(SppOperatorRegistration::class, 'madrasah_id');
+    }
+
     public function siswas()
     {
         return $this->hasMany(Siswa::class, 'madrasah_id');

@@ -42,6 +42,16 @@ class MobileAuthController extends Controller
 
         $user = Auth::user();
 
+        if (isset($user->is_active) && !$user->is_active) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('mobile.login')
+                ->withErrors(['email' => 'Akun Anda saat ini dinonaktifkan.'])
+                ->withInput($request->only('email'));
+        }
+
         if (!isset($user->role) || !in_array($user->role, ['tenaga_pendidik', 'siswa', 'dps'])) {
             Auth::logout();
             $request->session()->invalidate();

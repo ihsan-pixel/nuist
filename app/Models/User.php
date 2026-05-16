@@ -50,6 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'pemenuhan_beban_kerja_lain',
         'madrasah_id_tambahan',
         'password_changed',
+        'is_active',
         'last_seen',
         'jabatan',
     ];
@@ -67,6 +68,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'face_data' => 'array',
         'face_registered_at' => 'datetime',
         'face_verification_required' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     protected static function boot()
@@ -105,5 +107,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function pushDeviceTokens()
     {
         return $this->hasMany(PushDeviceToken::class, 'user_id');
+    }
+
+    public function approvedSppOperatorRegistration()
+    {
+        return $this->hasOne(SppOperatorRegistration::class, 'approved_user_id');
     }
 }

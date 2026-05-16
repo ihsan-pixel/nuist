@@ -122,6 +122,14 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        if (isset($user->is_active) && !$user->is_active) {
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Akun Anda saat ini dinonaktifkan.',
+            ], 403);
+        }
+
         if (!in_array($user->role, ['tenaga_pendidik', 'siswa'])) {
             Auth::logout();
 
