@@ -19,21 +19,60 @@ class SppOperatorController extends Controller
 {
     public function registerForm(): View
     {
-        $madrasahs = Madrasah::query()
-            ->whereDoesntHave('users', function ($query) {
-                $query->where('role', 'admin_spp');
-            })
-            ->whereDoesntHave('sppOperatorRegistration')
-            ->orderByRaw('COALESCE(scod, name) asc')
-            ->get(['id', 'name', 'kabupaten']);
+        $matchedMadrasah = null;
+        $oldScod = trim((string) old('scod'));
 
-        return view('spp-operator.public-register', compact('madrasahs'));
+        if ($oldScod !== '') {
+            $matchedMadrasah = Madrasah::query()
+                ->where('scod', $oldScod)
+                ->first(['id', 'name', 'kabupaten', 'scod']);
+        }
+
+        return view('spp-operator.public-register', compact('matchedMadrasah'));
+    }
+
+    public function lookupSchool(Request $request)
+    {
+        $scod = trim((string) $request->query('scod', ''));
+
+        if ($scod === '') {
+            return response()->json([
+                'found' => false,
+                'message' => 'SCOD wajib diisi.',
+            ], 422);
+        }
+
+        $madrasah = Madrasah::query()
+            ->where('scod', $scod)
+            ->first(['id', 'name', 'kabupaten', 'scod']);
+
+        if (!$madrasah) {
+            return response()->json([
+                'found' => false,
+                'message' => 'SCOD tidak ditemukan.',
+            ], 404);
+        }
+
+        if ($this->madrasahAlreadyHasOperator($madrasah->id)) {
+            return response()->json([
+                'found' => true,
+                'available' => false,
+                'madrasah' => $madrasah,
+                'message' => 'Sekolah ini sudah pernah mengajukan atau sudah memiliki akun Operator SPP.',
+            ]);
+        }
+
+        return response()->json([
+            'found' => true,
+            'available' => true,
+            'madrasah' => $madrasah,
+        ]);
     }
 
     public function registerStore(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'madrasah_id' => ['required', 'integer', 'exists:madrasahs,id'],
+            'scod' => ['required', 'string', 'max:50'],
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -46,16 +85,26 @@ class SppOperatorController extends Controller
             'no_hp' => ['nullable', 'string', 'max:32'],
             'jabatan' => ['required', 'string', 'max:100'],
         ], [
-            'madrasah_id.required' => 'Sekolah wajib dipilih.',
+            'scod.required' => 'SCOD sekolah wajib diisi.',
             'email.unique' => 'Email sudah terdaftar atau sudah pernah digunakan untuk pendaftaran operator SPP.',
         ]);
 
-        $madrasah = Madrasah::findOrFail($validated['madrasah_id']);
+        $madrasah = Madrasah::query()
+            ->where('scod', trim((string) $validated['scod']))
+            ->first();
+
+        if (!$madrasah) {
+            return back()
+                ->withErrors([
+                    'scod' => 'SCOD sekolah tidak ditemukan.',
+                ])
+                ->withInput();
+        }
 
         if ($this->madrasahAlreadyHasOperator($madrasah->id)) {
             return back()
                 ->withErrors([
-                    'madrasah_id' => 'Sekolah ini sudah pernah mengajukan atau sudah memiliki akun Operator SPP.',
+                    'scod' => 'Sekolah ini sudah pernah mengajukan atau sudah memiliki akun Operator SPP.',
                 ])
                 ->withInput();
         }

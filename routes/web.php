@@ -230,6 +230,7 @@ Route::get('/mobile/register', function () {
 })->name('mobile.register');
 
 Route::get('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerForm'])->name('spp-operator.register');
+Route::get('/register/operator-spp/lookup-school', [App\Http\Controllers\SppOperatorController::class, 'lookupSchool'])->name('spp-operator.lookup-school');
 Route::post('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerStore'])->name('spp-operator.register.store');
 
 // Bundled APK entry (Plan B) - serves a local view that will be bundled into the APK

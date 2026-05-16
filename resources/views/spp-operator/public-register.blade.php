@@ -61,54 +61,60 @@ Pendaftaran Operator SPP
                 </div>
             @endif
 
-            @if($madrasahs->isEmpty())
-                <div class="alert alert-info mb-0">
-                    Seluruh sekolah yang tersedia sudah memiliki akun atau sudah pernah mengajukan Operator SPP.
+            <form method="POST" action="{{ route('spp-operator.register.store') }}" class="spp-register-form">
+                @csrf
+                <div class="form-block">
+                    <label for="scod">SCOD Sekolah</label>
+                    <input id="scod" type="text" name="scod" class="form-control" value="{{ old('scod') }}" placeholder="Ketik SCOD sekolah" required>
                 </div>
-            @else
-                <form method="POST" action="{{ route('spp-operator.register.store') }}" class="spp-register-form">
-                    @csrf
-                    <div class="form-block full">
-                        <label for="madrasah_id">Sekolah</label>
-                        <select id="madrasah_id" name="madrasah_id" class="form-select" required>
-                            <option value="">Pilih sekolah</option>
-                            @foreach($madrasahs as $madrasah)
-                                <option value="{{ $madrasah->id }}" {{ old('madrasah_id') == $madrasah->id ? 'selected' : '' }}>
-                                    {{ $madrasah->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
 
-                    <div class="form-block">
-                        <label for="name">Nama User Operator SPP Sekolah</label>
-                        <input id="name" type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                <div class="form-block">
+                    <label for="madrasah_name">Sekolah</label>
+                    <input
+                        id="madrasah_name"
+                        type="text"
+                        class="form-control"
+                        value="{{ $matchedMadrasah?->name }}"
+                        placeholder="Nama sekolah akan terisi otomatis"
+                        readonly
+                    >
+                    <div id="scodHelp" class="field-help">
+                        @if($matchedMadrasah)
+                            {{ $matchedMadrasah->kabupaten ? $matchedMadrasah->kabupaten . ' • ' : '' }}SCOD terdeteksi
+                        @else
+                            Ketik SCOD sekolah untuk memunculkan nama sekolah otomatis.
+                        @endif
                     </div>
+                </div>
 
-                    <div class="form-block">
-                        <label for="jabatan">Jabatan</label>
-                        <input id="jabatan" type="text" name="jabatan" class="form-control" value="{{ old('jabatan') }}" required>
-                    </div>
+                <div class="form-block">
+                    <label for="name">Nama User Operator SPP Sekolah</label>
+                    <input id="name" type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                </div>
 
-                    <div class="form-block">
-                        <label for="email">Email Aktif</label>
-                        <input id="email" type="email" name="email" class="form-control" value="{{ old('email') }}" required>
-                    </div>
+                <div class="form-block">
+                    <label for="jabatan">Jabatan</label>
+                    <input id="jabatan" type="text" name="jabatan" class="form-control" value="{{ old('jabatan') }}" required>
+                </div>
 
-                    <div class="form-block">
-                        <label for="no_hp">No. HP</label>
-                        <input id="no_hp" type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
-                    </div>
+                <div class="form-block">
+                    <label for="email">Email Aktif</label>
+                    <input id="email" type="email" name="email" class="form-control" value="{{ old('email') }}" required>
+                </div>
 
-                    <div class="notice-box">
-                        <strong>Catatan</strong>
-                        <span>Status akun akan direview oleh Super Admin. Password tidak diisi manual karena akan dibuat otomatis saat approval.</span>
-                    </div>
+                <div class="form-block">
+                    <label for="no_hp">No. HP</label>
+                    <input id="no_hp" type="text" name="no_hp" class="form-control" value="{{ old('no_hp') }}">
+                </div>
 
-                    <button type="submit" class="submit-btn">Kirim Pendaftaran</button>
-                    <a href="{{ route('login') }}" class="back-link">Kembali ke login</a>
-                </form>
-            @endif
+                <div class="notice-box">
+                    <strong>Catatan</strong>
+                    <span>Status akun akan direview oleh Super Admin. Password tidak diisi manual karena akan dibuat otomatis saat approval.</span>
+                </div>
+
+                <button type="submit" class="submit-btn">Kirim Pendaftaran</button>
+                <a href="{{ route('login') }}" class="back-link">Kembali ke login</a>
+            </form>
         </section>
     </div>
 </div>
@@ -262,6 +268,20 @@ Pendaftaran Operator SPP
         background: #fff;
     }
 
+    .field-help {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #5c726c;
+    }
+
+    .field-help.error {
+        color: #b42318;
+    }
+
+    .field-help.success {
+        color: #166534;
+    }
+
     .notice-box {
         padding: 16px 18px;
         border-radius: 16px;
@@ -325,4 +345,83 @@ Pendaftaran Operator SPP
         }
     }
 </style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var scodInput = document.getElementById('scod');
+        var madrasahNameInput = document.getElementById('madrasah_name');
+        var scodHelp = document.getElementById('scodHelp');
+        var lookupUrl = '{{ route('spp-operator.lookup-school') }}';
+        var lookupTimer = null;
+
+        if (!scodInput || !madrasahNameInput || !scodHelp) {
+            return;
+        }
+
+        function setState(message, type, schoolName) {
+            scodHelp.textContent = message;
+            scodHelp.classList.remove('error', 'success');
+
+            if (type) {
+                scodHelp.classList.add(type);
+            }
+
+            madrasahNameInput.value = schoolName || '';
+        }
+
+        function lookupSchool() {
+            var scod = scodInput.value.trim();
+
+            if (!scod) {
+                setState('Ketik SCOD sekolah untuk memunculkan nama sekolah otomatis.', '', '');
+                return;
+            }
+
+            setState('Memeriksa SCOD sekolah...', '', '');
+
+            fetch(lookupUrl + '?scod=' + encodeURIComponent(scod), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    return { ok: response.ok, status: response.status, data: data };
+                });
+            })
+            .then(function (result) {
+                if (!result.ok && result.status !== 404 && result.status !== 422) {
+                    throw new Error(result.data.message || 'Lookup SCOD gagal diproses.');
+                }
+
+                if (!result.data.found) {
+                    setState(result.data.message || 'SCOD tidak ditemukan.', 'error', '');
+                    return;
+                }
+
+                var schoolName = result.data.madrasah ? result.data.madrasah.name : '';
+                var kabupaten = result.data.madrasah && result.data.madrasah.kabupaten ? result.data.madrasah.kabupaten + ' • ' : '';
+
+                if (result.data.available === false) {
+                    setState((result.data.message || 'Sekolah tidak tersedia.') + ' (' + schoolName + ')', 'error', schoolName);
+                    return;
+                }
+
+                setState(kabupaten + 'Sekolah ditemukan dan siap didaftarkan.', 'success', schoolName);
+            })
+            .catch(function () {
+                setState('Terjadi kesalahan saat memeriksa SCOD.', 'error', '');
+            });
+        }
+
+        scodInput.addEventListener('input', function () {
+            clearTimeout(lookupTimer);
+            lookupTimer = setTimeout(lookupSchool, 350);
+        });
+
+        if (scodInput.value.trim() !== '') {
+            lookupSchool();
+        }
+    });
+</script>
 @endsection
