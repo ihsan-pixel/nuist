@@ -82,7 +82,7 @@ Pendaftaran Operator SPP
                         @if($matchedMadrasah)
                             {{ $matchedMadrasah->kabupaten ? $matchedMadrasah->kabupaten . ' • ' : '' }}SCOD terdeteksi
                         @else
-                            Ketik SCOD sekolah untuk memunculkan nama sekolah otomatis.
+                            {{-- Ketik SCOD sekolah untuk memunculkan nama sekolah otomatis. --}}
                         @endif
                     </div>
                 </div>
