@@ -43,7 +43,7 @@ Pendaftaran Operator SPP
                 <img src="{{ asset('images/logo1.png') }}" alt="NUist" class="brand-logo">
                 <div>
                     <h2>Form Operator SPP</h2>
-                    <p>Lengkapi data Operator akun sekolah.</p>
+                    <p>Lengkapi data akun Operator SPP Sekolah.</p>
                 </div>
             </div>
 
