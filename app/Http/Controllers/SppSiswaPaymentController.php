@@ -68,7 +68,8 @@ class SppSiswaPaymentController extends Controller
     private function ensureMadrasahAccess(SppSiswaBill $bill): void
     {
         $user = auth()->user();
+        $userRole = preg_replace('/\s+/', '_', trim(strtolower((string) $user->role))) ?? '';
 
-        abort_if($user->role === 'admin' && (int) $user->madrasah_id !== (int) $bill->madrasah_id, 403);
+        abort_if(in_array($userRole, ['admin', 'admin_spp'], true) && (int) $user->madrasah_id !== (int) $bill->madrasah_id, 403);
     }
 }

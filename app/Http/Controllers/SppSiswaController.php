@@ -388,7 +388,6 @@ class SppSiswaController extends Controller
             'tanggal_bayar' => ['required', 'date'],
             'nominal_bayar' => ['required', 'numeric', 'min:0'],
             'metode_pembayaran' => ['required', 'string', 'max:100'],
-            'status_verifikasi' => ['required', Rule::in(['menunggu', 'diverifikasi', 'ditolak'])],
             'keterangan' => ['nullable', 'string'],
         ]);
 
@@ -404,7 +403,7 @@ class SppSiswaController extends Controller
                 'tanggal_bayar' => $validated['tanggal_bayar'],
                 'nominal_bayar' => $validated['nominal_bayar'],
                 'metode_pembayaran' => $validated['metode_pembayaran'],
-                'status_verifikasi' => $validated['status_verifikasi'],
+                'status_verifikasi' => 'diverifikasi',
                 'keterangan' => $validated['keterangan'] ?? null,
                 'created_by' => auth()->id(),
             ]);

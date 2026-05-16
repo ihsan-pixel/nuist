@@ -24,7 +24,7 @@
     <div class="card-body d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
         <div>
             <h4 class="mb-1">Transaksi SPP Siswa</h4>
-            <p class="text-muted mb-0">Pencatatan pembayaran SPP siswa baru yang terhubung ke tagihan SPP siswa.</p>
+            <p class="text-muted mb-0">Monitoring pembayaran SPP siswa. Transaksi BNI Virtual Account akan diperbarui otomatis melalui callback bank.</p>
         </div>
         {{-- <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTransactionModal"><i class="bx bx-plus me-1"></i>Tambah Transaksi</button> --}}
     </div>
@@ -46,12 +46,12 @@
                     </div>
                 @endif
                 <div class="col-md-3">
-                    <label class="form-label">Verifikasi</label>
+                    <label class="form-label">Status Pembayaran</label>
                     <select name="status_verifikasi" class="form-select">
                         <option value="">Semua</option>
-                        <option value="menunggu" @selected(request('status_verifikasi') === 'menunggu')>Menunggu</option>
-                        <option value="diverifikasi" @selected(request('status_verifikasi') === 'diverifikasi')>Diverifikasi</option>
-                        <option value="ditolak" @selected(request('status_verifikasi') === 'ditolak')>Ditolak</option>
+                        <option value="menunggu" @selected(request('status_verifikasi') === 'menunggu')>Menunggu Callback</option>
+                        <option value="diverifikasi" @selected(request('status_verifikasi') === 'diverifikasi')>Berhasil</option>
+                        <option value="ditolak" @selected(request('status_verifikasi') === 'ditolak')>Gagal</option>
                     </select>
                 </div>
                 <div class="col-md-4"><label class="form-label">Pencarian</label><input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="No transaksi, nama, NIS"></div>
@@ -75,7 +75,7 @@
                         <th>Nominal</th>
                         <th>Metode</th>
                         <th>VA</th>
-                        <th>Verifikasi</th>
+                        <th>Status Pembayaran</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -99,7 +99,11 @@
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
-                        <td><span class="badge bg-{{ $transaction->status_verifikasi === 'diverifikasi' ? 'success' : ($transaction->status_verifikasi === 'ditolak' ? 'danger' : 'warning') }}">{{ ucfirst($transaction->status_verifikasi) }}</span></td>
+                        <td>
+                            <span class="badge bg-{{ $transaction->status_verifikasi === 'diverifikasi' ? 'success' : ($transaction->status_verifikasi === 'ditolak' ? 'danger' : 'warning text-dark') }}">
+                                {{ $transaction->status_verifikasi === 'diverifikasi' ? 'Berhasil' : ($transaction->status_verifikasi === 'ditolak' ? 'Gagal' : 'Menunggu Callback') }}
+                            </span>
+                        </td>
                     </tr>
                 @empty
                     <tr><td colspan="9" class="text-center text-muted">Belum ada transaksi SPP siswa.</td></tr>
@@ -134,15 +138,20 @@
                         <div class="col-md-3"><label class="form-label">Tanggal Bayar</label><input type="date" name="tanggal_bayar" class="form-control" required></div>
                         <div class="col-md-3"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal_bayar" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Metode Pembayaran</label><input type="text" name="metode_pembayaran" class="form-control" placeholder="Transfer, Cash, QRIS, Virtual Account" required></div>
-                        <div class="col-md-4">
-                            <label class="form-label">Status Verifikasi</label>
-                            <select name="status_verifikasi" class="form-select" required>
-                                <option value="menunggu">Menunggu</option>
-                                <option value="diverifikasi">Diverifikasi</option>
-                                <option value="ditolak">Ditolak</option>
-                            </select>
+                        <div class="col-md-8">
+                            <label class="form-label">Keterangan</label>
+                            <input type="text" name="keterangan" class="form-control">
                         </div>
-                        <div class="col-md-4"><label class="form-label">Keterangan</label><input type="text" name="keterangan" class="form-control"></div>
+                        <div class="col-md-12">
+                            <div class="alert alert-light border mb-0">
+                                <div class="fw-semibold mb-2">Informasi transaksi</div>
+                                <ul class="mb-0 ps-3">
+                                    <li>Transaksi input manual akan otomatis disimpan sebagai <strong>Berhasil</strong>.</li>
+                                    <li>Transaksi BNI Virtual Account akan menunggu pembaruan status otomatis dari callback bank.</li>
+                                    <li>Tidak ada proses verifikasi manual operator pada modul ini.</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

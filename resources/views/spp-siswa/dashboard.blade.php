@@ -317,12 +317,12 @@
             <div class="spp-desktop-card spp-stat-card">
                 <div class="spp-stat-head">
                     <div>
-                        <div class="spp-stat-label">Menunggu Verifikasi</div>
+                        <div class="spp-stat-label">Menunggu Callback</div>
                         <p class="spp-stat-value">{{ number_format($monitoring['pending_verification']) }}</p>
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #9b4437, #d46e5c);"><i class="bx bx-revision"></i></span>
                 </div>
-                <div class="spp-stat-foot">Transaksi pembayaran yang masih perlu dicek oleh operator.</div>
+                <div class="spp-stat-foot">Transaksi BNI Virtual Account yang masih menunggu status final dari callback bank.</div>
             </div>
         </div>
     </div>
@@ -367,7 +367,7 @@
                             <div class="rounded-4 p-3" style="background: #fff8f3;">
                                 <div class="spp-stat-label mb-2">Outstanding</div>
                                 <div class="h3 mb-1 text-dark">Rp {{ number_format($monitoring['outstanding_amount'], 0, ',', '.') }}</div>
-                                <div class="small text-muted">Sisa tagihan yang belum tercatat sebagai pembayaran terverifikasi.</div>
+                                <div class="small text-muted">Sisa tagihan yang belum tercatat sebagai pembayaran berhasil.</div>
                             </div>
                         </div>
                     </div>
@@ -383,8 +383,8 @@
                         <div class="col-md-3">
                             <a href="{{ route('spp-siswa.transaksi', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-wallet-alt"></i></span>
-                                <h6 class="mb-1">Verifikasi Pembayaran</h6>
-                                <div class="text-muted small">Pantau transaksi masuk dan status verifikasinya.</div>
+                                <h6 class="mb-1">Monitor Pembayaran</h6>
+                                <div class="text-muted small">Pantau transaksi masuk dan status callback pembayarannya.</div>
                             </a>
                         </div>
                         <div class="col-md-3">
