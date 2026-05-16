@@ -430,8 +430,11 @@ class SppSiswaController extends Controller
     {
         $scope = $this->resolveScope($request);
         $selectedMadrasahId = $scope['selectedMadrasahId'];
+        $studentQuery = $this->studentQuery($selectedMadrasahId);
+        $billQuery = $this->billQuery($selectedMadrasahId);
+        $transactionQuery = $this->transactionQuery($selectedMadrasahId);
 
-        $reportRows = $this->studentQuery($selectedMadrasahId)
+        $reportRows = (clone $studentQuery)
             ->withCount([
                 'sppBills as total_tagihan',
                 'sppBills as tagihan_lunas' => fn ($query) => $query->where('status', 'lunas'),
@@ -454,6 +457,13 @@ class SppSiswaController extends Controller
             'selectedMadrasahId' => $selectedMadrasahId,
             'reportRows' => $reportRows,
             'classSummary' => $classSummary,
+            'reportSummary' => [
+                'total_siswa' => (clone $studentQuery)->count(),
+                'total_kelas' => (clone $studentQuery)->distinct()->count('kelas'),
+                'total_tagihan' => (clone $billQuery)->count(),
+                'nominal_tagihan' => (clone $billQuery)->sum('total_tagihan'),
+                'nominal_terbayar' => (clone $transactionQuery)->where('status_verifikasi', 'diverifikasi')->sum('nominal_bayar'),
+            ],
             'userRole' => $this->normalizedRole(),
         ]);
     }
