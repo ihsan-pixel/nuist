@@ -25,7 +25,7 @@ class SppOperatorController extends Controller
             })
             ->whereDoesntHave('sppOperatorRegistration')
             ->orderByRaw('COALESCE(scod, name) asc')
-            ->get(['id', 'name', 'kabupaten', 'email']);
+            ->get(['id', 'name', 'kabupaten']);
 
         return view('spp-operator.public-register', compact('madrasahs'));
     }
