@@ -343,7 +343,7 @@
                 @endif
 
                 @if(in_array($userRole, ['super_admin', 'admin_spp', 'pengurus']))
-                {{-- <li class="menu-title">SPP SISWA</li> --}}
+                <li class="menu-title">MENU SPP</li>
 
                 @if($userRole === 'admin_spp')
                 <li>
