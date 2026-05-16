@@ -353,6 +353,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('data-sekolah.data-siswa.index') }}" class="waves-effect">
+                        <i class="bx bx-user-circle"></i>
+                        <span>Data Siswa</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('spp-siswa.tagihan') }}" class="waves-effect">
                         <i class="bx bx-receipt"></i>
                         <span>Tagihan</span>
