@@ -332,8 +332,12 @@
                         <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" value="{{ old('nominal') }}" required></div>
                         <div class="col-md-12">
                             <div class="alert alert-light border mb-0">
-                                Status tagihan akan otomatis disimpan sebagai <strong>Belum Lunas</strong>.
-                                Jatuh tempo akan otomatis terisi tanggal terakhir dari bulan dan tahun pada periode yang dipilih, tetapi masih bisa Anda edit manual.
+                                <div class="fw-semibold mb-2">Informasi pembuatan tagihan</div>
+                                <ul class="mb-0 ps-3">
+                                    <li>Status tagihan akan otomatis disimpan sebagai <strong>Belum Lunas</strong>.</li>
+                                    <li>Jatuh tempo akan otomatis terisi tanggal terakhir dari bulan dan tahun pada periode yang dipilih.</li>
+                                    <li>Tanggal jatuh tempo tetap dapat disesuaikan secara manual sebelum tagihan disimpan.</li>
+                                </ul>
                             </div>
                         </div>
                         <div class="col-md-12"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control" value="{{ old('catatan') }}"></div>
