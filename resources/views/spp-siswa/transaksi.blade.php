@@ -24,7 +24,7 @@
     <div class="card-body d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
         <div>
             <h4 class="mb-1">Transaksi SPP Siswa</h4>
-            <p class="text-muted mb-0">Monitoring pembayaran SPP siswa. Transaksi BNI Virtual Account akan diperbarui otomatis melalui callback bank.</p>
+            <p class="text-muted mb-0">Monitoring pembayaran SPP siswa. Transaksi BNI Virtual Account akan diperbarui otomatis.</p>
         </div>
         {{-- <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTransactionModal"><i class="bx bx-plus me-1"></i>Tambah Transaksi</button> --}}
     </div>
@@ -147,7 +147,7 @@
                                 <div class="fw-semibold mb-2">Informasi transaksi</div>
                                 <ul class="mb-0 ps-3">
                                     <li>Transaksi input manual akan otomatis disimpan sebagai <strong>Berhasil</strong>.</li>
-                                    <li>Transaksi BNI Virtual Account akan berstatus <strong>Pending</strong> sampai callback bank diterima.</li>
+                                    <li>Transaksi BNI Virtual Account akan berstatus <strong>Pending</strong>.</li>
                                     <li>Tidak ada proses verifikasi manual operator pada modul ini.</li>
                                 </ul>
                             </div>
