@@ -12,7 +12,7 @@
                     $userRole = auth()->user()
                         ? preg_replace('/\s+/', '_', trim(strtolower((string) auth()->user()->role)))
                         : '';
-                    $dashboardRoles = ['super_admin', 'admin', 'admin_spp'];
+                    $dashboardRoles = ['super_admin', 'admin'];
                     $masterDataRoles = ['super_admin', 'admin'];
                     $showDashboardMenu = in_array($userRole, $dashboardRoles);
                     $showMasterDataMenu = in_array($userRole, $masterDataRoles);
