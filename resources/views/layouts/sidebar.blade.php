@@ -345,19 +345,52 @@
                 @if(in_array($userRole, ['super_admin', 'admin_spp', 'pengurus']))
                 <li class="menu-title">SPP SISWA</li>
 
+                @if($userRole === 'admin_spp')
                 <li>
-                    <a href="#sppSiswaSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
-                        <i class="bx bx-wallet-alt"></i>
-                        <span>SPP Siswa</span>
+                    <a href="{{ route('spp-siswa.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-grid-alt"></i>
+                        <span>Dashboard SPP Siswa</span>
                     </a>
-                    <ul class="sub-menu collapse" id="sppSiswaSubmenu">
-                        <li><a href="{{ route('spp-siswa.dashboard') }}">Dashboard SPP Siswa</a></li>
-                        <li><a href="{{ route('spp-siswa.tagihan') }}">Tagihan</a></li>
-                        <li><a href="{{ route('spp-siswa.transaksi') }}">Transaksi</a></li>
-                        <li><a href="{{ route('spp-siswa.laporan') }}">Laporan</a></li>
-                        <li><a href="{{ route('spp-siswa.pengaturan') }}">Pengaturan</a></li>
-                    </ul>
                 </li>
+                <li>
+                    <a href="{{ route('spp-siswa.tagihan') }}" class="waves-effect">
+                        <i class="bx bx-receipt"></i>
+                        <span>Tagihan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('spp-siswa.transaksi') }}" class="waves-effect">
+                        <i class="bx bx-credit-card"></i>
+                        <span>Transaksi</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('spp-siswa.laporan') }}" class="waves-effect">
+                        <i class="bx bx-bar-chart-alt-2"></i>
+                        <span>Laporan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('spp-siswa.pengaturan') }}" class="waves-effect">
+                        <i class="bx bx-cog"></i>
+                        <span>Pengaturan</span>
+                    </a>
+                </li>
+                @else
+                    <li>
+                        <a href="#sppSiswaSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                            <i class="bx bx-wallet-alt"></i>
+                            <span>SPP Siswa</span>
+                        </a>
+                        <ul class="sub-menu collapse" id="sppSiswaSubmenu">
+                            <li><a href="{{ route('spp-siswa.dashboard') }}">Dashboard SPP Siswa</a></li>
+                            <li><a href="{{ route('spp-siswa.tagihan') }}">Tagihan</a></li>
+                            <li><a href="{{ route('spp-siswa.transaksi') }}">Transaksi</a></li>
+                            <li><a href="{{ route('spp-siswa.laporan') }}">Laporan</a></li>
+                            <li><a href="{{ route('spp-siswa.pengaturan') }}">Pengaturan</a></li>
+                        </ul>
+                    </li>
+                @endif
                 @endif
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
