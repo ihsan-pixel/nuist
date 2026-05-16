@@ -225,7 +225,7 @@ Pendaftaran Operator SPP
     }
 
     .brand-logo {
-        width: 72px;
+        width: 90px;
         height: auto;
     }
 
