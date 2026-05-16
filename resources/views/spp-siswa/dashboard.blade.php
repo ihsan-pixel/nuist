@@ -317,12 +317,12 @@
             <div class="spp-desktop-card spp-stat-card">
                 <div class="spp-stat-head">
                     <div>
-                        <div class="spp-stat-label">Menunggu Callback</div>
+                        <div class="spp-stat-label">Pending</div>
                         <p class="spp-stat-value">{{ number_format($monitoring['pending_verification']) }}</p>
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #9b4437, #d46e5c);"><i class="bx bx-revision"></i></span>
                 </div>
-                <div class="spp-stat-foot">Transaksi BNI Virtual Account yang masih menunggu status final dari callback bank.</div>
+                <div class="spp-stat-foot">Transaksi BNI Virtual Account yang masih pending sampai callback bank diproses.</div>
             </div>
         </div>
     </div>

@@ -49,7 +49,7 @@
                     <label class="form-label">Status Pembayaran</label>
                     <select name="status_verifikasi" class="form-select">
                         <option value="">Semua</option>
-                        <option value="menunggu" @selected(request('status_verifikasi') === 'menunggu')>Menunggu Callback</option>
+                        <option value="menunggu" @selected(request('status_verifikasi') === 'menunggu')>Pending</option>
                         <option value="diverifikasi" @selected(request('status_verifikasi') === 'diverifikasi')>Berhasil</option>
                         <option value="ditolak" @selected(request('status_verifikasi') === 'ditolak')>Gagal</option>
                     </select>
@@ -101,7 +101,7 @@
                         </td>
                         <td>
                             <span class="badge bg-{{ $transaction->status_verifikasi === 'diverifikasi' ? 'success' : ($transaction->status_verifikasi === 'ditolak' ? 'danger' : 'warning text-dark') }}">
-                                {{ $transaction->status_verifikasi === 'diverifikasi' ? 'Berhasil' : ($transaction->status_verifikasi === 'ditolak' ? 'Gagal' : 'Menunggu Callback') }}
+                                {{ $transaction->status_verifikasi === 'diverifikasi' ? 'Berhasil' : ($transaction->status_verifikasi === 'ditolak' ? 'Gagal' : 'Pending') }}
                             </span>
                         </td>
                     </tr>
@@ -147,7 +147,7 @@
                                 <div class="fw-semibold mb-2">Informasi transaksi</div>
                                 <ul class="mb-0 ps-3">
                                     <li>Transaksi input manual akan otomatis disimpan sebagai <strong>Berhasil</strong>.</li>
-                                    <li>Transaksi BNI Virtual Account akan menunggu pembaruan status otomatis dari callback bank.</li>
+                                    <li>Transaksi BNI Virtual Account akan berstatus <strong>Pending</strong> sampai callback bank diterima.</li>
                                     <li>Tidak ada proses verifikasi manual operator pada modul ini.</li>
                                 </ul>
                             </div>
