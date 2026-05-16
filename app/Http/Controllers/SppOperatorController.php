@@ -86,7 +86,7 @@ class SppOperatorController extends Controller
             'jabatan' => ['required', 'string', 'max:100'],
         ], [
             'scod.required' => 'SCOD sekolah wajib diisi.',
-            'email.unique' => 'Email sudah terdaftar atau sudah pernah digunakan untuk pendaftaran operator SPP.',
+            'email.unique' => 'Email sudah terdaftar di sistem atau sudah pernah dipakai untuk pendaftaran Operator SPP. Gunakan email lain yang khusus untuk akun Operator SPP.',
         ]);
 
         $madrasah = Madrasah::query()

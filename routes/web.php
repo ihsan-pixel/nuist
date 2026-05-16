@@ -640,6 +640,9 @@ Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'inde
 
 use App\Http\Controllers\Auth\LoginController;
 
+Route::get('/login/operator-spp', [LoginController::class, 'showSppOperatorLoginForm'])->name('login.operator-spp');
+Route::post('/login/operator-spp', [LoginController::class, 'loginSppOperator'])->name('login.operator-spp.submit');
+
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 

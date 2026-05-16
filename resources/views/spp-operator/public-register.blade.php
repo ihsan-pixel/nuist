@@ -113,7 +113,7 @@ Pendaftaran Operator SPP
                 </div>
 
                 <button type="submit" class="submit-btn">Kirim Pendaftaran</button>
-                <a href="{{ route('login') }}" class="back-link">Kembali ke login</a>
+                <a href="{{ route('login.operator-spp') }}" class="back-link">Sudah punya akun? Login Operator SPP</a>
             </form>
         </section>
     </div>

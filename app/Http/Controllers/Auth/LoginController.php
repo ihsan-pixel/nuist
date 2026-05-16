@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class LoginController extends Controller
 {
@@ -29,6 +30,11 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = RouteServiceProvider::HOME;
+
+    private function normalizeRole(?string $role): string
+    {
+        return preg_replace('/\s+/', '_', trim(strtolower((string) $role))) ?? '';
+    }
 
     /**
      * The user has been authenticated.
@@ -66,6 +72,52 @@ class LoginController extends Controller
 
         // For other roles, use default redirect
         return redirect()->intended($this->redirectPath());
+    }
+
+    public function showSppOperatorLoginForm(): View
+    {
+        return view('auth.login-operator-spp');
+    }
+
+    public function loginSppOperator(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withErrors(['email' => 'Email atau password Operator SPP tidak sesuai.'])
+                ->withInput($request->only('email'));
+        }
+
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+        $normalizedRole = $this->normalizeRole($user->role ?? '');
+
+        if ($normalizedRole !== 'admin_spp') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()
+                ->withErrors(['email' => 'Akun ini bukan akun Operator SPP.'])
+                ->withInput($request->only('email'));
+        }
+
+        if (isset($user->is_active) && !$user->is_active) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()
+                ->withErrors(['email' => 'Akun Operator SPP Anda saat ini dinonaktifkan.'])
+                ->withInput($request->only('email'));
+        }
+
+        return redirect()->route('spp-siswa.dashboard');
     }
 
     /**
@@ -139,6 +191,10 @@ class LoginController extends Controller
     protected function redirectTo()
     {
         $user = Auth::user();
+
+        if ($this->normalizeRole($user->role ?? '') === 'admin_spp') {
+            return '/spp-siswa/dashboard';
+        }
 
         if ($user->role === 'mgmp') {
             return '/mgmp/dashboard';

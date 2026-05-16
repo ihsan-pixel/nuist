@@ -30,7 +30,7 @@
                 <div class="password">{{ $plainPassword }}</div>
             </div>
 
-            <p>Silakan login melalui <a href="{{ url('/login') }}">{{ url('/login') }}</a>.</p>
+            <p>Silakan login melalui <a href="{{ route('login.operator-spp') }}">{{ route('login.operator-spp') }}</a>.</p>
             <p>Untuk keamanan, segera ubah password setelah login pertama.</p>
         </div>
         <div class="footer">
