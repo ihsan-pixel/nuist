@@ -28,7 +28,7 @@
                 <form method="POST" action="{{ route('spp-siswa.pengaturan.store') }}">
                     @csrf
                     <div class="row g-3">
-                        @if($userRole !== 'admin')
+                        @if($userRole !== 'admin_spp')
                             <div class="col-12">
                                 <label class="form-label">Madrasah</label>
                                 <select name="madrasah_id" class="form-select" required>
@@ -44,9 +44,9 @@
                         <div class="col-md-6">
                             <label class="form-label">Provider Pembayaran</label>
                             <select name="payment_provider" class="form-select" required>
-                                @if($userRole === 'super_admin')
-                                    <option value="manual">Manual</option>
-                                @endif
+                            @if($userRole === 'super_admin')
+                                <option value="manual">Manual</option>
+                            @endif
                                 <option value="bni_va">BNI Virtual Account</option>
                             </select>
                         </div>
@@ -120,7 +120,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="row g-3">
-                            @if($userRole !== 'admin')
+                            @if($userRole !== 'admin_spp')
                                 <div class="col-12">
                                     <label class="form-label">Madrasah</label>
                                     <select name="madrasah_id" class="form-select" required>

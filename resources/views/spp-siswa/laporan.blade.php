@@ -16,7 +16,7 @@
                 <p class="text-muted mb-0">Ringkasan tagihan dan pembayaran per siswa serta distribusi siswa per kelas.</p>
             </div>
             <form method="GET" class="row g-2 align-items-end">
-                @if($userRole !== 'admin')
+                @if($userRole !== 'admin_spp')
                     <div class="col-md-12">
                         <label class="form-label">Madrasah</label>
                         <select name="madrasah_id" class="form-select">

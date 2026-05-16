@@ -9,20 +9,27 @@
             <ul class="metismenu list-unstyled" id="side-menu">
 
                 @php
-                    $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
-                    $allowedRoles = ['super_admin', 'admin'];
-                    $isAllowed = in_array($userRole, $allowedRoles);
-                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
+                    $userRole = auth()->user()
+                        ? preg_replace('/\s+/', '_', trim(strtolower((string) auth()->user()->role)))
+                        : '';
+                    $dashboardRoles = ['super_admin', 'admin', 'admin_spp'];
+                    $masterDataRoles = ['super_admin', 'admin'];
+                    $showDashboardMenu = in_array($userRole, $dashboardRoles);
+                    $showMasterDataMenu = in_array($userRole, $masterDataRoles);
+                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false') . ', showMasterDataMenu: ' . ($showMasterDataMenu ? 'true' : 'false'));
                     @endphp
-                @if($isAllowed)
+                @if($showDashboardMenu)
                 <li class="menu-title" key="t-menu">@lang('translation.Menu')</li>
 
                 <li>
-                    <a href="{{ url('dashboard') }}" class="waves-effect">
+                    <a href="{{ route('dashboard') }}" class="waves-effect">
                         <i class="bx bx-home-circle"></i>
                         <span key="t-dashboard">Dashboard</span>
                     </a>
                 </li>
+                @endif
+
+                @if($showMasterDataMenu)
                 <li>
                     <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
                         <i class="bx bx-data"></i>
@@ -170,7 +177,7 @@
                 </li>
                 @endif
                 @php
-                    \Log::info('Sidebar PresensiAdmin isAllowed: ' . ($isAllowed ? 'true' : 'false'));
+                    \Log::info('Sidebar PresensiAdmin showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false'));
                 @endphp
 
                 @if($userRole === 'admin')
@@ -335,7 +342,7 @@
                 </li>
                 @endif
 
-                @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']))
+                @if(in_array($userRole, ['super_admin', 'admin_spp', 'pengurus']))
                 <li class="menu-title">SPP SISWA</li>
 
                 <li>

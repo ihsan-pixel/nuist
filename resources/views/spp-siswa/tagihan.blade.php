@@ -20,9 +20,9 @@
     </div>
 @endif
 
-@if($userRole === 'admin' && !$hasActiveBniVaSetting)
+@if($userRole === 'admin_spp' && !$hasActiveBniVaSetting)
     <div class="alert alert-warning">
-        Admin sekolah hanya dapat membuat tagihan setelah tersedia pengaturan aktif dengan provider `BNI Virtual Account`.
+        Admin SPP hanya dapat membuat tagihan setelah tersedia pengaturan aktif dengan provider `BNI Virtual Account`.
     </div>
 @endif
 
@@ -35,9 +35,9 @@
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a class="btn btn-outline-secondary" href="{{ route('spp-siswa.tagihan.template', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}"><i class="bx bx-download me-1"></i>Template Import</a>
-                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#importTagihanModal" {{ $userRole === 'admin' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-upload me-1"></i>Import Tagihan</button>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkTagihanModal" {{ $userRole === 'admin' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-layer-plus me-1"></i>Buat Tagihan Massal</button>
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTagihanModal" {{ $userRole === 'admin' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-plus me-1"></i>Buat Tagihan</button>
+                <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#importTagihanModal" {{ $userRole === 'admin_spp' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-upload me-1"></i>Import Tagihan</button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkTagihanModal" {{ $userRole === 'admin_spp' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-layer-plus me-1"></i>Buat Tagihan Massal</button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createTagihanModal" {{ $userRole === 'admin_spp' && !$hasActiveBniVaSetting ? 'disabled' : '' }}><i class="bx bx-plus me-1"></i>Buat Tagihan</button>
             </div>
         </div>
     </div>
@@ -47,7 +47,7 @@
     <div class="card-body">
         <form method="GET">
             <div class="row g-3 align-items-end">
-                @if($userRole !== 'admin')
+                @if($userRole !== 'admin_spp')
                     <div class="col-md-3">
                         <label class="form-label">Madrasah</label>
                         <select name="madrasah_id" class="form-select">
@@ -160,7 +160,7 @@
                         Tagihan massal dibuat untuk semua siswa di sekolah terpilih. Isi jenis tagihan sesuai kebutuhan, misalnya SPP, Uang Gedung, Seragam, atau Kegiatan.
                     </div>
                     <div class="row g-3">
-                        @if($userRole !== 'admin')
+                        @if($userRole !== 'admin_spp')
                             <div class="col-md-6">
                                 <label class="form-label">Madrasah</label>
                                 <select name="madrasah_id" class="form-select" required>
@@ -174,8 +174,8 @@
                         @endif
                         <div class="col-md-6">
                             <label class="form-label">Pengaturan</label>
-                            <select name="setting_id" class="form-select" {{ $userRole === 'admin' ? 'required' : '' }}>
-                                @if($userRole !== 'admin')
+                            <select name="setting_id" class="form-select" {{ $userRole === 'admin_spp' ? 'required' : '' }}>
+                                @if($userRole !== 'admin_spp')
                                     <option value="">Manual tanpa pengaturan</option>
                                 @endif
                                 @foreach($settings as $setting)
@@ -239,7 +239,7 @@
                         Gunakan template import dan isi kolom `jenis_tagihan` untuk membedakan SPP dengan tagihan lain.
                     </div>
                     <div class="row g-3">
-                        @if($userRole !== 'admin')
+                        @if($userRole !== 'admin_spp')
                             <div class="col-md-6">
                                 <label class="form-label">Madrasah</label>
                                 <select name="madrasah_id" class="form-select" required>
@@ -253,8 +253,8 @@
                         @endif
                         <div class="col-md-6">
                             <label class="form-label">Pengaturan</label>
-                            <select name="setting_id" class="form-select" {{ $userRole === 'admin' ? 'required' : '' }}>
-                                @if($userRole !== 'admin')
+                            <select name="setting_id" class="form-select" {{ $userRole === 'admin_spp' ? 'required' : '' }}>
+                                @if($userRole !== 'admin_spp')
                                     <option value="">Manual tanpa pengaturan</option>
                                 @endif
                                 @foreach($settings as $setting)
@@ -292,7 +292,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row g-3">
-                        @if($userRole !== 'admin')
+                        @if($userRole !== 'admin_spp')
                             <div class="col-md-6">
                                 <label class="form-label">Madrasah</label>
                                 <select name="madrasah_id" class="form-select" required>
@@ -315,8 +315,8 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Pengaturan</label>
-                            <select name="setting_id" class="form-select" {{ $userRole === 'admin' ? 'required' : '' }}>
-                                @if($userRole !== 'admin')
+                            <select name="setting_id" class="form-select" {{ $userRole === 'admin_spp' ? 'required' : '' }}>
+                                @if($userRole !== 'admin_spp')
                                     <option value="">Manual tanpa pengaturan</option>
                                 @endif
                                 @foreach($settings as $setting)

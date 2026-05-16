@@ -485,7 +485,7 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin'])->group(fun
     Route::delete('/dps/member/{member}', [DpsController::class, 'destroy'])->name('dps.destroy');
 });
 
-Route::prefix('spp-siswa')->middleware(['auth', 'role:super_admin,admin,pengurus'])->name('spp-siswa.')->group(function () {
+Route::prefix('spp-siswa')->middleware(['auth', 'role:super_admin,admin_spp,pengurus'])->name('spp-siswa.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\SppSiswaController::class, 'dashboard'])->name('dashboard');
     Route::get('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'tagihan'])->name('tagihan');
     Route::post('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'storeTagihan'])->name('tagihan.store');

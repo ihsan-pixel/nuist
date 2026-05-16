@@ -34,7 +34,7 @@
     <div class="card-body">
         <form method="GET">
             <div class="row g-3 align-items-end">
-                @if($userRole !== 'admin')
+                @if($userRole !== 'admin_spp')
                     <div class="col-md-3">
                         <label class="form-label">Madrasah</label>
                         <select name="madrasah_id" class="form-select">

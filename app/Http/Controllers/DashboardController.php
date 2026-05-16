@@ -11,6 +11,11 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $normalizedRole = $this->normalizeRole($user->role);
+
+        if ($normalizedRole === 'admin_spp') {
+            return redirect()->route('spp-siswa.dashboard');
+        }
 
         // Hitung data presensi bulan ini untuk user yang login
         $startOfMonth = now()->startOfMonth();
@@ -234,5 +239,10 @@ class DashboardController extends Controller
         // Get the first yayasan as foundation data
         return \App\Models\Yayasan::select('id', 'name', 'alamat', 'latitude', 'longitude', 'map_link')
             ->first();
+    }
+
+    private function normalizeRole(?string $role): string
+    {
+        return preg_replace('/\s+/', '_', trim(strtolower((string) $role))) ?? '';
     }
 }

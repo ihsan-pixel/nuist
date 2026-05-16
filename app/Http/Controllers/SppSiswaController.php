@@ -22,28 +22,50 @@ class SppSiswaController extends Controller
     public function dashboard(Request $request)
     {
         $scope = $this->resolveScope($request);
+        $selectedMadrasahId = $scope['selectedMadrasahId'];
+        $userRole = $this->normalizedRole();
 
-        $stats = $this->buildStats($scope['selectedMadrasahId']);
+        $stats = $this->buildStats($selectedMadrasahId);
+        $monitoring = $this->buildMonitoring($selectedMadrasahId, $stats);
+        $activeSetting = $this->settingQuery($selectedMadrasahId)
+            ->with('madrasah')
+            ->where('is_active', true)
+            ->latest('updated_at')
+            ->first();
+        $selectedMadrasah = $selectedMadrasahId
+            ? Madrasah::query()->find($selectedMadrasahId)
+            : null;
 
-        $recentBills = $this->billQuery($scope['selectedMadrasahId'])
+        $recentBills = $this->billQuery($selectedMadrasahId)
             ->with(['siswa', 'madrasah'])
             ->latest()
             ->take(8)
             ->get();
 
-        $recentTransactions = $this->transactionQuery($scope['selectedMadrasahId'])
+        $recentTransactions = $this->transactionQuery($selectedMadrasahId)
             ->with(['bill', 'siswa', 'madrasah'])
             ->latest('tanggal_bayar')
             ->take(8)
             ->get();
 
+        $attentionBills = $this->billQuery($selectedMadrasahId)
+            ->with(['siswa', 'madrasah'])
+            ->whereIn('status', ['belum_lunas', 'sebagian'])
+            ->orderBy('jatuh_tempo')
+            ->take(8)
+            ->get();
+
         return view('spp-siswa.dashboard', [
             'madrasahOptions' => $scope['madrasahOptions'],
-            'selectedMadrasahId' => $scope['selectedMadrasahId'],
+            'selectedMadrasahId' => $selectedMadrasahId,
+            'selectedMadrasah' => $selectedMadrasah,
             'stats' => $stats,
+            'monitoring' => $monitoring,
+            'activeSetting' => $activeSetting,
             'recentBills' => $recentBills,
             'recentTransactions' => $recentTransactions,
-            'userRole' => auth()->user()->role,
+            'attentionBills' => $attentionBills,
+            'userRole' => $userRole,
         ]);
     }
 
@@ -83,7 +105,7 @@ class SppSiswaController extends Controller
         $students = (clone $studentBaseQuery)->orderBy('nama_lengkap')->get();
         $settings = $this->settingQuery($selectedMadrasahId)
             ->where('is_active', true)
-            ->when($user->role === 'admin', fn ($query) => $query->where('payment_provider', 'bni_va'))
+            ->when($this->isAdminSppRole($user->role), fn ($query) => $query->where('payment_provider', 'bni_va'))
             ->orderByDesc('tahun_ajaran')
             ->get();
         $jurusanOptions = (clone $studentBaseQuery)
@@ -116,7 +138,7 @@ class SppSiswaController extends Controller
             'jurusanOptions' => $jurusanOptions,
             'kelasOptions' => $kelasOptions,
             'jenisTagihanOptions' => $jenisTagihanOptions,
-            'userRole' => $user->role,
+            'userRole' => $this->normalizedRole($user->role),
             'hasActiveBniVaSetting' => $hasActiveBniVaSetting,
         ]);
     }
@@ -353,7 +375,7 @@ class SppSiswaController extends Controller
             'selectedMadrasahId' => $selectedMadrasahId,
             'transactions' => $transactions,
             'bills' => $bills,
-            'userRole' => auth()->user()->role,
+            'userRole' => $this->normalizedRole(),
         ]);
     }
 
@@ -431,7 +453,7 @@ class SppSiswaController extends Controller
             'selectedMadrasahId' => $selectedMadrasahId,
             'reportRows' => $reportRows,
             'classSummary' => $classSummary,
-            'userRole' => auth()->user()->role,
+            'userRole' => $this->normalizedRole(),
         ]);
     }
 
@@ -450,7 +472,7 @@ class SppSiswaController extends Controller
             'madrasahOptions' => $scope['madrasahOptions'],
             'selectedMadrasahId' => $selectedMadrasahId,
             'settings' => $settings,
-            'userRole' => auth()->user()->role,
+            'userRole' => $this->normalizedRole(),
         ]);
     }
 
@@ -504,11 +526,12 @@ class SppSiswaController extends Controller
     private function resolveScope(Request $request): array
     {
         $user = auth()->user();
-        $madrasahOptions = $user->role === 'admin'
+        $isAdminSppRole = $this->isAdminSppRole($user->role);
+        $madrasahOptions = $isAdminSppRole
             ? Madrasah::query()->whereKey($user->madrasah_id)->orderBy('name')->get()
             : Madrasah::query()->orderBy('name')->get();
 
-        $selectedMadrasahId = $user->role === 'admin'
+        $selectedMadrasahId = $isAdminSppRole
             ? (int) $user->madrasah_id
             : $request->integer('madrasah_id');
 
@@ -533,6 +556,35 @@ class SppSiswaController extends Controller
             'nominal_tagihan' => (clone $billQuery)->sum('total_tagihan'),
             'nominal_terbayar' => (clone $transactionQuery)->where('status_verifikasi', 'diverifikasi')->sum('nominal_bayar'),
             'pengaturan_aktif' => $this->settingQuery($madrasahId)->where('is_active', true)->count(),
+        ];
+    }
+
+    private function buildMonitoring(?int $madrasahId, array $stats): array
+    {
+        $today = now();
+        $monthStart = $today->copy()->startOfMonth();
+        $monthEnd = $today->copy()->endOfMonth();
+        $billQuery = $this->billQuery($madrasahId);
+        $transactionQuery = $this->transactionQuery($madrasahId);
+        $studentsWithBills = (clone $billQuery)->distinct()->count('siswa_id');
+        $outstandingAmount = max(0, (float) $stats['nominal_tagihan'] - (float) $stats['nominal_terbayar']);
+
+        return [
+            'created_today' => (clone $billQuery)->whereDate('created_at', $today)->count(),
+            'created_this_month' => (clone $billQuery)->whereBetween('created_at', [$monthStart, $monthEnd])->count(),
+            'overdue_count' => (clone $billQuery)
+                ->whereIn('status', ['belum_lunas', 'sebagian'])
+                ->whereDate('jatuh_tempo', '<', $today)
+                ->count(),
+            'pending_verification' => (clone $transactionQuery)->where('status_verifikasi', 'menunggu')->count(),
+            'students_with_bills' => $studentsWithBills,
+            'coverage_ratio' => $stats['total_siswa'] > 0
+                ? round(($studentsWithBills / $stats['total_siswa']) * 100, 1)
+                : 0,
+            'paid_ratio' => (float) $stats['nominal_tagihan'] > 0
+                ? round(((float) $stats['nominal_terbayar'] / (float) $stats['nominal_tagihan']) * 100, 1)
+                : 0,
+            'outstanding_amount' => $outstandingAmount,
         ];
     }
 
@@ -563,7 +615,7 @@ class SppSiswaController extends Controller
         return [
             'required',
             'integer',
-            $user->role === 'admin'
+            $this->isAdminSppRole($user->role)
                 ? Rule::in([$user->madrasah_id])
                 : Rule::exists('madrasahs', 'id'),
         ];
@@ -573,26 +625,26 @@ class SppSiswaController extends Controller
     {
         $user = auth()->user();
 
-        abort_if($user->role === 'admin' && (int) $user->madrasah_id !== $madrasahId, 403);
+        abort_if($this->isAdminSppRole($user->role) && (int) $user->madrasah_id !== $madrasahId, 403);
     }
 
     private function ensureTagihanCreationAllowed(int $madrasahId, ?int $settingId): void
     {
         $user = auth()->user();
 
-        if ($user->role !== 'admin') {
+        if (!$this->isAdminSppRole($user->role)) {
             return;
         }
 
         if (!$this->hasActiveBniVaSettingForMadrasah($madrasahId)) {
             throw ValidationException::withMessages([
-                'setting_id' => 'Admin hanya bisa membuat tagihan setelah tersedia pengaturan aktif dengan provider BNI Virtual Account.',
+                'setting_id' => 'Admin SPP hanya bisa membuat tagihan setelah tersedia pengaturan aktif dengan provider BNI Virtual Account.',
             ]);
         }
 
         if (!$settingId) {
             throw ValidationException::withMessages([
-                'setting_id' => 'Admin wajib memilih pengaturan aktif BNI Virtual Account saat membuat tagihan.',
+                'setting_id' => 'Admin SPP wajib memilih pengaturan aktif BNI Virtual Account saat membuat tagihan.',
             ]);
         }
 
@@ -605,7 +657,7 @@ class SppSiswaController extends Controller
 
         if (!$validSetting) {
             throw ValidationException::withMessages([
-                'setting_id' => 'Pengaturan yang dipilih untuk admin harus menggunakan provider BNI Virtual Account.',
+                'setting_id' => 'Pengaturan yang dipilih untuk Admin SPP harus menggunakan provider BNI Virtual Account.',
             ]);
         }
     }
@@ -638,9 +690,19 @@ class SppSiswaController extends Controller
 
     private function allowedPaymentProviders(): array
     {
-        return auth()->user()->role === 'super_admin'
+        return $this->normalizedRole() === 'super_admin'
             ? ['manual', 'bni_va']
             : ['bni_va'];
+    }
+
+    private function isAdminSppRole(?string $role = null): bool
+    {
+        return $this->normalizedRole($role) === 'admin_spp';
+    }
+
+    private function normalizedRole(?string $role = null): string
+    {
+        return preg_replace('/\s+/', '_', trim(strtolower((string) ($role ?? auth()->user()->role)))) ?? '';
     }
 
     private function generateBillNumber(Siswa $siswa, Carbon $periode, string $jenisTagihan = 'SPP'): string
