@@ -84,20 +84,22 @@
                     <div>
                         <h4 class="text-white mb-2"><i class="bx bx-id-card me-2"></i>Data Siswa</h4>
                         <p class="mb-0 text-white-50">
-                            Kelola dan import data siswa per madrasah.
+                            {{ $userRole === 'admin_spp' ? 'Lihat data siswa sesuai madrasah yang terhubung dengan akun Anda.' : 'Kelola dan import data siswa per madrasah.' }}
                         </p>
                     </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="{{ route('data-sekolah.data-siswa.template') }}" class="btn btn-light">
-                            <i class="bx bx-download me-1"></i>Template Import
-                        </a>
-                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">
-                            <i class="bx bx-upload me-1"></i>Import
-                        </button>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
-                            <i class="bx bx-plus me-1"></i>Tambah Siswa
-                        </button>
-                    </div>
+                    @if($userRole !== 'admin_spp')
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ route('data-sekolah.data-siswa.template') }}" class="btn btn-light">
+                                <i class="bx bx-download me-1"></i>Template Import
+                            </a>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">
+                                <i class="bx bx-upload me-1"></i>Import
+                            </button>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+                                <i class="bx bx-plus me-1"></i>Tambah Siswa
+                            </button>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -201,9 +203,11 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="alert alert-info">
-            Password default akun siswa saat tambah/import adalah <strong>NIS</strong>.
-        </div>
+        @if($userRole !== 'admin_spp')
+            <div class="alert alert-info">
+                Password default akun siswa saat tambah/import adalah <strong>NIS</strong>.
+            </div>
+        @endif
 
         <div class="table-responsive">
             <table class="table table-bordered align-middle">
@@ -294,26 +298,28 @@
     </div>
 </div>
 
-<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('data-sekolah.data-siswa.store') }}">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Tambah Data Siswa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    @include('data-sekolah.partials.siswa-form', ['formId' => 'create', 'siswa' => null, 'madrasahOptions' => $madrasahOptions, 'selectedMadrasahId' => $selectedMadrasahId, 'userRole' => $userRole])
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success">Simpan</button>
-                </div>
-            </form>
+@if($userRole !== 'admin_spp')
+    <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('data-sekolah.data-siswa.store') }}">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Tambah Data Siswa</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        @include('data-sekolah.partials.siswa-form', ['formId' => 'create', 'siswa' => null, 'madrasahOptions' => $madrasahOptions, 'selectedMadrasahId' => $selectedMadrasahId, 'userRole' => $userRole])
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Simpan</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+@endif
 
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -337,49 +343,51 @@
     </div>
 </div>
 
-<div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('data-sekolah.data-siswa.import') }}" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Import Data Siswa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-warning mb-3">
-                        Gunakan template resmi agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS atau email sudah ada, data akan diperbarui.
+@if($userRole !== 'admin_spp')
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('data-sekolah.data-siswa.import') }}" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Import Data Siswa</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    @if(!in_array($userRole, ['admin', 'admin_spp']))
-                        <div class="mb-3">
-                            <label for="import_madrasah_id" class="form-label">Madrasah/Sekolah</label>
-                            <select class="form-select" id="import_madrasah_id" name="madrasah_id" required>
-                                <option value="">Pilih Madrasah</option>
-                                @foreach($madrasahOptions as $madrasah)
-                                    <option value="{{ $madrasah->id }}" {{ (string) old('madrasah_id', $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : '' }}>
-                                        {{ $madrasah->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                    <div class="modal-body">
+                        <div class="alert alert-warning mb-3">
+                            Gunakan template resmi agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS atau email sudah ada, data akan diperbarui.
                         </div>
-                    @else
-                        <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
-                        <div class="mb-3">
-                            <label class="form-label">Madrasah/Sekolah</label>
-                            <input type="text" class="form-control" value="{{ optional($madrasahOptions->first())->name }}" readonly>
-                        </div>
-                    @endif
-                    <label for="file" class="form-label">File Excel/CSV</label>
-                    <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning">Import Sekarang</button>
-                </div>
-            </form>
+                        @if(!in_array($userRole, ['admin', 'admin_spp']))
+                            <div class="mb-3">
+                                <label for="import_madrasah_id" class="form-label">Madrasah/Sekolah</label>
+                                <select class="form-select" id="import_madrasah_id" name="madrasah_id" required>
+                                    <option value="">Pilih Madrasah</option>
+                                    @foreach($madrasahOptions as $madrasah)
+                                        <option value="{{ $madrasah->id }}" {{ (string) old('madrasah_id', $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : '' }}>
+                                            {{ $madrasah->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
+                            <div class="mb-3">
+                                <label class="form-label">Madrasah/Sekolah</label>
+                                <input type="text" class="form-control" value="{{ optional($madrasahOptions->first())->name }}" readonly>
+                            </div>
+                        @endif
+                        <label for="file" class="form-label">File Excel/CSV</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning">Import Sekarang</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+@endif
 @endsection
 
 @section('script')

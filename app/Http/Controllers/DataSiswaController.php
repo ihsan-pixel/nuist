@@ -77,6 +77,7 @@ class DataSiswaController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = auth()->user();
+        $this->authorizeStudentDataMutation($user);
         $validated = $this->validateSiswa($request, $user);
         $madrasah = $this->resolveMadrasah($validated['madrasah_id'], $user);
 
@@ -138,6 +139,7 @@ class DataSiswaController extends Controller
     public function import(Request $request): RedirectResponse
     {
         $user = auth()->user();
+        $this->authorizeStudentDataMutation($user);
         $userRole = $this->normalizedRole($user->role);
 
         $madrasahRule = $this->hasRestrictedMadrasahScope($userRole)
@@ -164,6 +166,8 @@ class DataSiswaController extends Controller
 
     public function template()
     {
+        $this->authorizeStudentDataMutation(auth()->user());
+
         return Excel::download(new SiswaTemplateExport(), 'template-import-data-siswa.xlsx');
     }
 
@@ -219,6 +223,11 @@ class DataSiswaController extends Controller
     private function hasRestrictedMadrasahScope(string $userRole): bool
     {
         return in_array($userRole, ['admin', 'admin_spp'], true);
+    }
+
+    private function authorizeStudentDataMutation($user): void
+    {
+        abort_if($this->normalizedRole($user->role) === 'admin_spp', 403);
     }
 
     private function normalizedRole(?string $role): string
