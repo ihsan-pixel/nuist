@@ -109,7 +109,7 @@ Pendaftaran Operator SPP
 
                 <div class="notice-box">
                     <strong>Catatan</strong>
-                    <span>Status akun akan direview oleh Super Admin. Password tidak diisi manual karena akan dibuat otomatis saat approval.</span>
+                    <span>Status akun akan direview oleh Super Admin. Password akan dibuat saat approval.</span>
                 </div>
 
                 <button type="submit" class="submit-btn">Kirim Pendaftaran</button>

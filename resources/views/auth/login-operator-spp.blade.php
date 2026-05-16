@@ -20,21 +20,21 @@ Login Operator SPP
         <section class="spp-login-hero">
             <div class="hero-badge">Portal Operator SPP</div>
             <h1>Login Admin SPP Sekolah</h1>
-            <p>Gunakan email dan password yang dikirim saat pendaftaran Operator SPP disetujui oleh Super Admin.</p>
+            <p>Gunakan email dan password yang dikirim saat pendaftaran Operator SPP disetujui.</p>
 
             <div class="hero-points">
                 <div class="hero-point">
                     <strong>Akses Khusus</strong>
-                    <span>Halaman ini hanya menerima akun dengan role <code>admin_spp</code>.</span>
+                    <span>Halaman ini hanya menerima akun <code>Operator SPP Sekolah</code>.</span>
                 </div>
                 <div class="hero-point">
                     <strong>Kredensial Email</strong>
                     <span>Login menggunakan email unik yang didaftarkan pada form Operator SPP.</span>
                 </div>
-                <div class="hero-point">
+                {{-- <div class="hero-point">
                     <strong>Alur Pembayaran</strong>
                     <span>Setelah login, operator langsung masuk ke dashboard monitoring SPP siswa.</span>
-                </div>
+                </div> --}}
             </div>
         </section>
 
@@ -89,7 +89,7 @@ Login Operator SPP
 
                 <div class="info-box">
                     <strong>Catatan</strong>
-                    <span>Jika Anda sebelumnya sudah punya akun `tenaga_pendidik`, gunakan email lain untuk akun Operator SPP. Sistem tidak mendukung duplikasi email antar akun.</span>
+                    <span>Jika Anda sebelumnya sudah punya akun , gunakan email baru/lain untuk akun Operator SPP.</span>
                 </div>
 
                 <button type="submit" class="submit-btn">Masuk ke Dashboard SPP</button>
