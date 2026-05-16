@@ -203,9 +203,8 @@ class SppSiswaController extends Controller
             'jurusan' => ['nullable', 'string', 'max:100'],
             'kelas' => ['nullable', 'string', 'max:50'],
             'periode' => ['required', 'date_format:Y-m'],
-            'jatuh_tempo' => ['required', 'date'],
+            'jatuh_tempo' => ['nullable', 'date'],
             'nominal' => ['required', 'numeric', 'min:0'],
-            'status' => ['required', Rule::in(['belum_lunas', 'sebagian', 'lunas'])],
             'catatan' => ['nullable', 'string'],
         ]);
 
@@ -221,6 +220,9 @@ class SppSiswaController extends Controller
         }
 
         $periodeDate = Carbon::createFromFormat('Y-m', $validated['periode'])->startOfMonth();
+        $jatuhTempo = !empty($validated['jatuh_tempo'])
+            ? Carbon::parse($validated['jatuh_tempo'])->toDateString()
+            : $this->resolveMonthEndDueDate($periodeDate);
         $nominal = (float) $validated['nominal'];
         $jenisTagihan = $this->fixedBillType();
 
@@ -239,7 +241,7 @@ class SppSiswaController extends Controller
         $created = 0;
         $skipped = 0;
 
-        DB::transaction(function () use ($students, $validated, $setting, $periodeDate, $nominal, $jenisTagihan, &$created, &$skipped) {
+        DB::transaction(function () use ($students, $validated, $setting, $periodeDate, $jatuhTempo, $nominal, $jenisTagihan, &$created, &$skipped) {
             foreach ($students as $siswa) {
                 $exists = SppSiswaBill::query()
                     ->where('siswa_id', $siswa->id)
@@ -259,10 +261,10 @@ class SppSiswaController extends Controller
                     'jenis_tagihan' => $jenisTagihan,
                     'nomor_tagihan' => $this->generateBillNumber($siswa, $periodeDate, $jenisTagihan),
                     'periode' => $periodeDate->format('Y-m'),
-                    'jatuh_tempo' => $validated['jatuh_tempo'],
+                    'jatuh_tempo' => $jatuhTempo,
                     'nominal' => $nominal,
                     'total_tagihan' => $nominal,
-                    'status' => $validated['status'],
+                    'status' => 'belum_lunas',
                     'catatan' => $validated['catatan'] ?? null,
                 ]);
 

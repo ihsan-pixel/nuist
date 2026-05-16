@@ -151,7 +151,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
-                        Tagihan massal pada modul ini hanya akan membuat tagihan SPP untuk semua siswa yang sesuai filter.
+                        <div class="fw-semibold mb-2">Informasi pembuatan tagihan massal</div>
+                        <ul class="mb-0 ps-3">
+                            <li>Tagihan massal pada modul ini hanya akan membuat tagihan <strong>SPP</strong>.</li>
+                            <li>Tagihan akan dibuat untuk seluruh siswa yang sesuai dengan filter madrasah, jurusan, dan kelas.</li>
+                            <li>Status tagihan akan otomatis disimpan sebagai <strong>Belum Lunas</strong>.</li>
+                            <li>Jatuh tempo akan otomatis terisi tanggal terakhir dari bulan dan tahun pada periode yang dipilih, tetapi tetap bisa diedit manual.</li>
+                        </ul>
                     </div>
                     <div class="row g-3">
                         @if($userRole !== 'admin_spp')
@@ -200,18 +206,10 @@
                             <label class="form-label">Jenis Tagihan</label>
                             <input type="text" class="form-control" value="SPP" readonly>
                         </div>
-                        <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" class="form-control" required></div>
-                        <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" placeholder="Isi nominal tagihan" required></div>
-                        <div class="col-md-4">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select" required>
-                                <option value="belum_lunas">Belum Lunas</option>
-                                <option value="sebagian">Sebagian</option>
-                                <option value="lunas">Lunas</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">Periode</label><input type="month" name="periode" id="bulkTagihanPeriode" class="form-control" value="{{ old('periode') }}" required></div>
+                        <div class="col-md-4"><label class="form-label">Jatuh Tempo</label><input type="date" name="jatuh_tempo" id="bulkTagihanJatuhTempo" class="form-control" value="{{ old('jatuh_tempo') }}"></div>
+                        <div class="col-md-4"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal" class="form-control" value="{{ old('nominal') }}" placeholder="Isi nominal tagihan" required></div>
+                        <div class="col-md-12"><label class="form-label">Catatan</label><input type="text" name="catatan" class="form-control" value="{{ old('catatan') }}"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -356,13 +354,6 @@
 @section('script')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const periodeInput = document.getElementById('createTagihanPeriode');
-    const jatuhTempoInput = document.getElementById('createTagihanJatuhTempo');
-
-    if (!periodeInput || !jatuhTempoInput) {
-        return;
-    }
-
     const formatMonthEnd = (periode) => {
         if (!periode || !/^\d{4}-\d{2}$/.test(periode)) {
             return '';
@@ -374,19 +365,31 @@ document.addEventListener('DOMContentLoaded', function () {
         return `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
     };
 
-    const syncJatuhTempo = () => {
-        const autoDate = formatMonthEnd(periodeInput.value);
+    const bindDueDateAutofill = (periodeInputId, jatuhTempoInputId) => {
+        const periodeInput = document.getElementById(periodeInputId);
+        const jatuhTempoInput = document.getElementById(jatuhTempoInputId);
 
-        if (autoDate) {
-            jatuhTempoInput.value = autoDate;
+        if (!periodeInput || !jatuhTempoInput) {
+            return;
         }
+
+        const syncJatuhTempo = () => {
+            const autoDate = formatMonthEnd(periodeInput.value);
+
+            if (autoDate) {
+                jatuhTempoInput.value = autoDate;
+            }
+        };
+
+        if (!jatuhTempoInput.value && periodeInput.value) {
+            syncJatuhTempo();
+        }
+
+        periodeInput.addEventListener('change', syncJatuhTempo);
     };
 
-    if (!jatuhTempoInput.value && periodeInput.value) {
-        syncJatuhTempo();
-    }
-
-    periodeInput.addEventListener('change', syncJatuhTempo);
+    bindDueDateAutofill('createTagihanPeriode', 'createTagihanJatuhTempo');
+    bindDueDateAutofill('bulkTagihanPeriode', 'bulkTagihanJatuhTempo');
 });
 </script>
 @endsection
