@@ -714,12 +714,102 @@ class MGMPController extends Controller
      */
     public function superAdminDashboard()
     {
-        // Only accessible to super_admin via route middleware
-        $mgmpGroups = MgmpGroup::with('members')->get();
+        $mgmpGroups = MgmpGroup::withCount(['members', 'reports'])
+            ->with([
+                'owner:id,name,email',
+                'members:id,mgmp_group_id,user_id,sekolah',
+                'reports' => function ($query) {
+                    $query->select('id', 'mgmp_group_id', 'judul', 'tanggal', 'status', 'jumlah_peserta', 'created_at')
+                        ->orderByDesc('tanggal')
+                        ->orderByDesc('created_at');
+                },
+            ])
+            ->orderBy('name')
+            ->get();
+
         $members = MgmpMember::with('user', 'mgmpGroup')->get();
         $proposals = AcademicaProposal::with('user')->orderBy('created_at', 'desc')->get();
+        $recentReports = MgmpReport::with('mgmpGroup')
+            ->orderByDesc('tanggal')
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get();
 
-        return view('admin.super_mgmp_dashboard', compact('mgmpGroups', 'members', 'proposals'));
+        $proposalCountsByUser = $proposals
+            ->groupBy('user_id')
+            ->map(function ($items) {
+                return $items->count();
+            });
+
+        $mgmpInsights = $mgmpGroups->map(function ($group) use ($proposalCountsByUser) {
+            $latestReport = $group->reports->first();
+            $schoolCount = $group->members->pluck('sekolah')->filter()->unique()->count();
+            $groupProposalCount = $group->members
+                ->pluck('user_id')
+                ->filter()
+                ->unique()
+                ->sum(function ($userId) use ($proposalCountsByUser) {
+                    return (int) ($proposalCountsByUser[$userId] ?? 0);
+                });
+
+            if ($group->members_count === 0 && $group->reports_count === 0) {
+                $statusLabel = 'Baru dibuat';
+                $statusClass = 'secondary';
+            } elseif ($group->members_count === 0) {
+                $statusLabel = 'Perlu anggota';
+                $statusClass = 'warning';
+            } elseif ($group->reports_count === 0) {
+                $statusLabel = 'Belum ada kegiatan';
+                $statusClass = 'info';
+            } else {
+                $statusLabel = 'Aktif';
+                $statusClass = 'success';
+            }
+
+            return (object) [
+                'id' => $group->id,
+                'name' => $group->name,
+                'owner_name' => $group->owner->name ?? 'Belum ditentukan',
+                'owner_email' => $group->owner->email ?? '-',
+                'members_count' => (int) $group->members_count,
+                'reports_count' => (int) $group->reports_count,
+                'proposal_count' => $groupProposalCount,
+                'school_count' => $schoolCount,
+                'latest_report_title' => $latestReport->judul ?? null,
+                'latest_report_date' => $latestReport->tanggal ?? $latestReport->created_at,
+                'latest_participants_count' => (int) ($latestReport->jumlah_peserta ?? 0),
+                'status_label' => $statusLabel,
+                'status_class' => $statusClass,
+                'logo' => $group->logo,
+            ];
+        })->sortByDesc(function ($group) {
+            return ($group->reports_count * 1000) + $group->members_count;
+        })->values();
+
+        $dashboardSummary = [
+            'total_groups' => $mgmpGroups->count(),
+            'total_members' => $members->count(),
+            'total_reports' => $mgmpGroups->sum('reports_count'),
+            'total_proposals' => $proposals->count(),
+            'total_schools' => $members->pluck('sekolah')->filter()->unique()->count(),
+            'groups_with_members' => $mgmpInsights->where('members_count', '>', 0)->count(),
+            'groups_with_reports' => $mgmpInsights->where('reports_count', '>', 0)->count(),
+            'needs_attention' => $mgmpInsights->filter(function ($group) {
+                return $group->members_count === 0 || $group->reports_count === 0;
+            })->count(),
+            'average_members' => $mgmpGroups->count() > 0
+                ? number_format($members->count() / $mgmpGroups->count(), 1)
+                : '0',
+        ];
+
+        return view('admin.super_mgmp_dashboard', compact(
+            'mgmpGroups',
+            'members',
+            'proposals',
+            'recentReports',
+            'mgmpInsights',
+            'dashboardSummary'
+        ));
     }
 
     /**
