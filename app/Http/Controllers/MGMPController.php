@@ -91,6 +91,7 @@ class MGMPController extends Controller
 
         $mgmpInsights = $dashboardGroups->map(function ($group) use ($proposalCountsByUser) {
             $latestReport = $group->reports->first();
+            $latestReportDate = $latestReport?->tanggal ?: $latestReport?->created_at;
             $schoolCount = $group->members->pluck('sekolah')->filter()->unique()->count();
             $groupProposalCount = $group->members
                 ->pluck('user_id')
@@ -117,15 +118,15 @@ class MGMPController extends Controller
             return (object) [
                 'id' => $group->id,
                 'name' => $group->name,
-                'owner_name' => $group->owner->name ?? 'Belum ditentukan',
-                'owner_email' => $group->owner->email ?? '-',
+                'owner_name' => $group->owner?->name ?? 'Belum ditentukan',
+                'owner_email' => $group->owner?->email ?? '-',
                 'members_count' => (int) $group->members_count,
                 'reports_count' => (int) $group->reports_count,
                 'proposal_count' => $groupProposalCount,
                 'school_count' => $schoolCount,
-                'latest_report_title' => $latestReport->judul ?? null,
-                'latest_report_date' => $latestReport->tanggal ?? $latestReport->created_at,
-                'latest_participants_count' => (int) ($latestReport->jumlah_peserta ?? 0),
+                'latest_report_title' => $latestReport?->judul,
+                'latest_report_date' => $latestReportDate,
+                'latest_participants_count' => (int) ($latestReport?->jumlah_peserta ?? 0),
                 'status_label' => $statusLabel,
                 'status_class' => $statusClass,
                 'logo' => $group->logo,
@@ -743,6 +744,7 @@ class MGMPController extends Controller
 
         $mgmpInsights = $mgmpGroups->map(function ($group) use ($proposalCountsByUser) {
             $latestReport = $group->reports->first();
+            $latestReportDate = $latestReport?->tanggal ?: $latestReport?->created_at;
             $schoolCount = $group->members->pluck('sekolah')->filter()->unique()->count();
             $groupProposalCount = $group->members
                 ->pluck('user_id')
@@ -769,15 +771,15 @@ class MGMPController extends Controller
             return (object) [
                 'id' => $group->id,
                 'name' => $group->name,
-                'owner_name' => $group->owner->name ?? 'Belum ditentukan',
-                'owner_email' => $group->owner->email ?? '-',
+                'owner_name' => $group->owner?->name ?? 'Belum ditentukan',
+                'owner_email' => $group->owner?->email ?? '-',
                 'members_count' => (int) $group->members_count,
                 'reports_count' => (int) $group->reports_count,
                 'proposal_count' => $groupProposalCount,
                 'school_count' => $schoolCount,
-                'latest_report_title' => $latestReport->judul ?? null,
-                'latest_report_date' => $latestReport->tanggal ?? $latestReport->created_at,
-                'latest_participants_count' => (int) ($latestReport->jumlah_peserta ?? 0),
+                'latest_report_title' => $latestReport?->judul,
+                'latest_report_date' => $latestReportDate,
+                'latest_participants_count' => (int) ($latestReport?->jumlah_peserta ?? 0),
                 'status_label' => $statusLabel,
                 'status_class' => $statusClass,
                 'logo' => $group->logo,
