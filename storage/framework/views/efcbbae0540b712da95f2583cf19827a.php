@@ -105,8 +105,8 @@
             <div class="alert alert-info border-0 shadow-sm">
                 <i class="bx bx-info-circle me-1"></i>
                 Anda tercatat <strong>izin (disetujui)</strong> hari ini, sehingga presensi mengajar ditandai sebagai izin.
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($approvedIzinPresensi->keterangan)): ?>
-                    <div class="small mt-1"><?php echo e(\Illuminate\Support\Str::limit((string) $approvedIzinPresensi->keterangan, 180)); ?></div>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($approvedIzinNote)): ?>
+                    <div class="small mt-1"><?php echo e(\Illuminate\Support\Str::limit((string) $approvedIzinNote, 180)); ?></div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>

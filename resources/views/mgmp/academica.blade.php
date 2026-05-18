@@ -162,7 +162,7 @@
     <div class="card-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
-                <h5 class="mb-1">Update Reset</h5>
+                <h5 class="mb-1">Laporan Update Reset</h5>
                 <p class="text-muted mb-0">Catat progres pengerjaan reset dan unggah beberapa file pendukung dalam satu laporan.</p>
             </div>
             <span class="mgmp-chip">{{ isset($resetUpdates) ? $resetUpdates->count() : 0 }} update</span>
@@ -172,18 +172,18 @@
             <div class="row g-4">
                 <div class="col-lg-5">
                     <div class="p-3 rounded-3 border bg-light h-100">
-                        <h6 class="mb-3">Form Update Reset</h6>
+                        <h6 class="mb-3">Form Laporan Update Reset</h6>
                         <form method="POST" action="{{ route('mgmp.academica.reset-update.store') }}" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
-                                <label for="reset_title" class="form-label">Judul update</label>
+                                <label for="reset_title" class="form-label">Judul Progres</label>
                                 <input
                                     type="text"
                                     name="title"
                                     id="reset_title"
                                     class="form-control"
                                     value="{{ old('title') }}"
-                                    placeholder="Contoh: Progress revisi bab 2"
+                                    placeholder="Contoh: Progress penyusunan"
                                     required
                                 >
                                 @error('title') <div class="text-danger mt-1">{{ $message }}</div> @enderror

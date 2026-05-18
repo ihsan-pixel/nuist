@@ -22,7 +22,7 @@
     <div class="card-body d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
         <div>
             <h4 class="mb-1">Transaksi SPP Siswa</h4>
-            <p class="text-muted mb-0">Pencatatan pembayaran SPP siswa baru yang terhubung ke tagihan SPP siswa.</p>
+            <p class="text-muted mb-0">Monitoring pembayaran SPP siswa. Transaksi BNI Virtual Account akan diperbarui otomatis.</p>
         </div>
         
     </div>
@@ -32,7 +32,7 @@
     <div class="card-body">
         <form method="GET">
             <div class="row g-3 align-items-end">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin'): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
                     <div class="col-md-3">
                         <label class="form-label">Madrasah</label>
                         <select name="madrasah_id" class="form-select">
@@ -44,12 +44,12 @@
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <div class="col-md-3">
-                    <label class="form-label">Verifikasi</label>
+                    <label class="form-label">Status Pembayaran</label>
                     <select name="status_verifikasi" class="form-select">
                         <option value="">Semua</option>
-                        <option value="menunggu" <?php if(request('status_verifikasi') === 'menunggu'): echo 'selected'; endif; ?>>Menunggu</option>
-                        <option value="diverifikasi" <?php if(request('status_verifikasi') === 'diverifikasi'): echo 'selected'; endif; ?>>Diverifikasi</option>
-                        <option value="ditolak" <?php if(request('status_verifikasi') === 'ditolak'): echo 'selected'; endif; ?>>Ditolak</option>
+                        <option value="menunggu" <?php if(request('status_verifikasi') === 'menunggu'): echo 'selected'; endif; ?>>Pending</option>
+                        <option value="diverifikasi" <?php if(request('status_verifikasi') === 'diverifikasi'): echo 'selected'; endif; ?>>Berhasil</option>
+                        <option value="ditolak" <?php if(request('status_verifikasi') === 'ditolak'): echo 'selected'; endif; ?>>Gagal</option>
                     </select>
                 </div>
                 <div class="col-md-4"><label class="form-label">Pencarian</label><input type="text" name="q" value="<?php echo e(request('q')); ?>" class="form-control" placeholder="No transaksi, nama, NIS"></div>
@@ -73,7 +73,7 @@
                         <th>Nominal</th>
                         <th>Metode</th>
                         <th>VA</th>
-                        <th>Verifikasi</th>
+                        <th>Status Pembayaran</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,7 +97,12 @@
                                 <span class="text-muted">-</span>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </td>
-                        <td><span class="badge bg-<?php echo e($transaction->status_verifikasi === 'diverifikasi' ? 'success' : ($transaction->status_verifikasi === 'ditolak' ? 'danger' : 'warning')); ?>"><?php echo e(ucfirst($transaction->status_verifikasi)); ?></span></td>
+                        <td>
+                            <span class="badge bg-<?php echo e($transaction->status_verifikasi === 'diverifikasi' ? 'success' : ($transaction->status_verifikasi === 'ditolak' ? 'danger' : 'warning text-dark')); ?>">
+                                <?php echo e($transaction->status_verifikasi === 'diverifikasi' ? 'Berhasil' : ($transaction->status_verifikasi === 'ditolak' ? 'Gagal' : 'Pending')); ?>
+
+                            </span>
+                        </td>
                     </tr>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     <tr><td colspan="9" class="text-center text-muted">Belum ada transaksi SPP siswa.</td></tr>
@@ -133,15 +138,20 @@
                         <div class="col-md-3"><label class="form-label">Tanggal Bayar</label><input type="date" name="tanggal_bayar" class="form-control" required></div>
                         <div class="col-md-3"><label class="form-label">Nominal</label><input type="number" min="0" name="nominal_bayar" class="form-control" required></div>
                         <div class="col-md-4"><label class="form-label">Metode Pembayaran</label><input type="text" name="metode_pembayaran" class="form-control" placeholder="Transfer, Cash, QRIS, Virtual Account" required></div>
-                        <div class="col-md-4">
-                            <label class="form-label">Status Verifikasi</label>
-                            <select name="status_verifikasi" class="form-select" required>
-                                <option value="menunggu">Menunggu</option>
-                                <option value="diverifikasi">Diverifikasi</option>
-                                <option value="ditolak">Ditolak</option>
-                            </select>
+                        <div class="col-md-8">
+                            <label class="form-label">Keterangan</label>
+                            <input type="text" name="keterangan" class="form-control">
                         </div>
-                        <div class="col-md-4"><label class="form-label">Keterangan</label><input type="text" name="keterangan" class="form-control"></div>
+                        <div class="col-md-12">
+                            <div class="alert alert-light border mb-0">
+                                <div class="fw-semibold mb-2">Informasi transaksi</div>
+                                <ul class="mb-0 ps-3">
+                                    <li>Transaksi input manual akan otomatis disimpan sebagai <strong>Berhasil</strong>.</li>
+                                    <li>Transaksi BNI Virtual Account akan berstatus <strong>Pending</strong>.</li>
+                                    <li>Tidak ada proses verifikasi manual operator pada modul ini.</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

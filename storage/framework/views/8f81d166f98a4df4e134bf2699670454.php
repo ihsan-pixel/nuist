@@ -26,7 +26,7 @@
                 <form method="POST" action="<?php echo e(route('spp-siswa.pengaturan.store')); ?>">
                     <?php echo csrf_field(); ?>
                     <div class="row g-3">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin'): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
                             <div class="col-12">
                                 <label class="form-label">Madrasah</label>
                                 <select name="madrasah_id" class="form-select" required>
@@ -42,15 +42,13 @@
                         <div class="col-md-6">
                             <label class="form-label">Provider Pembayaran</label>
                             <select name="payment_provider" class="form-select" required>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
-                                    <option value="manual">Manual</option>
-                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
+                                <option value="manual">Manual</option>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <option value="bni_va">BNI Virtual Account</option>
                             </select>
                         </div>
-                        <div class="col-md-6"><label class="form-label">VA Expired (jam)</label><input type="number" min="1" max="720" name="va_expired_hours" class="form-control" value="24"></div>
                         <div class="col-12"><label class="form-label">Catatan</label><textarea name="catatan" rows="3" class="form-control"></textarea></div>
-                        <div class="col-12"><label class="form-label">Catatan Pembayaran</label><textarea name="payment_notes" rows="3" class="form-control" placeholder="Contoh: Pembayaran hanya melalui Virtual Account BNI."></textarea></div>
                         <div class="col-12">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="is_active" value="1" checked id="is_active">
@@ -74,7 +72,6 @@
                                 <th>Madrasah</th>
                                 <th>Tahun Ajaran</th>
                                 <th>Provider</th>
-                                <th>VA Expired</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -85,7 +82,6 @@
                                 <td><?php echo e($setting->madrasah->name ?? '-'); ?></td>
                                 <td><?php echo e($setting->tahun_ajaran); ?></td>
                                 <td><?php echo e(strtoupper(str_replace('_', ' ', $setting->payment_provider ?? 'manual'))); ?></td>
-                                <td><?php echo e($setting->va_expired_hours ?? 24); ?> jam</td>
                                 <td><span class="badge bg-<?php echo e($setting->is_active ? 'success' : 'secondary'); ?>"><?php echo e($setting->is_active ? 'Aktif' : 'Nonaktif'); ?></span></td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editSettingModal<?php echo e($setting->id); ?>">
@@ -94,7 +90,7 @@
                                 </td>
                             </tr>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                            <tr><td colspan="6" class="text-center text-muted">Belum ada pengaturan SPP siswa.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted">Belum ada pengaturan SPP siswa.</td></tr>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
@@ -119,7 +115,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="row g-3">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin'): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
                                 <div class="col-12">
                                     <label class="form-label">Madrasah</label>
                                     <select name="madrasah_id" class="form-select" required>
@@ -144,17 +140,9 @@
                                     <option value="bni_va" <?php if($setting->payment_provider === 'bni_va'): echo 'selected'; endif; ?>>BNI Virtual Account</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">VA Expired (jam)</label>
-                                <input type="number" min="1" max="720" name="va_expired_hours" class="form-control" value="<?php echo e($setting->va_expired_hours ?? 24); ?>">
-                            </div>
                             <div class="col-12">
                                 <label class="form-label">Catatan</label>
                                 <textarea name="catatan" rows="3" class="form-control"><?php echo e($setting->catatan); ?></textarea>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Catatan Pembayaran</label>
-                                <textarea name="payment_notes" rows="3" class="form-control"><?php echo e($setting->payment_notes); ?></textarea>
                             </div>
                             <div class="col-12">
                                 <div class="form-check">

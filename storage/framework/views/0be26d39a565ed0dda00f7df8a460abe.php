@@ -9,20 +9,27 @@
             <ul class="metismenu list-unstyled" id="side-menu">
 
                 <?php
-                    $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
-                    $allowedRoles = ['super_admin', 'admin'];
-                    $isAllowed = in_array($userRole, $allowedRoles);
-                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
+                    $userRole = auth()->user()
+                        ? preg_replace('/\s+/', '_', trim(strtolower((string) auth()->user()->role)))
+                        : '';
+                    $dashboardRoles = ['super_admin', 'admin'];
+                    $masterDataRoles = ['super_admin', 'admin'];
+                    $showDashboardMenu = in_array($userRole, $dashboardRoles);
+                    $showMasterDataMenu = in_array($userRole, $masterDataRoles);
+                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false') . ', showMasterDataMenu: ' . ($showMasterDataMenu ? 'true' : 'false'));
                     ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isAllowed): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showDashboardMenu): ?>
                 <li class="menu-title" key="t-menu"><?php echo app('translator')->get('translation.Menu'); ?></li>
 
                 <li>
-                    <a href="<?php echo e(url('dashboard')); ?>" class="waves-effect">
+                    <a href="<?php echo e(route('dashboard')); ?>" class="waves-effect">
                         <i class="bx bx-home-circle"></i>
                         <span key="t-dashboard">Dashboard</span>
                     </a>
                 </li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showMasterDataMenu): ?>
                 <li>
                     <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
                         <i class="bx bx-data"></i>
@@ -34,6 +41,9 @@
                         <li><a href="<?php echo e(route('pengurus.index')); ?>">Data Pengurus</a></li>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <li><a href="<?php echo e(route('admin.index')); ?>">Data Admin</a></li>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
+                        <li><a href="<?php echo e(route('operator-spp.index')); ?>">Data Operator SPP</a></li>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <li><a href="<?php echo e(route('madrasah.index')); ?>">Data Madrasah/Sekolah</a></li>
                         <li><a href="<?php echo e(route('tenaga-pendidik.index')); ?>">Data Tenaga Pendidik</a></li>
                         <li><a href="<?php echo e(route('class-student-counts.index')); ?>">Data Jml Siswa per Kelas</a></li>
@@ -155,7 +165,7 @@
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php
-                    \Log::info('Sidebar PresensiAdmin isAllowed: ' . ($isAllowed ? 'true' : 'false'));
+                    \Log::info('Sidebar PresensiAdmin showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false'));
                 ?>
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin'): ?>
@@ -276,22 +286,61 @@
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <?php if(in_array($userRole, ['super_admin', 'admin', 'pengurus'])): ?>
-                <li class="menu-title">SPP SISWA</li>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'admin_spp', 'pengurus'])): ?>
+                <li class="menu-title">MENU SPP</li>
 
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin_spp'): ?>
                 <li>
-                    <a href="#sppSiswaSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
-                        <i class="bx bx-wallet-alt"></i>
-                        <span>SPP Siswa</span>
+                    <a href="<?php echo e(route('spp-siswa.dashboard')); ?>" class="waves-effect">
+                        <i class="bx bx-grid-alt"></i>
+                        <span>Dashboard</span>
                     </a>
-                    <ul class="sub-menu collapse" id="sppSiswaSubmenu">
-                        <li><a href="<?php echo e(route('spp-siswa.dashboard')); ?>">Dashboard SPP Siswa</a></li>
-                        <li><a href="<?php echo e(route('spp-siswa.tagihan')); ?>">Tagihan</a></li>
-                        <li><a href="<?php echo e(route('spp-siswa.transaksi')); ?>">Transaksi</a></li>
-                        <li><a href="<?php echo e(route('spp-siswa.laporan')); ?>">Laporan</a></li>
-                        <li><a href="<?php echo e(route('spp-siswa.pengaturan')); ?>">Pengaturan</a></li>
-                    </ul>
                 </li>
+                <li>
+                    <a href="<?php echo e(route('data-sekolah.data-siswa.index')); ?>" class="waves-effect">
+                        <i class="bx bx-user-circle"></i>
+                        <span>Data Siswa</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo e(route('spp-siswa.tagihan')); ?>" class="waves-effect">
+                        <i class="bx bx-receipt"></i>
+                        <span>Tagihan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo e(route('spp-siswa.transaksi')); ?>" class="waves-effect">
+                        <i class="bx bx-credit-card"></i>
+                        <span>Transaksi</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo e(route('spp-siswa.laporan')); ?>" class="waves-effect">
+                        <i class="bx bx-bar-chart-alt-2"></i>
+                        <span>Laporan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo e(route('spp-siswa.pengaturan')); ?>" class="waves-effect">
+                        <i class="bx bx-cog"></i>
+                        <span>Pengaturan</span>
+                    </a>
+                </li>
+                <?php else: ?>
+                    <li>
+                        <a href="#sppSiswaSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                            <i class="bx bx-wallet-alt"></i>
+                            <span>SPP Siswa</span>
+                        </a>
+                        <ul class="sub-menu collapse" id="sppSiswaSubmenu">
+                            <li><a href="<?php echo e(route('spp-siswa.dashboard')); ?>">Dashboard SPP Siswa</a></li>
+                            <li><a href="<?php echo e(route('spp-siswa.tagihan')); ?>">Tagihan</a></li>
+                            <li><a href="<?php echo e(route('spp-siswa.transaksi')); ?>">Transaksi</a></li>
+                            <li><a href="<?php echo e(route('spp-siswa.laporan')); ?>">Laporan</a></li>
+                            <li><a href="<?php echo e(route('spp-siswa.pengaturan')); ?>">Pengaturan</a></li>
+                        </ul>
+                    </li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'pengurus'])): ?>
@@ -404,12 +453,14 @@
                     </a>
                 </li>
 
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($mgmp_has_academica_upload ?? false): ?>
                 <li>
                     <a href="<?php echo e(route('mgmp.academica')); ?>" class="waves-effect">
                         <i class="bx bx-book"></i>
                         <span>Academica</span>
                     </a>
                 </li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <li>
                     <a href="<?php echo e(route('mgmp.laporan')); ?>" class="waves-effect">

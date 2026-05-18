@@ -172,8 +172,20 @@
 
                                             <div class="col-md-6">
                                                 <label>Madrasah</label>
-                                                <input type="text" class="form-control" value="<?php echo e($tp->madrasah ? $tp->madrasah->name : '-'); ?>" readonly>
-                                                <input type="hidden" name="madrasah_id" value="<?php echo e($tp->madrasah_id); ?>">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
+                                                    <select name="madrasah_id" class="form-control">
+                                                        <option value="">-- Pilih Madrasah --</option>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                            <option value="<?php echo e($madrasah->id); ?>" <?php echo e((string) $tp->madrasah_id === (string) $madrasah->id ? 'selected' : ''); ?>>
+                                                                <?php echo e($madrasah->name); ?>
+
+                                                            </option>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                    </select>
+                                                <?php else: ?>
+                                                    <input type="text" class="form-control" value="<?php echo e($tp->madrasah ? $tp->madrasah->name : '-'); ?>" readonly>
+                                                    <input type="hidden" name="madrasah_id" value="<?php echo e($tp->madrasah_id); ?>">
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </div>
 
                                             <div class="col-md-6">

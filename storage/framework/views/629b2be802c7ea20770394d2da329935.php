@@ -95,12 +95,6 @@
                 <p>Tagihan ini masih menggunakan mekanisme pembayaran manual. Hubungi admin sekolah untuk konfirmasi pembayaran.</p>
             </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($activeTagihan?->setting?->payment_notes): ?>
-            <div class="note-card warning">
-                <h6>Catatan pembayaran</h6>
-                <p><?php echo e($activeTagihan->setting->payment_notes); ?></p>
-            </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         <a href="<?php echo e(route('mobile.siswa.chat')); ?>" class="ghost-btn">
             <i class="bx bx-message-square-detail"></i>Hubungi admin sekolah
         </a>

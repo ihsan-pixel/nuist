@@ -1072,13 +1072,13 @@ $progressColor = "rgb($red, $green, 0)";
                     <!-- Presensi Mengajar - tampilkan per jadwal -->
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($teachingSteps) > 0): ?>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $teachingSteps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                        <div class="timeline-item-accordion <?php echo e($step['status'] === 'completed' ? 'done' : ''); ?>">
+                        <div class="timeline-item-accordion <?php echo e(in_array($step['status'], ['completed', 'excused']) ? 'done' : ''); ?>">
                             <div class="timeline-icon">
                                 <i class="bx bx-chalkboard"></i>
                             </div>
                             <div class="timeline-content">
                                 <strong><?php echo e($step['label']); ?></strong>
-                                <small><?php echo e($step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan'); ?></small>
+                                <small><?php echo e($step['status'] === 'completed' ? 'Sudah dilakukan' : ($step['status'] === 'excused' ? 'Izin disetujui' : 'Belum dilakukan')); ?></small>
                             </div>
                         </div>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>

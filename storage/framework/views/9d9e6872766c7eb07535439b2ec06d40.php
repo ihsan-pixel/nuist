@@ -10,6 +10,7 @@
                     <div class="card-tools">
                         <form method="GET" class="d-inline">
                             <div class="input-group input-group-sm">
+                                <input type="hidden" name="week" value="<?php echo e($startOfWeek->format('o-\WW')); ?>">
                                 <input type="month" name="month" value="<?php echo e(request('month', date('Y-m'))); ?>" class="form-control" onchange="this.form.submit()">
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-primary">
@@ -34,7 +35,7 @@
                             <tr>
                                 <td class="text-center"><?php echo e($index + 1); ?></td>
                                 <td><?php echo e($madrasah['nama']); ?></td>
-                                <td class="text-center"><?php echo e(number_format($madrasah['persentase'], 2)); ?>%</td>
+                                <td class="text-center"><?php echo e(number_format($madrasah['persentase'], 2, ',', '.')); ?>%</td>
                             </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             <tr>
@@ -55,7 +56,8 @@
                     <div class="card-tools">
                         <form method="GET" class="d-inline">
                             <div class="input-group input-group-sm">
-                                <input type="week" name="week" value="<?php echo e($startOfWeek->format('Y-W')); ?>" class="form-control" onchange="this.form.submit()">
+                                <input type="hidden" name="month" value="<?php echo e(request('month', $startOfMonth->format('Y-m'))); ?>">
+                                <input type="week" name="week" value="<?php echo e($startOfWeek->format('o-\WW')); ?>" class="form-control" onchange="this.form.submit()">
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-search"></i>
@@ -63,7 +65,7 @@
                                 </div>
                             </div>
                         </form>
-                        <a href="<?php echo e(route('presensi_admin.laporan_mingguan', ['week' => $startOfWeek->format('Y-W'), 'export' => 'excel'])); ?>" class="btn btn-success btn-sm ml-2">
+                        <a href="<?php echo e(route('presensi_admin.laporan_mingguan', ['week' => $startOfWeek->format('o-\WW'), 'month' => request('month', $startOfMonth->format('Y-m')), 'export' => 'excel'])); ?>" class="btn btn-success btn-sm ml-2">
                             <i class="fas fa-download"></i> Export Excel
                         </a>
                     </div>
@@ -83,6 +85,7 @@
                                 <th colspan="3" class="text-center">Jumat</th>
                                 <th colspan="3" class="text-center">Sabtu</th>
                                 <th rowspan="2" class="text-center align-middle">Persentase Kehadiran (%)</th>
+                                <th rowspan="2" class="text-center align-middle">Rank</th>
                             </tr>
                             <tr>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 0; $i < 6; $i++): ?>
@@ -95,7 +98,7 @@
                         <tbody>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $laporanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr class="bg-info">
-                                <td colspan="22" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
+                                <td colspan="24" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
                             </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr>
@@ -108,20 +111,10 @@
                                 <td class="text-center"><?php echo e($presensi['izin']); ?></td>
                                 <td class="text-center"><?php echo e($presensi['alpha']); ?></td>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                                <td class="text-center font-weight-bold"><?php echo e(number_format($madrasah['persentase_kehadiran'], 2)); ?>%</td>
+                                <td class="text-center font-weight-bold"><?php echo e(number_format($madrasah['persentase_kehadiran'], 2, ',', '.')); ?>%</td>
+                                <td class="text-center font-weight-bold"><?php echo e($madrasah['rank']); ?></td>
                             </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                            <tr class="bg-warning font-weight-bold">
-                                <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL <?php echo e($kabupaten['kabupaten']); ?></td>
-                                <td></td>
-                                <td class="text-center"><?php echo e(collect($kabupaten['madrasahs'])->sum('total_tenaga_pendidik')); ?></td>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 0; $i < 6; $i++): ?>
-                                <td class="text-center"><?php echo e($kabupaten['total_hadir']); ?></td>
-                                <td class="text-center"><?php echo e($kabupaten['total_izin']); ?></td>
-                                <td class="text-center"><?php echo e($kabupaten['total_alpha']); ?></td>
-                                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                <td class="text-center"><?php echo e(number_format($kabupaten['persentase_kehadiran'], 2)); ?>%</td>
-                            </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                         </tbody>
                     </table>
@@ -153,12 +146,13 @@
                                 <th class="text-center align-middle">Total Izin</th>
                                 <th class="text-center align-middle">Total Alpha</th>
                                 <th class="text-center align-middle">Persentase Kehadiran (%)</th>
+                                <th class="text-center align-middle">Rank</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $laporanBulananData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr class="bg-info">
-                                <td colspan="8" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
+                                <td colspan="9" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
                             </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr>
@@ -169,18 +163,10 @@
                                 <td class="text-center"><?php echo e($madrasah['total_hadir']); ?></td>
                                 <td class="text-center"><?php echo e($madrasah['total_izin']); ?></td>
                                 <td class="text-center"><?php echo e($madrasah['total_alpha']); ?></td>
-                                <td class="text-center font-weight-bold"><?php echo e(number_format($madrasah['persentase_kehadiran'], 2)); ?>%</td>
+                                <td class="text-center font-weight-bold"><?php echo e(number_format($madrasah['persentase_kehadiran'], 2, ',', '.')); ?>%</td>
+                                <td class="text-center font-weight-bold"><?php echo e($madrasah['rank']); ?></td>
                             </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                            <tr class="bg-warning font-weight-bold">
-                                <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL <?php echo e($kabupaten['kabupaten']); ?></td>
-                                <td></td>
-                                <td class="text-center"><?php echo e(collect($kabupaten['madrasahs'])->sum('total_tenaga_pendidik')); ?></td>
-                                <td class="text-center"><?php echo e($kabupaten['total_hadir']); ?></td>
-                                <td class="text-center"><?php echo e($kabupaten['total_izin']); ?></td>
-                                <td class="text-center"><?php echo e($kabupaten['total_alpha']); ?></td>
-                                <td class="text-center"><?php echo e(number_format($kabupaten['persentase_kehadiran'], 2)); ?>%</td>
-                            </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                         </tbody>
                     </table>
