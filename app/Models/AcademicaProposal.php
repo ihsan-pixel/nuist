@@ -23,4 +23,9 @@ class AcademicaProposal extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function resetUpdates()
+    {
+        return $this->hasMany(AcademicaResetUpdate::class, 'academica_proposal_id');
+    }
 }

@@ -11,6 +11,8 @@ use App\Models\MgmpMember;
 use App\Models\MgmpReport;
 use App\Models\MgmpAttendance;
 use App\Models\AcademicaProposal;
+use App\Models\AcademicaResetUpdate;
+use App\Models\AcademicaResetUpdateFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -704,10 +706,16 @@ class MGMPController extends Controller
                 ->get();
         }
 
-        $userHasUploaded = AcademicaProposal::where('user_id', $user->id)->exists();
         $userProposal = AcademicaProposal::where('user_id', $user->id)->first();
+        $userHasUploaded = (bool) $userProposal;
+        $resetUpdates = $userProposal
+            ? AcademicaResetUpdate::with('files')
+                ->where('academica_proposal_id', $userProposal->id)
+                ->orderByDesc('created_at')
+                ->get()
+            : collect();
 
-        return view('mgmp.academica', compact('proposals', 'userHasUploaded', 'userProposal'));
+        return view('mgmp.academica', compact('proposals', 'userHasUploaded', 'userProposal', 'resetUpdates'));
     }
 
     /**
@@ -920,6 +928,62 @@ class MGMPController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Proposal berhasil diupload.');
+    }
+
+    /**
+     * Store academica reset progress updates with multiple attachments.
+     */
+    public function storeAcademicaResetUpdate(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'progress_percent' => 'required|integer|min:0|max:100',
+            'progress_note' => 'required|string',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx,ppt,pptx,zip|max:10240',
+        ]);
+
+        $user = auth()->user();
+        $proposal = AcademicaProposal::where('user_id', $user->id)->first();
+
+        if (!$proposal) {
+            return redirect()->back()->with('error', 'Upload proposal utama terlebih dahulu sebelum menambahkan update reset.');
+        }
+
+        $resetUpdate = AcademicaResetUpdate::create([
+            'academica_proposal_id' => $proposal->id,
+            'user_id' => $user->id,
+            'title' => $request->title,
+            'progress_percent' => $request->progress_percent,
+            'progress_note' => $request->progress_note,
+        ]);
+
+        if ($request->hasFile('attachments')) {
+            $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? public_path();
+            $destinationPath = $documentRoot . '/uploads/academica_reset_updates';
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            foreach ($request->file('attachments') as $index => $file) {
+                $storedFilename = time()
+                    . '_' . $resetUpdate->id
+                    . '_' . ($index + 1)
+                    . '_' . preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $file->getClientOriginalName());
+
+                $file->move($destinationPath, $storedFilename);
+
+                AcademicaResetUpdateFile::create([
+                    'academica_reset_update_id' => $resetUpdate->id,
+                    'original_name' => $file->getClientOriginalName(),
+                    'path' => 'academica_reset_updates/' . $storedFilename,
+                    'mime' => $file->getClientMimeType(),
+                ]);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Update reset berhasil disimpan.');
     }
 
     /**

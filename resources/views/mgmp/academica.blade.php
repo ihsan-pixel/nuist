@@ -47,6 +47,20 @@
 
 <div class="card mgmp-panel mb-4">
     <div class="card-body">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bx bx-error-circle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="row g-4 align-items-start">
             <div class="col-lg-5">
                 <h5 class="mb-2">{{ $userHasUploaded ? 'Proposal Anda' : 'Upload Proposal PDF' }}</h5>
@@ -67,7 +81,22 @@
                                     <a href="{{ url('/uploads/' . $userProposal->path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                         <i class="bx bx-show"></i> Lihat File
                                     </a>
+                                    <button type="button" class="btn btn-sm btn-primary ms-2" id="toggleReplaceProposal">
+                                        <i class="bx bx-edit-alt"></i> Edit / Ganti File
+                                    </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="p-3 rounded-3 border bg-light">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="mgmp-icon-bubble">
+                                <i class="bx bx-upload"></i>
+                            </div>
+                            <div class="grow">
+                                <div class="fw-semibold text-dark">Belum ada file proposal</div>
+                                <small class="text-muted">Silakan upload proposal pertama Anda dalam format PDF.</small>
                             </div>
                         </div>
                     </div>
@@ -75,26 +104,203 @@
             </div>
 
             <div class="col-lg-7">
-                <h5 class="mb-2">{{ $userHasUploaded ? 'Ganti Proposal' : 'Form Upload Proposal' }}</h5>
-                <p class="text-muted mb-3">
-                    {{ $userHasUploaded ? 'Pilih file PDF baru untuk mengganti proposal lama. File lama akan diganti.' : 'File maksimal 10 MB dan wajib berformat PDF.' }}
-                </p>
+                <div class="academica-form-panel {{ $userHasUploaded ? 'is-collapsed' : '' }}" id="academicaReplacePanel">
+                    <h5 class="mb-2">{{ $userHasUploaded ? 'Edit / Ganti Proposal' : 'Form Upload Proposal' }}</h5>
+                    <p class="text-muted mb-3">
+                        {{ $userHasUploaded ? 'Pilih file PDF baru untuk mengganti file proposal lama. File lama akan otomatis diperbarui.' : 'File maksimal 10 MB dan wajib berformat PDF.' }}
+                    </p>
 
-                <form method="POST" action="{{ route('mgmp.academica.upload') }}" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="proposal" class="form-label">Pilih file PDF proposal</label>
-                        <input type="file" name="proposal" id="proposal" accept="application/pdf" class="form-control" required>
-                        @error('proposal') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                    @if($userHasUploaded && $userProposal)
+                        <div class="alert alert-info border-0">
+                            <div class="fw-semibold mb-1">File saat ini</div>
+                            <div>{{ $userProposal->filename }}</div>
+                            <small class="text-muted">Saat Anda simpan file baru, file lama akan digantikan.</small>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('mgmp.academica.upload') }}" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="proposal" class="form-label">Pilih file PDF proposal</label>
+                            <input type="file" name="proposal" id="proposal" accept="application/pdf" class="form-control" required>
+                            @error('proposal') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-primary">
+                                <i class="bx {{ $userHasUploaded ? 'bx-refresh' : 'bx-upload' }}"></i>
+                                {{ $userHasUploaded ? 'Simpan File Baru' : 'Upload Proposal' }}
+                            </button>
+                            @if($userHasUploaded)
+                                <button type="button" class="btn btn-outline-secondary" id="cancelReplaceProposal">
+                                    <i class="bx bx-x"></i> Batal
+                                </button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+
+                @if($userHasUploaded)
+                    <div class="academica-placeholder-panel" id="academicaReplacePlaceholder">
+                        <div class="p-4 rounded-3 border bg-light h-100 d-flex flex-column justify-content-center">
+                            <h5 class="mb-2">Edit / Ganti Proposal</h5>
+                            <p class="text-muted mb-3">Klik tombol <strong>Edit / Ganti File</strong> di sebelah kiri untuk mengganti file proposal yang sudah diupload.</p>
+                            <div>
+                                <button type="button" class="btn btn-primary" id="openReplaceProposalFromPlaceholder">
+                                    <i class="bx bx-refresh"></i> Ganti File Sekarang
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn btn-primary">
-                        <i class="bx {{ $userHasUploaded ? 'bx-refresh' : 'bx-upload' }}"></i>
-                        {{ $userHasUploaded ? 'Perbarui Proposal' : 'Upload Proposal' }}
-                    </button>
-                </form>
+                @endif
             </div>
         </div>
 
+    </div>
+</div>
+
+<div class="card mgmp-panel mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div>
+                <h5 class="mb-1">Update Reset</h5>
+                <p class="text-muted mb-0">Catat progres pengerjaan reset dan unggah beberapa file pendukung dalam satu laporan.</p>
+            </div>
+            <span class="mgmp-chip">{{ isset($resetUpdates) ? $resetUpdates->count() : 0 }} update</span>
+        </div>
+
+        @if($userHasUploaded && $userProposal)
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="p-3 rounded-3 border bg-light h-100">
+                        <h6 class="mb-3">Form Update Reset</h6>
+                        <form method="POST" action="{{ route('mgmp.academica.reset-update.store') }}" enctype="multipart/form-data">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="reset_title" class="form-label">Judul update</label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    id="reset_title"
+                                    class="form-control"
+                                    value="{{ old('title') }}"
+                                    placeholder="Contoh: Progress revisi bab 2"
+                                    required
+                                >
+                                @error('title') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="progress_percent" class="form-label">Progres pengerjaan (%)</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    name="progress_percent"
+                                    id="progress_percent"
+                                    class="form-control"
+                                    value="{{ old('progress_percent', 0) }}"
+                                    required
+                                >
+                                @error('progress_percent') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="progress_note" class="form-label">Keterangan progres</label>
+                                <textarea
+                                    name="progress_note"
+                                    id="progress_note"
+                                    rows="4"
+                                    class="form-control"
+                                    placeholder="Jelaskan sudah sampai tahap mana reset dikerjakan, kendala, atau target berikutnya."
+                                    required
+                                >{{ old('progress_note') }}</textarea>
+                                @error('progress_note') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reset_attachments" class="form-label">Lampiran pendukung</label>
+                                <input
+                                    type="file"
+                                    name="attachments[]"
+                                    id="reset_attachments"
+                                    class="form-control"
+                                    multiple
+                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip"
+                                >
+                                <small class="text-muted d-block mt-1">
+                                    Boleh upload lebih dari satu file. Format umum dokumen/gambar, maksimal 10 MB per file.
+                                </small>
+                                <small class="text-muted d-block mt-1" id="resetAttachmentInfo"></small>
+                                @error('attachments') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                                @error('attachments.*') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <button class="btn btn-primary">
+                                <i class="bx bx-save"></i> Simpan Update Reset
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h6 class="mb-0">Riwayat Progres Reset</h6>
+                        @if(isset($resetUpdates) && $resetUpdates->isNotEmpty())
+                            <small class="text-muted">Terbaru: {{ $resetUpdates->first()->progress_percent }}%</small>
+                        @endif
+                    </div>
+
+                    @if(isset($resetUpdates) && $resetUpdates->isNotEmpty())
+                        <div class="academica-reset-list">
+                            @foreach($resetUpdates as $update)
+                                <div class="academica-reset-card">
+                                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
+                                        <div>
+                                            <h6 class="mb-1">{{ $update->title }}</h6>
+                                            <small class="text-muted">
+                                                {{ $update->created_at->format('d M Y H:i') }}
+                                                @if($update->updated_at && $update->updated_at->ne($update->created_at))
+                                                    • diperbarui {{ $update->updated_at->format('d M Y H:i') }}
+                                                @endif
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-primary-subtle text-primary">{{ $update->progress_percent }}%</span>
+                                    </div>
+
+                                    <div class="academica-progress-track mb-3">
+                                        <div class="academica-progress-bar" style="width: {{ max(0, min(100, (int) $update->progress_percent)) }}%;"></div>
+                                    </div>
+
+                                    <p class="text-muted mb-3">{{ $update->progress_note }}</p>
+
+                                    @if($update->files->isNotEmpty())
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach($update->files as $file)
+                                                <a href="{{ url('/uploads/' . $file->path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bx bx-paperclip me-1"></i>{{ \Illuminate\Support\Str::limit($file->original_name, 28) }}
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <small class="text-muted">Tidak ada lampiran pada update ini.</small>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="mgmp-empty-state py-5">
+                            <i class="bx bx-timer"></i>
+                            <strong>Belum ada update reset</strong>
+                            <small>Tambahkan progres reset pertama Anda agar riwayat pengerjaan mulai tercatat.</small>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @else
+            <div class="alert alert-warning mb-0">
+                <i class="bx bx-info-circle me-2"></i>Upload proposal utama terlebih dahulu. Setelah itu barulah Anda bisa menambahkan update reset dan lampiran progres.
+            </div>
+        @endif
     </div>
 </div>
 
@@ -174,6 +380,31 @@
 
 <script>
 $(document).ready(function () {
+    $('#reset_attachments').on('change', function () {
+        const count = this.files ? this.files.length : 0;
+        $('#resetAttachmentInfo').text(count > 0 ? count + ' file dipilih.' : '');
+    });
+
+    function openReplacePanel() {
+        $('#academicaReplacePanel').removeClass('is-collapsed');
+        $('#academicaReplacePlaceholder').hide();
+        $('#proposal').trigger('focus');
+    }
+
+    function closeReplacePanel() {
+        $('#academicaReplacePanel').addClass('is-collapsed');
+        $('#academicaReplacePlaceholder').show();
+        $('#proposal').val('');
+    }
+
+    $('#toggleReplaceProposal, #openReplaceProposalFromPlaceholder').on('click', function () {
+        openReplacePanel();
+    });
+
+    $('#cancelReplaceProposal').on('click', function () {
+        closeReplacePanel();
+    });
+
     if ($.fn.DataTable.isDataTable('#datatable-academica')) {
         $('#datatable-academica').DataTable().destroy();
     }
@@ -190,5 +421,40 @@ $(document).ready(function () {
         .appendTo('#datatable-academica_wrapper .col-md-6:eq(0)');
 });
 </script>
+
+<style>
+    .academica-form-panel.is-collapsed {
+        display: none;
+    }
+
+    .academica-placeholder-panel {
+        display: block;
+    }
+
+    .academica-reset-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .academica-reset-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f7fbf8 100%);
+        border: 1px solid #e5eee9;
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .academica-progress-track {
+        background: #e8f1ec;
+        border-radius: 999px;
+        height: 10px;
+        overflow: hidden;
+    }
+
+    .academica-progress-bar {
+        background: linear-gradient(90deg, #004b4c, #0e8549);
+        border-radius: 999px;
+        height: 100%;
+    }
+</style>
 
 @endsection

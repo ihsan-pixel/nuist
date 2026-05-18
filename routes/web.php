@@ -834,6 +834,7 @@ Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgm
     // Academica proposals page and upload
     Route::get('/academica', [App\Http\Controllers\MGMPController::class, 'academica'])->name('academica');
     Route::post('/academica/upload', [App\Http\Controllers\MGMPController::class, 'uploadAcademica'])->name('academica.upload');
+    Route::post('/academica/reset-update', [App\Http\Controllers\MGMPController::class, 'storeAcademicaResetUpdate'])->name('academica.reset-update.store');
 
     // Logout route for MGMP
     Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])->name('logout');
