@@ -55,26 +55,130 @@ class MGMPController extends Controller
     public function dashboard()
     {
         $user = auth()->user();
+        $isPrivileged = in_array($user->role, ['super_admin', 'admin', 'pengurus']);
+        $mgmpGroup = $this->currentMgmpGroupForUser($user);
 
-        // If user has an MGMP group (role mgmp), show their group info; else show general stats
-        $mgmpGroup = MgmpGroup::where('user_id', $user->id)->first();
+        $dashboardGroupsQuery = MgmpGroup::withCount(['members', 'reports'])
+            ->with([
+                'owner:id,name,email',
+                'members:id,mgmp_group_id,user_id,sekolah',
+                'reports' => function ($query) {
+                    $query->select('id', 'mgmp_group_id', 'judul', 'tanggal', 'status', 'jumlah_peserta', 'created_at')
+                        ->orderByDesc('tanggal')
+                        ->orderByDesc('created_at');
+                },
+            ])
+            ->orderBy('name');
 
-        if ($mgmpGroup) {
-            $memberCount = $mgmpGroup->members()->count();
-            $totalReports = $mgmpGroup->reports()->count();
-            $recentReports = $mgmpGroup->reports()->orderBy('created_at', 'desc')->limit(5)->get();
-
-            // proposals by group members
-            $groupMemberUserIds = $mgmpGroup->members()->pluck('user_id')->toArray();
-            $proposalCount = AcademicaProposal::whereIn('user_id', $groupMemberUserIds)->count();
+        if ($isPrivileged) {
+            $dashboardGroups = $dashboardGroupsQuery->get();
+        } elseif ($mgmpGroup) {
+            $dashboardGroups = $dashboardGroupsQuery->where('id', $mgmpGroup->id)->get();
         } else {
-            $memberCount = MgmpMember::count();
-            $totalReports = MgmpReport::count();
-            $recentReports = MgmpReport::orderBy('created_at', 'desc')->limit(5)->get();
-            $proposalCount = AcademicaProposal::count();
+            $dashboardGroups = collect();
         }
 
-        return view('mgmp.dashboard', compact('mgmpGroup', 'memberCount', 'totalReports', 'recentReports', 'proposalCount'));
+        $memberUserIds = $dashboardGroups->flatMap(function ($group) {
+            return $group->members->pluck('user_id');
+        })->filter()->unique()->values();
+
+        $proposalCountsByUser = $memberUserIds->isNotEmpty()
+            ? AcademicaProposal::selectRaw('user_id, COUNT(*) as total')
+                ->whereIn('user_id', $memberUserIds)
+                ->groupBy('user_id')
+                ->pluck('total', 'user_id')
+            : collect();
+
+        $mgmpInsights = $dashboardGroups->map(function ($group) use ($proposalCountsByUser) {
+            $latestReport = $group->reports->first();
+            $schoolCount = $group->members->pluck('sekolah')->filter()->unique()->count();
+            $groupProposalCount = $group->members
+                ->pluck('user_id')
+                ->filter()
+                ->unique()
+                ->sum(function ($userId) use ($proposalCountsByUser) {
+                    return (int) ($proposalCountsByUser[$userId] ?? 0);
+                });
+
+            if ($group->members_count === 0 && $group->reports_count === 0) {
+                $statusLabel = 'Baru dibuat';
+                $statusClass = 'secondary';
+            } elseif ($group->members_count === 0) {
+                $statusLabel = 'Perlu anggota';
+                $statusClass = 'warning';
+            } elseif ($group->reports_count === 0) {
+                $statusLabel = 'Belum ada kegiatan';
+                $statusClass = 'info';
+            } else {
+                $statusLabel = 'Aktif';
+                $statusClass = 'success';
+            }
+
+            return (object) [
+                'id' => $group->id,
+                'name' => $group->name,
+                'owner_name' => $group->owner->name ?? 'Belum ditentukan',
+                'owner_email' => $group->owner->email ?? '-',
+                'members_count' => (int) $group->members_count,
+                'reports_count' => (int) $group->reports_count,
+                'proposal_count' => $groupProposalCount,
+                'school_count' => $schoolCount,
+                'latest_report_title' => $latestReport->judul ?? null,
+                'latest_report_date' => $latestReport->tanggal ?? $latestReport->created_at,
+                'latest_participants_count' => (int) ($latestReport->jumlah_peserta ?? 0),
+                'status_label' => $statusLabel,
+                'status_class' => $statusClass,
+                'logo' => $group->logo,
+            ];
+        })->sortByDesc(function ($group) {
+            return ($group->reports_count * 1000) + $group->members_count;
+        })->values();
+
+        $recentReportsQuery = MgmpReport::with('mgmpGroup')
+            ->orderByDesc('tanggal')
+            ->orderByDesc('created_at');
+
+        if (!$isPrivileged) {
+            if ($mgmpGroup) {
+                $recentReportsQuery->where('mgmp_group_id', $mgmpGroup->id);
+            } else {
+                $recentReportsQuery->whereRaw('1 = 0');
+            }
+        }
+
+        $recentReports = $recentReportsQuery->limit(5)->get();
+        $memberCount = $mgmpInsights->sum('members_count');
+        $totalReports = $mgmpInsights->sum('reports_count');
+        $proposalCount = collect($proposalCountsByUser)->sum();
+        $totalSchools = $dashboardGroups->flatMap(function ($group) {
+            return $group->members->pluck('sekolah');
+        })->filter()->unique()->count();
+
+        $dashboardSummary = [
+            'total_groups' => $dashboardGroups->count(),
+            'groups_with_members' => $mgmpInsights->where('members_count', '>', 0)->count(),
+            'groups_with_reports' => $mgmpInsights->where('reports_count', '>', 0)->count(),
+            'needs_attention' => $mgmpInsights->filter(function ($group) {
+                return $group->members_count === 0 || $group->reports_count === 0;
+            })->count(),
+            'total_schools' => $totalSchools,
+            'average_members' => $dashboardGroups->count() > 0
+                ? number_format($memberCount / $dashboardGroups->count(), 1)
+                : '0',
+        ];
+
+        return view('mgmp.dashboard', compact(
+            'mgmpGroup',
+            'memberCount',
+            'totalReports',
+            'recentReports',
+            'proposalCount',
+            'dashboardGroups',
+            'dashboardSummary',
+            'mgmpInsights',
+            'isPrivileged',
+            'totalSchools'
+        ));
     }
 
     /**

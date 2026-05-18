@@ -23,6 +23,11 @@ class MgmpGroup extends Model
         return $this->hasMany(MgmpMember::class, 'mgmp_group_id');
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function reports()
     {
         return $this->hasMany(MgmpReport::class, 'mgmp_group_id');
