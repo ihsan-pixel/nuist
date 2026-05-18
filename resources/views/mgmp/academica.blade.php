@@ -162,25 +162,25 @@
     <div class="card-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
-                <h5 class="mb-1">Laporan Update Riset</h5>
-                <p class="text-muted mb-0">Catat progres pengerjaan riset dan unggah beberapa file pendukung dalam satu laporan</p>
+                <h5 class="mb-1">Laporan Update Reset</h5>
+                <p class="text-muted mb-0">Catat progres pengerjaan reset dan unggah beberapa file pendukung dalam satu laporan</p>
             </div>
-            <span class="mgmp-chip">{{ isset($risetUpdates) ? $risetUpdates->count() : 0 }} update</span>
+            <span class="mgmp-chip">{{ isset($resetUpdates) ? $resetUpdates->count() : 0 }} update</span>
         </div>
 
         @if($userHasUploaded && $userProposal)
             <div class="row g-4">
                 <div class="col-lg-5">
                     <div class="p-3 rounded-3 border bg-light h-100">
-                        <h6 class="mb-3">Form Laporan Update Riset</h6>
-                        <form method="POST" action="{{ route('mgmp.academica.riset-update.store') }}" enctype="multipart/form-data">
+                        <h6 class="mb-3">Form Laporan Update Reset</h6>
+                        <form method="POST" action="{{ route('mgmp.academica.reset-update.store') }}" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
-                                <label for="riset_title" class="form-label">Judul Progres</label>
+                                <label for="reset_title" class="form-label">Judul Progres</label>
                                 <input
                                     type="text"
                                     name="title"
-                                    id="riset_title"
+                                    id="reset_title"
                                     class="form-control"
                                     value="{{ old('title') }}"
                                     placeholder="Contoh: Progress penyusunan"
@@ -211,18 +211,18 @@
                                     id="progress_note"
                                     rows="4"
                                     class="form-control"
-                                    placeholder="Jelaskan sudah sampai tahap mana riset dikerjakan, kendala, atau target berikutnya."
+                                    placeholder="Jelaskan sudah sampai tahap mana reset dikerjakan, kendala, atau target berikutnya."
                                     required
                                 >{{ old('progress_note') }}</textarea>
                                 @error('progress_note') <div class="text-danger mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label for="riset_attachments" class="form-label">Lampiran pendukung</label>
+                                <label for="reset_attachments" class="form-label">Lampiran pendukung</label>
                                 <input
                                     type="file"
                                     name="attachments[]"
-                                    id="riset_attachments"
+                                    id="reset_attachments"
                                     class="form-control"
                                     multiple
                                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip"
@@ -230,13 +230,13 @@
                                 <small class="text-muted d-block mt-1">
                                     Boleh upload lebih dari satu file. Format umum dokumen/gambar, maksimal 10 MB per file.
                                 </small>
-                                <small class="text-muted d-block mt-1" id="risetAttachmentInfo"></small>
+                                <small class="text-muted d-block mt-1" id="resetAttachmentInfo"></small>
                                 @error('attachments') <div class="text-danger mt-1">{{ $message }}</div> @enderror
                                 @error('attachments.*') <div class="text-danger mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <button class="btn btn-primary">
-                                <i class="bx bx-save"></i> Simpan Update Riset
+                                <i class="bx bx-save"></i> Simpan Update Reset
                             </button>
                         </form>
                     </div>
@@ -244,16 +244,16 @@
 
                 <div class="col-lg-7">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h6 class="mb-0">Riwayat Progres Riset</h6>
-                        @if(isset($risetUpdates) && $risetUpdates->isNotEmpty())
-                            <small class="text-muted">Terbaru: {{ $risetUpdates->first()->progress_percent }}%</small>
+                        <h6 class="mb-0">Riwayat Progres Reset</h6>
+                        @if(isset($resetUpdates) && $resetUpdates->isNotEmpty())
+                            <small class="text-muted">Terbaru: {{ $resetUpdates->first()->progress_percent }}%</small>
                         @endif
                     </div>
 
-                    @if(isset($risetUpdates) && $risetUpdates->isNotEmpty())
-                        <div class="academica-riset-list">
-                            @foreach($risetUpdates as $update)
-                                <div class="academica-riset-card">
+                    @if(isset($resetUpdates) && $resetUpdates->isNotEmpty())
+                        <div class="academica-reset-list">
+                            @foreach($resetUpdates as $update)
+                                <div class="academica-reset-card">
                                     <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
                                         <div>
                                             <h6 class="mb-1">{{ $update->title }}</h6>
@@ -290,15 +290,15 @@
                     @else
                         <div class="mgmp-empty-state py-5">
                             <i class="bx bx-timer"></i>
-                            <strong>Belum ada update riset</strong>
-                            <small>Tambahkan progres riset pertama Anda agar riwayat pengerjaan mulai tercatat.</small>
+                            <strong>Belum ada update reset</strong>
+                            <small>Tambahkan progres reset pertama Anda agar riwayat pengerjaan mulai tercatat.</small>
                         </div>
                     @endif
                 </div>
             </div>
         @else
             <div class="alert alert-warning mb-0">
-                <i class="bx bx-info-circle me-2"></i>Upload proposal utama terlebih dahulu. Setelah itu barulah Anda bisa menambahkan update riset dan lampiran progres.
+                <i class="bx bx-info-circle me-2"></i>Upload proposal utama terlebih dahulu. Setelah itu barulah Anda bisa menambahkan update reset dan lampiran progres.
             </div>
         @endif
     </div>
@@ -380,9 +380,9 @@
 
 <script>
 $(document).ready(function () {
-    $('#riset_attachments').on('change', function () {
+    $('#reset_attachments').on('change', function () {
         const count = this.files ? this.files.length : 0;
-        $('#risetAttachmentInfo').text(count > 0 ? count + ' file dipilih.' : '');
+        $('#resetAttachmentInfo').text(count > 0 ? count + ' file dipilih.' : '');
     });
 
     function openReplacePanel() {
@@ -431,12 +431,12 @@ $(document).ready(function () {
         display: block;
     }
 
-    .academica-riset-list {
+    .academica-reset-list {
         display: grid;
         gap: 14px;
     }
 
-    .academica-riset-card {
+    .academica-reset-card {
         background: linear-gradient(180deg, #ffffff 0%, #f7fbf8 100%);
         border: 1px solid #e5eee9;
         border-radius: 16px;
