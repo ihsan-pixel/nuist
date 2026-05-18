@@ -162,8 +162,8 @@
     <div class="card-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
-                <h5 class="mb-1">Laporan Update Reset</h5>
-                <p class="text-muted mb-0">Catat progres pengerjaan reset dan unggah beberapa file pendukung dalam satu laporan</p>
+                <h5 class="mb-1">Laporan Update Riset</h5>
+                <p class="text-muted mb-0">Catat progres pengerjaan riset dan unggah beberapa file pendukung dalam satu laporan</p>
             </div>
             <span class="mgmp-chip">{{ isset($resetUpdates) ? $resetUpdates->count() : 0 }} update</span>
         </div>
@@ -172,7 +172,7 @@
             <div class="row g-4">
                 <div class="col-lg-5">
                     <div class="p-3 rounded-3 border bg-light h-100">
-                        <h6 class="mb-3">Form Laporan Update Reset</h6>
+                        <h6 class="mb-3">Form Laporan Update Riset</h6>
                         <form method="POST" action="{{ route('mgmp.academica.reset-update.store') }}" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
@@ -236,7 +236,7 @@
                             </div>
 
                             <button class="btn btn-primary">
-                                <i class="bx bx-save"></i> Simpan Update Reset
+                                <i class="bx bx-save"></i> Simpan Update Riset
                             </button>
                         </form>
                     </div>
@@ -244,7 +244,7 @@
 
                 <div class="col-lg-7">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h6 class="mb-0">Riwayat Progres Reset</h6>
+                        <h6 class="mb-0">Riwayat Progres Riset</h6>
                         @if(isset($resetUpdates) && $resetUpdates->isNotEmpty())
                             <small class="text-muted">Terbaru: {{ $resetUpdates->first()->progress_percent }}%</small>
                         @endif
@@ -290,15 +290,15 @@
                     @else
                         <div class="mgmp-empty-state py-5">
                             <i class="bx bx-timer"></i>
-                            <strong>Belum ada update reset</strong>
-                            <small>Tambahkan progres reset pertama Anda agar riwayat pengerjaan mulai tercatat.</small>
+                            <strong>Belum ada update riset</strong>
+                            <small>Tambahkan progres riset pertama Anda agar riwayat pengerjaan mulai tercatat.</small>
                         </div>
                     @endif
                 </div>
             </div>
         @else
             <div class="alert alert-warning mb-0">
-                <i class="bx bx-info-circle me-2"></i>Upload proposal utama terlebih dahulu. Setelah itu barulah Anda bisa menambahkan update reset dan lampiran progres.
+                <i class="bx bx-info-circle me-2"></i>Upload proposal utama terlebih dahulu. Setelah itu barulah Anda bisa menambahkan update riset dan lampiran progres.
             </div>
         @endif
     </div>
