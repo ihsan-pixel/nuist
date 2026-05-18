@@ -517,12 +517,14 @@
                     </a>
                 </li>
 
+                @if($mgmp_has_academica_upload ?? false)
                 <li>
                     <a href="{{ route('mgmp.academica') }}" class="waves-effect">
                         <i class="bx bx-book"></i>
                         <span>Academica</span>
                     </a>
                 </li>
+                @endif
 
                 <li>
                     <a href="{{ route('mgmp.laporan') }}" class="waves-effect">

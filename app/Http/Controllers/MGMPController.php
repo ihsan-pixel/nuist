@@ -741,10 +741,12 @@ class MGMPController extends Controller
             ->map(function ($items) {
                 return $items->count();
             });
+        $proposalByUser = $proposals->keyBy('user_id');
 
-        $mgmpInsights = $mgmpGroups->map(function ($group) use ($proposalCountsByUser) {
+        $mgmpInsights = $mgmpGroups->map(function ($group) use ($proposalCountsByUser, $proposalByUser) {
             $latestReport = $group->reports->first();
             $latestReportDate = $latestReport?->tanggal ?: $latestReport?->created_at;
+            $ownerProposal = $proposalByUser->get($group->user_id);
             $schoolCount = $group->members->pluck('sekolah')->filter()->unique()->count();
             $groupProposalCount = $group->members
                 ->pluck('user_id')
@@ -771,12 +773,16 @@ class MGMPController extends Controller
             return (object) [
                 'id' => $group->id,
                 'name' => $group->name,
+                'owner_id' => $group->user_id,
                 'owner_name' => $group->owner?->name ?? 'Belum ditentukan',
                 'owner_email' => $group->owner?->email ?? '-',
                 'members_count' => (int) $group->members_count,
                 'reports_count' => (int) $group->reports_count,
                 'proposal_count' => $groupProposalCount,
                 'school_count' => $schoolCount,
+                'academica_uploaded' => (bool) $ownerProposal,
+                'academica_uploaded_at' => $ownerProposal?->created_at,
+                'academica_filename' => $ownerProposal?->filename,
                 'latest_report_title' => $latestReport?->judul,
                 'latest_report_date' => $latestReportDate,
                 'latest_participants_count' => (int) ($latestReport?->jumlah_peserta ?? 0),
@@ -788,11 +794,25 @@ class MGMPController extends Controller
             return ($group->reports_count * 1000) + $group->members_count;
         })->values();
 
+        $mgmpWithAcademicaUpload = $mgmpInsights
+            ->where('academica_uploaded', true)
+            ->sortByDesc(function ($group) {
+                return optional($group->academica_uploaded_at)->timestamp ?? 0;
+            })
+            ->values();
+
+        $mgmpWithoutAcademicaUpload = $mgmpInsights
+            ->where('academica_uploaded', false)
+            ->sortBy('name')
+            ->values();
+
         $dashboardSummary = [
             'total_groups' => $mgmpGroups->count(),
             'total_members' => $members->count(),
             'total_reports' => $mgmpGroups->sum('reports_count'),
             'total_proposals' => $proposals->count(),
+            'uploaded_academica_groups' => $mgmpWithAcademicaUpload->count(),
+            'pending_academica_groups' => $mgmpWithoutAcademicaUpload->count(),
             'total_schools' => $members->pluck('sekolah')->filter()->unique()->count(),
             'groups_with_members' => $mgmpInsights->where('members_count', '>', 0)->count(),
             'groups_with_reports' => $mgmpInsights->where('reports_count', '>', 0)->count(),
@@ -810,7 +830,9 @@ class MGMPController extends Controller
             'proposals',
             'recentReports',
             'mgmpInsights',
-            'dashboardSummary'
+            'dashboardSummary',
+            'mgmpWithAcademicaUpload',
+            'mgmpWithoutAcademicaUpload'
         ));
     }
 

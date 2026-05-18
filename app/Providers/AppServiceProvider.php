@@ -6,7 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use App\Models\DevelopmentHistory;
+use App\Models\AcademicaProposal;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Notifications\ResetPassword;
 
 
@@ -35,8 +37,15 @@ class AppServiceProvider extends ServiceProvider
         // Share current app settings with all views from database AppSetting
         View::composer('*', function ($view) {
             $settings = \App\Models\AppSetting::getSettings();
+            $mgmpHasAcademicaUpload = false;
+
+            if (Auth::check() && trim(strtolower((string) Auth::user()->role)) === 'mgmp') {
+                $mgmpHasAcademicaUpload = AcademicaProposal::where('user_id', Auth::id())->exists();
+            }
+
             $view->with('app_name', $settings->app_name)
-                 ->with('app_version', $settings->app_version);
+                 ->with('app_version', $settings->app_version)
+                 ->with('mgmp_has_academica_upload', $mgmpHasAcademicaUpload);
         });
 
         // Use mobile reset-password route in password reset emails so users open mobile-optimized page

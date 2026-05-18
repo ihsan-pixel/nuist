@@ -106,6 +106,36 @@
                 </div>
             </div>
         </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card mgmp-stat-card p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-md me-3">
+                        <div class="avatar-title bg-success-subtle text-success rounded-circle">
+                            <i class="mdi mdi-cloud-check-outline fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-muted small">MGMP Sudah Upload</div>
+                        <div class="h5 mb-0">{{ $dashboardSummary['uploaded_academica_groups'] ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card mgmp-stat-card p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-md me-3">
+                        <div class="avatar-title bg-danger-subtle text-danger rounded-circle">
+                            <i class="mdi mdi-cloud-alert-outline fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-muted small">MGMP Belum Upload</div>
+                        <div class="h5 mb-0">{{ $dashboardSummary['pending_academica_groups'] ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-3 mb-3">
@@ -332,6 +362,110 @@
                                                 <i class="bx bx-data"></i>
                                                 <strong>Belum ada detail MGMP</strong>
                                                 <small>Data detail MGMP akan tampil di sini.</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h6 class="mb-1">Kelompok MGMP Sudah Upload Academica</h6>
+                            <p class="text-muted small mb-0">Owner MGMP yang sudah memiliki file Academica.</p>
+                        </div>
+                        <span class="badge bg-success-subtle text-success">{{ $mgmpWithAcademicaUpload->count() }}</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>MGMP</th>
+                                    <th>Owner</th>
+                                    <th>File</th>
+                                    <th>Upload</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($mgmpWithAcademicaUpload as $index => $group)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $group->name }}</td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $group->owner_name }}</div>
+                                            <small class="text-muted">{{ $group->owner_email }}</small>
+                                        </td>
+                                        <td>{{ Str::limit($group->academica_filename ?? '-', 28) }}</td>
+                                        <td>{{ optional($group->academica_uploaded_at)->format('d M Y H:i') ?? '-' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5">
+                                            <div class="mgmp-empty-state py-4">
+                                                <i class="bx bx-upload"></i>
+                                                <strong>Belum ada upload Academica</strong>
+                                                <small>Daftar MGMP yang sudah upload akan tampil di sini.</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h6 class="mb-1">Kelompok MGMP Belum Upload Academica</h6>
+                            <p class="text-muted small mb-0">Owner MGMP yang belum memiliki file Academica.</p>
+                        </div>
+                        <span class="badge bg-danger-subtle text-danger">{{ $mgmpWithoutAcademicaUpload->count() }}</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>MGMP</th>
+                                    <th>Owner</th>
+                                    <th>Anggota</th>
+                                    <th>Kegiatan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($mgmpWithoutAcademicaUpload as $index => $group)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $group->name }}</td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $group->owner_name }}</div>
+                                            <small class="text-muted">{{ $group->owner_email }}</small>
+                                        </td>
+                                        <td>{{ $group->members_count }}</td>
+                                        <td>{{ $group->reports_count }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5">
+                                            <div class="mgmp-empty-state py-4">
+                                                <i class="bx bx-check-shield"></i>
+                                                <strong>Semua MGMP sudah upload</strong>
+                                                <small>Tidak ada MGMP yang menunggu upload Academica.</small>
                                             </div>
                                         </td>
                                     </tr>
