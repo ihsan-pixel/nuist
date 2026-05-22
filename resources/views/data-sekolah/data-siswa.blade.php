@@ -47,6 +47,26 @@
 .modal .form-label {
     font-weight: 600;
 }
+
+.student-modal .modal-dialog {
+    margin: 0.75rem auto;
+}
+
+.student-modal .modal-content {
+    max-height: calc(100vh - 1.5rem);
+    border: 0;
+    border-radius: 1rem;
+}
+
+.student-modal .modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.student-modal .modal-header,
+.student-modal .modal-footer {
+    background: #fff;
+}
 </style>
 @endsection
 
@@ -333,8 +353,8 @@
 </div>
 
 @if($userRole !== 'admin_spp')
-    <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal fade student-modal" id="createModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <form method="POST" action="{{ route('data-sekolah.data-siswa.store') }}">
                     @csrf
@@ -355,8 +375,8 @@
     </div>
 @endif
 
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+<div class="modal fade student-modal" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <form method="POST" id="editForm">
                 @csrf
