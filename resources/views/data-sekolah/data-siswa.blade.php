@@ -128,7 +128,7 @@
                     <div>
                         <h4 class="text-white mb-2"><i class="bx bx-id-card me-2"></i>Data Siswa</h4>
                         <p class="mb-0 text-white-50">
-                            {{ $userRole === 'admin_spp' ? 'Lihat data siswa sesuai madrasah yang terhubung dengan akun Anda.' : 'Kelola dan import data siswa per madrasah dengan format data Dapodik.' }}
+                            {{ $userRole === 'admin_spp' ? 'Lihat data siswa sesuai madrasah yang terhubung dengan akun Anda.' : 'Kelola dan import data siswa per madrasah dengan format data sesuai template.' }}
                         </p>
                     </div>
                     @if($userRole !== 'admin_spp')
@@ -249,7 +249,7 @@
     <div class="card-body">
         @if($userRole !== 'admin_spp')
             <div class="alert alert-info">
-                Password default akun siswa saat tambah/import adalah <strong>NIS</strong>. Jika email siswa kosong pada file Dapodik, sistem akan membuat email internal otomatis.
+                Password default akun siswa saat tambah/import adalah <strong>NIS</strong>. Jika email siswa kosong pada file template, sistem akan membuat email internal otomatis.
             </div>
         @endif
 
@@ -433,7 +433,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning mb-3">
-                            Gunakan template resmi Dapodik agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS, NISN, atau email siswa sudah ada, data akan diperbarui.
+                            Gunakan template agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS, NISN, atau email siswa sudah ada, data akan diperbarui.
                         </div>
                         @if(!in_array($userRole, ['admin', 'admin_spp']))
                             <div class="mb-3">
