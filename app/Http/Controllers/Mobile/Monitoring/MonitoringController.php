@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\TeachingSchedule;
+use App\Services\ApprovedIzinSyncService;
+use App\Services\ExternalTeachingPermissionService;
 
 class MonitoringController extends \App\Http\Controllers\Controller
 {
@@ -23,6 +25,7 @@ class MonitoringController extends \App\Http\Controllers\Controller
         }
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+        $this->syncMadrasahAttendancePermissionsForDate($user, $selectedDate);
 
         $presensis = Presensi::with(['user', 'statusKepegawaian'])
             ->whereHas('user', function ($q) use ($user) {
@@ -88,6 +91,7 @@ class MonitoringController extends \App\Http\Controllers\Controller
         }
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+        $this->syncMadrasahAttendancePermissionsForDate($user, $selectedDate);
 
         // Get presensi data for the madrasah
         $presensis = Presensi::with(['user', 'statusKepegawaian'])
@@ -144,5 +148,21 @@ class MonitoringController extends \App\Http\Controllers\Controller
         }
 
         return view('mobile.monitor-map', compact('mapData', 'selectedDate', 'presensis', 'belumPresensi'));
+    }
+
+    private function syncMadrasahAttendancePermissionsForDate(User $kepalaMadrasah, Carbon $selectedDate): void
+    {
+        User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $kepalaMadrasah->madrasah_id)
+            ->with('madrasah')
+            ->get()
+            ->each(function (User $teacher) use ($selectedDate) {
+                ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($teacher, $selectedDate);
+
+                if (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate)) {
+                    ExternalTeachingPermissionService::createOrUpdateNoPresenceRecord($teacher, $selectedDate);
+                }
+            });
     }
 }
