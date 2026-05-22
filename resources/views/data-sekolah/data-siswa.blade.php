@@ -84,13 +84,13 @@
                     <div>
                         <h4 class="text-white mb-2"><i class="bx bx-id-card me-2"></i>Data Siswa</h4>
                         <p class="mb-0 text-white-50">
-                            {{ $userRole === 'admin_spp' ? 'Lihat data siswa sesuai madrasah yang terhubung dengan akun Anda.' : 'Kelola dan import data siswa per madrasah.' }}
+                            {{ $userRole === 'admin_spp' ? 'Lihat data siswa sesuai madrasah yang terhubung dengan akun Anda.' : 'Kelola dan import data siswa per madrasah dengan format data Dapodik.' }}
                         </p>
                     </div>
                     @if($userRole !== 'admin_spp')
                         <div class="d-flex flex-wrap gap-2">
                             <a href="{{ route('data-sekolah.data-siswa.template') }}" class="btn btn-light">
-                                <i class="bx bx-download me-1"></i>Template Import
+                                <i class="bx bx-download me-1"></i>Template Dapodik
                             </a>
                             <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">
                                 <i class="bx bx-upload me-1"></i>Import
@@ -188,7 +188,7 @@
                 </div>
                 <div class="col-md-2">
                     <label for="q" class="form-label">Pencarian</label>
-                    <input type="text" name="q" id="q" class="form-control" value="{{ request('q') }}" placeholder="Cari NIS, nama, email, wali">
+                    <input type="text" name="q" id="q" class="form-control" value="{{ request('q') }}" placeholder="Cari NIS, NISN, NIK, nama, email, wali">
                 </div>
                 <div class="col-md-2">
                     <div class="d-grid gap-2">
@@ -205,7 +205,7 @@
     <div class="card-body">
         @if($userRole !== 'admin_spp')
             <div class="alert alert-info">
-                Password default akun siswa saat tambah/import adalah <strong>NIS</strong>.
+                Password default akun siswa saat tambah/import adalah <strong>NIS</strong>. Jika email siswa kosong pada file Dapodik, sistem akan membuat email internal otomatis.
             </div>
         @endif
 
@@ -214,7 +214,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
-                        <th>NIS</th>
+                        <th>NIS / NISN</th>
                         <th>Nama Siswa</th>
                         <th>Kelas</th>
                         <th>Jurusan</th>
@@ -229,10 +229,18 @@
                     @forelse($siswas as $index => $siswa)
                         <tr>
                             <td>{{ $siswas->firstItem() + $index }}</td>
-                            <td>{{ $siswa->nis }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ $siswa->nis }}</div>
+                                <small class="text-muted">{{ $siswa->nisn ?: '-' }}</small>
+                            </td>
                             <td>
                                 <div class="fw-semibold">{{ $siswa->nama_lengkap }}</div>
-                                <small class="text-muted">{{ $siswa->no_hp }}</small>
+                                <small class="text-muted">
+                                    {{ $siswa->jenis_kelamin ?: '-' }}
+                                    @if($siswa->tempat_lahir || $siswa->tanggal_lahir)
+                                        • {{ $siswa->tempat_lahir ?: '-' }}{{ $siswa->tanggal_lahir ? ', ' . $siswa->tanggal_lahir->format('d-m-Y') : '' }}
+                                    @endif
+                                </small>
                             </td>
                             <td>{{ $siswa->kelas }}</td>
                             <td>{{ $siswa->jurusan }}</td>
@@ -355,7 +363,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning mb-3">
-                            Gunakan template resmi agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS atau email sudah ada, data akan diperbarui.
+                            Gunakan template resmi Dapodik agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS, NISN, atau email siswa sudah ada, data akan diperbarui.
                         </div>
                         @if(!in_array($userRole, ['admin', 'admin_spp']))
                             <div class="mb-3">

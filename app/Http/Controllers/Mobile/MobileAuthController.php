@@ -16,7 +16,7 @@ class MobileAuthController extends Controller
     public function authenticate(Request $request, SiswaMobileAuthService $siswaMobileAuthService)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|string',
             'password' => 'required',
         ]);
 

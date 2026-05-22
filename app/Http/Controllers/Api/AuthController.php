@@ -98,7 +98,7 @@ class AuthController extends Controller
     public function login(Request $request, SiswaMobileAuthService $siswaMobileAuthService)
     {
         $data = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|string',
             'password' => 'required|string',
         ]);
 

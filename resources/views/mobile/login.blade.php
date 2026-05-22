@@ -47,14 +47,14 @@
                         @csrf
 
                         <div class="input-group">
-                            <label class="input-label" for="email">Email</label>
+                            <label class="input-label" for="email">Email / NIS / NISN</label>
                             <input
                                 id="email"
                                 name="email"
-                                type="email"
+                                type="text"
                                 class="input-control"
                                 value="{{ old('email') }}"
-                                placeholder="Masukkan email"
+                                placeholder="Masukkan email, NIS, atau NISN"
                                 required
                             >
                             @error('email')

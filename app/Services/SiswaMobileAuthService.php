@@ -9,10 +9,16 @@ use Illuminate\Validation\ValidationException;
 
 class SiswaMobileAuthService
 {
-    public function authenticate(string $email, string $password): ?User
+    public function authenticate(string $identifier, string $password): ?User
     {
+        $identifier = trim((string) $identifier);
+
         $siswa = Siswa::query()
-            ->where('email', trim(strtolower($email)))
+            ->where(function ($query) use ($identifier) {
+                $query->where('email', strtolower($identifier))
+                    ->orWhere('nis', $identifier)
+                    ->orWhere('nisn', $identifier);
+            })
             ->where('is_active', true)
             ->first();
 
