@@ -50,22 +50,46 @@
 
 .student-modal .modal-dialog {
     margin: 0.75rem auto;
+    height: calc(100vh - 1.5rem);
 }
 
 .student-modal .modal-content {
-    max-height: calc(100vh - 1.5rem);
+    height: 100%;
     border: 0;
     border-radius: 1rem;
+    overflow: hidden;
+}
+
+.student-modal form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
 }
 
 .student-modal .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
 
 .student-modal .modal-header,
 .student-modal .modal-footer {
+    flex: 0 0 auto;
     background: #fff;
+}
+
+@media (max-width: 991.98px) {
+    .student-modal .modal-dialog {
+        margin: 0;
+        height: 100vh;
+        max-width: 100%;
+    }
+
+    .student-modal .modal-content {
+        border-radius: 0;
+    }
 }
 </style>
 @endsection
