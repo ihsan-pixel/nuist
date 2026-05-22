@@ -13,6 +13,23 @@ use App\Imports\AdminImport;
 
 class AdminController extends Controller
 {
+    private function resolveManagedAdmin($id): User
+    {
+        $actor = auth()->user();
+
+        abort_unless($actor && in_array($actor->role, ['super_admin', 'admin', 'pengurus'], true), 403, 'Unauthorized access');
+
+        $admin = User::whereKey($id)
+            ->where('role', 'admin')
+            ->firstOrFail();
+
+        if ($actor->role === 'admin' && (int) $admin->madrasah_id !== (int) $actor->madrasah_id) {
+            abort(403, 'Unauthorized access');
+        }
+
+        return $admin;
+    }
+
     public function index()
     {
         $user = auth()->user();
@@ -66,7 +83,7 @@ class AdminController extends Controller
 
     public function update(Request $request, $id)
     {
-        $admin = User::findOrFail($id);
+        $admin = $this->resolveManagedAdmin($id);
 
         $validated = $request->validate([
             'name'         => 'nullable|string|max:255',
@@ -100,7 +117,11 @@ class AdminController extends Controller
 
     public function destroy($id)
     {
-        $admin = User::findOrFail($id);
+        $admin = $this->resolveManagedAdmin($id);
+
+        if ((int) $admin->id === (int) auth()->id()) {
+            abort(403, 'Unauthorized access');
+        }
 
         if ($admin->avatar) {
             \Storage::disk('public')->delete($admin->avatar);

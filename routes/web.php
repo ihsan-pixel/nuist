@@ -455,7 +455,10 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
     Route::post('/admin/import', [AdminController::class, 'import'])->name('admin.import');
     Route::put('/admin/update/{id}', [AdminController::class, 'update'])->name('admin.update');
-    Route::delete('/admin/{admin}', [AdminController::class, 'destroy'])->name('admin.destroy');
+    Route::delete('/admin/{admin}', [AdminController::class, 'destroy'])
+        ->middleware(['auth', 'role:super_admin,admin,pengurus'])
+        ->whereNumber('admin')
+        ->name('admin.destroy');
 
     Route::get('/pengurus', [App\Http\Controllers\PengurusController::class, 'index'])->name('pengurus.index');
     Route::post('/pengurus/store', [App\Http\Controllers\PengurusController::class, 'store'])->name('pengurus.store');
@@ -519,7 +522,10 @@ Route::prefix('admin-masterdata')->middleware(['auth', 'role:super_admin,penguru
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin_masterdata.admin.store');
     Route::post('/admin/import', [AdminController::class, 'import'])->name('admin_masterdata.admin.import');
     Route::put('/admin/update/{id}', [AdminController::class, 'update'])->name('admin_masterdata.admin.update');
-    Route::delete('/admin/{admin}', [AdminController::class, 'destroy'])->name('admin_masterdata.admin.destroy');
+    Route::delete('/admin/{admin}', [AdminController::class, 'destroy'])
+        ->middleware(['auth', 'role:super_admin,pengurus'])
+        ->whereNumber('admin')
+        ->name('admin_masterdata.admin.destroy');
 
     Route::get('/madrasah', [App\Http\Controllers\MadrasahController::class, 'index'])->name('admin_masterdata.madrasah.index');
     Route::post('/madrasah/store', [App\Http\Controllers\MadrasahController::class, 'store'])->name('admin_masterdata.madrasah.store');
