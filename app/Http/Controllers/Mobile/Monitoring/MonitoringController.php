@@ -33,14 +33,16 @@ class MonitoringController extends \App\Http\Controllers\Controller
             })
             ->whereDate('tanggal', $selectedDate)
             ->orderBy('waktu_masuk', 'desc')
-            ->paginate(15);
+            ->paginate(15, ['*'], 'presensi_page')
+            ->withQueryString();
 
         $belumPresensi = User::where('role', 'tenaga_pendidik')
             ->where('madrasah_id', $user->madrasah_id)
             ->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
                 $q->whereDate('tanggal', $selectedDate);
             })
-            ->paginate(15);
+            ->paginate(15, ['*'], 'belum_page')
+            ->withQueryString();
 
         return view('mobile.monitor-presensi', compact('presensis', 'belumPresensi', 'selectedDate'));
     }

@@ -174,28 +174,66 @@
             margin-bottom: 8px;
         }
 
-        .pagination-custom {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
+        .mobile-pagination {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
         }
 
-        .pagination-custom .page-link {
+        .mobile-page-btn {
+            min-height: 42px;
+            border-radius: 12px;
+            border: 1px solid #d8e5da;
+            background: #f4f8f5;
             color: #0e8549;
-            border-color: #0e8549;
-            margin: 0 2px;
-            padding: 5px 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0 12px;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .mobile-page-btn.next {
+            justify-self: end;
+        }
+
+        .mobile-page-btn.disabled {
+            background: #f3f4f6;
+            border-color: #e5e7eb;
+            color: #9ca3af;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        .mobile-page-btn i {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .mobile-page-meta {
+            min-width: 92px;
+            text-align: center;
+            color: #374151;
+        }
+
+        .mobile-page-meta strong {
+            display: block;
             font-size: 12px;
+            font-weight: 700;
+            color: #111827;
         }
 
-        .pagination-custom .page-link:hover {
-            background-color: #0e8549;
-            color: #fff;
-        }
-
-        .pagination-custom .page-item.active .page-link {
-            background-color: #0e8549;
-            border-color: #0e8549;
+        .mobile-page-meta small {
+            display: block;
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 2px;
         }
 
         /* Modal Foto */
@@ -283,8 +321,35 @@
                 @endforeach
             </ul>
             @if($presensis->hasPages())
-                <div class="pagination-custom">
-                    {{ $presensis->appends(request()->query())->links() }}
+                <div class="mobile-pagination">
+                    @if($presensis->onFirstPage())
+                        <span class="mobile-page-btn disabled">
+                            <i class="bx bx-chevron-left"></i>
+                            Sebelumnya
+                        </span>
+                    @else
+                        <a href="{{ $presensis->previousPageUrl() }}" class="mobile-page-btn">
+                            <i class="bx bx-chevron-left"></i>
+                            Sebelumnya
+                        </a>
+                    @endif
+
+                    <div class="mobile-page-meta">
+                        <strong>{{ $presensis->currentPage() }}/{{ $presensis->lastPage() }}</strong>
+                        <small>{{ $presensis->firstItem() }}-{{ $presensis->lastItem() }} dari {{ $presensis->total() }}</small>
+                    </div>
+
+                    @if($presensis->hasMorePages())
+                        <a href="{{ $presensis->nextPageUrl() }}" class="mobile-page-btn next">
+                            Berikutnya
+                            <i class="bx bx-chevron-right"></i>
+                        </a>
+                    @else
+                        <span class="mobile-page-btn next disabled">
+                            Berikutnya
+                            <i class="bx bx-chevron-right"></i>
+                        </span>
+                    @endif
                 </div>
             @endif
         @endif
@@ -317,8 +382,35 @@
                 @endforeach
             </ul>
             @if($belumPresensi->hasPages())
-                <div class="pagination-custom">
-                    {{ $belumPresensi->appends(request()->query())->links() }}
+                <div class="mobile-pagination">
+                    @if($belumPresensi->onFirstPage())
+                        <span class="mobile-page-btn disabled">
+                            <i class="bx bx-chevron-left"></i>
+                            Sebelumnya
+                        </span>
+                    @else
+                        <a href="{{ $belumPresensi->previousPageUrl() }}" class="mobile-page-btn">
+                            <i class="bx bx-chevron-left"></i>
+                            Sebelumnya
+                        </a>
+                    @endif
+
+                    <div class="mobile-page-meta">
+                        <strong>{{ $belumPresensi->currentPage() }}/{{ $belumPresensi->lastPage() }}</strong>
+                        <small>{{ $belumPresensi->firstItem() }}-{{ $belumPresensi->lastItem() }} dari {{ $belumPresensi->total() }}</small>
+                    </div>
+
+                    @if($belumPresensi->hasMorePages())
+                        <a href="{{ $belumPresensi->nextPageUrl() }}" class="mobile-page-btn next">
+                            Berikutnya
+                            <i class="bx bx-chevron-right"></i>
+                        </a>
+                    @else
+                        <span class="mobile-page-btn next disabled">
+                            Berikutnya
+                            <i class="bx bx-chevron-right"></i>
+                        </span>
+                    @endif
                 </div>
             @endif
         @endif
