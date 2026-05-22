@@ -90,7 +90,7 @@
                     @if($userRole !== 'admin_spp')
                         <div class="d-flex flex-wrap gap-2">
                             <a href="{{ route('data-sekolah.data-siswa.template') }}" class="btn btn-light">
-                                <i class="bx bx-download me-1"></i>Template Dapodik
+                                <i class="bx bx-download me-1"></i>Template
                             </a>
                             <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">
                                 <i class="bx bx-upload me-1"></i>Import
@@ -268,7 +268,14 @@
                                         data-id="{{ $siswa->id }}"
                                         data-madrasah_id="{{ $siswa->madrasah_id }}"
                                         data-nis="{{ $siswa->nis }}"
+                                        data-nisn="{{ $siswa->nisn }}"
+                                        data-nik="{{ $siswa->nik }}"
+                                        data-no_kk="{{ $siswa->no_kk }}"
                                         data-nama_lengkap="{{ $siswa->nama_lengkap }}"
+                                        data-jenis_kelamin="{{ $siswa->jenis_kelamin }}"
+                                        data-tempat_lahir="{{ $siswa->tempat_lahir }}"
+                                        data-tanggal_lahir="{{ optional($siswa->tanggal_lahir)->format('Y-m-d') }}"
+                                        data-agama="{{ $siswa->agama }}"
                                         data-nama_orang_tua_wali="{{ $siswa->nama_orang_tua_wali }}"
                                         data-email="{{ $siswa->email }}"
                                         data-email_orang_tua_wali="{{ $siswa->email_orang_tua_wali }}"
@@ -276,7 +283,26 @@
                                         data-no_hp_orang_tua_wali="{{ $siswa->no_hp_orang_tua_wali }}"
                                         data-kelas="{{ $siswa->kelas }}"
                                         data-jurusan="{{ $siswa->jurusan }}"
+                                        data-tahun_masuk="{{ $siswa->tahun_masuk }}"
+                                        data-jenis_tinggal="{{ $siswa->jenis_tinggal }}"
+                                        data-alat_transportasi="{{ $siswa->alat_transportasi }}"
                                         data-alamat="{{ $siswa->alamat }}"
+                                        data-dusun="{{ $siswa->dusun }}"
+                                        data-kelurahan="{{ $siswa->kelurahan }}"
+                                        data-kecamatan="{{ $siswa->kecamatan }}"
+                                        data-kode_pos="{{ $siswa->kode_pos }}"
+                                        data-nama_ayah="{{ $siswa->nama_ayah }}"
+                                        data-pendidikan_ayah="{{ $siswa->pendidikan_ayah }}"
+                                        data-pekerjaan_ayah="{{ $siswa->pekerjaan_ayah }}"
+                                        data-penghasilan_ayah="{{ $siswa->penghasilan_ayah }}"
+                                        data-nama_ibu="{{ $siswa->nama_ibu }}"
+                                        data-pendidikan_ibu="{{ $siswa->pendidikan_ibu }}"
+                                        data-pekerjaan_ibu="{{ $siswa->pekerjaan_ibu }}"
+                                        data-penghasilan_ibu="{{ $siswa->penghasilan_ibu }}"
+                                        data-nama_wali="{{ $siswa->nama_wali }}"
+                                        data-pendidikan_wali="{{ $siswa->pendidikan_wali }}"
+                                        data-pekerjaan_wali="{{ $siswa->pekerjaan_wali }}"
+                                        data-penghasilan_wali="{{ $siswa->penghasilan_wali }}"
                                         data-is_active="{{ $siswa->is_active ? 1 : 0 }}"
                                     >
                                         <i class="bx bx-edit"></i>
@@ -308,7 +334,7 @@
 
 @if($userRole !== 'admin_spp')
     <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <form method="POST" action="{{ route('data-sekolah.data-siswa.store') }}">
                     @csrf
@@ -330,7 +356,7 @@
 @endif
 
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <form method="POST" id="editForm">
                 @csrf
@@ -410,19 +436,53 @@ document.addEventListener('DOMContentLoaded', function () {
         const button = event.relatedTarget;
         const form = document.getElementById('editForm');
         const siswaId = button.getAttribute('data-id');
+        const setValue = (name, attribute) => {
+            const field = form.querySelector(`[name="${name}"]`);
+            if (!field) {
+                return;
+            }
+
+            field.value = button.getAttribute(attribute) ?? '';
+        };
 
         form.action = `{{ route('data-sekolah.data-siswa.index') }}/${siswaId}`;
-        form.querySelector('[name="madrasah_id"]').value = button.getAttribute('data-madrasah_id');
-        form.querySelector('[name="nis"]').value = button.getAttribute('data-nis');
-        form.querySelector('[name="nama_lengkap"]').value = button.getAttribute('data-nama_lengkap');
-        form.querySelector('[name="nama_orang_tua_wali"]').value = button.getAttribute('data-nama_orang_tua_wali');
-        form.querySelector('[name="email"]').value = button.getAttribute('data-email');
-        form.querySelector('[name="email_orang_tua_wali"]').value = button.getAttribute('data-email_orang_tua_wali');
-        form.querySelector('[name="no_hp"]').value = button.getAttribute('data-no_hp');
-        form.querySelector('[name="no_hp_orang_tua_wali"]').value = button.getAttribute('data-no_hp_orang_tua_wali');
-        form.querySelector('[name="kelas"]').value = button.getAttribute('data-kelas');
-        form.querySelector('[name="jurusan"]').value = button.getAttribute('data-jurusan');
-        form.querySelector('[name="alamat"]').value = button.getAttribute('data-alamat');
+        setValue('madrasah_id', 'data-madrasah_id');
+        setValue('nis', 'data-nis');
+        setValue('nisn', 'data-nisn');
+        setValue('nik', 'data-nik');
+        setValue('no_kk', 'data-no_kk');
+        setValue('nama_lengkap', 'data-nama_lengkap');
+        setValue('jenis_kelamin', 'data-jenis_kelamin');
+        setValue('tempat_lahir', 'data-tempat_lahir');
+        setValue('tanggal_lahir', 'data-tanggal_lahir');
+        setValue('agama', 'data-agama');
+        setValue('nama_orang_tua_wali', 'data-nama_orang_tua_wali');
+        setValue('email', 'data-email');
+        setValue('email_orang_tua_wali', 'data-email_orang_tua_wali');
+        setValue('no_hp', 'data-no_hp');
+        setValue('no_hp_orang_tua_wali', 'data-no_hp_orang_tua_wali');
+        setValue('kelas', 'data-kelas');
+        setValue('jurusan', 'data-jurusan');
+        setValue('tahun_masuk', 'data-tahun_masuk');
+        setValue('jenis_tinggal', 'data-jenis_tinggal');
+        setValue('alat_transportasi', 'data-alat_transportasi');
+        setValue('alamat', 'data-alamat');
+        setValue('dusun', 'data-dusun');
+        setValue('kelurahan', 'data-kelurahan');
+        setValue('kecamatan', 'data-kecamatan');
+        setValue('kode_pos', 'data-kode_pos');
+        setValue('nama_ayah', 'data-nama_ayah');
+        setValue('pendidikan_ayah', 'data-pendidikan_ayah');
+        setValue('pekerjaan_ayah', 'data-pekerjaan_ayah');
+        setValue('penghasilan_ayah', 'data-penghasilan_ayah');
+        setValue('nama_ibu', 'data-nama_ibu');
+        setValue('pendidikan_ibu', 'data-pendidikan_ibu');
+        setValue('pekerjaan_ibu', 'data-pekerjaan_ibu');
+        setValue('penghasilan_ibu', 'data-penghasilan_ibu');
+        setValue('nama_wali', 'data-nama_wali');
+        setValue('pendidikan_wali', 'data-pendidikan_wali');
+        setValue('pekerjaan_wali', 'data-pekerjaan_wali');
+        setValue('penghasilan_wali', 'data-penghasilan_wali');
         form.querySelector('[name="is_active"]').checked = button.getAttribute('data-is_active') === '1';
     });
 });
