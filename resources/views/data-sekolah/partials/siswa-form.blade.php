@@ -1,7 +1,7 @@
 <div class="row g-3">
     <div class="col-12">
         <div class="alert alert-light border mb-0">
-            <strong>Format Dapodik.</strong> Wajib isi minimal NIS, nama peserta didik, kelas, dan madrasah. Email siswa opsional dan akan dibuat otomatis jika dikosongkan.
+            Wajib isi minimal NIS, nama peserta didik, kelas, dan madrasah. Email siswa opsional dan akan dibuat otomatis jika dikosongkan.
         </div>
     </div>
 
