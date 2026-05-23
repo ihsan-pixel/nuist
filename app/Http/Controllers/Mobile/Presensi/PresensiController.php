@@ -15,7 +15,6 @@ use App\Models\User;
 use App\Models\Holiday;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
-use App\Services\UserPushNotificationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PresensiController extends \App\Http\Controllers\Controller
@@ -693,22 +692,6 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'message' => 'Presensi hari ini sudah lengkap atau dalam keadaan tidak valid.'
             ], 400);
         }
-
-        $isCheckIn = $isPresensiMasuk === true;
-
-        app(UserPushNotificationService::class)->notifyUser(
-            $user,
-            'presensi_success',
-            $isCheckIn ? 'Presensi Masuk Berhasil' : 'Presensi Keluar Berhasil',
-            $message,
-            [
-                'presensi_id' => $presensi->id,
-                'mode' => $isCheckIn ? 'masuk' : 'keluar',
-                'tanggal' => $presensi->tanggal?->format('Y-m-d'),
-                'madrasah_name' => $presensi->madrasah?->name ?? $user->madrasah?->name,
-                'url' => route('mobile.riwayat-presensi'),
-            ]
-        );
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([

@@ -11,7 +11,6 @@ use App\Models\Presensi;
 use App\Models\User;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
-use App\Services\UserPushNotificationService;
 
 class IzinController extends \App\Http\Controllers\Controller
 {
@@ -58,54 +57,6 @@ class IzinController extends \App\Http\Controllers\Controller
         }
 
         ApprovedIzinSyncService::syncApprovedIzinPresensi($izin);
-    }
-
-    private function notifyApprovalManagersAboutIncomingIzin(User $requestUser, Izin $izin): void
-    {
-        if (!$requestUser->madrasah_id) {
-            return;
-        }
-
-        $managers = User::query()
-            ->whereIn('role', ['tenaga_pendidik', 'pengurus', 'super_admin'])
-            ->where(function ($query) use ($requestUser) {
-                $query
-                    ->where(function ($innerQuery) use ($requestUser) {
-                        $innerQuery
-                            ->where('role', 'tenaga_pendidik')
-                            ->where('madrasah_id', $requestUser->madrasah_id)
-                            ->where('ketugasan', 'kepala madrasah/sekolah');
-                    })
-                    ->orWhere('role', 'pengurus')
-                    ->orWhere('role', 'super_admin');
-            })
-            ->where('id', '!=', $requestUser->id)
-            ->get();
-
-        if ($managers->isEmpty()) {
-            return;
-        }
-
-        $typeLabel = ucwords(str_replace('_', ' ', $izin->type));
-        $title = 'Pengajuan Izin Masuk';
-        $message = $requestUser->name . ' mengajukan ' . $typeLabel . ' dan menunggu persetujuan.';
-
-        foreach ($managers as $manager) {
-            app(UserPushNotificationService::class)->notifyUser(
-                $manager,
-                'izin_incoming',
-                $title,
-                $message,
-                [
-                    'izin_id' => $izin->id,
-                    'requester_id' => $requestUser->id,
-                    'requester_name' => $requestUser->name,
-                    'tanggal' => optional($izin->tanggal)->format('Y-m-d'),
-                    'type' => $izin->type,
-                    'url' => route('mobile.kelola-izin', ['status' => 'pending']),
-                ]
-            );
-        }
     }
 
     public function storeIzin(Request $request)
@@ -367,20 +318,18 @@ class IzinController extends \App\Http\Controllers\Controller
 
         $izin = \App\Models\Izin::create($izinData);
 
-        app(UserPushNotificationService::class)->notifyUser(
-            $user,
-            'izin_submitted',
-            'Izin Diajukan',
-            'Pengajuan izin Anda telah dikirim dan menunggu persetujuan.',
-            [
+        // Notify user
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => 'izin_submitted',
+            'title' => 'Izin Diajukan',
+            'message' => 'Pengajuan izin Anda telah dikirim dan menunggu persetujuan.',
+            'data' => [
                 'izin_id' => $izin->id,
-                'tanggal' => optional($izin->tanggal)->format('Y-m-d'),
+                'tanggal' => $tanggal,
                 'type' => $type,
-                'url' => route('mobile.kelola-izin'),
             ]
-        );
-
-        $this->notifyApprovalManagersAboutIncomingIzin($user, $izin);
+        ]);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -506,18 +455,17 @@ class IzinController extends \App\Http\Controllers\Controller
         $this->syncApprovedIzinPresensi($izin, $user->id);
 
         // Create notification for user about approval
-        app(UserPushNotificationService::class)->notifyUser(
-            $izin->user,
-            'izin_approved',
-            'Izin Disetujui',
-            'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
-            [
+        \App\Models\Notification::create([
+            'user_id' => $izin->user_id,
+            'type' => 'izin_approved',
+            'title' => 'Izin Disetujui',
+            'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
+            'data' => [
                 'izin_id' => $izin->id,
-                'tanggal' => optional($izin->tanggal)->format('Y-m-d'),
-                'approved_by' => $user->name,
-                'url' => route('mobile.kelola-izin', ['status' => 'approved']),
+                'tanggal' => $izin->tanggal,
+                'approved_by' => $user->name
             ]
-        );
+        ]);
 
         return redirect()->back()->with('success', 'Izin berhasil disetujui.');
     }
@@ -545,18 +493,17 @@ class IzinController extends \App\Http\Controllers\Controller
         $izin->save();
 
         // Create notification for user about rejection
-        app(UserPushNotificationService::class)->notifyUser(
-            $izin->user,
-            'izin_rejected',
-            'Izin Ditolak',
-            'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah ditolak.',
-            [
+        \App\Models\Notification::create([
+            'user_id' => $izin->user_id,
+            'type' => 'izin_rejected',
+            'title' => 'Izin Ditolak',
+            'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah ditolak.',
+            'data' => [
                 'izin_id' => $izin->id,
-                'tanggal' => optional($izin->tanggal)->format('Y-m-d'),
-                'rejected_by' => $user->name,
-                'url' => route('mobile.kelola-izin', ['status' => 'rejected']),
+                'tanggal' => $izin->tanggal,
+                'rejected_by' => $user->name
             ]
-        );
+        ]);
 
         return redirect()->back()->with('success', 'Izin berhasil ditolak.');
     }
