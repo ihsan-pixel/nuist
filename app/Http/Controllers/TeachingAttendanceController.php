@@ -124,7 +124,7 @@ class TeachingAttendanceController extends Controller
         if ($calendarEvent) {
             return response()->json([
                 'success' => false,
-                'message' => 'Jadwal ini sudah ditandai otomatis sebagai "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.'
+                'message' => 'Jadwal ini sudah otomatis tercatat sebagai izin "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.'
             ], 400);
         }
 
@@ -339,7 +339,7 @@ class TeachingAttendanceController extends Controller
         if ($calendarEvent) {
             return response()->json([
                 'success' => false,
-                'message' => 'Jadwal ini sudah ditandai otomatis sebagai "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.'
+                'message' => 'Jadwal ini sudah otomatis tercatat sebagai izin "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.'
             ], 400);
         }
 

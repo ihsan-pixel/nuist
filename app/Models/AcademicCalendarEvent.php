@@ -128,6 +128,29 @@ class AcademicCalendarEvent extends Model
         );
     }
 
+    public function coversScheduleStartOnDate(TeachingSchedule $schedule, Carbon|string $date): bool
+    {
+        $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
+
+        if (!$this->is_active || !$this->occursOnDate($date)) {
+            return false;
+        }
+
+        if (strcasecmp((string) $schedule->day, (string) $date->locale('id')->dayName) !== 0) {
+            return false;
+        }
+
+        if ($this->is_all_day) {
+            return true;
+        }
+
+        $scheduleStart = substr((string) $schedule->start_time, 0, 8);
+        $eventStart = substr((string) $this->start_time, 0, 8);
+        $eventEnd = substr((string) $this->end_time, 0, 8);
+
+        return $scheduleStart >= $eventStart && $scheduleStart < $eventEnd;
+    }
+
     public function conflictsWithWindow(
         Carbon $startDate,
         Carbon $endDate,

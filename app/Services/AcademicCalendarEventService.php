@@ -116,7 +116,7 @@ class AcademicCalendarEventService
             ")
             ->orderBy('start_time')
             ->get()
-            ->first(fn (AcademicCalendarEvent $event) => $event->overlapsScheduleOnDate($schedule, $date));
+            ->first(fn (AcademicCalendarEvent $event) => $event->coversScheduleStartOnDate($schedule, $date));
     }
 
     public function ensureAutomaticAttendanceForSchedule(TeachingSchedule $schedule, Carbon|string $date): ?AcademicCalendarEvent
@@ -145,7 +145,7 @@ class AcademicCalendarEventService
     private function syncScheduleAgainstEvent(TeachingSchedule $schedule, AcademicCalendarEvent $event): void
     {
         foreach (CarbonPeriod::create($event->start_date, $event->end_date) as $date) {
-            if (!$event->overlapsScheduleOnDate($schedule, $date)) {
+            if (!$event->coversScheduleStartOnDate($schedule, $date)) {
                 continue;
             }
 
@@ -165,7 +165,7 @@ class AcademicCalendarEventService
             'user_id' => $schedule->teacher_id,
             'tanggal' => $date->toDateString(),
             'waktu' => $event->effectiveAttendanceTimeForSchedule($schedule),
-            'status' => 'hadir',
+            'status' => 'izin',
             'attendance_source' => TeachingAttendance::SOURCE_ACADEMIC_CALENDAR,
             'status_label' => $event->resolved_type_label,
             'academic_calendar_event_id' => $event->id,

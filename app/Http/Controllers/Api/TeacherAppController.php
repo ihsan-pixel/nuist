@@ -82,7 +82,7 @@ class TeacherAppController extends Controller
         $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $approvedTeachingJournalIzin) {
             $attendance = $todayAttendances->get($schedule->id);
             $status = $attendance
-                ? 'completed'
+                ? (($attendance->status ?? 'hadir') === 'izin' ? 'izin' : 'completed')
                 : ($approvedTeachingJournalIzin ? 'izin' : 'pending');
 
             return [
@@ -97,7 +97,9 @@ class TeacherAppController extends Controller
                     'completed' => ($attendance?->is_academic_calendar_auto ?? false)
                         ? ($attendance?->display_status_label ?? 'Kalender Akademik')
                         : 'Sudah Presensi',
-                    'izin' => 'Izin Disetujui',
+                    'izin' => $attendance
+                        ? ($attendance->display_status_label ?? 'Izin')
+                        : 'Izin Disetujui',
                     default => 'Belum Presensi',
                 },
                 'materi' => $attendance?->materi,
@@ -753,7 +755,7 @@ class TeacherAppController extends Controller
         $calendarEvent = $this->academicCalendarEventService->ensureAutomaticAttendanceForSchedule($schedule, $today);
         if ($calendarEvent) {
             throw ValidationException::withMessages([
-                'teaching_schedule_id' => 'Jadwal ini sudah ditandai otomatis sebagai "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.',
+                'teaching_schedule_id' => 'Jadwal ini sudah otomatis tercatat sebagai izin "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.',
             ]);
         }
 
@@ -815,7 +817,7 @@ class TeacherAppController extends Controller
         $calendarEvent = $this->academicCalendarEventService->ensureAutomaticAttendanceForSchedule($schedule, $today);
         if ($calendarEvent) {
             throw ValidationException::withMessages([
-                'attendance' => 'Jadwal ini sudah ditandai otomatis sebagai "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.',
+                'attendance' => 'Jadwal ini sudah otomatis tercatat sebagai izin "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.',
             ]);
         }
 

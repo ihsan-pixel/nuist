@@ -20,4 +20,4 @@
     <div id="root"></div>
   </body>
 </html>
-<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/vendor/laramint/laravel-brain/src/../resources/views/index.blade.php ENDPATH**/ ?>
+<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/vendor/laramint/laravel-brain/resources/views/index.blade.php ENDPATH**/ ?>

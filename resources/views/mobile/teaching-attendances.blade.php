@@ -409,7 +409,7 @@
                                             <div>
                                                 @if($schedule->attendance->is_academic_calendar_auto ?? false)
                                                     <div class="fw-semibold">{{ $schedule->attendance->display_status_label }}</div>
-                                                    <small class="small-muted">Presensi otomatis dari Kalender Akademik.</small>
+                                                    <small class="small-muted">Presensi otomatis dari Kalender Akademik pada jam {{ $schedule->attendance->waktu }}.</small>
                                                     @if($schedule->attendance->academicCalendarEvent)
                                                         <div class="small-muted mt-1">
                                                             <i class="bx bx-bookmark me-1"></i>{{ $schedule->attendance->academicCalendarEvent->name }}

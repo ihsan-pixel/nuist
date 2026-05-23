@@ -214,7 +214,7 @@
                                         <div>
                                             @if($isAcademicCalendarAuto)
                                                 <h6 class="mb-1">{{ $displayStatusLabel }}</h6>
-                                                <small class="text-muted">Presensi otomatis dari Kalender Akademik.</small>
+                                                <small class="text-muted">Presensi otomatis dari Kalender Akademik pada jam {{ $schedule->attendance->waktu }}.</small>
                                                 @if($schedule->attendance->academicCalendarEvent)
                                                     <div class="text-muted small mt-1">
                                                         <i class="bx bx-bookmark me-1"></i>{{ $schedule->attendance->academicCalendarEvent->name }}

@@ -547,13 +547,24 @@ class TeachingProgressController extends Controller
 
         $schedulesByTeacher = $schedules->groupBy('teacher_id');
         $attendanceKeys = collect();
+        $attendanceIzinKeys = collect();
 
         if ($schedules->isNotEmpty() && !$effectiveEndDate->lt($startDate)) {
-            $attendanceKeys = TeachingAttendance::query()
+            $attendanceRecords = TeachingAttendance::query()
                 ->whereIn('teaching_schedule_id', $schedules->pluck('id'))
                 ->whereBetween('tanggal', [$startDate->toDateString(), $effectiveEndDate->toDateString()])
+                ->whereIn('status', ['hadir', 'izin'])
+                ->get();
+
+            $attendanceKeys = $attendanceRecords
                 ->where('status', 'hadir')
-                ->get()
+                ->mapWithKeys(function ($attendance) {
+                    $date = Carbon::parse($attendance->tanggal)->toDateString();
+                    return [$attendance->teaching_schedule_id . '|' . $date => true];
+                });
+
+            $attendanceIzinKeys = $attendanceRecords
+                ->where('status', 'izin')
                 ->mapWithKeys(function ($attendance) {
                     $date = Carbon::parse($attendance->tanggal)->toDateString();
                     return [$attendance->teaching_schedule_id . '|' . $date => true];
@@ -573,6 +584,7 @@ class TeachingProgressController extends Controller
                 $endDate,
                 $effectiveEndDate,
                 $attendanceKeys,
+                $attendanceIzinKeys,
                 $approvedIzinKeys,
                 $holidayKeys
             );
@@ -661,6 +673,7 @@ class TeachingProgressController extends Controller
         Carbon $endDate,
         Carbon $effectiveEndDate,
         $attendanceKeys,
+        $attendanceIzinKeys,
         $approvedIzinKeys,
         $holidayKeys
     ): array {
@@ -694,6 +707,9 @@ class TeachingProgressController extends Controller
 
                 if ($attendanceKeys->has($attendanceKey)) {
                     $totalPresensi++;
+                } elseif ($attendanceIzinKeys->has($attendanceKey)) {
+                    $totalIzin++;
+                    $izinByDate[$dateKey] = ($izinByDate[$dateKey] ?? 0) + 1;
                 } elseif ($approvedIzinKeys->has($schedule->teacher_id . '|' . $dateKey)) {
                     $totalIzin++;
                     $izinByDate[$dateKey] = ($izinByDate[$dateKey] ?? 0) + 1;
@@ -747,18 +763,27 @@ class TeachingProgressController extends Controller
             ];
         }
 
-        $attendanceKeys = TeachingAttendance::query()
+        $attendanceRecords = TeachingAttendance::query()
             ->whereIn('user_id', $teacherIds)
             ->whereBetween('tanggal', [$startDate->toDateString(), $endDate->toDateString()])
+            ->whereIn('status', ['hadir', 'izin'])
+            ->get(['user_id', 'tanggal', 'status']);
+
+        $attendanceKeys = $attendanceRecords
             ->where('status', 'hadir')
-            ->get(['user_id', 'tanggal'])
+            ->mapWithKeys(function ($attendance) {
+                return [$attendance->user_id . '|' . Carbon::parse($attendance->tanggal)->toDateString() => true];
+            });
+
+        $izinKeys = $attendanceRecords
+            ->where('status', 'izin')
             ->mapWithKeys(function ($attendance) {
                 return [$attendance->user_id . '|' . Carbon::parse($attendance->tanggal)->toDateString() => true];
             });
 
         return [
             'attendance' => $attendanceKeys,
-            'izin' => $this->getApprovedIzinKeys($teacherIds, $startDate, $endDate),
+            'izin' => $this->getApprovedIzinKeys($teacherIds, $startDate, $endDate)->merge($izinKeys),
         ];
     }
 

@@ -83,6 +83,7 @@
                             @error('start_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Dipakai sebagai jam presensi otomatis.</small>
                         </div>
 
                         <div class="col-md-3 time-field">
@@ -91,6 +92,7 @@
                             @error('end_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Bentrok jadwal dihitung dari rentang jam ini.</small>
                         </div>
 
                         <div class="col-md-6">
@@ -130,8 +132,9 @@
                 <h5 class="mb-3">Catatan Integrasi</h5>
                 <ul class="text-muted ps-3 mb-0">
                     <li>Event ini hanya tambahan baru dan tidak menggantikan sistem holiday lama.</li>
-                    <li>Jika event aktif dan bentrok dengan jadwal guru, presensi mengajar akan terisi otomatis.</li>
-                    <li>Status laporan tetap aman karena presensi otomatis ditandai sebagai hasil kalender akademik.</li>
+                    <li>Jadwal yang mulai di dalam rentang jam event akan otomatis masuk kategori izin.</li>
+                    <li>Jadwal sebelum jam event mulai tetap bisa dipresensi manual seperti biasa.</li>
+                    <li>Status laporan tetap aman karena izin dari kalender akademik ikut dihitung valid.</li>
                 </ul>
             </div>
         </div>

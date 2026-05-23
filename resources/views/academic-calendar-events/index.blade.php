@@ -50,7 +50,7 @@
                                     <th>Nama Kegiatan</th>
                                     <th>Jenis Status</th>
                                     <th>Tanggal / Hari</th>
-                                    <th>Jam</th>
+                                    <th>Jam Event</th>
                                     <th>Status</th>
                                     <th class="text-end">Aksi</th>
                                 </tr>
@@ -72,7 +72,10 @@
                                         <td>
                                             <div>{{ $event->date_range_label }}</div>
                                         </td>
-                                        <td>{{ $event->time_range_label }}</td>
+                                        <td>
+                                            <div>{{ $event->time_range_label }}</div>
+                                            <small class="text-muted">Jam ini dipakai untuk presensi otomatis</small>
+                                        </td>
                                         <td>
                                             @if($event->is_active)
                                                 <span class="badge bg-success">Aktif</span>

@@ -49,6 +49,7 @@
                     <div class="text-muted small">Status: {{ $item->display_status_label }}</div>
                     @if($item->is_academic_calendar_auto && $item->academicCalendarEvent)
                         <div class="text-muted small">Event: {{ $item->academicCalendarEvent->name }}</div>
+                        <div class="text-muted small">Jam event: {{ $item->waktu }}</div>
                     @endif
                     @if($item->materi)
                         <div class="text-muted small">Materi: {{ $item->materi }}</div>
