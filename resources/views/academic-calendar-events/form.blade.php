@@ -15,11 +15,11 @@
                 <div class="mb-4">
                     <h4 class="mb-1">{{ $isEdit ? 'Ubah Event Akademik' : 'Tambah Event Akademik' }}</h4>
                     <p class="text-muted mb-0">
-                        Sekolah: <strong>{{ $school->name }}</strong>. Event di halaman ini tidak memakai tabel `holidays` dan baru akan mengubah presensi mengajar setelah disetujui kepala sekolah.
+                        Sekolah: <strong>{{ $school->name }}</strong>
                     </p>
                     @if($isEdit && $event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED)
                         <div class="alert alert-warning mt-3 mb-0">
-                            Event ini sebelumnya ditolak. Setelah Anda simpan perubahan, event akan otomatis diajukan ulang ke kepala sekolah.
+                            Event ini sebelumnya ditolak. Setelah Anda simpan perubahan, event akan otomatis dapat diajukan ulang ke kepala sekolah.
                         </div>
                     @endif
                 </div>
@@ -138,10 +138,10 @@
             <div class="card-body">
                 <h5 class="mb-3">Catatan Integrasi</h5>
                 <ul class="text-muted ps-3 mb-0">
-                    <li>Event ini hanya tambahan baru dan tidak menggantikan sistem holiday lama.</li>
+                    {{-- <li>Event ini hanya tambahan baru dan tidak menggantikan sistem holiday lama.</li> --}}
                     <li>Semua jadwal mengajar pada tanggal event akan menjadi izin setelah kepala sekolah menyetujui event.</li>
                     <li>Sebelum disetujui, event belum mempengaruhi presensi mengajar guru.</li>
-                    <li>Status laporan tetap aman karena izin dari kalender akademik ikut dihitung valid.</li>
+                    {{-- <li>Status laporan tetap aman karena izin dari kalender akademik ikut dihitung valid.</li> --}}
                 </ul>
             </div>
         </div>
