@@ -5,6 +5,63 @@
 
 @section('content')
 <div class="container py-3" style="max-width: 720px; margin: auto;">
+    <style>
+        .approval-card {
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .approval-card .card-body {
+            padding: 14px;
+        }
+
+        .approval-meta {
+            display: grid;
+            gap: 6px;
+        }
+
+        .approval-meta-item {
+            font-size: 12px;
+            color: #6c757d;
+            line-height: 1.35;
+        }
+
+        .approval-badge {
+            font-size: 10px;
+            padding: 6px 9px;
+            border-radius: 999px;
+            white-space: normal;
+            text-align: center;
+            max-width: 140px;
+        }
+
+        .approval-note {
+            font-size: 12px;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+        }
+
+        .approval-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .approval-textarea {
+            min-height: 68px;
+            resize: vertical;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 576px) {
+            .approval-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
     <div class="d-flex align-items-center mb-3">
         <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
             <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
@@ -37,37 +94,42 @@
                         default => 'bg-warning text-dark',
                     };
                 @endphp
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm approval-card">
                     <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between gap-3 mb-2">
-                            <div>
-                                <h6 class="mb-1">{{ $event->name }}</h6>
+                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                            <div class="pe-2">
+                                <h6 class="mb-1" style="font-size: 14px;">{{ $event->name }}</h6>
                                 <div class="text-muted small">{{ $event->resolved_type_label }}</div>
                             </div>
-                            <span class="badge {{ $badgeClass }}">{{ $event->approval_status_label }}</span>
+                            <span class="badge {{ $badgeClass }} approval-badge">{{ $event->approval_status_label }}</span>
                         </div>
 
-                        <div class="small text-muted mb-1">
-                            <i class="bx bx-calendar me-1"></i>{{ $event->date_range_label }}
+                        <div class="approval-meta mb-2">
+                            <div class="approval-meta-item">
+                                <i class="bx bx-calendar me-1"></i>{{ $event->date_range_label }}
+                            </div>
+                            <div class="approval-meta-item">
+                                <i class="bx bx-time me-1"></i>{{ $event->time_range_label }}
+                            </div>
+                            <div class="approval-meta-item">
+                                <i class="bx bx-user me-1"></i>{{ $event->creator->name ?? '-' }}
+                                <span class="mx-1">•</span>
+                                diperbarui {{ optional($event->updated_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }}
+                            </div>
                         </div>
-                        <div class="small text-muted mb-1">
-                            <i class="bx bx-time me-1"></i>{{ $event->time_range_label }}
-                        </div>
-                        <div class="small text-muted mb-1">
-                            <i class="bx bx-user me-1"></i>Pengaju: {{ $event->creator->name ?? '-' }}
-                        </div>
+
                         @if($event->description)
-                            <div class="small text-muted mb-1">
+                            <div class="approval-meta-item mb-2">
                                 <i class="bx bx-note me-1"></i>{{ $event->description }}
                             </div>
                         @endif
                         @if($event->approval_notes)
-                            <div class="small text-muted mb-2">
-                                <i class="bx bx-message-detail me-1"></i>Catatan: {{ $event->approval_notes }}
+                            <div class="approval-meta-item mb-2">
+                                <i class="bx bx-message-detail me-1"></i>{{ $event->approval_notes }}
                             </div>
                         @endif
                         @if($event->approver)
-                            <div class="small text-muted mb-2">
+                            <div class="approval-meta-item mb-2">
                                 <i class="bx bx-check-shield me-1"></i>{{ $event->approver->name }}
                                 @if($event->approved_at)
                                     pada {{ optional($event->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }}
@@ -76,30 +138,27 @@
                         @endif
 
                         @if($event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING)
-                            <div class="alert alert-warning border-0 small mb-3">
-                                Setelah disetujui, semua jadwal mengajar pada tanggal event ini akan berstatus izin dan guru tidak dapat melakukan presensi mengajar pada tanggal tersebut.
+                            <div class="alert alert-warning border-0 approval-note">
+                                Setelah disetujui, semua jadwal mengajar pada tanggal event ini akan berstatus izin.
                             </div>
 
-                            <div class="row g-2">
-                                <div class="col-12 col-md-6">
-                                    <form method="POST" action="{{ route('mobile.academic-calendar-approvals.approve', $event) }}">
-                                        @csrf
-                                        <textarea name="approval_notes" class="form-control form-control-sm mb-2" rows="2" placeholder="Catatan persetujuan (opsional)"></textarea>
-                                        <button type="submit" class="btn btn-success w-100">
+                            <form method="POST" action="{{ route('mobile.academic-calendar-approvals.approve', $event) }}" id="approve-form-{{ $event->id }}">
+                                @csrf
+                                <textarea name="approval_notes" class="form-control form-control-sm approval-textarea" placeholder="Catatan approval atau penolakan (opsional)"></textarea>
+                                <div class="approval-actions">
+                                    <button type="submit" class="btn btn-success">
                                             <i class="bx bx-check-circle me-1"></i>Setujui Event
-                                        </button>
-                                    </form>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <form method="POST" action="{{ route('mobile.academic-calendar-approvals.reject', $event) }}">
-                                        @csrf
-                                        <textarea name="approval_notes" class="form-control form-control-sm mb-2" rows="2" placeholder="Alasan penolakan (opsional)"></textarea>
-                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger"
+                                        formaction="{{ route('mobile.academic-calendar-approvals.reject', $event) }}"
+                                        formmethod="POST"
+                                    >
                                             <i class="bx bx-x-circle me-1"></i>Tolak Event
-                                        </button>
-                                    </form>
+                                    </button>
                                 </div>
-                            </div>
+                            </form>
                         @endif
                     </div>
                 </div>

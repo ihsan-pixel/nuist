@@ -21,7 +21,7 @@
                 <div>
                     <h4 class="mb-1">Kalender Akademik & Kegiatan</h4>
                     <p class="text-muted mb-0">
-                        Kelola kegiatan resmi untuk <strong>{{ $school->name }}</strong>. Event di sini terpisah dari sistem holiday lama dan daftar menampilkan event terbaru di bagian teratas.
+                        Kelola kegiatan resmi untuk <strong>{{ $school->name }}</strong>
                     </p>
                 </div>
                 <div>

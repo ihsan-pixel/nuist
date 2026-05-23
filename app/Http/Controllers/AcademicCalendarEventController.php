@@ -129,8 +129,8 @@ class AcademicCalendarEventController extends Controller
             ->with(['creator', 'approver'])
             ->where('school_id', $schoolId)
             ->orderByRaw("CASE approval_status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END")
-            ->orderByDesc('start_date')
-            ->orderByDesc('start_time')
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
             ->get();
 
         return view('mobile.academic-calendar-approvals', compact('events', 'school'));
