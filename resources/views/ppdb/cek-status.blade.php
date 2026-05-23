@@ -1124,7 +1124,7 @@
             @endif
 
             <div class="text-center mt-4">
-                <a href="{{ route('ppdb.cek-status') }}" class="btn btn-back">
+                <a href="{{ route('ppdb.cek-status', ['reset' => 1]) }}" class="btn btn-back">
                     <i class="fas fa-arrow-left me-2"></i>Cek NISN Lain
                 </a>
             </div>
@@ -1170,6 +1170,46 @@ function calculateAverage() {
 
     const average = count > 0 ? (total / count).toFixed(2) : '';
     document.getElementById('rata_rata_nilai_raport').value = average;
+}
+
+function verifyOTP() {
+    const otp = document.getElementById('otp').value.trim();
+    const pendaftarId = document.getElementById('pendaftar_id').value;
+
+    if (!/^\d{6}$/.test(otp)) {
+        alert('Masukkan kode OTP 6 digit yang valid.');
+        return;
+    }
+
+    fetch(`{{ url('/ppdb/verify-otp') }}/${pendaftarId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ otp }),
+        credentials: 'same-origin'
+    })
+    .then(async response => {
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || 'Verifikasi OTP gagal.');
+        }
+
+        if (!data.success) {
+            throw new Error(data.message || 'Verifikasi OTP gagal.');
+        }
+
+        window.location.href = data.redirect_url || '{{ route('ppdb.cek-status') }}';
+    })
+    .catch(error => {
+        alert(error.message || 'Terjadi kesalahan saat memverifikasi OTP.');
+    });
+}
+
+function resetForm() {
+    window.location.href = '{{ route('ppdb.cek-status', ['reset' => 1]) }}';
 }
 
 // Calculate average on page load if values exist

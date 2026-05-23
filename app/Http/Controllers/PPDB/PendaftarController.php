@@ -335,6 +335,23 @@ class PendaftarController extends Controller
      */
     public function cekStatus(Request $request)
     {
+        if ($request->boolean('reset')) {
+            $this->clearPpdbVerificationSession($request);
+
+            return view('ppdb.cek-status');
+        }
+
+        if ($verifiedPendaftarId = $request->session()->get('ppdb_verified_pendaftar_id')) {
+            $pendaftar = PPDBPendaftar::with(['ppdbSetting.sekolah', 'ppdbJalur'])
+                ->find($verifiedPendaftarId);
+
+            if ($pendaftar && $this->hasVerifiedPendaftarSession($request, (int) $verifiedPendaftarId)) {
+                return view('ppdb.cek-status', compact('pendaftar'));
+            }
+
+            $this->clearPpdbVerificationSession($request);
+        }
+
         if ($request->isMethod('post')) {
             $request->validate([
                 'nisn' => 'required|string|max:20',
@@ -348,8 +365,36 @@ class PendaftarController extends Controller
                 return view('ppdb.cek-status')->with('error', 'NISN tidak ditemukan dalam sistem.');
             }
 
-            // Langsung tampilkan status tanpa OTP
-            return view('ppdb.cek-status', compact('pendaftar'));
+            if (empty($pendaftar->ppdb_email_siswa)) {
+                return view('ppdb.cek-status')->with('error', 'Email pendaftar tidak tersedia untuk verifikasi OTP.');
+            }
+
+            try {
+                $otpCode = $pendaftar->generateOTP();
+
+                Mail::raw(
+                    "Kode OTP PPDB Anda adalah {$otpCode}. Kode ini berlaku selama 10 menit.",
+                    static function ($message) use ($pendaftar) {
+                        $message->to($pendaftar->ppdb_email_siswa, $pendaftar->nama_lengkap)
+                            ->subject('Kode OTP Verifikasi PPDB');
+                    }
+                );
+            } catch (\Throwable $e) {
+                Log::error('Gagal mengirim OTP PPDB', [
+                    'pendaftar_id' => $pendaftar->id,
+                    'email' => $pendaftar->ppdb_email_siswa,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return view('ppdb.cek-status')->with('error', 'Gagal mengirim OTP. Silakan coba beberapa saat lagi.');
+            }
+
+            $this->clearPpdbVerificationSession($request);
+            $request->session()->put('ppdb_pending_pendaftar_id', $pendaftar->id);
+
+            return redirect()->route('ppdb.cek-status')
+                ->with('otp_sent', true)
+                ->with('pendaftar_id', $pendaftar->id);
         }
 
         return view('ppdb.cek-status');
@@ -364,6 +409,10 @@ class PendaftarController extends Controller
             'otp' => 'required|string|size:6',
         ]);
 
+        if ((int) $request->session()->get('ppdb_pending_pendaftar_id') !== (int) $pendaftarId) {
+            return response()->json(['success' => false, 'message' => 'Sesi verifikasi tidak valid. Silakan cek status ulang.'], 403);
+        }
+
         $pendaftar = PPDBPendaftar::find($pendaftarId);
 
         if (!$pendaftar) {
@@ -371,7 +420,17 @@ class PendaftarController extends Controller
         }
 
         if ($pendaftar->verifyOTP($request->otp)) {
-            return response()->json(['success' => true, 'message' => 'OTP berhasil diverifikasi']);
+            $request->session()->forget('ppdb_pending_pendaftar_id');
+            $request->session()->put([
+                'ppdb_verified_pendaftar_id' => $pendaftar->id,
+                'ppdb_verified_at' => now()->timestamp,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP berhasil diverifikasi',
+                'redirect_url' => route('ppdb.cek-status'),
+            ]);
         }
 
         return response()->json(['success' => false, 'message' => 'Kode OTP tidak valid atau sudah kadaluarsa']);
@@ -382,6 +441,13 @@ class PendaftarController extends Controller
      */
     public function updateData(Request $request, $pendaftarId)
     {
+        if (! $this->hasVerifiedPendaftarSession($request, (int) $pendaftarId)) {
+            $this->clearPpdbVerificationSession($request);
+
+            return redirect()->route('ppdb.cek-status')
+                ->with('error', 'Sesi verifikasi telah berakhir. Silakan cek status dan verifikasi OTP kembali.');
+        }
+
         $pendaftar = PPDBPendaftar::findOrFail($pendaftarId);
 
         // Validasi input berdasarkan field yang dikirim
@@ -520,6 +586,27 @@ class PendaftarController extends Controller
                 ->with('error', 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage())
                 ->withInput();
         }
+    }
+
+    private function hasVerifiedPendaftarSession(Request $request, int $pendaftarId): bool
+    {
+        $verifiedPendaftarId = (int) $request->session()->get('ppdb_verified_pendaftar_id', 0);
+        $verifiedAt = (int) $request->session()->get('ppdb_verified_at', 0);
+        $now = now()->timestamp;
+
+        return $verifiedPendaftarId === $pendaftarId
+            && $verifiedAt > 0
+            && $verifiedAt <= $now
+            && $verifiedAt >= now()->subMinutes(30)->timestamp;
+    }
+
+    private function clearPpdbVerificationSession(Request $request): void
+    {
+        $request->session()->forget([
+            'ppdb_pending_pendaftar_id',
+            'ppdb_verified_pendaftar_id',
+            'ppdb_verified_at',
+        ]);
     }
 
     /**

@@ -24,13 +24,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Mobile token login/logout for Capacitor apps (token-based auth)
 Route::get('/mobile/register/options', [App\Http\Controllers\Api\AuthController::class, 'registerOptions']);
-Route::post('/mobile/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
-Route::post('/mobile/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
-Route::post('/mobile/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
+Route::post('/mobile/register', [App\Http\Controllers\Api\AuthController::class, 'register'])
+    ->middleware(['throttle:6,1']);
+Route::post('/mobile/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword'])
+    ->middleware(['throttle:6,1']);
+Route::post('/mobile/login', [App\Http\Controllers\Api\AuthController::class, 'login'])
+    ->middleware(['throttle:6,1']);
+Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
-    Route::post('/push-token', [App\Http\Controllers\Api\AuthController::class, 'registerPushToken']);
-    Route::delete('/push-token', [App\Http\Controllers\Api\AuthController::class, 'unregisterPushToken']);
+    Route::post('/push-token', [App\Http\Controllers\Api\AuthController::class, 'registerPushToken'])
+        ->middleware('throttle:20,1');
+    Route::delete('/push-token', [App\Http\Controllers\Api\AuthController::class, 'unregisterPushToken'])
+        ->middleware('throttle:20,1');
     Route::get('/me', [MobileController::class, 'me']);
     Route::get('/dashboard', [MobileController::class, 'dashboard']);
     Route::get('/tagihan', [MobileController::class, 'tagihan']);
@@ -55,7 +60,8 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
         Route::get('/profile', [TeacherAppController::class, 'profile']);
         Route::post('/profile/update', [TeacherAppController::class, 'updateProfile']);
         Route::post('/profile/avatar', [TeacherAppController::class, 'updateProfileAvatar']);
-        Route::post('/profile/password', [TeacherAppController::class, 'updateProfilePassword']);
+        Route::post('/profile/password', [TeacherAppController::class, 'updateProfilePassword'])
+            ->middleware(['throttle:5,1']);
         Route::get('/izin', [TeacherAppController::class, 'izin']);
         Route::post('/izin', [TeacherAppController::class, 'storeIzin']);
         Route::get('/izin/{izin}/attachment', [TeacherAppController::class, 'downloadIzinAttachment']);
@@ -68,7 +74,8 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
 
 Route::middleware('auth')->get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'apiIndex']);
 
-Route::post('github-commit', [GithubWebhookController::class, 'handle']);
+Route::post('github-commit', [GithubWebhookController::class, 'handle'])
+    ->middleware(['github.webhook', 'throttle:20,1']);
 
 // Face enrollment (admin) and verification (mobile presensi) with rate-limiting
 Route::middleware(['auth', 'throttle:10,1'])->post('/face/enroll', [FaceController::class, 'enroll']);

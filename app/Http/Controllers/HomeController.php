@@ -54,13 +54,16 @@ class HomeController extends Controller
 
     public function updateProfile(Request $request, $id)
     {
+        $currentUser = Auth::user();
+        abort_unless($currentUser && (int) $currentUser->id === (int) $id, 403);
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:1024'],
         ]);
 
-        $user = User::find($id);
+        $user = $currentUser;
         $user->name = $request->get('name');
         $user->email = $request->get('email');
 
@@ -92,18 +95,21 @@ class HomeController extends Controller
 
     public function updatePassword(Request $request, $id)
     {
+        $currentUser = Auth::user();
+        abort_unless($currentUser && (int) $currentUser->id === (int) $id, 403);
+
         $request->validate([
             'current_password' => ['required', 'string'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        if (!(Hash::check($request->get('current_password'), Auth::user()->password))) {
+        if (!Hash::check($request->get('current_password'), $currentUser->password)) {
             return response()->json([
                 'isSuccess' => false,
                 'Message' => "Your Current password does not matches with the password you provided. Please try again."
             ], 200); // Status code
         } else {
-            $user = User::find($id);
+            $user = $currentUser;
             $user->password = Hash::make($request->get('password'));
             $user->password_changed = true;
             $user->update();

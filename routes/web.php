@@ -39,8 +39,12 @@ use App\Http\Controllers\PPDB\{
 */
 
 // Account Setting Routes
-Route::get('/account/login', [App\Http\Controllers\AccountSettingController::class, 'login'])->name('account.login');
-Route::post('/account/login', [App\Http\Controllers\AccountSettingController::class, 'authenticate'])->name('account.authenticate');
+Route::get('/account/login', [App\Http\Controllers\AccountSettingController::class, 'login'])
+    ->middleware(['guest'])
+    ->name('account.login');
+Route::post('/account/login', [App\Http\Controllers\AccountSettingController::class, 'authenticate'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->name('account.authenticate');
 Route::middleware(['auth'])->group(function () {
     Route::get('/account/dashboard', [App\Http\Controllers\AccountSettingController::class, 'dashboard'])->name('account.dashboard');
 });
@@ -185,7 +189,7 @@ Route::get('/foto/mgmp-attendance/{attendance}', [App\Http\Controllers\FotoContr
     ->middleware('auth');
 Route::get('/foto/{type}/{id}', [App\Http\Controllers\FotoController::class, 'show'])->name('foto.show');
 
-// Clear cache endpoint (accessible without authentication)
+// Clear cache endpoint (restricted to super admin)
 Route::post('/clear-cache', function () {
     try {
         \Artisan::call('cache:clear');
@@ -200,12 +204,14 @@ Route::post('/clear-cache', function () {
             'message' => 'Gagal membersihkan cache: ' . $e->getMessage()
         ], 500);
     }
-})->name('clear-cache');
+})->middleware(['auth', 'role:super_admin', 'throttle:5,1'])->name('clear-cache');
 
 // Email Verification Routes
 Route::get('/email/verify', [App\Http\Controllers\Auth\VerificationController::class, 'show'])->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])->name('verification.verify');
-Route::post('/email/resend', [App\Http\Controllers\Auth\VerificationController::class, 'resend'])->name('verification.resend');
+Route::post('/email/resend', [App\Http\Controllers\Auth\VerificationController::class, 'resend'])
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.resend');
 
 // setelah login langsung ke dashboard
 Route::get('/', function () {
@@ -222,16 +228,22 @@ Route::get('/kontak', [App\Http\Controllers\LandingController::class, 'kontak'])
 // Mobile optimized login page (mobile webview / capacitor)
 Route::get('/mobile/login', function () {
     return view('mobile.login');
-})->name('mobile.login');
+})->middleware(['guest'])->name('mobile.login');
 
 Route::get('/mobile/register', function () {
     $madrasahs = \App\Models\Madrasah::orderBy('scod')->get();
     return view('mobile.register', compact('madrasahs'));
 })->name('mobile.register');
 
-Route::get('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerForm'])->name('spp-operator.register');
-Route::get('/register/operator-spp/lookup-school', [App\Http\Controllers\SppOperatorController::class, 'lookupSchool'])->name('spp-operator.lookup-school');
-Route::post('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerStore'])->name('spp-operator.register.store');
+Route::get('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerForm'])
+    ->middleware('guest')
+    ->name('spp-operator.register');
+Route::get('/register/operator-spp/lookup-school', [App\Http\Controllers\SppOperatorController::class, 'lookupSchool'])
+    ->middleware('guest')
+    ->name('spp-operator.lookup-school');
+Route::post('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerStore'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->name('spp-operator.register.store');
 
 // Bundled APK entry (Plan B) - serves a local view that will be bundled into the APK
 Route::view('/mobile-app', 'mobile.index')->name('mobile.app');
@@ -242,12 +254,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-Route::post('/mobile/login', [MobileAuthController::class, 'authenticate'])->name('mobile.login.authenticate');
+Route::post('/mobile/login', [MobileAuthController::class, 'authenticate'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->name('mobile.login.authenticate');
 
 // Mobile forgot password (mobile-optimized view and submit)
 Route::get('/mobile/forgot-password', function () {
     return view('mobile.forgot-password-v2');
-})->name('mobile.password.request');
+})->middleware(['guest'])->name('mobile.password.request');
 
 Route::post('/mobile/forgot-password', function (Request $request) {
     $request->validate(['email' => 'required|email']);
@@ -259,7 +273,7 @@ Route::post('/mobile/forgot-password', function (Request $request) {
     }
 
     return back()->withErrors(['email' => __($status)]);
-})->name('mobile.password.email');
+})->middleware(['guest', 'throttle:6,1'])->name('mobile.password.email');
 
 // Mobile reset password routes (show form + process reset)
 Route::get('/mobile/reset-password/{token}', function ($token) {
@@ -287,11 +301,16 @@ Route::post('/mobile/reset-password', function (Request $request) {
     }
 
     return back()->withErrors(['email' => [__($status)]]);
-})->name('mobile.password.update');
+})->middleware(['guest', 'throttle:6,1'])->name('mobile.password.update');
 
 // Contact form submission
-Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])->name('landing.sekolah.contact');
-Route::post('/kontak', [App\Http\Controllers\LandingController::class, 'sendContactMessageGeneral'])->name('landing.kontak.submit');
+Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->whereNumber('id')
+    ->name('landing.sekolah.contact');
+Route::post('/kontak', [App\Http\Controllers\LandingController::class, 'sendContactMessageGeneral'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->name('landing.kontak.submit');
 
 // Jika akses link nuist.id/index maka akan tertuju halaman login
 Route::get('/index', function () {
@@ -327,7 +346,9 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
         Route::get('/pengguna-aktif', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'penggunaAktif'])->name('pengguna-aktif');
         Route::get('/profile', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'profile'])->name('profile');
         Route::get('/ubah-password', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'ubahPassword'])->name('ubah-password');
-        Route::post('/ubah-password', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'updatePassword'])->name('update-password');
+        Route::post('/ubah-password', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'updatePassword'])
+            ->middleware('throttle:5,1')
+            ->name('update-password');
     });
 
     // DPS routes
@@ -370,7 +391,9 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::get('/profile', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'profile'])->name('profile');
     Route::post('/profile/update-profile', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updateProfile'])->name('profile.update-profile');
     Route::post('/profile/update-avatar', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updateAvatar'])->name('profile.update-avatar');
-    Route::post('/profile/update-password', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::post('/profile/update-password', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updatePassword'])
+        ->middleware('throttle:5,1')
+        ->name('profile.update-password');
     Route::get('/ubah-akun', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'ubahAkun'])->name('ubah-akun');
 
     // Izin
@@ -635,8 +658,14 @@ Route::prefix('izin')->middleware(['auth'])->group(function () {
 Route::post('/izin/store', [IzinController::class, 'store'])->middleware(['auth', 'role:tenaga_pendidik'])->name('izin.store');
 
 // Update User Details
-Route::post('/update-profile/{id}', [App\Http\Controllers\HomeController::class, 'updateProfile'])->name('updateProfile');
-Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])->name('updatePassword');
+Route::post('/update-profile/{id}', [App\Http\Controllers\HomeController::class, 'updateProfile'])
+    ->middleware(['auth', 'throttle:5,1'])
+    ->whereNumber('id')
+    ->name('updateProfile');
+Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])
+    ->middleware(['auth', 'throttle:5,1'])
+    ->whereNumber('id')
+    ->name('updatePassword');
 
 // Language Translation
 Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
@@ -646,10 +675,16 @@ Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'inde
 
 use App\Http\Controllers\Auth\LoginController;
 
-Route::get('/login/operator-spp', [LoginController::class, 'showSppOperatorLoginForm'])->name('login.operator-spp');
-Route::post('/login/operator-spp', [LoginController::class, 'loginSppOperator'])->name('login.operator-spp.submit');
+Route::get('/login/operator-spp', [LoginController::class, 'showSppOperatorLoginForm'])
+    ->middleware(['guest'])
+    ->name('login.operator-spp');
+Route::post('/login/operator-spp', [LoginController::class, 'loginSppOperator'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->name('login.operator-spp.submit');
 
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware(['auth', 'throttle:10,1'])
+    ->name('logout');
 
 
 
@@ -671,9 +706,15 @@ Route::middleware(['auth', 'role:super_admin,admin,admin_spp,pengurus'])->prefix
 Route::get('/uppm/pembayaran/check-tagihan', [App\Http\Controllers\PembayaranController::class, 'checkTagihan'])->name('pembayaran.check-tagihan');
 
 // Payment result route outside middleware to handle Midtrans callbacks
-Route::post('/uppm/pembayaran/midtrans/result', [App\Http\Controllers\PembayaranController::class, 'paymentResult'])->name('uppm.pembayaran.midtrans.result');
-Route::post('/uppm/pembayaran/success', [App\Http\Controllers\PembayaranController::class, 'paymentSuccess'])->name('uppm.pembayaran.success');
-Route::post('/uppm/pembayaran/check-status', [App\Http\Controllers\PembayaranController::class, 'checkPaymentStatus'])->name('uppm.pembayaran.check-status');
+Route::post('/uppm/pembayaran/midtrans/result', [App\Http\Controllers\PembayaranController::class, 'paymentResult'])
+    ->middleware(['auth', 'role:super_admin,pengurus', 'throttle:10,1'])
+    ->name('uppm.pembayaran.midtrans.result');
+Route::post('/uppm/pembayaran/success', [App\Http\Controllers\PembayaranController::class, 'paymentSuccess'])
+    ->middleware(['auth', 'role:super_admin,pengurus', 'throttle:10,1'])
+    ->name('uppm.pembayaran.success');
+Route::post('/uppm/pembayaran/check-status', [App\Http\Controllers\PembayaranController::class, 'checkPaymentStatus'])
+    ->middleware(['auth', 'role:super_admin,pengurus', 'throttle:10,1'])
+    ->name('uppm.pembayaran.check-status');
 
 
 // UPPM Routes
@@ -777,8 +818,12 @@ Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'
 });
 
 // Talenta Routes
-Route::get('/talenta/login', [App\Http\Controllers\TalentaController::class, 'login'])->name('talenta.login');
-Route::post('/talenta/login', [App\Http\Controllers\TalentaController::class, 'authenticate'])->name('talenta.authenticate');
+Route::get('/talenta/login', [App\Http\Controllers\TalentaController::class, 'login'])
+    ->middleware('guest')
+    ->name('talenta.login');
+Route::post('/talenta/login', [App\Http\Controllers\TalentaController::class, 'authenticate'])
+    ->middleware(['guest', 'throttle:6,1'])
+    ->name('talenta.authenticate');
 Route::middleware(['auth'])->group(function () {
     Route::get('/talenta/dashboard', [App\Http\Controllers\TalentaController::class, 'dashboard'])->name('talenta.dashboard');
     Route::get('/talenta/data', [App\Http\Controllers\TalentaController::class, 'data'])->name('talenta.data');
@@ -797,12 +842,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'tugasLevel1'])->name('talenta.tugas-level-1');
     Route::get('/talenta/penilaian-tugas', [App\Http\Controllers\TalentaController::class, 'penilaianTugas'])->name('talenta.penilaian-tugas');
     Route::post('/talenta/penilaian-tugas/nilai', [App\Http\Controllers\TalentaController::class, 'simpanNilaiTugas'])->name('talenta.simpan-nilai-tugas');
-    Route::post('/talenta/logout', [App\Http\Controllers\TalentaController::class, 'logout'])->name('talenta.logout');
+    Route::post('/talenta/logout', [App\Http\Controllers\TalentaController::class, 'logout'])
+        ->middleware('throttle:10,1')
+        ->name('talenta.logout');
 });
 // Move POST route outside auth middleware to handle AJAX requests properly
-Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])->name('talenta.tugas-level-1.simpan');
+Route::post('/talenta/tugas-level-1', [App\Http\Controllers\TalentaController::class, 'simpanTugasLevel1'])
+    ->middleware(['auth', 'throttle:10,1'])
+    ->name('talenta.tugas-level-1.simpan');
 // Reset / delete uploaded tugas file (allow form POST or AJAX)
-Route::post('/talenta/tugas-level-1/reset', [App\Http\Controllers\TalentaController::class, 'resetTugasLevel1'])->name('talenta.tugas-level-1.reset');
+Route::post('/talenta/tugas-level-1/reset', [App\Http\Controllers\TalentaController::class, 'resetTugasLevel1'])
+    ->middleware(['auth', 'throttle:10,1'])
+    ->name('talenta.tugas-level-1.reset');
 
 // Soal management (admin)
 Route::middleware(['auth','role:super_admin,admin'])->group(function () {
@@ -840,10 +891,14 @@ Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp'])->prefix('mgm
     // Academica proposals page and upload
     Route::get('/academica', [App\Http\Controllers\MGMPController::class, 'academica'])->name('academica');
     Route::post('/academica/upload', [App\Http\Controllers\MGMPController::class, 'uploadAcademica'])->name('academica.upload');
-    Route::post('/academica/reset-update', [App\Http\Controllers\MGMPController::class, 'storeAcademicaResetUpdate'])->name('academica.reset-update.store');
+    Route::post('/academica/reset-update', [App\Http\Controllers\MGMPController::class, 'storeAcademicaResetUpdate'])
+        ->middleware(['throttle:10,1'])
+        ->name('academica.reset-update.store');
 
     // Logout route for MGMP
-    Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])->name('logout');
+    Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])
+        ->middleware(['throttle:10,1'])
+        ->name('logout');
 });
 
 Route::middleware(['auth', 'role:super_admin,admin,pengurus,mgmp,tenaga_pendidik'])->prefix('mgmp')->name('mgmp.')->group(function () {
@@ -857,11 +912,13 @@ Route::get('/mgmp', [App\Http\Controllers\MGMPController::class, 'index'])->name
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
 // App Settings Routes - Super Admin Only
-Route::middleware(['role:super_admin'])->group(function () {
+Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/app-settings', [App\Http\Controllers\AppSettingsController::class, 'index'])->name('app-settings.index');
     Route::put('/app-settings', [App\Http\Controllers\AppSettingsController::class, 'update'])->name('app-settings.update');
     Route::post('/app-settings/update-version', [App\Http\Controllers\AppSettingsController::class, 'updateVersion'])->name('app-settings.update-version');
-    Route::post('/app-settings/check-updates', [App\Http\Controllers\AppSettingsController::class, 'checkForUpdates'])->name('app-settings.check-updates');
+    Route::post('/app-settings/check-updates', [App\Http\Controllers\AppSettingsController::class, 'checkForUpdates'])
+        ->middleware('throttle:5,1')
+        ->name('app-settings.check-updates');
     Route::post('/app-settings/turn-off-debug', [App\Http\Controllers\AppSettingsController::class, 'turnOffDebug'])->name('app-settings.turn-off-debug');
 });
 
@@ -869,13 +926,27 @@ Route::middleware(['role:super_admin'])->group(function () {
 Route::prefix('ppdb')->group(function () {
     Route::get('/', [PPDBController::class, 'index'])->name('ppdb.index');
     // Place explicit routes BEFORE the parameterized /{slug} route so they are matched correctly
-    Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status');
-    Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status.post');
-    Route::post('/verify-otp/{pendaftarId}', [PendaftarController::class, 'verifyOTP'])->name('ppdb.verify-otp');
-    Route::put('/update-data/{pendaftar}', [PendaftarController::class, 'updateData'])->name('ppdb.update-data');
+    Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])
+        ->middleware('guest')
+        ->name('ppdb.cek-status');
+    Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])
+        ->middleware(['guest', 'throttle:6,1'])
+        ->name('ppdb.cek-status.post');
+    Route::post('/verify-otp/{pendaftarId}', [PendaftarController::class, 'verifyOTP'])
+        ->middleware(['guest', 'throttle:6,1'])
+        ->whereNumber('pendaftarId')
+        ->name('ppdb.verify-otp');
+    Route::put('/update-data/{pendaftar}', [PendaftarController::class, 'updateData'])
+        ->middleware(['guest', 'throttle:6,1'])
+        ->whereNumber('pendaftar')
+        ->name('ppdb.update-data');
     Route::get('/{slug}', [PPDBController::class, 'showSekolah'])->name('ppdb.sekolah');
-    Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])->name('ppdb.daftar');
-    Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])->name('ppdb.store');
+    Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])
+        ->middleware('guest')
+        ->name('ppdb.daftar');
+    Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])
+        ->middleware(['guest', 'throttle:6,1'])
+        ->name('ppdb.store');
     Route::get('/check-nisn/{nisn}', [PendaftarController::class, 'checkNISN'])->name('ppdb.check-nisn');
 });
 
@@ -945,8 +1016,12 @@ if (env('APP_DEBUG') === true) {
 }
 
 // Midtrans Webhook Callback - TANPA AUTH & CSRF
-Route::post('/midtrans/callback', [App\Http\Controllers\PembayaranController::class, 'midtransCallback'])->name('midtrans.callback');
-Route::post('/spp-siswa/bni-va/callback', [App\Http\Controllers\SppSiswaPaymentController::class, 'callback'])->name('spp-siswa.bni-va.callback');
+Route::post('/midtrans/callback', [App\Http\Controllers\PembayaranController::class, 'midtransCallback'])
+    ->middleware(['midtrans.callback', 'throttle:30,1'])
+    ->name('midtrans.callback');
+Route::post('/spp-siswa/bni-va/callback', [App\Http\Controllers\SppSiswaPaymentController::class, 'callback'])
+    ->middleware(['bni-va.callback', 'throttle:30,1'])
+    ->name('spp-siswa.bni-va.callback');
 
 // Pending Registration Routes - Super Admin Only
 Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')->group(function () {

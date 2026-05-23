@@ -355,7 +355,7 @@ class PembayaranController extends Controller
             ]);
 
             // Skip signature untuk sandbox atau production jika diperlukan
-            $skipSignature = app()->environment('local') || env('MIDTRANS_SKIP_SIGNATURE', true);
+            $skipSignature = app()->environment('local') || env('MIDTRANS_SKIP_SIGNATURE', false);
 
             Log::info('Signature validation check', [
                 'skip_signature' => $skipSignature,

@@ -46,14 +46,13 @@ class GithubWebhookController extends Controller
      */
     private function validateWebhookSignature(Request $request)
     {
-        $secret = env('GITHUB_WEBHOOK_SECRET');
-        if (!$secret) {
-            // If no secret configured, skip validation
-            return true;
+        $secret = config('services.github.webhook_secret', env('GITHUB_WEBHOOK_SECRET'));
+        if (! is_string($secret) || $secret === '') {
+            return false;
         }
 
         $signature = $request->header('X-Hub-Signature-256');
-        if (!$signature) {
+        if (! is_string($signature) || $signature === '') {
             return false;
         }
 

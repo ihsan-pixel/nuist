@@ -31,9 +31,9 @@
                                         <td>{{ $i++ }}</td>
                                         <td>{{ $soal->materi_slug }}</td>
                                         <td>{{ $soal->jenis }}</td>
-                                        <td>{!! nl2br(e(
+                                        <td style="white-space: pre-line;">{{
                                             Str::limit($soal->pertanyaan, 180)
-                                        )) !!}</td>
+                                        }}</td>
                                         <td>
                                             <a href="{{ route('talenta.soals.edit', $soal->id) }}" class="btn btn-sm btn-warning">Edit</a>
                                             <form action="{{ route('talenta.soals.destroy', $soal->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Hapus soal ini?');">

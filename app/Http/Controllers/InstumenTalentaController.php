@@ -12,7 +12,6 @@ use App\Models\TalentaKelompok;
 use App\Models\TalentaKehadiranPeserta;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\Instumen\FasilitatorSheetExport;
 use App\Exports\Instumen\FasilitatorAllExport;
@@ -125,15 +124,11 @@ class InstumenTalentaController extends Controller
 
     public function storePeserta(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        $user = User::with('madrasah')->find($request->user_id);
+        $user = User::with('madrasah')->find($validated['user_id']);
 
         // Generate next kode peserta
         $existingCodes = TalentaPeserta::where('kode_peserta', 'like', 'T-01.%')
@@ -157,7 +152,7 @@ class InstumenTalentaController extends Controller
 
         TalentaPeserta::create([
             'kode_peserta' => $kodePeserta,
-            'user_id' => $request->user_id,
+            'user_id' => $validated['user_id'],
             'asal_sekolah' => $user->madrasah->name ?? 'N/A',
         ]);
 
@@ -298,22 +293,18 @@ class InstumenTalentaController extends Controller
 
     public function storeMateri(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'kode_materi' => 'required|string|unique:talenta_materi,kode_materi',
             'judul_materi' => 'required|string|max:255',
             'level_materi' => 'required|in:1,2,3',
             'tanggal_materi' => 'required|date',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
         TalentaMateri::create([
-            'kode_materi' => $request->kode_materi,
-            'judul_materi' => $request->judul_materi,
-            'level_materi' => $request->level_materi,
-            'tanggal_materi' => $request->tanggal_materi,
+            'kode_materi' => $validated['kode_materi'],
+            'judul_materi' => $validated['judul_materi'],
+            'level_materi' => $validated['level_materi'],
+            'tanggal_materi' => $validated['tanggal_materi'],
         ]);
 
         return redirect()->route('instumen-talenta.input-materi')->with('success', 'Data materi berhasil disimpan.');
@@ -482,20 +473,16 @@ class InstumenTalentaController extends Controller
 
     public function storeLayananTeknis(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'kode_layanan_teknis' => 'required|string|unique:talenta_layanan_teknis,kode_layanan_teknis',
             'nama_layanan_teknis' => 'required|string|max:255',
             'tugas_layanan_teknis' => 'required|string',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
         TalentaLayananTeknis::create([
-            'kode_layanan_teknis' => $request->kode_layanan_teknis,
-            'nama_layanan_teknis' => $request->nama_layanan_teknis,
-            'tugas_layanan_teknis' => $request->tugas_layanan_teknis,
+            'kode_layanan_teknis' => $validated['kode_layanan_teknis'],
+            'nama_layanan_teknis' => $validated['nama_layanan_teknis'],
+            'tugas_layanan_teknis' => $validated['tugas_layanan_teknis'],
         ]);
 
         return redirect()->route('instumen-talenta.input-layanan-teknis')->with('success', 'Data layanan teknis berhasil disimpan.');
@@ -503,26 +490,22 @@ class InstumenTalentaController extends Controller
 
     public function createUserForPemateri(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
         try {
             $user = User::create([
-                'name' => $request->nama,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
+                'name' => $validated['nama'],
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
                 'role' => 'pemateri', // Assuming pemateri role exists
             ]);
 
             // Update pemateri record with user_id
-            $pemateri = TalentaPemateri::where('nama', $request->nama)->first();
+            $pemateri = TalentaPemateri::where('nama', $validated['nama'])->first();
             if ($pemateri) {
                 $pemateri->update(['user_id' => $user->id]);
             }
@@ -535,26 +518,22 @@ class InstumenTalentaController extends Controller
 
     public function createUserForFasilitator(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
         try {
             $user = User::create([
-                'name' => $request->nama,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
+                'name' => $validated['nama'],
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
                 'role' => 'fasilitator', // Assuming fasilitator role exists
             ]);
 
             // Update fasilitator record with user_id
-            $fasilitator = TalentaFasilitator::where('nama', $request->nama)->first();
+            $fasilitator = TalentaFasilitator::where('nama', $validated['nama'])->first();
             if ($fasilitator) {
                 $fasilitator->update(['user_id' => $user->id]);
             }
@@ -567,23 +546,19 @@ class InstumenTalentaController extends Controller
 
     public function storeKelompok(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'nama_kelompok' => 'required|string|max:255',
             'user_ids' => 'required|array',
             'user_ids.*' => 'exists:users,id',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
         try {
             $kelompok = TalentaKelompok::create([
-                'nama_kelompok' => $request->nama_kelompok,
+                'nama_kelompok' => $validated['nama_kelompok'],
             ]);
 
             // Attach users to kelompok
-            $kelompok->users()->attach($request->user_ids);
+            $kelompok->users()->attach($validated['user_ids']);
 
             return redirect()->route('instumen-talenta.input-peserta')->with('success', 'Kelompok peserta berhasil dibuat.');
         } catch (\Exception $e) {

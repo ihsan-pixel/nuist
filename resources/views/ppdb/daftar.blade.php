@@ -923,7 +923,7 @@
 
             <script>
                 // Data jurusan untuk setiap sekolah alternatif
-                window._sekolahAlternatifData = {!! json_encode($sekolahLainData) !!};
+                window._sekolahAlternatifData = {{ \Illuminate\Support\Js::from($sekolahLainData) }};
 
                 document.addEventListener('DOMContentLoaded', function() {
                     const sekolahSelect = document.getElementById('ppdb_opsi_pilihan_ke_2');
