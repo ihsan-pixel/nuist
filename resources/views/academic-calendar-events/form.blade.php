@@ -71,6 +71,7 @@
                         </div>
 
                         <div class="col-12">
+                            <input type="hidden" name="is_all_day" value="0">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch" id="is_all_day" name="is_all_day" value="1" @checked(old('is_all_day', $event->is_all_day ?? true))>
                                 <label class="form-check-label" for="is_all_day">Berlaku seharian penuh</label>
@@ -104,6 +105,7 @@
                         </div>
 
                         <div class="col-12">
+                            <input type="hidden" name="is_active" value="0">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch" id="is_active" name="is_active" value="1" @checked(old('is_active', $event->is_active ?? true))>
                                 <label class="form-check-label" for="is_active">Event aktif dan siap diajukan ke kepala sekolah</label>

@@ -201,8 +201,8 @@ class AcademicCalendarEventController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
-        $validated['is_all_day'] = $request->boolean('is_all_day', true);
-        $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['is_all_day'] = $request->boolean('is_all_day');
+        $validated['is_active'] = $request->boolean('is_active');
         $validated['custom_type_label'] = trim((string) ($validated['custom_type_label'] ?? ''));
 
         if ($validated['event_type'] !== AcademicCalendarEvent::TYPE_CUSTOM) {
