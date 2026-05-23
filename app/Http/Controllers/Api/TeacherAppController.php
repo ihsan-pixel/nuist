@@ -13,6 +13,7 @@ use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\User;
+use App\Services\AcademicCalendarEventService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\FcmPushService;
 use App\Services\ExternalTeachingPermissionService;
@@ -35,6 +36,10 @@ class TeacherAppController extends Controller
 {
     private const SCHEDULE_DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     private const SCHEDULE_NEW_VALUE = '__new__';
+
+    public function __construct(private AcademicCalendarEventService $academicCalendarEventService)
+    {
+    }
 
     public function dashboard(Request $request): JsonResponse
     {
@@ -62,8 +67,11 @@ class TeacherAppController extends Controller
             ->orderBy('tanggal')
             ->get();
 
+        $this->academicCalendarEventService->syncTeacherDate($user, $today);
+
         $todaySchedules = $this->todaySchedules($user, $today);
         $todayAttendances = TeachingAttendance::query()
+            ->with('academicCalendarEvent')
             ->where('user_id', $user->id)
             ->whereDate('tanggal', $today->toDateString())
             ->get()
@@ -86,11 +94,16 @@ class TeacherAppController extends Controller
                 'end_time' => $this->formatTime($schedule->end_time),
                 'attendance_status' => $status,
                 'attendance_status_label' => match ($status) {
-                    'completed' => 'Sudah Presensi',
+                    'completed' => ($attendance?->is_academic_calendar_auto ?? false)
+                        ? ($attendance?->display_status_label ?? 'Kalender Akademik')
+                        : 'Sudah Presensi',
                     'izin' => 'Izin Disetujui',
                     default => 'Belum Presensi',
                 },
                 'materi' => $attendance?->materi,
+                'is_auto_generated' => (bool) $attendance?->is_auto_generated,
+                'attendance_source' => $attendance?->attendance_source,
+                'event_name' => $attendance?->academicCalendarEvent?->name,
             ];
         })->values();
 
@@ -634,17 +647,20 @@ class TeacherAppController extends Controller
         $monthEnd = $today->copy()->endOfMonth();
         $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
 
+        $this->academicCalendarEventService->syncTeacherRange($user, $monthStart, $monthEnd);
+
         $todaySchedules = $this->todaySchedules($user, $today);
         $this->attachTeachingClassStudentCounts($todaySchedules);
 
         $todayAttendances = TeachingAttendance::query()
+            ->with('academicCalendarEvent')
             ->where('user_id', $user->id)
             ->whereDate('tanggal', $today->toDateString())
             ->get()
             ->keyBy('teaching_schedule_id');
 
         $items = TeachingAttendance::query()
-            ->with(['teachingSchedule.school'])
+            ->with(['teachingSchedule.school', 'academicCalendarEvent'])
             ->where('user_id', $user->id)
             ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->latest('tanggal')
@@ -700,8 +716,13 @@ class TeacherAppController extends Controller
                             ? (($attendance->status ?: 'hadir') === 'izin' ? 'izin' : 'hadir')
                             : ($approvedTeachingJournalIzin ? 'izin' : 'pending'),
                         'status_label' => $attendance
-                            ? (($attendance->status ?: 'hadir') === 'izin' ? 'Izin' : 'Presensi Berhasil')
+                            ? (($attendance->is_academic_calendar_auto ?? false)
+                                ? $attendance->display_status_label
+                                : ((($attendance->status ?: 'hadir') === 'izin') ? 'Izin' : 'Presensi Berhasil'))
                             : ($approvedTeachingJournalIzin ? 'Izin (Disetujui)' : 'Belum Presensi'),
+                        'is_auto_generated' => (bool) $attendance?->is_auto_generated,
+                        'attendance_source' => $attendance?->attendance_source,
+                        'event_name' => $attendance?->academicCalendarEvent?->name,
                         'attendance' => $attendance ? $this->serializeTeachingAttendanceEntry($attendance) : null,
                     ];
                 })->values(),
@@ -728,6 +749,13 @@ class TeacherAppController extends Controller
         $today = Carbon::today('Asia/Jakarta');
 
         $this->ensureTeachingJournalScheduleAllowed($user, $schedule, $today);
+
+        $calendarEvent = $this->academicCalendarEventService->ensureAutomaticAttendanceForSchedule($schedule, $today);
+        if ($calendarEvent) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_id' => 'Jadwal ini sudah ditandai otomatis sebagai "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.',
+            ]);
+        }
 
         $locationState = $this->checkTeachingAttendanceLocationAgainstSchool(
             $schedule,
@@ -783,6 +811,13 @@ class TeacherAppController extends Controller
             ->findOrFail($validated['teaching_schedule_id']);
 
         $this->ensureTeachingJournalScheduleAllowed($user, $schedule, $today);
+
+        $calendarEvent = $this->academicCalendarEventService->ensureAutomaticAttendanceForSchedule($schedule, $today);
+        if ($calendarEvent) {
+            throw ValidationException::withMessages([
+                'attendance' => 'Jadwal ini sudah ditandai otomatis sebagai "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.',
+            ]);
+        }
 
         $existingAttendance = TeachingAttendance::query()
             ->where('teaching_schedule_id', $schedule->id)
@@ -881,6 +916,8 @@ class TeacherAppController extends Controller
                 'tanggal' => $today->toDateString(),
                 'waktu' => $now->format('H:i:s'),
                 'status' => 'hadir',
+                'attendance_source' => TeachingAttendance::SOURCE_MANUAL,
+                'is_auto_generated' => false,
                 'latitude' => $validated['latitude'],
                 'longitude' => $validated['longitude'],
                 'lokasi' => $validated['lokasi'] ?? $locationState['location_label'],
@@ -1868,7 +1905,10 @@ class TeacherAppController extends Controller
             'school_name' => $item->teachingSchedule?->school?->name,
             'time' => $this->formatTime($item->waktu),
             'status' => $item->status ?? 'hadir',
-            'status_label' => ($item->status ?? 'hadir') === 'izin' ? 'Izin' : 'Hadir',
+            'status_label' => $item->display_status_label,
+            'is_auto_generated' => $item->is_auto_generated,
+            'attendance_source' => $item->attendance_source,
+            'event_name' => $item->academicCalendarEvent?->name,
             'materi' => $item->materi ?: 'Belum ada materi tercatat.',
             'present_students' => $item->present_students,
             'class_total_students' => $item->class_total_students,

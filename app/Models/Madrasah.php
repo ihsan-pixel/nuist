@@ -155,6 +155,11 @@ class Madrasah extends Model
         return $this->hasManyThrough(TeachingAttendance::class, TeachingSchedule::class, 'school_id', 'teaching_schedule_id');
     }
 
+    public function academicCalendarEvents()
+    {
+        return $this->hasMany(AcademicCalendarEvent::class, 'school_id');
+    }
+
     // Relasi: satu madrasah punya banyak data tenaga pendidik
     public function dataTenagaPendidik()
     {

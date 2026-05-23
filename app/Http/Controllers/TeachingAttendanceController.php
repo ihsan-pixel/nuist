@@ -8,6 +8,7 @@ use App\Models\TeachingSchedule;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Notification;
+use App\Services\AcademicCalendarEventService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Http\Request;
@@ -17,6 +18,10 @@ use Carbon\Carbon;
 
 class TeachingAttendanceController extends Controller
 {
+    public function __construct(private AcademicCalendarEventService $academicCalendarEventService)
+    {
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -37,6 +42,8 @@ class TeachingAttendanceController extends Controller
                 : ($approvedIzinPresensi->alasan ?: $approvedIzinPresensi->deskripsi_tugas))
             : null;
 
+        $this->academicCalendarEventService->syncTeacherDate($user, $today);
+
         // Get today's schedules for the teacher
         $schedules = TeachingSchedule::with(['school', 'teacher'])
             ->where('teacher_id', $user->id)
@@ -49,7 +56,8 @@ class TeachingAttendanceController extends Controller
 
         // Attach attendance status for each schedule
         foreach ($schedules as $schedule) {
-            $attendance = TeachingAttendance::where('teaching_schedule_id', $schedule->id)
+            $attendance = TeachingAttendance::with('academicCalendarEvent')
+                ->where('teaching_schedule_id', $schedule->id)
                 ->where('tanggal', $today)
                 ->first();
             $schedule->attendance = $attendance;
@@ -91,7 +99,7 @@ class TeachingAttendanceController extends Controller
         }
 
         // Get the schedule
-        $schedule = TeachingSchedule::findOrFail($request->teaching_schedule_id);
+        $schedule = TeachingSchedule::with('school')->findOrFail($request->teaching_schedule_id);
 
         // Check if the schedule belongs to the user
         if ($schedule->teacher_id !== $user->id) {
@@ -108,6 +116,15 @@ class TeachingAttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.'
+            ], 400);
+        }
+
+        $calendarEvent = $this->academicCalendarEventService->ensureAutomaticAttendanceForSchedule($schedule, $today);
+
+        if ($calendarEvent) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jadwal ini sudah ditandai otomatis sebagai "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.'
             ], 400);
         }
 
@@ -234,6 +251,8 @@ class TeachingAttendanceController extends Controller
                 'tanggal' => $today,
                 'waktu' => $now,
                 'status' => 'hadir',
+                'attendance_source' => TeachingAttendance::SOURCE_MANUAL,
+                'is_auto_generated' => false,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
@@ -296,7 +315,7 @@ class TeachingAttendanceController extends Controller
         $user = Auth::user();
 
         // Get the schedule
-        $schedule = TeachingSchedule::findOrFail($request->teaching_schedule_id);
+        $schedule = TeachingSchedule::with('school')->findOrFail($request->teaching_schedule_id);
 
         // Check if the schedule belongs to the user
         if ($schedule->teacher_id !== $user->id) {
@@ -312,6 +331,15 @@ class TeachingAttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.'
+            ], 400);
+        }
+
+        $calendarEvent = $this->academicCalendarEventService->ensureAutomaticAttendanceForSchedule($schedule, $today);
+
+        if ($calendarEvent) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jadwal ini sudah ditandai otomatis sebagai "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.'
             ], 400);
         }
 

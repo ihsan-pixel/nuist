@@ -46,6 +46,10 @@
                     <div class="fw-semibold">{{ optional($item->teachingSchedule)->subject ?? 'Mata Pelajaran' }}</div>
                     <div class="text-muted small">{{ optional($item->teachingSchedule->school)->name ?? '-' }}</div>
                     <div class="text-muted small">Kelas: {{ optional($item->teachingSchedule)->class_name ?? '-' }}</div>
+                    <div class="text-muted small">Status: {{ $item->display_status_label }}</div>
+                    @if($item->is_academic_calendar_auto && $item->academicCalendarEvent)
+                        <div class="text-muted small">Event: {{ $item->academicCalendarEvent->name }}</div>
+                    @endif
                     @if($item->materi)
                         <div class="text-muted small">Materi: {{ $item->materi }}</div>
                     @endif

@@ -138,15 +138,23 @@
                 <div class="col-12">
                     @php
                         $scheduleAttendanceStatus = $schedule->attendance->status ?? null;
-                        $cardStateClass = $scheduleAttendanceStatus === 'izin'
+                        $isAcademicCalendarAuto = (bool) ($schedule->attendance->is_academic_calendar_auto ?? false);
+                        $displayStatusLabel = $schedule->attendance->display_status_label ?? (($scheduleAttendanceStatus === 'izin') ? 'Izin' : 'Hadir');
+                        $cardStateClass = $isAcademicCalendarAuto
                             ? 'attendance-izin'
-                            : ($schedule->attendance ? 'attendance-success' : ($isIzinApprovedToday ? 'attendance-izin' : 'attendance-pending'));
-                        $badgeClass = $scheduleAttendanceStatus === 'izin'
+                            : ($scheduleAttendanceStatus === 'izin'
+                            ? 'attendance-izin'
+                            : ($schedule->attendance ? 'attendance-success' : ($isIzinApprovedToday ? 'attendance-izin' : 'attendance-pending')));
+                        $badgeClass = $isAcademicCalendarAuto
                             ? 'bg-info'
-                            : ($schedule->attendance ? 'bg-success' : ($isIzinApprovedToday ? 'bg-info' : 'bg-warning'));
-                        $badgeIcon = $scheduleAttendanceStatus === 'izin'
+                            : ($scheduleAttendanceStatus === 'izin'
+                            ? 'bg-info'
+                            : ($schedule->attendance ? 'bg-success' : ($isIzinApprovedToday ? 'bg-info' : 'bg-warning')));
+                        $badgeIcon = $isAcademicCalendarAuto
+                            ? 'bx-calendar-check'
+                            : ($scheduleAttendanceStatus === 'izin'
                             ? 'bx-info'
-                            : ($schedule->attendance ? 'bx-check' : ($isIzinApprovedToday ? 'bx-info' : 'bx-time'));
+                            : ($schedule->attendance ? 'bx-check' : ($isIzinApprovedToday ? 'bx-info' : 'bx-time')));
                     @endphp
                     <div class="card schedule-card h-100 position-relative {{ $cardStateClass }}">
                         <!-- Status Badge -->
@@ -200,12 +208,20 @@
 
                             <!-- Attendance Status -->
                             @if($schedule->attendance)
-                                <div class="alert {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success' }} border-0 rounded-3 p-3 mb-0">
+                                <div class="alert {{ $isAcademicCalendarAuto || (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success' }} border-0 rounded-3 p-3 mb-0">
                                     <div class="d-flex align-items-center">
-                                        <i class="bx {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle' }} fs-4 me-3"></i>
+                                        <i class="bx {{ $isAcademicCalendarAuto ? 'bx-calendar-check' : ((($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle') }} fs-4 me-3"></i>
                                         <div>
-                                            @if(($schedule->attendance->status ?? 'hadir') === 'izin')
-                                                <h6 class="mb-1">Izin</h6>
+                                            @if($isAcademicCalendarAuto)
+                                                <h6 class="mb-1">{{ $displayStatusLabel }}</h6>
+                                                <small class="text-muted">Presensi otomatis dari Kalender Akademik.</small>
+                                                @if($schedule->attendance->academicCalendarEvent)
+                                                    <div class="text-muted small mt-1">
+                                                        <i class="bx bx-bookmark me-1"></i>{{ $schedule->attendance->academicCalendarEvent->name }}
+                                                    </div>
+                                                @endif
+                                            @elseif(($schedule->attendance->status ?? 'hadir') === 'izin')
+                                                <h6 class="mb-1">{{ $displayStatusLabel }}</h6>
                                             @else
                                                 <h6 class="mb-1 text-success">Presensi Berhasil</h6>
                                                 <small class="text-muted">Waktu: {{ $schedule->attendance->waktu }}</small>

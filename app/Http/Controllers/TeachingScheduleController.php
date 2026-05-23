@@ -6,6 +6,7 @@ use App\Models\TeachingSchedule;
 use App\Models\User;
 use App\Models\Madrasah;
 use App\Imports\TeachingScheduleImport;
+use App\Services\AcademicCalendarEventService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -233,7 +234,7 @@ class TeachingScheduleController extends Controller
                 }
             }
 
-            TeachingSchedule::create([
+            $createdSchedule = TeachingSchedule::create([
                 'school_id' => $request->school_id,
                 'teacher_id' => $request->teacher_id,
                 'day' => $scheduleData['day'],
@@ -243,6 +244,8 @@ class TeachingScheduleController extends Controller
                 'end_time' => $scheduleData['end_time'],
                 'created_by' => $user->id,
             ]);
+
+            app(AcademicCalendarEventService::class)->syncSchedule($createdSchedule);
 
             $createdCount++;
         }
@@ -352,6 +355,8 @@ class TeachingScheduleController extends Controller
         $schedule->update($request->only([
             'school_id', 'teacher_id', 'day', 'subject', 'class_name', 'start_time', 'end_time'
         ]));
+
+        app(AcademicCalendarEventService::class)->syncSchedule($schedule->fresh());
 
         return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil diperbarui.');
     }

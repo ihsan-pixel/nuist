@@ -11,11 +11,16 @@ use App\Models\Presensi;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\User;
+use App\Services\AcademicCalendarEventService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class LaporanController extends \App\Http\Controllers\Controller
 {
+    public function __construct(private AcademicCalendarEventService $academicCalendarEventService)
+    {
+    }
+
     // Laporan (reports) stubs
     public function laporan()
     {
@@ -32,7 +37,13 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         $selectedMonth = Carbon::now();
 
-        $history = TeachingAttendance::with(['teachingSchedule.school'])
+        $this->academicCalendarEventService->syncTeacherRange(
+            $user,
+            $selectedMonth->copy()->startOfMonth(),
+            $selectedMonth->copy()->endOfMonth()
+        );
+
+        $history = TeachingAttendance::with(['teachingSchedule.school', 'academicCalendarEvent'])
             ->where('user_id', $user->id)
             ->whereYear('tanggal', $selectedMonth->year)
             ->whereMonth('tanggal', $selectedMonth->month)
@@ -125,8 +136,11 @@ class LaporanController extends \App\Http\Controllers\Controller
                 : ($approvedIzinPresensi->alasan ?: $approvedIzinPresensi->deskripsi_tugas))
             : null;
 
+        $this->academicCalendarEventService->syncTeacherDate($user, $selectedDate);
+
         // Build schedule query with today's teaching attendances, filtered by current day
         $query = \App\Models\TeachingSchedule::with(['teacher', 'school', 'teachingAttendances' => function ($q) use ($selectedDate) {
+            $q->with('academicCalendarEvent');
             $q->whereDate('tanggal', $selectedDate);
         }]);
 

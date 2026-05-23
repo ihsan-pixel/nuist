@@ -18,6 +18,7 @@ use App\Http\Controllers\Mobile\Siswa\SiswaController;
 use App\Http\Controllers\TeachingScheduleController;
 use App\Http\Controllers\TeachingClassStudentCountController;
 use App\Http\Controllers\DpsController;
+use App\Http\Controllers\AcademicCalendarEventController;
 
 use App\Http\Controllers\PPDB\{
     PPDBController,
@@ -123,6 +124,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('teaching-schedules/school/{schoolId}/schedules', [App\Http\Controllers\TeachingScheduleController::class, 'showSchoolSchedules'])->name('teaching-schedules.school-schedules');
         Route::get('teaching-schedules/school/{schoolId}/classes', [App\Http\Controllers\TeachingScheduleController::class, 'showSchoolClasses'])->name('teaching-schedules.school-classes');
         Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter'])->name('teaching-schedules.filter');
+    });
+
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('academic-calendar-events', AcademicCalendarEventController::class)->except(['show']);
     });
 
     // Teaching Attendances Routes

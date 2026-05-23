@@ -8,11 +8,16 @@ use Carbon\Carbon;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\TeachingSchedule;
+use App\Services\AcademicCalendarEventService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class MonitoringController extends \App\Http\Controllers\Controller
 {
+    public function __construct(private AcademicCalendarEventService $academicCalendarEventService)
+    {
+    }
+
     /**
      * Monitoring presensi page for kepala madrasah
      */
@@ -59,6 +64,7 @@ class MonitoringController extends \App\Http\Controllers\Controller
         }
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+        $this->academicCalendarEventService->syncSchoolDate((int) $user->madrasah_id, $selectedDate);
 
         // Get day name in Indonesian for the selected date
         $dayName = $selectedDate->locale('id')->dayName;

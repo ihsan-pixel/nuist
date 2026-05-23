@@ -106,6 +106,15 @@
                 </li>
                 @endif
 
+                @if($userRole === 'admin')
+                <li>
+                    <a href="{{ route('academic-calendar-events.index') }}" class="waves-effect">
+                        <i class="bx bx-calendar-check"></i>
+                        <span>Kalender Akademik</span>
+                    </a>
+                </li>
+                @endif
+
                 @php
                     $isAdminOnly = $userRole === 'admin';
                 @endphp

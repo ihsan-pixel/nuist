@@ -384,8 +384,10 @@
                                 </div>
                                 <div class="text-end">
                                     @if($schedule->attendance)
-                                        @if(($schedule->attendance->status ?? 'hadir') === 'izin')
-                                            <div class="badge bg-info text-dark">Izin</div>
+                                        @if($schedule->attendance->is_academic_calendar_auto ?? false)
+                                            <div class="badge bg-info text-dark">{{ $schedule->attendance->display_status_label }}</div>
+                                        @elseif(($schedule->attendance->status ?? 'hadir') === 'izin')
+                                            <div class="badge bg-info text-dark">{{ $schedule->attendance->display_status_label }}</div>
                                         @else
                                             <div class="badge bg-success">Hadir</div>
                                         @endif
@@ -401,12 +403,20 @@
 
                             <div class="mt-3">
                                 @if($schedule->attendance)
-                                    <div class="alert {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success' }} mb-0">
+                                    <div class="alert {{ ($schedule->attendance->is_academic_calendar_auto ?? false) || (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success' }} mb-0">
                                         <div class="d-flex align-items-center">
-                                            <i class="bx {{ (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle' }} fs-4 me-2"></i>
+                                            <i class="bx {{ ($schedule->attendance->is_academic_calendar_auto ?? false) ? 'bx-calendar-check' : ((($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle') }} fs-4 me-2"></i>
                                             <div>
-                                                @if(($schedule->attendance->status ?? 'hadir') === 'izin')
-                                                    <div class="fw-semibold">Izin</div>
+                                                @if($schedule->attendance->is_academic_calendar_auto ?? false)
+                                                    <div class="fw-semibold">{{ $schedule->attendance->display_status_label }}</div>
+                                                    <small class="small-muted">Presensi otomatis dari Kalender Akademik.</small>
+                                                    @if($schedule->attendance->academicCalendarEvent)
+                                                        <div class="small-muted mt-1">
+                                                            <i class="bx bx-bookmark me-1"></i>{{ $schedule->attendance->academicCalendarEvent->name }}
+                                                        </div>
+                                                    @endif
+                                                @elseif(($schedule->attendance->status ?? 'hadir') === 'izin')
+                                                    <div class="fw-semibold">{{ $schedule->attendance->display_status_label }}</div>
                                                 @else
                                                     <div class="fw-semibold">Presensi Berhasil</div>
                                                     <small class="small-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
