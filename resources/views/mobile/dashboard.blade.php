@@ -1303,6 +1303,12 @@ $progressColor = "rgb($red, $green, 0)";
                 </a>
                 <div class="service-label">Data Presensi</div>
             </div>
+            <div class="extra-service service-wrapper">
+                <a href="{{ route('mobile.academic-calendar-approvals') }}" class="service-item">
+                    <img src="{{ asset('images/menu_icon/11.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                </a>
+                <div class="service-label">Approval Event</div>
+            </div>
 
             @endif
         </div>

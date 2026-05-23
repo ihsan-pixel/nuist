@@ -15,7 +15,7 @@
                 <div class="mb-4">
                     <h4 class="mb-1">{{ $isEdit ? 'Ubah Event Akademik' : 'Tambah Event Akademik' }}</h4>
                     <p class="text-muted mb-0">
-                        Sekolah: <strong>{{ $school->name }}</strong>. Event di halaman ini akan mengisi presensi mengajar otomatis tanpa memakai tabel `holidays`.
+                        Sekolah: <strong>{{ $school->name }}</strong>. Event di halaman ini tidak memakai tabel `holidays` dan baru akan mengubah presensi mengajar setelah disetujui kepala sekolah.
                     </p>
                 </div>
 
@@ -83,7 +83,7 @@
                             @error('start_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Dipakai sebagai jam presensi otomatis.</small>
+                            <small class="text-muted">Disimpan sebagai jam agenda event.</small>
                         </div>
 
                         <div class="col-md-3 time-field">
@@ -92,7 +92,7 @@
                             @error('end_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Bentrok jadwal dihitung dari rentang jam ini.</small>
+                            <small class="text-muted">Disimpan sebagai jam agenda event.</small>
                         </div>
 
                         <div class="col-md-6">
@@ -106,7 +106,7 @@
                         <div class="col-12">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch" id="is_active" name="is_active" value="1" @checked(old('is_active', $event->is_active ?? true))>
-                                <label class="form-check-label" for="is_active">Event aktif dan langsung mempengaruhi presensi mengajar</label>
+                                <label class="form-check-label" for="is_active">Event aktif dan siap diajukan ke kepala sekolah</label>
                             </div>
                         </div>
                     </div>
@@ -132,8 +132,8 @@
                 <h5 class="mb-3">Catatan Integrasi</h5>
                 <ul class="text-muted ps-3 mb-0">
                     <li>Event ini hanya tambahan baru dan tidak menggantikan sistem holiday lama.</li>
-                    <li>Jadwal yang mulai di dalam rentang jam event akan otomatis masuk kategori izin.</li>
-                    <li>Jadwal sebelum jam event mulai tetap bisa dipresensi manual seperti biasa.</li>
+                    <li>Semua jadwal mengajar pada tanggal event akan menjadi izin setelah kepala sekolah menyetujui event.</li>
+                    <li>Sebelum disetujui, event belum mempengaruhi presensi mengajar guru.</li>
                     <li>Status laporan tetap aman karena izin dari kalender akademik ikut dihitung valid.</li>
                 </ul>
             </div>

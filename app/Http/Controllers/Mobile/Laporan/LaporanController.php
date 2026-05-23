@@ -47,8 +47,37 @@ class LaporanController extends \App\Http\Controllers\Controller
             ->where('user_id', $user->id)
             ->whereYear('tanggal', $selectedMonth->year)
             ->whereMonth('tanggal', $selectedMonth->month)
-            ->orderBy('tanggal', 'desc')
             ->get();
+
+        $scheduleMap = \App\Models\TeachingSchedule::with('school')
+            ->where('teacher_id', $user->id)
+            ->get()
+            ->keyBy('id');
+        $eventKeys = $this->academicCalendarEventService->getApprovedEventMapForSchedules(
+            $scheduleMap->values(),
+            $selectedMonth->copy()->startOfMonth(),
+            $selectedMonth->copy()->endOfMonth()
+        );
+
+        $filteredHistory = $history->filter(function (TeachingAttendance $attendance) use ($eventKeys) {
+            return !$eventKeys->has($attendance->teaching_schedule_id . '|' . Carbon::parse($attendance->tanggal)->toDateString());
+        });
+
+        $virtualHistory = $eventKeys->map(function ($event, $key) use ($scheduleMap) {
+            [$scheduleId, $date] = explode('|', $key, 2);
+            $schedule = $scheduleMap->get((int) $scheduleId);
+
+            return $schedule
+                ? $this->academicCalendarEventService->buildVirtualAttendanceForSchedule($schedule, $date, $event)
+                : null;
+        })->filter();
+
+        $history = $filteredHistory
+            ->concat($virtualHistory)
+            ->sortByDesc(function ($item) {
+                return Carbon::parse($item->tanggal)->toDateString() . ' ' . ($item->waktu ?? '00:00:00');
+            })
+            ->values();
 
         return view('mobile.laporan-mengajar', compact('history'));
     }
@@ -157,7 +186,11 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         // Normalize: attach shortcut `attendance` to each schedule (first attendance of the day or null)
         $schedules->each(function ($schedule) {
-            $schedule->attendance = $schedule->teachingAttendances->first() ?? null;
+            $attendance = $schedule->teachingAttendances->first() ?? null;
+            $calendarEvent = $this->academicCalendarEventService->eventForScheduleDate($schedule, Carbon::today('Asia/Jakarta'));
+            $schedule->attendance = $calendarEvent
+                ? $this->academicCalendarEventService->buildVirtualAttendanceForSchedule($schedule, Carbon::today('Asia/Jakarta'), $calendarEvent)
+                : $attendance;
         });
 
         $this->attachClassStudentCounts($schedules);

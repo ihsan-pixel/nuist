@@ -64,4 +64,9 @@ class TeachingAttendance extends Model
     {
         return $this->attendance_source === self::SOURCE_ACADEMIC_CALENDAR && $this->is_auto_generated;
     }
+
+    public function getIsAcademicCalendarEventAttribute(): bool
+    {
+        return $this->attendance_source === self::SOURCE_ACADEMIC_CALENDAR;
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
 use App\Models\Presensi;
 use App\Models\Holiday;
+use App\Services\AcademicCalendarEventService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Http\Request;
@@ -24,6 +25,10 @@ class TeachingProgressController extends Controller
         Carbon::FRIDAY => 'Jumat',
         Carbon::SATURDAY => 'Sabtu',
     ];
+
+    public function __construct(private AcademicCalendarEventService $academicCalendarEventService)
+    {
+    }
 
     /**
      * Display the teaching progress for all madrasahs
@@ -573,6 +578,11 @@ class TeachingProgressController extends Controller
 
         $approvedIzinKeys = $this->getApprovedIzinKeys($teacherIds, $startDate, $effectiveEndDate);
         $holidayKeys = $this->getHolidayKeys($startDate, $effectiveEndDate);
+        $academicCalendarKeys = $this->academicCalendarEventService->getApprovedEventMapForSchedules(
+            $schedules,
+            $startDate,
+            $effectiveEndDate
+        );
 
         $recapRows = collect();
 
@@ -583,6 +593,7 @@ class TeachingProgressController extends Controller
                 $startDate,
                 $endDate,
                 $effectiveEndDate,
+                $academicCalendarKeys,
                 $attendanceKeys,
                 $attendanceIzinKeys,
                 $approvedIzinKeys,
@@ -672,6 +683,7 @@ class TeachingProgressController extends Controller
         Carbon $startDate,
         Carbon $endDate,
         Carbon $effectiveEndDate,
+        $academicCalendarKeys,
         $attendanceKeys,
         $attendanceIzinKeys,
         $approvedIzinKeys,
@@ -705,7 +717,10 @@ class TeachingProgressController extends Controller
                 $dateKey = $date->toDateString();
                 $attendanceKey = $schedule->id . '|' . $dateKey;
 
-                if ($attendanceKeys->has($attendanceKey)) {
+                if ($academicCalendarKeys->has($attendanceKey)) {
+                    $totalIzin++;
+                    $izinByDate[$dateKey] = ($izinByDate[$dateKey] ?? 0) + 1;
+                } elseif ($attendanceKeys->has($attendanceKey)) {
                     $totalPresensi++;
                 } elseif ($attendanceIzinKeys->has($attendanceKey)) {
                     $totalIzin++;
@@ -768,12 +783,24 @@ class TeachingProgressController extends Controller
             ->whereBetween('tanggal', [$startDate->toDateString(), $endDate->toDateString()])
             ->whereIn('status', ['hadir', 'izin'])
             ->get(['user_id', 'tanggal', 'status']);
+        $schedules = TeachingSchedule::query()
+            ->whereIn('teacher_id', $teacherIds)
+            ->get(['id', 'teacher_id', 'school_id', 'day', 'start_time', 'end_time']);
+        $calendarTeacherIzinKeys = $this->academicCalendarEventService
+            ->getApprovedEventMapForSchedules($schedules, $startDate, $endDate)
+            ->mapWithKeys(function ($event, string $key) use ($schedules) {
+                [$scheduleId, $date] = explode('|', $key, 2);
+                $schedule = $schedules->firstWhere('id', (int) $scheduleId);
+
+                return $schedule ? [$schedule->teacher_id . '|' . $date => true] : [];
+            });
 
         $attendanceKeys = $attendanceRecords
             ->where('status', 'hadir')
             ->mapWithKeys(function ($attendance) {
                 return [$attendance->user_id . '|' . Carbon::parse($attendance->tanggal)->toDateString() => true];
-            });
+            })
+            ->except($calendarTeacherIzinKeys->keys()->all());
 
         $izinKeys = $attendanceRecords
             ->where('status', 'izin')
@@ -783,7 +810,9 @@ class TeachingProgressController extends Controller
 
         return [
             'attendance' => $attendanceKeys,
-            'izin' => $this->getApprovedIzinKeys($teacherIds, $startDate, $endDate)->merge($izinKeys),
+            'izin' => $this->getApprovedIzinKeys($teacherIds, $startDate, $endDate)
+                ->merge($izinKeys)
+                ->merge($calendarTeacherIzinKeys),
         ];
     }
 

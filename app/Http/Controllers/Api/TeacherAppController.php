@@ -76,11 +76,22 @@ class TeacherAppController extends Controller
             ->whereDate('tanggal', $today->toDateString())
             ->get()
             ->keyBy('teaching_schedule_id');
+        $todayEventMap = $this->academicCalendarEventService->getApprovedEventMapForSchedules(
+            $todaySchedules,
+            $today,
+            $today
+        );
         $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
         $attendanceStats = $this->calculateDashboardAttendanceStats($user, $presensiThisMonth, $today);
 
-        $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $approvedTeachingJournalIzin) {
-            $attendance = $todayAttendances->get($schedule->id);
+        $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $todayEventMap, $approvedTeachingJournalIzin, $today) {
+            $attendance = $todayEventMap->has($schedule->id . '|' . $today->toDateString())
+                ? $this->academicCalendarEventService->buildVirtualAttendanceForSchedule(
+                    $schedule,
+                    $today,
+                    $todayEventMap->get($schedule->id . '|' . $today->toDateString())
+                )
+                : $todayAttendances->get($schedule->id);
             $status = $attendance
                 ? (($attendance->status ?? 'hadir') === 'izin' ? 'izin' : 'completed')
                 : ($approvedTeachingJournalIzin ? 'izin' : 'pending');
@@ -94,9 +105,7 @@ class TeacherAppController extends Controller
                 'end_time' => $this->formatTime($schedule->end_time),
                 'attendance_status' => $status,
                 'attendance_status_label' => match ($status) {
-                    'completed' => ($attendance?->is_academic_calendar_auto ?? false)
-                        ? ($attendance?->display_status_label ?? 'Kalender Akademik')
-                        : 'Sudah Presensi',
+                    'completed' => 'Sudah Presensi',
                     'izin' => $attendance
                         ? ($attendance->display_status_label ?? 'Izin')
                         : 'Izin Disetujui',
@@ -660,14 +669,44 @@ class TeacherAppController extends Controller
             ->whereDate('tanggal', $today->toDateString())
             ->get()
             ->keyBy('teaching_schedule_id');
+        $todayEventMap = $this->academicCalendarEventService->getApprovedEventMapForSchedules(
+            $todaySchedules,
+            $today,
+            $today
+        );
 
         $items = TeachingAttendance::query()
             ->with(['teachingSchedule.school', 'academicCalendarEvent'])
             ->where('user_id', $user->id)
             ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
-            ->latest('tanggal')
-            ->latest('id')
             ->get();
+        $teacherSchedules = TeachingSchedule::query()
+            ->with('school')
+            ->where('teacher_id', $user->id)
+            ->get()
+            ->keyBy('id');
+        $monthEventMap = $this->academicCalendarEventService->getApprovedEventMapForSchedules(
+            $teacherSchedules->values(),
+            $monthStart,
+            $monthEnd
+        );
+        $filteredItems = $items->filter(function (TeachingAttendance $attendance) use ($monthEventMap) {
+            return !$monthEventMap->has($attendance->teaching_schedule_id . '|' . Carbon::parse($attendance->tanggal)->toDateString());
+        });
+        $virtualItems = $monthEventMap->map(function ($event, string $key) use ($teacherSchedules) {
+            [$scheduleId, $date] = explode('|', $key, 2);
+            $schedule = $teacherSchedules->get((int) $scheduleId);
+
+            return $schedule
+                ? $this->academicCalendarEventService->buildVirtualAttendanceForSchedule($schedule, $date, $event)
+                : null;
+        })->filter();
+        $items = $filteredItems
+            ->concat($virtualItems)
+            ->sortByDesc(function ($item) {
+                return Carbon::parse($item->tanggal)->toDateString() . ' ' . ($item->waktu ?? '00:00:00');
+            })
+            ->values();
 
         return response()->json([
             'message' => 'OK',
@@ -689,14 +728,20 @@ class TeacherAppController extends Controller
                 'today_summary' => [
                     'total_schedules' => $todaySchedules->count(),
                     'completed_schedules' => $todaySchedules
-                        ->filter(fn (TeachingSchedule $schedule) => $todayAttendances->has($schedule->id) || $approvedTeachingJournalIzin !== null)
+                        ->filter(fn (TeachingSchedule $schedule) => $todayEventMap->has($schedule->id . '|' . $today->toDateString()) || $todayAttendances->has($schedule->id) || $approvedTeachingJournalIzin !== null)
                         ->count(),
                     'pending_schedules' => $todaySchedules
-                        ->filter(fn (TeachingSchedule $schedule) => !$todayAttendances->has($schedule->id) && $approvedTeachingJournalIzin === null)
+                        ->filter(fn (TeachingSchedule $schedule) => !$todayEventMap->has($schedule->id . '|' . $today->toDateString()) && !$todayAttendances->has($schedule->id) && $approvedTeachingJournalIzin === null)
                         ->count(),
                 ],
-                'today_schedules' => $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $approvedTeachingJournalIzin, $now) {
-                    $attendance = $todayAttendances->get($schedule->id);
+                'today_schedules' => $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $todayEventMap, $approvedTeachingJournalIzin, $now, $today) {
+                    $attendance = $todayEventMap->has($schedule->id . '|' . $today->toDateString())
+                        ? $this->academicCalendarEventService->buildVirtualAttendanceForSchedule(
+                            $schedule,
+                            $today,
+                            $todayEventMap->get($schedule->id . '|' . $today->toDateString())
+                        )
+                        : $todayAttendances->get($schedule->id);
                     $timeState = $this->buildTeachingAttendanceTimeState($schedule, $now);
                     $classTotalStudents = $schedule->class_student_count?->total_students;
 
@@ -718,9 +763,7 @@ class TeacherAppController extends Controller
                             ? (($attendance->status ?: 'hadir') === 'izin' ? 'izin' : 'hadir')
                             : ($approvedTeachingJournalIzin ? 'izin' : 'pending'),
                         'status_label' => $attendance
-                            ? (($attendance->is_academic_calendar_auto ?? false)
-                                ? $attendance->display_status_label
-                                : ((($attendance->status ?: 'hadir') === 'izin') ? 'Izin' : 'Presensi Berhasil'))
+                            ? ((($attendance->status ?: 'hadir') === 'izin') ? $attendance->display_status_label : 'Presensi Berhasil')
                             : ($approvedTeachingJournalIzin ? 'Izin (Disetujui)' : 'Belum Presensi'),
                         'is_auto_generated' => (bool) $attendance?->is_auto_generated,
                         'attendance_source' => $attendance?->attendance_source,
@@ -755,7 +798,7 @@ class TeacherAppController extends Controller
         $calendarEvent = $this->academicCalendarEventService->ensureAutomaticAttendanceForSchedule($schedule, $today);
         if ($calendarEvent) {
             throw ValidationException::withMessages([
-                'teaching_schedule_id' => 'Jadwal ini sudah otomatis tercatat sebagai izin "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.',
+                'teaching_schedule_id' => 'Jadwal ini berstatus izin "' . $calendarEvent->resolved_type_label . '" karena event Kalender Akademik yang sudah disetujui kepala sekolah.',
             ]);
         }
 
@@ -817,7 +860,7 @@ class TeacherAppController extends Controller
         $calendarEvent = $this->academicCalendarEventService->ensureAutomaticAttendanceForSchedule($schedule, $today);
         if ($calendarEvent) {
             throw ValidationException::withMessages([
-                'attendance' => 'Jadwal ini sudah otomatis tercatat sebagai izin "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.',
+                'attendance' => 'Jadwal ini berstatus izin "' . $calendarEvent->resolved_type_label . '" karena event Kalender Akademik yang sudah disetujui kepala sekolah.',
             ]);
         }
 

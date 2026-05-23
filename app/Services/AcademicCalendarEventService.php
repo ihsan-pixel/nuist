@@ -14,56 +14,24 @@ class AcademicCalendarEventService
 {
     public function syncEvent(AcademicCalendarEvent $event): void
     {
-        $event->loadMissing('school');
-
         $this->removeGeneratedAttendancesForEvent($event);
-
-        if (!$event->is_active) {
-            return;
-        }
-
-        TeachingSchedule::query()
-            ->with('teacher')
-            ->where('school_id', $event->school_id)
-            ->orderBy('teacher_id')
-            ->chunk(100, function ($schedules) use ($event) {
-                foreach ($schedules as $schedule) {
-                    $this->syncScheduleAgainstEvent($schedule, $event);
-                }
-            });
     }
 
     public function syncSchedule(TeachingSchedule $schedule): void
     {
-        $schedule->loadMissing('teacher', 'school');
-
-        AcademicCalendarEvent::query()
-            ->where('school_id', $schedule->school_id)
-            ->where('is_active', true)
-            ->orderBy('start_date')
-            ->orderBy('start_time')
-            ->get()
-            ->each(function (AcademicCalendarEvent $event) use ($schedule) {
-                $this->syncScheduleAgainstEvent($schedule, $event);
-            });
+        $this->removeGeneratedAttendancesForSchedule($schedule);
     }
 
     public function syncTeacherDate(User $teacher, Carbon|string $date): void
     {
         $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
-        $dayName = $date->locale('id')->dayName;
 
-        TeachingSchedule::query()
-            ->with('teacher')
-            ->where('teacher_id', $teacher->id)
-            ->whereRaw('LOWER(day) = ?', [strtolower((string) $dayName)])
-            ->get()
-            ->each(function (TeachingSchedule $schedule) use ($date) {
-                $event = $this->eventForScheduleDate($schedule, $date);
-                if ($event) {
-                    $this->syncScheduleDate($schedule, $date, $event);
-                }
-            });
+        TeachingAttendance::query()
+            ->where('user_id', $teacher->id)
+            ->whereDate('tanggal', $date->toDateString())
+            ->where('attendance_source', TeachingAttendance::SOURCE_ACADEMIC_CALENDAR)
+            ->where('is_auto_generated', true)
+            ->delete();
     }
 
     public function syncTeacherRange(User $teacher, Carbon|string $startDate, Carbon|string $endDate): void
@@ -75,27 +43,26 @@ class AcademicCalendarEventService
             return;
         }
 
-        foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
-            $this->syncTeacherDate($teacher, $date);
-        }
+        TeachingAttendance::query()
+            ->where('user_id', $teacher->id)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $endDate->toDateString()])
+            ->where('attendance_source', TeachingAttendance::SOURCE_ACADEMIC_CALENDAR)
+            ->where('is_auto_generated', true)
+            ->delete();
     }
 
     public function syncSchoolDate(int $schoolId, Carbon|string $date): void
     {
         $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
-        $dayName = $date->locale('id')->dayName;
 
-        TeachingSchedule::query()
-            ->with('teacher')
-            ->where('school_id', $schoolId)
-            ->whereRaw('LOWER(day) = ?', [strtolower((string) $dayName)])
-            ->get()
-            ->each(function (TeachingSchedule $schedule) use ($date) {
-                $event = $this->eventForScheduleDate($schedule, $date);
-                if ($event) {
-                    $this->syncScheduleDate($schedule, $date, $event);
-                }
-            });
+        TeachingAttendance::query()
+            ->whereHas('teachingSchedule', function ($query) use ($schoolId) {
+                $query->where('school_id', $schoolId);
+            })
+            ->whereDate('tanggal', $date->toDateString())
+            ->where('attendance_source', TeachingAttendance::SOURCE_ACADEMIC_CALENDAR)
+            ->where('is_auto_generated', true)
+            ->delete();
     }
 
     public function eventForScheduleDate(TeachingSchedule $schedule, Carbon|string $date): ?AcademicCalendarEvent
@@ -116,21 +83,12 @@ class AcademicCalendarEventService
             ")
             ->orderBy('start_time')
             ->get()
-            ->first(fn (AcademicCalendarEvent $event) => $event->coversScheduleStartOnDate($schedule, $date));
+            ->first(fn (AcademicCalendarEvent $event) => $event->isApproved() && $event->affectsScheduleOnDate($schedule, $date));
     }
 
     public function ensureAutomaticAttendanceForSchedule(TeachingSchedule $schedule, Carbon|string $date): ?AcademicCalendarEvent
     {
-        $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
-        $event = $this->eventForScheduleDate($schedule, $date);
-
-        if (!$event) {
-            return null;
-        }
-
-        $this->syncScheduleDate($schedule, $date, $event);
-
-        return $event;
+        return $this->eventForScheduleDate($schedule, $date);
     }
 
     public function removeGeneratedAttendancesForEvent(AcademicCalendarEvent $event): void
@@ -142,25 +100,20 @@ class AcademicCalendarEventService
             ->delete();
     }
 
-    private function syncScheduleAgainstEvent(TeachingSchedule $schedule, AcademicCalendarEvent $event): void
+    public function buildVirtualAttendanceForSchedule(
+        TeachingSchedule $schedule,
+        Carbon|string $date,
+        ?AcademicCalendarEvent $event = null
+    ): ?TeachingAttendance
     {
-        foreach (CarbonPeriod::create($event->start_date, $event->end_date) as $date) {
-            if (!$event->coversScheduleStartOnDate($schedule, $date)) {
-                continue;
-            }
+        $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
+        $event = $event ?: $this->eventForScheduleDate($schedule, $date);
 
-            $this->syncScheduleDate($schedule, $date, $event);
+        if (!$event) {
+            return null;
         }
-    }
 
-    private function syncScheduleDate(TeachingSchedule $schedule, Carbon $date, AcademicCalendarEvent $event): TeachingAttendance
-    {
-        $existingAttendance = TeachingAttendance::query()
-            ->where('teaching_schedule_id', $schedule->id)
-            ->whereDate('tanggal', $date->toDateString())
-            ->first();
-
-        $payload = [
+        $attendance = new TeachingAttendance([
             'teaching_schedule_id' => $schedule->id,
             'user_id' => $schedule->teacher_id,
             'tanggal' => $date->toDateString(),
@@ -169,23 +122,115 @@ class AcademicCalendarEventService
             'attendance_source' => TeachingAttendance::SOURCE_ACADEMIC_CALENDAR,
             'status_label' => $event->resolved_type_label,
             'academic_calendar_event_id' => $event->id,
-            'is_auto_generated' => true,
+            'is_auto_generated' => false,
             'lokasi' => $event->name,
             'materi' => null,
-        ];
+        ]);
 
-        if (!$existingAttendance) {
-            return TeachingAttendance::create($payload);
+        $attendance->setRelation('teachingSchedule', $schedule);
+        $attendance->setRelation('academicCalendarEvent', $event);
+        $attendance->setAttribute('virtual_entry', true);
+
+        return $attendance;
+    }
+
+    public function buildVirtualAttendancesForSchedules(
+        Collection $schedules,
+        Carbon|string $startDate,
+        Carbon|string $endDate
+    ): Collection
+    {
+        $startDate = $startDate instanceof Carbon ? $startDate->copy()->startOfDay() : Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay();
+        $endDate = $endDate instanceof Carbon ? $endDate->copy()->startOfDay() : Carbon::parse($endDate, 'Asia/Jakarta')->startOfDay();
+
+        if ($schedules->isEmpty() || $endDate->lt($startDate)) {
+            return collect();
         }
 
-        if (
-            $existingAttendance->attendance_source === TeachingAttendance::SOURCE_ACADEMIC_CALENDAR &&
-            $existingAttendance->is_auto_generated
-        ) {
-            $existingAttendance->update($payload);
-            return $existingAttendance->fresh();
+        $scheduleIds = $schedules->pluck('id')->filter()->values();
+        $existingKeys = TeachingAttendance::query()
+            ->whereIn('teaching_schedule_id', $scheduleIds)
+            ->whereBetween('tanggal', [$startDate->toDateString(), $endDate->toDateString()])
+            ->get(['teaching_schedule_id', 'tanggal'])
+            ->mapWithKeys(function ($attendance) {
+                return [$attendance->teaching_schedule_id . '|' . Carbon::parse($attendance->tanggal)->toDateString() => true];
+            });
+
+        $eventKeys = $this->getApprovedEventMapForSchedules($schedules, $startDate, $endDate);
+
+        return $eventKeys->map(function (AcademicCalendarEvent $event, string $key) use ($schedules, $existingKeys) {
+            [$scheduleId, $date] = explode('|', $key, 2);
+
+            if ($existingKeys->has($key)) {
+                return null;
+            }
+
+            $schedule = $schedules->firstWhere('id', (int) $scheduleId);
+            if (!$schedule) {
+                return null;
+            }
+
+            return $this->buildVirtualAttendanceForSchedule($schedule, $date, $event);
+        })->filter()->values();
+    }
+
+    public function getApprovedEventMapForSchedules(
+        Collection $schedules,
+        Carbon|string $startDate,
+        Carbon|string $endDate
+    ): Collection {
+        $startDate = $startDate instanceof Carbon ? $startDate->copy()->startOfDay() : Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay();
+        $endDate = $endDate instanceof Carbon ? $endDate->copy()->startOfDay() : Carbon::parse($endDate, 'Asia/Jakarta')->startOfDay();
+
+        if ($schedules->isEmpty() || $endDate->lt($startDate)) {
+            return collect();
         }
 
-        return $existingAttendance;
+        $eventsBySchool = AcademicCalendarEvent::query()
+            ->whereIn('school_id', $schedules->pluck('school_id')->filter()->unique()->values())
+            ->where('is_active', true)
+            ->where('approval_status', AcademicCalendarEvent::APPROVAL_APPROVED)
+            ->whereDate('start_date', '<=', $endDate->toDateString())
+            ->whereDate('end_date', '>=', $startDate->toDateString())
+            ->orderByRaw("
+                CASE event_type
+                    WHEN '" . AcademicCalendarEvent::TYPE_ACADEMIC_HOLIDAY . "' THEN 1
+                    WHEN '" . AcademicCalendarEvent::TYPE_SCHOOL_ACTIVITY . "' THEN 2
+                    ELSE 3
+                END
+            ")
+            ->orderBy('start_time')
+            ->get()
+            ->groupBy('school_id');
+
+        $eventKeys = collect();
+
+        foreach ($schedules as $schedule) {
+            $schoolEvents = $eventsBySchool->get($schedule->school_id, collect());
+            if ($schoolEvents->isEmpty()) {
+                continue;
+            }
+
+            foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+                $event = $schoolEvents->first(function (AcademicCalendarEvent $event) use ($schedule, $date) {
+                    return $event->affectsScheduleOnDate($schedule, $date);
+                });
+
+                if ($event) {
+                    $eventKeys->put($schedule->id . '|' . $date->toDateString(), $event);
+                }
+            }
+        }
+
+        return $eventKeys;
+    }
+
+    private function removeGeneratedAttendancesForSchedule(TeachingSchedule $schedule): void
+    {
+        TeachingAttendance::query()
+            ->where('teaching_schedule_id', $schedule->id)
+            ->where('attendance_source', TeachingAttendance::SOURCE_ACADEMIC_CALENDAR)
+            ->where('is_auto_generated', true)
+            ->delete();
     }
 }

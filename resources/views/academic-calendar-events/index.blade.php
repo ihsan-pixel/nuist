@@ -15,7 +15,7 @@
                 <div>
                     <h4 class="mb-1">Kalender Akademik & Kegiatan</h4>
                     <p class="text-muted mb-0">
-                        Kelola kegiatan resmi untuk <strong>{{ $school->name }}</strong>. Event di sini terpisah dari sistem holiday lama dan khusus mempengaruhi presensi mengajar.
+                        Kelola kegiatan resmi untuk <strong>{{ $school->name }}</strong>. Event di sini terpisah dari sistem holiday lama dan baru mempengaruhi presensi mengajar setelah disetujui kepala sekolah.
                     </p>
                 </div>
                 <div>
@@ -40,7 +40,7 @@
                     <div class="text-center py-5">
                         <i class="bx bx-calendar-x display-5 text-muted"></i>
                         <h5 class="mt-3 mb-2">Belum ada kegiatan akademik</h5>
-                        <p class="text-muted mb-0">Tambahkan event agar presensi mengajar bisa disesuaikan otomatis saat ada kegiatan resmi sekolah.</p>
+                        <p class="text-muted mb-0">Tambahkan event agar status presensi mengajar bisa disesuaikan saat ada kegiatan resmi sekolah.</p>
                     </div>
                 @else
                     <div class="table-responsive">
@@ -51,7 +51,8 @@
                                     <th>Jenis Status</th>
                                     <th>Tanggal / Hari</th>
                                     <th>Jam Event</th>
-                                    <th>Status</th>
+                                    <th>Persetujuan</th>
+                                    <th>Status Event</th>
                                     <th class="text-end">Aksi</th>
                                 </tr>
                             </thead>
@@ -74,7 +75,18 @@
                                         </td>
                                         <td>
                                             <div>{{ $event->time_range_label }}</div>
-                                            <small class="text-muted">Jam ini dipakai untuk presensi otomatis</small>
+                                            <small class="text-muted">Jam ini menjadi acuan status izin event</small>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $approvalClass = $event->approval_status === 'approved'
+                                                    ? 'bg-success'
+                                                    : ($event->approval_status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark');
+                                            @endphp
+                                            <span class="badge {{ $approvalClass }}">{{ $event->approval_status_label }}</span>
+                                            @if($event->approver)
+                                                <div><small class="text-muted">Oleh: {{ $event->approver->name }}</small></div>
+                                            @endif
                                         </td>
                                         <td>
                                             @if($event->is_active)
@@ -93,7 +105,7 @@
                                                 <button
                                                     type="submit"
                                                     class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Hapus kegiatan ini? Presensi otomatis yang dibuat dari event ini juga akan dihapus.')"
+                                                    onclick="return confirm('Hapus kegiatan ini? Status izin dari event ini tidak akan lagi dipakai pada presensi mengajar.')"
                                                 >
                                                     Hapus
                                                 </button>

@@ -24,6 +24,7 @@ class AcademicCalendarEventController extends Controller
         $school = Madrasah::findOrFail($schoolId);
 
         $events = AcademicCalendarEvent::query()
+            ->with('approver')
             ->where('school_id', $schoolId)
             ->orderByDesc('start_date')
             ->orderByDesc('start_time')
@@ -59,15 +60,17 @@ class AcademicCalendarEventController extends Controller
 
         $event = AcademicCalendarEvent::create(array_merge($validated, [
             'school_id' => $schoolId,
+            'approval_status' => AcademicCalendarEvent::APPROVAL_PENDING,
+            'approved_by' => null,
+            'approved_at' => null,
+            'approval_notes' => null,
             'created_by' => $user->id,
             'updated_by' => $user->id,
         ]));
 
-        $this->academicCalendarEventService->syncEvent($event);
-
         return redirect()
             ->route('academic-calendar-events.index')
-            ->with('success', 'Kalender akademik berhasil ditambahkan dan sinkron ke presensi mengajar.');
+            ->with('success', 'Kalender akademik berhasil ditambahkan dan menunggu persetujuan kepala sekolah.');
     }
 
     public function edit(AcademicCalendarEvent $academicCalendarEvent)
@@ -90,6 +93,10 @@ class AcademicCalendarEventController extends Controller
         $this->ensureNoConflict($academicCalendarEvent->school_id, $validated, $academicCalendarEvent->id);
 
         $academicCalendarEvent->update(array_merge($validated, [
+            'approval_status' => AcademicCalendarEvent::APPROVAL_PENDING,
+            'approved_by' => null,
+            'approved_at' => null,
+            'approval_notes' => null,
             'updated_by' => Auth::id(),
         ]));
 
@@ -97,7 +104,7 @@ class AcademicCalendarEventController extends Controller
 
         return redirect()
             ->route('academic-calendar-events.index')
-            ->with('success', 'Kalender akademik berhasil diperbarui.');
+            ->with('success', 'Kalender akademik berhasil diperbarui dan menunggu persetujuan ulang kepala sekolah.');
     }
 
     public function destroy(AcademicCalendarEvent $academicCalendarEvent)
@@ -110,6 +117,73 @@ class AcademicCalendarEventController extends Controller
         return redirect()
             ->route('academic-calendar-events.index')
             ->with('success', 'Kalender akademik berhasil dihapus.');
+    }
+
+    public function principalIndex()
+    {
+        $user = Auth::user();
+        $schoolId = $this->resolvePrincipalSchoolId($user);
+        $school = Madrasah::findOrFail($schoolId);
+
+        $events = AcademicCalendarEvent::query()
+            ->with(['creator', 'approver'])
+            ->where('school_id', $schoolId)
+            ->orderByRaw("CASE approval_status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END")
+            ->orderByDesc('start_date')
+            ->orderByDesc('start_time')
+            ->get();
+
+        return view('mobile.academic-calendar-approvals', compact('events', 'school'));
+    }
+
+    public function principalApprove(Request $request, AcademicCalendarEvent $academicCalendarEvent)
+    {
+        $schoolId = $this->resolvePrincipalSchoolId(Auth::user());
+        if ($academicCalendarEvent->school_id !== $schoolId) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'approval_notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $academicCalendarEvent->update([
+            'approval_status' => AcademicCalendarEvent::APPROVAL_APPROVED,
+            'approved_by' => Auth::id(),
+            'approved_at' => now('Asia/Jakarta'),
+            'approval_notes' => trim((string) ($validated['approval_notes'] ?? '')) ?: null,
+        ]);
+
+        $this->academicCalendarEventService->syncEvent($academicCalendarEvent->fresh());
+
+        return redirect()
+            ->route('mobile.academic-calendar-approvals')
+            ->with('success', 'Event akademik disetujui. Semua jadwal mengajar pada tanggal event akan tercatat sebagai izin.');
+    }
+
+    public function principalReject(Request $request, AcademicCalendarEvent $academicCalendarEvent)
+    {
+        $schoolId = $this->resolvePrincipalSchoolId(Auth::user());
+        if ($academicCalendarEvent->school_id !== $schoolId) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'approval_notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $academicCalendarEvent->update([
+            'approval_status' => AcademicCalendarEvent::APPROVAL_REJECTED,
+            'approved_by' => Auth::id(),
+            'approved_at' => now('Asia/Jakarta'),
+            'approval_notes' => trim((string) ($validated['approval_notes'] ?? '')) ?: null,
+        ]);
+
+        $this->academicCalendarEventService->removeGeneratedAttendancesForEvent($academicCalendarEvent);
+
+        return redirect()
+            ->route('mobile.academic-calendar-approvals')
+            ->with('success', 'Event akademik ditolak. Event tidak akan mempengaruhi presensi mengajar.');
     }
 
     private function validatePayload(Request $request): array
@@ -206,6 +280,20 @@ class AcademicCalendarEventController extends Controller
     private function resolveAdminSchoolId($user): int
     {
         if (!$user || $user->role !== 'admin' || !$user->madrasah_id) {
+            abort(403);
+        }
+
+        return (int) $user->madrasah_id;
+    }
+
+    private function resolvePrincipalSchoolId($user): int
+    {
+        if (
+            !$user ||
+            !$user->madrasah_id ||
+            !in_array($user->role, ['tenaga_pendidik', 'admin'], true) ||
+            $user->ketugasan !== 'kepala madrasah/sekolah'
+        ) {
             abort(403);
         }
 

@@ -79,9 +79,20 @@ class MonitoringController extends \App\Http\Controllers\Controller
         ->get();
 
         // Attach attendance status to each schedule
-        $schedules->each(function ($schedule) {
-            $schedule->attendance_status = $schedule->teachingAttendances->first() ? 'hadir' : 'belum';
-            $schedule->attendance_time = $schedule->teachingAttendances->first() ? $schedule->teachingAttendances->first()->waktu : null;
+        $schedules->each(function ($schedule) use ($selectedDate) {
+            $attendance = $schedule->teachingAttendances->first();
+            $calendarEvent = $this->academicCalendarEventService->eventForScheduleDate($schedule, $selectedDate);
+
+            if ($calendarEvent) {
+                $schedule->attendance_status = 'izin';
+                $schedule->attendance_time = $calendarEvent->effectiveAttendanceTimeForSchedule($schedule);
+                $schedule->attendance_label = $calendarEvent->resolved_type_label;
+                $schedule->attendance_event_name = $calendarEvent->name;
+                return;
+            }
+
+            $schedule->attendance_status = $attendance ? 'hadir' : 'belum';
+            $schedule->attendance_time = $attendance ? $attendance->waktu : null;
         });
 
         return view('mobile.monitor-jadwal-mengajar', compact('schedules', 'selectedDate'));

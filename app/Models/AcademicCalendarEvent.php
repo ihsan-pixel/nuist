@@ -13,6 +13,9 @@ class AcademicCalendarEvent extends Model
     public const TYPE_SCHOOL_ACTIVITY = 'school_activity';
     public const TYPE_ACADEMIC_HOLIDAY = 'academic_holiday';
     public const TYPE_CUSTOM = 'custom';
+    public const APPROVAL_PENDING = 'pending';
+    public const APPROVAL_APPROVED = 'approved';
+    public const APPROVAL_REJECTED = 'rejected';
 
     protected $fillable = [
         'school_id',
@@ -26,6 +29,10 @@ class AcademicCalendarEvent extends Model
         'end_time',
         'description',
         'is_active',
+        'approval_status',
+        'approved_by',
+        'approved_at',
+        'approval_notes',
         'created_by',
         'updated_by',
     ];
@@ -35,6 +42,7 @@ class AcademicCalendarEvent extends Model
         'end_date' => 'date',
         'is_all_day' => 'boolean',
         'is_active' => 'boolean',
+        'approved_at' => 'datetime',
     ];
 
     public static function typeOptions(): array
@@ -61,6 +69,11 @@ class AcademicCalendarEvent extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
     public function teachingAttendances()
     {
         return $this->hasMany(TeachingAttendance::class, 'academic_calendar_event_id');
@@ -75,6 +88,25 @@ class AcademicCalendarEvent extends Model
         }
 
         return self::typeOptions()[$this->event_type] ?? 'Kegiatan Akademik';
+    }
+
+    public static function approvalOptions(): array
+    {
+        return [
+            self::APPROVAL_PENDING => 'Menunggu Persetujuan Kepala Sekolah',
+            self::APPROVAL_APPROVED => 'Disetujui Kepala Sekolah',
+            self::APPROVAL_REJECTED => 'Ditolak Kepala Sekolah',
+        ];
+    }
+
+    public function getApprovalStatusLabelAttribute(): string
+    {
+        return self::approvalOptions()[$this->approval_status] ?? 'Menunggu Persetujuan Kepala Sekolah';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->approval_status === self::APPROVAL_APPROVED;
     }
 
     public function getDateRangeLabelAttribute(): string
@@ -128,7 +160,7 @@ class AcademicCalendarEvent extends Model
         );
     }
 
-    public function coversScheduleStartOnDate(TeachingSchedule $schedule, Carbon|string $date): bool
+    public function affectsScheduleOnDate(TeachingSchedule $schedule, Carbon|string $date): bool
     {
         $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
 
@@ -140,15 +172,7 @@ class AcademicCalendarEvent extends Model
             return false;
         }
 
-        if ($this->is_all_day) {
-            return true;
-        }
-
-        $scheduleStart = substr((string) $schedule->start_time, 0, 8);
-        $eventStart = substr((string) $this->start_time, 0, 8);
-        $eventEnd = substr((string) $this->end_time, 0, 8);
-
-        return $scheduleStart >= $eventStart && $scheduleStart < $eventEnd;
+        return true;
     }
 
     public function conflictsWithWindow(

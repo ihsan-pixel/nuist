@@ -60,7 +60,10 @@ class TeachingAttendanceController extends Controller
                 ->where('teaching_schedule_id', $schedule->id)
                 ->where('tanggal', $today)
                 ->first();
-            $schedule->attendance = $attendance;
+            $calendarEvent = $this->academicCalendarEventService->eventForScheduleDate($schedule, $today);
+            $schedule->attendance = $calendarEvent
+                ? $this->academicCalendarEventService->buildVirtualAttendanceForSchedule($schedule, $today, $calendarEvent)
+                : $attendance;
         }
 
         $this->attachClassStudentCounts($schedules);
@@ -124,7 +127,7 @@ class TeachingAttendanceController extends Controller
         if ($calendarEvent) {
             return response()->json([
                 'success' => false,
-                'message' => 'Jadwal ini sudah otomatis tercatat sebagai izin "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.'
+                'message' => 'Jadwal ini berstatus izin "' . $calendarEvent->resolved_type_label . '" karena event Kalender Akademik yang sudah disetujui kepala sekolah.'
             ], 400);
         }
 
@@ -339,7 +342,7 @@ class TeachingAttendanceController extends Controller
         if ($calendarEvent) {
             return response()->json([
                 'success' => false,
-                'message' => 'Jadwal ini sudah otomatis tercatat sebagai izin "' . $calendarEvent->resolved_type_label . '" melalui Kalender Akademik.'
+                'message' => 'Jadwal ini berstatus izin "' . $calendarEvent->resolved_type_label . '" karena event Kalender Akademik yang sudah disetujui kepala sekolah.'
             ], 400);
         }
 
