@@ -15,8 +15,7 @@
                 <div>
                     <h4 class="mb-1">Kalender Akademik & Kegiatan</h4>
                     <p class="text-muted mb-0">
-                        Kelola kegiatan resmi untuk <strong>{{ $school->name }}</strong>. Event di sini terpisah dari sistem holiday lama dan baru mempengaruhi presensi mengajar setelah disetujui kepala sekolah.
-                    </p>
+                        Kelola kegiatan resmi untuk <strong>{{ $school->name }}</strong>
                 </div>
                 <div>
                     <a href="{{ route('academic-calendar-events.create') }}" class="btn btn-primary">
