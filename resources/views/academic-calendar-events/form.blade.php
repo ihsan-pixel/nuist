@@ -17,6 +17,11 @@
                     <p class="text-muted mb-0">
                         Sekolah: <strong>{{ $school->name }}</strong>. Event di halaman ini tidak memakai tabel `holidays` dan baru akan mengubah presensi mengajar setelah disetujui kepala sekolah.
                     </p>
+                    @if($isEdit && $event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED)
+                        <div class="alert alert-warning mt-3 mb-0">
+                            Event ini sebelumnya ditolak. Setelah Anda simpan perubahan, event akan otomatis diajukan ulang ke kepala sekolah.
+                        </div>
+                    @endif
                 </div>
 
                 <form action="{{ $isEdit ? route('academic-calendar-events.update', $event) : route('academic-calendar-events.store') }}" method="POST">

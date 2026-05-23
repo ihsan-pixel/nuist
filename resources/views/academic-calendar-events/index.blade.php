@@ -87,6 +87,9 @@
                                             @if($event->approver)
                                                 <div><small class="text-muted">Oleh: {{ $event->approver->name }}</small></div>
                                             @endif
+                                            @if($event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED)
+                                                <div><small class="text-danger">Silakan perbarui data lalu ajukan ulang.</small></div>
+                                            @endif
                                         </td>
                                         <td>
                                             @if($event->is_active)
@@ -97,7 +100,7 @@
                                         </td>
                                         <td class="text-end">
                                             <a href="{{ route('academic-calendar-events.edit', $event) }}" class="btn btn-sm btn-outline-primary">
-                                                Edit
+                                                {{ $event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED ? 'Perbaiki & Ajukan Ulang' : 'Edit' }}
                                             </a>
                                             <form action="{{ route('academic-calendar-events.destroy', $event) }}" method="POST" class="d-inline">
                                                 @csrf
