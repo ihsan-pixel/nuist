@@ -322,6 +322,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // Mobile routes for all authenticated users
 Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function () {
+    Route::post('/push-token', [App\Http\Controllers\Mobile\PushTokenController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('push-token.store');
+    Route::delete('/push-token', [App\Http\Controllers\Mobile\PushTokenController::class, 'destroy'])
+        ->middleware('throttle:20,1')
+        ->name('push-token.destroy');
+
     // Dashboard
     Route::middleware(['role:tenaga_pendidik'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');

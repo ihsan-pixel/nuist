@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Presensi;
 use App\Models\User;
-use App\Models\Notification;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
+use App\Services\UserPushNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -51,16 +51,17 @@ class IzinController extends Controller
         ]);
 
         // Create notification for izin submission
-        Notification::create([
-            'user_id' => $user->id,
-            'type' => 'izin_submitted',
-            'title' => 'Izin Diajukan',
-            'message' => 'Pengajuan izin Anda telah dikirim dan sedang menunggu persetujuan.',
-            'data' => [
+        app(UserPushNotificationService::class)->notifyUser(
+            $user,
+            'izin_submitted',
+            'Izin Diajukan',
+            'Pengajuan izin Anda telah dikirim dan sedang menunggu persetujuan.',
+            [
                 'tanggal' => $tanggal,
-                'keterangan' => $request->input('keterangan')
+                'keterangan' => $request->input('keterangan'),
+                'url' => route('mobile.kelola-izin'),
             ]
-        ]);
+        );
 
         return redirect()->route('presensi.index')->with('success', 'Surat izin berhasil diunggah dan menunggu persetujuan.');
     }
@@ -106,16 +107,17 @@ class IzinController extends Controller
                 $presensi->delete();
 
                 // Create notification for deletion
-                Notification::create([
-                    'user_id' => $presensi->user_id,
-                    'type' => 'izin_rejected',
-                    'title' => 'Izin Ditolak',
-                    'message' => 'Pengajuan izin terlambat Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah dihapus. Silakan ajukan ulang melalui aplikasi mobile.',
-                    'data' => [
-                        'tanggal' => $presensi->tanggal,
-                        'rejected_by' => Auth::user()->name
+                app(UserPushNotificationService::class)->notifyUserId(
+                    $presensi->user_id,
+                    'izin_rejected',
+                    'Izin Ditolak',
+                    'Pengajuan izin terlambat Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah dihapus. Silakan ajukan ulang melalui aplikasi mobile.',
+                    [
+                        'tanggal' => $presensi->tanggal->format('Y-m-d'),
+                        'rejected_by' => Auth::user()->name,
+                        'url' => route('mobile.kelola-izin', ['status' => 'rejected']),
                     ]
-                ]);
+                );
             } else {
                 $presensi->update([
                     'status_izin' => 'approved',
@@ -216,29 +218,31 @@ class IzinController extends Controller
 
         // Create notification for user about approval
         if ($presensi) {
-            Notification::create([
-                'user_id' => $presensi->user_id,
-                'type' => 'izin_approved',
-                'title' => 'Izin Disetujui',
-                'message' => 'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah disetujui.',
-                'data' => [
+            app(UserPushNotificationService::class)->notifyUserId(
+                $presensi->user_id,
+                'izin_approved',
+                'Izin Disetujui',
+                'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah disetujui.',
+                [
                     'presensi_id' => $presensi->id,
-                    'tanggal' => $presensi->tanggal,
-                    'approved_by' => Auth::user()->name
+                    'tanggal' => $presensi->tanggal->format('Y-m-d'),
+                    'approved_by' => Auth::user()->name,
+                    'url' => route('mobile.kelola-izin', ['status' => 'approved']),
                 ]
-            ]);
+            );
         } elseif ($izin) {
-            Notification::create([
-                'user_id' => $izin->user_id,
-                'type' => 'izin_approved',
-                'title' => 'Izin Disetujui',
-                'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
-                'data' => [
+            app(UserPushNotificationService::class)->notifyUserId(
+                $izin->user_id,
+                'izin_approved',
+                'Izin Disetujui',
+                'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
+                [
                     'izin_id' => $izin->id,
-                    'tanggal' => $izin->tanggal,
-                    'approved_by' => Auth::user()->name
+                    'tanggal' => $izin->tanggal->format('Y-m-d'),
+                    'approved_by' => Auth::user()->name,
+                    'url' => route('mobile.kelola-izin', ['status' => 'approved']),
                 ]
-            ]);
+            );
         }
 
         return redirect()->route('mobile.kelola-izin')->with('success', 'Izin disetujui.');
@@ -261,17 +265,18 @@ class IzinController extends Controller
             ]);
 
             // Create notification for user about rejection
-            Notification::create([
-                'user_id' => $presensi->user_id,
-                'type' => 'izin_rejected',
-                'title' => 'Izin Ditolak',
-                'message' => 'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah ditolak.',
-                'data' => [
+            app(UserPushNotificationService::class)->notifyUserId(
+                $presensi->user_id,
+                'izin_rejected',
+                'Izin Ditolak',
+                'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah ditolak.',
+                [
                     'presensi_id' => $presensi->id,
-                    'tanggal' => $presensi->tanggal,
-                    'rejected_by' => Auth::user()->name
+                    'tanggal' => $presensi->tanggal->format('Y-m-d'),
+                    'rejected_by' => Auth::user()->name,
+                    'url' => route('mobile.kelola-izin', ['status' => 'rejected']),
                 ]
-            ]);
+            );
         } elseif ($izin) {
             // Handle izin table rejection
             $izin->update([
@@ -281,17 +286,18 @@ class IzinController extends Controller
             ]);
 
             // Create notification for user about rejection
-            Notification::create([
-                'user_id' => $izin->user_id,
-                'type' => 'izin_rejected',
-                'title' => 'Izin Ditolak',
-                'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah ditolak.',
-                'data' => [
+            app(UserPushNotificationService::class)->notifyUserId(
+                $izin->user_id,
+                'izin_rejected',
+                'Izin Ditolak',
+                'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah ditolak.',
+                [
                     'izin_id' => $izin->id,
-                    'tanggal' => $izin->tanggal,
-                    'rejected_by' => Auth::user()->name
+                    'tanggal' => $izin->tanggal->format('Y-m-d'),
+                    'rejected_by' => Auth::user()->name,
+                    'url' => route('mobile.kelola-izin', ['status' => 'rejected']),
                 ]
-            ]);
+            );
         } else {
             abort(404, 'Izin request not found.');
         }
