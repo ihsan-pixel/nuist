@@ -21,11 +21,11 @@
                 <div>
                     <h4 class="mb-1">Kalender Akademik & Kegiatan</h4>
                     <p class="text-muted mb-0">
-                        Kelola kegiatan resmi untuk <strong>{{ $school->name }}</strong>
+                        Kelola kegiatan resmi untuk <strong>{{ $school?->name ?? 'semua sekolah' }}</strong>.
                     </p>
                 </div>
                 <div>
-                    <a href="{{ route('academic-calendar-events.create') }}" class="btn btn-primary">
+                    <a href="{{ route('academic-calendar-events.create', $selectedSchoolId ? ['school_id' => $selectedSchoolId] : []) }}" class="btn btn-primary">
                         <i class="bx bx-plus"></i> Tambah Kegiatan
                     </a>
                 </div>
@@ -42,6 +42,25 @@
                     <div class="alert alert-danger">{{ $errors->first('conflict') }}</div>
                 @endif
 
+                @if(Auth::user()->role === 'super_admin')
+                    <form method="GET" action="{{ route('academic-calendar-events.index') }}" class="row g-2 align-items-end mb-3">
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label">Filter Sekolah</label>
+                            <select name="school_id" class="form-select">
+                                <option value="">Semua sekolah</option>
+                                @foreach($schools as $schoolOption)
+                                    <option value="{{ $schoolOption->id }}" @selected((string) $selectedSchoolId === (string) $schoolOption->id)>
+                                        {{ $schoolOption->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Terapkan</button>
+                        </div>
+                    </form>
+                @endif
+
                 @if($events->isEmpty())
                     <div class="text-center py-5">
                         <i class="bx bx-calendar-x display-5 text-muted"></i>
@@ -54,6 +73,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
+                                    @if(Auth::user()->role === 'super_admin')
+                                        <th>Sekolah</th>
+                                    @endif
                                     <th>Nama Kegiatan</th>
                                     <th>Jenis Status</th>
                                     <th>Tanggal / Hari</th>
@@ -67,6 +89,9 @@
                                 @foreach($events as $index => $event)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
+                                        @if(Auth::user()->role === 'super_admin')
+                                            <td>{{ $event->school->name ?? '-' }}</td>
+                                        @endif
                                         <td>
                                             <div class="fw-semibold">{{ $event->name }}</div>
                                             @if($event->description)

@@ -15,7 +15,7 @@
                 <div class="mb-4">
                     <h4 class="mb-1">{{ $isEdit ? 'Ubah Event Akademik' : 'Tambah Event Akademik' }}</h4>
                     <p class="text-muted mb-0">
-                        Sekolah: <strong>{{ $school->name }}</strong>
+                        Sekolah: <strong>{{ $school?->name ?? 'Pilih sekolah terlebih dahulu' }}</strong>
                     </p>
                     @if($isEdit && $event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED)
                         <div class="alert alert-warning mt-3 mb-0">
@@ -31,6 +31,28 @@
                     @endif
 
                     <div class="row g-3">
+                        @if(Auth::user()->role === 'super_admin')
+                            <div class="col-12">
+                                <label class="form-label">Sekolah</label>
+                                <select name="school_id" class="form-select @error('school_id') is-invalid @enderror">
+                                    <option value="">Pilih sekolah</option>
+                                    @foreach($schools as $schoolOption)
+                                        <option value="{{ $schoolOption->id }}" @selected((string) old('school_id', $event->school_id) === (string) $schoolOption->id)>
+                                            {{ $schoolOption->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('school_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @else
+                            <div class="col-12">
+                                <label class="form-label">Sekolah</label>
+                                <input type="text" class="form-control" value="{{ $school?->name ?? '-' }}" readonly>
+                            </div>
+                        @endif
+
                         <div class="col-md-8">
                             <label class="form-label">Nama Kegiatan</label>
                             <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $event->name) }}" placeholder="Contoh: Ujian Semester / Class Meeting">

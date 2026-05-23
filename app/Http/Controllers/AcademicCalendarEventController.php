@@ -20,31 +20,41 @@ class AcademicCalendarEventController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $schoolId = $this->resolveAdminSchoolId($user);
-        $school = Madrasah::findOrFail($schoolId);
+        $selectedSchoolId = $this->resolveSelectedSchoolId($user, request(), false);
+        $schools = $user->role === 'super_admin'
+            ? Madrasah::orderBy('name')->get(['id', 'name'])
+            : collect();
+        $school = $selectedSchoolId ? Madrasah::findOrFail($selectedSchoolId) : null;
 
         $events = AcademicCalendarEvent::query()
-            ->with('approver')
-            ->where('school_id', $schoolId)
+            ->with(['approver', 'school'])
+            ->when($selectedSchoolId, fn ($query) => $query->where('school_id', $selectedSchoolId))
             ->orderByDesc('updated_at')
             ->orderByDesc('id')
             ->get();
 
-        return view('academic-calendar-events.index', compact('events', 'school'));
+        return view('academic-calendar-events.index', compact('events', 'school', 'schools', 'selectedSchoolId'));
     }
 
     public function create()
     {
-        $school = Madrasah::findOrFail($this->resolveAdminSchoolId(Auth::user()));
+        $user = Auth::user();
+        $selectedSchoolId = $this->resolveSelectedSchoolId($user, request(), false);
+        $school = $selectedSchoolId ? Madrasah::findOrFail($selectedSchoolId) : null;
+        $schools = $user->role === 'super_admin'
+            ? Madrasah::orderBy('name')->get(['id', 'name'])
+            : collect();
 
         return view('academic-calendar-events.form', [
             'event' => new AcademicCalendarEvent([
+                'school_id' => $selectedSchoolId,
                 'is_all_day' => true,
                 'is_active' => true,
                 'start_date' => now('Asia/Jakarta')->toDateString(),
                 'end_date' => now('Asia/Jakarta')->toDateString(),
             ]),
             'school' => $school,
+            'schools' => $schools,
             'isEdit' => false,
             'typeOptions' => AcademicCalendarEvent::typeOptions(),
         ]);
@@ -53,13 +63,13 @@ class AcademicCalendarEventController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $schoolId = $this->resolveAdminSchoolId($user);
         $validated = $this->validatePayload($request);
+        $schoolId = $this->resolveSelectedSchoolId($user, $request);
+        $validated['school_id'] = $schoolId;
 
         $this->ensureNoConflict($schoolId, $validated);
 
         $event = AcademicCalendarEvent::create(array_merge($validated, [
-            'school_id' => $schoolId,
             'approval_status' => AcademicCalendarEvent::APPROVAL_PENDING,
             'approved_by' => null,
             'approved_at' => null,
@@ -80,6 +90,9 @@ class AcademicCalendarEventController extends Controller
         return view('academic-calendar-events.form', [
             'event' => $academicCalendarEvent,
             'school' => $academicCalendarEvent->school,
+            'schools' => Auth::user()->role === 'super_admin'
+                ? Madrasah::orderBy('name')->get(['id', 'name'])
+                : collect(),
             'isEdit' => true,
             'typeOptions' => AcademicCalendarEvent::typeOptions(),
         ]);
@@ -89,8 +102,12 @@ class AcademicCalendarEventController extends Controller
     {
         $this->authorizeEvent($academicCalendarEvent);
         $validated = $this->validatePayload($request);
+        $schoolId = Auth::user()->role === 'super_admin'
+            ? $this->resolveSelectedSchoolId(Auth::user(), $request)
+            : $academicCalendarEvent->school_id;
+        $validated['school_id'] = $schoolId;
 
-        $this->ensureNoConflict($academicCalendarEvent->school_id, $validated, $academicCalendarEvent->id);
+        $this->ensureNoConflict($schoolId, $validated, $academicCalendarEvent->id);
 
         $academicCalendarEvent->update(array_merge($validated, [
             'approval_status' => AcademicCalendarEvent::APPROVAL_PENDING,
@@ -189,6 +206,7 @@ class AcademicCalendarEventController extends Controller
     private function validatePayload(Request $request): array
     {
         $validated = $request->validate([
+            'school_id' => ['nullable', 'exists:madrasahs,id'],
             'name' => ['required', 'string', 'max:255'],
             'event_type' => ['required', Rule::in(array_keys(AcademicCalendarEvent::typeOptions()))],
             'custom_type_label' => ['nullable', 'string', 'max:255'],
@@ -270,20 +288,44 @@ class AcademicCalendarEventController extends Controller
 
     private function authorizeEvent(AcademicCalendarEvent $academicCalendarEvent): void
     {
-        $schoolId = $this->resolveAdminSchoolId(Auth::user());
+        $user = Auth::user();
+        if ($user?->role === 'super_admin') {
+            return;
+        }
+
+        $schoolId = $this->resolveSelectedSchoolId($user);
 
         if ($academicCalendarEvent->school_id !== $schoolId) {
             abort(403);
         }
     }
 
-    private function resolveAdminSchoolId($user): int
+    private function resolveSelectedSchoolId($user, ?Request $request = null, bool $requiredForSuperAdmin = true): ?int
     {
-        if (!$user || $user->role !== 'admin' || !$user->madrasah_id) {
+        if (!$user || !in_array($user->role, ['admin', 'super_admin'], true)) {
             abort(403);
         }
 
-        return (int) $user->madrasah_id;
+        if ($user->role === 'admin') {
+            if (!$user->madrasah_id) {
+                abort(403);
+            }
+
+            return (int) $user->madrasah_id;
+        }
+
+        $schoolId = $request?->input('school_id');
+        if ($schoolId !== null && $schoolId !== '') {
+            return (int) $schoolId;
+        }
+
+        if ($requiredForSuperAdmin) {
+            throw ValidationException::withMessages([
+                'school_id' => 'Sekolah wajib dipilih untuk super admin.',
+            ]);
+        }
+
+        return null;
     }
 
     private function resolvePrincipalSchoolId($user): int

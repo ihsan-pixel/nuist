@@ -126,7 +126,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter'])->name('teaching-schedules.filter');
     });
 
-    Route::middleware(['role:admin'])->group(function () {
+    Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::resource('academic-calendar-events', AcademicCalendarEventController::class)->except(['show']);
     });
 
