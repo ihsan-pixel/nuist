@@ -568,6 +568,13 @@
             offlineIndicator.style.display = 'block';
         });
 
+        //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw-v2.js?v=1').then(reg => {
+                console.log("SW loaded:", reg.scope);
+            }).catch(err => console.error("SW failed:", err));
+        }
+
         // Pull to refresh functionality
         let startY = 0;
         let currentY = 0;
@@ -809,7 +816,6 @@
             }
         });
     </script>
-    @include('mobile.partials.push-notifications')
 
     @yield('script')
 </body>

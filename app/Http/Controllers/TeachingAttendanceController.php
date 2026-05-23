@@ -7,9 +7,9 @@ use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\Presensi;
 use App\Models\User;
+use App\Models\Notification;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
-use App\Services\UserPushNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -246,12 +246,13 @@ class TeachingAttendanceController extends Controller
 
         $message = 'Presensi mengajar berhasil dicatat pada ' . $now . '.';
 
-        app(UserPushNotificationService::class)->notifyUser(
-            $user,
-            'teaching_success',
-            'Presensi Mengajar Berhasil',
-            $message,
-            [
+        // Create success notification
+        Notification::create([
+            'user_id' => $user->id,
+            'type' => 'teaching_success',
+            'title' => 'Presensi Mengajar Berhasil',
+            'message' => $message,
+            'data' => [
                 'attendance_id' => $attendance->id,
                 'schedule_id' => $schedule->id,
                 'tanggal' => $today,
@@ -261,9 +262,8 @@ class TeachingAttendanceController extends Controller
                 'class_total_students' => $attendance->class_total_students,
                 'present_students' => $attendance->present_students,
                 'student_attendance_percentage' => $attendance->student_attendance_percentage,
-                'url' => route('mobile.teaching-attendances'),
             ]
-        );
+        ]);
 
         return response()->json([
             'success' => true,

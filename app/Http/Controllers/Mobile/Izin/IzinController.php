@@ -67,9 +67,18 @@ class IzinController extends \App\Http\Controllers\Controller
         }
 
         $managers = User::query()
-            ->where('role', 'tenaga_pendidik')
-            ->where('madrasah_id', $requestUser->madrasah_id)
-            ->where('ketugasan', 'kepala madrasah/sekolah')
+            ->whereIn('role', ['tenaga_pendidik', 'pengurus', 'super_admin'])
+            ->where(function ($query) use ($requestUser) {
+                $query
+                    ->where(function ($innerQuery) use ($requestUser) {
+                        $innerQuery
+                            ->where('role', 'tenaga_pendidik')
+                            ->where('madrasah_id', $requestUser->madrasah_id)
+                            ->where('ketugasan', 'kepala madrasah/sekolah');
+                    })
+                    ->orWhere('role', 'pengurus')
+                    ->orWhere('role', 'super_admin');
+            })
             ->where('id', '!=', $requestUser->id)
             ->get();
 
