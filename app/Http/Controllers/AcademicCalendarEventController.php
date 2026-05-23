@@ -26,8 +26,8 @@ class AcademicCalendarEventController extends Controller
         $events = AcademicCalendarEvent::query()
             ->with('approver')
             ->where('school_id', $schoolId)
-            ->orderByDesc('start_date')
-            ->orderByDesc('start_time')
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
             ->get();
 
         return view('academic-calendar-events.index', compact('events', 'school'));
