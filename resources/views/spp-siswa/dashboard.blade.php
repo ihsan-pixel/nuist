@@ -213,7 +213,7 @@
     margin-bottom: -0.25rem;
     max-height: 280px;
     max-width: min(100%, 460px);
-    width: 100%;
+    width: 80%;
 }
 
 @media (min-width: 1200px) {
