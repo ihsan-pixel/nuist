@@ -377,7 +377,7 @@
                                 <div class="spp-stat-label mb-2">Cakupan Siswa</div>
                                 <div class="h3 mb-1 text-dark">{{ number_format($monitoring['students_with_bills']) }} <span class="text-muted fs-6">/ {{ number_format($stats['total_siswa']) }}</span></div>
                                 <div class="spp-metric-bar mb-2"><span style="width: {{ min(100, $monitoring['coverage_ratio']) }}%;"></span></div>
-                                <div class="small text-muted">{{ number_format($monitoring['coverage_ratio'], 1) }}% siswa sudah memiliki tagihan.</div>
+                                {{-- <div class="small text-muted">{{ number_format($monitoring['coverage_ratio'], 1) }}% siswa sudah memiliki tagihan.</div> --}}
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -385,14 +385,14 @@
                                 <div class="spp-stat-label mb-2">Realisasi Pembayaran</div>
                                 <div class="h3 mb-1 text-dark">{{ number_format($monitoring['paid_ratio'], 1) }}%</div>
                                 <div class="spp-metric-bar mb-2"><span style="width: {{ min(100, $monitoring['paid_ratio']) }}%;"></span></div>
-                                <div class="small text-muted">Rp {{ number_format($stats['nominal_terbayar'], 0, ',', '.') }} dari total Rp {{ number_format($stats['nominal_tagihan'], 0, ',', '.') }}.</div>
+                                {{-- <div class="small text-muted">Rp {{ number_format($stats['nominal_terbayar'], 0, ',', '.') }} dari total Rp {{ number_format($stats['nominal_tagihan'], 0, ',', '.') }}.</div> --}}
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="rounded-4 p-3" style="background: #fff8f3;">
                                 <div class="spp-stat-label mb-2">Outstanding</div>
                                 <div class="h3 mb-1 text-dark">Rp {{ number_format($monitoring['outstanding_amount'], 0, ',', '.') }}</div>
-                                <div class="small text-muted">Sisa tagihan yang belum tercatat sebagai pembayaran berhasil.</div>
+                                {{-- <div class="small text-muted">Sisa tagihan yang belum tercatat sebagai pembayaran berhasil.</div> --}}
                             </div>
                         </div>
                     </div>
@@ -402,28 +402,28 @@
                             <a href="{{ route('spp-siswa.tagihan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-receipt"></i></span>
                                 <h6 class="mb-1">Manajemen Tagihan</h6>
-                                <div class="text-muted small">Kelola create tagihan satuan, massal, dan import.</div>
+                                {{-- <div class="text-muted small">Kelola create tagihan satuan, massal, dan import.</div> --}}
                             </a>
                         </div>
                         <div class="col-md-3">
                             <a href="{{ route('spp-siswa.transaksi', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-wallet-alt"></i></span>
                                 <h6 class="mb-1">Monitor Pembayaran</h6>
-                                <div class="text-muted small">Pantau transaksi masuk dan status callback pembayarannya.</div>
+                                {{-- <div class="text-muted small">Pantau transaksi masuk dan status callback pembayarannya.</div> --}}
                             </a>
                         </div>
                         <div class="col-md-3">
                             <a href="{{ route('spp-siswa.laporan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-bar-chart-alt-2"></i></span>
                                 <h6 class="mb-1">Laporan Per Siswa</h6>
-                                <div class="text-muted small">Cek rekap tagihan dan pelunasan per kelas atau siswa.</div>
+                                {{-- <div class="text-muted small">Cek rekap tagihan dan pelunasan per kelas atau siswa.</div> --}}
                             </a>
                         </div>
                         <div class="col-md-3">
                             <a href="{{ route('spp-siswa.pengaturan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-cog"></i></span>
                                 <h6 class="mb-1">Pengaturan Pembayaran</h6>
-                                <div class="text-muted small">Atur provider, VA expiry, dan catatan pembayaran.</div>
+                                {{-- <div class="text-muted small">Atur provider, VA expiry, dan catatan pembayaran.</div> --}}
                             </a>
                         </div>
                     </div>
