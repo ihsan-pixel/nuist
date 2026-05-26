@@ -126,6 +126,7 @@
             <div class="card-body p-4">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                     <div>
+                        <h4 class="text-white mb-2"><i class="bx bx-id-card me-2"></i>Data Siswa</h4>
                     </div>
                     @if($userRole !== 'admin_spp')
                         <div class="d-flex flex-wrap gap-2">
