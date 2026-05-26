@@ -206,9 +206,50 @@
     text-align: center;
 }
 
+.spp-operator-visual {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 24px;
+    display: flex;
+    justify-content: center;
+    min-height: 260px;
+    overflow: hidden;
+    padding: 1rem 1rem 0.75rem;
+    position: relative;
+}
+
+.spp-operator-visual::after {
+    background: linear-gradient(180deg, transparent 55%, rgba(15, 57, 64, 0.16) 100%);
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+}
+
+.spp-operator-art {
+    display: block;
+    height: auto;
+    margin: 0 auto;
+    max-height: 280px;
+    max-width: min(100%, 420px);
+    position: relative;
+    width: 100%;
+    z-index: 1;
+}
+
 @media (max-width: 991.98px) {
     .spp-hero-title {
         font-size: 1.6rem;
+    }
+
+    .spp-operator-visual {
+        min-height: 220px;
+        padding: 0.85rem 0.85rem 0.5rem;
+    }
+
+    .spp-operator-art {
+        max-height: 220px;
     }
 }
 </style>
@@ -258,12 +299,8 @@
                             </div>
                         @else
                             <div class="col-12">
-                                <div class="spp-desktop-card" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.1);">
-                                    <div class="card-body">
-                                        <div class="small text-white-50 mb-2">Fokus operator</div>
-                                        <div class="h5 text-white mb-1">{{ $scopeLabel }}</div>
-                                        <div class="text-white-50 small">Akses dibatasi pada madrasah yang terhubung dengan akun ini.</div>
-                                    </div>
+                                <div class="spp-operator-visual" aria-label="Ilustrasi operator SPP">
+                                    <img src="{{ asset('images/admin-spp1.png') }}" alt="Ilustrasi operator SPP" class="spp-operator-art">
                                 </div>
                             </div>
                         @endif
