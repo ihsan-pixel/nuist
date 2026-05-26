@@ -216,6 +216,26 @@
     width: 100%;
 }
 
+@media (min-width: 1200px) {
+    .spp-hero-side {
+        position: static;
+    }
+
+    .spp-hero-media-slot {
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        right: 1.75rem;
+        width: min(32%, 460px);
+        z-index: 1;
+    }
+
+    .spp-hero-media-slot .spp-operator-art {
+        margin-bottom: -1.5rem;
+        max-height: 300px;
+    }
+}
+
 @media (max-width: 991.98px) {
     .spp-hero-title {
         font-size: 1.6rem;
@@ -251,9 +271,9 @@
                         <span class="spp-badge-soft"><i class="bx bx-layer"></i>{{ number_format($monitoring['created_this_month']) }} tagihan dibuat bulan ini</span>
                     </div>
                 </div>
-                <div class="col-xl-4">
-                    <form method="GET" class="row g-2">
-                        @if($userRole !== 'admin_spp')
+                <div class="col-xl-4 spp-hero-side">
+                    @if($userRole !== 'admin_spp')
+                        <form method="GET" class="row g-2">
                             <div class="col-12">
                                 <label class="form-label text-white">Madrasah</label>
                                 <select name="madrasah_id" class="form-select">
@@ -270,12 +290,12 @@
                                     <i class="bx bx-filter-alt me-1"></i>Terapkan Filter
                                 </button>
                             </div>
-                        @else
-                            <div class="col-12">
-                                <img src="{{ asset('images/admin-spp1.png') }}" alt="Ilustrasi operator SPP" class="spp-operator-art">
-                            </div>
-                        @endif
-                    </form>
+                        </form>
+                    @else
+                        <div class="spp-hero-media-slot" aria-hidden="true">
+                            <img src="{{ asset('images/admin-spp1.png') }}" alt="" class="spp-operator-art">
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
