@@ -230,10 +230,7 @@
             <div class="row g-4 align-items-end">
                 <div class="col-xl-8">
                     {{-- <div class="spp-kicker mb-2">Desktop Monitoring</div> --}}
-                    <div class="spp-hero-title mb-3">Pusat kontrol pembuatan tagihan SPP siswa</div>
-                    <p class="spp-hero-summary mb-4">
-                        Panel ini disusun untuk operator agar proses create tagihan lebih terukur, cepat dipantau, dan mudah ditindaklanjuti dari satu halaman kerja desktop.
-                    </p>
+                    <div class="spp-hero-title mb-3">Dashboard Monitoring SPP siswa</div>
                     <div class="d-flex flex-wrap gap-2">
                         <span class="spp-badge-soft"><i class="bx bx-buildings"></i>{{ $scopeLabel }}</span>
                         <span class="spp-badge-soft"><i class="bx bx-calendar"></i>{{ now()->translatedFormat('F Y') }}</span>
