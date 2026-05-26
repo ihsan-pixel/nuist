@@ -309,7 +309,7 @@
                 <li>
                     <a href="{{ route('admin.mgmp_reset_uploads') }}" class="waves-effect">
                         <i class="bx bx-cloud-upload"></i>
-                        <span>Monitoring Reset MGMP</span>
+                        <span>Monitoring Riset MGMP</span>
                     </a>
                 </li>
                 @endif
