@@ -311,7 +311,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #0d6b61, #33a18c);"><i class="bx bx-plus-circle"></i></span>
                 </div>
-                <div class="spp-stat-foot">Volume create tagihan yang tercatat pada tanggal {{ now()->format('d M Y') }}.</div>
+                {{-- <div class="spp-stat-foot">Volume create tagihan yang tercatat pada tanggal {{ now()->format('d M Y') }}.</div> --}}
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -323,7 +323,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #1947b8, #4d83f6);"><i class="bx bx-calendar-event"></i></span>
                 </div>
-                <div class="spp-stat-foot">Monitoring progres create tagihan sepanjang periode aktif saat ini.</div>
+                {{-- <div class="spp-stat-foot">Monitoring progres create tagihan sepanjang periode aktif saat ini.</div> --}}
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -335,7 +335,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #9a5b0a, #f0a43a);"><i class="bx bx-error-circle"></i></span>
                 </div>
-                <div class="spp-stat-foot">Tagihan belum lunas yang sudah melewati tanggal jatuh tempo.</div>
+                {{-- <div class="spp-stat-foot">Tagihan belum lunas yang sudah melewati tanggal jatuh tempo.</div> --}}
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -347,7 +347,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #9b4437, #d46e5c);"><i class="bx bx-revision"></i></span>
                 </div>
-                <div class="spp-stat-foot">Transaksi BNI Virtual Account yang masih pending.</div>
+                {{-- <div class="spp-stat-foot">Transaksi BNI Virtual Account yang masih pending.</div> --}}
             </div>
         </div>
     </div>
@@ -359,7 +359,7 @@
                     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
                         <div>
                             <h5 class="spp-section-title">Ringkasan operasional tagihan</h5>
-                            <p class="spp-section-subtitle">Status cakupan siswa, performa pembayaran, dan nominal outstanding untuk pemantauan harian.</p>
+                            {{-- <p class="spp-section-subtitle">Status cakupan siswa, performa pembayaran, dan nominal outstanding untuk pemantauan harian.</p> --}}
                         </div>
                         <div class="d-flex flex-wrap gap-2">
                             <a href="{{ route('spp-siswa.tagihan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}" class="btn btn-primary">
@@ -435,7 +435,7 @@
             <div class="spp-desktop-card h-100">
                 <div class="card-body p-4">
                     <h5 class="spp-section-title mb-1">Pengaturan aktif</h5>
-                    <p class="spp-section-subtitle mb-4">Provider dan konfigurasi yang sedang dipakai saat create tagihan.</p>
+                    {{-- <p class="spp-section-subtitle mb-4">Provider dan konfigurasi yang sedang dipakai saat create tagihan.</p> --}}
 
                     @if($activeSetting)
                         <div class="rounded-4 p-3 mb-3" style="background: #f5faf8;">
@@ -475,7 +475,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h5 class="spp-section-title">Tagihan terbaru dibuat</h5>
-                            <p class="spp-section-subtitle">Urutan terbaru untuk memantau aktivitas create tagihan operator.</p>
+                            {{-- <p class="spp-section-subtitle">Urutan terbaru untuk memantau aktivitas create tagihan operator.</p> --}}
                         </div>
                         <a href="{{ route('spp-siswa.tagihan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}" class="btn btn-sm btn-outline-primary">Lihat semua</a>
                     </div>
@@ -527,7 +527,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h5 class="spp-section-title">Tagihan perlu perhatian</h5>
-                            <p class="spp-section-subtitle">Prioritaskan tagihan yang jatuh temponya paling dekat atau sudah lewat.</p>
+                            {{-- <p class="spp-section-subtitle">Prioritaskan tagihan yang jatuh temponya paling dekat atau sudah lewat.</p> --}}
                         </div>
                         <a href="{{ route('spp-siswa.transaksi', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : []) }}" class="btn btn-sm btn-outline-secondary">Buka transaksi</a>
                     </div>
