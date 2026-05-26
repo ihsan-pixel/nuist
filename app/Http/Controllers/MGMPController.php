@@ -845,6 +845,98 @@ class MGMPController extends Controller
     }
 
     /**
+     * Super Admin page to monitor uploaded MGMP reset updates.
+     */
+    public function superAdminResetUploads()
+    {
+        $mgmpGroupsByOwner = MgmpGroup::withCount(['members', 'reports'])
+            ->with('owner:id,name,email')
+            ->orderBy('name')
+            ->get()
+            ->keyBy('user_id');
+
+        $resetUpdates = AcademicaResetUpdate::withCount('files')
+            ->with([
+                'files',
+                'user:id,name,email',
+                'proposal:id,user_id,filename,path,created_at,updated_at',
+                'proposal.user:id,name,email',
+            ])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $resetInsights = $resetUpdates->map(function ($update) use ($mgmpGroupsByOwner) {
+            $proposal = $update->proposal;
+            $proposalOwner = $proposal?->user;
+            $uploader = $update->user ?: $proposalOwner;
+            $mgmpGroup = $proposalOwner ? $mgmpGroupsByOwner->get($proposalOwner->id) : null;
+
+            return (object) [
+                'id' => $update->id,
+                'title' => $update->title,
+                'progress_percent' => (int) $update->progress_percent,
+                'progress_note' => $update->progress_note,
+                'created_at' => $update->created_at,
+                'updated_at' => $update->updated_at,
+                'files' => $update->files,
+                'files_count' => (int) $update->files_count,
+                'proposal_id' => $proposal?->id,
+                'proposal_filename' => $proposal?->filename,
+                'proposal_path' => $proposal?->path,
+                'proposal_uploaded_at' => $proposal?->created_at,
+                'proposal_owner_id' => $proposalOwner?->id,
+                'proposal_owner_name' => $proposalOwner?->name ?? $uploader?->name ?? 'User tidak ditemukan',
+                'proposal_owner_email' => $proposalOwner?->email ?? $uploader?->email ?? '-',
+                'uploader_name' => $uploader?->name ?? 'User tidak ditemukan',
+                'uploader_email' => $uploader?->email ?? '-',
+                'mgmp_group_id' => $mgmpGroup?->id,
+                'mgmp_group_name' => $mgmpGroup?->name ?? 'Belum terhubung ke grup MGMP',
+                'mgmp_owner_name' => $mgmpGroup?->owner?->name ?? $proposalOwner?->name ?? $uploader?->name ?? '-',
+                'members_count' => (int) ($mgmpGroup?->members_count ?? 0),
+                'reports_count' => (int) ($mgmpGroup?->reports_count ?? 0),
+            ];
+        })->values();
+
+        $latestUploadedAt = $resetInsights
+            ->sortByDesc(function ($update) {
+                return $update->created_at?->timestamp ?? 0;
+            })
+            ->first()?->created_at;
+
+        $latestGroupUpdates = $resetInsights
+            ->filter(function ($update) {
+                return !empty($update->mgmp_group_id);
+            })
+            ->groupBy('mgmp_group_id')
+            ->map(function ($updates) {
+                return $updates->sortByDesc(function ($update) {
+                    return $update->created_at?->timestamp ?? 0;
+                })->first();
+            })
+            ->sortByDesc(function ($update) {
+                return $update->created_at?->timestamp ?? 0;
+            })
+            ->values();
+
+        $monitorSummary = [
+            'total_updates' => $resetInsights->count(),
+            'mgmp_with_updates' => $resetInsights->pluck('mgmp_group_id')->filter()->unique()->count(),
+            'total_attachments' => $resetInsights->sum('files_count'),
+            'completed_updates' => $resetInsights->where('progress_percent', '>=', 100)->count(),
+            'average_progress' => $resetInsights->count() > 0
+                ? number_format($resetInsights->avg('progress_percent'), 1)
+                : '0',
+            'latest_uploaded_at' => $latestUploadedAt,
+        ];
+
+        return view('admin.mgmp_reset_uploads', compact(
+            'resetInsights',
+            'latestGroupUpdates',
+            'monitorSummary'
+        ));
+    }
+
+    /**
      * Show form to create a new user with role 'mgmp'
      */
     public function createMgmpUser()

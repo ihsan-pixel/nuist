@@ -306,6 +306,12 @@
                         <span>Buat Akun MGMP</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.mgmp_reset_uploads') }}" class="waves-effect">
+                        <i class="bx bx-cloud-upload"></i>
+                        <span>Monitoring Reset MGMP</span>
+                    </a>
+                </li>
                 @endif
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))

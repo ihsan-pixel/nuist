@@ -38,6 +38,11 @@
                 <a href="{{ route('admin.create_mgmp_user') }}" class="btn btn-light">
                     <i class="mdi mdi-account-plus-outline me-1"></i> Buat User MGMP
                 </a>
+                @if(auth()->user()->role === 'super_admin')
+                    <a href="{{ route('admin.mgmp_reset_uploads') }}" class="btn btn-light">
+                        <i class="mdi mdi-cloud-upload-outline me-1"></i> Monitoring Reset
+                    </a>
+                @endif
                 <a href="{{ route('mgmp.data-mgmp') }}" class="btn btn-light">
                     <i class="mdi mdi-domain me-1"></i> Kelola Data MGMP
                 </a>

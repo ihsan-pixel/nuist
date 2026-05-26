@@ -142,6 +142,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/fake-location', [App\Http\Controllers\FakeLocationController::class, 'index'])->name('fake-location.index');
         Route::get('/admin/simfoni', [App\Http\Controllers\Admin\SimfoniAdminController::class, 'index'])->name('admin.simfoni.index');
         Route::get('/admin/simfoni/pdf/{id}', [App\Http\Controllers\Admin\SimfoniAdminController::class, 'pdfSimfoni'])->name('admin.simfoni.pdf');
+        Route::get('/admin/mgmp-reset-uploads', [App\Http\Controllers\MGMPController::class, 'superAdminResetUploads'])->name('admin.mgmp_reset_uploads');
     });
 
     // Chat Routes - Super Admin and Admin
