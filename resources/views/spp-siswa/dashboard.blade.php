@@ -459,7 +459,7 @@
                             <div>
                                 <i class="bx bx-cog mb-2" style="font-size: 2rem;"></i>
                                 <div class="fw-semibold mb-1">Pengaturan aktif belum tersedia</div>
-                                <div class="small">Siapkan provider pembayaran terlebih dahulu agar proses create tagihan lebih terkontrol.</div>
+                                {{-- <div class="small">Siapkan provider pembayaran terlebih dahulu agar proses create tagihan lebih terkontrol.</div> --}}
                             </div>
                         </div>
                     @endif
