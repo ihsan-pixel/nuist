@@ -11,6 +11,7 @@ class SkYayasanRequest extends Model
 
     protected $fillable = [
         'madrasah_id',
+        'import_batch_id',
         'employee_id',
         'submitted_by',
         'reviewed_by',
@@ -37,6 +38,11 @@ class SkYayasanRequest extends Model
     public function employee()
     {
         return $this->belongsTo(User::class, 'employee_id');
+    }
+
+    public function importBatch()
+    {
+        return $this->belongsTo(SkYayasanImportBatch::class, 'import_batch_id');
     }
 
     public function submitter()

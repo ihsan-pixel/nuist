@@ -64,4 +64,9 @@ class SkYayasanImportBatch extends Model
     {
         return $this->hasMany(SkYayasanImportRow::class, 'batch_id')->orderBy('row_number');
     }
+
+    public function requests()
+    {
+        return $this->hasMany(SkYayasanRequest::class, 'import_batch_id');
+    }
 }

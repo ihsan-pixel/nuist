@@ -120,6 +120,9 @@
                                     <td>
                                         <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
                                         <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</small>
+                                        @if($submission->importBatch)
+                                            <div><small class="text-muted">Batch #{{ $submission->importBatch->id }}</small></div>
+                                        @endif
                                     </td>
                                     <td>
                                         <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ $submission->current_status }}</span>
@@ -283,6 +286,14 @@
                                 </div>
                             </div>
                         </div>
+                        @if($submission->importBatch)
+                            <div class="alert alert-info">
+                                Batch berkas terkait: <strong>#{{ $submission->importBatch->id }}</strong>.
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel']) }}" class="alert-link ms-2">Excel</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="alert-link ms-2">Fakta Integritas</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="alert-link ms-2">Penilaian Perilaku</a>
+                            </div>
+                        @endif
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select name="current_status" class="form-select" required>

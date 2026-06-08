@@ -77,7 +77,7 @@ class SkYayasanController extends Controller
         $madrasahId = (int) $user->madrasah_id;
 
         $submissions = SkYayasanRequest::query()
-            ->with(['employee.statusKepegawaian', 'document'])
+            ->with(['employee.statusKepegawaian', 'document', 'importBatch'])
             ->where('madrasah_id', $madrasahId)
             ->when($request->filled('status'), fn ($query) => $query->where('current_status', $request->string('status')->toString()))
             ->latest('submitted_at')
@@ -134,13 +134,53 @@ class SkYayasanController extends Controller
 
     public function importSchoolUsers(Request $request): RedirectResponse
     {
+        return back()->with('error', 'Gunakan form pengajuan terpadu untuk mengirim guru/pegawai beserta semua berkas wajib.');
+    }
+
+    public function storeSchoolSubmission(Request $request): RedirectResponse
+    {
         $user = $this->ensureSchoolAdmin();
+        $madrasahId = (int) $user->madrasah_id;
 
         $request->validate([
+            'employee_ids' => ['required', 'array', 'min:1'],
+            'employee_ids.*' => ['required', 'integer', 'distinct'],
             'excel_file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
             'fakta_integritas_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx'],
             'penilaian_perilaku_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx'],
         ]);
+
+        $employees = User::query()
+            ->with('statusKepegawaian')
+            ->whereIn('id', $request->input('employee_ids', []))
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $madrasahId)
+            ->orderBy('name')
+            ->get()
+            ->keyBy('id');
+
+        if ($employees->count() !== count($request->input('employee_ids', []))) {
+            return back()
+                ->withErrors(['employee_ids' => 'Sebagian pegawai yang dipilih tidak valid untuk sekolah ini.'])
+                ->withInput();
+        }
+
+        $openRequestEmployeeIds = SkYayasanRequest::query()
+            ->whereIn('employee_id', $employees->keys())
+            ->whereIn('current_status', ['submitted', 'reviewed', 'approved'])
+            ->pluck('employee_id')
+            ->all();
+
+        $availableEmployees = $employees->reject(fn ($employee) => in_array($employee->id, $openRequestEmployeeIds, true));
+        $skippedEmployees = $employees->filter(fn ($employee) => in_array($employee->id, $openRequestEmployeeIds, true))->pluck('name')->all();
+
+        if ($availableEmployees->isEmpty()) {
+            return back()
+                ->withErrors([
+                    'employee_ids' => 'Semua pegawai yang dipilih masih memiliki pengajuan SK Yayasan yang belum selesai: ' . implode(', ', $skippedEmployees) . '.',
+                ])
+                ->withInput();
+        }
 
         $sheetReader = new class {
             use Importable;
@@ -208,15 +248,34 @@ class SkYayasanController extends Controller
 
             return $batch;
         });
+        DB::transaction(function () use ($availableEmployees, $madrasahId, $user, $batch) {
+            foreach ($availableEmployees as $employee) {
+                SkYayasanRequest::create([
+                    'madrasah_id' => $madrasahId,
+                    'import_batch_id' => $batch->id,
+                    'employee_id' => $employee->id,
+                    'submitted_by' => $user->id,
+                    'request_number' => $this->generateRequestNumber(),
+                    'request_type' => 'perpanjangan',
+                    'employment_category' => $employee->statusKepegawaian?->name ?? $employee->ketugasan,
+                    'current_status' => 'submitted',
+                    'submitted_at' => now(),
+                ]);
+            }
+        });
 
-        $message = "File berhasil diupload untuk review super admin. Batch #{$batch->id} berisi {$batch->total_rows} baris, {$batch->valid_rows} valid, {$batch->invalid_rows} perlu perhatian.";
+        $message = $availableEmployees->count() . " pengajuan perpanjangan SK berhasil dikirim dalam Batch #{$batch->id}.";
 
         if (!$report['headings_valid']) {
-            $message .= ' Format kolom belum sesuai template dan kemungkinan akan ditolak bila tidak diperbaiki.';
+            $message .= ' Format kolom Excel belum sesuai template dan akan ditinjau saat review super admin.';
         }
 
         if ($batch->invalid_rows > 0) {
-            $message .= ' Super admin dapat menolak batch ini dan meminta perbaikan.';
+            $message .= ' Ada ' . $batch->invalid_rows . ' baris data yang perlu perhatian saat review.';
+        }
+
+        if (!empty($skippedEmployees)) {
+            $message .= ' Pegawai yang dilewati karena masih memiliki pengajuan aktif: ' . implode(', ', $skippedEmployees) . '.';
         }
 
         return back()->with('success', $message);
@@ -325,85 +384,12 @@ class SkYayasanController extends Controller
         return back()->with('success', "Batch import berhasil disinkronkan. {$updated} data diperbarui, {$unchanged} baris tidak mengubah data.");
     }
 
-    public function storeSchoolSubmission(Request $request): RedirectResponse
-    {
-        $user = $this->ensureSchoolAdmin();
-        $madrasahId = (int) $user->madrasah_id;
-
-        $validated = $request->validate([
-            'employee_ids' => ['required', 'array', 'min:1'],
-            'employee_ids.*' => ['required', 'integer', 'distinct'],
-        ]);
-
-        $employees = User::query()
-            ->with('statusKepegawaian')
-            ->whereIn('id', $validated['employee_ids'])
-            ->where('role', 'tenaga_pendidik')
-            ->where('madrasah_id', $madrasahId)
-            ->orderBy('name')
-            ->get()
-            ->keyBy('id');
-
-        if ($employees->count() !== count($validated['employee_ids'])) {
-            return back()
-                ->withErrors(['employee_ids' => 'Sebagian pegawai yang dipilih tidak valid untuk sekolah ini.'])
-                ->withInput();
-        }
-
-        $openRequestEmployeeIds = SkYayasanRequest::query()
-            ->whereIn('employee_id', $employees->keys())
-            ->whereIn('current_status', ['submitted', 'reviewed', 'approved'])
-            ->pluck('employee_id')
-            ->all();
-
-        $createdCount = 0;
-        $skippedEmployees = [];
-
-        DB::transaction(function () use ($employees, $openRequestEmployeeIds, $validated, $madrasahId, $user, &$createdCount, &$skippedEmployees) {
-            foreach ($employees as $employee) {
-                if (in_array($employee->id, $openRequestEmployeeIds, true)) {
-                    $skippedEmployees[] = $employee->name;
-                    continue;
-                }
-
-                SkYayasanRequest::create([
-                    'madrasah_id' => $madrasahId,
-                    'employee_id' => $employee->id,
-                    'submitted_by' => $user->id,
-                    'request_number' => $this->generateRequestNumber(),
-                    'request_type' => 'perpanjangan',
-                    'employment_category' => $employee->statusKepegawaian?->name ?? $employee->ketugasan,
-                    'current_status' => 'submitted',
-                    'submitted_at' => now(),
-                ]);
-
-                $createdCount++;
-            }
-        });
-
-        if ($createdCount === 0) {
-            return back()
-                ->withErrors([
-                    'employee_ids' => 'Semua pegawai yang dipilih masih memiliki pengajuan SK Yayasan yang belum selesai: ' . implode(', ', $skippedEmployees) . '.',
-                ])
-                ->withInput();
-        }
-
-        $message = $createdCount . ' pengajuan perpanjangan SK berhasil dikirim ke Yayasan.';
-
-        if (!empty($skippedEmployees)) {
-            $message .= ' Pegawai yang dilewati karena masih memiliki pengajuan aktif: ' . implode(', ', $skippedEmployees) . '.';
-        }
-
-        return back()->with('success', $message);
-    }
-
     public function superAdminPengajuan(Request $request): View
     {
         $this->ensureSuperAdmin();
 
         $submissions = SkYayasanRequest::query()
-            ->with(['madrasah', 'employee.statusKepegawaian', 'submitter', 'reviewer', 'template', 'document'])
+            ->with(['madrasah', 'employee.statusKepegawaian', 'submitter', 'reviewer', 'template', 'document', 'importBatch'])
             ->when($request->filled('status'), fn ($query) => $query->where('current_status', $request->string('status')->toString()))
             ->when($request->filled('madrasah_id'), fn ($query) => $query->where('madrasah_id', (int) $request->madrasah_id))
             ->when($request->filled('q'), function ($query) use ($request) {

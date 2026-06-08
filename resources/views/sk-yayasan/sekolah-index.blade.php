@@ -70,8 +70,8 @@
         <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
-                    <div class="sky-panel-label mb-1">Berkas Pengajuan</div>
-                    <h6 class="mb-3">Upload dokumen pengajuan perpanjangan untuk review Yayasan</h6>
+                    <div class="sky-panel-label mb-1">Form Pengajuan</div>
+                    <h6 class="mb-3">Pilih guru/pegawai dan lengkapi berkas pengajuan</h6>
                     <p class="text-muted small mb-3">
                         Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file fakta integritas, dan file form penilaian perilaku kinerja pegawai.
                     </p>
@@ -90,8 +90,40 @@
                         </a>
                     </div>
 
-                    <form action="{{ route('sk-yayasan.sekolah.import') }}" method="POST" enctype="multipart/form-data" class="mb-3">
+                    <form action="{{ route('sk-yayasan.sekolah.store') }}" method="POST" enctype="multipart/form-data" class="mb-3">
                         @csrf
+                        <div class="mb-3">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <label class="form-label mb-0">Guru/Pegawai</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="select-all-employees">
+                                        Pilih Semua
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-employees">
+                                        Kosongkan
+                                    </button>
+                                </div>
+                            </div>
+                            <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
+                                @foreach($employees as $employee)
+                                    <option value="{{ $employee->id }}" @selected(in_array($employee->id, $autoSelectedEmployeeIds ?? []))>
+                                        {{ $employee->name }} - {{ $employee->statusKepegawaian?->name ?? ($employee->ketugasan ?? '-') }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">
+                                Bisa pilih lebih dari satu pegawai sekaligus.
+                                @if(!empty($autoSelectedEmployeeIds))
+                                    Data hasil import terakhir sudah dipilih otomatis.
+                                @endif
+                            </small>
+                            @error('employee_ids')
+                                <small class="text-danger d-block">{{ $message }}</small>
+                            @enderror
+                            @error('employee_ids.*')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">File Excel Data Tenaga Pendidik</label>
                             <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv" required>
@@ -116,7 +148,7 @@
                                 <small class="text-danger d-block">{{ $message }}</small>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Upload untuk Review Super Admin</button>
+                        <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
                     </form>
 
                     @if($importBatches->isNotEmpty())
@@ -168,50 +200,6 @@
                             @endforeach
                         </div>
                     @endif
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <div class="sky-panel-label mb-1">Form Pengajuan</div>
-                    <h6 class="mb-3">Ajukan Perpanjangan SK</h6>
-
-                    <form action="{{ route('sk-yayasan.sekolah.store') }}" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">Guru/Pegawai</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" id="select-all-employees">
-                                        Pilih Semua
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-employees">
-                                        Kosongkan
-                                    </button>
-                                </div>
-                            </div>
-                            <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}" @selected(in_array($employee->id, $autoSelectedEmployeeIds ?? []))>
-                                        {{ $employee->name }} - {{ $employee->statusKepegawaian?->name ?? ($employee->ketugasan ?? '-') }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small class="text-muted">
-                                Bisa pilih lebih dari satu pegawai sekaligus.
-                                @if(!empty($autoSelectedEmployeeIds))
-                                    Data hasil import terakhir sudah dipilih otomatis.
-                                @endif
-                            </small>
-                            @error('employee_ids')
-                                <small class="text-danger d-block">{{ $message }}</small>
-                            @enderror
-                            @error('employee_ids.*')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
-                    </form>
                 </div>
             </div>
 
@@ -279,6 +267,9 @@
                                             <td>
                                                 <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
                                                 <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</small>
+                                                @if($submission->importBatch)
+                                                    <div><small class="text-muted">Batch #{{ $submission->importBatch->id }}</small></div>
+                                                @endif
                                             </td>
                                             <td>
                                                 <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ $submission->current_status }}</span>
