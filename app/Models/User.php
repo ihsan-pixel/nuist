@@ -22,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'gelar',
         'email',
         'password',
         'role',
@@ -39,6 +40,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'program_studi',
         'status_kepegawaian_id',
         'tmt',
+        'masa_kerja',
         'ketugasan',
         'mengajar',
         'avatar',
@@ -137,5 +139,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function skYayasanDocumentsAsPublisher()
     {
         return $this->hasMany(SkYayasanDocument::class, 'published_by');
+    }
+
+    public function skYayasanEmployeeData()
+    {
+        return $this->hasOne(SkYayasanEmployeeData::class, 'user_id');
     }
 }

@@ -649,6 +649,8 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/perpanjangan', [SkYayasanController::class, 'schoolIndex'])->name('sekolah.index');
         Route::post('/perpanjangan', [SkYayasanController::class, 'storeSchoolSubmission'])->name('sekolah.store');
+        Route::get('/perpanjangan/template-import', [SkYayasanController::class, 'schoolImportTemplate'])->name('sekolah.template-import');
+        Route::post('/perpanjangan/import', [SkYayasanController::class, 'importSchoolUsers'])->name('sekolah.import');
     });
 });
 

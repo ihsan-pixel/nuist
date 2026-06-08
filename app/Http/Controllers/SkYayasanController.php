@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SkYayasanUserImportTemplateExport;
+use App\Imports\SkYayasanUserUpdateImport;
 use App\Models\Madrasah;
 use App\Models\SkYayasanDocument;
 use App\Models\SkYayasanRequest;
@@ -13,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
 class SkYayasanController extends Controller
@@ -101,6 +104,36 @@ class SkYayasanController extends Controller
                 ->take(6)
                 ->get(),
         ]);
+    }
+
+    public function schoolImportTemplate()
+    {
+        $this->ensureSchoolAdmin();
+
+        return Excel::download(new SkYayasanUserImportTemplateExport(), 'template-import-sk-yayasan.xlsx');
+    }
+
+    public function importSchoolUsers(Request $request): RedirectResponse
+    {
+        $user = $this->ensureSchoolAdmin();
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+        ]);
+
+        $import = new SkYayasanUserUpdateImport((int) $user->madrasah_id);
+
+        DB::transaction(function () use ($request, $import) {
+            Excel::import($import, $request->file('file'));
+        });
+
+        $message = "Import sinkronisasi selesai. {$import->updated} data pegawai diperbarui, {$import->notFound} baris tidak ditemukan di database users, {$import->skipped} baris dilewati.";
+
+        if (!empty($import->errors)) {
+            $message .= ' Detail: ' . implode(' | ', array_slice($import->errors, 0, 5));
+        }
+
+        return back()->with('success', $message);
     }
 
     public function storeSchoolSubmission(Request $request): RedirectResponse
@@ -475,11 +508,12 @@ class SkYayasanController extends Controller
 
     private function buildTemplatePlaceholders(SkYayasanRequest $submission, array $overrides = []): array
     {
-        $submission->loadMissing(['madrasah.yayasan', 'employee.statusKepegawaian']);
+        $submission->loadMissing(['madrasah.yayasan', 'employee.statusKepegawaian', 'employee.skYayasanEmployeeData']);
 
         $employee = $submission->employee;
         $madrasah = $submission->madrasah;
         $yayasan = $madrasah->yayasan ?: Yayasan::query()->first();
+        $employeeSkData = $employee?->skYayasanEmployeeData;
 
         $base = [
             '{{nomor_sk}}' => $overrides['nomor_sk'] ?? '-',
@@ -488,6 +522,20 @@ class SkYayasanController extends Controller
             '{{alamat_yayasan}}' => $yayasan?->alamat ?? '-',
             '{{nama_sekolah}}' => $madrasah->name ?? '-',
             '{{nama_pegawai}}' => $employee->name ?? '-',
+            '{{gelar}}' => $employee->gelar ?? '-',
+            '{{tempat_lahir}}' => $employee->tempat_lahir ?? '-',
+            '{{tanggal_lahir}}' => optional($employee->tanggal_lahir)?->translatedFormat('d F Y') ?? '-',
+            '{{nip_maarif}}' => $employee->nip ?? '-',
+            '{{nuptk}}' => $employee->nuptk ?? '-',
+            '{{nomor_kartanu}}' => $employee->kartanu ?? '-',
+            '{{tmt_pertama}}' => optional($employee->tmt)?->translatedFormat('d F Y') ?? '-',
+            '{{masa_kerja}}' => $employee->masa_kerja ?? '-',
+            '{{pendidikan_terakhir}}' => $employee->pendidikan_terakhir ?? '-',
+            '{{tahun_lulus}}' => $employee->tahun_lulus ?? '-',
+            '{{program_studi}}' => $employee->program_studi ?? '-',
+            '{{mapel_tugas_yang_diampu}}' => $employee->mengajar ?? '-',
+            '{{penilaian_kinerja}}' => $employeeSkData?->penilaian_kinerja ?? '-',
+            '{{keterangan_sk_yayasan}}' => $employeeSkData?->keterangan ?? '-',
             '{{jabatan}}' => $employee->ketugasan ?? '-',
             '{{status_kepegawaian}}' => $employee->statusKepegawaian?->name ?? ($submission->employment_category ?? '-'),
             '{{tanggal_mulai}}' => '',

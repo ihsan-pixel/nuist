@@ -72,8 +72,10 @@
 <p>Yayasan {{nama_yayasan}} menetapkan bahwa:</p>
 <ol>
 <li>Nama: <strong>{{nama_pegawai}}</strong></li>
+<li>Gelar: <strong>{{gelar}}</strong></li>
 <li>Jabatan: <strong>{{jabatan}}</strong></li>
 <li>Status Kepegawaian: <strong>{{status_kepegawaian}}</strong></li>
+<li>Penilaian Kinerja: <strong>{{penilaian_kinerja}}</strong></li>
 </ol>
 <p>SK ini diterbitkan untuk dipergunakan sebagaimana mestinya.</p>
 @endverbatim</textarea>
@@ -94,7 +96,10 @@
                     <div class="d-flex flex-wrap gap-2">
                         @foreach([
                             '{{nomor_sk}}', '{{judul_sk}}', '{{nama_yayasan}}', '{{nama_sekolah}}', '{{nama_pegawai}}',
-                            '{{jabatan}}', '{{status_kepegawaian}}', '{{tanggal_terbit}}',
+                            '{{gelar}}', '{{tempat_lahir}}', '{{tanggal_lahir}}', '{{nip_maarif}}', '{{nuptk}}',
+                            '{{nomor_kartanu}}', '{{tmt_pertama}}', '{{masa_kerja}}', '{{pendidikan_terakhir}}',
+                            '{{tahun_lulus}}', '{{program_studi}}', '{{mapel_tugas_yang_diampu}}', '{{penilaian_kinerja}}',
+                            '{{keterangan_sk_yayasan}}', '{{jabatan}}', '{{status_kepegawaian}}', '{{tanggal_terbit}}',
                             '{{nama_penandatangan}}', '{{jabatan_penandatangan}}'
                         ] as $placeholder)
                             <span class="sky-chip">{{ $placeholder }}</span>
