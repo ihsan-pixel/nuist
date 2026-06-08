@@ -76,7 +76,17 @@
                     <form action="{{ route('sk-yayasan.sekolah.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label">Guru/Pegawai</label>
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <label class="form-label mb-0">Guru/Pegawai</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="select-all-employees">
+                                        Pilih Semua
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-employees">
+                                        Kosongkan
+                                    </button>
+                                </div>
+                            </div>
                             <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
                                 @foreach($employees as $employee)
                                     <option value="{{ $employee->id }}" @selected(in_array($employee->id, old('employee_ids', [])))>
@@ -230,10 +240,24 @@
 <script src="{{ asset('build/libs/select2/js/select2.min.js') }}"></script>
 <script>
     $(document).ready(function () {
-        $('.select2-pegawai').select2({
+        const $employeeSelect = $('.select2-pegawai');
+
+        $employeeSelect.select2({
             width: '100%',
-            placeholder: $('.select2-pegawai').data('placeholder'),
+            placeholder: $employeeSelect.data('placeholder'),
             closeOnSelect: false
+        });
+
+        $('#select-all-employees').on('click', function () {
+            const allValues = $employeeSelect.find('option').map(function () {
+                return $(this).val();
+            }).get();
+
+            $employeeSelect.val(allValues).trigger('change');
+        });
+
+        $('#clear-all-employees').on('click', function () {
+            $employeeSelect.val(null).trigger('change');
         });
     });
 </script>
