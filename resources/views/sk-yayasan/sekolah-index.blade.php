@@ -75,9 +75,9 @@
                     <p class="text-muted small mb-3">
                         Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file fakta integritas, dan file form penilaian perilaku kinerja pegawai.
                     </p>
-                    <div class="alert alert-info py-2 px-3 small mb-3">
+                    {{-- <div class="alert alert-info py-2 px-3 small mb-3">
                         Hasil import Excel akan diparsing langsung ke database staging. Super admin mereview isi data dan lampiran pendukung sebelum memutuskan sinkronisasi atau penolakan.
-                    </div>
+                    </div> --}}
                     @if($latestSyncedImport)
                         <div class="alert alert-success py-2 px-3 small mb-3">
                             Sinkronisasi terakhir dari batch #{{ $latestSyncedImport->id }} sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari batch ini.
