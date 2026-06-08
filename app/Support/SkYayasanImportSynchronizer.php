@@ -37,6 +37,29 @@ class SkYayasanImportSynchronizer
         ];
     }
 
+    public static function headingKeyMap(): array
+    {
+        return [
+            'No' => 'no',
+            'NUIST ID' => 'nuist_id',
+            'Nama' => 'nama',
+            'Gelar' => 'gelar',
+            'Tempat Lahir' => 'tempat_lahir',
+            'Tanggal Lahir' => 'tanggal_lahir',
+            "NIP Ma'arif" => 'nip_ma_arif',
+            'NUPTK' => 'nuptk',
+            'Nomor Kartanu' => 'nomor_kartanu',
+            'TMT Pertama' => 'tmt_pertama',
+            'Masa Kerja' => 'masa_kerja',
+            'Pendidikan Terakhir' => 'pendidikan_terakhir',
+            'Tahun Lulus' => 'tahun_lulus',
+            'Program Studi' => 'program_studi',
+            'Mapel/Tugas yang Diampu' => 'mapel_tugas_yang_diampu',
+            'Penilaian Kinerja' => 'penilaian_kinerja',
+            'Keterangan' => 'keterangan',
+        ];
+    }
+
     public static function normalizeHeading(?string $heading): string
     {
         $heading = trim((string) $heading);
@@ -190,6 +213,7 @@ class SkYayasanImportSynchronizer
         return [
             'row_number' => $rowNumber,
             'source_name' => $this->nullableString($rowData['nama'] ?? null) ?? '-',
+            'source_columns' => $this->buildSourceColumns($rowData),
             'matched_name' => $user?->name,
             'user_id' => $user?->id,
             'is_valid' => empty($errors),
@@ -198,6 +222,32 @@ class SkYayasanImportSynchronizer
             'sk_payload' => $skPayload,
             'status_label' => empty($errors) ? 'Siap upload' : 'Perlu perbaikan',
         ];
+    }
+
+    private function buildSourceColumns(array $rowData): array
+    {
+        $columns = [];
+
+        foreach (self::headingKeyMap() as $heading => $key) {
+            $columns[$heading] = $this->formatSourceColumnValue($key, $rowData[$key] ?? null);
+        }
+
+        return $columns;
+    }
+
+    private function formatSourceColumnValue(string $key, mixed $value): string
+    {
+        if ($value === null || trim((string) $value) === '') {
+            return '-';
+        }
+
+        if (in_array($key, ['tanggal_lahir', 'tmt_pertama'], true)) {
+            $parsedDate = $this->parseDateValue($value);
+
+            return $parsedDate ? Carbon::parse($parsedDate)->translatedFormat('d F Y') : (string) $value;
+        }
+
+        return trim((string) $value);
     }
 
     public function syncRow(User $user, array $userPayload, array $skPayload): bool

@@ -358,6 +358,7 @@ class SkYayasanController extends Controller
         return view('sk-yayasan.pengajuan-index', [
             'submissions' => $submissions,
             'importBatches' => $importBatches,
+            'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
             'madrasahs' => Madrasah::query()->orderBy('name')->get(['id', 'name']),
             'templates' => SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get(),
         ]);

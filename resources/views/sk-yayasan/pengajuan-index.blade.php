@@ -324,22 +324,26 @@
                                                     </div>
                                                 @endif
 
-                                                <div class="table-responsive" style="max-height: 360px;">
+                                                <div class="table-responsive" style="max-height: 420px;">
                                                     <table class="table table-sm align-middle">
                                                         <thead>
                                                             <tr>
-                                                                <th>Baris</th>
-                                                                <th>Nama File</th>
+                                                                <th>Baris Excel</th>
+                                                                @foreach($importPreviewColumns as $column)
+                                                                    <th>{{ $column }}</th>
+                                                                @endforeach
                                                                 <th>Match User</th>
                                                                 <th>Status</th>
-                                                                <th>Keterangan</th>
+                                                                <th>Keterangan Review</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             @foreach($batch->payload_rows ?? [] as $row)
                                                                 <tr>
                                                                     <td>{{ $row['row_number'] ?? '-' }}</td>
-                                                                    <td>{{ $row['source_name'] ?? '-' }}</td>
+                                                                    @foreach($importPreviewColumns as $column)
+                                                                        <td>{{ $row['source_columns'][$column] ?? '-' }}</td>
+                                                                    @endforeach
                                                                     <td>{{ $row['matched_name'] ?? '-' }}</td>
                                                                     <td>
                                                                         <span class="badge bg-{{ !empty($row['is_valid']) ? 'success' : 'danger' }}-subtle text-{{ !empty($row['is_valid']) ? 'success' : 'danger' }}">
