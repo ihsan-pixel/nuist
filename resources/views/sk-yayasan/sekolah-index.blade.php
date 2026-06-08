@@ -26,11 +26,11 @@
     <div class="sky-hero-strip mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-                <div class="sky-kicker mb-2">Perpanjangan SK</div>
+                {{-- <div class="sky-kicker mb-2">Perpanjangan SK</div> --}}
                 <h4 class="mb-1">Ajukan dan pantau SK guru atau pegawai</h4>
-                <p class="mb-0 text-white-50">
+                {{-- <p class="mb-0 text-white-50">
                     Kirim pengajuan perpanjangan SK ke Yayasan dan pantau status review sampai dokumen resmi terbit.
-                </p>
+                </p> --}}
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $submissions->total() }} total pengajuan</span>
