@@ -19,6 +19,7 @@ use App\Http\Controllers\TeachingScheduleController;
 use App\Http\Controllers\TeachingClassStudentCountController;
 use App\Http\Controllers\DpsController;
 use App\Http\Controllers\AcademicCalendarEventController;
+use App\Http\Controllers\SkYayasanController;
 
 use App\Http\Controllers\PPDB\{
     PPDBController,
@@ -627,6 +628,28 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::put('/tahun-pelajaran/update/{id}', [App\Http\Controllers\TahunPelajaranController::class, 'update'])->name('tahun-pelajaran.update');
     Route::delete('/tahun-pelajaran/destroy/{id}', [App\Http\Controllers\TahunPelajaranController::class, 'destroy'])->name('tahun-pelajaran.destroy');
     Route::post('/tahun-pelajaran/import', [App\Http\Controllers\TahunPelajaranController::class, 'import'])->name('tahun-pelajaran.import');
+});
+
+Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(function () {
+    Route::get('/dokumen/{document}/download', [SkYayasanController::class, 'downloadDocument'])->name('documents.download');
+
+    Route::middleware(['role:super_admin'])->group(function () {
+        Route::get('/dashboard', [SkYayasanController::class, 'dashboard'])->name('dashboard');
+        Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan'])->name('pengajuan.index');
+        Route::patch('/pengajuan/{submission}/status', [SkYayasanController::class, 'updateSubmissionStatus'])->name('pengajuan.update-status');
+        Route::get('/template', [SkYayasanController::class, 'templateIndex'])->name('template.index');
+        Route::post('/template', [SkYayasanController::class, 'storeTemplate'])->name('template.store');
+        Route::put('/template/{template}', [SkYayasanController::class, 'updateTemplate'])->name('template.update');
+        Route::delete('/template/{template}', [SkYayasanController::class, 'destroyTemplate'])->name('template.destroy');
+        Route::get('/generate', [SkYayasanController::class, 'generateIndex'])->name('generate.index');
+        Route::post('/generate', [SkYayasanController::class, 'generateDocument'])->name('generate.store');
+        Route::patch('/generate/{document}/publish', [SkYayasanController::class, 'publishDocument'])->name('generate.publish');
+    });
+
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/perpanjangan', [SkYayasanController::class, 'schoolIndex'])->name('sekolah.index');
+        Route::post('/perpanjangan', [SkYayasanController::class, 'storeSchoolSubmission'])->name('sekolah.store');
+    });
 });
 
 // customers route

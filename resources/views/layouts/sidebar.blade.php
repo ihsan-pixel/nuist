@@ -115,6 +115,28 @@
                 </li>
                 @endif
 
+                @if($userRole === 'super_admin')
+                <li>
+                    <a href="#skYayasanSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                        <i class="bx bx-certification"></i>
+                        <span>SK Yayasan</span>
+                    </a>
+                    <ul class="sub-menu collapse" id="skYayasanSubmenu">
+                        <li><a href="{{ route('sk-yayasan.dashboard') }}">Dashboard SK Yayasan</a></li>
+                        <li><a href="{{ route('sk-yayasan.pengajuan.index') }}">Pengajuan Perpanjangan SK</a></li>
+                        <li><a href="{{ route('sk-yayasan.template.index') }}">Template SK Yayasan</a></li>
+                        <li><a href="{{ route('sk-yayasan.generate.index') }}">Generate SK Yayasan</a></li>
+                    </ul>
+                </li>
+                @elseif($userRole === 'admin')
+                <li>
+                    <a href="{{ route('sk-yayasan.sekolah.index') }}" class="waves-effect">
+                        <i class="bx bx-certification"></i>
+                        <span>Perpanjangan SK</span>
+                    </a>
+                </li>
+                @endif
+
                 @php
                     $isAdminOnly = $userRole === 'admin';
                 @endphp

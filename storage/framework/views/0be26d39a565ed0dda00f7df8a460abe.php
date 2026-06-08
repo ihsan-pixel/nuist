@@ -247,6 +247,12 @@
                         <span>Buat Akun MGMP</span>
                     </a>
                 </li>
+                <li>
+                    <a href="<?php echo e(route('admin.mgmp_reset_uploads')); ?>" class="waves-effect">
+                        <i class="bx bx-cloud-upload"></i>
+                        <span>Monitoring Riset MGMP</span>
+                    </a>
+                </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'pengurus'])): ?>

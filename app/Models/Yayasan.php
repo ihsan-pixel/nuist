@@ -24,4 +24,9 @@ class Yayasan extends Model
     {
         return $this->hasMany(Madrasah::class);
     }
+
+    public function activeSkYayasanTemplate()
+    {
+        return SkYayasanTemplate::query()->where('is_active', true)->latest('updated_at')->first();
+    }
 }

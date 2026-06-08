@@ -113,4 +113,29 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(SppOperatorRegistration::class, 'approved_user_id');
     }
+
+    public function skYayasanRequestsAsEmployee()
+    {
+        return $this->hasMany(SkYayasanRequest::class, 'employee_id');
+    }
+
+    public function skYayasanRequestsAsSubmitter()
+    {
+        return $this->hasMany(SkYayasanRequest::class, 'submitted_by');
+    }
+
+    public function skYayasanRequestsAsReviewer()
+    {
+        return $this->hasMany(SkYayasanRequest::class, 'reviewed_by');
+    }
+
+    public function skYayasanDocumentsAsGenerator()
+    {
+        return $this->hasMany(SkYayasanDocument::class, 'generated_by');
+    }
+
+    public function skYayasanDocumentsAsPublisher()
+    {
+        return $this->hasMany(SkYayasanDocument::class, 'published_by');
+    }
 }

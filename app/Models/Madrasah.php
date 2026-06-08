@@ -177,4 +177,9 @@ class Madrasah extends Model
     {
         return $this->hasMany(DpsMember::class, 'madrasah_id');
     }
+
+    public function skYayasanRequests()
+    {
+        return $this->hasMany(SkYayasanRequest::class, 'madrasah_id');
+    }
 }

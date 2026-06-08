@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Ringkasan Menu SPP Siswa</title>
+    <style>
+        body {
+            font-family: "Calibri", "Arial", sans-serif;
+            font-size: 11pt;
+            color: #1f2937;
+            line-height: 1.5;
+            margin: 36pt;
+        }
+
+        h1, h2, h3 {
+            color: #0f4c5c;
+            margin-bottom: 6pt;
+        }
+
+        h1 {
+            font-size: 20pt;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 15pt;
+            margin-top: 22pt;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 4pt;
+        }
+
+        h3 {
+            font-size: 12.5pt;
+            margin-top: 14pt;
+        }
+
+        p {
+            margin: 6pt 0;
+        }
+
+        ul {
+            margin-top: 4pt;
+            margin-bottom: 10pt;
+        }
+
+        li {
+            margin-bottom: 4pt;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10pt;
+            margin-bottom: 14pt;
+        }
+
+        th, td {
+            border: 1px solid #94a3b8;
+            padding: 8pt;
+            vertical-align: top;
+        }
+
+        th {
+            background: #dbeafe;
+            color: #0f172a;
+            text-align: left;
+        }
+
+        .muted {
+            color: #475569;
+        }
+
+        .note {
+            background: #f8fafc;
+            border-left: 4px solid #0f766e;
+            padding: 10pt 12pt;
+            margin: 10pt 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ringkasan Menu SPP Siswa</h1>
+    <p class="muted"><strong>Cakupan dokumen:</strong> role <em>Admin SPP</em>, role <em>Siswa</em>, dan role <em>Admin</em> untuk input data siswa.</p>
+
+    <h2>1. Gambaran Umum</h2>
+    <p>Modul SPP siswa di sistem ini terdiri dari dua sisi utama. Sisi pertama adalah modul pengelolaan oleh petugas sekolah, terutama untuk membuat tagihan, memantau transaksi, dan mengatur metode pembayaran. Sisi kedua adalah modul siswa untuk melihat tagihan, mencetak billing, menerima notifikasi, dan berkomunikasi dengan admin sekolah.</p>
+    <p>Selain itu, ada modul <strong>Data Siswa</strong> yang menjadi kebutuhan dasar karena data siswa dipakai untuk membuat tagihan, menampilkan akun siswa, dan menghubungkan akses siswa ke sekolah yang benar.</p>
+
+    <h2>2. Ringkasan Cepat Per Role</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Role</th>
+                <th>Menu/Fitur Utama</th>
+                <th>Kebutuhan Utama</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Admin SPP</strong></td>
+                <td>Dashboard, Tagihan, Transaksi, Laporan, Pengaturan</td>
+                <td>Data siswa sudah ada, akun terhubung ke madrasah, dan pengaturan aktif <strong>BNI Virtual Account</strong> untuk pembuatan tagihan oleh Admin SPP</td>
+            </tr>
+            <tr>
+                <td><strong>Siswa</strong></td>
+                <td>Dashboard, Tagihan, Pembayaran, Riwayat, Notifikasi, Chat Admin, Profil</td>
+                <td>Akun siswa aktif, data siswa cocok dengan email dan madrasah, serta tagihan sudah dibuat oleh sekolah</td>
+            </tr>
+            <tr>
+                <td><strong>Admin</strong><br>(khusus input data siswa)</td>
+                <td>Data siswa, tambah, edit, hapus, import, template</td>
+                <td>Minimal tersedia NIS, nama siswa, kelas, dan madrasah. Import memakai file template Excel/CSV</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>3. Role Admin SPP</h2>
+
+    <h3>Menu yang tersedia</h3>
+    <ul>
+        <li><strong>Dashboard Monitoring</strong>: menampilkan total siswa, total tagihan, tagihan lunas, tagihan belum lunas, total transaksi, nominal tagihan, nominal terbayar, pengaturan aktif, overdue, coverage, paid ratio, outstanding, tagihan terbaru, dan transaksi terbaru.</li>
+        <li><strong>Tagihan</strong>: membuat tagihan satuan, membuat tagihan massal, import tagihan, unduh template import, filter tagihan, dan hapus tagihan yang belum memiliki transaksi.</li>
+        <li><strong>Transaksi</strong>: memantau daftar transaksi pembayaran, status pembayaran, nomor VA, dan pencarian transaksi per siswa atau nomor transaksi.</li>
+        <li><strong>Laporan</strong>: melihat rekap per siswa, jumlah kelas, total tagihan, nominal terbayar, persentase pembayaran, dan ringkasan distribusi siswa per kelas.</li>
+        <li><strong>Pengaturan</strong>: mengatur tahun ajaran, provider pembayaran, status aktif/nonaktif, dan catatan pengaturan.</li>
+    </ul>
+
+    <h3>Kebutuhan dan aturan</h3>
+    <ul>
+        <li>Akun harus memiliki role <strong>admin_spp</strong> dan terhubung ke satu <strong>madrasah_id</strong>.</li>
+        <li>Cakupan akses hanya untuk <strong>madrasah milik admin_spp tersebut</strong>, bukan seluruh sekolah.</li>
+        <li>Data siswa wajib sudah tersedia lebih dulu, karena tagihan dibuat berdasarkan siswa yang tersimpan di modul data siswa.</li>
+        <li>Untuk membuat tagihan, Admin SPP <strong>wajib</strong> memakai pengaturan aktif dengan provider <strong>BNI Virtual Account</strong>.</li>
+        <li>Admin SPP tidak bisa membuat tagihan jika belum ada pengaturan aktif BNI VA pada madrasahnya.</li>
+        <li>Pada menu pengaturan, role Admin SPP hanya diarahkan ke provider <strong>BNI Virtual Account</strong>, bukan manual.</li>
+        <li>Jika sekolah ingin siswa bisa mencetak billing dan menerima nomor VA, maka konfigurasi BNI VA di level aplikasi juga harus aktif.</li>
+    </ul>
+
+    <h3>Kebutuhan data saat membuat tagihan</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Jenis Proses</th>
+                <th>Data yang Dibutuhkan</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Tagihan satuan</td>
+                <td>Madrasah, siswa, pengaturan aktif BNI VA, periode, jatuh tempo, nominal, catatan</td>
+            </tr>
+            <tr>
+                <td>Tagihan massal</td>
+                <td>Madrasah, pengaturan aktif BNI VA, filter jurusan/kelas jika perlu, periode, jatuh tempo, nominal, catatan</td>
+            </tr>
+            <tr>
+                <td>Import tagihan</td>
+                <td>Madrasah, pengaturan aktif BNI VA, file xlsx/xls/csv, kolom wajib: <strong>nis</strong>, <strong>jenis_tagihan</strong> = SPP, <strong>periode</strong>, <strong>jatuh_tempo</strong>, <strong>nominal</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="note">
+        <strong>Catatan penting:</strong> modul ini dikunci untuk tagihan jenis <strong>SPP</strong>. Jadi pembuatan tagihan dalam menu ini memang fokus ke SPP siswa, bukan jenis tagihan lain.
+    </div>
+
+    <h2>4. Role Siswa</h2>
+
+    <h3>Menu yang tersedia</h3>
+    <ul>
+        <li><strong>Dashboard</strong>: melihat ringkasan persentase pembayaran, total tagihan, total terbayar, update terbaru, grafik lunas vs belum lunas, reminder H-3, dan tagihan terbaru.</li>
+        <li><strong>Tagihan</strong>: melihat seluruh invoice/tagihan siswa, status pembayaran, detail tagihan, dan akses ke billing jika menggunakan BNI VA.</li>
+        <li><strong>Pembayaran</strong>: melihat tagihan aktif, nominal, jatuh tempo, status tagihan, serta proses cetak billing dan nomor Virtual Account BNI.</li>
+        <li><strong>Riwayat Pembayaran</strong>: melihat transaksi pembayaran terdahulu serta filter status dan bulan.</li>
+        <li><strong>Notifikasi</strong>: melihat reminder jatuh tempo dan notifikasi pembayaran.</li>
+        <li><strong>Chat Admin</strong>: mengirim pesan ke admin sekolah terkait pembayaran.</li>
+        <li><strong>Profil</strong>: melihat data utama akun siswa, seperti NIS, kelas, jurusan, nomor HP, alamat, dan sekolah.</li>
+        <li><strong>Halaman tambahan dari alur transaksi</strong>: Detail Tagihan, Billing, dan Bukti Pembayaran.</li>
+    </ul>
+
+    <h3>Kebutuhan dan aturan</h3>
+    <ul>
+        <li>Akun harus memiliki role <strong>siswa</strong>.</li>
+        <li>Data siswa harus sudah ada pada tabel siswa dan harus <strong>cocok dengan email akun serta madrasah</strong>, karena sistem mencari data siswa berdasarkan email dan madrasah.</li>
+        <li>Siswa baru bisa melihat isi modul pembayaran jika tagihan sudah dibuat oleh pihak sekolah.</li>
+        <li>Fitur <strong>BNI Virtual Account</strong> hanya berjalan jika tagihan memakai provider <strong>bni_va</strong> dan pengaturan BNI VA global aplikasi sedang aktif.</li>
+        <li>Nomor VA diterbitkan atau dipakai ulang saat siswa membuka/cetak billing tagihan yang aktif.</li>
+        <li>Fitur chat membutuhkan adanya akun admin/pengurus pada madrasah terkait. Jika tidak ada, sistem akan mencoba memakai akun super admin sebagai fallback.</li>
+        <li>Reminder otomatis akan muncul bila tagihan belum lunas dan tanggal jatuh tempo berada dalam rentang H-3 sampai hari H.</li>
+    </ul>
+
+    <h3>Kebutuhan minimum agar menu siswa berjalan baik</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Fitur Siswa</th>
+                <th>Kebutuhan</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Dashboard dan Tagihan</td>
+                <td>Data siswa aktif dan sudah memiliki tagihan</td>
+            </tr>
+            <tr>
+                <td>Pembayaran BNI VA</td>
+                <td>Tagihan memakai provider bni_va, pengaturan aktif, dan BNI VA global aplikasi aktif</td>
+            </tr>
+            <tr>
+                <td>Riwayat dan Bukti</td>
+                <td>Sudah ada transaksi pembayaran yang tercatat</td>
+            </tr>
+            <tr>
+                <td>Chat Admin</td>
+                <td>Tersedia akun admin/pengurus atau fallback super admin</td>
+            </tr>
+            <tr>
+                <td>Notifikasi reminder</td>
+                <td>Tagihan belum lunas dan memiliki tanggal jatuh tempo</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>5. Role Admin untuk Input Data Siswa</h2>
+
+    <h3>Menu yang tersedia</h3>
+    <ul>
+        <li><strong>Data Siswa</strong>: daftar siswa lengkap dengan filter kelas, jurusan, pencarian, statistik total siswa, akun aktif, jumlah madrasah, dan jumlah kelas.</li>
+        <li><strong>Tambah Siswa</strong>: input manual data siswa melalui form lengkap.</li>
+        <li><strong>Edit Siswa</strong>: memperbarui data identitas, akademik, kontak, dan data orang tua/wali.</li>
+        <li><strong>Hapus Siswa</strong>: menghapus data siswa.</li>
+        <li><strong>Import Siswa</strong>: unggah file Excel/CSV untuk tambah atau update data siswa secara massal.</li>
+        <li><strong>Template Siswa</strong>: mengunduh format template resmi sebelum import.</li>
+    </ul>
+
+    <h3>Kebutuhan input manual</h3>
+    <ul>
+        <li>Field minimal yang wajib diisi adalah <strong>NIS</strong>, <strong>nama peserta didik</strong>, <strong>kelas</strong>, dan <strong>madrasah</strong>.</li>
+        <li>Email siswa bersifat opsional. Jika kosong, sistem akan membuat email internal otomatis.</li>
+        <li>Password default akun siswa adalah <strong>NIS</strong>.</li>
+        <li>Role admin hanya bekerja pada <strong>madrasah miliknya sendiri</strong>, sehingga pilihan madrasah dikunci pada form.</li>
+    </ul>
+
+    <h3>Kebutuhan import data siswa</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Komponen</th>
+                <th>Kebutuhan</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Format file</td>
+                <td><strong>.xlsx</strong>, <strong>.xls</strong>, atau <strong>.csv</strong></td>
+            </tr>
+            <tr>
+                <td>Kolom wajib</td>
+                <td><strong>nis</strong>, <strong>kelas</strong>, <strong>nama_peserta_didik</strong></td>
+            </tr>
+            <tr>
+                <td>Madrasah</td>
+                <td>Dipilih pada form import, tidak wajib ditulis di file</td>
+            </tr>
+            <tr>
+                <td>Duplikasi data</td>
+                <td>Jika NIS, NISN, atau email siswa sudah ada, sistem akan <strong>memperbarui</strong> data yang ada</td>
+            </tr>
+            <tr>
+                <td>Password akun baru</td>
+                <td>Otomatis dibuat dari <strong>NIS</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Data yang dibutuhkan saat upload data siswa</h3>
+    <p>Saat upload/import data siswa, sistem membaca file template dengan susunan kolom tertentu. Tidak semua kolom wajib diisi, tetapi semakin lengkap datanya maka semakin baik untuk kebutuhan tagihan, akun siswa, dan informasi orang tua/wali.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Kelompok Data</th>
+                <th>Kolom</th>
+                <th>Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Wajib</strong></td>
+                <td><strong>nis</strong>, <strong>nama_peserta_didik</strong>, <strong>kelas</strong></td>
+                <td>Ini adalah data minimum agar baris siswa bisa diproses saat upload.</td>
+            </tr>
+            <tr>
+                <td><strong>Identitas siswa</strong></td>
+                <td>nisn, nik, no_kk, jenis_kelamin, tempat_lahir, tanggal_lahir, agama</td>
+                <td>Dipakai untuk melengkapi profil siswa dan kebutuhan administrasi.</td>
+            </tr>
+            <tr>
+                <td><strong>Akademik</strong></td>
+                <td>jurusan, tahun_masuk</td>
+                <td>Mendukung pengelompokan data siswa dan pembuatan tagihan per kelas/jurusan.</td>
+            </tr>
+            <tr>
+                <td><strong>Kontak siswa</strong></td>
+                <td>no_hp_siswa, email_siswa</td>
+                <td>Email siswa opsional. Jika kosong, sistem membuat email internal otomatis.</td>
+            </tr>
+            <tr>
+                <td><strong>Alamat</strong></td>
+                <td>alamat, dusun, kelurahan, kecamatan, kode_pos</td>
+                <td>Jika alamat utama kosong, sistem tetap bisa membentuk alamat dari data wilayah yang tersedia.</td>
+            </tr>
+            <tr>
+                <td><strong>Data ayah</strong></td>
+                <td>nama_ayah, pendidikan_ayah, pekerjaan_ayah, penghasilan_ayah</td>
+                <td>Untuk data keluarga siswa.</td>
+            </tr>
+            <tr>
+                <td><strong>Data ibu</strong></td>
+                <td>nama_ibu, pendidikan_ibu, pekerjaan_ibu, penghasilan_ibu</td>
+                <td>Untuk data keluarga siswa.</td>
+            </tr>
+            <tr>
+                <td><strong>Data wali</strong></td>
+                <td>nama_wali, pendidikan_wali, pekerjaan_wali, penghasilan_wali</td>
+                <td>Diisi jika siswa memiliki wali yang perlu dicatat.</td>
+            </tr>
+            <tr>
+                <td><strong>Kontak orang tua/wali</strong></td>
+                <td>nama_orang_tua_wali, no_hp_orang_tua_wali, email_orang_tua_wali</td>
+                <td>Jika nama_orang_tua_wali kosong, sistem dapat mengambil dari nama wali, ayah, atau ibu yang tersedia.</td>
+            </tr>
+            <tr>
+                <td><strong>Data tambahan</strong></td>
+                <td>jenis_tinggal, alat_transportasi</td>
+                <td>Opsional untuk melengkapi informasi siswa.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="note">
+        <strong>Poin penting upload:</strong> kolom <strong>madrasah</strong> tidak wajib ada di file karena madrasah dipilih dari form upload. Jika <strong>NIS</strong>, <strong>NISN</strong>, atau <strong>email siswa</strong> sudah pernah ada, sistem akan memperbarui data yang lama, bukan menambah data baru.
+    </div>
+
+    <h3>Kolom yang didukung pada template siswa</h3>
+    <p>Template import siswa mendukung data identitas, akademik, alamat, kontak, serta data ayah, ibu, dan wali. Contoh kolomnya meliputi: <strong>nis</strong>, <strong>nisn</strong>, <strong>nik</strong>, <strong>no_kk</strong>, <strong>nama_peserta_didik</strong>, <strong>jenis_kelamin</strong>, <strong>tempat_lahir</strong>, <strong>tanggal_lahir</strong>, <strong>agama</strong>, <strong>kelas</strong>, <strong>jurusan</strong>, <strong>tahun_masuk</strong>, <strong>alamat</strong>, <strong>no_hp_siswa</strong>, <strong>email_siswa</strong>, serta data orang tua/wali.</p>
+
+    <div class="note">
+        <strong>Catatan tambahan:</strong> pada implementasi saat ini, role <strong>admin_spp</strong> tidak mendapat tombol tambah siswa, import, atau template. Namun data siswa yang sudah ada tetap menjadi fondasi utama agar modul SPP siswa dapat berjalan dengan benar.
+    </div>
+
+    <h2>6. Kesimpulan</h2>
+    <p>Secara alur kerja, <strong>Admin</strong> menyiapkan data siswa lebih dahulu, lalu <strong>Admin SPP</strong> membuat pengaturan pembayaran dan tagihan SPP, kemudian <strong>Siswa</strong> memakai menu siswa untuk melihat tagihan, mencetak billing, membayar, dan memantau status pembayaran. Jadi kualitas data siswa dan kelengkapan pengaturan pembayaran menjadi dua kebutuhan paling penting agar menu SPP siswa berjalan lancar.</p>
+</body>
+</html>
