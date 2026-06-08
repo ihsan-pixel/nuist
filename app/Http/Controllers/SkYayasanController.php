@@ -109,44 +109,77 @@ class SkYayasanController extends Controller
         $madrasahId = (int) $user->madrasah_id;
 
         $validated = $request->validate([
-            'employee_id' => ['required', 'integer'],
+            'employee_ids' => ['required', 'array', 'min:1'],
+            'employee_ids.*' => ['required', 'integer', 'distinct'],
             'effective_start_date' => ['required', 'date'],
             'effective_end_date' => ['required', 'date', 'after_or_equal:effective_start_date'],
             'submission_notes' => ['nullable', 'string'],
         ]);
 
-        $employee = User::query()
-            ->whereKey($validated['employee_id'])
+        $employees = User::query()
+            ->with('statusKepegawaian')
+            ->whereIn('id', $validated['employee_ids'])
             ->where('role', 'tenaga_pendidik')
             ->where('madrasah_id', $madrasahId)
-            ->firstOrFail();
+            ->orderBy('name')
+            ->get()
+            ->keyBy('id');
 
-        $openRequestExists = SkYayasanRequest::query()
-            ->where('employee_id', $employee->id)
-            ->whereIn('current_status', ['submitted', 'reviewed', 'approved'])
-            ->exists();
-
-        if ($openRequestExists) {
+        if ($employees->count() !== count($validated['employee_ids'])) {
             return back()
-                ->withErrors(['employee_id' => 'Pegawai atau guru ini masih memiliki pengajuan SK Yayasan yang belum selesai.'])
+                ->withErrors(['employee_ids' => 'Sebagian pegawai yang dipilih tidak valid untuk sekolah ini.'])
                 ->withInput();
         }
 
-        SkYayasanRequest::create([
-            'madrasah_id' => $madrasahId,
-            'employee_id' => $employee->id,
-            'submitted_by' => $user->id,
-            'request_number' => $this->generateRequestNumber(),
-            'request_type' => 'perpanjangan',
-            'employment_category' => $employee->statusKepegawaian?->name ?? $employee->ketugasan,
-            'effective_start_date' => $validated['effective_start_date'],
-            'effective_end_date' => $validated['effective_end_date'],
-            'current_status' => 'submitted',
-            'submission_notes' => $validated['submission_notes'] ?? null,
-            'submitted_at' => now(),
-        ]);
+        $openRequestEmployeeIds = SkYayasanRequest::query()
+            ->whereIn('employee_id', $employees->keys())
+            ->whereIn('current_status', ['submitted', 'reviewed', 'approved'])
+            ->pluck('employee_id')
+            ->all();
 
-        return back()->with('success', 'Pengajuan perpanjangan SK berhasil dikirim ke Yayasan.');
+        $createdCount = 0;
+        $skippedEmployees = [];
+
+        DB::transaction(function () use ($employees, $openRequestEmployeeIds, $validated, $madrasahId, $user, &$createdCount, &$skippedEmployees) {
+            foreach ($employees as $employee) {
+                if (in_array($employee->id, $openRequestEmployeeIds, true)) {
+                    $skippedEmployees[] = $employee->name;
+                    continue;
+                }
+
+                SkYayasanRequest::create([
+                    'madrasah_id' => $madrasahId,
+                    'employee_id' => $employee->id,
+                    'submitted_by' => $user->id,
+                    'request_number' => $this->generateRequestNumber(),
+                    'request_type' => 'perpanjangan',
+                    'employment_category' => $employee->statusKepegawaian?->name ?? $employee->ketugasan,
+                    'effective_start_date' => $validated['effective_start_date'],
+                    'effective_end_date' => $validated['effective_end_date'],
+                    'current_status' => 'submitted',
+                    'submission_notes' => $validated['submission_notes'] ?? null,
+                    'submitted_at' => now(),
+                ]);
+
+                $createdCount++;
+            }
+        });
+
+        if ($createdCount === 0) {
+            return back()
+                ->withErrors([
+                    'employee_ids' => 'Semua pegawai yang dipilih masih memiliki pengajuan SK Yayasan yang belum selesai: ' . implode(', ', $skippedEmployees) . '.',
+                ])
+                ->withInput();
+        }
+
+        $message = $createdCount . ' pengajuan perpanjangan SK berhasil dikirim ke Yayasan.';
+
+        if (!empty($skippedEmployees)) {
+            $message .= ' Pegawai yang dilewati karena masih memiliki pengajuan aktif: ' . implode(', ', $skippedEmployees) . '.';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function superAdminPengajuan(Request $request): View

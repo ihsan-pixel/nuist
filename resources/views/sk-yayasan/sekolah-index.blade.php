@@ -2,6 +2,10 @@
 
 @section('title')Perpanjangan SK Yayasan @endsection
 
+@section('css')
+<link href="{{ asset('build/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
+@endsection
+
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1') SK Yayasan @endslot
@@ -73,15 +77,18 @@
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Guru/Pegawai</label>
-                            <select name="employee_id" class="form-select" required>
-                                <option value="">Pilih pegawai</option>
+                            <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
                                 @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}" @selected(old('employee_id') == $employee->id)>
+                                    <option value="{{ $employee->id }}" @selected(in_array($employee->id, old('employee_ids', [])))>
                                         {{ $employee->name }} - {{ $employee->statusKepegawaian?->name ?? ($employee->ketugasan ?? '-') }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('employee_id')
+                            <small class="text-muted">Bisa pilih lebih dari satu pegawai sekaligus.</small>
+                            @error('employee_ids')
+                                <small class="text-danger d-block">{{ $message }}</small>
+                            @enderror
+                            @error('employee_ids.*')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
@@ -217,4 +224,17 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script src="{{ asset('build/libs/select2/js/select2.min.js') }}"></script>
+<script>
+    $(document).ready(function () {
+        $('.select2-pegawai').select2({
+            width: '100%',
+            placeholder: $('.select2-pegawai').data('placeholder'),
+            closeOnSelect: false
+        });
+    });
+</script>
 @endsection
