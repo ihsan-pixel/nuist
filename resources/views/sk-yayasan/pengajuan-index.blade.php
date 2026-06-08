@@ -10,6 +10,28 @@
 
 @include('sk-yayasan.partials.ui-styles')
 
+@php
+    $importPreviewFieldMap = [
+        'No' => 'excel_no',
+        'NUIST ID' => 'source_nuist_id',
+        'Nama' => 'source_nama',
+        'Gelar' => 'source_gelar',
+        'Tempat Lahir' => 'source_tempat_lahir',
+        'Tanggal Lahir' => 'source_tanggal_lahir',
+        "NIP Ma'arif" => 'source_nip_maarif',
+        'NUPTK' => 'source_nuptk',
+        'Nomor Kartanu' => 'source_nomor_kartanu',
+        'TMT Pertama' => 'source_tmt_pertama',
+        'Masa Kerja' => 'source_masa_kerja',
+        'Pendidikan Terakhir' => 'source_pendidikan_terakhir',
+        'Tahun Lulus' => 'source_tahun_lulus',
+        'Program Studi' => 'source_program_studi',
+        'Mapel/Tugas yang Diampu' => 'source_mapel_tugas',
+        'Penilaian Kinerja' => 'source_penilaian_kinerja',
+        'Keterangan' => 'source_keterangan',
+    ];
+@endphp
+
 <div class="sky-page">
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -115,66 +137,6 @@
                                         </button>
                                     </td>
                                 </tr>
-
-                                <div class="modal fade" id="reviewModal{{ $submission->id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <form method="POST" action="{{ route('sk-yayasan.pengajuan.update-status', $submission) }}" class="modal-content">
-                                            @csrf
-                                            @method('PATCH')
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Review Pengajuan {{ $submission->request_number }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="row g-3 mb-3">
-                                                    <div class="col-md-4">
-                                                        <div class="sky-soft-card p-3 h-100">
-                                                            <div class="sky-panel-label mb-1">Sekolah</div>
-                                                            <div class="fw-semibold">{{ $submission->madrasah?->name ?? '-' }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <div class="sky-soft-card p-3 h-100">
-                                                            <div class="sky-panel-label mb-1">Pegawai/Guru</div>
-                                                            <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <div class="sky-soft-card p-3 h-100">
-                                                            <div class="sky-panel-label mb-1">Status Kepegawaian</div>
-                                                            <div class="fw-semibold">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Status</label>
-                                                    <select name="current_status" class="form-select" required>
-                                                        <option value="reviewed" @selected($submission->current_status === 'reviewed')>Direview</option>
-                                                        <option value="approved" @selected($submission->current_status === 'approved')>Setujui</option>
-                                                        <option value="rejected" @selected($submission->current_status === 'rejected')>Tolak</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Template Rekomendasi</label>
-                                                    <select name="template_id" class="form-select">
-                                                        <option value="">Belum dipilih</option>
-                                                        @foreach($templates as $template)
-                                                            <option value="{{ $template->id }}" @selected($submission->template_id == $template->id)>{{ $template->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="mb-0">
-                                                    <label class="form-label">Catatan Review</label>
-                                                    <textarea name="review_notes" rows="4" class="form-control">{{ $submission->review_notes }}</textarea>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-primary">Simpan Review</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
                             @endforeach
                         </tbody>
                     </table>
@@ -256,7 +218,7 @@
                                         <small class="text-muted">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') }}</small>
                                     </td>
                                     <td>
-                                        <div>{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</div>
+                                        <div class="fw-semibold">{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</div>
                                         <small class="text-muted">
                                             {{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}
                                         </small>
@@ -266,174 +228,10 @@
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
-                                            Review Batch
+                                            Lihat Review
                                         </button>
                                     </td>
                                 </tr>
-
-                                <div class="modal fade" id="importBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-xl">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Review Batch Import #{{ $batch->id }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="row g-3 mb-3">
-                                                    <div class="col-md-3">
-                                                        <div class="sky-soft-card p-3 h-100">
-                                                            <div class="sky-panel-label mb-1">Sekolah</div>
-                                                            <div class="fw-semibold">{{ $batch->madrasah?->name ?? '-' }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="sky-soft-card p-3 h-100">
-                                                            <div class="sky-panel-label mb-1">Upload Oleh</div>
-                                                            <div class="fw-semibold">{{ $batch->uploader?->name ?? '-' }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="sky-soft-card p-3 h-100">
-                                                            <div class="sky-panel-label mb-1">Baris Valid</div>
-                                                            <div class="fw-semibold">{{ $batch->valid_rows }}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <div class="sky-soft-card p-3 h-100">
-                                                            <div class="sky-panel-label mb-1">Baris Salah</div>
-                                                            <div class="fw-semibold">{{ $batch->invalid_rows }}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                @if(!$batch->headings_valid)
-                                                    <div class="alert alert-danger">
-                                                        Format kolom file belum sesuai template.
-                                                        @if(!empty($batch->missing_headings))
-                                                            <div>Kolom kurang: {{ implode(', ', $batch->missing_headings) }}</div>
-                                                        @endif
-                                                        @if(!empty($batch->unexpected_headings))
-                                                            <div>Kolom tidak dikenali: {{ implode(', ', $batch->unexpected_headings) }}</div>
-                                                        @endif
-                                                    </div>
-                                                @endif
-
-                                                @if($batch->review_notes)
-                                                    <div class="alert alert-secondary">
-                                                        <strong>Catatan Review:</strong> {{ $batch->review_notes }}
-                                                    </div>
-                                                @endif
-
-                                                <div class="table-responsive" style="max-height: 420px;">
-                                                    <table class="table table-sm align-middle">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Baris Excel</th>
-                                                                @foreach($importPreviewColumns as $column)
-                                                                    <th>{{ $column }}</th>
-                                                                @endforeach
-                                                                <th>Match User</th>
-                                                                <th>Status</th>
-                                                                <th>Keterangan Review</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach($batch->rows as $row)
-                                                                <tr>
-                                                                    <td>{{ $row->row_number ?? '-' }}</td>
-                                                                    @foreach($importPreviewColumns as $column)
-                                                                        <td>
-                                                                            @switch($column)
-                                                                                @case('No')
-                                                                                    {{ $row->excel_no ?? '-' }}
-                                                                                    @break
-                                                                                @case('NUIST ID')
-                                                                                    {{ $row->source_nuist_id ?? '-' }}
-                                                                                    @break
-                                                                                @case('Nama')
-                                                                                    {{ $row->source_nama ?? '-' }}
-                                                                                    @break
-                                                                                @case('Gelar')
-                                                                                    {{ $row->source_gelar ?? '-' }}
-                                                                                    @break
-                                                                                @case('Tempat Lahir')
-                                                                                    {{ $row->source_tempat_lahir ?? '-' }}
-                                                                                    @break
-                                                                                @case('Tanggal Lahir')
-                                                                                    {{ $row->source_tanggal_lahir ?? '-' }}
-                                                                                    @break
-                                                                                @case("NIP Ma'arif")
-                                                                                    {{ $row->source_nip_maarif ?? '-' }}
-                                                                                    @break
-                                                                                @case('NUPTK')
-                                                                                    {{ $row->source_nuptk ?? '-' }}
-                                                                                    @break
-                                                                                @case('Nomor Kartanu')
-                                                                                    {{ $row->source_nomor_kartanu ?? '-' }}
-                                                                                    @break
-                                                                                @case('TMT Pertama')
-                                                                                    {{ $row->source_tmt_pertama ?? '-' }}
-                                                                                    @break
-                                                                                @case('Masa Kerja')
-                                                                                    {{ $row->source_masa_kerja ?? '-' }}
-                                                                                    @break
-                                                                                @case('Pendidikan Terakhir')
-                                                                                    {{ $row->source_pendidikan_terakhir ?? '-' }}
-                                                                                    @break
-                                                                                @case('Tahun Lulus')
-                                                                                    {{ $row->source_tahun_lulus ?? '-' }}
-                                                                                    @break
-                                                                                @case('Program Studi')
-                                                                                    {{ $row->source_program_studi ?? '-' }}
-                                                                                    @break
-                                                                                @case('Mapel/Tugas yang Diampu')
-                                                                                    {{ $row->source_mapel_tugas ?? '-' }}
-                                                                                    @break
-                                                                                @case('Penilaian Kinerja')
-                                                                                    {{ $row->source_penilaian_kinerja ?? '-' }}
-                                                                                    @break
-                                                                                @case('Keterangan')
-                                                                                    {{ $row->source_keterangan ?? '-' }}
-                                                                                    @break
-                                                                                @default
-                                                                                    -
-                                                                            @endswitch
-                                                                        </td>
-                                                                    @endforeach
-                                                                    <td>{{ $row->matched_name ?? '-' }}</td>
-                                                                    <td>
-                                                                        <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
-                                                                            {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td>{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap disinkronkan.' }}</td>
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                @if($batch->status === 'pending_review')
-                                                    <form method="POST" action="{{ route('sk-yayasan.import-batches.review', $batch) }}" class="w-100">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Catatan Review</label>
-                                                            <textarea name="review_notes" rows="3" class="form-control" placeholder="Isi catatan untuk admin sekolah bila perlu."></textarea>
-                                                        </div>
-                                                        <div class="d-flex flex-wrap justify-content-end gap-2">
-                                                            <button type="submit" name="action" value="reject" class="btn btn-outline-danger">Tolak Batch</button>
-                                                            <button type="submit" name="action" value="sync" class="btn btn-primary" @disabled(!$batch->headings_valid || $batch->invalid_rows > 0)>Sinkronkan ke Database</button>
-                                                        </div>
-                                                    </form>
-                                                @else
-                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             @endforeach
                         </tbody>
                     </table>
@@ -453,5 +251,192 @@
             </div>
         @endif
     </div>
+
+    @foreach($submissions as $submission)
+        <div class="modal fade" id="reviewModal{{ $submission->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <form method="POST" action="{{ route('sk-yayasan.pengajuan.update-status', $submission) }}" class="modal-content">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Review Pengajuan {{ $submission->request_number }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <div class="sky-soft-card p-3 h-100">
+                                    <div class="sky-panel-label mb-1">Sekolah</div>
+                                    <div class="fw-semibold">{{ $submission->madrasah?->name ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="sky-soft-card p-3 h-100">
+                                    <div class="sky-panel-label mb-1">Pegawai/Guru</div>
+                                    <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="sky-soft-card p-3 h-100">
+                                    <div class="sky-panel-label mb-1">Status Kepegawaian</div>
+                                    <div class="fw-semibold">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="current_status" class="form-select" required>
+                                <option value="reviewed" @selected($submission->current_status === 'reviewed')>Direview</option>
+                                <option value="approved" @selected($submission->current_status === 'approved')>Setujui</option>
+                                <option value="rejected" @selected($submission->current_status === 'rejected')>Tolak</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Template Rekomendasi</label>
+                            <select name="template_id" class="form-select">
+                                <option value="">Belum dipilih</option>
+                                @foreach($templates as $template)
+                                    <option value="{{ $template->id }}" @selected($submission->template_id == $template->id)>{{ $template->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Catatan Review</label>
+                            <textarea name="review_notes" rows="4" class="form-control">{{ $submission->review_notes }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endforeach
+
+    @foreach($importBatches as $batch)
+        @php
+            $batchBadge = $batch->status === 'synced'
+                ? ['bg' => 'success', 'label' => 'TERSINKRON']
+                : ($batch->status === 'rejected'
+                    ? ['bg' => 'danger', 'label' => 'DITOLAK']
+                    : ['bg' => 'warning', 'label' => 'PENDING REVIEW']);
+        @endphp
+        <div class="modal fade" id="importBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title mb-1">Review Batch Import #{{ $batch->id }}</h5>
+                            <div class="sky-file-meta">{{ $batch->original_filename }} - {{ $batch->madrasah?->name ?? '-' }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Uploader</div>
+                                    <div class="value">{{ $batch->uploader?->name ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Upload</div>
+                                    <div class="value">{{ optional($batch->uploaded_at)->format('d/m/Y') ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Valid</div>
+                                    <div class="value">{{ $batch->valid_rows }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Perlu Cek</div>
+                                    <div class="value">{{ $batch->invalid_rows }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                            <span class="badge bg-{{ $batchBadge['bg'] }}-subtle text-{{ $batchBadge['bg'] }}">{{ $batchBadge['label'] }}</span>
+                            <span class="sky-chip">{{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}</span>
+                        </div>
+
+                        @if(!$batch->headings_valid)
+                            <div class="alert alert-danger">
+                                Format kolom file belum sesuai template.
+                                @if(!empty($batch->missing_headings))
+                                    <div>Kolom kurang: {{ implode(', ', $batch->missing_headings) }}</div>
+                                @endif
+                                @if(!empty($batch->unexpected_headings))
+                                    <div>Kolom tidak dikenali: {{ implode(', ', $batch->unexpected_headings) }}</div>
+                                @endif
+                            </div>
+                        @endif
+
+                        @if($batch->review_notes)
+                            <div class="alert alert-secondary">
+                                <strong>Catatan Review:</strong> {{ $batch->review_notes }}
+                            </div>
+                        @endif
+
+                        <div class="sky-modal-table-wrap">
+                            <table class="table table-sm align-middle sky-compact-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Baris</th>
+                                        @foreach($importPreviewColumns as $column)
+                                            <th>{{ $column }}</th>
+                                        @endforeach
+                                        <th>Match User</th>
+                                        <th>Status</th>
+                                        <th class="wrap">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($batch->rows as $row)
+                                        <tr>
+                                            <td>{{ $row->row_number ?? '-' }}</td>
+                                            @foreach($importPreviewColumns as $column)
+                                                <td>{{ data_get($row, $importPreviewFieldMap[$column] ?? '', '-') ?: '-' }}</td>
+                                            @endforeach
+                                            <td>{{ $row->matched_name ?? '-' }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
+                                                    {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
+                                                </span>
+                                            </td>
+                                            <td class="wrap">{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap disinkronkan.' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        @if($batch->status === 'pending_review')
+                            <form method="POST" action="{{ route('sk-yayasan.import-batches.review', $batch) }}" class="w-100">
+                                @csrf
+                                @method('PATCH')
+                                <div class="mb-3">
+                                    <label class="form-label">Catatan Review</label>
+                                    <textarea name="review_notes" rows="3" class="form-control" placeholder="Isi catatan untuk admin sekolah bila perlu."></textarea>
+                                </div>
+                                <div class="d-flex flex-wrap justify-content-end gap-2">
+                                    <button type="submit" name="action" value="reject" class="btn btn-outline-danger">Tolak Batch</button>
+                                    <button type="submit" name="action" value="sync" class="btn btn-primary" @disabled(!$batch->headings_valid || $batch->invalid_rows > 0)>Sinkronkan ke Database</button>
+                                </div>
+                            </form>
+                        @else
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
 </div>
 @endsection

@@ -244,6 +244,52 @@
         padding: 7px 10px;
     }
 
+    .sky-compact-table thead th,
+    .sky-compact-table tbody td {
+        font-size: 12px;
+        padding: 10px 12px;
+        white-space: nowrap;
+    }
+
+    .sky-compact-table tbody td.wrap {
+        white-space: normal;
+    }
+
+    .sky-modal-table-wrap {
+        border: 1px solid var(--sky-line);
+        border-radius: 16px;
+        max-height: 420px;
+        overflow: auto;
+    }
+
+    .sky-mini-stat {
+        background: var(--sky-soft);
+        border: 1px solid var(--sky-line);
+        border-radius: 14px;
+        padding: 12px 14px;
+    }
+
+    .sky-mini-stat .value {
+        color: var(--sky-ink);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .sky-mini-stat .label {
+        color: var(--sky-muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+    }
+
+    .sky-file-meta {
+        color: var(--sky-muted);
+        font-size: 12px;
+    }
+
     .sky-metric {
         background: var(--sky-soft);
         border: 1px solid var(--sky-line);
