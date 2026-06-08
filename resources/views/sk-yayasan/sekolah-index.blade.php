@@ -85,15 +85,88 @@
                         </a>
                     </div>
 
-                    <form action="{{ route('sk-yayasan.sekolah.import') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('sk-yayasan.sekolah.check-import') }}" method="POST" enctype="multipart/form-data" class="mb-3">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">File Excel</label>
                             <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
                             <small class="text-muted">Format: XLSX, XLS, atau CSV.</small>
+                            @error('file')
+                                <small class="text-danger d-block">{{ $message }}</small>
+                            @enderror
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Upload dan Sinkronkan</button>
+                        <button type="submit" class="btn btn-outline-primary w-100">Cek Sinkronisasi</button>
                     </form>
+
+                    @if($importCheck)
+                        <div class="border rounded-3 p-3 bg-light-subtle">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <div>
+                                    <div class="fw-semibold">Hasil Cek File</div>
+                                    <small class="text-muted">{{ $importCheck['original_name'] ?? 'File import' }}</small>
+                                </div>
+                                <span class="badge bg-{{ ($importCheck['can_upload'] ?? false) ? 'success' : 'warning' }}-subtle text-{{ ($importCheck['can_upload'] ?? false) ? 'success' : 'warning' }}">
+                                    {{ ($importCheck['can_upload'] ?? false) ? 'Siap Upload' : 'Perlu Perbaikan' }}
+                                </span>
+                            </div>
+
+                            <div class="small mb-2">
+                                <div>Baris valid: <strong>{{ $importCheck['valid_count'] ?? 0 }}</strong></div>
+                                <div>Baris salah: <strong>{{ $importCheck['invalid_count'] ?? 0 }}</strong></div>
+                            </div>
+
+                            @if(!($importCheck['headings_valid'] ?? true))
+                                <div class="alert alert-danger py-2 px-3 small mb-2">
+                                    Format kolom tidak sesuai template.
+                                    @if(!empty($importCheck['missing_headings']))
+                                        <div>Kolom kurang: {{ implode(', ', $importCheck['missing_headings']) }}</div>
+                                    @endif
+                                    @if(!empty($importCheck['unexpected_headings']))
+                                        <div>Kolom tidak dikenali: {{ implode(', ', $importCheck['unexpected_headings']) }}</div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @if(!empty($importCheck['rows']))
+                                <div class="table-responsive mb-3" style="max-height: 280px;">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Baris</th>
+                                                <th>Nama File</th>
+                                                <th>Match User</th>
+                                                <th>Status</th>
+                                                <th>Keterangan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($importCheck['rows'] as $row)
+                                                <tr>
+                                                    <td>{{ $row['row_number'] }}</td>
+                                                    <td>{{ $row['source_name'] }}</td>
+                                                    <td>{{ $row['matched_name'] ?? '-' }}</td>
+                                                    <td>
+                                                        <span class="badge bg-{{ $row['is_valid'] ? 'success' : 'danger' }}-subtle text-{{ $row['is_valid'] ? 'success' : 'danger' }}">
+                                                            {{ $row['status_label'] }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ !empty($row['errors']) ? implode(' ', $row['errors']) : 'Data sesuai dan siap diupload.' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+
+                            <form action="{{ route('sk-yayasan.sekolah.import') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="import_token" value="{{ $importCheck['token'] }}">
+                                <button type="submit" class="btn btn-primary w-100" @disabled(!($importCheck['can_upload'] ?? false))>
+                                    Upload dan Sinkronkan
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -118,12 +191,17 @@
                             </div>
                             <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
                                 @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}" @selected(in_array($employee->id, old('employee_ids', [])))>
+                                    <option value="{{ $employee->id }}" @selected(in_array($employee->id, $autoSelectedEmployeeIds ?? []))>
                                         {{ $employee->name }} - {{ $employee->statusKepegawaian?->name ?? ($employee->ketugasan ?? '-') }}
                                     </option>
                                 @endforeach
                             </select>
-                            <small class="text-muted">Bisa pilih lebih dari satu pegawai sekaligus.</small>
+                            <small class="text-muted">
+                                Bisa pilih lebih dari satu pegawai sekaligus.
+                                @if(!empty($autoSelectedEmployeeIds))
+                                    Data hasil import terakhir sudah dipilih otomatis.
+                                @endif
+                            </small>
                             @error('employee_ids')
                                 <small class="text-danger d-block">{{ $message }}</small>
                             @enderror

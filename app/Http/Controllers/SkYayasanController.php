@@ -10,11 +10,15 @@ use App\Models\SkYayasanRequest;
 use App\Models\SkYayasanTemplate;
 use App\Models\User;
 use App\Models\Yayasan;
+use App\Support\SkYayasanImportSynchronizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
@@ -96,6 +100,8 @@ class SkYayasanController extends Controller
             'submissions' => $submissions,
             'employees' => $employees,
             'statusCounts' => $statusCounts,
+            'importCheck' => session('sk_yayasan_import_check'),
+            'autoSelectedEmployeeIds' => old('employee_ids', session('sk_yayasan_imported_employee_ids', [])),
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee'])
                 ->whereHas('request', fn ($query) => $query->where('madrasah_id', $madrasahId))
@@ -113,7 +119,7 @@ class SkYayasanController extends Controller
         return Excel::download(new SkYayasanUserImportTemplateExport(), 'template-import-sk-yayasan.xlsx');
     }
 
-    public function importSchoolUsers(Request $request): RedirectResponse
+    public function checkSchoolImport(Request $request): RedirectResponse
     {
         $user = $this->ensureSchoolAdmin();
 
@@ -121,19 +127,84 @@ class SkYayasanController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
         ]);
 
+        $this->forgetPreviousImportCheck();
+
+        $storedPath = $request->file('file')->store('tmp/sk-yayasan-import');
+        $sheetReader = new class {
+            use Importable;
+        };
+        $sheet = $sheetReader->toArray($request->file('file'));
+        $synchronizer = new SkYayasanImportSynchronizer((int) $user->madrasah_id);
+        $report = $synchronizer->inspectSheet($sheet[0] ?? []);
+        $token = (string) Str::uuid();
+
+        session()->put('sk_yayasan_import_check', [
+            'token' => $token,
+            'path' => $storedPath,
+            'original_name' => $request->file('file')->getClientOriginalName(),
+            'headings_valid' => $report['headings_valid'],
+            'missing_headings' => $report['missing_headings'],
+            'unexpected_headings' => $report['unexpected_headings'],
+            'rows' => $report['rows'],
+            'valid_count' => $report['valid_count'],
+            'invalid_count' => $report['invalid_count'],
+            'valid_user_ids' => $report['valid_user_ids'],
+            'can_upload' => $report['can_upload'],
+        ]);
+
+        if (!$report['headings_valid']) {
+            return back()->with('error', 'Format kolom file belum sesuai template. Perbaiki file terlebih dahulu.');
+        }
+
+        if (!$report['can_upload']) {
+            return back()->with('error', 'Cek sinkronisasi selesai. Masih ada baris yang salah, jadi upload belum bisa dilakukan.');
+        }
+
+        return back()->with('success', 'Cek sinkronisasi berhasil. File valid dan siap di-upload.');
+    }
+
+    public function importSchoolUsers(Request $request): RedirectResponse
+    {
+        $user = $this->ensureSchoolAdmin();
+
+        $validated = $request->validate([
+            'import_token' => ['required', 'string'],
+        ]);
+
+        $checkSession = session('sk_yayasan_import_check');
+
+        if (!$checkSession || ($checkSession['token'] ?? null) !== $validated['import_token']) {
+            return back()->with('error', 'Sesi cek sinkronisasi sudah tidak valid. Silakan cek file lagi sebelum upload.');
+        }
+
+        if (!($checkSession['can_upload'] ?? false)) {
+            return back()->with('error', 'File masih memiliki kesalahan. Upload ditolak sampai semua baris valid.');
+        }
+
+        $filePath = $checkSession['path'] ?? null;
+
+        if (!$filePath || !Storage::exists($filePath)) {
+            return back()->with('error', 'File sementara untuk sinkronisasi tidak ditemukan. Silakan cek ulang file.');
+        }
+
         $import = new SkYayasanUserUpdateImport((int) $user->madrasah_id);
 
-        DB::transaction(function () use ($request, $import) {
-            Excel::import($import, $request->file('file'));
+        DB::transaction(function () use ($filePath, $import) {
+            Excel::import($import, Storage::path($filePath));
         });
 
-        $message = "Import sinkronisasi selesai. {$import->updated} data pegawai diperbarui, {$import->notFound} baris tidak ditemukan di database users, {$import->skipped} baris dilewati.";
+        Storage::delete($filePath);
+        session()->forget('sk_yayasan_import_check');
+
+        $message = "Import sinkronisasi selesai. {$import->updated} data pegawai diperbarui, {$import->skipped} baris dilewati.";
 
         if (!empty($import->errors)) {
             $message .= ' Detail: ' . implode(' | ', array_slice($import->errors, 0, 5));
         }
 
-        return back()->with('success', $message);
+        return back()
+            ->with('success', $message)
+            ->with('sk_yayasan_imported_employee_ids', $import->matchedUserIds);
     }
 
     public function storeSchoolSubmission(Request $request): RedirectResponse
@@ -483,6 +554,17 @@ class SkYayasanController extends Controller
             403,
             'Unauthorized access'
         );
+    }
+
+    private function forgetPreviousImportCheck(): void
+    {
+        $previousCheck = session('sk_yayasan_import_check');
+
+        if (!empty($previousCheck['path']) && Storage::exists($previousCheck['path'])) {
+            Storage::delete($previousCheck['path']);
+        }
+
+        session()->forget('sk_yayasan_import_check');
     }
 
     private function generateRequestNumber(): string
