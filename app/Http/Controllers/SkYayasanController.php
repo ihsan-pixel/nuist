@@ -15,7 +15,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Facades\Excel;
@@ -140,29 +139,64 @@ class SkYayasanController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
         ]);
 
-        $storedPath = $request->file('file')->store('sk-yayasan/imports');
         $sheetReader = new class {
             use Importable;
         };
         $sheet = $sheetReader->toArray($request->file('file'));
         $synchronizer = new SkYayasanImportSynchronizer((int) $user->madrasah_id);
         $report = $synchronizer->inspectSheet($sheet[0] ?? []);
-        $batch = SkYayasanImportBatch::query()->create([
-            'madrasah_id' => (int) $user->madrasah_id,
-            'uploaded_by' => $user->id,
-            'status' => 'pending_review',
-            'original_filename' => $request->file('file')->getClientOriginalName(),
-            'stored_path' => $storedPath,
-            'total_rows' => count($report['rows']),
-            'valid_rows' => $report['valid_count'],
-            'invalid_rows' => $report['invalid_count'],
-            'headings_valid' => $report['headings_valid'],
-            'missing_headings' => $report['missing_headings'],
-            'unexpected_headings' => $report['unexpected_headings'],
-            'payload_rows' => $report['rows'],
-            'matched_user_ids' => $report['valid_user_ids'],
-            'uploaded_at' => now(),
-        ]);
+        $batch = DB::transaction(function () use ($request, $report, $user) {
+            $batch = SkYayasanImportBatch::query()->create([
+                'madrasah_id' => (int) $user->madrasah_id,
+                'uploaded_by' => $user->id,
+                'status' => 'pending_review',
+                'original_filename' => $request->file('file')->getClientOriginalName(),
+                'stored_path' => null,
+                'total_rows' => count($report['rows']),
+                'valid_rows' => $report['valid_count'],
+                'invalid_rows' => $report['invalid_count'],
+                'headings_valid' => $report['headings_valid'],
+                'missing_headings' => $report['missing_headings'],
+                'unexpected_headings' => $report['unexpected_headings'],
+                'payload_rows' => $report['rows'],
+                'matched_user_ids' => $report['valid_user_ids'],
+                'uploaded_at' => now(),
+            ]);
+
+            $batch->rows()->createMany(collect($report['rows'])->map(function (array $row) {
+                $sourceColumns = $row['source_columns'] ?? [];
+
+                return [
+                    'row_number' => $row['row_number'] ?? 0,
+                    'excel_no' => $sourceColumns['No'] ?? null,
+                    'source_nuist_id' => $sourceColumns['NUIST ID'] ?? null,
+                    'source_nama' => $sourceColumns['Nama'] ?? null,
+                    'source_gelar' => $sourceColumns['Gelar'] ?? null,
+                    'source_tempat_lahir' => $sourceColumns['Tempat Lahir'] ?? null,
+                    'source_tanggal_lahir' => $sourceColumns['Tanggal Lahir'] ?? null,
+                    'source_nip_maarif' => $sourceColumns["NIP Ma'arif"] ?? null,
+                    'source_nuptk' => $sourceColumns['NUPTK'] ?? null,
+                    'source_nomor_kartanu' => $sourceColumns['Nomor Kartanu'] ?? null,
+                    'source_tmt_pertama' => $sourceColumns['TMT Pertama'] ?? null,
+                    'source_masa_kerja' => $sourceColumns['Masa Kerja'] ?? null,
+                    'source_pendidikan_terakhir' => $sourceColumns['Pendidikan Terakhir'] ?? null,
+                    'source_tahun_lulus' => $sourceColumns['Tahun Lulus'] ?? null,
+                    'source_program_studi' => $sourceColumns['Program Studi'] ?? null,
+                    'source_mapel_tugas' => $sourceColumns['Mapel/Tugas yang Diampu'] ?? null,
+                    'source_penilaian_kinerja' => $sourceColumns['Penilaian Kinerja'] ?? null,
+                    'source_keterangan' => $sourceColumns['Keterangan'] ?? null,
+                    'matched_user_id' => $row['user_id'] ?? null,
+                    'matched_name' => $row['matched_name'] ?? null,
+                    'is_valid' => $row['is_valid'] ?? false,
+                    'status_label' => $row['status_label'] ?? null,
+                    'validation_errors' => $row['errors'] ?? [],
+                    'user_payload' => $row['user_payload'] ?? [],
+                    'sk_payload' => $row['sk_payload'] ?? [],
+                ];
+            })->all());
+
+            return $batch;
+        });
 
         $message = "File berhasil diupload untuk review super admin. Batch #{$batch->id} berisi {$batch->total_rows} baris, {$batch->valid_rows} valid, {$batch->invalid_rows} perlu perhatian.";
 
@@ -205,7 +239,8 @@ class SkYayasanController extends Controller
             return back()->with('error', 'Batch import belum valid untuk disinkronkan. Tolak dulu lalu minta admin sekolah memperbaiki file.');
         }
 
-        $payloadRows = collect($batch->payload_rows ?? []);
+        $batch->loadMissing('rows');
+        $payloadRows = $batch->rows;
 
         if ($payloadRows->isEmpty()) {
             return back()->with('error', 'Batch import tidak memiliki data yang bisa disinkronkan.');
@@ -216,8 +251,8 @@ class SkYayasanController extends Controller
         $unchanged = 0;
 
         DB::transaction(function () use ($payloadRows, $synchronizer, &$updated, &$unchanged, $batch, $validated) {
-            $payloadRows->each(function (array $row) use ($synchronizer, &$updated, &$unchanged) {
-                $userId = $row['user_id'] ?? null;
+            $payloadRows->each(function ($row) use ($synchronizer, &$updated, &$unchanged) {
+                $userId = $row->matched_user_id;
                 $user = $userId ? User::query()->find($userId) : null;
 
                 if (!$user) {
@@ -227,8 +262,8 @@ class SkYayasanController extends Controller
 
                 $hasChanges = $synchronizer->syncRow(
                     $user,
-                    $row['user_payload'] ?? [],
-                    $row['sk_payload'] ?? []
+                    $row->user_payload ?? [],
+                    $row->sk_payload ?? []
                 );
 
                 if ($hasChanges) {
@@ -247,10 +282,6 @@ class SkYayasanController extends Controller
                 'synced_at' => now(),
             ]);
         });
-
-        if (!empty($batch->stored_path) && Storage::exists($batch->stored_path)) {
-            Storage::delete($batch->stored_path);
-        }
 
         return back()->with('success', "Batch import berhasil disinkronkan. {$updated} data diperbarui, {$unchanged} baris tidak mengubah data.");
     }
@@ -349,7 +380,7 @@ class SkYayasanController extends Controller
             ->withQueryString();
 
         $importBatches = SkYayasanImportBatch::query()
-            ->with(['madrasah', 'uploader', 'reviewer'])
+            ->with(['madrasah', 'uploader', 'reviewer', 'rows'])
             ->when($request->filled('import_status'), fn ($query) => $query->where('status', $request->string('import_status')->toString()))
             ->latest('uploaded_at')
             ->paginate(10, ['*'], 'import_page')

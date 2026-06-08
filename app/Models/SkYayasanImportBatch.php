@@ -55,4 +55,9 @@ class SkYayasanImportBatch extends Model
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }
+
+    public function rows()
+    {
+        return $this->hasMany(SkYayasanImportRow::class, 'batch_id')->orderBy('row_number');
+    }
 }

@@ -338,19 +338,75 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @foreach($batch->payload_rows ?? [] as $row)
+                                                            @foreach($batch->rows as $row)
                                                                 <tr>
-                                                                    <td>{{ $row['row_number'] ?? '-' }}</td>
+                                                                    <td>{{ $row->row_number ?? '-' }}</td>
                                                                     @foreach($importPreviewColumns as $column)
-                                                                        <td>{{ $row['source_columns'][$column] ?? '-' }}</td>
+                                                                        <td>
+                                                                            @switch($column)
+                                                                                @case('No')
+                                                                                    {{ $row->excel_no ?? '-' }}
+                                                                                    @break
+                                                                                @case('NUIST ID')
+                                                                                    {{ $row->source_nuist_id ?? '-' }}
+                                                                                    @break
+                                                                                @case('Nama')
+                                                                                    {{ $row->source_nama ?? '-' }}
+                                                                                    @break
+                                                                                @case('Gelar')
+                                                                                    {{ $row->source_gelar ?? '-' }}
+                                                                                    @break
+                                                                                @case('Tempat Lahir')
+                                                                                    {{ $row->source_tempat_lahir ?? '-' }}
+                                                                                    @break
+                                                                                @case('Tanggal Lahir')
+                                                                                    {{ $row->source_tanggal_lahir ?? '-' }}
+                                                                                    @break
+                                                                                @case("NIP Ma'arif")
+                                                                                    {{ $row->source_nip_maarif ?? '-' }}
+                                                                                    @break
+                                                                                @case('NUPTK')
+                                                                                    {{ $row->source_nuptk ?? '-' }}
+                                                                                    @break
+                                                                                @case('Nomor Kartanu')
+                                                                                    {{ $row->source_nomor_kartanu ?? '-' }}
+                                                                                    @break
+                                                                                @case('TMT Pertama')
+                                                                                    {{ $row->source_tmt_pertama ?? '-' }}
+                                                                                    @break
+                                                                                @case('Masa Kerja')
+                                                                                    {{ $row->source_masa_kerja ?? '-' }}
+                                                                                    @break
+                                                                                @case('Pendidikan Terakhir')
+                                                                                    {{ $row->source_pendidikan_terakhir ?? '-' }}
+                                                                                    @break
+                                                                                @case('Tahun Lulus')
+                                                                                    {{ $row->source_tahun_lulus ?? '-' }}
+                                                                                    @break
+                                                                                @case('Program Studi')
+                                                                                    {{ $row->source_program_studi ?? '-' }}
+                                                                                    @break
+                                                                                @case('Mapel/Tugas yang Diampu')
+                                                                                    {{ $row->source_mapel_tugas ?? '-' }}
+                                                                                    @break
+                                                                                @case('Penilaian Kinerja')
+                                                                                    {{ $row->source_penilaian_kinerja ?? '-' }}
+                                                                                    @break
+                                                                                @case('Keterangan')
+                                                                                    {{ $row->source_keterangan ?? '-' }}
+                                                                                    @break
+                                                                                @default
+                                                                                    -
+                                                                            @endswitch
+                                                                        </td>
                                                                     @endforeach
-                                                                    <td>{{ $row['matched_name'] ?? '-' }}</td>
+                                                                    <td>{{ $row->matched_name ?? '-' }}</td>
                                                                     <td>
-                                                                        <span class="badge bg-{{ !empty($row['is_valid']) ? 'success' : 'danger' }}-subtle text-{{ !empty($row['is_valid']) ? 'success' : 'danger' }}">
-                                                                            {{ $row['status_label'] ?? (!empty($row['is_valid']) ? 'Siap sync' : 'Perlu perbaikan') }}
+                                                                        <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
+                                                                            {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
                                                                         </span>
                                                                     </td>
-                                                                    <td>{{ !empty($row['errors']) ? implode(' ', $row['errors']) : 'Data siap disinkronkan.' }}</td>
+                                                                    <td>{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap disinkronkan.' }}</td>
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>
