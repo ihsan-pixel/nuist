@@ -111,9 +111,6 @@ class SkYayasanController extends Controller
         $validated = $request->validate([
             'employee_ids' => ['required', 'array', 'min:1'],
             'employee_ids.*' => ['required', 'integer', 'distinct'],
-            'effective_start_date' => ['required', 'date'],
-            'effective_end_date' => ['required', 'date', 'after_or_equal:effective_start_date'],
-            'submission_notes' => ['nullable', 'string'],
         ]);
 
         $employees = User::query()
@@ -154,10 +151,7 @@ class SkYayasanController extends Controller
                     'request_number' => $this->generateRequestNumber(),
                     'request_type' => 'perpanjangan',
                     'employment_category' => $employee->statusKepegawaian?->name ?? $employee->ketugasan,
-                    'effective_start_date' => $validated['effective_start_date'],
-                    'effective_end_date' => $validated['effective_end_date'],
                     'current_status' => 'submitted',
-                    'submission_notes' => $validated['submission_notes'] ?? null,
                     'submitted_at' => now(),
                 ]);
 
@@ -496,13 +490,13 @@ class SkYayasanController extends Controller
             '{{nama_pegawai}}' => $employee->name ?? '-',
             '{{jabatan}}' => $employee->ketugasan ?? '-',
             '{{status_kepegawaian}}' => $employee->statusKepegawaian?->name ?? ($submission->employment_category ?? '-'),
-            '{{tanggal_mulai}}' => optional($submission->effective_start_date)->translatedFormat('d F Y') ?? '-',
-            '{{tanggal_selesai}}' => optional($submission->effective_end_date)->translatedFormat('d F Y') ?? '-',
+            '{{tanggal_mulai}}' => '',
+            '{{tanggal_selesai}}' => '',
             '{{tanggal_terbit}}' => $overrides['tanggal_terbit'] ?? now()->translatedFormat('d F Y'),
-            '{{tahun_sk}}' => optional($submission->effective_start_date)->format('Y') ?? now()->format('Y'),
+            '{{tahun_sk}}' => now()->format('Y'),
             '{{nama_penandatangan}}' => $overrides['nama_penandatangan'] ?? 'Ketua Yayasan',
             '{{jabatan_penandatangan}}' => $overrides['jabatan_penandatangan'] ?? 'Ketua Yayasan',
-            '{{catatan_pengajuan}}' => $submission->submission_notes ?: '-',
+            '{{catatan_pengajuan}}' => '',
             '{{catatan_penerbitan}}' => $overrides['catatan_penerbitan'] ?? '-',
         ];
 

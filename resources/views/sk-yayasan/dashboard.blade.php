@@ -104,8 +104,8 @@
                         <div class="small">
                             <code>{{ '{{nama_pegawai}}' }}</code>,
                             <code>{{ '{{nama_sekolah}}' }}</code>,
-                            <code>{{ '{{tanggal_mulai}}' }}</code>,
-                            <code>{{ '{{tanggal_selesai}}' }}</code>.
+                            <code>{{ '{{status_kepegawaian}}' }}</code>,
+                            <code>{{ '{{tanggal_terbit}}' }}</code>.
                         </div>
                     </div>
                 </div>

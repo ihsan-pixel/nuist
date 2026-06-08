@@ -18,18 +18,13 @@ class SkYayasanRequest extends Model
         'request_number',
         'request_type',
         'employment_category',
-        'effective_start_date',
-        'effective_end_date',
         'current_status',
-        'submission_notes',
         'review_notes',
         'submitted_at',
         'reviewed_at',
     ];
 
     protected $casts = [
-        'effective_start_date' => 'date',
-        'effective_end_date' => 'date',
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
     ];

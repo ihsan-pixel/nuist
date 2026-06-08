@@ -102,26 +102,6 @@
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Mulai Berlaku</label>
-                                <input type="date" name="effective_start_date" class="form-control" value="{{ old('effective_start_date') }}" required>
-                                @error('effective_start_date')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Selesai Berlaku</label>
-                                <input type="date" name="effective_end_date" class="form-control" value="{{ old('effective_end_date') }}" required>
-                                @error('effective_end_date')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Keterangan Pengajuan</label>
-                            <textarea name="submission_notes" rows="4" class="form-control" placeholder="Contoh: perpanjangan SK guru mapel IPS semester ganjil">{{ old('submission_notes') }}</textarea>
-                        </div>
                         <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
                     </form>
                 </div>
@@ -179,7 +159,6 @@
                                     <tr>
                                         <th>No Pengajuan</th>
                                         <th>Nama</th>
-                                        <th>Masa Berlaku</th>
                                         <th>Status</th>
                                         <th>Catatan Review</th>
                                         <th>Aksi</th>
@@ -192,11 +171,6 @@
                                             <td>
                                                 <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
                                                 <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</small>
-                                            </td>
-                                            <td>
-                                                {{ optional($submission->effective_start_date)->format('d/m/Y') }}
-                                                -
-                                                {{ optional($submission->effective_end_date)->format('d/m/Y') }}
                                             </td>
                                             <td>
                                                 <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ $submission->current_status }}</span>

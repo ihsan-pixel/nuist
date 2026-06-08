@@ -74,7 +74,6 @@
 <li>Nama: <strong>{{nama_pegawai}}</strong></li>
 <li>Jabatan: <strong>{{jabatan}}</strong></li>
 <li>Status Kepegawaian: <strong>{{status_kepegawaian}}</strong></li>
-<li>Masa berlaku SK: <strong>{{tanggal_mulai}}</strong> s.d. <strong>{{tanggal_selesai}}</strong></li>
 </ol>
 <p>SK ini diterbitkan untuk dipergunakan sebagaimana mestinya.</p>
 @endverbatim</textarea>
@@ -95,8 +94,8 @@
                     <div class="d-flex flex-wrap gap-2">
                         @foreach([
                             '{{nomor_sk}}', '{{judul_sk}}', '{{nama_yayasan}}', '{{nama_sekolah}}', '{{nama_pegawai}}',
-                            '{{jabatan}}', '{{status_kepegawaian}}', '{{tanggal_mulai}}', '{{tanggal_selesai}}',
-                            '{{tanggal_terbit}}', '{{nama_penandatangan}}', '{{jabatan_penandatangan}}', '{{catatan_pengajuan}}'
+                            '{{jabatan}}', '{{status_kepegawaian}}', '{{tanggal_terbit}}',
+                            '{{nama_penandatangan}}', '{{jabatan_penandatangan}}'
                         ] as $placeholder)
                             <span class="sky-chip">{{ $placeholder }}</span>
                         @endforeach

@@ -30,10 +30,7 @@ return new class extends Migration
             $table->string('request_number')->unique();
             $table->string('request_type')->default('perpanjangan');
             $table->string('employment_category')->nullable();
-            $table->date('effective_start_date');
-            $table->date('effective_end_date');
             $table->string('current_status')->default('submitted');
-            $table->text('submission_notes')->nullable();
             $table->text('review_notes')->nullable();
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('reviewed_at')->nullable();

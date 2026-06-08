@@ -85,7 +85,6 @@
                                 <th>No Pengajuan</th>
                                 <th>Sekolah</th>
                                 <th>Pegawai/Guru</th>
-                                <th>Masa Berlaku</th>
                                 <th>Status</th>
                                 <th>Dokumen</th>
                                 <th>Aksi Review</th>
@@ -99,11 +98,6 @@
                                     <td>
                                         <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
                                         <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</small>
-                                    </td>
-                                    <td>
-                                        {{ optional($submission->effective_start_date)->format('d/m/Y') }}
-                                        -
-                                        {{ optional($submission->effective_end_date)->format('d/m/Y') }}
                                     </td>
                                     <td>
                                         <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ $submission->current_status }}</span>
@@ -147,8 +141,8 @@
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="sky-soft-card p-3 h-100">
-                                                            <div class="sky-panel-label mb-1">Masa Berlaku</div>
-                                                            <div class="fw-semibold">{{ optional($submission->effective_start_date)->format('d/m/Y') }} - {{ optional($submission->effective_end_date)->format('d/m/Y') }}</div>
+                                                            <div class="sky-panel-label mb-1">Status Kepegawaian</div>
+                                                            <div class="fw-semibold">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -168,10 +162,6 @@
                                                             <option value="{{ $template->id }}" @selected($submission->template_id == $template->id)>{{ $template->name }}</option>
                                                         @endforeach
                                                     </select>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Catatan Pengajuan</label>
-                                                    <textarea class="form-control" rows="3" disabled>{{ $submission->submission_notes ?? '-' }}</textarea>
                                                 </div>
                                                 <div class="mb-0">
                                                     <label class="form-label">Catatan Review</label>

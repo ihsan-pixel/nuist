@@ -41,7 +41,7 @@
     <div class="meta">
         <div>Nama Sekolah: {{ $submission->madrasah?->name ?? '-' }}</div>
         <div>Nama Pegawai/Guru: {{ $submission->employee?->name ?? '-' }}</div>
-        <div>Masa Berlaku: {{ optional($submission->effective_start_date)->translatedFormat('d F Y') }} s.d. {{ optional($submission->effective_end_date)->translatedFormat('d F Y') }}</div>
+        <div>Status Kepegawaian: {{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employment_category ?? '-') }}</div>
     </div>
 
     <div class="content">
