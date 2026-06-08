@@ -86,7 +86,7 @@
 
                     <div class="d-grid gap-2 mb-3">
                         <a href="{{ route('sk-yayasan.sekolah.template-import') }}" class="btn btn-outline-primary">
-                            <i class="mdi mdi-file-excel-outline me-1"></i> Download Template Import
+                            <i class="mdi mdi-file-excel-outline me-1"></i> Download Template Import Data Tenaga Pendidik
                         </a>
                     </div>
 
