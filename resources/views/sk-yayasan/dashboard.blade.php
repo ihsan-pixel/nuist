@@ -60,6 +60,10 @@
         @endforeach
     </div>
 
+    <div class="alert alert-info mb-3">
+        <strong>Review import data:</strong> {{ $pendingImportBatches }} batch menunggu review super admin, {{ $rejectedImportBatches }} batch pernah ditolak dan menunggu perbaikan dari admin sekolah.
+    </div>
+
     <div class="row g-3">
         <div class="col-xl-4">
             <div class="card h-100 overflow-hidden">

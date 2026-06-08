@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SkYayasanUserImportTemplateExport;
-use App\Imports\SkYayasanUserUpdateImport;
 use App\Models\Madrasah;
 use App\Models\SkYayasanDocument;
+use App\Models\SkYayasanImportBatch;
 use App\Models\SkYayasanRequest;
 use App\Models\SkYayasanTemplate;
 use App\Models\User;
@@ -16,7 +16,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Facades\Excel;
@@ -61,6 +60,8 @@ class SkYayasanController extends Controller
             'documentCounts' => $documentCounts,
             'latestRequests' => $latestRequests,
             'schoolSummaries' => $schoolSummaries,
+            'pendingImportBatches' => SkYayasanImportBatch::query()->where('status', 'pending_review')->count(),
+            'rejectedImportBatches' => SkYayasanImportBatch::query()->where('status', 'rejected')->count(),
             'activeTemplates' => SkYayasanTemplate::query()->where('is_active', true)->count(),
             'publishedThisMonth' => SkYayasanDocument::query()
                 ->where('status', 'published')
@@ -96,12 +97,24 @@ class SkYayasanController extends Controller
             ->groupBy('current_status')
             ->pluck('total', 'current_status');
 
+        $latestSyncedImport = SkYayasanImportBatch::query()
+            ->where('madrasah_id', $madrasahId)
+            ->where('status', 'synced')
+            ->latest('synced_at')
+            ->first();
+
         return view('sk-yayasan.sekolah-index', [
             'submissions' => $submissions,
             'employees' => $employees,
             'statusCounts' => $statusCounts,
-            'importCheck' => session('sk_yayasan_import_check'),
-            'autoSelectedEmployeeIds' => old('employee_ids', session('sk_yayasan_imported_employee_ids', [])),
+            'importBatches' => SkYayasanImportBatch::query()
+                ->with(['reviewer'])
+                ->where('madrasah_id', $madrasahId)
+                ->latest('uploaded_at')
+                ->take(8)
+                ->get(),
+            'autoSelectedEmployeeIds' => old('employee_ids', $latestSyncedImport?->matched_user_ids ?? []),
+            'latestSyncedImport' => $latestSyncedImport,
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee'])
                 ->whereHas('request', fn ($query) => $query->where('madrasah_id', $madrasahId))
@@ -119,7 +132,7 @@ class SkYayasanController extends Controller
         return Excel::download(new SkYayasanUserImportTemplateExport(), 'template-import-sk-yayasan.xlsx');
     }
 
-    public function checkSchoolImport(Request $request): RedirectResponse
+    public function importSchoolUsers(Request $request): RedirectResponse
     {
         $user = $this->ensureSchoolAdmin();
 
@@ -127,84 +140,119 @@ class SkYayasanController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
         ]);
 
-        $this->forgetPreviousImportCheck();
-
-        $storedPath = $request->file('file')->store('tmp/sk-yayasan-import');
+        $storedPath = $request->file('file')->store('sk-yayasan/imports');
         $sheetReader = new class {
             use Importable;
         };
         $sheet = $sheetReader->toArray($request->file('file'));
         $synchronizer = new SkYayasanImportSynchronizer((int) $user->madrasah_id);
         $report = $synchronizer->inspectSheet($sheet[0] ?? []);
-        $token = (string) Str::uuid();
-
-        session()->put('sk_yayasan_import_check', [
-            'token' => $token,
-            'path' => $storedPath,
-            'original_name' => $request->file('file')->getClientOriginalName(),
+        $batch = SkYayasanImportBatch::query()->create([
+            'madrasah_id' => (int) $user->madrasah_id,
+            'uploaded_by' => $user->id,
+            'status' => 'pending_review',
+            'original_filename' => $request->file('file')->getClientOriginalName(),
+            'stored_path' => $storedPath,
+            'total_rows' => count($report['rows']),
+            'valid_rows' => $report['valid_count'],
+            'invalid_rows' => $report['invalid_count'],
             'headings_valid' => $report['headings_valid'],
             'missing_headings' => $report['missing_headings'],
             'unexpected_headings' => $report['unexpected_headings'],
-            'rows' => $report['rows'],
-            'valid_count' => $report['valid_count'],
-            'invalid_count' => $report['invalid_count'],
-            'valid_user_ids' => $report['valid_user_ids'],
-            'can_upload' => $report['can_upload'],
+            'payload_rows' => $report['rows'],
+            'matched_user_ids' => $report['valid_user_ids'],
+            'uploaded_at' => now(),
         ]);
+
+        $message = "File berhasil diupload untuk review super admin. Batch #{$batch->id} berisi {$batch->total_rows} baris, {$batch->valid_rows} valid, {$batch->invalid_rows} perlu perhatian.";
 
         if (!$report['headings_valid']) {
-            return back()->with('error', 'Format kolom file belum sesuai template. Perbaiki file terlebih dahulu.');
+            $message .= ' Format kolom belum sesuai template dan kemungkinan akan ditolak bila tidak diperbaiki.';
         }
 
-        if (!$report['can_upload']) {
-            return back()->with('error', 'Cek sinkronisasi selesai. Masih ada baris yang salah, jadi upload belum bisa dilakukan.');
+        if ($batch->invalid_rows > 0) {
+            $message .= ' Super admin dapat menolak batch ini dan meminta perbaikan.';
         }
 
-        return back()->with('success', 'Cek sinkronisasi berhasil. File valid dan siap di-upload.');
+        return back()->with('success', $message);
     }
 
-    public function importSchoolUsers(Request $request): RedirectResponse
+    public function reviewImportBatch(Request $request, SkYayasanImportBatch $batch): RedirectResponse
     {
-        $user = $this->ensureSchoolAdmin();
+        $this->ensureSuperAdmin();
 
         $validated = $request->validate([
-            'import_token' => ['required', 'string'],
+            'action' => ['required', 'in:sync,reject'],
+            'review_notes' => ['nullable', 'string'],
         ]);
 
-        $checkSession = session('sk_yayasan_import_check');
-
-        if (!$checkSession || ($checkSession['token'] ?? null) !== $validated['import_token']) {
-            return back()->with('error', 'Sesi cek sinkronisasi sudah tidak valid. Silakan cek file lagi sebelum upload.');
+        if ($batch->status !== 'pending_review') {
+            return back()->with('error', 'Batch import ini sudah diproses sebelumnya.');
         }
 
-        if (!($checkSession['can_upload'] ?? false)) {
-            return back()->with('error', 'File masih memiliki kesalahan. Upload ditolak sampai semua baris valid.');
+        if ($validated['action'] === 'reject') {
+            $batch->update([
+                'status' => 'rejected',
+                'reviewed_by' => auth()->id(),
+                'review_notes' => $validated['review_notes'] ?? null,
+                'reviewed_at' => now(),
+            ]);
+
+            return back()->with('success', 'Batch import ditolak. Admin sekolah dapat mengunggah perbaikan data.');
         }
 
-        $filePath = $checkSession['path'] ?? null;
-
-        if (!$filePath || !Storage::exists($filePath)) {
-            return back()->with('error', 'File sementara untuk sinkronisasi tidak ditemukan. Silakan cek ulang file.');
+        if (!$batch->headings_valid || $batch->invalid_rows > 0) {
+            return back()->with('error', 'Batch import belum valid untuk disinkronkan. Tolak dulu lalu minta admin sekolah memperbaiki file.');
         }
 
-        $import = new SkYayasanUserUpdateImport((int) $user->madrasah_id);
+        $payloadRows = collect($batch->payload_rows ?? []);
 
-        DB::transaction(function () use ($filePath, $import) {
-            Excel::import($import, Storage::path($filePath));
+        if ($payloadRows->isEmpty()) {
+            return back()->with('error', 'Batch import tidak memiliki data yang bisa disinkronkan.');
+        }
+
+        $synchronizer = new SkYayasanImportSynchronizer((int) $batch->madrasah_id);
+        $updated = 0;
+        $unchanged = 0;
+
+        DB::transaction(function () use ($payloadRows, $synchronizer, &$updated, &$unchanged, $batch, $validated) {
+            $payloadRows->each(function (array $row) use ($synchronizer, &$updated, &$unchanged) {
+                $userId = $row['user_id'] ?? null;
+                $user = $userId ? User::query()->find($userId) : null;
+
+                if (!$user) {
+                    $unchanged++;
+                    return;
+                }
+
+                $hasChanges = $synchronizer->syncRow(
+                    $user,
+                    $row['user_payload'] ?? [],
+                    $row['sk_payload'] ?? []
+                );
+
+                if ($hasChanges) {
+                    $updated++;
+                    return;
+                }
+
+                $unchanged++;
+            });
+
+            $batch->update([
+                'status' => 'synced',
+                'reviewed_by' => auth()->id(),
+                'review_notes' => $validated['review_notes'] ?? null,
+                'reviewed_at' => now(),
+                'synced_at' => now(),
+            ]);
         });
 
-        Storage::delete($filePath);
-        session()->forget('sk_yayasan_import_check');
-
-        $message = "Import sinkronisasi selesai. {$import->updated} data pegawai diperbarui, {$import->skipped} baris dilewati.";
-
-        if (!empty($import->errors)) {
-            $message .= ' Detail: ' . implode(' | ', array_slice($import->errors, 0, 5));
+        if (!empty($batch->stored_path) && Storage::exists($batch->stored_path)) {
+            Storage::delete($batch->stored_path);
         }
 
-        return back()
-            ->with('success', $message)
-            ->with('sk_yayasan_imported_employee_ids', $import->matchedUserIds);
+        return back()->with('success', "Batch import berhasil disinkronkan. {$updated} data diperbarui, {$unchanged} baris tidak mengubah data.");
     }
 
     public function storeSchoolSubmission(Request $request): RedirectResponse
@@ -300,8 +348,16 @@ class SkYayasanController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $importBatches = SkYayasanImportBatch::query()
+            ->with(['madrasah', 'uploader', 'reviewer'])
+            ->when($request->filled('import_status'), fn ($query) => $query->where('status', $request->string('import_status')->toString()))
+            ->latest('uploaded_at')
+            ->paginate(10, ['*'], 'import_page')
+            ->withQueryString();
+
         return view('sk-yayasan.pengajuan-index', [
             'submissions' => $submissions,
+            'importBatches' => $importBatches,
             'madrasahs' => Madrasah::query()->orderBy('name')->get(['id', 'name']),
             'templates' => SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get(),
         ]);
@@ -554,17 +610,6 @@ class SkYayasanController extends Controller
             403,
             'Unauthorized access'
         );
-    }
-
-    private function forgetPreviousImportCheck(): void
-    {
-        $previousCheck = session('sk_yayasan_import_check');
-
-        if (!empty($previousCheck['path']) && Storage::exists($previousCheck['path'])) {
-            Storage::delete($previousCheck['path']);
-        }
-
-        session()->forget('sk_yayasan_import_check');
     }
 
     private function generateRequestNumber(): string

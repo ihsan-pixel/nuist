@@ -637,6 +637,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::get('/dashboard', [SkYayasanController::class, 'dashboard'])->name('dashboard');
         Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan'])->name('pengajuan.index');
         Route::patch('/pengajuan/{submission}/status', [SkYayasanController::class, 'updateSubmissionStatus'])->name('pengajuan.update-status');
+        Route::patch('/import-batches/{batch}/review', [SkYayasanController::class, 'reviewImportBatch'])->name('import-batches.review');
         Route::get('/template', [SkYayasanController::class, 'templateIndex'])->name('template.index');
         Route::post('/template', [SkYayasanController::class, 'storeTemplate'])->name('template.store');
         Route::put('/template/{template}', [SkYayasanController::class, 'updateTemplate'])->name('template.update');
@@ -650,7 +651,6 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::get('/perpanjangan', [SkYayasanController::class, 'schoolIndex'])->name('sekolah.index');
         Route::post('/perpanjangan', [SkYayasanController::class, 'storeSchoolSubmission'])->name('sekolah.store');
         Route::get('/perpanjangan/template-import', [SkYayasanController::class, 'schoolImportTemplate'])->name('sekolah.template-import');
-        Route::post('/perpanjangan/check-import', [SkYayasanController::class, 'checkSchoolImport'])->name('sekolah.check-import');
         Route::post('/perpanjangan/import', [SkYayasanController::class, 'importSchoolUsers'])->name('sekolah.import');
     });
 });

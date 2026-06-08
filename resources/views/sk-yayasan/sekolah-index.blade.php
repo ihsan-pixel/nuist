@@ -71,13 +71,18 @@
             <div class="card">
                 <div class="card-body">
                     <div class="sky-panel-label mb-1">Import Sinkronisasi</div>
-                    <h6 class="mb-3">Sesuaikan data Guru & Pegawai dari file Excel</h6>
+                    <h6 class="mb-3">Upload data Guru & Pegawai untuk review Yayasan</h6>
                     <p class="text-muted small mb-3">
-                        Gunakan template, lalu upload file untuk memperbarui data user guru/pegawai yang sudah ada di sekolah ini.
+                        Gunakan template, lalu upload file. Data tidak langsung masuk ke database, tetapi menunggu review super admin lebih dulu.
                     </p>
                     <div class="alert alert-info py-2 px-3 small mb-3">
-                        Baris Excel yang tidak cocok dengan data <strong>users</strong> sekolah ini tidak akan ditambahkan sebagai user baru.
+                        Baris Excel yang tidak cocok dengan data <strong>users</strong> sekolah ini tidak akan menambah user baru. Super admin akan memutuskan batch ini disinkronkan atau ditolak.
                     </div>
+                    @if($latestSyncedImport)
+                        <div class="alert alert-success py-2 px-3 small mb-3">
+                            Sinkronisasi terakhir dari batch #{{ $latestSyncedImport->id }} sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari batch ini.
+                        </div>
+                    @endif
 
                     <div class="d-grid gap-2 mb-3">
                         <a href="{{ route('sk-yayasan.sekolah.template-import') }}" class="btn btn-outline-primary">
@@ -85,7 +90,7 @@
                         </a>
                     </div>
 
-                    <form action="{{ route('sk-yayasan.sekolah.check-import') }}" method="POST" enctype="multipart/form-data" class="mb-3">
+                    <form action="{{ route('sk-yayasan.sekolah.import') }}" method="POST" enctype="multipart/form-data" class="mb-3">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">File Excel</label>
@@ -95,76 +100,50 @@
                                 <small class="text-danger d-block">{{ $message }}</small>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-outline-primary w-100">Cek Sinkronisasi</button>
+                        <button type="submit" class="btn btn-primary w-100">Upload untuk Review Super Admin</button>
                     </form>
 
-                    @if($importCheck)
-                        <div class="border rounded-3 p-3 bg-light-subtle">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <div>
-                                    <div class="fw-semibold">Hasil Cek File</div>
-                                    <small class="text-muted">{{ $importCheck['original_name'] ?? 'File import' }}</small>
-                                </div>
-                                <span class="badge bg-{{ ($importCheck['can_upload'] ?? false) ? 'success' : 'warning' }}-subtle text-{{ ($importCheck['can_upload'] ?? false) ? 'success' : 'warning' }}">
-                                    {{ ($importCheck['can_upload'] ?? false) ? 'Siap Upload' : 'Perlu Perbaikan' }}
-                                </span>
-                            </div>
+                    @if($importBatches->isNotEmpty())
+                        <div class="border-top pt-3">
+                            <div class="sky-panel-label mb-1">Riwayat Upload</div>
+                            <h6 class="mb-3">Status review dan sinkronisasi file</h6>
 
-                            <div class="small mb-2">
-                                <div>Baris valid: <strong>{{ $importCheck['valid_count'] ?? 0 }}</strong></div>
-                                <div>Baris salah: <strong>{{ $importCheck['invalid_count'] ?? 0 }}</strong></div>
-                            </div>
+                            @foreach($importBatches as $batch)
+                                @php
+                                    $batchColor = $batch->status === 'synced' ? 'success' : ($batch->status === 'rejected' ? 'danger' : 'warning');
+                                @endphp
+                                <div class="sky-document-card mb-3">
+                                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
+                                        <div>
+                                            <div class="fw-semibold">Batch #{{ $batch->id }} - {{ $batch->original_filename }}</div>
+                                            <div class="sky-document-meta">
+                                                Upload {{ optional($batch->uploaded_at)->format('d/m/Y H:i') }} |
+                                                {{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} perlu cek
+                                            </div>
+                                        </div>
+                                        <span class="badge bg-{{ $batchColor }}-subtle text-{{ $batchColor }} text-uppercase">
+                                            {{ str_replace('_', ' ', $batch->status) }}
+                                        </span>
+                                    </div>
 
-                            @if(!($importCheck['headings_valid'] ?? true))
-                                <div class="alert alert-danger py-2 px-3 small mb-2">
-                                    Format kolom tidak sesuai template.
-                                    @if(!empty($importCheck['missing_headings']))
-                                        <div>Kolom kurang: {{ implode(', ', $importCheck['missing_headings']) }}</div>
+                                    @if(!$batch->headings_valid)
+                                        <div class="small text-danger mb-2">
+                                            Format kolom tidak sesuai template.
+                                            @if(!empty($batch->missing_headings))
+                                                Kolom kurang: {{ implode(', ', $batch->missing_headings) }}.
+                                            @endif
+                                        </div>
                                     @endif
-                                    @if(!empty($importCheck['unexpected_headings']))
-                                        <div>Kolom tidak dikenali: {{ implode(', ', $importCheck['unexpected_headings']) }}</div>
+
+                                    @if($batch->review_notes)
+                                        <div class="small mb-2"><strong>Catatan review:</strong> {{ $batch->review_notes }}</div>
+                                    @endif
+
+                                    @if($batch->reviewer)
+                                        <div class="small text-muted">Direview oleh {{ $batch->reviewer->name }} pada {{ optional($batch->reviewed_at)->format('d/m/Y H:i') }}</div>
                                     @endif
                                 </div>
-                            @endif
-
-                            @if(!empty($importCheck['rows']))
-                                <div class="table-responsive mb-3" style="max-height: 280px;">
-                                    <table class="table table-sm align-middle mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>Baris</th>
-                                                <th>Nama File</th>
-                                                <th>Match User</th>
-                                                <th>Status</th>
-                                                <th>Keterangan</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($importCheck['rows'] as $row)
-                                                <tr>
-                                                    <td>{{ $row['row_number'] }}</td>
-                                                    <td>{{ $row['source_name'] }}</td>
-                                                    <td>{{ $row['matched_name'] ?? '-' }}</td>
-                                                    <td>
-                                                        <span class="badge bg-{{ $row['is_valid'] ? 'success' : 'danger' }}-subtle text-{{ $row['is_valid'] ? 'success' : 'danger' }}">
-                                                            {{ $row['status_label'] }}
-                                                        </span>
-                                                    </td>
-                                                    <td>{{ !empty($row['errors']) ? implode(' ', $row['errors']) : 'Data sesuai dan siap diupload.' }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @endif
-
-                            <form action="{{ route('sk-yayasan.sekolah.import') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="import_token" value="{{ $importCheck['token'] }}">
-                                <button type="submit" class="btn btn-primary w-100" @disabled(!($importCheck['can_upload'] ?? false))>
-                                    Upload dan Sinkronkan
-                                </button>
-                            </form>
+                            @endforeach
                         </div>
                     @endif
                 </div>
