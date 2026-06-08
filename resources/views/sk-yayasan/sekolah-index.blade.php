@@ -71,15 +71,12 @@
             <div class="card">
                 <div class="card-body">
                     <div class="sky-panel-label mb-1">Import Sinkronisasi</div>
-                    <h6 class="mb-3">Perbarui data pegawai dari file Excel</h6>
+                    <h6 class="mb-3">Sesuaikan data Guru & Pegawai dari file Excel</h6>
                     <p class="text-muted small mb-3">
-                        Gunakan template resmi, lalu upload file untuk memperbarui data user guru/pegawai yang sudah ada di sekolah ini.
+                        Gunakan template, lalu upload file untuk memperbarui data user guru/pegawai yang sudah ada di sekolah ini.
                     </p>
                     <div class="alert alert-info py-2 px-3 small mb-3">
-                        Baris Excel yang tidak cocok dengan data <strong>users</strong> sekolah ini tidak akan ditambahkan sebagai user baru, hanya dilewati.
-                    </div>
-                    <div class="alert alert-light border py-2 px-3 small mb-3">
-                        Field <strong>Penilaian Kinerja</strong> dan <strong>Keterangan</strong> disimpan pada tabel data SK Yayasan terpisah agar tabel <strong>users</strong> tetap rapi.
+                        Baris Excel yang tidak cocok dengan data <strong>users</strong> sekolah ini tidak akan ditambahkan sebagai user baru.
                     </div>
 
                     <div class="d-grid gap-2 mb-3">
