@@ -41,7 +41,7 @@ class SkYayasanUserImportTemplateExport implements FromArray, WithHeadings, Shou
                 '',
                 'Sleman',
                 '04 Mei 1990',
-                "19900504-201507-401-697",
+                "19900504201507401697",
                 '718290171615',
                 '34072891.0001',
                 '01 Juli 2015',
