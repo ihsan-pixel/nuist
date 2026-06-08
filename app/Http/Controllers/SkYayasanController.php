@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Facades\Excel;
@@ -136,22 +137,32 @@ class SkYayasanController extends Controller
         $user = $this->ensureSchoolAdmin();
 
         $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+            'excel_file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+            'fakta_integritas_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx'],
+            'penilaian_perilaku_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx'],
         ]);
 
         $sheetReader = new class {
             use Importable;
         };
-        $sheet = $sheetReader->toArray($request->file('file'));
+        $sheet = $sheetReader->toArray($request->file('excel_file'));
         $synchronizer = new SkYayasanImportSynchronizer((int) $user->madrasah_id);
         $report = $synchronizer->inspectSheet($sheet[0] ?? []);
         $batch = DB::transaction(function () use ($request, $report, $user) {
+            $excelPath = $request->file('excel_file')->store('sk-yayasan/uploads/excel');
+            $faktaPath = $request->file('fakta_integritas_file')->store('sk-yayasan/uploads/fakta-integritas');
+            $penilaianPath = $request->file('penilaian_perilaku_file')->store('sk-yayasan/uploads/penilaian-perilaku');
+
             $batch = SkYayasanImportBatch::query()->create([
                 'madrasah_id' => (int) $user->madrasah_id,
                 'uploaded_by' => $user->id,
                 'status' => 'pending_review',
-                'original_filename' => $request->file('file')->getClientOriginalName(),
-                'stored_path' => null,
+                'original_filename' => $request->file('excel_file')->getClientOriginalName(),
+                'stored_path' => $excelPath,
+                'fakta_integritas_filename' => $request->file('fakta_integritas_file')->getClientOriginalName(),
+                'fakta_integritas_path' => $faktaPath,
+                'penilaian_perilaku_filename' => $request->file('penilaian_perilaku_file')->getClientOriginalName(),
+                'penilaian_perilaku_path' => $penilaianPath,
                 'total_rows' => count($report['rows']),
                 'valid_rows' => $report['valid_count'],
                 'invalid_rows' => $report['invalid_count'],
@@ -209,6 +220,34 @@ class SkYayasanController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    public function downloadImportBatchAttachment(SkYayasanImportBatch $batch, string $type)
+    {
+        $this->authorizeImportBatchAccess($batch);
+
+        $attachments = [
+            'excel' => [
+                'path' => $batch->stored_path,
+                'name' => $batch->original_filename,
+            ],
+            'fakta_integritas' => [
+                'path' => $batch->fakta_integritas_path,
+                'name' => $batch->fakta_integritas_filename,
+            ],
+            'penilaian_perilaku' => [
+                'path' => $batch->penilaian_perilaku_path,
+                'name' => $batch->penilaian_perilaku_filename,
+            ],
+        ];
+
+        abort_unless(isset($attachments[$type]), 404);
+
+        $attachment = $attachments[$type];
+
+        abort_unless(!empty($attachment['path']) && Storage::exists($attachment['path']), 404);
+
+        return response()->download(Storage::path($attachment['path']), $attachment['name'] ?: basename($attachment['path']));
     }
 
     public function reviewImportBatch(Request $request, SkYayasanImportBatch $batch): RedirectResponse
@@ -639,6 +678,21 @@ class SkYayasanController extends Controller
 
         abort_unless(
             $user->role === 'admin' && (int) $user->madrasah_id === (int) $document->request->madrasah_id,
+            403,
+            'Unauthorized access'
+        );
+    }
+
+    private function authorizeImportBatchAccess(SkYayasanImportBatch $batch): void
+    {
+        $user = auth()->user();
+
+        if ($user->role === 'super_admin') {
+            return;
+        }
+
+        abort_unless(
+            $user->role === 'admin' && (int) $user->madrasah_id === (int) $batch->madrasah_id,
             403,
             'Unauthorized access'
         );

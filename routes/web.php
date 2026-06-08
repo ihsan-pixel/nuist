@@ -632,6 +632,7 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
 
 Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(function () {
     Route::get('/dokumen/{document}/download', [SkYayasanController::class, 'downloadDocument'])->name('documents.download');
+    Route::get('/import-batches/{batch}/attachments/{type}', [SkYayasanController::class, 'downloadImportBatchAttachment'])->name('import-batches.attachments.download');
 
     Route::middleware(['role:super_admin'])->group(function () {
         Route::get('/dashboard', [SkYayasanController::class, 'dashboard'])->name('dashboard');

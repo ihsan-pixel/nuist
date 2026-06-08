@@ -365,6 +365,30 @@
                             <span class="sky-chip">{{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}</span>
                         </div>
 
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-4">
+                                <div class="sky-soft-card p-3 h-100">
+                                    <div class="sky-panel-label mb-2">Lampiran Excel</div>
+                                    <div class="small mb-2">{{ $batch->original_filename }}</div>
+                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel']) }}" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="sky-soft-card p-3 h-100">
+                                    <div class="sky-panel-label mb-2">Fakta Integritas</div>
+                                    <div class="small mb-2">{{ $batch->fakta_integritas_filename ?? '-' }}</div>
+                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="sky-soft-card p-3 h-100">
+                                    <div class="sky-panel-label mb-2">Penilaian Perilaku</div>
+                                    <div class="small mb-2">{{ $batch->penilaian_perilaku_filename ?? '-' }}</div>
+                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku']) }}" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                                </div>
+                            </div>
+                        </div>
+
                         @if(!$batch->headings_valid)
                             <div class="alert alert-danger">
                                 Format kolom file belum sesuai template.

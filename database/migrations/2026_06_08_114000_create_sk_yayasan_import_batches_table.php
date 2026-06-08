@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('status')->default('pending_review');
             $table->string('original_filename');
             $table->string('stored_path')->nullable();
+            $table->string('fakta_integritas_filename')->nullable();
+            $table->string('fakta_integritas_path')->nullable();
+            $table->string('penilaian_perilaku_filename')->nullable();
+            $table->string('penilaian_perilaku_path')->nullable();
             $table->unsignedInteger('total_rows')->default(0);
             $table->unsignedInteger('valid_rows')->default(0);
             $table->unsignedInteger('invalid_rows')->default(0);

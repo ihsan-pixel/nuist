@@ -70,13 +70,13 @@
         <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
-                    <div class="sky-panel-label mb-1">Import Sinkronisasi</div>
-                    <h6 class="mb-3">Upload data Guru & Pegawai untuk review Yayasan</h6>
+                    <div class="sky-panel-label mb-1">Berkas Pengajuan</div>
+                    <h6 class="mb-3">Upload dokumen pengajuan perpanjangan untuk review Yayasan</h6>
                     <p class="text-muted small mb-3">
-                        Gunakan template, lalu upload file. Data tidak langsung masuk ke database, tetapi menunggu review super admin lebih dulu.
+                        Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file fakta integritas, dan file form penilaian perilaku kinerja pegawai.
                     </p>
                     <div class="alert alert-info py-2 px-3 small mb-3">
-                        Baris Excel yang tidak cocok dengan data <strong>users</strong> sekolah ini tidak akan menambah user baru. Super admin akan memutuskan batch ini disinkronkan atau ditolak.
+                        Hasil import Excel akan diparsing langsung ke database staging. Super admin mereview isi data dan lampiran pendukung sebelum memutuskan sinkronisasi atau penolakan.
                     </div>
                     @if($latestSyncedImport)
                         <div class="alert alert-success py-2 px-3 small mb-3">
@@ -93,10 +93,26 @@
                     <form action="{{ route('sk-yayasan.sekolah.import') }}" method="POST" enctype="multipart/form-data" class="mb-3">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label">File Excel</label>
-                            <input type="file" name="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                            <label class="form-label">File Excel Data Tenaga Pendidik</label>
+                            <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv" required>
                             <small class="text-muted">Format: XLSX, XLS, atau CSV.</small>
-                            @error('file')
+                            @error('excel_file')
+                                <small class="text-danger d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">File Fakta Integritas</label>
+                            <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                            <small class="text-muted">Format: PDF, JPG, PNG, DOC, atau DOCX.</small>
+                            @error('fakta_integritas_file')
+                                <small class="text-danger d-block">{{ $message }}</small>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">File Form Penilaian Perilaku Kinerja Pegawai</label>
+                            <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                            <small class="text-muted">Format: PDF, JPG, PNG, DOC, atau DOCX.</small>
+                            @error('penilaian_perilaku_file')
                                 <small class="text-danger d-block">{{ $message }}</small>
                             @enderror
                         </div>
@@ -124,6 +140,12 @@
                                         <span class="badge bg-{{ $batchColor }}-subtle text-{{ $batchColor }} text-uppercase">
                                             {{ str_replace('_', ' ', $batch->status) }}
                                         </span>
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel']) }}" class="btn btn-sm btn-outline-primary">Excel</a>
+                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary">Fakta Integritas</a>
+                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku']) }}" class="btn btn-sm btn-outline-primary">Penilaian Perilaku</a>
                                     </div>
 
                                     @if(!$batch->headings_valid)
