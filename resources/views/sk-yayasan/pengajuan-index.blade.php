@@ -290,7 +290,7 @@
                             <div class="alert alert-info">
                                 Batch berkas terkait: <strong>#{{ $submission->importBatch->id }}</strong>.
                                 <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel']) }}" class="alert-link ms-2">Excel</a>
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="alert-link ms-2">Fakta Integritas</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="alert-link ms-2">Pakta Integritas</a>
                                 <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="alert-link ms-2">Penilaian Perilaku</a>
                             </div>
                         @endif
@@ -386,7 +386,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
-                                    <div class="sky-panel-label mb-2">Fakta Integritas</div>
+                                    <div class="sky-panel-label mb-2">Pakta Integritas</div>
                                     <div class="small mb-2">{{ $batch->fakta_integritas_filename ?? '-' }}</div>
                                     <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary">Lihat File</a>
                                 </div>

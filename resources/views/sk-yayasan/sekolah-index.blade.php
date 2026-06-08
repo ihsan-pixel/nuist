@@ -73,7 +73,7 @@
                     <div class="sky-panel-label mb-1">Form Pengajuan</div>
                     <h6 class="mb-3">Pilih guru/pegawai dan lengkapi berkas pengajuan</h6>
                     <p class="text-muted small mb-3">
-                        Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file fakta integritas, dan file form penilaian perilaku kinerja pegawai.
+                        Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file Pakta integritas, dan file form penilaian perilaku kinerja pegawai.
                     </p>
                     {{-- <div class="alert alert-info py-2 px-3 small mb-3">
                         Hasil import Excel akan diparsing langsung ke database staging. Super admin mereview isi data dan lampiran pendukung sebelum memutuskan sinkronisasi atau penolakan.
@@ -133,17 +133,17 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">File Fakta Integritas</label>
-                            <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-                            <small class="text-muted">Format: PDF, JPG, PNG, DOC, atau DOCX.</small>
+                            <label class="form-label">File Pakta Integritas</label>
+                            <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,application/pdf" required>
+                            <small class="text-muted">Format: PDF.</small>
                             @error('fakta_integritas_file')
                                 <small class="text-danger d-block">{{ $message }}</small>
                             @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label">File Form Penilaian Perilaku Kinerja Pegawai</label>
-                            <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-                            <small class="text-muted">Format: PDF, JPG, PNG, DOC, atau DOCX.</small>
+                            <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,application/pdf" required>
+                            <small class="text-muted">Format: PDF.</small>
                             @error('penilaian_perilaku_file')
                                 <small class="text-danger d-block">{{ $message }}</small>
                             @enderror
@@ -176,7 +176,7 @@
 
                                     <div class="d-flex flex-wrap gap-2 mb-2">
                                         <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel']) }}" class="btn btn-sm btn-outline-primary">Excel</a>
-                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary">Fakta Integritas</a>
+                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary">Pakta Integritas</a>
                                         <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku']) }}" class="btn btn-sm btn-outline-primary">Penilaian Perilaku</a>
                                     </div>
 

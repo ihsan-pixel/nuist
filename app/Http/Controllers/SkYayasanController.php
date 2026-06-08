@@ -146,8 +146,8 @@ class SkYayasanController extends Controller
             'employee_ids' => ['required', 'array', 'min:1'],
             'employee_ids.*' => ['required', 'integer', 'distinct'],
             'excel_file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
-            'fakta_integritas_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx'],
-            'penilaian_perilaku_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx'],
+            'fakta_integritas_file' => ['required', 'file', 'mimes:pdf'],
+            'penilaian_perilaku_file' => ['required', 'file', 'mimes:pdf'],
         ]);
 
         $employees = User::query()
