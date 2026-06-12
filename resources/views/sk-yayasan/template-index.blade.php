@@ -88,16 +88,16 @@
 .sk-green-line {
     background: linear-gradient(
         to bottom,
-        #7ca77d 0,
-        #7ca77d 1px,
+        #2f6f45 0,
+        #2f6f45 1px,
         transparent 1px,
         transparent 3px,
-        #7ca77d 3px,
-        #7ca77d 7px,
+        #2f6f45 3px,
+        #2f6f45 7px,
         transparent 7px,
         transparent 9px,
-        #7ca77d 9px,
-        #7ca77d 10px
+        #2f6f45 9px,
+        #2f6f45 10px
     );
     height: 10px;
     margin: 0 0 22px 0;
@@ -1154,16 +1154,16 @@ HTML;
 .sk-green-line {
     background: linear-gradient(
         to bottom,
-        #7ca77d 0,
-        #7ca77d 1px,
+        #2f6f45 0,
+        #2f6f45 1px,
         transparent 1px,
         transparent 3px,
-        #7ca77d 3px,
-        #7ca77d 7px,
+        #2f6f45 3px,
+        #2f6f45 7px,
         transparent 7px,
         transparent 9px,
-        #7ca77d 9px,
-        #7ca77d 10px
+        #2f6f45 9px,
+        #2f6f45 10px
     );
     height: 10px;
     margin: 0 0 22px 0;
