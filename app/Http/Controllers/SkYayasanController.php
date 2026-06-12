@@ -572,6 +572,10 @@ class SkYayasanController extends Controller
             $placeholders = $this->buildTemplatePlaceholders($submission, [
                 'nomor_sk' => $documentNumber,
                 'tanggal_terbit' => $issuedDate->translatedFormat('d F Y'),
+                'tanggal_mulai' => '01 Juli ' . $issuedDate->format('Y'),
+                'tanggal_selesai' => '30 Juni ' . $issuedDate->copy()->addYear()->format('Y'),
+                'tahun_sk' => $issuedDate->format('Y'),
+                'tahun_sk_berikutnya' => $issuedDate->copy()->addYear()->format('Y'),
                 'nama_penandatangan' => $validated['signer_name'],
                 'jabatan_penandatangan' => $validated['signer_position'] ?? 'Ketua Yayasan',
                 'catatan_penerbitan' => $validated['publication_notes'] ?? '-',
@@ -700,6 +704,7 @@ class SkYayasanController extends Controller
         return strtr($format, [
             '{seq}' => $sequence,
             '{month}' => $issuedDate->format('m'),
+            '{month_roman}' => $this->romanMonth((int) $issuedDate->format('n')),
             '{year}' => $issuedDate->format('Y'),
             '{school_code}' => $schoolCode,
         ]);
@@ -737,10 +742,11 @@ class SkYayasanController extends Controller
             '{{keterangan_sk_yayasan}}' => $employeeSkData?->keterangan ?? '-',
             '{{jabatan}}' => $employee->ketugasan ?? '-',
             '{{status_kepegawaian}}' => $employee->statusKepegawaian?->name ?? ($submission->employment_category ?? '-'),
-            '{{tanggal_mulai}}' => '',
-            '{{tanggal_selesai}}' => '',
+            '{{tanggal_mulai}}' => $overrides['tanggal_mulai'] ?? '01 Juli ' . now()->format('Y'),
+            '{{tanggal_selesai}}' => $overrides['tanggal_selesai'] ?? '30 Juni ' . now()->addYear()->format('Y'),
             '{{tanggal_terbit}}' => $overrides['tanggal_terbit'] ?? now()->translatedFormat('d F Y'),
-            '{{tahun_sk}}' => now()->format('Y'),
+            '{{tahun_sk}}' => $overrides['tahun_sk'] ?? now()->format('Y'),
+            '{{tahun_sk_berikutnya}}' => $overrides['tahun_sk_berikutnya'] ?? now()->addYear()->format('Y'),
             '{{nama_penandatangan}}' => $overrides['nama_penandatangan'] ?? 'Ketua Yayasan',
             '{{jabatan_penandatangan}}' => $overrides['jabatan_penandatangan'] ?? 'Ketua Yayasan',
             '{{catatan_pengajuan}}' => '',
@@ -757,5 +763,23 @@ class SkYayasanController extends Controller
     private function renderTemplate(string $body, array $placeholders): string
     {
         return strtr($body, $placeholders);
+    }
+
+    private function romanMonth(int $month): string
+    {
+        return [
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII',
+        ][$month] ?? (string) $month;
     }
 }

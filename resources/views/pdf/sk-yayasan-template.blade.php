@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $document->document_number }}</title>
+    @php
+        $isFullDocumentTemplate = str_contains($document->rendered_content ?? '', 'data-sk-full-document="1"');
+    @endphp
     <style>
+        @if($isFullDocumentTemplate)
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        @else
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
@@ -30,9 +39,13 @@
             margin-left: auto;
             text-align: left;
         }
+        @endif
     </style>
 </head>
 <body>
+    @if($isFullDocumentTemplate)
+        {!! $document->rendered_content !!}
+    @else
     <div class="header">
         <h2 style="margin:0;">{{ $document->template?->document_title ?? 'Surat Keputusan Yayasan' }}</h2>
         <div>Nomor: {{ $document->document_number }}</div>
@@ -56,5 +69,6 @@
             <div><strong>{{ $document->signer_name }}</strong></div>
         </div>
     </div>
+    @endif
 </body>
 </html>
