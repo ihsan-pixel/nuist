@@ -603,35 +603,26 @@ HTML;
     }
 
     .sk-preview-page {
+        align-items: flex-start;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        margin: 0 auto;
+        min-height: 160px;
+        overflow: visible;
+        padding: 0;
+        width: 100%;
+    }
+
+    .sk-preview-canvas {
         background: #fff;
         box-shadow: 0 1px 8px rgba(16, 45, 40, .15);
-        margin: 0 auto;
-        min-height: 594px;
-        padding: 10mm;
-        width: min(100%, 420px);
         box-sizing: border-box;
-        overflow: auto;
-        aspect-ratio: 210 / 297;
-    }
-
-    .sk-preview-page .sk-full-document {
-        font-size: 12px;
-    }
-
-    .sk-preview-shell .sk-letterhead {
-        width: 100% !important;
-    }
-
-    .sk-preview-shell .sk-signature {
-        width: 60% !important;
-    }
-
-    .sk-preview-shell .sk-org-title {
-        font-size: 15px !important;
-    }
-
-    .sk-preview-shell .sk-org-meta {
-        font-size: 8px !important;
+        min-height: 1123px;
+        padding: 18mm;
+        transform: scale(var(--sk-preview-scale, 1));
+        transform-origin: top center;
+        width: 794px;
     }
 
     @media (max-width: 991.98px) {
@@ -871,12 +862,15 @@ HTML;
 <script>
     (function () {
         const preview = document.getElementById('sk-template-preview');
+        const previewShell = preview?.closest('.sk-preview-shell');
         const sourceLabel = document.getElementById('sk-preview-source-label');
         const samplePlaceholders = @json($samplePlaceholders);
         const defaultTemplateConfig = @json($defaultTemplateConfig);
         const templateEditorGroups = @json($templateEditorGroups);
         const metaPrefix = '<!--SK_TEMPLATE_META:';
         const metaSuffix = '-->';
+        const previewCanvasWidth = 794;
+        const previewCanvasHeight = 1123;
         const romanMonths = {
             '01': 'I',
             '02': 'II',
@@ -1273,11 +1267,25 @@ HTML;
                 rendered = legacyWrapper(rendered, editor, placeholders);
             }
 
-            preview.innerHTML = rendered;
+            preview.innerHTML = `<div class="sk-preview-canvas">${rendered}</div>`;
+            updatePreviewScale();
 
             if (sourceLabel) {
                 sourceLabel.textContent = editor.dataset.previewLabel || 'Template';
             }
+        }
+
+        function updatePreviewScale() {
+            if (!preview || !previewShell) {
+                return;
+            }
+
+            const availableWidth = Math.max(previewShell.clientWidth - 24, 240);
+            const scale = Math.min(1, availableWidth / previewCanvasWidth);
+
+            preview.style.setProperty('--sk-preview-scale', scale.toFixed(4));
+            preview.style.width = `${previewCanvasWidth * scale}px`;
+            preview.style.minHeight = `${previewCanvasHeight * scale}px`;
         }
 
         const editors = document.querySelectorAll('.sk-template-editor');
@@ -1297,6 +1305,7 @@ HTML;
         });
 
         renderPreview(editors[0]);
+        window.addEventListener('resize', updatePreviewScale);
     })();
 </script>
 @endsection
