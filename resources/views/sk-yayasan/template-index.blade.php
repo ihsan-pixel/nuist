@@ -29,17 +29,17 @@
     vertical-align: middle;
 }
 .sk-logo-cell {
-    padding: 7px 10px;
-    width: 110px;
+    padding: 7px 18px 7px 4px;
+    width: 92px;
 }
 .sk-logo-box {
     border: none;
     color: #2f6f45;
     font-family: Arial, sans-serif;
     font-weight: 700;
-    height: 72px;
+    height: 60px;
     text-align: center;
-    width: 90px;
+    width: 72px;
 }
 .sk-logo-mark {
     background: #82c39a;
@@ -1054,7 +1054,7 @@ HTML;
     width: 96%;
 }
 .sk-letterhead td { vertical-align: middle; }
-.sk-logo-cell { padding: 7px 10px; width: 110px; }
+.sk-logo-cell { padding: 7px 18px 7px 4px; width: 92px; }
 .sk-logo-box {
     align-items: center;
     border: none;
@@ -1062,10 +1062,10 @@ HTML;
     display: flex;
     font-family: Arial, sans-serif;
     font-weight: 700;
-    height: 72px;
+    height: 60px;
     justify-content: center;
     text-align: center;
-    width: 90px;
+    width: 72px;
 }
 .sk-org-title {
     color: #000;
