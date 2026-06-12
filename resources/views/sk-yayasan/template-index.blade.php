@@ -624,6 +624,13 @@ HTML;
         justify-content: space-between;
     }
 
+    .sk-preview-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
     .sk-preview-card {
         position: sticky;
         top: 18px;
@@ -787,7 +794,12 @@ HTML;
                             <div class="sky-panel-label mb-1">Preview Template</div>
                             <h6 class="mb-0">Preview ringkas A4</h6>
                         </div>
-                        <span class="sky-chip" id="sk-preview-source-label">Template baru</span>
+                        <div class="sk-preview-actions">
+                            <span class="sky-chip" id="sk-preview-source-label">Template baru</span>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="sk-preview-pdf-button">
+                                Preview PDF
+                            </button>
+                        </div>
                     </div>
                     <div class="alert alert-info py-2 px-3 small">
                         Preview diperkecil agar fokus edit lebih nyaman. Hasil PDF tetap memakai format A4 penuh.
@@ -903,6 +915,7 @@ HTML;
         const preview = document.getElementById('sk-template-preview');
         const previewShell = preview?.closest('.sk-preview-shell');
         const sourceLabel = document.getElementById('sk-preview-source-label');
+        const previewPdfButton = document.getElementById('sk-preview-pdf-button');
         const samplePlaceholders = @json($samplePlaceholders);
         const defaultTemplateConfig = @json($defaultTemplateConfig);
         const templateEditorGroups = @json($templateEditorGroups);
@@ -1407,6 +1420,66 @@ HTML;
             preview.style.minHeight = `${naturalHeight * scale}px`;
         }
 
+        function openPdfPreview() {
+            if (!preview) {
+                return;
+            }
+
+            const canvas = preview.querySelector('.sk-preview-canvas');
+
+            if (!canvas) {
+                return;
+            }
+
+            const previewWindow = window.open('', '_blank', 'noopener,noreferrer');
+
+            if (!previewWindow) {
+                return;
+            }
+
+            previewWindow.document.open();
+            previewWindow.document.write(`
+                <!doctype html>
+                <html lang="id">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Preview PDF SK Yayasan</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            background: #f1f5f9;
+                            font-family: Arial, sans-serif;
+                            padding: 24px;
+                        }
+                        .pdf-preview-sheet {
+                            background: #fff;
+                            box-shadow: 0 10px 30px rgba(15, 23, 42, .12);
+                            margin: 0 auto;
+                            min-height: 297mm;
+                            width: 210mm;
+                        }
+                        @media print {
+                            body {
+                                background: #fff;
+                                padding: 0;
+                            }
+                            .pdf-preview-sheet {
+                                box-shadow: none;
+                                margin: 0;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="pdf-preview-sheet">${canvas.innerHTML}</div>
+                </body>
+                </html>
+            `);
+            previewWindow.document.close();
+            previewWindow.focus();
+        }
+
         const editors = document.querySelectorAll('.sk-template-editor');
 
         editors.forEach((editor) => {
@@ -1425,6 +1498,7 @@ HTML;
 
         renderPreview(editors[0]);
         window.addEventListener('resize', updatePreviewScale);
+        previewPdfButton?.addEventListener('click', openPdfPreview);
     })();
 </script>
 @endsection
