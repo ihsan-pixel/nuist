@@ -71,8 +71,20 @@
     padding: 6px 8px 0 8px;
 }
 .sk-green-line {
-    border-top: 4px double #7ca77d;
-    height: 4px;
+    background: linear-gradient(
+        to bottom,
+        #7ca77d 0,
+        #7ca77d 1px,
+        transparent 1px,
+        transparent 3px,
+        #7ca77d 3px,
+        #7ca77d 7px,
+        transparent 7px,
+        transparent 9px,
+        #7ca77d 9px,
+        #7ca77d 10px
+    );
+    height: 10px;
     margin: 0 0 22px 0;
 }
 .sk-title {
@@ -1069,8 +1081,20 @@ HTML;
     padding: 6px 8px 0 8px;
 }
 .sk-green-line {
-    border-top: 4px double #7ca77d;
-    height: 4px;
+    background: linear-gradient(
+        to bottom,
+        #7ca77d 0,
+        #7ca77d 1px,
+        transparent 1px,
+        transparent 3px,
+        #7ca77d 3px,
+        #7ca77d 7px,
+        transparent 7px,
+        transparent 9px,
+        #7ca77d 9px,
+        #7ca77d 10px
+    );
+    height: 10px;
     margin: 0 0 22px 0;
 }
 .sk-title {
