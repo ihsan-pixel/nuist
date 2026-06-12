@@ -636,46 +636,6 @@ HTML;
         gap: 8px;
     }
 
-    .sk-modal-preview-panel {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 14px;
-        position: sticky;
-        top: 0;
-    }
-
-    .sk-modal-preview-shell {
-        align-items: flex-start;
-        background: linear-gradient(180deg, #eef2f7 0%, #e5e7eb 100%);
-        border: 1px solid #d7dedb;
-        border-radius: 14px;
-        display: flex;
-        height: 76vh;
-        justify-content: center;
-        max-height: 920px;
-        overflow: hidden;
-        padding: 12px;
-    }
-
-    .sk-modal-preview-page {
-        align-items: flex-start;
-        box-sizing: border-box;
-        display: flex;
-        justify-content: center;
-        margin: 0 auto;
-        min-height: 160px;
-        overflow: visible;
-        padding: 0;
-        width: 100%;
-    }
-
-    .sk-modal-preview-note {
-        color: #64748b;
-        font-size: 12px;
-        margin-top: 10px;
-    }
-
     .sk-template-modal-dialog {
         max-width: 96vw;
     }
@@ -733,14 +693,6 @@ HTML;
             max-height: 460px;
         }
 
-        .sk-modal-preview-panel {
-            position: static;
-        }
-
-        .sk-modal-preview-shell {
-            height: 420px;
-            overflow: auto;
-        }
     }
 </style>
 @endpush
@@ -896,74 +848,60 @@ HTML;
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <div class="row g-4">
-                                                    <div class="col-lg-6">
-                                                        <form action="{{ route('sk-yayasan.template.update', $template) }}" method="POST" class="sk-template-editor" data-preview-label="{{ $template->name }}">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Nama Template</label>
-                                                                <input type="text" name="name" value="{{ $template->name }}" class="form-control" required>
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-md-4 mb-3">
-                                                                    <label class="form-label">Kategori</label>
-                                                                    <input type="text" name="category" value="{{ $template->category }}" class="form-control">
-                                                                </div>
-                                                                <div class="col-md-5 mb-3">
-                                                                    <label class="form-label">Judul Dokumen</label>
-                                                                    <input type="text" name="document_title" value="{{ $template->document_title }}" class="form-control" data-sk-preview-title required>
-                                                                </div>
-                                                                <div class="col-md-3 mb-3">
-                                                                    <label class="form-label">Font Judul</label>
-                                                                    <input type="number" step="0.1" min="8" class="form-control" value="{{ $defaultTemplateConfig['documentTitleFontSize'] }}" data-sk-config-key="documentTitleFontSize">
-                                                                </div>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Format Nomor</label>
-                                                                <input type="text" name="document_number_format" value="{{ $template->document_number_format }}" class="form-control" data-sk-preview-number-format>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Deskripsi</label>
-                                                                <textarea name="description" rows="2" class="form-control">{{ $template->description }}</textarea>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Isi Template</label>
-                                                                <div data-sk-legacy-alert class="alert alert-warning py-2 px-3 small sk-legacy-alert d-none mb-3">
-                                                                    Template lama belum memakai editor terstruktur. Setelah disimpan ulang, template ini akan mengikuti format editor teks baru.
-                                                                </div>
-                                                                <div data-sk-structured-fields></div>
-                                                                <textarea name="body" rows="14" class="form-control sk-editor-textarea sk-editor-raw" data-sk-preview-body required>{{ $template->body }}</textarea>
-                                                                <small class="sk-a4-note d-block mt-2">Cukup edit teks dan ukuran font per bagian, lalu lihat preview langsung di sebelah kanan.</small>
-                                                            </div>
-                                                            <div class="form-check form-switch mb-3">
-                                                                <input class="form-check-input" type="checkbox" name="is_active" value="1" @checked($template->is_active)>
-                                                                <label class="form-check-label">Aktifkan template</label>
-                                                            </div>
-                                                            <div class="d-flex flex-wrap gap-2">
-                                                                <button
-                                                                    type="submit"
-                                                                    class="btn btn-outline-primary"
-                                                                    formaction="{{ route('sk-yayasan.template.preview-pdf') }}"
-                                                                    formtarget="_blank"
-                                                                >
-                                                                    Generate PDF
-                                                                </button>
-                                                                <button type="submit" class="btn btn-primary">Update</button>
-                                                            </div>
-                                                        </form>
+                                                <form action="{{ route('sk-yayasan.template.update', $template) }}" method="POST" class="sk-template-editor" data-preview-label="{{ $template->name }}">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Nama Template</label>
+                                                        <input type="text" name="name" value="{{ $template->name }}" class="form-control" required>
                                                     </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="sk-modal-preview-panel">
-                                                            <div class="sky-panel-label mb-1">Preview Template</div>
-                                                            <h6 class="mb-2">Live Preview A4</h6>
-                                                            <div class="sk-modal-preview-shell" data-sk-live-preview-shell data-sk-preview-fit="page">
-                                                                <div class="sk-modal-preview-page" data-sk-live-preview></div>
-                                                            </div>
-                                                            <div class="sk-modal-preview-note">Preview ini ter-update otomatis saat isi template diubah.</div>
+                                                    <div class="row">
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Kategori</label>
+                                                            <input type="text" name="category" value="{{ $template->category }}" class="form-control">
+                                                        </div>
+                                                        <div class="col-md-5 mb-3">
+                                                            <label class="form-label">Judul Dokumen</label>
+                                                            <input type="text" name="document_title" value="{{ $template->document_title }}" class="form-control" data-sk-preview-title required>
+                                                        </div>
+                                                        <div class="col-md-3 mb-3">
+                                                            <label class="form-label">Font Judul</label>
+                                                            <input type="number" step="0.1" min="8" class="form-control" value="{{ $defaultTemplateConfig['documentTitleFontSize'] }}" data-sk-config-key="documentTitleFontSize">
                                                         </div>
                                                     </div>
-                                                </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Format Nomor</label>
+                                                        <input type="text" name="document_number_format" value="{{ $template->document_number_format }}" class="form-control" data-sk-preview-number-format>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Deskripsi</label>
+                                                        <textarea name="description" rows="2" class="form-control">{{ $template->description }}</textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Isi Template</label>
+                                                        <div data-sk-legacy-alert class="alert alert-warning py-2 px-3 small sk-legacy-alert d-none mb-3">
+                                                            Template lama belum memakai editor terstruktur. Setelah disimpan ulang, template ini akan mengikuti format editor teks baru.
+                                                        </div>
+                                                        <div data-sk-structured-fields></div>
+                                                        <textarea name="body" rows="14" class="form-control sk-editor-textarea sk-editor-raw" data-sk-preview-body required>{{ $template->body }}</textarea>
+                                                        <small class="sk-a4-note d-block mt-2">Cukup edit teks dan ukuran font per bagian, lalu gunakan Generate PDF untuk melihat hasilnya di PDF viewer browser.</small>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" name="is_active" value="1" @checked($template->is_active)>
+                                                        <label class="form-check-label">Aktifkan template</label>
+                                                    </div>
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-outline-primary"
+                                                            formaction="{{ route('sk-yayasan.template.preview-pdf') }}"
+                                                            formtarget="_blank"
+                                                        >
+                                                            Generate PDF
+                                                        </button>
+                                                        <button type="submit" class="btn btn-primary">Update</button>
+                                                    </div>
+                                                </form>
                                             </div>
                                             <div class="modal-footer justify-content-between">
                                                 <form action="{{ route('sk-yayasan.template.destroy', $template) }}" method="POST" onsubmit="return confirm('Hapus template ini?')">
@@ -1497,8 +1435,6 @@ HTML;
             const bodyInput = editor.querySelector('[data-sk-preview-body]');
             const titleInput = editor.querySelector('[data-sk-preview-title]');
             const numberFormatInput = editor.querySelector('[data-sk-preview-number-format]');
-            const livePreview = editor.closest('.modal-body')?.querySelector('[data-sk-live-preview]');
-            const livePreviewShell = editor.closest('.modal-body')?.querySelector('[data-sk-live-preview-shell]');
             const placeholders = {
                 ...samplePlaceholders,
                 '@{{judul_sk}}': titleInput?.value || samplePlaceholders['@{{judul_sk}}'],
@@ -1515,7 +1451,6 @@ HTML;
             }
 
             renderPreviewInto(preview, null, rendered);
-            renderPreviewInto(livePreview, livePreviewShell, rendered);
         }
 
         const editors = document.querySelectorAll('.sk-template-editor');
@@ -1525,14 +1460,9 @@ HTML;
             hydrateStandaloneConfigInputs(editor, config);
             renderStructuredFields(editor, config, isLegacy);
             syncStructuredBody(editor);
-            const modalElement = editor.closest('.modal');
-
-            if (modalElement) {
-                modalElement.addEventListener('shown.bs.modal', () => {
-                    renderPreview(editor);
-                });
-            }
-
+            editor.addEventListener('submit', () => {
+                syncStructuredBody(editor);
+            });
             editor.addEventListener('input', (event) => {
                 if (!event.target.matches('[data-sk-config-key]')) {
                     syncStructuredBody(editor);
