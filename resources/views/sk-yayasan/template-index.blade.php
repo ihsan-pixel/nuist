@@ -13,7 +13,7 @@
 @php
     $defaultSkBody = <<<'HTML'
 <style>
-@page { margin: 16mm 16mm 18mm 16mm; }
+@page { margin: 10mm 16mm 18mm 16mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
@@ -28,10 +28,10 @@
     width: 100%;
 }
 .sk-letterhead td {
-    vertical-align: middle;
+    vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 7px 18px 7px 4px;
+    padding: 4px 18px 7px 12px;
     width: 92px;
 }
 .sk-letterhead-text {
@@ -43,6 +43,7 @@
     font-family: Arial, sans-serif;
     font-weight: 700;
     height: 60px;
+    margin-left: auto;
     text-align: center;
     width: 72px;
 }
@@ -1076,7 +1077,7 @@ HTML;
 
             return `
 <style>
-@page { margin: 16mm 16mm 18mm 16mm; }
+@page { margin: 10mm 16mm 18mm 16mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
@@ -1090,8 +1091,8 @@ HTML;
     margin: 0 auto 6px auto;
     width: 100%;
 }
-.sk-letterhead td { vertical-align: middle; }
-.sk-logo-cell { padding: 7px 18px 7px 4px; width: 92px; }
+.sk-letterhead td { vertical-align: top; }
+.sk-logo-cell { padding: 4px 18px 7px 12px; width: 92px; }
 .sk-letterhead-text { padding-left: 16px; }
 .sk-logo-box {
     align-items: center;
@@ -1102,6 +1103,7 @@ HTML;
     font-weight: 700;
     height: 60px;
     justify-content: center;
+    margin-left: auto;
     text-align: center;
     width: 72px;
 }
