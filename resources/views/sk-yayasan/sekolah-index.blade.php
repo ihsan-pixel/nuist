@@ -203,30 +203,6 @@
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-body">
-                    <div class="sky-panel-label mb-1">Dokumen Terbit</div>
-                    <h6 class="mb-3">SK Yayasan terbaru</h6>
-
-                    @forelse($publishedDocuments as $document)
-                        <div class="sky-document-card mb-3">
-                            <div class="fw-semibold">{{ $document->document_number }}</div>
-                            <div class="sky-document-meta mb-2">{{ $document->request?->employee?->name ?? '-' }}</div>
-                            <div class="small mb-3">
-                                Terbit:
-                                {{ optional($document->published_at)->format('d/m/Y H:i') ?? optional($document->issued_date)->format('d/m/Y') }}
-                            </div>
-                            <a href="{{ route('sk-yayasan.documents.download', $document) }}" class="btn btn-sm btn-outline-primary" target="_blank">Lihat PDF</a>
-                        </div>
-                    @empty
-                        <div class="sky-empty-state">
-                            <i class="bx bx-file-blank"></i>
-                            <strong>Belum ada SK terbit</strong>
-                            <small>Dokumen terbit akan muncul setelah Yayasan mempublikasikan SK.</small>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
         </div>
 
         <div class="col-xl-8">
