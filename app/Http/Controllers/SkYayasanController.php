@@ -504,6 +504,59 @@ class SkYayasanController extends Controller
         return back()->with('success', 'Template SK Yayasan berhasil diperbarui.');
     }
 
+    public function previewTemplatePdf(Request $request)
+    {
+        $this->ensureSuperAdmin();
+
+        $validated = $request->validate([
+            'document_title' => ['required', 'string', 'max:255'],
+            'document_number_format' => ['nullable', 'string', 'max:255'],
+            'body' => ['required', 'string'],
+        ]);
+
+        $issuedDate = now();
+        $placeholders = $this->templatePreviewPlaceholders(
+            $validated['document_title'],
+            $validated['document_number_format'] ?? null,
+            $issuedDate
+        );
+
+        $renderedContent = $this->renderTemplate($validated['body'], $placeholders);
+        $documentNumber = $placeholders['{{nomor_sk}}'];
+
+        $document = (object) [
+            'document_number' => $documentNumber,
+            'rendered_content' => $renderedContent,
+            'template' => (object) [
+                'document_title' => $validated['document_title'],
+            ],
+            'issued_date' => $issuedDate,
+            'signer_name' => $placeholders['{{nama_penandatangan}}'],
+            'signer_position' => $placeholders['{{jabatan_penandatangan}}'],
+        ];
+
+        $submission = (object) [
+            'madrasah' => (object) [
+                'name' => $placeholders['{{nama_sekolah}}'],
+            ],
+            'employee' => (object) [
+                'name' => $placeholders['{{nama_pegawai}}'],
+                'statusKepegawaian' => (object) [
+                    'name' => $placeholders['{{status_kepegawaian}}'],
+                ],
+            ],
+        ];
+
+        $pdf = PDF::loadView('pdf.sk-yayasan-template', [
+            'document' => $document,
+            'submission' => $submission,
+        ])->setPaper('a4', 'portrait');
+
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $documentNumber . '.pdf"');
+    }
+
     public function destroyTemplate(SkYayasanTemplate $template): RedirectResponse
     {
         $this->ensureSuperAdmin();
@@ -763,6 +816,54 @@ class SkYayasanController extends Controller
     private function renderTemplate(string $body, array $placeholders): string
     {
         return strtr($body, $placeholders);
+    }
+
+    private function templatePreviewPlaceholders(string $documentTitle, ?string $documentNumberFormat, Carbon $issuedDate): array
+    {
+        $documentNumber = strtr(
+            $documentNumberFormat ?: '{seq}/SK.02/LPM.DIY/{month_roman}/{year}',
+            [
+                '{seq}' => '001',
+                '{school_code}' => 'SMK-DLINGO',
+                '{month}' => $issuedDate->format('m'),
+                '{month_roman}' => $this->romanMonth((int) $issuedDate->format('n')),
+                '{year}' => $issuedDate->format('Y'),
+            ]
+        );
+
+        return [
+            '{{nomor_sk}}' => $documentNumber,
+            '{{judul_sk}}' => $documentTitle,
+            '{{nama_yayasan}}' => "Lembaga Pendidikan Ma'arif NU PWNU DIY",
+            '{{alamat_yayasan}}' => 'Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta',
+            '{{nama_sekolah}}' => 'SMK Pembangunan Dlingo',
+            '{{nama_pegawai}}' => 'Ahmad Fathoni, S.Pd.',
+            '{{gelar}}' => 'S.Pd.',
+            '{{tempat_lahir}}' => 'Bantul',
+            '{{tanggal_lahir}}' => '12 Januari 1990',
+            '{{nip_maarif}}' => 'MIF.2026.001',
+            '{{nuptk}}' => '1234567890123456',
+            '{{nomor_kartanu}}' => 'NU.34.02.001',
+            '{{tmt_pertama}}' => '01 Juli 2020',
+            '{{masa_kerja}}' => '6 tahun',
+            '{{pendidikan_terakhir}}' => 'S1',
+            '{{tahun_lulus}}' => '2015',
+            '{{program_studi}}' => 'Pendidikan Teknik Informatika',
+            '{{mapel_tugas_yang_diampu}}' => 'XXX',
+            '{{penilaian_kinerja}}' => 'Baik',
+            '{{keterangan_sk_yayasan}}' => 'Perpanjangan SK',
+            '{{jabatan}}' => 'Guru',
+            '{{status_kepegawaian}}' => 'Guru Tetap Yayasan',
+            '{{tanggal_mulai}}' => '01 Juli ' . $issuedDate->format('Y'),
+            '{{tanggal_selesai}}' => '30 Juni ' . $issuedDate->copy()->addYear()->format('Y'),
+            '{{tanggal_terbit}}' => $issuedDate->translatedFormat('d F Y'),
+            '{{tahun_sk}}' => $issuedDate->format('Y'),
+            '{{tahun_sk_berikutnya}}' => $issuedDate->copy()->addYear()->format('Y'),
+            '{{nama_penandatangan}}' => 'Dr. Tadkiroatun Musfiroh, M. Hum.',
+            '{{jabatan_penandatangan}}' => "Pengurus LP Ma'arif NU PWNU DIY",
+            '{{catatan_pengajuan}}' => '-',
+            '{{catatan_penerbitan}}' => '-',
+        ];
     }
 
     private function romanMonth(int $month): string

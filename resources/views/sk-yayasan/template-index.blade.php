@@ -819,7 +819,14 @@ HTML;
                             <label class="form-check-label">Aktifkan template</label>
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-outline-primary" data-sk-preview-trigger>Generate PDF</button>
+                            <button
+                                type="submit"
+                                class="btn btn-outline-primary"
+                                formaction="{{ route('sk-yayasan.template.preview-pdf') }}"
+                                formtarget="_blank"
+                            >
+                                Generate PDF
+                            </button>
                             <button type="submit" class="btn btn-primary flex-grow-1">Simpan Template</button>
                         </div>
                     </form>
@@ -934,7 +941,14 @@ HTML;
                                                                 <label class="form-check-label">Aktifkan template</label>
                                                             </div>
                                                             <div class="d-flex flex-wrap gap-2">
-                                                                <button type="button" class="btn btn-outline-primary" data-sk-preview-trigger>Generate PDF</button>
+                                                                <button
+                                                                    type="submit"
+                                                                    class="btn btn-outline-primary"
+                                                                    formaction="{{ route('sk-yayasan.template.preview-pdf') }}"
+                                                                    formtarget="_blank"
+                                                                >
+                                                                    Generate PDF
+                                                                </button>
                                                                 <button type="submit" class="btn btn-primary">Update</button>
                                                             </div>
                                                         </form>
@@ -991,7 +1005,6 @@ HTML;
         const templateEditorGroups = @json($templateEditorGroups);
         const metaPrefix = '<!--SK_TEMPLATE_META:';
         const metaSuffix = '-->';
-        let currentPdfPreviewUrl = null;
         const romanMonths = {
             '01': 'I',
             '02': 'II',
@@ -1505,278 +1518,6 @@ HTML;
             renderPreviewInto(livePreview, livePreviewShell, rendered);
         }
 
-        function openPdfPreview() {
-            if (!preview) {
-                return;
-            }
-
-            const canvas = preview.querySelector('.sk-preview-canvas');
-
-            if (!canvas) {
-                return;
-            }
-
-            const html = `
-                <!doctype html>
-                <html lang="id">
-                <head>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <title>Generate PDF SK Yayasan</title>
-                    <style>
-                        @page {
-                            size: A4;
-                            margin: 16mm 24mm 18mm 24mm;
-                        }
-                        :root {
-                            --viewer-scale: 1;
-                        }
-                        * {
-                            box-sizing: border-box;
-                        }
-                        body {
-                            margin: 0;
-                            background: #2b2b2b;
-                            color: #fff;
-                            font-family: Arial, sans-serif;
-                        }
-                        .viewer-toolbar {
-                            align-items: center;
-                            background: #3a3a3a;
-                            border-bottom: 1px solid rgba(255,255,255,.08);
-                            display: flex;
-                            gap: 12px;
-                            height: 56px;
-                            justify-content: space-between;
-                            padding: 0 16px;
-                        }
-                        .viewer-toolbar-left,
-                        .viewer-toolbar-right,
-                        .viewer-toolbar-center {
-                            align-items: center;
-                            display: flex;
-                            gap: 10px;
-                        }
-                        .viewer-title {
-                            font-size: 14px;
-                            font-weight: 700;
-                            max-width: 340px;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
-                        }
-                        .viewer-btn {
-                            align-items: center;
-                            background: transparent;
-                            border: 1px solid rgba(255,255,255,.14);
-                            border-radius: 8px;
-                            color: #fff;
-                            cursor: pointer;
-                            display: inline-flex;
-                            font-size: 13px;
-                            gap: 6px;
-                            height: 36px;
-                            justify-content: center;
-                            min-width: 36px;
-                            padding: 0 12px;
-                        }
-                        .viewer-btn:hover {
-                            background: rgba(255,255,255,.08);
-                        }
-                        .viewer-badge {
-                            background: rgba(0,0,0,.28);
-                            border-radius: 6px;
-                            font-size: 13px;
-                            font-weight: 700;
-                            padding: 7px 10px;
-                        }
-                        .viewer-shell {
-                            display: grid;
-                            grid-template-columns: 180px 1fr;
-                            height: calc(100vh - 56px);
-                        }
-                        .viewer-sidebar {
-                            background: #252525;
-                            border-right: 1px solid rgba(255,255,255,.08);
-                            overflow: auto;
-                            padding: 18px 14px;
-                        }
-                        .viewer-thumb-card {
-                            color: #d1d5db;
-                            text-align: center;
-                        }
-                        .viewer-thumb-frame {
-                            background: #fff;
-                            border: 2px solid #9db9ff;
-                            border-radius: 2px;
-                            margin: 0 auto 10px auto;
-                            overflow: hidden;
-                            padding: 6px;
-                            width: 118px;
-                        }
-                        .viewer-thumb-scale {
-                            transform: scale(.12);
-                            transform-origin: top left;
-                            width: 794px;
-                            height: 1123px;
-                        }
-                        .viewer-main {
-                            overflow: auto;
-                            padding: 22px;
-                        }
-                        .viewer-stage {
-                            align-items: flex-start;
-                            display: flex;
-                            justify-content: center;
-                            min-height: 100%;
-                        }
-                        .viewer-paper-wrap {
-                            transform: scale(var(--viewer-scale));
-                            transform-origin: top center;
-                            width: fit-content;
-                        }
-                        .pdf-preview-sheet {
-                            background: #fff;
-                            box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
-                            min-height: 297mm;
-                            width: 210mm;
-                        }
-                        .viewer-footer-note {
-                            color: #cbd5e1;
-                            font-size: 12px;
-                            margin-left: 8px;
-                        }
-                        @media print {
-                            body {
-                                background: #fff;
-                            }
-                            .viewer-toolbar,
-                            .viewer-sidebar {
-                                display: none !important;
-                            }
-                            .viewer-shell {
-                                display: block;
-                                height: auto;
-                            }
-                            .viewer-main {
-                                overflow: visible;
-                                padding: 0;
-                            }
-                            .viewer-stage {
-                                display: block;
-                            }
-                            .viewer-paper-wrap {
-                                transform: none !important;
-                            }
-                            .pdf-preview-sheet {
-                                box-shadow: none;
-                                margin: 0 auto;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="viewer-toolbar">
-                        <div class="viewer-toolbar-left">
-                            <button class="viewer-btn" type="button" title="Menu">☰</button>
-                            <div class="viewer-title">Generate PDF - Template SK Yayasan</div>
-                        </div>
-                        <div class="viewer-toolbar-center">
-                            <div class="viewer-badge">1 / 1</div>
-                            <button class="viewer-btn" type="button" id="zoom-out">−</button>
-                            <div class="viewer-badge" id="zoom-label">100%</div>
-                            <button class="viewer-btn" type="button" id="zoom-in">+</button>
-                            <button class="viewer-btn" type="button" id="fit-page">Fit Page</button>
-                            <button class="viewer-btn" type="button" id="fit-width">Fit Width</button>
-                        </div>
-                        <div class="viewer-toolbar-right">
-                            <button class="viewer-btn" type="button" id="print-pdf">Cetak / Simpan PDF</button>
-                        </div>
-                    </div>
-                    <div class="viewer-shell">
-                        <aside class="viewer-sidebar">
-                            <div class="viewer-thumb-card">
-                                <div class="viewer-thumb-frame">
-                                    <div class="viewer-thumb-scale">${canvas.innerHTML}</div>
-                                </div>
-                                <div>1</div>
-                            </div>
-                        </aside>
-                        <main class="viewer-main" id="viewer-main">
-                            <div class="viewer-stage">
-                                <div class="viewer-paper-wrap" id="viewer-paper-wrap">
-                                    <div class="pdf-preview-sheet" id="viewer-sheet">${canvas.innerHTML}</div>
-                                </div>
-                            </div>
-                        </main>
-                    </div>
-                    <script>
-                        (function () {
-                            const wrap = document.getElementById('viewer-paper-wrap');
-                            const sheet = document.getElementById('viewer-sheet');
-                            const main = document.getElementById('viewer-main');
-                            const zoomLabel = document.getElementById('zoom-label');
-                            let scale = 1;
-
-                            function applyScale(nextScale) {
-                                scale = Math.max(0.4, Math.min(2, nextScale));
-                                wrap.style.setProperty('--viewer-scale', scale);
-                                zoomLabel.textContent = Math.round(scale * 100) + '%';
-                            }
-
-                            function fitPage() {
-                                const availableWidth = Math.max(main.clientWidth - 48, 320);
-                                const availableHeight = Math.max(window.innerHeight - 120, 320);
-                                const widthScale = availableWidth / sheet.offsetWidth;
-                                const heightScale = availableHeight / sheet.offsetHeight;
-                                applyScale(Math.min(widthScale, heightScale, 1));
-                            }
-
-                            function fitWidth() {
-                                const availableWidth = Math.max(main.clientWidth - 48, 320);
-                                applyScale(Math.min(availableWidth / sheet.offsetWidth, 1));
-                            }
-
-                            document.getElementById('zoom-in').addEventListener('click', function () {
-                                applyScale(scale + 0.1);
-                            });
-
-                            document.getElementById('zoom-out').addEventListener('click', function () {
-                                applyScale(scale - 0.1);
-                            });
-
-                            document.getElementById('fit-page').addEventListener('click', fitPage);
-                            document.getElementById('fit-width').addEventListener('click', fitWidth);
-                            document.getElementById('print-pdf').addEventListener('click', function () {
-                                window.print();
-                            });
-
-                            window.addEventListener('resize', fitPage);
-                            window.addEventListener('load', fitPage);
-                        })();
-                    <\/script>
-                </body>
-                </html>
-            `;
-
-            if (currentPdfPreviewUrl) {
-                URL.revokeObjectURL(currentPdfPreviewUrl);
-            }
-
-            const blob = new Blob([html], { type: 'text/html' });
-            currentPdfPreviewUrl = URL.createObjectURL(blob);
-
-            const previewWindow = window.open(currentPdfPreviewUrl, '_blank');
-
-            if (!previewWindow) {
-                const anchor = document.createElement('a');
-                anchor.href = currentPdfPreviewUrl;
-                anchor.target = '_blank';
-                anchor.rel = 'noopener noreferrer';
-                anchor.click();
-            }
-        }
-
         const editors = document.querySelectorAll('.sk-template-editor');
 
         editors.forEach((editor) => {
@@ -1799,12 +1540,6 @@ HTML;
                 }
             });
             editor.addEventListener('focusin', () => renderPreview(editor));
-            editor.querySelectorAll('[data-sk-preview-trigger]').forEach((button) => {
-                button.addEventListener('click', () => {
-                    renderPreview(editor);
-                    openPdfPreview();
-                });
-            });
         });
 
         renderPreview(editors[0]);
