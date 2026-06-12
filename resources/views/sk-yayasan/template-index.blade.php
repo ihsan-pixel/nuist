@@ -31,7 +31,7 @@
     vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 4px 18px 7px 12px;
+    padding: 8px 18px 7px 12px;
     width: 92px;
 }
 .sk-letterhead-text {
@@ -44,6 +44,7 @@
     font-weight: 700;
     height: 60px;
     margin-left: auto;
+    margin-top: 2px;
     text-align: center;
     width: 72px;
 }
@@ -1048,7 +1049,7 @@ HTML;
 
         function buildStructuredHtml(config, title, numberText) {
             const logoMarkup = config.logoImageData
-                ? `<img src="${escapeHtml(config.logoImageData)}" alt="Logo Yayasan" style="height:96px; max-width:170px; object-fit:contain;">`
+                ? `<img src="${escapeHtml(config.logoImageData)}" alt="Logo Yayasan" style="display:block; height:96px; margin-top:2px; max-width:170px; object-fit:contain;">`
                 : `<div style="color:#94a3b8; font-family:Arial,sans-serif; font-size:12px; padding-top:38px;">Logo</div>`;
             const personRows = Array.from({ length: 10 }, (_, index) => {
                 const rowNumber = index + 1;
@@ -1092,7 +1093,7 @@ HTML;
     width: 100%;
 }
 .sk-letterhead td { vertical-align: top; }
-.sk-logo-cell { padding: 4px 18px 7px 12px; width: 92px; }
+.sk-logo-cell { padding: 8px 18px 7px 12px; width: 92px; }
 .sk-letterhead-text { padding-left: 16px; }
 .sk-logo-box {
     align-items: center;
@@ -1104,6 +1105,7 @@ HTML;
     height: 60px;
     justify-content: center;
     margin-left: auto;
+    margin-top: 2px;
     text-align: center;
     width: 72px;
 }
