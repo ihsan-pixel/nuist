@@ -17,7 +17,7 @@
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
-    font-family: "Times New Roman", Times, serif;
+    font-family: Cambria, "Times New Roman", Times, serif;
     font-size: 13.5pt;
     line-height: 1.18;
     padding: 0 2mm;
@@ -64,7 +64,7 @@
 }
 .sk-org-title {
     color: #000;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Cambria, "Times New Roman", Times, serif;
     font-size: 24pt;
     font-weight: 700;
     line-height: 1.14;
@@ -72,7 +72,7 @@
 }
 .sk-org-subtitle {
     color: #000;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Cambria, "Times New Roman", Times, serif;
     font-size: 17pt;
     font-weight: 700;
     line-height: 1.12;
@@ -1104,7 +1104,7 @@ HTML;
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
-    font-family: "Times New Roman", Times, serif;
+    font-family: Cambria, "Times New Roman", Times, serif;
     font-size: ${safeFontSize(config.baseFontSize)}pt;
     line-height: 1.18;
     padding: 0 2mm;
@@ -1133,14 +1133,14 @@ HTML;
 }
 .sk-org-title {
     color: #000;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Cambria, "Times New Roman", Times, serif;
     font-weight: 700;
     line-height: 1.14;
     padding: 4px 8px 0 8px;
 }
 .sk-org-subtitle {
     color: #000;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Cambria, "Times New Roman", Times, serif;
     font-weight: 700;
     line-height: 1.12;
     padding: 2px 8px 0 8px;
