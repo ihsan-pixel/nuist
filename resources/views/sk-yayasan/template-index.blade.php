@@ -1153,13 +1153,17 @@ HTML;
     padding: 6px 8px 0 8px;
 }
 .sk-green-line {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
     margin: 0 0 22px 0;
 }
-.sk-green-line-thin { background: #2f6f45; height: 1px; }
-.sk-green-line-thick { background: #2f6f45; height: 4px; }
+
+.sk-green-line-thin {
+    border-top: 1px solid #2f6f45;
+}
+
+.sk-green-line-thick {
+    border-top: 4px solid #2f6f45;
+    margin: 2px 0;
+}
 .sk-title {
     font-weight: 700;
     text-align: center;
