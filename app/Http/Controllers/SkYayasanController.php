@@ -264,7 +264,7 @@ class SkYayasanController extends Controller
             }
         });
 
-        $message = $availableEmployees->count() . " pengajuan perpanjangan SK berhasil dikirim dalam Batch #{$batch->id}.";
+        $message = $availableEmployees->count() . ' pengajuan perpanjangan SK berhasil dikirim.';
 
         if (!$report['headings_valid']) {
             $message .= ' Format kolom Excel belum sesuai template dan akan ditinjau saat review super admin.';

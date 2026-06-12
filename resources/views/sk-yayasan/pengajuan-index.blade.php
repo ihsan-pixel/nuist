@@ -121,7 +121,7 @@
                                         <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
                                         <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</small>
                                         @if($submission->importBatch)
-                                            <div><small class="text-muted">Batch #{{ $submission->importBatch->id }}</small></div>
+                                            <div><small class="text-muted">Dari file import</small></div>
                                         @endif
                                     </td>
                                     <td>
@@ -193,7 +193,7 @@
                     <table class="table align-middle">
                         <thead>
                             <tr>
-                                <th>Batch</th>
+                                <th>File Import</th>
                                 <th>Sekolah</th>
                                 <th>Upload</th>
                                 <th>Validasi</th>
@@ -212,8 +212,7 @@
                                 @endphp
                                 <tr>
                                     <td>
-                                        <div class="fw-semibold">#{{ $batch->id }}</div>
-                                        <small class="text-muted">{{ $batch->original_filename }}</small>
+                                        <div class="fw-semibold">{{ $batch->original_filename }}</div>
                                     </td>
                                     <td>{{ $batch->madrasah?->name ?? '-' }}</td>
                                     <td>
@@ -288,7 +287,7 @@
                         </div>
                         @if($submission->importBatch)
                             <div class="alert alert-info">
-                                Batch berkas terkait: <strong>#{{ $submission->importBatch->id }}</strong>.
+                                Berkas terkait:
                                 <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel']) }}" class="alert-link ms-2">Excel</a>
                                 <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="alert-link ms-2">Pakta Integritas</a>
                                 <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="alert-link ms-2">Penilaian Perilaku</a>
@@ -338,7 +337,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <div>
-                            <h5 class="modal-title mb-1">Review Batch Import #{{ $batch->id }}</h5>
+                            <h5 class="modal-title mb-1">Review Import Data</h5>
                             <div class="sky-file-meta">{{ $batch->original_filename }} - {{ $batch->madrasah?->name ?? '-' }}</div>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

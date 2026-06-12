@@ -80,7 +80,7 @@
                     </div> --}}
                     @if($latestSyncedImport)
                         <div class="alert alert-success py-2 px-3 small mb-3">
-                            Sinkronisasi terakhir dari batch #{{ $latestSyncedImport->id }} sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari batch ini.
+                            Sinkronisasi terakhir sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari data import ini.
                         </div>
                     @endif
 
@@ -163,7 +163,7 @@
                                 <div class="sky-document-card mb-3">
                                     <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
                                         <div>
-                                            <div class="fw-semibold">Batch #{{ $batch->id }} - {{ $batch->original_filename }}</div>
+                                            <div class="fw-semibold">{{ $batch->original_filename }}</div>
                                             <div class="sky-document-meta">
                                                 Upload {{ optional($batch->uploaded_at)->format('d/m/Y H:i') }} |
                                                 {{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} perlu cek
@@ -244,7 +244,7 @@
                                                 <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
                                                 <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</small>
                                                 @if($submission->importBatch)
-                                                    <div><small class="text-muted">Batch #{{ $submission->importBatch->id }}</small></div>
+                                                    <div><small class="text-muted">Dari file import</small></div>
                                                 @endif
                                             </td>
                                             <td>
