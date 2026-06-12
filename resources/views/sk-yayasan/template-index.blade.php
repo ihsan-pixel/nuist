@@ -294,6 +294,38 @@ HTML;
         line-height: 1.45;
     }
 
+    .sk-a4-note {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .sk-block-editor {
+        border: 1px solid #d7dedb;
+        border-radius: 12px;
+        padding: 14px;
+        background: #f8fafc;
+    }
+
+    .sk-block-editor + .sk-block-editor {
+        margin-top: 12px;
+    }
+
+    .sk-block-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 10px;
+    }
+
+    .sk-block-editor textarea {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    .sk-editor-raw {
+        display: none;
+    }
+
     .sk-preview-toolbar {
         align-items: center;
         display: flex;
@@ -316,9 +348,10 @@ HTML;
         box-shadow: 0 1px 8px rgba(16, 45, 40, .15);
         margin: 0 auto;
         min-height: 1122px;
-        padding: 52px 58px;
+        padding: 18mm;
         transform-origin: top center;
-        width: 794px;
+        width: 210mm;
+        box-sizing: border-box;
     }
 
     .sk-preview-page .sk-full-document {
@@ -394,8 +427,14 @@ HTML;
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Isi Template</label>
-                            <textarea name="body" rows="24" class="form-control sk-editor-textarea" data-sk-preview-body required>{{ old('body', $defaultSkBody) }}</textarea>
-                            <small class="text-muted">Preview di kanan memakai data contoh dan akan mengikuti perubahan isi template ini.</small>
+                            <div class="sk-block-editor-list" data-sk-block-editor-list>
+                                <div class="sk-block-editor">
+                                    <div class="sk-block-title">Editor per blok / paragraf</div>
+                                    <div class="row g-3" data-sk-block-fields></div>
+                                </div>
+                            </div>
+                            <textarea name="body" rows="24" class="form-control sk-editor-textarea sk-editor-raw" data-sk-preview-body required>{{ old('body', $defaultSkBody) }}</textarea>
+                            <small class="sk-a4-note d-block mt-2">Isi template diedit dalam kolom per bagian agar lebih simpel. Preview kanan mengikuti ukuran kertas A4.</small>
                         </div>
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" name="is_active" value="1" checked>
@@ -502,8 +541,14 @@ HTML;
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Isi Template</label>
-                                                    <textarea name="body" rows="14" class="form-control sk-editor-textarea" data-sk-preview-body required>{{ $template->body }}</textarea>
-                                                    <small class="text-muted">Klik atau edit textarea ini untuk menampilkan preview template ini di panel kanan.</small>
+                                                    <div class="sk-block-editor-list" data-sk-block-editor-list>
+                                                        <div class="sk-block-editor">
+                                                            <div class="sk-block-title">Editor per blok / paragraf</div>
+                                                            <div class="row g-3" data-sk-block-fields></div>
+                                                        </div>
+                                                    </div>
+                                                    <textarea name="body" rows="14" class="form-control sk-editor-textarea sk-editor-raw" data-sk-preview-body required>{{ $template->body }}</textarea>
+                                                    <small class="sk-a4-note d-block mt-2">Klik salah satu kolom untuk langsung update preview A4 di panel kanan.</small>
                                                 </div>
                                                 <div class="form-check form-switch mb-3">
                                                     <input class="form-check-input" type="checkbox" name="is_active" value="1" @checked($template->is_active)>
@@ -624,10 +669,59 @@ HTML;
             }
         }
 
+        function splitTemplateBlocks(body) {
+            return (body || '')
+                .split(/\n\s*\n/)
+                .map((block) => block.trim())
+                .filter(Boolean);
+        }
+
+        function buildTemplateBody(blocks) {
+            return blocks.join("\n\n");
+        }
+
+        function buildBlockEditors(editor) {
+            const bodyInput = editor.querySelector('[data-sk-preview-body]');
+            const container = editor.querySelector('[data-sk-block-fields]');
+
+            if (!bodyInput || !container) {
+                return;
+            }
+
+            const blocks = splitTemplateBlocks(bodyInput.value);
+            container.innerHTML = '';
+
+            blocks.forEach((block, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'col-12';
+                wrapper.innerHTML = `
+                    <label class="form-label">Bagian ${index + 1}</label>
+                    <textarea class="form-control" data-sk-block-input="${index}">${block}</textarea>
+                `;
+                container.appendChild(wrapper);
+            });
+
+            const syncBody = () => {
+                const values = Array.from(container.querySelectorAll('[data-sk-block-input]')).map((input) => input.value.trim());
+                bodyInput.value = buildTemplateBody(values.filter(Boolean));
+                renderPreview(editor);
+            };
+
+            container.querySelectorAll('[data-sk-block-input]').forEach((input) => {
+                input.addEventListener('input', syncBody);
+                input.addEventListener('focus', () => renderPreview(editor));
+            });
+        }
+
         const editors = document.querySelectorAll('.sk-template-editor');
 
         editors.forEach((editor) => {
-            editor.addEventListener('input', () => renderPreview(editor));
+            buildBlockEditors(editor);
+            editor.addEventListener('input', (event) => {
+                if (!event.target.matches('[data-sk-block-input]')) {
+                    renderPreview(editor);
+                }
+            });
             editor.addEventListener('focusin', () => renderPreview(editor));
         });
 
