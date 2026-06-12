@@ -13,14 +13,14 @@
 @php
     $defaultSkBody = <<<'HTML'
 <style>
-@page { margin: 16mm 24mm 18mm 24mm; }
+@page { margin: 16mm 16mm 18mm 16mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
     font-family: "Times New Roman", Times, serif;
     font-size: 13.5pt;
     line-height: 1.18;
-    padding: 0 4mm;
+    padding: 0 2mm;
 }
 .sk-letterhead {
     border-collapse: collapse;
@@ -1076,14 +1076,14 @@ HTML;
 
             return `
 <style>
-@page { margin: 16mm 24mm 18mm 24mm; }
+@page { margin: 16mm 16mm 18mm 16mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
     font-family: "Times New Roman", Times, serif;
     font-size: ${safeFontSize(config.baseFontSize)}pt;
     line-height: 1.18;
-    padding: 0 4mm;
+    padding: 0 2mm;
 }
 .sk-letterhead {
     border-collapse: collapse;
