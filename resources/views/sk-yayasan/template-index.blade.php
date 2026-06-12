@@ -596,8 +596,8 @@ HTML;
         border: 1px solid #d7dedb;
         border-radius: 14px;
         display: flex;
+        height: 520px;
         justify-content: center;
-        max-height: 520px;
         overflow: auto;
         padding: 12px;
     }
@@ -618,11 +618,11 @@ HTML;
         background: #fff;
         box-shadow: 0 1px 8px rgba(16, 45, 40, .15);
         box-sizing: border-box;
-        min-height: 1123px;
-        padding: 18mm;
+        min-height: 297mm;
+        padding: 14mm 18mm;
+        width: 210mm;
         transform: scale(var(--sk-preview-scale, 1));
         transform-origin: top center;
-        width: 794px;
     }
 
     @media (max-width: 991.98px) {
@@ -635,7 +635,7 @@ HTML;
         }
 
         .sk-preview-shell {
-            max-height: 460px;
+            height: 460px;
         }
     }
 </style>
@@ -869,8 +869,6 @@ HTML;
         const templateEditorGroups = @json($templateEditorGroups);
         const metaPrefix = '<!--SK_TEMPLATE_META:';
         const metaSuffix = '-->';
-        const previewCanvasWidth = 794;
-        const previewCanvasHeight = 1123;
         const romanMonths = {
             '01': 'I',
             '02': 'II',
@@ -1280,12 +1278,21 @@ HTML;
                 return;
             }
 
+            const canvas = preview.querySelector('.sk-preview-canvas');
+
+            if (!canvas) {
+                return;
+            }
+
+            const naturalWidth = canvas.offsetWidth;
+            const naturalHeight = canvas.offsetHeight;
             const availableWidth = Math.max(previewShell.clientWidth - 24, 240);
-            const scale = Math.min(1, availableWidth / previewCanvasWidth);
+            const availableHeight = Math.max(previewShell.clientHeight - 24, 240);
+            const scale = Math.min(1, availableWidth / naturalWidth, availableHeight / naturalHeight);
 
             preview.style.setProperty('--sk-preview-scale', scale.toFixed(4));
-            preview.style.width = `${previewCanvasWidth * scale}px`;
-            preview.style.minHeight = `${previewCanvasHeight * scale}px`;
+            preview.style.width = `${naturalWidth * scale}px`;
+            preview.style.minHeight = `${naturalHeight * scale}px`;
         }
 
         const editors = document.querySelectorAll('.sk-template-editor');
