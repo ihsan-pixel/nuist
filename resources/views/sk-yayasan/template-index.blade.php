@@ -695,7 +695,7 @@ HTML;
     </div>
 
     <div class="row g-3">
-        <div class="col-xl-7">
+        <div class="col-xl-6">
             <div class="card">
                 <div class="card-body">
                     <div class="sky-panel-label mb-1">Form Template</div>
@@ -768,7 +768,7 @@ HTML;
             </div>
         </div>
 
-        <div class="col-xl-5">
+        <div class="col-xl-6">
             <div class="card sk-preview-card">
                 <div class="card-body">
                     <div class="sk-preview-toolbar mb-3">
