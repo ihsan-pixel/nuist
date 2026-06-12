@@ -167,7 +167,7 @@
     <div class="sk-green-line"></div>
 
     <div class="sk-title">SURAT KEPUTUSAN KETUA LP MA'ARIF NU PWNU DIY</div>
-    <div class="sk-number">Nomor: {{nomor_sk}}</div>
+    <div class="sk-number">Nomor: @{{nomor_sk}}</div>
 
     <p class="sk-subject">Ketua Lembaga Pendidikan Ma'arif NU PWNU DIY</p>
 
@@ -175,7 +175,7 @@
         <tr>
             <td class="sk-label">Menimbang</td>
             <td class="sk-colon">:</td>
-            <td>Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di {{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
+            <td>Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
         </tr>
         <tr>
             <td class="sk-label">Mengingat</td>
@@ -190,7 +190,7 @@
         <tr>
             <td class="sk-label">Memperhatikan</td>
             <td class="sk-colon">:</td>
-            <td>Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala {{nama_sekolah}}.</td>
+            <td>Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</td>
         </tr>
     </table>
 
@@ -208,24 +208,24 @@
             <td>
                 Guru Tetap Yayasan tersebut di bawah ini:
                 <table class="sk-person-table">
-                    <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td>{{nama_pegawai}}</td></tr>
-                    <tr><td>2.</td><td>Tempat, tanggal lahir</td><td class="sk-colon">:</td><td>{{tempat_lahir}}, {{tanggal_lahir}}</td></tr>
-                    <tr><td>3.</td><td>NUPTK</td><td class="sk-colon">:</td><td>{{nuptk}}</td></tr>
-                    <tr><td>4.</td><td>Kartanu</td><td class="sk-colon">:</td><td>{{nomor_kartanu}}</td></tr>
-                    <tr><td>5.</td><td>NIP Ma'arif baru</td><td class="sk-colon">:</td><td>{{nip_maarif}}</td></tr>
-                    <tr><td>6.</td><td>TMT pertama</td><td class="sk-colon">:</td><td>{{tmt_pertama}}</td></tr>
-                    <tr><td>7.</td><td>Pendidikan, tahun lulus</td><td class="sk-colon">:</td><td>{{pendidikan_terakhir}}, {{tahun_lulus}}</td></tr>
-                    <tr><td>8.</td><td>Program studi</td><td class="sk-colon">:</td><td>{{program_studi}}</td></tr>
-                    <tr><td>9.</td><td>Masa kerja</td><td class="sk-colon">:</td><td>{{masa_kerja}}</td></tr>
-                    <tr><td>10.</td><td>Penilaian perilaku kerja</td><td class="sk-colon">:</td><td>{{penilaian_kinerja}}</td></tr>
+                    <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td>@{{nama_pegawai}}</td></tr>
+                    <tr><td>2.</td><td>Tempat, tanggal lahir</td><td class="sk-colon">:</td><td>@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
+                    <tr><td>3.</td><td>NUPTK</td><td class="sk-colon">:</td><td>@{{nuptk}}</td></tr>
+                    <tr><td>4.</td><td>Kartanu</td><td class="sk-colon">:</td><td>@{{nomor_kartanu}}</td></tr>
+                    <tr><td>5.</td><td>NIP Ma'arif baru</td><td class="sk-colon">:</td><td>@{{nip_maarif}}</td></tr>
+                    <tr><td>6.</td><td>TMT pertama</td><td class="sk-colon">:</td><td>@{{tmt_pertama}}</td></tr>
+                    <tr><td>7.</td><td>Pendidikan, tahun lulus</td><td class="sk-colon">:</td><td>@{{pendidikan_terakhir}}, @{{tahun_lulus}}</td></tr>
+                    <tr><td>8.</td><td>Program studi</td><td class="sk-colon">:</td><td>@{{program_studi}}</td></tr>
+                    <tr><td>9.</td><td>Masa kerja</td><td class="sk-colon">:</td><td>@{{masa_kerja}}</td></tr>
+                    <tr><td>10.</td><td>Penilaian perilaku kerja</td><td class="sk-colon">:</td><td>@{{penilaian_kinerja}}</td></tr>
                 </table>
-                diangkat kembali sebagai <strong>{{status_kepegawaian}}</strong> tahun pelajaran {{tahun_sk}}/{{tahun_sk_berikutnya}}, mata pelajaran {{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di {{nama_sekolah}}.
+                diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.
             </td>
         </tr>
         <tr>
             <td class="sk-label">Kedua</td>
             <td class="sk-colon">:</td>
-            <td>Keputusan ini berlaku terhitung mulai tanggal {{tanggal_mulai}} sampai dengan {{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
+            <td>Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
         </tr>
         <tr>
             <td class="sk-label">Ketiga</td>
@@ -236,10 +236,10 @@
 
     <div class="sk-signature">
         Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
-        Pada Tanggal&nbsp;&nbsp;: {{tanggal_terbit}}<br><br>
-        {{jabatan_penandatangan}}<br>
+        Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br><br>
+        @{{jabatan_penandatangan}}<br>
         Ketua,
-        <div class="sk-signature-name">{{nama_penandatangan}}</div>
+        <div class="sk-signature-name">@{{nama_penandatangan}}</div>
     </div>
 
     <div class="sk-copy">
@@ -252,37 +252,37 @@
 HTML;
 
     $samplePlaceholders = [
-        '{{nomor_sk}}' => '/SK.02/LPM.DIY/VII/2026',
-        '{{judul_sk}}' => 'SURAT KEPUTUSAN KETUA LP MA\'ARIF NU PWNU DIY',
-        '{{nama_yayasan}}' => 'Lembaga Pendidikan Ma\'arif NU PWNU DIY',
-        '{{alamat_yayasan}}' => 'Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta',
-        '{{nama_sekolah}}' => 'SMK Pembangunan Dlingo',
-        '{{nama_pegawai}}' => 'Ahmad Fathoni, S.Pd.',
-        '{{gelar}}' => 'S.Pd.',
-        '{{tempat_lahir}}' => 'Bantul',
-        '{{tanggal_lahir}}' => '12 Januari 1990',
-        '{{nip_maarif}}' => 'MIF.2026.001',
-        '{{nuptk}}' => '1234567890123456',
-        '{{nomor_kartanu}}' => 'NU.34.02.001',
-        '{{tmt_pertama}}' => '01 Juli 2020',
-        '{{masa_kerja}}' => '6 tahun',
-        '{{pendidikan_terakhir}}' => 'S1',
-        '{{tahun_lulus}}' => '2015',
-        '{{program_studi}}' => 'Pendidikan Teknik Informatika',
-        '{{mapel_tugas_yang_diampu}}' => 'XXX',
-        '{{penilaian_kinerja}}' => 'Baik',
-        '{{keterangan_sk_yayasan}}' => 'Perpanjangan SK',
-        '{{jabatan}}' => 'Guru',
-        '{{status_kepegawaian}}' => 'Guru Tetap Yayasan',
-        '{{tanggal_mulai}}' => '01 Juli 2026',
-        '{{tanggal_selesai}}' => '30 Juni 2027',
-        '{{tanggal_terbit}}' => '01 Juli 2026',
-        '{{tahun_sk}}' => '2026',
-        '{{tahun_sk_berikutnya}}' => '2027',
-        '{{nama_penandatangan}}' => 'Dr. Tadkiroatun Musfiroh, M. Hum.',
-        '{{jabatan_penandatangan}}' => 'Pengurus LP Ma\'arif NU PWNU DIY',
-        '{{catatan_pengajuan}}' => '-',
-        '{{catatan_penerbitan}}' => '-',
+        '@{{nomor_sk}}' => '/SK.02/LPM.DIY/VII/2026',
+        '@{{judul_sk}}' => 'SURAT KEPUTUSAN KETUA LP MA\'ARIF NU PWNU DIY',
+        '@{{nama_yayasan}}' => 'Lembaga Pendidikan Ma\'arif NU PWNU DIY',
+        '@{{alamat_yayasan}}' => 'Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta',
+        '@{{nama_sekolah}}' => 'SMK Pembangunan Dlingo',
+        '@{{nama_pegawai}}' => 'Ahmad Fathoni, S.Pd.',
+        '@{{gelar}}' => 'S.Pd.',
+        '@{{tempat_lahir}}' => 'Bantul',
+        '@{{tanggal_lahir}}' => '12 Januari 1990',
+        '@{{nip_maarif}}' => 'MIF.2026.001',
+        '@{{nuptk}}' => '1234567890123456',
+        '@{{nomor_kartanu}}' => 'NU.34.02.001',
+        '@{{tmt_pertama}}' => '01 Juli 2020',
+        '@{{masa_kerja}}' => '6 tahun',
+        '@{{pendidikan_terakhir}}' => 'S1',
+        '@{{tahun_lulus}}' => '2015',
+        '@{{program_studi}}' => 'Pendidikan Teknik Informatika',
+        '@{{mapel_tugas_yang_diampu}}' => 'XXX',
+        '@{{penilaian_kinerja}}' => 'Baik',
+        '@{{keterangan_sk_yayasan}}' => 'Perpanjangan SK',
+        '@{{jabatan}}' => 'Guru',
+        '@{{status_kepegawaian}}' => 'Guru Tetap Yayasan',
+        '@{{tanggal_mulai}}' => '01 Juli 2026',
+        '@{{tanggal_selesai}}' => '30 Juni 2027',
+        '@{{tanggal_terbit}}' => '01 Juli 2026',
+        '@{{tahun_sk}}' => '2026',
+        '@{{tahun_sk_berikutnya}}' => '2027',
+        '@{{nama_penandatangan}}' => 'Dr. Tadkiroatun Musfiroh, M. Hum.',
+        '@{{jabatan_penandatangan}}' => 'Pengurus LP Ma\'arif NU PWNU DIY',
+        '@{{catatan_pengajuan}}' => '-',
+        '@{{catatan_penerbitan}}' => '-',
     ];
 @endphp
 
@@ -412,13 +412,13 @@ HTML;
                     <h6 class="mb-3">Field yang dapat dipakai di body template</h6>
                     <div class="d-flex flex-wrap gap-2">
                         @foreach([
-                            '{{nomor_sk}}', '{{judul_sk}}', '{{nama_yayasan}}', '{{nama_sekolah}}', '{{nama_pegawai}}',
-                            '{{alamat_yayasan}}', '{{gelar}}', '{{tempat_lahir}}', '{{tanggal_lahir}}', '{{nip_maarif}}', '{{nuptk}}',
-                            '{{nomor_kartanu}}', '{{tmt_pertama}}', '{{masa_kerja}}', '{{pendidikan_terakhir}}',
-                            '{{tahun_lulus}}', '{{program_studi}}', '{{mapel_tugas_yang_diampu}}', '{{penilaian_kinerja}}',
-                            '{{keterangan_sk_yayasan}}', '{{jabatan}}', '{{status_kepegawaian}}', '{{tanggal_terbit}}',
-                            '{{tanggal_mulai}}', '{{tanggal_selesai}}', '{{tahun_sk}}', '{{tahun_sk_berikutnya}}',
-                            '{{nama_penandatangan}}', '{{jabatan_penandatangan}}', '{{catatan_pengajuan}}', '{{catatan_penerbitan}}'
+                            '@{{nomor_sk}}', '@{{judul_sk}}', '@{{nama_yayasan}}', '@{{nama_sekolah}}', '@{{nama_pegawai}}',
+                            '@{{alamat_yayasan}}', '@{{gelar}}', '@{{tempat_lahir}}', '@{{tanggal_lahir}}', '@{{nip_maarif}}', '@{{nuptk}}',
+                            '@{{nomor_kartanu}}', '@{{tmt_pertama}}', '@{{masa_kerja}}', '@{{pendidikan_terakhir}}',
+                            '@{{tahun_lulus}}', '@{{program_studi}}', '@{{mapel_tugas_yang_diampu}}', '@{{penilaian_kinerja}}',
+                            '@{{keterangan_sk_yayasan}}', '@{{jabatan}}', '@{{status_kepegawaian}}', '@{{tanggal_terbit}}',
+                            '@{{tanggal_mulai}}', '@{{tanggal_selesai}}', '@{{tahun_sk}}', '@{{tahun_sk_berikutnya}}',
+                            '@{{nama_penandatangan}}', '@{{jabatan_penandatangan}}', '@{{catatan_pengajuan}}', '@{{catatan_penerbitan}}'
                         ] as $placeholder)
                             <span class="sky-chip">{{ $placeholder }}</span>
                         @endforeach
@@ -570,25 +570,25 @@ HTML;
         }
 
         function legacyWrapper(renderedBody, editor, placeholders) {
-            const title = editor.querySelector('[data-sk-preview-title]')?.value || placeholders['{{judul_sk}}'];
+            const title = editor.querySelector('[data-sk-preview-title]')?.value || placeholders['@{{judul_sk}}'];
 
             return `
                 <div style="font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #111827;">
                     <div style="text-align:center; margin-bottom:24px;">
                         <h2 style="margin:0;">${title}</h2>
-                        <div>Nomor: ${placeholders['{{nomor_sk}}']}</div>
+                        <div>Nomor: ${placeholders['@{{nomor_sk}}']}</div>
                     </div>
                     <div style="margin-bottom:18px;">
-                        <div>Nama Sekolah: ${placeholders['{{nama_sekolah}}']}</div>
-                        <div>Nama Pegawai/Guru: ${placeholders['{{nama_pegawai}}']}</div>
-                        <div>Status Kepegawaian: ${placeholders['{{status_kepegawaian}}']}</div>
+                        <div>Nama Sekolah: ${placeholders['@{{nama_sekolah}}']}</div>
+                        <div>Nama Pegawai/Guru: ${placeholders['@{{nama_pegawai}}']}</div>
+                        <div>Status Kepegawaian: ${placeholders['@{{status_kepegawaian}}']}</div>
                     </div>
                     <div style="text-align:justify;">${renderedBody}</div>
                     <div style="margin-top:40px; margin-left:auto; width:260px; text-align:left;">
-                        <div>${placeholders['{{tanggal_terbit}}']}</div>
-                        <div>${placeholders['{{jabatan_penandatangan}}']}</div>
+                        <div>${placeholders['@{{tanggal_terbit}}']}</div>
+                        <div>${placeholders['@{{jabatan_penandatangan}}']}</div>
                         <br><br><br>
-                        <div><strong>${placeholders['{{nama_penandatangan}}']}</strong></div>
+                        <div><strong>${placeholders['@{{nama_penandatangan}}']}</strong></div>
                     </div>
                 </div>
             `;
@@ -604,8 +604,8 @@ HTML;
             const numberFormatInput = editor.querySelector('[data-sk-preview-number-format]');
             const placeholders = {
                 ...samplePlaceholders,
-                '{{judul_sk}}': titleInput?.value || samplePlaceholders['{{judul_sk}}'],
-                '{{nomor_sk}}': formatDocumentNumber(numberFormatInput?.value),
+                '@{{judul_sk}}': titleInput?.value || samplePlaceholders['@{{judul_sk}}'],
+                '@{{nomor_sk}}': formatDocumentNumber(numberFormatInput?.value),
             };
 
             let rendered = bodyInput?.value || '';
