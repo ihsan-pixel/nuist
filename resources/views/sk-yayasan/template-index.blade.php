@@ -34,6 +34,9 @@
     padding: 7px 18px 7px 4px;
     width: 92px;
 }
+.sk-letterhead-text {
+    padding-left: 16px;
+}
 .sk-logo-box {
     border: none;
     color: #2f6f45;
@@ -164,7 +167,7 @@
                     <div class="sk-logo-name">LP MA'ARIF NU</div>
                 </div>
             </td>
-            <td>
+            <td class="sk-letterhead-text">
                 <div class="sk-org-title">
                     PENGURUS WILAYAH NAHDLATUL ULAMA<br>
                     DAERAH ISTIMEWA YOGYAKARTA<br>
@@ -1138,6 +1141,7 @@ HTML;
 }
 .sk-letterhead td { vertical-align: middle; }
 .sk-logo-cell { padding: 7px 18px 7px 4px; width: 92px; }
+.sk-letterhead-text { padding-left: 16px; }
 .sk-logo-box {
     align-items: center;
     border: none;
@@ -1211,7 +1215,7 @@ HTML;
                     ${logoMarkup}
                 </div>
             </td>
-            <td>
+            <td class="sk-letterhead-text">
                 <div class="sk-org-title" style="font-size:${safeFontSize(config.orgTitleFontSize)}pt;">${nl2br(config.orgTitleText)}</div>
                 <div class="sk-org-meta" style="font-size:${safeFontSize(config.orgMetaFontSize)}pt;">${nl2br(config.orgMetaText)}</div>
             </td>
