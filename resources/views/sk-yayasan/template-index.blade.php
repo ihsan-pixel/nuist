@@ -13,17 +13,19 @@
 @php
     $defaultSkBody = <<<'HTML'
 <style>
-@page { margin: 14mm 18mm 14mm 18mm; }
+@page { margin: 16mm 24mm 18mm 24mm; }
 .sk-full-document {
+    box-sizing: border-box;
     color: #000;
     font-family: "Times New Roman", Times, serif;
     font-size: 13.5pt;
     line-height: 1.18;
+    padding: 0 4mm;
 }
 .sk-letterhead {
     border-collapse: collapse;
-    margin: 0 auto 4px auto;
-    width: 96%;
+    margin: 0 auto 6px auto;
+    width: 100%;
 }
 .sk-letterhead td {
     vertical-align: middle;
@@ -103,7 +105,7 @@
 }
 .sk-table {
     border-collapse: collapse;
-    width: 100%;
+    width: 98%;
 }
 .sk-table td {
     padding: 0 5px 3px 0;
@@ -124,7 +126,7 @@
 .sk-person-table {
     border-collapse: collapse;
     margin: 7px 0 8px 25px;
-    width: 88%;
+    width: 84%;
 }
 .sk-person-table td {
     padding: 0 5px 2px 0;
@@ -713,7 +715,7 @@ HTML;
     </div>
 
     <div class="row g-3">
-        <div class="col-xl-7">
+        <div class="col-xl-8">
             <div class="card">
                 <div class="card-body">
                     <div class="sky-panel-label mb-1">Form Template</div>
@@ -789,7 +791,7 @@ HTML;
             </div>
         </div>
 
-        <div class="col-xl-5">
+        <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -1038,17 +1040,19 @@ HTML;
 
             return `
 <style>
-@page { margin: 14mm 18mm 14mm 18mm; }
+@page { margin: 16mm 24mm 18mm 24mm; }
 .sk-full-document {
+    box-sizing: border-box;
     color: #000;
     font-family: "Times New Roman", Times, serif;
     font-size: ${safeFontSize(config.baseFontSize)}pt;
     line-height: 1.18;
+    padding: 0 4mm;
 }
 .sk-letterhead {
     border-collapse: collapse;
-    margin: 0 auto 4px auto;
-    width: 96%;
+    margin: 0 auto 6px auto;
+    width: 100%;
 }
 .sk-letterhead td { vertical-align: middle; }
 .sk-logo-cell { padding: 7px 18px 7px 4px; width: 92px; }
@@ -1102,12 +1106,13 @@ HTML;
 }
 .sk-number { margin-bottom: 14px; text-align: center; }
 .sk-subject { font-weight: 700; margin: 0 0 10px 0; }
-.sk-table, .sk-person-table { border-collapse: collapse; width: 100%; }
+.sk-table, .sk-person-table { border-collapse: collapse; }
+.sk-table { width: 98%; }
 .sk-table td { padding: 0 5px 3px 0; vertical-align: top; }
 .sk-label { width: 145px; }
 .sk-colon { text-align: center; width: 20px; }
 .sk-decision { font-weight: 700; margin: 24px 0 8px 0; text-align: center; }
-.sk-person-table { margin: 7px 0 8px 25px; width: 88%; }
+.sk-person-table { margin: 7px 0 8px 25px; width: 84%; }
 .sk-person-table td { padding: 0 5px 2px 0; vertical-align: top; }
 .sk-person-no { width: 22px; }
 .sk-person-label { width: 230px; }
