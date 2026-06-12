@@ -473,22 +473,53 @@ HTML;
     .sk-structured-editor {
         border: 1px solid #d7dedb;
         border-radius: 14px;
-        padding: 14px 16px;
         background: #fcfdfd;
         box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
+        overflow: hidden;
     }
 
     .sk-structured-editor + .sk-structured-editor {
         margin-top: 10px;
     }
 
+    .sk-structured-summary {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        list-style: none;
+        padding: 14px 16px;
+        user-select: none;
+    }
+
+    .sk-structured-summary::-webkit-details-marker {
+        display: none;
+    }
+
     .sk-structured-title {
+        color: #0f172a;
         font-size: 12px;
         font-weight: 700;
-        color: #0f172a;
         letter-spacing: .04em;
-        margin-bottom: 12px;
+        margin: 0;
         text-transform: uppercase;
+    }
+
+    .sk-structured-toggle {
+        color: #64748b;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1;
+        transition: transform .18s ease;
+    }
+
+    .sk-structured-editor[open] .sk-structured-toggle {
+        transform: rotate(45deg);
+    }
+
+    .sk-structured-body {
+        border-top: 1px solid #e5e7eb;
+        padding: 12px 16px 16px 16px;
     }
 
     .sk-structured-editor textarea {
@@ -1187,12 +1218,17 @@ HTML;
             }
 
             container.innerHTML = templateEditorGroups.map((group) => `
-                <div class="sk-structured-editor mb-3">
-                    <div class="sk-structured-title">${group.title}</div>
-                    <div class="sk-structured-grid">
-                        ${group.fields.map((field) => fieldControl(field, config[field.key] ?? '', config[field.fontKey] ?? 13.5)).join('')}
+                <details class="sk-structured-editor mb-3" ${group === templateEditorGroups[0] ? 'open' : ''}>
+                    <summary class="sk-structured-summary">
+                        <span class="sk-structured-title">${group.title}</span>
+                        <span class="sk-structured-toggle">+</span>
+                    </summary>
+                    <div class="sk-structured-body">
+                        <div class="sk-structured-grid">
+                            ${group.fields.map((field) => fieldControl(field, config[field.key] ?? '', config[field.fontKey] ?? 13.5)).join('')}
+                        </div>
                     </div>
-                </div>
+                </details>
             `).join('');
 
             container.querySelectorAll('[data-sk-config-key]').forEach((input) => {
