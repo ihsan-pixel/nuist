@@ -472,33 +472,74 @@ HTML;
 
     .sk-structured-editor {
         border: 1px solid #d7dedb;
-        border-radius: 12px;
-        padding: 14px;
-        background: #f8fafc;
+        border-radius: 14px;
+        padding: 14px 16px;
+        background: #fcfdfd;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
     }
 
     .sk-structured-editor + .sk-structured-editor {
-        margin-top: 12px;
+        margin-top: 10px;
     }
 
     .sk-structured-title {
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
         color: #0f172a;
-        margin-bottom: 10px;
+        letter-spacing: .04em;
+        margin-bottom: 12px;
+        text-transform: uppercase;
     }
 
     .sk-structured-editor textarea {
-        min-height: 110px;
+        min-height: 78px;
         resize: vertical;
     }
 
+    .sk-structured-grid {
+        display: grid;
+        gap: 10px 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sk-structured-field {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .sk-structured-field .form-label {
+        color: #475569;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
     .sk-font-input {
-        max-width: 110px;
+        max-width: 90px;
     }
 
     .sk-legacy-alert {
         font-size: 12px;
+    }
+
+    .sk-template-editor .form-label {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .sk-template-editor .form-control,
+    .sk-template-editor .form-select {
+        border-radius: 10px;
+        font-size: 13px;
+        min-height: 40px;
+        padding: .5rem .75rem;
+    }
+
+    .sk-template-editor textarea.form-control {
+        min-height: 78px;
     }
 
     .sk-editor-raw {
@@ -513,38 +554,66 @@ HTML;
         justify-content: space-between;
     }
 
+    .sk-preview-card {
+        position: sticky;
+        top: 18px;
+    }
+
     .sk-preview-shell {
-        background: #e7e7e7;
+        align-items: flex-start;
+        background: linear-gradient(180deg, #eef2f7 0%, #e5e7eb 100%);
         border: 1px solid #d7dedb;
         border-radius: 14px;
-        max-height: 760px;
+        display: flex;
+        justify-content: center;
+        max-height: 520px;
         overflow: auto;
-        padding: 18px;
+        padding: 12px;
     }
 
     .sk-preview-page {
         background: #fff;
         box-shadow: 0 1px 8px rgba(16, 45, 40, .15);
         margin: 0 auto;
-        min-height: 1122px;
-        padding: 18mm;
-        transform-origin: top center;
-        width: 210mm;
+        min-height: 594px;
+        padding: 10mm;
+        width: min(100%, 420px);
         box-sizing: border-box;
+        overflow: auto;
+        aspect-ratio: 210 / 297;
     }
 
     .sk-preview-page .sk-full-document {
-        font-size: 15px;
+        font-size: 12px;
+    }
+
+    .sk-preview-shell .sk-letterhead {
+        width: 100% !important;
+    }
+
+    .sk-preview-shell .sk-signature {
+        width: 60% !important;
+    }
+
+    .sk-preview-shell .sk-org-title {
+        font-size: 15px !important;
+    }
+
+    .sk-preview-shell .sk-org-meta {
+        font-size: 8px !important;
     }
 
     @media (max-width: 991.98px) {
-        .sk-preview-shell {
-            max-height: 620px;
+        .sk-structured-grid {
+            grid-template-columns: 1fr;
         }
 
-        .sk-preview-page {
-            transform: scale(.72);
-            transform-origin: top left;
+        .sk-preview-card {
+            position: static;
+        }
+
+        .sk-preview-shell {
+            max-height: 460px;
         }
     }
 </style>
@@ -576,7 +645,7 @@ HTML;
     </div>
 
     <div class="row g-3">
-        <div class="col-xl-5">
+        <div class="col-xl-7">
             <div class="card">
                 <div class="card-body">
                     <div class="sky-panel-label mb-1">Form Template</div>
@@ -649,18 +718,18 @@ HTML;
             </div>
         </div>
 
-        <div class="col-xl-7">
-            <div class="card">
+        <div class="col-xl-5">
+            <div class="card sk-preview-card">
                 <div class="card-body">
                     <div class="sk-preview-toolbar mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Preview Template</div>
-                            <h6 class="mb-0">Tampilan contoh hasil generate PDF</h6>
+                            <h6 class="mb-0">Preview ringkas A4</h6>
                         </div>
                         <span class="sky-chip" id="sk-preview-source-label">Template baru</span>
                     </div>
                     <div class="alert alert-info py-2 px-3 small">
-                        Preview memakai data contoh. Saat PDF digenerate, placeholder akan diganti dengan data pengajuan asli.
+                        Preview diperkecil agar fokus edit lebih nyaman. Hasil PDF tetap memakai format A4 penuh.
                     </div>
                     <div class="sk-preview-shell">
                         <div class="sk-preview-page" id="sk-template-preview"></div>
@@ -1091,8 +1160,8 @@ HTML;
                 : `<input type="text" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
 
             return `
-                <div class="sk-structured-editor mb-3">
-                    <div class="sk-structured-title">${field.label}</div>
+                <div class="sk-structured-field">
+                    <label class="form-label">${field.label}</label>
                     <div class="row g-3 align-items-start">
                         <div class="col-lg-9">${inputControl}</div>
                         <div class="col-lg-3">
@@ -1120,7 +1189,9 @@ HTML;
             container.innerHTML = templateEditorGroups.map((group) => `
                 <div class="sk-structured-editor mb-3">
                     <div class="sk-structured-title">${group.title}</div>
-                    ${group.fields.map((field) => fieldControl(field, config[field.key] ?? '', config[field.fontKey] ?? 13.5)).join('')}
+                    <div class="sk-structured-grid">
+                        ${group.fields.map((field) => fieldControl(field, config[field.key] ?? '', config[field.fontKey] ?? 13.5)).join('')}
+                    </div>
                 </div>
             `).join('');
 
