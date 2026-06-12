@@ -126,11 +126,11 @@
     text-justify: inter-word;
 }
 .sk-label {
-    width: 145px;
+    width: 124px;
 }
 .sk-colon {
     text-align: center;
-    width: 20px;
+    width: 12px;
 }
 .sk-decision {
     font-weight: 700;
@@ -150,7 +150,7 @@
     width: 22px;
 }
 .sk-person-label {
-    width: 230px;
+    width: 198px;
 }
 .sk-signature {
     margin-left: auto;
@@ -1184,13 +1184,13 @@ HTML;
 .sk-table { width: 98%; }
 .sk-table td { padding: 0 5px 3px 0; vertical-align: top; }
 .sk-content-cell { text-align: justify; text-justify: inter-word; }
-.sk-label { width: 145px; }
-.sk-colon { text-align: center; width: 20px; }
+.sk-label { width: 124px; }
+.sk-colon { text-align: center; width: 12px; }
 .sk-decision { font-weight: 700; margin: 24px 0 8px 0; text-align: center; }
 .sk-person-table { margin: 7px 0 8px 25px; width: 84%; }
 .sk-person-table td { padding: 0 5px 2px 0; vertical-align: top; }
 .sk-person-no { width: 22px; }
-.sk-person-label { width: 230px; }
+.sk-person-label { width: 198px; }
 .sk-signature { margin-left: auto; margin-top: 26px; width: 360px; }
 .sk-signature-name { font-weight: 700; margin-top: 68px; text-decoration: underline; }
 .sk-copy { margin-top: 48px; }
