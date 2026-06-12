@@ -121,6 +121,10 @@
     padding: 0 5px 3px 0;
     vertical-align: top;
 }
+.sk-content-cell {
+    text-align: justify;
+    text-justify: inter-word;
+}
 .sk-label {
     width: 145px;
 }
@@ -204,12 +208,12 @@
         <tr>
             <td class="sk-label">Menimbang</td>
             <td class="sk-colon">:</td>
-            <td>Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
+            <td class="sk-content-cell">Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
         </tr>
         <tr>
             <td class="sk-label">Mengingat</td>
             <td class="sk-colon">:</td>
-            <td>
+            <td class="sk-content-cell">
                 1. Permendiknas Nomor 16 tahun 2007;<br>
                 2. Permendikbud Nomor 25 Tahun 2024;<br>
                 3. Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;<br>
@@ -219,7 +223,7 @@
         <tr>
             <td class="sk-label">Memperhatikan</td>
             <td class="sk-colon">:</td>
-            <td>Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</td>
+            <td class="sk-content-cell">Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</td>
         </tr>
     </table>
 
@@ -229,12 +233,12 @@
         <tr>
             <td class="sk-label">Menetapkan</td>
             <td class="sk-colon">:</td>
-            <td></td>
+            <td class="sk-content-cell"></td>
         </tr>
         <tr>
             <td class="sk-label">Kesatu</td>
             <td class="sk-colon">:</td>
-            <td>
+            <td class="sk-content-cell">
                 Guru Tetap Yayasan tersebut di bawah ini:
                 <table class="sk-person-table">
                     <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td>@{{nama_pegawai}}</td></tr>
@@ -254,12 +258,12 @@
         <tr>
             <td class="sk-label">Kedua</td>
             <td class="sk-colon">:</td>
-            <td>Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
+            <td class="sk-content-cell">Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
         </tr>
         <tr>
             <td class="sk-label">Ketiga</td>
             <td class="sk-colon">:</td>
-            <td>Asli Surat Keputusan ini diberikan kepada yang bersangkutan.</td>
+            <td class="sk-content-cell">Asli Surat Keputusan ini diberikan kepada yang bersangkutan.</td>
         </tr>
     </table>
 
@@ -1179,6 +1183,7 @@ HTML;
 .sk-table, .sk-person-table { border-collapse: collapse; }
 .sk-table { width: 98%; }
 .sk-table td { padding: 0 5px 3px 0; vertical-align: top; }
+.sk-content-cell { text-align: justify; text-justify: inter-word; }
 .sk-label { width: 145px; }
 .sk-colon { text-align: center; width: 20px; }
 .sk-decision { font-weight: 700; margin: 24px 0 8px 0; text-align: center; }
@@ -1222,17 +1227,17 @@ HTML;
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">${escapeHtml(config.menimbangLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">:</td>
-            <td style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContentText)}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContentText)}</td>
         </tr>
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">${escapeHtml(config.mengingatLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">:</td>
-            <td style="font-size:${safeFontSize(config.mengingatContentFontSize)}pt;">${mengingatItems}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.mengingatContentFontSize)}pt;">${mengingatItems}</td>
         </tr>
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">${escapeHtml(config.memperhatikanLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">:</td>
-            <td style="font-size:${safeFontSize(config.memperhatikanContentFontSize)}pt;">${nl2br(config.memperhatikanContentText)}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.memperhatikanContentFontSize)}pt;">${nl2br(config.memperhatikanContentText)}</td>
         </tr>
     </table>
 
@@ -1242,12 +1247,12 @@ HTML;
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.menetapkanLabelFontSize)}pt;">${escapeHtml(config.menetapkanLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.menetapkanLabelFontSize)}pt;">:</td>
-            <td></td>
+            <td class="sk-content-cell"></td>
         </tr>
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.kesatuLabelFontSize)}pt;">${escapeHtml(config.kesatuLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.kesatuLabelFontSize)}pt;">:</td>
-            <td style="font-size:${safeFontSize(config.kesatuIntroFontSize)}pt;">
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.kesatuIntroFontSize)}pt;">
                 ${nl2br(config.kesatuIntroText)}
                 <table class="sk-person-table" style="font-size:${safeFontSize(config.personRowFontSize)}pt;">${personRows}</table>
                 ${nl2br(config.kesatuClosingText)}
@@ -1256,12 +1261,12 @@ HTML;
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.keduaLabelFontSize)}pt;">${escapeHtml(config.keduaLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.keduaLabelFontSize)}pt;">:</td>
-            <td style="font-size:${safeFontSize(config.keduaContentFontSize)}pt;">${nl2br(config.keduaContentText)}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.keduaContentFontSize)}pt;">${nl2br(config.keduaContentText)}</td>
         </tr>
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.ketigaLabelFontSize)}pt;">${escapeHtml(config.ketigaLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.ketigaLabelFontSize)}pt;">:</td>
-            <td style="font-size:${safeFontSize(config.ketigaContentFontSize)}pt;">${nl2br(config.ketigaContentText)}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.ketigaContentFontSize)}pt;">${nl2br(config.ketigaContentText)}</td>
         </tr>
     </table>
 
