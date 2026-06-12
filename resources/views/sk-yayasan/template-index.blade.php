@@ -760,7 +760,10 @@ HTML;
                             <input class="form-check-input" type="checkbox" name="is_active" value="1" checked>
                             <label class="form-check-label">Aktifkan template</label>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Simpan Template</button>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-outline-primary" data-sk-preview-trigger>Preview Generate PDF</button>
+                            <button type="submit" class="btn btn-primary flex-grow-1">Simpan Template</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -787,29 +790,6 @@ HTML;
         </div>
 
         <div class="col-xl-7">
-            <div class="card sk-preview-card">
-                <div class="card-body">
-                    <div class="sk-preview-toolbar mb-3">
-                        <div>
-                            <div class="sky-panel-label mb-1">Preview Template</div>
-                            <h6 class="mb-0">Preview ringkas A4</h6>
-                        </div>
-                        <div class="sk-preview-actions">
-                            <span class="sky-chip" id="sk-preview-source-label">Template baru</span>
-                            <button type="button" class="btn btn-sm btn-outline-primary" id="sk-preview-pdf-button">
-                                Preview PDF
-                            </button>
-                        </div>
-                    </div>
-                    <div class="alert alert-info py-2 px-3 small">
-                        Preview diperkecil agar fokus edit lebih nyaman. Hasil PDF tetap memakai format A4 penuh.
-                    </div>
-                    <div class="sk-preview-shell">
-                        <div class="sk-preview-page" id="sk-template-preview"></div>
-                    </div>
-                </div>
-            </div>
-
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -882,6 +862,7 @@ HTML;
                                                     <label class="form-check-label">Aktifkan template</label>
                                                 </div>
                                                 <div class="d-flex flex-wrap gap-2">
+                                                    <button type="button" class="btn btn-outline-primary" data-sk-preview-trigger>Preview Generate PDF</button>
                                                     <button type="submit" class="btn btn-primary">Update</button>
                                                 </div>
                                             </form>
@@ -906,6 +887,10 @@ HTML;
             </div>
         </div>
     </div>
+
+    <div class="d-none">
+        <div id="sk-template-preview"></div>
+    </div>
 </div>
 @endsection
 
@@ -914,8 +899,6 @@ HTML;
     (function () {
         const preview = document.getElementById('sk-template-preview');
         const previewShell = preview?.closest('.sk-preview-shell');
-        const sourceLabel = document.getElementById('sk-preview-source-label');
-        const previewPdfButton = document.getElementById('sk-preview-pdf-button');
         const samplePlaceholders = @json($samplePlaceholders);
         const defaultTemplateConfig = @json($defaultTemplateConfig);
         const templateEditorGroups = @json($templateEditorGroups);
@@ -1394,10 +1377,6 @@ HTML;
 
             preview.innerHTML = `<div class="sk-preview-canvas">${rendered}</div>`;
             updatePreviewScale();
-
-            if (sourceLabel) {
-                sourceLabel.textContent = editor.dataset.previewLabel || 'Template';
-            }
         }
 
         function updatePreviewScale() {
@@ -1503,11 +1482,16 @@ HTML;
                 }
             });
             editor.addEventListener('focusin', () => renderPreview(editor));
+            editor.querySelectorAll('[data-sk-preview-trigger]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    renderPreview(editor);
+                    openPdfPreview();
+                });
+            });
         });
 
         renderPreview(editors[0]);
         window.addEventListener('resize', updatePreviewScale);
-        previewPdfButton?.addEventListener('click', openPdfPreview);
     })();
 </script>
 @endsection
