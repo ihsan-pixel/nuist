@@ -287,10 +287,7 @@ HTML;
 
     $defaultTemplateConfig = [
         'baseFontSize' => 13.5,
-        'logoMarkText' => "LP\nMA'ARIF\nNU",
-        'logoMarkFontSize' => 15,
-        'logoNameText' => "LP MA'ARIF NU",
-        'logoNameFontSize' => 15,
+        'logoImageData' => null,
         'orgTitleText' => "PENGURUS WILAYAH NAHDLATUL ULAMA\nDAERAH ISTIMEWA YOGYAKARTA\nLEMBAGA PENDIDIKAN MA'ARIF",
         'orgTitleFontSize' => 24,
         'orgMetaText' => "Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta. 55121\nWebsite: https://lpmnudiy.id email: sekretariat@lpmnudiy.id",
@@ -373,8 +370,7 @@ HTML;
         [
             'title' => 'Kop Surat & Logo',
             'fields' => [
-                ['key' => 'logoMarkText', 'label' => 'Teks Logo', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'logoMarkFontSize'],
-                ['key' => 'logoNameText', 'label' => 'Nama Logo', 'type' => 'text', 'fontKey' => 'logoNameFontSize'],
+                ['key' => 'logoImageData', 'label' => 'Logo PNG / JPG', 'type' => 'image'],
                 ['key' => 'orgTitleText', 'label' => 'Judul Instansi', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'orgTitleFontSize'],
                 ['key' => 'orgMetaText', 'label' => 'Alamat / Kontak', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'orgMetaFontSize'],
             ],
@@ -545,6 +541,38 @@ HTML;
         font-size: 12px;
         font-weight: 600;
         margin-bottom: 6px;
+    }
+
+    .sk-image-field-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .sk-image-preview-box {
+        align-items: center;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 10px;
+        display: flex;
+        height: 92px;
+        justify-content: center;
+        overflow: hidden;
+        padding: 8px;
+        width: 100%;
+    }
+
+    .sk-image-preview-box img {
+        height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .sk-image-empty {
+        color: #94a3b8;
+        font-size: 12px;
+        text-align: center;
     }
 
     .sk-font-input {
@@ -972,6 +1000,9 @@ HTML;
         }
 
         function buildStructuredHtml(config, title, numberText) {
+            const logoMarkup = config.logoImageData
+                ? `<img src="${escapeHtml(config.logoImageData)}" alt="Logo Yayasan" style="height:96px; max-width:170px; object-fit:contain;">`
+                : `<div style="color:#94a3b8; font-family:Arial,sans-serif; font-size:12px; padding-top:38px;">Logo</div>`;
             const personRows = Array.from({ length: 10 }, (_, index) => {
                 const rowNumber = index + 1;
 
@@ -1015,23 +1046,17 @@ HTML;
 .sk-letterhead td { vertical-align: middle; }
 .sk-logo-cell { padding: 7px 10px; width: 205px; }
 .sk-logo-box {
+    align-items: center;
     border: 1px solid #c9d9d7;
     color: #70ae7b;
+    display: flex;
     font-family: Arial, sans-serif;
     font-weight: 700;
     height: 102px;
+    justify-content: center;
     text-align: center;
     width: 190px;
 }
-.sk-logo-mark {
-    background: #82c39a;
-    color: #fff;
-    height: 74px;
-    letter-spacing: 3px;
-    line-height: 1.15;
-    padding-top: 12px;
-}
-.sk-logo-name { letter-spacing: 1px; padding-top: 5px; }
 .sk-org-title {
     color: #777;
     font-family: Georgia, "Times New Roman", serif;
@@ -1077,8 +1102,7 @@ HTML;
         <tr>
             <td class="sk-logo-cell">
                 <div class="sk-logo-box">
-                    <div class="sk-logo-mark" style="font-size:${safeFontSize(config.logoMarkFontSize)}pt;">${nl2br(config.logoMarkText)}</div>
-                    <div class="sk-logo-name" style="font-size:${safeFontSize(config.logoNameFontSize)}pt;">${nl2br(config.logoNameText)}</div>
+                    ${logoMarkup}
                 </div>
             </td>
             <td>
@@ -1177,7 +1201,31 @@ HTML;
             bodyInput.value = `${metaPrefix}${encodeMeta(config)}${metaSuffix}\n${rendered}`;
         }
 
+        function imageFieldControl(field, value) {
+            const preview = value
+                ? `<img src="${escapeHtml(value)}" alt="${escapeHtml(field.label)}">`
+                : `<div class="sk-image-empty">Belum ada logo<br>Upload PNG atau JPG</div>`;
+
+            return `
+                <div class="sk-structured-field">
+                    <label class="form-label">${field.label}</label>
+                    <div class="sk-image-field-actions">
+                        <input type="hidden" value="${escapeHtml(value || '')}" data-sk-config-key="${field.key}">
+                        <input type="file" class="form-control" accept="image/png,image/jpeg,.png,.jpg,.jpeg" data-sk-image-input="${field.key}">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-sk-image-clear="${field.key}">Hapus</button>
+                    </div>
+                    <div class="sk-image-preview-box mt-2" data-sk-image-preview="${field.key}">
+                        ${preview}
+                    </div>
+                </div>
+            `;
+        }
+
         function fieldControl(field, value, fontValue) {
+            if (field.type === 'image') {
+                return imageFieldControl(field, value);
+            }
+
             const inputControl = field.type === 'textarea'
                 ? `<textarea class="form-control" rows="${field.rows || 2}" data-sk-config-key="${field.key}">${escapeHtml(value)}</textarea>`
                 : `<input type="text" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
@@ -1229,6 +1277,49 @@ HTML;
                     renderPreview(editor);
                 });
                 input.addEventListener('focus', () => renderPreview(editor));
+            });
+
+            container.querySelectorAll('[data-sk-image-input]').forEach((input) => {
+                input.addEventListener('change', (event) => {
+                    const file = event.target.files?.[0];
+                    const key = event.target.dataset.skImageInput;
+                    const hiddenInput = container.querySelector(`[data-sk-config-key="${key}"]`);
+                    const previewBox = container.querySelector(`[data-sk-image-preview="${key}"]`);
+
+                    if (!file || !hiddenInput || !previewBox) {
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        hiddenInput.value = String(reader.result || '');
+                        previewBox.innerHTML = `<img src="${escapeHtml(hiddenInput.value)}" alt="Logo preview">`;
+                        syncStructuredBody(editor);
+                        renderPreview(editor);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            container.querySelectorAll('[data-sk-image-clear]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const key = button.dataset.skImageClear;
+                    const hiddenInput = container.querySelector(`[data-sk-config-key="${key}"]`);
+                    const previewBox = container.querySelector(`[data-sk-image-preview="${key}"]`);
+                    const fileInput = container.querySelector(`[data-sk-image-input="${key}"]`);
+
+                    if (!hiddenInput || !previewBox) {
+                        return;
+                    }
+
+                    hiddenInput.value = '';
+                    if (fileInput) {
+                        fileInput.value = '';
+                    }
+                    previewBox.innerHTML = '<div class="sk-image-empty">Belum ada logo<br>Upload PNG atau JPG</div>';
+                    syncStructuredBody(editor);
+                    renderPreview(editor);
+                });
             });
         }
 
