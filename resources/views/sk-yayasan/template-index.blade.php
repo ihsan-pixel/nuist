@@ -582,7 +582,7 @@ HTML;
                     <div class="sky-panel-label mb-1">Form Template</div>
                     <h6 class="mb-3">Tambah Template Baru</h6>
 
-                    <form action="{{ route('sk-yayasan.template.store') }}" method="POST" class="sk-template-editor" data-preview-label="Template baru">
+                    <form action="{{ route('sk-yayasan.template.store') }}" method="POST" class="sk-template-editor" data-preview-label="Template baru" data-sk-legacy-notice="off">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Nama Template</label>
@@ -1113,7 +1113,8 @@ HTML;
             }
 
             if (legacyAlert) {
-                legacyAlert.classList.toggle('d-none', !isLegacy);
+                const shouldShowLegacy = isLegacy && editor.dataset.skLegacyNotice !== 'off';
+                legacyAlert.classList.toggle('d-none', !shouldShowLegacy);
             }
 
             container.innerHTML = templateEditorGroups.map((group) => `
