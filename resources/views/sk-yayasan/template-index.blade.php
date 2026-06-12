@@ -648,10 +648,10 @@ HTML;
         border: 1px solid #d7dedb;
         border-radius: 14px;
         display: flex;
-        height: 70vh;
+        height: 76vh;
         justify-content: center;
-        max-height: 860px;
-        overflow: auto;
+        max-height: 920px;
+        overflow: hidden;
         padding: 12px;
     }
 
@@ -671,6 +671,10 @@ HTML;
         color: #64748b;
         font-size: 12px;
         margin-top: 10px;
+    }
+
+    .sk-template-modal-dialog {
+        max-width: 96vw;
     }
 
     .sk-preview-card {
@@ -732,6 +736,7 @@ HTML;
 
         .sk-modal-preview-shell {
             height: 420px;
+            overflow: auto;
         }
     }
 </style>
@@ -871,7 +876,7 @@ HTML;
                                 </button>
 
                                 <div class="modal fade" id="templateModal{{ $template->id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                                    <div class="modal-dialog modal-xl modal-dialog-scrollable sk-template-modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <div>
@@ -882,7 +887,7 @@ HTML;
                                             </div>
                                             <div class="modal-body">
                                                 <div class="row g-4">
-                                                    <div class="col-lg-7">
+                                                    <div class="col-lg-6">
                                                         <form action="{{ route('sk-yayasan.template.update', $template) }}" method="POST" class="sk-template-editor" data-preview-label="{{ $template->name }}">
                                                             @csrf
                                                             @method('PUT')
@@ -931,11 +936,11 @@ HTML;
                                                             </div>
                                                         </form>
                                                     </div>
-                                                    <div class="col-lg-5">
+                                                    <div class="col-lg-6">
                                                         <div class="sk-modal-preview-panel">
                                                             <div class="sky-panel-label mb-1">Preview Template</div>
                                                             <h6 class="mb-2">Live Preview A4</h6>
-                                                            <div class="sk-modal-preview-shell" data-sk-live-preview-shell>
+                                                            <div class="sk-modal-preview-shell" data-sk-live-preview-shell data-sk-preview-fit="page">
                                                                 <div class="sk-modal-preview-page" data-sk-live-preview></div>
                                                             </div>
                                                             <div class="sk-modal-preview-note">Preview ini ter-update otomatis saat isi template diubah.</div>
@@ -1454,7 +1459,13 @@ HTML;
             const naturalWidth = canvas.offsetWidth;
             const naturalHeight = canvas.offsetHeight;
             const availableWidth = Math.max(shell.clientWidth - 24, 240);
-            const scale = Math.min(1, availableWidth / naturalWidth);
+            const availableHeight = Math.max(shell.clientHeight - 24, 240);
+            const fitMode = shell.dataset.skPreviewFit || 'width';
+            const widthScale = availableWidth / naturalWidth;
+            const heightScale = availableHeight / naturalHeight;
+            const scale = fitMode === 'page'
+                ? Math.min(1, widthScale, heightScale)
+                : Math.min(1, widthScale);
 
             target.style.setProperty('--sk-preview-scale', scale.toFixed(4));
             target.style.width = `${naturalWidth * scale}px`;
