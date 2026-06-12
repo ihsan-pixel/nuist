@@ -22,7 +22,6 @@
 }
 .sk-letterhead {
     border-collapse: collapse;
-    border: 1px dashed #777;
     margin: 0 auto 4px auto;
     width: 96%;
 }
@@ -34,8 +33,8 @@
     width: 205px;
 }
 .sk-logo-box {
-    border: 1px solid #c9d9d7;
-    color: #70ae7b;
+    border: none;
+    color: #2f6f45;
     font-family: Arial, sans-serif;
     font-weight: 700;
     height: 102px;
@@ -57,7 +56,7 @@
     padding-top: 5px;
 }
 .sk-org-title {
-    color: #777;
+    color: #000;
     font-family: Georgia, "Times New Roman", serif;
     font-size: 24pt;
     font-weight: 700;
@@ -65,7 +64,7 @@
     padding: 4px 8px 0 8px;
 }
 .sk-org-meta {
-    color: #777;
+    color: #000;
     font-family: Arial, sans-serif;
     font-size: 10.5pt;
     line-height: 1.25;
@@ -1039,7 +1038,6 @@ HTML;
 }
 .sk-letterhead {
     border-collapse: collapse;
-    border: 1px dashed #777;
     margin: 0 auto 4px auto;
     width: 96%;
 }
@@ -1047,8 +1045,8 @@ HTML;
 .sk-logo-cell { padding: 7px 10px; width: 205px; }
 .sk-logo-box {
     align-items: center;
-    border: 1px solid #c9d9d7;
-    color: #70ae7b;
+    border: none;
+    color: #2f6f45;
     display: flex;
     font-family: Arial, sans-serif;
     font-weight: 700;
@@ -1058,14 +1056,14 @@ HTML;
     width: 190px;
 }
 .sk-org-title {
-    color: #777;
+    color: #000;
     font-family: Georgia, "Times New Roman", serif;
     font-weight: 700;
     line-height: 1.14;
     padding: 4px 8px 0 8px;
 }
 .sk-org-meta {
-    color: #777;
+    color: #000;
     font-family: Arial, sans-serif;
     line-height: 1.25;
     padding: 6px 8px 0 8px;
