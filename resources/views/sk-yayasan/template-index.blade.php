@@ -819,7 +819,7 @@ HTML;
                             <label class="form-check-label">Aktifkan template</label>
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-outline-primary" data-sk-preview-trigger>Preview Generate PDF</button>
+                            <button type="button" class="btn btn-outline-primary" data-sk-preview-trigger>Generate PDF</button>
                             <button type="submit" class="btn btn-primary flex-grow-1">Simpan Template</button>
                         </div>
                     </form>
@@ -934,7 +934,7 @@ HTML;
                                                                 <label class="form-check-label">Aktifkan template</label>
                                                             </div>
                                                             <div class="d-flex flex-wrap gap-2">
-                                                                <button type="button" class="btn btn-outline-primary" data-sk-preview-trigger>Preview Generate PDF</button>
+                                                                <button type="button" class="btn btn-outline-primary" data-sk-preview-trigger>Generate PDF</button>
                                                                 <button type="submit" class="btn btn-primary">Update</button>
                                                             </div>
                                                         </form>
@@ -1522,8 +1522,12 @@ HTML;
                 <head>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <title>Preview PDF SK Yayasan</title>
+                    <title>Generate PDF SK Yayasan</title>
                     <style>
+                        @page {
+                            size: A4;
+                            margin: 16mm 24mm 18mm 24mm;
+                        }
                         body {
                             margin: 0;
                             background: #f1f5f9;
@@ -1551,6 +1555,14 @@ HTML;
                 </head>
                 <body>
                     <div class="pdf-preview-sheet">${canvas.innerHTML}</div>
+                    <script>
+                        window.addEventListener('load', function () {
+                            setTimeout(function () {
+                                window.focus();
+                                window.print();
+                            }, 250);
+                        });
+                    <\/script>
                 </body>
                 </html>
             `;
