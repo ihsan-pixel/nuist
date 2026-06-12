@@ -921,6 +921,7 @@ HTML;
         const templateEditorGroups = @json($templateEditorGroups);
         const metaPrefix = '<!--SK_TEMPLATE_META:';
         const metaSuffix = '-->';
+        let currentPdfPreviewUrl = null;
         const romanMonths = {
             '01': 'I',
             '02': 'II',
@@ -1431,14 +1432,7 @@ HTML;
                 return;
             }
 
-            const previewWindow = window.open('', '_blank', 'noopener,noreferrer');
-
-            if (!previewWindow) {
-                return;
-            }
-
-            previewWindow.document.open();
-            previewWindow.document.write(`
+            const html = `
                 <!doctype html>
                 <html lang="id">
                 <head>
@@ -1475,9 +1469,24 @@ HTML;
                     <div class="pdf-preview-sheet">${canvas.innerHTML}</div>
                 </body>
                 </html>
-            `);
-            previewWindow.document.close();
-            previewWindow.focus();
+            `;
+
+            if (currentPdfPreviewUrl) {
+                URL.revokeObjectURL(currentPdfPreviewUrl);
+            }
+
+            const blob = new Blob([html], { type: 'text/html' });
+            currentPdfPreviewUrl = URL.createObjectURL(blob);
+
+            const previewWindow = window.open(currentPdfPreviewUrl, '_blank');
+
+            if (!previewWindow) {
+                const anchor = document.createElement('a');
+                anchor.href = currentPdfPreviewUrl;
+                anchor.target = '_blank';
+                anchor.rel = 'noopener noreferrer';
+                anchor.click();
+            }
         }
 
         const editors = document.querySelectorAll('.sk-template-editor');
