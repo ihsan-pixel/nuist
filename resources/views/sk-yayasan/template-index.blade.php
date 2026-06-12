@@ -70,6 +70,14 @@
     line-height: 1.14;
     padding: 4px 8px 0 8px;
 }
+.sk-org-subtitle {
+    color: #000;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17pt;
+    font-weight: 700;
+    line-height: 1.12;
+    padding: 2px 8px 0 8px;
+}
 .sk-org-meta {
     color: #000;
     font-family: Arial, sans-serif;
@@ -175,6 +183,8 @@
                     DAERAH ISTIMEWA YOGYAKARTA<br>
                     LEMBAGA PENDIDIKAN MA'ARIF
                 </div>
+                <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 1</div>
+                <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 2</div>
                 <div class="sk-org-meta">
                     Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta. 55121<br>
                     Website: https://lpmnudiy.id email: sekretariat@lpmnudiy.id
@@ -308,6 +318,10 @@ HTML;
         'logoImageData' => null,
         'orgTitleText' => "PENGURUS WILAYAH NAHDLATUL ULAMA\nDAERAH ISTIMEWA YOGYAKARTA\nLEMBAGA PENDIDIKAN MA'ARIF",
         'orgTitleFontSize' => 24,
+        'orgSubtitle1Text' => '',
+        'orgSubtitle1FontSize' => 17,
+        'orgSubtitle2Text' => '',
+        'orgSubtitle2FontSize' => 15,
         'orgMetaText' => "Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta. 55121\nWebsite: https://lpmnudiy.id email: sekretariat@lpmnudiy.id",
         'orgMetaFontSize' => 10.5,
         'documentTitleFontSize' => 14,
@@ -390,6 +404,8 @@ HTML;
             'fields' => [
                 ['key' => 'logoImageData', 'label' => 'Logo PNG / JPG', 'type' => 'image'],
                 ['key' => 'orgTitleText', 'label' => 'Judul Instansi', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'orgTitleFontSize'],
+                ['key' => 'orgSubtitle1Text', 'label' => 'Judul Instansi Bawahan 1', 'type' => 'textarea', 'rows' => 2, 'fontKey' => 'orgSubtitle1FontSize'],
+                ['key' => 'orgSubtitle2Text', 'label' => 'Judul Instansi Bawahan 2', 'type' => 'textarea', 'rows' => 2, 'fontKey' => 'orgSubtitle2FontSize'],
                 ['key' => 'orgMetaText', 'label' => 'Alamat / Kontak', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'orgMetaFontSize'],
             ],
         ],
@@ -1051,6 +1067,12 @@ HTML;
             const logoMarkup = config.logoImageData
                 ? `<img src="${escapeHtml(config.logoImageData)}" alt="Logo Yayasan" style="display:block; height:96px; margin-top:2px; max-width:170px; object-fit:contain;">`
                 : `<div style="color:#94a3b8; font-family:Arial,sans-serif; font-size:12px; padding-top:38px;">Logo</div>`;
+            const orgSubtitle1Markup = config.orgSubtitle1Text
+                ? `<div class="sk-org-subtitle" style="font-size:${safeFontSize(config.orgSubtitle1FontSize)}pt;">${nl2br(config.orgSubtitle1Text)}</div>`
+                : '';
+            const orgSubtitle2Markup = config.orgSubtitle2Text
+                ? `<div class="sk-org-subtitle" style="font-size:${safeFontSize(config.orgSubtitle2FontSize)}pt;">${nl2br(config.orgSubtitle2Text)}</div>`
+                : '';
             const personRows = Array.from({ length: 10 }, (_, index) => {
                 const rowNumber = index + 1;
 
@@ -1116,6 +1138,13 @@ HTML;
     line-height: 1.14;
     padding: 4px 8px 0 8px;
 }
+.sk-org-subtitle {
+    color: #000;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    line-height: 1.12;
+    padding: 2px 8px 0 8px;
+}
 .sk-org-meta {
     color: #000;
     font-family: Arial, sans-serif;
@@ -1172,6 +1201,8 @@ HTML;
             </td>
             <td class="sk-letterhead-text">
                 <div class="sk-org-title" style="font-size:${safeFontSize(config.orgTitleFontSize)}pt;">${nl2br(config.orgTitleText)}</div>
+                ${orgSubtitle1Markup}
+                ${orgSubtitle2Markup}
                 <div class="sk-org-meta" style="font-size:${safeFontSize(config.orgMetaFontSize)}pt;">${nl2br(config.orgMetaText)}</div>
             </td>
         </tr>
