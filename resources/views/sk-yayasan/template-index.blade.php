@@ -86,11 +86,18 @@
     padding: 6px 8px 0 8px;
 }
 .sk-green-line {
-    background: #2f6f45;
-    border-bottom: 1px solid #2f6f45;
-    border-top: 1px solid #2f6f45;
-    height: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     margin: 0 0 22px 0;
+}
+.sk-green-line-thin {
+    background: #2f6f45;
+    height: 1px;
+}
+.sk-green-line-thick {
+    background: #2f6f45;
+    height: 4px;
 }
 .sk-title {
     font-weight: 700;
@@ -182,7 +189,11 @@
             </td>
         </tr>
     </table>
-    <div class="sk-green-line"></div>
+    <div class="sk-green-line">
+        <div class="sk-green-line-thin"></div>
+        <div class="sk-green-line-thick"></div>
+        <div class="sk-green-line-thin"></div>
+    </div>
 
     <div class="sk-title">SURAT KEPUTUSAN KETUA LP MA'ARIF NU PWNU DIY</div>
     <div class="sk-number">Nomor: @{{nomor_sk}}</div>
@@ -1142,12 +1153,13 @@ HTML;
     padding: 6px 8px 0 8px;
 }
 .sk-green-line {
-    background: #2f6f45;
-    border-bottom: 1px solid #2f6f45;
-    border-top: 1px solid #2f6f45;
-    height: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     margin: 0 0 22px 0;
 }
+.sk-green-line-thin { background: #2f6f45; height: 1px; }
+.sk-green-line-thick { background: #2f6f45; height: 4px; }
 .sk-title {
     font-weight: 700;
     text-align: center;
@@ -1187,7 +1199,11 @@ HTML;
             </td>
         </tr>
     </table>
-    <div class="sk-green-line"></div>
+    <div class="sk-green-line">
+        <div class="sk-green-line-thin"></div>
+        <div class="sk-green-line-thick"></div>
+        <div class="sk-green-line-thin"></div>
+    </div>
 
     <div class="sk-title" style="font-size:${safeFontSize(config.documentTitleFontSize)}pt;">${escapeHtml(title)}</div>
     <div class="sk-number" style="font-size:${safeFontSize(config.numberFontSize)}pt;">${escapeHtml(config.numberLabelText)} ${escapeHtml(numberText)}</div>
