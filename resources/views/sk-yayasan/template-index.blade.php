@@ -713,7 +713,7 @@ HTML;
     </div>
 
     <div class="row g-3">
-        <div class="col-xl-5">
+        <div class="col-xl-7">
             <div class="card">
                 <div class="card-body">
                     <div class="sky-panel-label mb-1">Form Template</div>
@@ -789,7 +789,7 @@ HTML;
             </div>
         </div>
 
-        <div class="col-xl-7">
+        <div class="col-xl-5">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
