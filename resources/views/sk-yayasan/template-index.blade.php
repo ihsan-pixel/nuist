@@ -13,7 +13,7 @@
 @php
     $defaultSkBody = <<<'HTML'
 <style>
-@page { margin: 6mm 16mm 18mm 16mm; }
+@page { margin: 6mm 16mm 12mm 16mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
@@ -1105,7 +1105,7 @@ HTML;
 
             return `
 <style>
-@page { margin: 6mm 16mm 18mm 16mm; }
+@page { margin: 6mm 16mm 12mm 16mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
