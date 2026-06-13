@@ -31,11 +31,11 @@
     vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 8px 18px 7px 12px;
+    padding: 8px 24px 7px 12px;
     width: 92px;
 }
 .sk-letterhead-text {
-    padding-left: 16px;
+    padding-left: 26px;
 }
 .sk-logo-box {
     border: none;
@@ -1134,8 +1134,8 @@ HTML;
     width: 100%;
 }
 .sk-letterhead td { vertical-align: top; }
-.sk-logo-cell { padding: 8px 18px 7px 12px; width: 92px; }
-.sk-letterhead-text { padding-left: 16px; }
+.sk-logo-cell { padding: 8px 24px 7px 12px; width: 92px; }
+.sk-letterhead-text { padding-left: 26px; }
 .sk-logo-box {
     align-items: center;
     border: none;
