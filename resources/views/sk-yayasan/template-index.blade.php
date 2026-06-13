@@ -961,6 +961,10 @@ HTML;
             max-height: 460px;
         }
 
+        b, strong {
+            font-weight: normal;
+        }
+
     }
 </style>
 @endpush
