@@ -143,14 +143,17 @@
     width: 100%;
 }
 .sk-person-table td {
-    padding: 0 5px 2px 0;
+    padding: 0 2px 2px 0;
     vertical-align: top;
 }
 .sk-person-no {
     width: 30px;
 }
 .sk-person-label {
-    width: 198px;
+    width: 176px;
+}
+.sk-person-table .sk-colon {
+    width: 7px;
 }
 .sk-signature {
     margin-left: auto;
@@ -1188,9 +1191,10 @@ HTML;
 .sk-colon { text-align: center; width: 9px; }
 .sk-decision { font-weight: 700; margin: 24px 0 8px 0; text-align: center; }
 .sk-person-table { margin: 7px 0 8px 0; width: 100%; }
-.sk-person-table td { padding: 0 5px 2px 0; vertical-align: top; }
+.sk-person-table td { padding: 0 2px 2px 0; vertical-align: top; }
 .sk-person-no { width: 30px; }
-.sk-person-label { width: 198px; }
+.sk-person-label { width: 176px; }
+.sk-person-table .sk-colon { width: 7px; }
 .sk-signature { margin-left: auto; margin-top: 26px; width: 360px; }
 .sk-signature-name { font-weight: 700; margin-top: 68px; text-decoration: underline; }
 .sk-copy { margin-top: 48px; }
