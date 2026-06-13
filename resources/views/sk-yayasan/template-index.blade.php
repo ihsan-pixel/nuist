@@ -1749,6 +1749,7 @@ HTML;
 
             container.querySelectorAll('[data-sk-config-key]').forEach((input) => {
                 input.addEventListener('input', () => {
+                    syncDuplicateConfigInputs(editor, input);
                     syncStructuredBody(editor);
                     renderPreview(editor);
                 });
@@ -1805,6 +1806,20 @@ HTML;
 
                 if (Object.prototype.hasOwnProperty.call(config, key)) {
                     input.value = config[key];
+                }
+            });
+        }
+
+        function syncDuplicateConfigInputs(editor, sourceInput) {
+            const key = sourceInput?.dataset?.skConfigKey;
+
+            if (!key) {
+                return;
+            }
+
+            editor.querySelectorAll(`[data-sk-config-key="${key}"]`).forEach((input) => {
+                if (input !== sourceInput) {
+                    input.value = sourceInput.value;
                 }
             });
         }
@@ -1874,6 +1889,9 @@ HTML;
             const { config, isLegacy } = extractTemplateConfig(editor.querySelector('[data-sk-preview-body]')?.value || '');
             hydrateStandaloneConfigInputs(editor, config);
             renderStructuredFields(editor, config, isLegacy);
+            editor.querySelectorAll('[data-sk-config-key]').forEach((input) => {
+                syncDuplicateConfigInputs(editor, input);
+            });
             syncStructuredBody(editor);
             editor.addEventListener('submit', () => {
                 syncStructuredBody(editor);
