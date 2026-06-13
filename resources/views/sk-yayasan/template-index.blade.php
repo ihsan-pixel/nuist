@@ -126,11 +126,11 @@
     text-justify: inter-word;
 }
 .sk-label {
-    width: 124px;
+    width: 118px;
 }
 .sk-colon {
     text-align: center;
-    width: 12px;
+    width: 9px;
 }
 .sk-decision {
     font-weight: 700;
@@ -139,15 +139,15 @@
 }
 .sk-person-table {
     border-collapse: collapse;
-    margin: 7px 0 8px 25px;
-    width: 84%;
+    margin: 7px 0 8px 0;
+    width: 100%;
 }
 .sk-person-table td {
     padding: 0 5px 2px 0;
     vertical-align: top;
 }
 .sk-person-no {
-    width: 22px;
+    width: 30px;
 }
 .sk-person-label {
     width: 198px;
@@ -242,15 +242,15 @@
                 Guru Tetap Yayasan tersebut di bawah ini:
                 <table class="sk-person-table">
                     <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td>@{{nama_pegawai}}</td></tr>
-                    <tr><td>2.</td><td>Tempat, tanggal lahir</td><td class="sk-colon">:</td><td>@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
-                    <tr><td>3.</td><td>NUPTK</td><td class="sk-colon">:</td><td>@{{nuptk}}</td></tr>
-                    <tr><td>4.</td><td>Kartanu</td><td class="sk-colon">:</td><td>@{{nomor_kartanu}}</td></tr>
-                    <tr><td>5.</td><td>NIP Ma'arif baru</td><td class="sk-colon">:</td><td>@{{nip_maarif}}</td></tr>
-                    <tr><td>6.</td><td>TMT pertama</td><td class="sk-colon">:</td><td>@{{tmt_pertama}}</td></tr>
-                    <tr><td>7.</td><td>Pendidikan, tahun lulus</td><td class="sk-colon">:</td><td>@{{pendidikan_terakhir}}, @{{tahun_lulus}}</td></tr>
-                    <tr><td>8.</td><td>Program studi</td><td class="sk-colon">:</td><td>@{{program_studi}}</td></tr>
-                    <tr><td>9.</td><td>Masa kerja</td><td class="sk-colon">:</td><td>@{{masa_kerja}}</td></tr>
-                    <tr><td>10.</td><td>Penilaian perilaku kerja</td><td class="sk-colon">:</td><td>@{{penilaian_kinerja}}</td></tr>
+                    <tr><td class="sk-person-no">2.</td><td class="sk-person-label">Tempat, tanggal lahir</td><td class="sk-colon">:</td><td>@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
+                    <tr><td class="sk-person-no">3.</td><td class="sk-person-label">NUPTK</td><td class="sk-colon">:</td><td>@{{nuptk}}</td></tr>
+                    <tr><td class="sk-person-no">4.</td><td class="sk-person-label">Kartanu</td><td class="sk-colon">:</td><td>@{{nomor_kartanu}}</td></tr>
+                    <tr><td class="sk-person-no">5.</td><td class="sk-person-label">NIP Ma'arif baru</td><td class="sk-colon">:</td><td>@{{nip_maarif}}</td></tr>
+                    <tr><td class="sk-person-no">6.</td><td class="sk-person-label">TMT pertama</td><td class="sk-colon">:</td><td>@{{tmt_pertama}}</td></tr>
+                    <tr><td class="sk-person-no">7.</td><td class="sk-person-label">Pendidikan, tahun lulus</td><td class="sk-colon">:</td><td>@{{pendidikan_terakhir}}, @{{tahun_lulus}}</td></tr>
+                    <tr><td class="sk-person-no">8.</td><td class="sk-person-label">Program studi</td><td class="sk-colon">:</td><td>@{{program_studi}}</td></tr>
+                    <tr><td class="sk-person-no">9.</td><td class="sk-person-label">Masa kerja</td><td class="sk-colon">:</td><td>@{{masa_kerja}}</td></tr>
+                    <tr><td class="sk-person-no">10.</td><td class="sk-person-label">Penilaian perilaku kerja</td><td class="sk-colon">:</td><td>@{{penilaian_kinerja}}</td></tr>
                 </table>
                 diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.
             </td>
@@ -1184,12 +1184,12 @@ HTML;
 .sk-table { width: 98%; }
 .sk-table td { padding: 0 5px 3px 0; vertical-align: top; }
 .sk-content-cell { text-align: justify; text-justify: inter-word; }
-.sk-label { width: 124px; }
-.sk-colon { text-align: center; width: 12px; }
+.sk-label { width: 118px; }
+.sk-colon { text-align: center; width: 9px; }
 .sk-decision { font-weight: 700; margin: 24px 0 8px 0; text-align: center; }
-.sk-person-table { margin: 7px 0 8px 25px; width: 84%; }
+.sk-person-table { margin: 7px 0 8px 0; width: 100%; }
 .sk-person-table td { padding: 0 5px 2px 0; vertical-align: top; }
-.sk-person-no { width: 22px; }
+.sk-person-no { width: 30px; }
 .sk-person-label { width: 198px; }
 .sk-signature { margin-left: auto; margin-top: 26px; width: 360px; }
 .sk-signature-name { font-weight: 700; margin-top: 68px; text-decoration: underline; }
