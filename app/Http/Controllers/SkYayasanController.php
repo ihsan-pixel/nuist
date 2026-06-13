@@ -887,7 +887,89 @@ class SkYayasanController extends Controller
             }
         }
 
-        return strtr($body, $normalizedPlaceholders);
+        return $this->normalizePersonRows(
+            strtr($body, $normalizedPlaceholders)
+        );
+    }
+
+    private function normalizePersonRows(string $html): string
+    {
+        if (!str_contains($html, 'sk-person-table')) {
+            return $html;
+        }
+
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $html . '</div>';
+
+        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $html;
+        }
+
+        $xpath = new \DOMXPath($document);
+        $tables = $xpath->query('//table[contains(@class, "sk-person-table")]');
+
+        if ($tables === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $html;
+        }
+
+        foreach ($tables as $table) {
+            $rows = [];
+
+            foreach ($table->childNodes as $childNode) {
+                if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'tr') {
+                    $rows[] = $childNode;
+                }
+            }
+
+            $visibleIndex = 1;
+
+            foreach ($rows as $row) {
+                $cells = [];
+
+                foreach ($row->childNodes as $childNode) {
+                    if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'td') {
+                        $cells[] = $childNode;
+                    }
+                }
+
+                if (count($cells) < 4) {
+                    continue;
+                }
+
+                $valueText = trim(preg_replace('/\s+/u', ' ', html_entity_decode($cells[3]->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+
+                if ($valueText === '' || $valueText === '-' || $valueText === '@' || str_contains($valueText, '@{{')) {
+                    $table->removeChild($row);
+                    continue;
+                }
+
+                $cells[0]->nodeValue = $visibleIndex . '.';
+                $visibleIndex++;
+            }
+        }
+
+        $root = $document->getElementById('sk-root');
+        $output = '';
+
+        if ($root) {
+            foreach ($root->childNodes as $childNode) {
+                $output .= $document->saveHTML($childNode);
+            }
+        } else {
+            $output = $html;
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        return $output;
     }
 
     private function templatePreviewPlaceholders(string $documentTitle, ?string $documentNumberFormat, Carbon $issuedDate): array

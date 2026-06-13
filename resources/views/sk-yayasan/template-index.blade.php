@@ -1396,17 +1396,26 @@ HTML;
                 ? `<div class="sk-org-subtitle" style="font-size:${safeFontSize(config.orgSubtitle2FontSize)}pt;">${nl2br(config.orgSubtitle2Text)}</div>`
                 : '';
             const personRows = Array.from({ length: 10 }, (_, index) => {
-                const rowNumber = index + 1;
+                const sourceRowNumber = index + 1;
+                const labelText = (config[`person${sourceRowNumber}LabelText`] || '').trim();
+                const valueText = (config[`person${sourceRowNumber}ValueText`] || '').trim();
 
-                return `
+                if (!valueText) {
+                    return null;
+                }
+
+                return {
+                    labelText,
+                    valueText,
+                };
+            }).filter(Boolean).map((row, index) => `
                     <tr>
-                        <td class="sk-person-no">${rowNumber}.</td>
-                        <td class="sk-person-label">${escapeHtml(config[`person${rowNumber}LabelText`])}</td>
+                        <td class="sk-person-no">${index + 1}.</td>
+                        <td class="sk-person-label">${escapeHtml(row.labelText)}</td>
                         <td class="sk-colon">:</td>
-                        <td>${nl2br(config[`person${rowNumber}ValueText`])}</td>
+                        <td>${nl2br(row.valueText)}</td>
                     </tr>
-                `;
-            }).join('');
+                `).join('');
 
             const mengingatItems = [1, 2, 3, 4]
                 .map((index) => config[`mengingat${index}Text`])
