@@ -1149,7 +1149,7 @@ HTML;
                                     formaction="{{ route('sk-yayasan.template.preview-pdf') }}"
                                     formtarget="_blank"
                                 >
-                                    Generate PDF
+                                    View PDF
                                 </button>
                                 <button type="submit" class="btn btn-primary">Simpan Template</button>
                             </div>
