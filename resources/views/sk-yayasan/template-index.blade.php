@@ -1027,7 +1027,7 @@ HTML;
                                                 <input type="hidden" name="document_title" value="{{ $template->document_title }}">
                                                 <input type="hidden" name="document_number_format" value="{{ $template->document_number_format }}">
                                                 <input type="hidden" name="body" value="{{ $template->body }}">
-                                                <button type="submit" class="btn btn-sm btn-outline-primary">Generate PDF</button>
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">View PDF</button>
                                             </form>
                                             <button
                                                 type="button"
