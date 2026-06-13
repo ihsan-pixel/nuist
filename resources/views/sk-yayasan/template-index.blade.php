@@ -19,7 +19,7 @@
     color: #000;
     font-family: Cambria, "Times New Roman", Times, serif;
     font-size: 13.5pt;
-    line-height: 1.1;
+    line-height: 1.14;
     padding: 0 2mm;
 }
 .sk-letterhead {
@@ -82,14 +82,14 @@
     color: #000;
     font-family: Arial, sans-serif;
     font-size: 10.5pt;
-    line-height: 1.15;
+    line-height: 1.2;
     padding: 4px 8px 0 8px;
 }
 .sk-green-line {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 0 0 14px 0;
+    margin: 0 0 18px 0;
 }
 .sk-green-line-thin {
     background: #2f6f45;
@@ -106,19 +106,19 @@
     text-transform: uppercase;
 }
 .sk-number {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     text-align: center;
 }
 .sk-subject {
     font-weight: 700;
-    margin: 0 0 6px 0;
+    margin: 0 0 8px 0;
 }
 .sk-table {
     border-collapse: collapse;
     width: 98%;
 }
 .sk-table td {
-    padding: 0 4px 2px 0;
+    padding: 0 4px 3px 0;
     vertical-align: top;
 }
 .sk-content-cell {
@@ -134,12 +134,12 @@
 }
 .sk-decision {
     font-weight: 700;
-    margin: 14px 0 6px 0;
+    margin: 18px 0 8px 0;
     text-align: center;
 }
 .sk-person-table {
     border-collapse: collapse;
-    margin: 4px 0 6px 0;
+    margin: 6px 0 8px 0;
     width: 100%;
 }
 .sk-person-table td {
@@ -157,16 +157,16 @@
 }
 .sk-signature {
     margin-left: auto;
-    margin-top: 14px;
+    margin-top: 18px;
     width: 360px;
 }
 .sk-signature-name {
     font-weight: 700;
-    margin-top: 44px;
+    margin-top: 52px;
     text-decoration: underline;
 }
 .sk-copy {
-    margin-top: 18px;
+    margin-top: 24px;
 }
 .sk-copy-title {
     text-decoration: underline;
@@ -1114,7 +1114,7 @@ HTML;
     color: #000;
     font-family: Cambria, "Times New Roman", Times, serif;
     font-size: ${safeFontSize(config.baseFontSize)}pt;
-    line-height: 1.1;
+    line-height: 1.14;
     padding: 0 2mm;
 }
 .sk-letterhead {
@@ -1156,11 +1156,11 @@ HTML;
 .sk-org-meta {
     color: #000;
     font-family: Arial, sans-serif;
-    line-height: 1.15;
+    line-height: 1.2;
     padding: 4px 8px 0 8px;
 }
 .sk-green-line {
-    margin: 0 0 14px 0;
+    margin: 0 0 18px 0;
 }
 
 .sk-green-line-thin {
@@ -1181,23 +1181,23 @@ HTML;
     text-decoration: underline;
     text-transform: uppercase;
 }
-.sk-number { margin-bottom: 8px; text-align: center; }
-.sk-subject { font-weight: 700; margin: 0 0 6px 0; }
+.sk-number { margin-bottom: 10px; text-align: center; }
+.sk-subject { font-weight: 700; margin: 0 0 8px 0; }
 .sk-table, .sk-person-table { border-collapse: collapse; }
 .sk-table { width: 98%; }
-.sk-table td { padding: 0 4px 2px 0; vertical-align: top; }
+.sk-table td { padding: 0 4px 3px 0; vertical-align: top; }
 .sk-content-cell { text-align: justify; text-justify: inter-word; }
 .sk-label { width: 118px; }
 .sk-colon { text-align: center; width: 9px; }
-.sk-decision { font-weight: 700; margin: 14px 0 6px 0; text-align: center; }
-.sk-person-table { margin: 4px 0 6px 0; width: 100%; }
+.sk-decision { font-weight: 700; margin: 18px 0 8px 0; text-align: center; }
+.sk-person-table { margin: 6px 0 8px 0; width: 100%; }
 .sk-person-table td { padding: 0 1px 2px 0; vertical-align: top; }
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
-.sk-signature { margin-left: auto; margin-top: 14px; width: 360px; }
-.sk-signature-name { font-weight: 700; margin-top: 44px; text-decoration: underline; }
-.sk-copy { margin-top: 18px; }
+.sk-signature { margin-left: auto; margin-top: 18px; width: 360px; }
+.sk-signature-name { font-weight: 700; margin-top: 52px; text-decoration: underline; }
+.sk-copy { margin-top: 24px; }
 .sk-copy-title { text-decoration: underline; }
 </style>
 <div class="sk-full-document" data-sk-full-document="1">
