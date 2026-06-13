@@ -570,6 +570,31 @@ class SkYayasanController extends Controller
         return back()->with('success', 'Template SK Yayasan berhasil dihapus.');
     }
 
+    public function duplicateTemplate(SkYayasanTemplate $template): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        $copyName = $template->name . ' (Copy)';
+        $suffix = 2;
+
+        while (SkYayasanTemplate::query()->where('name', $copyName)->exists()) {
+            $copyName = $template->name . ' (Copy ' . $suffix . ')';
+            $suffix++;
+        }
+
+        SkYayasanTemplate::create([
+            'name' => $copyName,
+            'category' => $template->category,
+            'document_title' => $template->document_title,
+            'document_number_format' => $template->document_number_format,
+            'description' => $template->description,
+            'body' => $template->body,
+            'is_active' => false,
+        ]);
+
+        return back()->with('success', 'Template SK Yayasan berhasil diduplikasi.');
+    }
+
     public function generateIndex(Request $request): View
     {
         $this->ensureSuperAdmin();

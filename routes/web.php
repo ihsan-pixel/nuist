@@ -641,6 +641,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::patch('/import-batches/{batch}/review', [SkYayasanController::class, 'reviewImportBatch'])->name('import-batches.review');
         Route::get('/template', [SkYayasanController::class, 'templateIndex'])->name('template.index');
         Route::post('/template', [SkYayasanController::class, 'storeTemplate'])->name('template.store');
+        Route::post('/template/{template}/duplicate', [SkYayasanController::class, 'duplicateTemplate'])->name('template.duplicate');
         Route::match(['post', 'put'], '/template/preview-pdf', [SkYayasanController::class, 'previewTemplatePdf'])->name('template.preview-pdf');
         Route::put('/template/{template}', [SkYayasanController::class, 'updateTemplate'])->name('template.update');
         Route::delete('/template/{template}', [SkYayasanController::class, 'destroyTemplate'])->name('template.destroy');
