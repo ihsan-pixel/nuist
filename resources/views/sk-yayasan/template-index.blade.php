@@ -167,7 +167,12 @@
     text-decoration: underline;
 }
 .sk-copy {
-    margin-top: 26px;
+    margin-left: 0;
+    margin-right: auto;
+    margin-top: 12px;
+    padding-left: 0;
+    text-align: left;
+    width: 280px;
 }
 .sk-copy-title {
     text-decoration: underline;
@@ -1529,7 +1534,7 @@ HTML;
 .sk-person-table .sk-colon { width: 5px; }
 .sk-signature { margin-left: auto; margin-top: 20px; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 54px; text-decoration: underline; }
-.sk-copy { margin-top: 26px; }
+.sk-copy { margin-left: 0; margin-right: auto; margin-top: 12px; padding-left: 0; text-align: left; width: 280px; }
 .sk-copy-title { text-decoration: underline; }
 </style>
 <div class="sk-full-document" data-sk-full-document="1">
