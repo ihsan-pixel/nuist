@@ -340,6 +340,7 @@ HTML;
         'menimbangLabelText' => 'Menimbang',
         'menimbangLabelFontSize' => 13.5,
         'menimbangContentText' => 'Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.',
+        'menimbangContent2Text' => '',
         'menimbangContentFontSize' => 13.5,
         'mengingatLabelText' => 'Mengingat',
         'mengingatLabelFontSize' => 13.5,
@@ -429,6 +430,7 @@ HTML;
             'fields' => [
                 ['key' => 'menimbangLabelText', 'label' => 'Label Menimbang', 'type' => 'text', 'fontKey' => 'menimbangLabelFontSize'],
                 ['key' => 'menimbangContentText', 'label' => 'Isi Menimbang', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'menimbangContentFontSize'],
+                ['key' => 'menimbangContent2Text', 'label' => 'Isi Menimbang 2', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'menimbangContentFontSize'],
                 ['key' => 'mengingatLabelText', 'label' => 'Label Mengingat', 'type' => 'text', 'fontKey' => 'mengingatLabelFontSize'],
                 ['key' => 'mengingat1Text', 'label' => 'Mengingat 1', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
                 ['key' => 'mengingat2Text', 'label' => 'Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
@@ -1106,6 +1108,15 @@ HTML;
                 .map((item) => `${nl2br(item)}<br>`)
                 .join('');
 
+            const menimbangSecondRow = config.menimbangContent2Text?.trim()
+                ? `
+        <tr>
+            <td class="sk-label"></td>
+            <td class="sk-colon"></td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContent2Text)}</td>
+        </tr>`
+                : '';
+
             return `
 <style>
 @page { margin: 6mm 16mm 12mm 16mm; }
@@ -1233,6 +1244,7 @@ HTML;
             <td class="sk-colon" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">:</td>
             <td class="sk-content-cell" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContentText)}</td>
         </tr>
+        ${menimbangSecondRow}
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">${escapeHtml(config.mengingatLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">:</td>
