@@ -446,7 +446,7 @@ class SkYayasanController extends Controller
         $this->ensureSuperAdmin();
 
         return view('sk-yayasan.template-index', [
-            'templates' => SkYayasanTemplate::query()->latest()->get(),
+            'templates' => SkYayasanTemplate::query()->oldest()->get(),
         ]);
     }
 
