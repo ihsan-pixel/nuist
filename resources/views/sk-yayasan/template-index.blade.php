@@ -158,7 +158,7 @@
 .sk-signature {
     margin-left: auto;
     margin-top: 20px;
-    width: 330px;
+    width: 290px;
 }
 .sk-signature-name {
     font-weight: 700;
@@ -1206,7 +1206,7 @@ HTML;
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
-.sk-signature { margin-left: auto; margin-top: 20px; width: 330px; }
+.sk-signature { margin-left: auto; margin-top: 20px; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 54px; text-decoration: underline; }
 .sk-copy { margin-top: 26px; }
 .sk-copy-title { text-decoration: underline; }
