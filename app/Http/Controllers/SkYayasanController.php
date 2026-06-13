@@ -790,12 +790,35 @@ class SkYayasanController extends Controller
 
     private function buildTemplatePlaceholders(SkYayasanRequest $submission, array $overrides = []): array
     {
-        $submission->loadMissing(['madrasah.yayasan', 'employee.statusKepegawaian', 'employee.skYayasanEmployeeData']);
+        $submission->loadMissing([
+            'madrasah.yayasan',
+            'employee.statusKepegawaian',
+            'employee.skYayasanEmployeeData',
+            'importBatch.rows',
+        ]);
 
         $employee = $submission->employee;
         $madrasah = $submission->madrasah;
         $yayasan = $madrasah->yayasan ?: Yayasan::query()->first();
         $employeeSkData = $employee?->skYayasanEmployeeData;
+        $importRow = $submission->importBatch?->rows
+            ?->first(fn ($row) => (int) $row->matched_user_id === (int) $submission->employee_id);
+
+        $pick = function (...$values) {
+            foreach ($values as $value) {
+                if ($value === null) {
+                    continue;
+                }
+
+                $string = trim((string) $value);
+
+                if ($string !== '' && $string !== '-') {
+                    return $string;
+                }
+            }
+
+            return '-';
+        };
 
         $base = [
             '{{nomor_sk}}' => $overrides['nomor_sk'] ?? '-',
@@ -803,21 +826,21 @@ class SkYayasanController extends Controller
             '{{nama_yayasan}}' => $yayasan?->name ?? 'Yayasan',
             '{{alamat_yayasan}}' => $yayasan?->alamat ?? '-',
             '{{nama_sekolah}}' => $madrasah->name ?? '-',
-            '{{nama_pegawai}}' => $employee->name ?? '-',
-            '{{gelar}}' => $employee->gelar ?? '-',
-            '{{tempat_lahir}}' => $employee->tempat_lahir ?? '-',
-            '{{tanggal_lahir}}' => optional($employee->tanggal_lahir)?->translatedFormat('d F Y') ?? '-',
-            '{{nip_maarif}}' => $employee->nip ?? '-',
-            '{{nuptk}}' => $employee->nuptk ?? '-',
-            '{{nomor_kartanu}}' => $employee->kartanu ?? '-',
-            '{{tmt_pertama}}' => optional($employee->tmt)?->translatedFormat('d F Y') ?? '-',
-            '{{masa_kerja}}' => $employee->masa_kerja ?? '-',
-            '{{pendidikan_terakhir}}' => $employee->pendidikan_terakhir ?? '-',
-            '{{tahun_lulus}}' => $employee->tahun_lulus ?? '-',
-            '{{program_studi}}' => $employee->program_studi ?? '-',
-            '{{mapel_tugas_yang_diampu}}' => $employee->mengajar ?? '-',
-            '{{penilaian_kinerja}}' => $employeeSkData?->penilaian_kinerja ?? '-',
-            '{{keterangan_sk_yayasan}}' => $employeeSkData?->keterangan ?? '-',
+            '{{nama_pegawai}}' => $pick($importRow?->source_nama, $employee->name),
+            '{{gelar}}' => $pick($importRow?->source_gelar, $employee->gelar),
+            '{{tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
+            '{{tanggal_lahir}}' => $pick($importRow?->source_tanggal_lahir, optional($employee->tanggal_lahir)?->translatedFormat('d F Y')),
+            '{{nip_maarif}}' => $pick($importRow?->source_nip_maarif, $employee->nip),
+            '{{nuptk}}' => $pick($importRow?->source_nuptk, $employee->nuptk),
+            '{{nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
+            '{{tmt_pertama}}' => $pick($importRow?->source_tmt_pertama, optional($employee->tmt)?->translatedFormat('d F Y')),
+            '{{masa_kerja}}' => $pick($importRow?->source_masa_kerja, $employee->masa_kerja),
+            '{{pendidikan_terakhir}}' => $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir),
+            '{{tahun_lulus}}' => $pick($importRow?->source_tahun_lulus, $employee->tahun_lulus),
+            '{{program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
+            '{{mapel_tugas_yang_diampu}}' => $pick($importRow?->source_mapel_tugas, $employee->mengajar),
+            '{{penilaian_kinerja}}' => $pick($importRow?->source_penilaian_kinerja, $employeeSkData?->penilaian_kinerja),
+            '{{keterangan_sk_yayasan}}' => $pick($importRow?->source_keterangan, $employeeSkData?->keterangan),
             '{{jabatan}}' => $employee->ketugasan ?? '-',
             '{{status_kepegawaian}}' => $employee->statusKepegawaian?->name ?? ($submission->employment_category ?? '-'),
             '{{tanggal_mulai}}' => $overrides['tanggal_mulai'] ?? '01 Juli ' . now()->format('Y'),
@@ -829,6 +852,22 @@ class SkYayasanController extends Controller
             '{{jabatan_penandatangan}}' => $overrides['jabatan_penandatangan'] ?? 'Ketua Yayasan',
             '{{catatan_pengajuan}}' => '',
             '{{catatan_penerbitan}}' => $overrides['catatan_penerbitan'] ?? '-',
+            '{{excel_no}}' => $pick($importRow?->excel_no),
+            '{{source_nama}}' => $pick($importRow?->source_nama, $employee->name),
+            '{{source_gelar}}' => $pick($importRow?->source_gelar, $employee->gelar),
+            '{{source_tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
+            '{{source_tanggal_lahir}}' => $pick($importRow?->source_tanggal_lahir, optional($employee->tanggal_lahir)?->translatedFormat('d F Y')),
+            '{{source_nip_maarif}}' => $pick($importRow?->source_nip_maarif, $employee->nip),
+            '{{source_nuptk}}' => $pick($importRow?->source_nuptk, $employee->nuptk),
+            '{{source_nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
+            '{{source_tmt_pertama}}' => $pick($importRow?->source_tmt_pertama, optional($employee->tmt)?->translatedFormat('d F Y')),
+            '{{source_masa_kerja}}' => $pick($importRow?->source_masa_kerja, $employee->masa_kerja),
+            '{{source_pendidikan_terakhir}}' => $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir),
+            '{{source_tahun_lulus}}' => $pick($importRow?->source_tahun_lulus, $employee->tahun_lulus),
+            '{{source_program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
+            '{{source_mapel_tugas}}' => $pick($importRow?->source_mapel_tugas, $employee->mengajar),
+            '{{source_penilaian_kinerja}}' => $pick($importRow?->source_penilaian_kinerja, $employeeSkData?->penilaian_kinerja),
+            '{{source_keterangan}}' => $pick($importRow?->source_keterangan, $employeeSkData?->keterangan),
         ];
 
         foreach ($overrides as $key => $value) {
@@ -840,7 +879,15 @@ class SkYayasanController extends Controller
 
     private function renderTemplate(string $body, array $placeholders): string
     {
-        return strtr($body, $placeholders);
+        $normalizedPlaceholders = $placeholders;
+
+        foreach ($placeholders as $key => $value) {
+            if (str_starts_with($key, '{{') && str_ends_with($key, '}}')) {
+                $normalizedPlaceholders['@' . $key] = $value;
+            }
+        }
+
+        return strtr($body, $normalizedPlaceholders);
     }
 
     private function templatePreviewPlaceholders(string $documentTitle, ?string $documentNumberFormat, Carbon $issuedDate): array

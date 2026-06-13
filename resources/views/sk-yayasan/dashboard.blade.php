@@ -9,6 +9,7 @@
 @endcomponent
 
 @include('sk-yayasan.partials.ui-styles')
+@include('sk-yayasan.partials.sweet-alert')
 
 @php
     $cards = [
@@ -60,7 +61,7 @@
         @endforeach
     </div>
 
-    <div class="alert alert-info mb-3">
+    <div class="sky-inline-note sky-inline-note-info mb-3">
         <strong>Review import data:</strong> {{ $pendingImportBatches }} batch menunggu review super admin, {{ $rejectedImportBatches }} batch pernah ditolak dan menunggu perbaikan dari admin sekolah.
     </div>
 
@@ -103,7 +104,7 @@
                             <strong>{{ $statusCounts['approved'] ?? 0 }}</strong>
                         </div>
                     </div>
-                    <div class="alert alert-info mb-0">
+                    <div class="sky-inline-note sky-inline-note-info mb-0">
                         <div class="fw-semibold mb-1">Placeholder utama template</div>
                         <div class="small">
                             <code>{{ '{{nama_pegawai}}' }}</code>,

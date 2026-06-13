@@ -9,16 +9,9 @@
 @endcomponent
 
 @include('sk-yayasan.partials.ui-styles')
+@include('sk-yayasan.partials.sweet-alert')
 
 <div class="sky-page">
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
     <div class="sky-hero-strip mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
@@ -134,13 +127,13 @@
                                             </form>
 
                                             @if($submission->document && $submission->document->status !== 'published')
-                                                <form method="POST" action="{{ route('sk-yayasan.generate.publish', $submission->document) }}" class="mt-3">
+                                                <form method="POST" action="{{ route('sk-yayasan.generate.publish', $submission->document) }}" class="mt-3" data-sk-swal-confirm data-sk-swal-title="Terbitkan dokumen?" data-sk-swal-text="Dokumen akan dipublikasikan sebagai SK Yayasan." data-sk-swal-confirm-text="Ya, terbitkan" data-sk-swal-icon="question">
                                                     @csrf
                                                     @method('PATCH')
                                                     <button type="submit" class="btn btn-success">Terbitkan SK Yayasan</button>
                                                 </form>
                                             @elseif($submission->document && $submission->document->status === 'published')
-                                                <div class="alert alert-success mt-3 mb-0">
+                                                <div class="sky-inline-note sky-inline-note-success mt-3 mb-0">
                                                     Dokumen ini sudah diterbitkan pada {{ optional($submission->document->published_at)->format('d/m/Y H:i') }}.
                                                 </div>
                                             @endif

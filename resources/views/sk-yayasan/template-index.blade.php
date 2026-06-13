@@ -9,6 +9,7 @@
 @endcomponent
 
 @include('sk-yayasan.partials.ui-styles')
+@include('sk-yayasan.partials.sweet-alert')
 
 @php
     $defaultSkBody = <<<'HTML'
@@ -319,6 +320,84 @@ HTML;
         '@{{jabatan_penandatangan}}' => 'Pengurus LP Ma\'arif NU PWNU DIY',
         '@{{catatan_pengajuan}}' => '-',
         '@{{catatan_penerbitan}}' => '-',
+        '@{{excel_no}}' => '1',
+        '@{{source_nama}}' => 'Ahmad Fathoni, S.Pd.',
+        '@{{source_gelar}}' => 'S.Pd.',
+        '@{{source_tempat_lahir}}' => 'Bantul',
+        '@{{source_tanggal_lahir}}' => '12 Januari 1990',
+        '@{{source_nip_maarif}}' => 'MIF.2026.001',
+        '@{{source_nuptk}}' => '1234567890123456',
+        '@{{source_nomor_kartanu}}' => 'NU.34.02.001',
+        '@{{source_tmt_pertama}}' => '01 Juli 2020',
+        '@{{source_masa_kerja}}' => '6 tahun',
+        '@{{source_pendidikan_terakhir}}' => 'S1',
+        '@{{source_tahun_lulus}}' => '2015',
+        '@{{source_program_studi}}' => 'Pendidikan Teknik Informatika',
+        '@{{source_mapel_tugas}}' => 'XXX',
+        '@{{source_penilaian_kinerja}}' => 'Baik',
+        '@{{source_keterangan}}' => 'Perpanjangan SK',
+    ];
+
+    $officialPlaceholderGroups = [
+        'Dokumen SK' => [
+            '@{{nomor_sk}}',
+            '@{{judul_sk}}',
+            '@{{tanggal_terbit}}',
+            '@{{tanggal_mulai}}',
+            '@{{tanggal_selesai}}',
+            '@{{tahun_sk}}',
+            '@{{tahun_sk_berikutnya}}',
+        ],
+        'Yayasan & Sekolah' => [
+            '@{{nama_yayasan}}',
+            '@{{alamat_yayasan}}',
+            '@{{nama_sekolah}}',
+        ],
+        'Data Pegawai Utama' => [
+            '@{{nama_pegawai}}',
+            '@{{gelar}}',
+            '@{{tempat_lahir}}',
+            '@{{tanggal_lahir}}',
+            '@{{nip_maarif}}',
+            '@{{nuptk}}',
+            '@{{nomor_kartanu}}',
+            '@{{tmt_pertama}}',
+            '@{{masa_kerja}}',
+            '@{{pendidikan_terakhir}}',
+            '@{{tahun_lulus}}',
+            '@{{program_studi}}',
+            '@{{mapel_tugas_yang_diampu}}',
+            '@{{jabatan}}',
+            '@{{status_kepegawaian}}',
+        ],
+        'Penilaian & Keterangan' => [
+            '@{{penilaian_kinerja}}',
+            '@{{keterangan_sk_yayasan}}',
+            '@{{catatan_pengajuan}}',
+            '@{{catatan_penerbitan}}',
+        ],
+        'Penandatangan' => [
+            '@{{nama_penandatangan}}',
+            '@{{jabatan_penandatangan}}',
+        ],
+        'Sumber Excel Pengajuan' => [
+            '@{{excel_no}}',
+            '@{{source_nama}}',
+            '@{{source_gelar}}',
+            '@{{source_tempat_lahir}}',
+            '@{{source_tanggal_lahir}}',
+            '@{{source_nip_maarif}}',
+            '@{{source_nuptk}}',
+            '@{{source_nomor_kartanu}}',
+            '@{{source_tmt_pertama}}',
+            '@{{source_masa_kerja}}',
+            '@{{source_pendidikan_terakhir}}',
+            '@{{source_tahun_lulus}}',
+            '@{{source_program_studi}}',
+            '@{{source_mapel_tugas}}',
+            '@{{source_penilaian_kinerja}}',
+            '@{{source_keterangan}}',
+        ],
     ];
 
     $defaultTemplateConfig = [
@@ -668,6 +747,70 @@ HTML;
         max-width: 96vw;
     }
 
+    .sk-placeholder-help {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+    }
+
+    .sk-placeholder-help summary {
+        color: #0f172a;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        list-style: none;
+        padding: 12px 14px;
+    }
+
+    .sk-placeholder-help summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .sk-placeholder-help-body {
+        border-top: 1px solid #e2e8f0;
+        padding: 12px 14px 14px 14px;
+    }
+
+    .sk-placeholder-help-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sk-placeholder-help-group {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 10px 12px;
+    }
+
+    .sk-placeholder-help-group-title {
+        color: #475569;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .sk-placeholder-help-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .sk-placeholder-token {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 999px;
+        color: #1d4ed8;
+        display: inline-flex;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 9px;
+    }
+
     .sk-preview-card {
         position: sticky;
         top: 18px;
@@ -713,6 +856,10 @@ HTML;
             grid-template-columns: 1fr;
         }
 
+        .sk-placeholder-help-grid {
+            grid-template-columns: 1fr;
+        }
+
         .sk-preview-card {
             position: static;
         }
@@ -726,14 +873,6 @@ HTML;
 @endpush
 
 <div class="sky-page">
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
     <div class="sky-hero-strip mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
@@ -814,7 +953,7 @@ HTML;
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-secondary">Duplicate</button>
                                             </form>
-                                            <form action="{{ route('sk-yayasan.template.destroy', $template) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus template ini?')">
+                                            <form action="{{ route('sk-yayasan.template.destroy', $template) }}" method="POST" class="d-inline" data-sk-swal-confirm data-sk-swal-title="Hapus template?" data-sk-swal-text="Template yang belum dipakai akan dihapus permanen." data-sk-swal-confirm-text="Ya, hapus">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
@@ -877,13 +1016,30 @@ HTML;
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Isi Template</label>
-                            <div data-sk-legacy-alert class="alert alert-warning py-2 px-3 small sk-legacy-alert d-none mb-3">
+                            <div data-sk-legacy-alert class="sky-inline-note sky-inline-note-warning py-2 px-3 small sk-legacy-alert d-none mb-3">
                                 Template lama belum memakai editor terstruktur. Setelah disimpan ulang, template ini akan mengikuti format editor teks baru.
                             </div>
                             <div data-sk-structured-fields></div>
                             <textarea name="body" rows="24" class="form-control sk-editor-textarea sk-editor-raw" data-sk-preview-body required>{{ old('body', $defaultSkBody) }}</textarea>
-                            <small class="sk-a4-note d-block mt-2">Cukup edit teks dan ukuran font per bagian, lalu simpan atau generate PDF.</small>
+                            <small class="sk-a4-note d-block mt-2">Template ini akan mengambil data dari file Excel pengajuan sekolah yang sudah diupload admin, seperti `@{{nama_pegawai}}`, `@{{nuptk}}`, `@{{program_studi}}`, atau alias sumber Excel seperti `@{{source_nama}}` dan `@{{source_nuptk}}`.</small>
                         </div>
+                        <details class="sk-placeholder-help mb-3">
+                            <summary>Daftar Placeholder Resmi</summary>
+                            <div class="sk-placeholder-help-body">
+                                <div class="sk-placeholder-help-grid">
+                                    @foreach($officialPlaceholderGroups as $groupTitle => $groupPlaceholders)
+                                        <div class="sk-placeholder-help-group">
+                                            <div class="sk-placeholder-help-group-title">{{ $groupTitle }}</div>
+                                            <div class="sk-placeholder-help-list">
+                                                @foreach($groupPlaceholders as $placeholder)
+                                                    <span class="sk-placeholder-token">{{ $placeholder }}</span>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </details>
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" name="is_active" value="1" checked>
                             <label class="form-check-label">Aktifkan template</label>
@@ -948,13 +1104,30 @@ HTML;
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Isi Template</label>
-                                <div data-sk-legacy-alert class="alert alert-warning py-2 px-3 small sk-legacy-alert d-none mb-3">
+                                <div data-sk-legacy-alert class="sky-inline-note sky-inline-note-warning py-2 px-3 small sk-legacy-alert d-none mb-3">
                                     Template lama belum memakai editor terstruktur. Setelah disimpan ulang, template ini akan mengikuti format editor teks baru.
                                 </div>
                                 <div data-sk-structured-fields></div>
                                 <textarea name="body" rows="14" class="form-control sk-editor-textarea sk-editor-raw" data-sk-preview-body required>{{ $template->body }}</textarea>
-                                <small class="sk-a4-note d-block mt-2">Cukup edit teks dan ukuran font per bagian, lalu gunakan Generate PDF untuk melihat hasilnya.</small>
+                                <small class="sk-a4-note d-block mt-2">Saat dipakai generate, template akan membaca data dari file Excel pengajuan sekolah. Placeholder lama seperti `@{{nama_pegawai}}` tetap bisa dipakai, dan sekarang juga mendukung alias `@{{source_nama}}`, `@{{source_nuptk}}`, dan seterusnya.</small>
                             </div>
+                            <details class="sk-placeholder-help mb-3">
+                                <summary>Daftar Placeholder Resmi</summary>
+                                <div class="sk-placeholder-help-body">
+                                    <div class="sk-placeholder-help-grid">
+                                        @foreach($officialPlaceholderGroups as $groupTitle => $groupPlaceholders)
+                                            <div class="sk-placeholder-help-group">
+                                                <div class="sk-placeholder-help-group-title">{{ $groupTitle }}</div>
+                                                <div class="sk-placeholder-help-list">
+                                                    @foreach($groupPlaceholders as $placeholder)
+                                                        <span class="sk-placeholder-token">{{ $placeholder }}</span>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </details>
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" name="is_active" value="1" @checked($template->is_active)>
                                 <label class="form-check-label">Aktifkan template</label>
@@ -973,7 +1146,7 @@ HTML;
                         </form>
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <form action="{{ route('sk-yayasan.template.destroy', $template) }}" method="POST" onsubmit="return confirm('Hapus template ini?')">
+                        <form action="{{ route('sk-yayasan.template.destroy', $template) }}" method="POST" data-sk-swal-confirm data-sk-swal-title="Hapus template?" data-sk-swal-text="Template yang belum dipakai akan dihapus permanen." data-sk-swal-confirm-text="Ya, hapus">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-outline-danger">Hapus</button>

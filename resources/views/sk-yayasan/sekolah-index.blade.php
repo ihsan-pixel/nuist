@@ -13,16 +13,9 @@
 @endcomponent
 
 @include('sk-yayasan.partials.ui-styles')
+@include('sk-yayasan.partials.sweet-alert')
 
 <div class="sky-page">
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
     <div class="sky-hero-strip mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
@@ -79,7 +72,7 @@
                         Hasil import Excel akan diparsing langsung ke database staging. Super admin mereview isi data dan lampiran pendukung sebelum memutuskan sinkronisasi atau penolakan.
                     </div> --}}
                     @if($latestSyncedImport)
-                        <div class="alert alert-success py-2 px-3 small mb-3">
+                        <div class="sky-inline-note sky-inline-note-success py-2 px-3 small mb-3">
                             Sinkronisasi terakhir sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari data import ini.
                         </div>
                     @endif

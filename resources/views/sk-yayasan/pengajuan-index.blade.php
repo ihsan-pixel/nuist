@@ -9,6 +9,7 @@
 @endcomponent
 
 @include('sk-yayasan.partials.ui-styles')
+@include('sk-yayasan.partials.sweet-alert')
 
 @php
     $importPreviewFieldMap = [
@@ -33,14 +34,6 @@
 @endphp
 
 <div class="sky-page">
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
     <div class="sky-hero-strip mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
@@ -286,11 +279,11 @@
                             </div>
                         </div>
                         @if($submission->importBatch)
-                            <div class="alert alert-info">
+                            <div class="sky-inline-note sky-inline-note-info">
                                 Berkas terkait:
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel']) }}" class="alert-link ms-2">Excel</a>
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="alert-link ms-2">Pakta Integritas</a>
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="alert-link ms-2">Penilaian Perilaku</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel']) }}" class="ms-2">Excel</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="ms-2">Pakta Integritas</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="ms-2">Penilaian Perilaku</a>
                             </div>
                         @endif
                         <div class="mb-3">
@@ -400,7 +393,7 @@
                         </div>
 
                         @if(!$batch->headings_valid)
-                            <div class="alert alert-danger">
+                            <div class="sky-inline-note sky-inline-note-danger">
                                 Format kolom file belum sesuai template.
                                 @if(!empty($batch->missing_headings))
                                     <div>Kolom kurang: {{ implode(', ', $batch->missing_headings) }}</div>
@@ -412,7 +405,7 @@
                         @endif
 
                         @if($batch->review_notes)
-                            <div class="alert alert-secondary">
+                            <div class="sky-inline-note sky-inline-note-secondary">
                                 <strong>Catatan Review:</strong> {{ $batch->review_notes }}
                             </div>
                         @endif

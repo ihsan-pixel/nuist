@@ -236,6 +236,42 @@
         border-radius: 14px;
     }
 
+    .sky-inline-note {
+        border: 1px solid var(--sky-line);
+        border-radius: 14px;
+        padding: 12px 14px;
+    }
+
+    .sky-inline-note-info {
+        background: #eef7ff;
+        border-color: #cfe6ff;
+        color: #174a7c;
+    }
+
+    .sky-inline-note-success {
+        background: #edf9f2;
+        border-color: #cdeed9;
+        color: #18633e;
+    }
+
+    .sky-inline-note-danger {
+        background: #fff2f2;
+        border-color: #f3c9c9;
+        color: #8a1f1f;
+    }
+
+    .sky-inline-note-secondary {
+        background: #f6f7f9;
+        border-color: #e2e6ea;
+        color: #475569;
+    }
+
+    .sky-inline-note-warning {
+        background: #fff8e8;
+        border-color: #f5dfac;
+        color: #815e00;
+    }
+
     .sky-page .badge {
         border-radius: 999px;
         font-size: 11px;
