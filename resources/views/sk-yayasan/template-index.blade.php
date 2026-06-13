@@ -531,7 +531,7 @@ HTML;
                 ['key' => 'menetapkanLabelText', 'label' => 'Label Menetapkan', 'type' => 'text', 'fontKey' => 'menetapkanLabelFontSize'],
                 ['key' => 'kesatuLabelText', 'label' => 'Label Kesatu', 'type' => 'text', 'fontKey' => 'kesatuLabelFontSize'],
                 ['key' => 'kesatuIntroText', 'label' => 'Pembuka Kesatu', 'type' => 'textarea', 'rows' => 2, 'fontKey' => 'kesatuIntroFontSize'],
-                ['key' => 'kesatuClosingText', 'label' => 'Penutup Kesatu', 'type' => 'textarea', 'rows' => 4, 'fontKey' => 'kesatuClosingFontSize'],
+                ['key' => 'kesatuClosingText', 'label' => 'Penutup Kesatu', 'type' => 'textarea', 'rows' => 4, 'fontKey' => 'kesatuClosingFontSize', 'help' => 'Bisa pakai <b>teks tebal</b>, <i>miring</i>, atau <u>garis bawah</u>.'],
                 ['key' => 'keduaLabelText', 'label' => 'Label Kedua', 'type' => 'text', 'fontKey' => 'keduaLabelFontSize'],
                 ['key' => 'keduaContentText', 'label' => 'Isi Kedua', 'type' => 'textarea', 'rows' => 4, 'fontKey' => 'keduaContentFontSize'],
                 ['key' => 'ketigaLabelText', 'label' => 'Label Ketiga', 'type' => 'text', 'fontKey' => 'ketigaLabelFontSize'],
@@ -1356,6 +1356,29 @@ HTML;
             return escapeHtml(value).replace(/\n/g, '<br>');
         }
 
+        function formatRichText(value) {
+            let formatted = escapeHtml(value).replace(/\n/g, '<br>');
+
+            const allowedTags = [
+                ['b', 'b'],
+                ['strong', 'strong'],
+                ['i', 'i'],
+                ['em', 'em'],
+                ['u', 'u'],
+            ];
+
+            allowedTags.forEach(([openTag, closeTag]) => {
+                const openPattern = new RegExp(`&lt;${openTag}&gt;`, 'gi');
+                const closePattern = new RegExp(`&lt;\\/${closeTag}&gt;`, 'gi');
+
+                formatted = formatted
+                    .replace(openPattern, `<${openTag}>`)
+                    .replace(closePattern, `</${closeTag}>`);
+            });
+
+            return formatted;
+        }
+
         function safeFontSize(value, fallback = 13.5) {
             const parsed = Number.parseFloat(value);
             return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
@@ -1601,7 +1624,7 @@ HTML;
             <td class="sk-content-cell" style="font-size:${safeFontSize(config.kesatuIntroFontSize)}pt;">
                 ${nl2br(config.kesatuIntroText)}
                 <table class="sk-person-table" style="font-size:${safeFontSize(config.personRowFontSize)}pt;">${personRows}</table>
-                ${nl2br(config.kesatuClosingText)}
+                ${formatRichText(config.kesatuClosingText)}
             </td>
         </tr>
         <tr>
@@ -1691,6 +1714,7 @@ HTML;
                             <input type="number" step="0.1" min="8" class="form-control sk-font-input" value="${escapeHtml(fontValue)}" data-sk-config-key="${field.fontKey}">
                         </div>
                     </div>
+                    ${field.help ? `<small class="text-muted d-block mt-2">${field.help}</small>` : ''}
                 </div>
             `;
         }
