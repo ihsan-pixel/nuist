@@ -108,7 +108,7 @@ class SkYayasanController extends Controller
             'employees' => $employees,
             'statusCounts' => $statusCounts,
             'importBatches' => SkYayasanImportBatch::query()
-                ->with(['reviewer'])
+                ->with(['reviewer', 'requests.employee'])
                 ->where('madrasah_id', $madrasahId)
                 ->latest('uploaded_at')
                 ->take(8)
@@ -184,12 +184,7 @@ class SkYayasanController extends Controller
                 ->withInput();
         }
 
-        $sheetReader = new class {
-            use Importable;
-        };
-        $sheet = $sheetReader->toArray($request->file('excel_file'));
-        $synchronizer = new SkYayasanImportSynchronizer((int) $user->madrasah_id);
-        $report = $synchronizer->inspectSheet($sheet[0] ?? []);
+        $report = $this->inspectSchoolSheetFile($request->file('excel_file'), (int) $user->madrasah_id);
         $batch = DB::transaction(function () use ($request, $report, $user) {
             $excelPath = $request->file('excel_file')->store('sk-yayasan/uploads/excel');
             $faktaPath = $request->file('fakta_integritas_file')->store('sk-yayasan/uploads/fakta-integritas');
@@ -216,37 +211,7 @@ class SkYayasanController extends Controller
                 'uploaded_at' => now(),
             ]);
 
-            $batch->rows()->createMany(collect($report['rows'])->map(function (array $row) {
-                $sourceColumns = $row['source_columns'] ?? [];
-
-                return [
-                    'row_number' => $row['row_number'] ?? 0,
-                    'excel_no' => $sourceColumns['No'] ?? null,
-                    'source_nuist_id' => $sourceColumns['NUIST ID'] ?? null,
-                    'source_nama' => $sourceColumns['Nama'] ?? null,
-                    'source_gelar' => $sourceColumns['Gelar'] ?? null,
-                    'source_tempat_lahir' => $sourceColumns['Tempat Lahir'] ?? null,
-                    'source_tanggal_lahir' => $sourceColumns['Tanggal Lahir'] ?? null,
-                    'source_nip_maarif' => $sourceColumns["NIP Ma'arif"] ?? null,
-                    'source_nuptk' => $sourceColumns['NUPTK'] ?? null,
-                    'source_nomor_kartanu' => $sourceColumns['Nomor Kartanu'] ?? null,
-                    'source_tmt_pertama' => $sourceColumns['TMT Pertama'] ?? null,
-                    'source_masa_kerja' => $sourceColumns['Masa Kerja'] ?? null,
-                    'source_pendidikan_terakhir' => $sourceColumns['Pendidikan Terakhir'] ?? null,
-                    'source_tahun_lulus' => $sourceColumns['Tahun Lulus'] ?? null,
-                    'source_program_studi' => $sourceColumns['Program Studi'] ?? null,
-                    'source_mapel_tugas' => $sourceColumns['Mapel/Tugas yang Diampu'] ?? null,
-                    'source_penilaian_kinerja' => $sourceColumns['Penilaian Kinerja'] ?? null,
-                    'source_keterangan' => $sourceColumns['Keterangan'] ?? null,
-                    'matched_user_id' => $row['user_id'] ?? null,
-                    'matched_name' => $row['matched_name'] ?? null,
-                    'is_valid' => $row['is_valid'] ?? false,
-                    'status_label' => $row['status_label'] ?? null,
-                    'validation_errors' => $row['errors'] ?? [],
-                    'user_payload' => $row['user_payload'] ?? [],
-                    'sk_payload' => $row['sk_payload'] ?? [],
-                ];
-            })->all());
+            $batch->rows()->createMany($this->buildImportBatchRowsPayload($report['rows']));
 
             return $batch;
         });
@@ -283,6 +248,118 @@ class SkYayasanController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    public function updateRejectedSchoolSubmission(Request $request, SkYayasanImportBatch $batch): RedirectResponse
+    {
+        $user = $this->ensureSchoolAdmin();
+        $this->authorizeImportBatchAccess($batch);
+
+        if ($batch->status !== 'rejected') {
+            return back()->with('error', 'Hanya batch yang ditolak yang dapat diperbarui.');
+        }
+
+        $validated = $request->validate([
+            'submission_letter_number' => ['required', 'string', 'max:255'],
+            'submission_letter_date' => ['required', 'date'],
+            'excel_file' => ['nullable', 'file', 'mimes:xlsx,xls,csv'],
+            'fakta_integritas_file' => ['nullable', 'file', 'mimes:pdf'],
+            'penilaian_perilaku_file' => ['nullable', 'file', 'mimes:pdf'],
+        ]);
+
+        $batch->loadMissing('requests');
+        $firstRequest = $batch->requests->first();
+
+        if (!$firstRequest) {
+            return back()->with('error', 'Batch ini tidak memiliki data pengajuan yang bisa diperbarui.');
+        }
+
+        $newLetterNumber = trim((string) $validated['submission_letter_number']);
+        $newLetterDate = Carbon::parse($validated['submission_letter_date'])->toDateString();
+        $oldLetterNumber = (string) ($firstRequest->submission_letter_number ?? '');
+        $oldLetterDate = optional($firstRequest->submission_letter_date)->toDateString();
+
+        $hasFileUpdate = $request->hasFile('excel_file')
+            || $request->hasFile('fakta_integritas_file')
+            || $request->hasFile('penilaian_perilaku_file');
+        $hasLetterUpdate = $newLetterNumber !== $oldLetterNumber || $newLetterDate !== $oldLetterDate;
+
+        if (!$hasFileUpdate && !$hasLetterUpdate) {
+            return back()->with('error', 'Tidak ada perubahan yang dikirim. Ubah nomor/tanggal surat atau upload file baru.');
+        }
+
+        $report = $request->hasFile('excel_file')
+            ? $this->inspectSchoolSheetFile($request->file('excel_file'), (int) $user->madrasah_id)
+            : null;
+
+        DB::transaction(function () use ($request, $batch, $user, $newLetterNumber, $newLetterDate, $report) {
+            $batchUpdatePayload = [
+                'status' => 'pending_review',
+                'uploaded_by' => $user->id,
+                'reviewed_by' => null,
+                'review_notes' => null,
+                'reviewed_at' => null,
+                'synced_at' => null,
+                'uploaded_at' => now(),
+            ];
+
+            if ($request->hasFile('excel_file')) {
+                if (!empty($batch->stored_path) && Storage::exists($batch->stored_path)) {
+                    Storage::delete($batch->stored_path);
+                }
+
+                $batchUpdatePayload = array_merge($batchUpdatePayload, [
+                    'original_filename' => $request->file('excel_file')->getClientOriginalName(),
+                    'stored_path' => $request->file('excel_file')->store('sk-yayasan/uploads/excel'),
+                    'total_rows' => count($report['rows']),
+                    'valid_rows' => $report['valid_count'],
+                    'invalid_rows' => $report['invalid_count'],
+                    'headings_valid' => $report['headings_valid'],
+                    'missing_headings' => $report['missing_headings'],
+                    'unexpected_headings' => $report['unexpected_headings'],
+                    'payload_rows' => $report['rows'],
+                    'matched_user_ids' => $report['valid_user_ids'],
+                ]);
+            }
+
+            if ($request->hasFile('fakta_integritas_file')) {
+                if (!empty($batch->fakta_integritas_path) && Storage::exists($batch->fakta_integritas_path)) {
+                    Storage::delete($batch->fakta_integritas_path);
+                }
+
+                $batchUpdatePayload['fakta_integritas_filename'] = $request->file('fakta_integritas_file')->getClientOriginalName();
+                $batchUpdatePayload['fakta_integritas_path'] = $request->file('fakta_integritas_file')->store('sk-yayasan/uploads/fakta-integritas');
+            }
+
+            if ($request->hasFile('penilaian_perilaku_file')) {
+                if (!empty($batch->penilaian_perilaku_path) && Storage::exists($batch->penilaian_perilaku_path)) {
+                    Storage::delete($batch->penilaian_perilaku_path);
+                }
+
+                $batchUpdatePayload['penilaian_perilaku_filename'] = $request->file('penilaian_perilaku_file')->getClientOriginalName();
+                $batchUpdatePayload['penilaian_perilaku_path'] = $request->file('penilaian_perilaku_file')->store('sk-yayasan/uploads/penilaian-perilaku');
+            }
+
+            $batch->update($batchUpdatePayload);
+
+            if ($report !== null) {
+                $batch->rows()->delete();
+                $batch->rows()->createMany($this->buildImportBatchRowsPayload($report['rows']));
+            }
+
+            $batch->requests()->update([
+                'submission_letter_number' => $newLetterNumber,
+                'submission_letter_date' => $newLetterDate,
+                'current_status' => 'submitted',
+                'review_notes' => null,
+                'submitted_by' => $user->id,
+                'reviewed_by' => null,
+                'submitted_at' => now(),
+                'reviewed_at' => null,
+            ]);
+        });
+
+        return back()->with('success', 'Berkas pengajuan yang ditolak berhasil diperbarui dan dikirim ulang untuk direview.');
     }
 
     public function downloadImportBatchAttachment(SkYayasanImportBatch $batch, string $type)
@@ -780,6 +857,53 @@ class SkYayasanController extends Controller
             403,
             'Unauthorized access'
         );
+    }
+
+    private function inspectSchoolSheetFile($file, int $madrasahId): array
+    {
+        $sheetReader = new class {
+            use Importable;
+        };
+
+        $sheet = $sheetReader->toArray($file);
+        $synchronizer = new SkYayasanImportSynchronizer($madrasahId);
+
+        return $synchronizer->inspectSheet($sheet[0] ?? []);
+    }
+
+    private function buildImportBatchRowsPayload(array $rows): array
+    {
+        return collect($rows)->map(function (array $row) {
+            $sourceColumns = $row['source_columns'] ?? [];
+
+            return [
+                'row_number' => $row['row_number'] ?? 0,
+                'excel_no' => $sourceColumns['No'] ?? null,
+                'source_nuist_id' => $sourceColumns['NUIST ID'] ?? null,
+                'source_nama' => $sourceColumns['Nama'] ?? null,
+                'source_gelar' => $sourceColumns['Gelar'] ?? null,
+                'source_tempat_lahir' => $sourceColumns['Tempat Lahir'] ?? null,
+                'source_tanggal_lahir' => $sourceColumns['Tanggal Lahir'] ?? null,
+                'source_nip_maarif' => $sourceColumns["NIP Ma'arif"] ?? null,
+                'source_nuptk' => $sourceColumns['NUPTK'] ?? null,
+                'source_nomor_kartanu' => $sourceColumns['Nomor Kartanu'] ?? null,
+                'source_tmt_pertama' => $sourceColumns['TMT Pertama'] ?? null,
+                'source_masa_kerja' => $sourceColumns['Masa Kerja'] ?? null,
+                'source_pendidikan_terakhir' => $sourceColumns['Pendidikan Terakhir'] ?? null,
+                'source_tahun_lulus' => $sourceColumns['Tahun Lulus'] ?? null,
+                'source_program_studi' => $sourceColumns['Program Studi'] ?? null,
+                'source_mapel_tugas' => $sourceColumns['Mapel/Tugas yang Diampu'] ?? null,
+                'source_penilaian_kinerja' => $sourceColumns['Penilaian Kinerja'] ?? null,
+                'source_keterangan' => $sourceColumns['Keterangan'] ?? null,
+                'matched_user_id' => $row['user_id'] ?? null,
+                'matched_name' => $row['matched_name'] ?? null,
+                'is_valid' => $row['is_valid'] ?? false,
+                'status_label' => $row['status_label'] ?? null,
+                'validation_errors' => $row['errors'] ?? [],
+                'user_payload' => $row['user_payload'] ?? [],
+                'sk_payload' => $row['sk_payload'] ?? [],
+            ];
+        })->all();
     }
 
     private function generateRequestNumber(): string

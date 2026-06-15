@@ -212,6 +212,15 @@
                                         <div class="small mb-2"><strong>Catatan review:</strong> {{ $batch->review_notes }}</div>
                                     @endif
 
+                                    @if($batch->status === 'rejected')
+                                        <div class="d-flex flex-wrap gap-2 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#updateRejectedBatchModal{{ $batch->id }}">
+                                                Perbarui Berkas
+                                            </button>
+                                            <small class="text-muted align-self-center">Upload ulang Excel dan/atau lampiran PDF untuk mengirim revisi.</small>
+                                        </div>
+                                    @endif
+
                                     @if($batch->reviewer)
                                         <div class="small text-muted">Direview oleh {{ $batch->reviewer->name }} pada {{ optional($batch->reviewed_at)->format('d/m/Y H:i') }}</div>
                                     @endif
@@ -307,6 +316,65 @@
         </div>
     </div>
 </div>
+
+@foreach($importBatches as $batch)
+    @php
+        $batchSubmission = $batch->requests->first();
+    @endphp
+
+    @if($batch->status === 'rejected' && $batchSubmission)
+        <div class="modal fade" id="updateRejectedBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <form action="{{ route('sk-yayasan.sekolah.import-batches.update', $batch) }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Perbarui Berkas Pengajuan Ditolak</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning py-2 px-3 small">
+                            Perbarui file yang perlu direvisi. Kosongkan file yang tidak ingin diganti. Setelah disimpan, batch akan kembali masuk ke antrean review Yayasan.
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Nomor Surat Pengajuan</label>
+                                <input type="text" name="submission_letter_number" class="form-control" value="{{ old('submission_letter_number', $batchSubmission->submission_letter_number) }}" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Tanggal Surat Pengajuan</label>
+                                <input type="date" name="submission_letter_date" class="form-control" value="{{ old('submission_letter_date', optional($batchSubmission->submission_letter_date)->format('Y-m-d')) }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">File Excel Data Tenaga Pendidik</label>
+                            <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv">
+                            <small class="text-muted">File saat ini: {{ $batch->original_filename }}. Upload file baru jika data Excel direvisi.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">File Pakta Integritas</label>
+                            <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,application/pdf">
+                            <small class="text-muted">File saat ini: {{ $batch->fakta_integritas_filename ?? '-' }}.</small>
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label">File Form Penilaian Perilaku Kinerja Pegawai</label>
+                            <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,application/pdf">
+                            <small class="text-muted">File saat ini: {{ $batch->penilaian_perilaku_filename ?? '-' }}.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan & Kirim Ulang</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+@endforeach
 @endsection
 
 @section('script')

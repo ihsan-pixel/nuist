@@ -257,6 +257,15 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                         <div class="small mb-2"><strong>Catatan review:</strong> <?php echo e($batch->review_notes); ?></div>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->status === 'rejected'): ?>
+                                        <div class="d-flex flex-wrap gap-2 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#updateRejectedBatchModal<?php echo e($batch->id); ?>">
+                                                Perbarui Berkas
+                                            </button>
+                                            <small class="text-muted align-self-center">Upload ulang Excel dan/atau lampiran PDF untuk mengirim revisi.</small>
+                                        </div>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->reviewer): ?>
                                         <div class="small text-muted">Direview oleh <?php echo e($batch->reviewer->name); ?> pada <?php echo e(optional($batch->reviewed_at)->format('d/m/Y H:i')); ?></div>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -353,6 +362,65 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         </div>
     </div>
 </div>
+
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+    <?php
+        $batchSubmission = $batch->requests->first();
+    ?>
+
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->status === 'rejected' && $batchSubmission): ?>
+        <div class="modal fade" id="updateRejectedBatchModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <form action="<?php echo e(route('sk-yayasan.sekolah.import-batches.update', $batch)); ?>" method="POST" enctype="multipart/form-data" class="modal-content">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PATCH'); ?>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Perbarui Berkas Pengajuan Ditolak</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning py-2 px-3 small">
+                            Perbarui file yang perlu direvisi. Kosongkan file yang tidak ingin diganti. Setelah disimpan, batch akan kembali masuk ke antrean review Yayasan.
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Nomor Surat Pengajuan</label>
+                                <input type="text" name="submission_letter_number" class="form-control" value="<?php echo e(old('submission_letter_number', $batchSubmission->submission_letter_number)); ?>" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Tanggal Surat Pengajuan</label>
+                                <input type="date" name="submission_letter_date" class="form-control" value="<?php echo e(old('submission_letter_date', optional($batchSubmission->submission_letter_date)->format('Y-m-d'))); ?>" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">File Excel Data Tenaga Pendidik</label>
+                            <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv">
+                            <small class="text-muted">File saat ini: <?php echo e($batch->original_filename); ?>. Upload file baru jika data Excel direvisi.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">File Pakta Integritas</label>
+                            <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,application/pdf">
+                            <small class="text-muted">File saat ini: <?php echo e($batch->fakta_integritas_filename ?? '-'); ?>.</small>
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label">File Form Penilaian Perilaku Kinerja Pegawai</label>
+                            <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,application/pdf">
+                            <small class="text-muted">File saat ini: <?php echo e($batch->penilaian_perilaku_filename ?? '-'); ?>.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan & Kirim Ulang</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
