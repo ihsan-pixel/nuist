@@ -387,7 +387,14 @@ class SkYayasanController extends Controller
 
         abort_unless(!empty($attachment['path']) && Storage::exists($attachment['path']), 404);
 
-        return response()->download(Storage::path($attachment['path']), $attachment['name'] ?: basename($attachment['path']));
+        $absolutePath = Storage::path($attachment['path']);
+        $filename = $attachment['name'] ?: basename($attachment['path']);
+        $mimeType = Storage::mimeType($attachment['path']) ?: 'application/octet-stream';
+
+        return response()->file($absolutePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . addslashes($filename) . '"',
+        ]);
     }
 
     public function reviewImportBatch(Request $request, SkYayasanImportBatch $batch): RedirectResponse

@@ -194,9 +194,9 @@
                                     </div>
 
                                     <div class="d-flex flex-wrap gap-2 mb-2">
-                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel']) }}" class="btn btn-sm btn-outline-primary">Excel</a>
-                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary">Pakta Integritas</a>
-                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku']) }}" class="btn btn-sm btn-outline-primary">Penilaian Perilaku</a>
+                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat Excel</a>
+                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat Pakta Integritas</a>
+                                        <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat Penilaian Perilaku</a>
                                     </div>
 
                                     @if(!$batch->headings_valid)

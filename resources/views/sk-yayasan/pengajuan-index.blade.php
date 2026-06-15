@@ -245,9 +245,9 @@
                         @if($submission->importBatch)
                             <div class="sky-inline-note sky-inline-note-info">
                                 Berkas terkait:
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel']) }}" class="ms-2">Excel</a>
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="ms-2">Pakta Integritas</a>
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="ms-2">Penilaian Perilaku</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel']) }}" class="ms-2" target="_blank" rel="noopener">Excel</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="ms-2" target="_blank" rel="noopener">Pakta Integritas</a>
+                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="ms-2" target="_blank" rel="noopener">Penilaian Perilaku</a>
                             </div>
                         @endif
                         <div class="mb-3">
@@ -337,21 +337,21 @@
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-2">Lampiran Excel</div>
                                     <div class="small mb-2">{{ $batch->original_filename }}</div>
-                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel']) }}" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-2">Pakta Integritas</div>
                                     <div class="small mb-2">{{ $batch->fakta_integritas_filename ?? '-' }}</div>
-                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-2">Penilaian Perilaku</div>
                                     <div class="small mb-2">{{ $batch->penilaian_perilaku_filename ?? '-' }}</div>
-                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku']) }}" class="btn btn-sm btn-outline-primary">Lihat File</a>
+                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
                                 </div>
                             </div>
                         </div>
