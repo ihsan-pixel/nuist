@@ -74,6 +74,23 @@
         font-weight: 600;
         margin-bottom: .4rem;
     }
+
+    @media (min-width: 992px) {
+        .tp-modal-dialog {
+            width: min(1100px, calc(100vw - 4rem));
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tp-modal-content {
+            height: min(780px, calc(100vh - 3rem));
+            max-height: min(780px, calc(100vh - 3rem));
+        }
+
+        .tp-modal-body {
+            padding-bottom: 1rem;
+        }
+    }
 </style>
 <?php $__env->stopSection(); ?>
 
