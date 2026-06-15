@@ -60,7 +60,7 @@
     </div>
 
     <div class="row g-3">
-        <div class="col-xl-4">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
                     <div class="sky-panel-label mb-1">Form Pengajuan</div>
@@ -215,7 +215,7 @@
 
         </div>
 
-        <div class="col-xl-8">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
