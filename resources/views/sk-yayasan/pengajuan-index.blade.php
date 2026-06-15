@@ -172,9 +172,22 @@
                                         <span class="badge bg-{{ $batchBadge['bg'] }}-subtle text-{{ $batchBadge['bg'] }}">{{ $batchBadge['label'] }}</span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
-                                            Lihat Review
-                                        </button>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                                Lihat Review
+                                            </button>
+                                            <form method="POST"
+                                                  action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                                  data-sk-swal-confirm
+                                                  data-sk-swal-title="Hapus pengajuan ini?"
+                                                  data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
+                                                  data-sk-swal-confirm-text="Ya, hapus"
+                                                  data-sk-swal-icon="warning">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
