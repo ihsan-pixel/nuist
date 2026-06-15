@@ -77,12 +77,6 @@
                         </div>
                     @endif
 
-                    <div class="d-grid gap-2 mb-3">
-                        <a href="{{ route('sk-yayasan.sekolah.template-import') }}" class="btn btn-outline-primary">
-                            <i class="mdi mdi-file-excel-outline me-1"></i> Download Template Import Data Tenaga Pendidik
-                        </a>
-                    </div>
-
                     <form action="{{ route('sk-yayasan.sekolah.store') }}" method="POST" enctype="multipart/form-data" class="mb-3">
                         @csrf
                         <div class="row g-3 mb-3">
@@ -135,7 +129,12 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">File Excel Data Tenaga Pendidik</label>
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <label class="form-label mb-0">File Excel Data Tenaga Pendidik</label>
+                                <a href="{{ route('sk-yayasan.sekolah.template-import') }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="mdi mdi-file-excel-outline me-1"></i> Template Import
+                                </a>
+                            </div>
                             <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv" required>
                             <small class="text-muted">Format: XLSX, XLS, atau CSV.</small>
                             @error('excel_file')
