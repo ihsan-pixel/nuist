@@ -327,12 +327,21 @@ class SkYayasanController extends Controller
         }
 
         if ($validated['action'] === 'reject') {
-            $batch->update([
-                'status' => 'rejected',
-                'reviewed_by' => auth()->id(),
-                'review_notes' => $validated['review_notes'] ?? null,
-                'reviewed_at' => now(),
-            ]);
+            DB::transaction(function () use ($batch, $validated) {
+                $batch->update([
+                    'status' => 'rejected',
+                    'reviewed_by' => auth()->id(),
+                    'review_notes' => $validated['review_notes'] ?? null,
+                    'reviewed_at' => now(),
+                ]);
+
+                $batch->requests()->update([
+                    'current_status' => 'rejected',
+                    'review_notes' => $validated['review_notes'] ?? null,
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+            });
 
             return back()->with('success', 'Batch import ditolak. Admin sekolah dapat mengunggah perbaikan data.');
         }
@@ -395,6 +404,7 @@ class SkYayasanController extends Controller
         $submissions = SkYayasanRequest::query()
             ->with(['madrasah', 'employee.statusKepegawaian', 'submitter', 'reviewer', 'template', 'document', 'importBatch'])
             ->where('current_status', '!=', 'rejected')
+            ->whereDoesntHave('importBatch', fn ($query) => $query->where('status', 'rejected'))
             ->when($request->filled('status'), fn ($query) => $query->where('current_status', $request->string('status')->toString()))
             ->when($request->filled('madrasah_id'), fn ($query) => $query->where('madrasah_id', (int) $request->madrasah_id))
             ->when($request->filled('q'), function ($query) use ($request) {
