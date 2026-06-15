@@ -4,6 +4,54 @@
 
 @section('css')
 <link href="{{ asset('build/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
+<style>
+    .sky-pagination-wrap {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .sky-pagination-wrap nav {
+        width: auto;
+    }
+
+    .sky-pagination-wrap .pagination {
+        gap: .35rem;
+        justify-content: flex-end;
+        margin-bottom: 0;
+    }
+
+    .sky-pagination-wrap .page-item .page-link {
+        align-items: center;
+        border: 1px solid #dbe7e1;
+        border-radius: 10px;
+        color: #34524a;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 600;
+        height: 34px;
+        justify-content: center;
+        min-width: 34px;
+        padding: .35rem .65rem;
+    }
+
+    .sky-pagination-wrap .page-item.active .page-link {
+        background: linear-gradient(135deg, #004b4c, #0e8549);
+        border-color: transparent;
+        color: #fff;
+    }
+
+    .sky-pagination-wrap .page-item.disabled .page-link {
+        background: #f4f8f6;
+        border-color: #e6efea;
+        color: #9aa9a3;
+    }
+
+    .sky-pagination-wrap .page-link:hover {
+        background: #eef7f2;
+        border-color: #bfd7cb;
+        color: #0e8549;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -309,7 +357,9 @@
 
                 @if($submissions->hasPages())
                     <div class="card-footer bg-white">
-                        {{ $submissions->links() }}
+                        <div class="sky-pagination-wrap">
+                            {{ $submissions->links('pagination::bootstrap-5') }}
+                        </div>
                     </div>
                 @endif
             </div>
