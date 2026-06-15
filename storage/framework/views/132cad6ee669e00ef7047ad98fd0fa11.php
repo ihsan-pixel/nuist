@@ -105,6 +105,104 @@
         <div class="card-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                 <div>
+                    <div class="sky-panel-label mb-1">Review Import Data</div>
+                    <h6 class="mb-0">Tinjau file Excel dari admin sekolah sebelum sinkronisasi ke database</h6>
+                </div>
+                <span class="sky-chip"><?php echo e($importBatches->total()); ?> total batch</span>
+            </div>
+
+            <form method="GET" class="row g-2 align-items-end mb-3">
+                <input type="hidden" name="q" value="<?php echo e(request('q')); ?>">
+                <input type="hidden" name="madrasah_id" value="<?php echo e(request('madrasah_id')); ?>">
+                <input type="hidden" name="status" value="<?php echo e(request('status')); ?>">
+                <div class="col-md-4">
+                    <label class="form-label">Status Batch Import</label>
+                    <select name="import_status" class="form-select">
+                        <option value="">Semua status batch</option>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = ['pending_review' => 'Pending Review', 'rejected' => 'Ditolak', 'synced' => 'Tersinkron']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <option value="<?php echo e($value); ?>" <?php if(request('import_status') === $value): echo 'selected'; endif; ?>><?php echo e($label); ?></option>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-outline-primary">Filter Batch</button>
+                </div>
+            </form>
+
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($importBatches->count() > 0): ?>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>File Import</th>
+                                <th>Sekolah</th>
+                                <th>Upload</th>
+                                <th>Validasi</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <?php
+                                    $batchBadge = $batch->status === 'synced'
+                                        ? ['bg' => 'success', 'label' => 'TERSINKRON']
+                                        : ($batch->status === 'rejected'
+                                            ? ['bg' => 'danger', 'label' => 'DITOLAK']
+                                            : ['bg' => 'warning', 'label' => 'PENDING REVIEW']);
+                                ?>
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold"><?php echo e($batch->original_filename); ?></div>
+                                    </td>
+                                    <td><?php echo e($batch->madrasah?->name ?? '-'); ?></td>
+                                    <td>
+                                        <div><?php echo e($batch->uploader?->name ?? '-'); ?></div>
+                                        <small class="text-muted"><?php echo e(optional($batch->uploaded_at)->format('d/m/Y H:i')); ?></small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold"><?php echo e($batch->valid_rows); ?> valid / <?php echo e($batch->invalid_rows); ?> salah</div>
+                                        <small class="text-muted">
+                                            <?php echo e($batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template'); ?>
+
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<?php echo e($batchBadge['bg']); ?>-subtle text-<?php echo e($batchBadge['bg']); ?>"><?php echo e($batchBadge['label']); ?></span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
+                                            Lihat Review
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <div class="sky-empty-state py-5">
+                    <i class="bx bx-spreadsheet"></i>
+                    <strong>Belum ada batch import dari sekolah</strong>
+                    <small>File Excel yang diupload admin sekolah akan muncul di sini untuk direview sebelum sinkronisasi.</small>
+                </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($importBatches->hasPages()): ?>
+            <div class="card-footer bg-white">
+                <div class="sky-pagination-wrap">
+                    <?php echo e($importBatches->links('pagination::bootstrap-5')); ?>
+
+                </div>
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <div>
                     <div class="sky-panel-label mb-1">Filter Pengajuan</div>
                     <h6 class="mb-0">Saring antrean berdasarkan sekolah, status, atau kata kunci</h6>
                 </div>
@@ -202,104 +300,6 @@
             <div class="card-footer bg-white">
                 <div class="sky-pagination-wrap">
                     <?php echo e($submissions->links('pagination::bootstrap-5')); ?>
-
-                </div>
-            </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    </div>
-
-    <div class="card mt-3">
-        <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-                <div>
-                    <div class="sky-panel-label mb-1">Review Import Data</div>
-                    <h6 class="mb-0">Tinjau file Excel dari admin sekolah sebelum sinkronisasi ke database</h6>
-                </div>
-                <span class="sky-chip"><?php echo e($importBatches->total()); ?> total batch</span>
-            </div>
-
-            <form method="GET" class="row g-2 align-items-end mb-3">
-                <input type="hidden" name="q" value="<?php echo e(request('q')); ?>">
-                <input type="hidden" name="madrasah_id" value="<?php echo e(request('madrasah_id')); ?>">
-                <input type="hidden" name="status" value="<?php echo e(request('status')); ?>">
-                <div class="col-md-4">
-                    <label class="form-label">Status Batch Import</label>
-                    <select name="import_status" class="form-select">
-                        <option value="">Semua status batch</option>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = ['pending_review' => 'Pending Review', 'rejected' => 'Ditolak', 'synced' => 'Tersinkron']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                            <option value="<?php echo e($value); ?>" <?php if(request('import_status') === $value): echo 'selected'; endif; ?>><?php echo e($label); ?></option>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                    </select>
-                </div>
-                <div class="col-md-2 d-grid">
-                    <button type="submit" class="btn btn-outline-primary">Filter Batch</button>
-                </div>
-            </form>
-
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($importBatches->count() > 0): ?>
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>File Import</th>
-                                <th>Sekolah</th>
-                                <th>Upload</th>
-                                <th>Validasi</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                <?php
-                                    $batchBadge = $batch->status === 'synced'
-                                        ? ['bg' => 'success', 'label' => 'TERSINKRON']
-                                        : ($batch->status === 'rejected'
-                                            ? ['bg' => 'danger', 'label' => 'DITOLAK']
-                                            : ['bg' => 'warning', 'label' => 'PENDING REVIEW']);
-                                ?>
-                                <tr>
-                                    <td>
-                                        <div class="fw-semibold"><?php echo e($batch->original_filename); ?></div>
-                                    </td>
-                                    <td><?php echo e($batch->madrasah?->name ?? '-'); ?></td>
-                                    <td>
-                                        <div><?php echo e($batch->uploader?->name ?? '-'); ?></div>
-                                        <small class="text-muted"><?php echo e(optional($batch->uploaded_at)->format('d/m/Y H:i')); ?></small>
-                                    </td>
-                                    <td>
-                                        <div class="fw-semibold"><?php echo e($batch->valid_rows); ?> valid / <?php echo e($batch->invalid_rows); ?> salah</div>
-                                        <small class="text-muted">
-                                            <?php echo e($batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template'); ?>
-
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<?php echo e($batchBadge['bg']); ?>-subtle text-<?php echo e($batchBadge['bg']); ?>"><?php echo e($batchBadge['label']); ?></span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
-                                            Lihat Review
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php else: ?>
-                <div class="sky-empty-state py-5">
-                    <i class="bx bx-spreadsheet"></i>
-                    <strong>Belum ada batch import dari sekolah</strong>
-                    <small>File Excel yang diupload admin sekolah akan muncul di sini untuk direview sebelum sinkronisasi.</small>
-                </div>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        </div>
-
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($importBatches->hasPages()): ?>
-            <div class="card-footer bg-white">
-                <div class="sky-pagination-wrap">
-                    <?php echo e($importBatches->links('pagination::bootstrap-5')); ?>
 
                 </div>
             </div>

@@ -107,6 +107,102 @@
         <div class="card-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                 <div>
+                    <div class="sky-panel-label mb-1">Review Import Data</div>
+                    <h6 class="mb-0">Tinjau file Excel dari admin sekolah sebelum sinkronisasi ke database</h6>
+                </div>
+                <span class="sky-chip">{{ $importBatches->total() }} total batch</span>
+            </div>
+
+            <form method="GET" class="row g-2 align-items-end mb-3">
+                <input type="hidden" name="q" value="{{ request('q') }}">
+                <input type="hidden" name="madrasah_id" value="{{ request('madrasah_id') }}">
+                <input type="hidden" name="status" value="{{ request('status') }}">
+                <div class="col-md-4">
+                    <label class="form-label">Status Batch Import</label>
+                    <select name="import_status" class="form-select">
+                        <option value="">Semua status batch</option>
+                        @foreach(['pending_review' => 'Pending Review', 'rejected' => 'Ditolak', 'synced' => 'Tersinkron'] as $value => $label)
+                            <option value="{{ $value }}" @selected(request('import_status') === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-outline-primary">Filter Batch</button>
+                </div>
+            </form>
+
+            @if($importBatches->count() > 0)
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>File Import</th>
+                                <th>Sekolah</th>
+                                <th>Upload</th>
+                                <th>Validasi</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($importBatches as $batch)
+                                @php
+                                    $batchBadge = $batch->status === 'synced'
+                                        ? ['bg' => 'success', 'label' => 'TERSINKRON']
+                                        : ($batch->status === 'rejected'
+                                            ? ['bg' => 'danger', 'label' => 'DITOLAK']
+                                            : ['bg' => 'warning', 'label' => 'PENDING REVIEW']);
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ $batch->original_filename }}</div>
+                                    </td>
+                                    <td>{{ $batch->madrasah?->name ?? '-' }}</td>
+                                    <td>
+                                        <div>{{ $batch->uploader?->name ?? '-' }}</div>
+                                        <small class="text-muted">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold">{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</div>
+                                        <small class="text-muted">
+                                            {{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $batchBadge['bg'] }}-subtle text-{{ $batchBadge['bg'] }}">{{ $batchBadge['label'] }}</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                            Lihat Review
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="sky-empty-state py-5">
+                    <i class="bx bx-spreadsheet"></i>
+                    <strong>Belum ada batch import dari sekolah</strong>
+                    <small>File Excel yang diupload admin sekolah akan muncul di sini untuk direview sebelum sinkronisasi.</small>
+                </div>
+            @endif
+        </div>
+
+        @if($importBatches->hasPages())
+            <div class="card-footer bg-white">
+                <div class="sky-pagination-wrap">
+                    {{ $importBatches->links('pagination::bootstrap-5') }}
+                </div>
+            </div>
+        @endif
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <div>
                     <div class="sky-panel-label mb-1">Filter Pengajuan</div>
                     <h6 class="mb-0">Saring antrean berdasarkan sekolah, status, atau kata kunci</h6>
                 </div>
@@ -204,102 +300,6 @@
             <div class="card-footer bg-white">
                 <div class="sky-pagination-wrap">
                     {{ $submissions->links('pagination::bootstrap-5') }}
-                </div>
-            </div>
-        @endif
-    </div>
-
-    <div class="card mt-3">
-        <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-                <div>
-                    <div class="sky-panel-label mb-1">Review Import Data</div>
-                    <h6 class="mb-0">Tinjau file Excel dari admin sekolah sebelum sinkronisasi ke database</h6>
-                </div>
-                <span class="sky-chip">{{ $importBatches->total() }} total batch</span>
-            </div>
-
-            <form method="GET" class="row g-2 align-items-end mb-3">
-                <input type="hidden" name="q" value="{{ request('q') }}">
-                <input type="hidden" name="madrasah_id" value="{{ request('madrasah_id') }}">
-                <input type="hidden" name="status" value="{{ request('status') }}">
-                <div class="col-md-4">
-                    <label class="form-label">Status Batch Import</label>
-                    <select name="import_status" class="form-select">
-                        <option value="">Semua status batch</option>
-                        @foreach(['pending_review' => 'Pending Review', 'rejected' => 'Ditolak', 'synced' => 'Tersinkron'] as $value => $label)
-                            <option value="{{ $value }}" @selected(request('import_status') === $value)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2 d-grid">
-                    <button type="submit" class="btn btn-outline-primary">Filter Batch</button>
-                </div>
-            </form>
-
-            @if($importBatches->count() > 0)
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>File Import</th>
-                                <th>Sekolah</th>
-                                <th>Upload</th>
-                                <th>Validasi</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($importBatches as $batch)
-                                @php
-                                    $batchBadge = $batch->status === 'synced'
-                                        ? ['bg' => 'success', 'label' => 'TERSINKRON']
-                                        : ($batch->status === 'rejected'
-                                            ? ['bg' => 'danger', 'label' => 'DITOLAK']
-                                            : ['bg' => 'warning', 'label' => 'PENDING REVIEW']);
-                                @endphp
-                                <tr>
-                                    <td>
-                                        <div class="fw-semibold">{{ $batch->original_filename }}</div>
-                                    </td>
-                                    <td>{{ $batch->madrasah?->name ?? '-' }}</td>
-                                    <td>
-                                        <div>{{ $batch->uploader?->name ?? '-' }}</div>
-                                        <small class="text-muted">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') }}</small>
-                                    </td>
-                                    <td>
-                                        <div class="fw-semibold">{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</div>
-                                        <small class="text-muted">
-                                            {{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ $batchBadge['bg'] }}-subtle text-{{ $batchBadge['bg'] }}">{{ $batchBadge['label'] }}</span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
-                                            Lihat Review
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="sky-empty-state py-5">
-                    <i class="bx bx-spreadsheet"></i>
-                    <strong>Belum ada batch import dari sekolah</strong>
-                    <small>File Excel yang diupload admin sekolah akan muncul di sini untuk direview sebelum sinkronisasi.</small>
-                </div>
-            @endif
-        </div>
-
-        @if($importBatches->hasPages())
-            <div class="card-footer bg-white">
-                <div class="sky-pagination-wrap">
-                    {{ $importBatches->links('pagination::bootstrap-5') }}
                 </div>
             </div>
         @endif
