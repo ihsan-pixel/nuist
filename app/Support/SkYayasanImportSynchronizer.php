@@ -14,6 +14,18 @@ class SkYayasanImportSynchronizer
     {
     }
 
+    public static function allowedKeteranganOptions(): array
+    {
+        return [
+            'perpanjangan gty',
+            'perpanjangan pty',
+            'perpanjangan gtt',
+            'perpanjangan ptt',
+            'pengangkatan gty',
+            'pengangkatan ptt',
+        ];
+    }
+
     public static function expectedHeadings(): array
     {
         return [
@@ -150,6 +162,7 @@ class SkYayasanImportSynchronizer
     {
         $errors = [];
         $user = $this->resolveUser($rowData);
+        $keterangan = $this->normalizeKeteranganOption($rowData['keterangan'] ?? null);
 
         if (
             !$this->nullableString($rowData['nuist_id'] ?? null)
@@ -184,6 +197,10 @@ class SkYayasanImportSynchronizer
             $errors[] = 'Penilaian Kinerja harus berupa angka.';
         }
 
+        if ($keterangan === null) {
+            $errors[] = 'Keterangan wajib diisi sesuai salah satu opsi template.';
+        }
+
         $userPayload = array_filter([
             'nuist_id' => $this->nullableString($rowData['nuist_id'] ?? null),
             'name' => $this->nullableString($rowData['nama'] ?? null),
@@ -203,7 +220,7 @@ class SkYayasanImportSynchronizer
 
         $skPayload = array_filter([
             'penilaian_kinerja' => $penilaianKinerja,
-            'keterangan' => $this->nullableString($rowData['keterangan'] ?? null),
+            'keterangan' => $keterangan,
         ], fn ($value) => $value !== null && $value !== '');
 
         if (empty($userPayload) && empty($skPayload)) {
@@ -369,6 +386,23 @@ class SkYayasanImportSynchronizer
         $normalized = str_replace(',', '.', trim((string) $value));
 
         return is_numeric($normalized) ? (float) $normalized : null;
+    }
+
+    public function normalizeKeteranganOption(mixed $value): ?string
+    {
+        $string = $this->nullableString($value);
+
+        if ($string === null) {
+            return null;
+        }
+
+        $normalized = Str::lower(preg_replace('/\s+/', ' ', $string));
+        $allowedOptions = array_combine(
+            self::allowedKeteranganOptions(),
+            self::allowedKeteranganOptions()
+        );
+
+        return $allowedOptions[$normalized] ?? null;
     }
 
     private function rowIsEmpty(array $row): bool
