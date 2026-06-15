@@ -25,6 +25,21 @@
         max-width: min(1180px, calc(100vw - 2rem));
     }
 
+    .tp-modal-form {
+        height: 100%;
+    }
+
+    .tp-modal-content {
+        max-height: calc(100vh - 2rem);
+        overflow: hidden;
+    }
+
+    .tp-modal-body {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-bottom: 1.5rem;
+    }
+
     .tp-form-section {
         background: #f8fafc;
         border: 1px solid #e9edf4;
@@ -502,9 +517,9 @@
 <!-- Modal Tambah -->
 <div class="modal fade" id="modalTambahTP" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable tp-modal-dialog">
-        <form action="{{ route('tenaga-pendidik.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('tenaga-pendidik.store') }}" method="POST" enctype="multipart/form-data" class="tp-modal-form">
             @csrf
-            <div class="modal-content">
+            <div class="modal-content tp-modal-content">
                 <div class="modal-header">
                     <div>
                         <h5 class="modal-title mb-1">Tambah Tenaga Pendidik</h5>
@@ -512,7 +527,7 @@
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body tp-modal-body">
                     <div class="tp-form-hint mb-4">
                         <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
                             <div>
