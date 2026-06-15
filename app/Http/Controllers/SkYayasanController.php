@@ -481,6 +481,37 @@ class SkYayasanController extends Controller
         return back()->with('success', "Batch import berhasil disinkronkan. {$updated} data diperbarui, {$unchanged} baris tidak mengubah data.");
     }
 
+    public function destroyImportBatch(SkYayasanImportBatch $batch): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        $pathsToDelete = array_filter([
+            $batch->stored_path,
+            $batch->fakta_integritas_path,
+            $batch->penilaian_perilaku_path,
+        ]);
+
+        DB::transaction(function () use ($batch) {
+            $requestIds = $batch->requests()->pluck('id');
+
+            if ($requestIds->isNotEmpty()) {
+                SkYayasanDocument::query()->whereIn('request_id', $requestIds)->delete();
+            }
+
+            $batch->rows()->delete();
+            $batch->requests()->delete();
+            $batch->delete();
+        });
+
+        foreach ($pathsToDelete as $path) {
+            if (Storage::exists($path)) {
+                Storage::delete($path);
+            }
+        }
+
+        return back()->with('success', 'Pengajuan batch berhasil dihapus.');
+    }
+
     public function superAdminPengajuan(Request $request): View
     {
         $this->ensureSuperAdmin();

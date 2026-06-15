@@ -639,6 +639,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan'])->name('pengajuan.index');
         Route::patch('/pengajuan/{submission}/status', [SkYayasanController::class, 'updateSubmissionStatus'])->name('pengajuan.update-status');
         Route::patch('/import-batches/{batch}/review', [SkYayasanController::class, 'reviewImportBatch'])->name('import-batches.review');
+        Route::delete('/import-batches/{batch}', [SkYayasanController::class, 'destroyImportBatch'])->name('import-batches.destroy');
         Route::get('/template', [SkYayasanController::class, 'templateIndex'])->name('template.index');
         Route::post('/template', [SkYayasanController::class, 'storeTemplate'])->name('template.store');
         Route::post('/template/{template}/duplicate', [SkYayasanController::class, 'duplicateTemplate'])->name('template.duplicate');

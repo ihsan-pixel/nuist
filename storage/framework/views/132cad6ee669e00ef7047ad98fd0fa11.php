@@ -423,8 +423,35 @@
                                     <button type="submit" name="action" value="sync" class="btn btn-primary" <?php if(!$batch->headings_valid || $batch->invalid_rows > 0): echo 'disabled'; endif; ?>>Sinkronkan ke Database</button>
                                 </div>
                             </form>
+                            <form method="POST"
+                                  action="<?php echo e(route('sk-yayasan.import-batches.destroy', $batch)); ?>"
+                                  class="w-100 mt-2"
+                                  data-sk-swal-confirm
+                                  data-sk-swal-title="Hapus pengajuan ini?"
+                                  data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
+                                  data-sk-swal-confirm-text="Ya, hapus"
+                                  data-sk-swal-icon="warning">
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('DELETE'); ?>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
+                                </div>
+                            </form>
                         <?php else: ?>
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                            <div class="d-flex flex-wrap justify-content-between gap-2 w-100">
+                                <form method="POST"
+                                      action="<?php echo e(route('sk-yayasan.import-batches.destroy', $batch)); ?>"
+                                      data-sk-swal-confirm
+                                      data-sk-swal-title="Hapus pengajuan ini?"
+                                      data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
+                                      data-sk-swal-confirm-text="Ya, hapus"
+                                      data-sk-swal-icon="warning">
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('DELETE'); ?>
+                                    <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
+                                </form>
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                            </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
