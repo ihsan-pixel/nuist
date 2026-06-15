@@ -115,6 +115,28 @@
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
+                <li>
+                    <a href="#skYayasanSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                        <i class="bx bx-certification"></i>
+                        <span>SK Yayasan</span>
+                    </a>
+                    <ul class="sub-menu collapse" id="skYayasanSubmenu">
+                        <li><a href="<?php echo e(route('sk-yayasan.dashboard')); ?>">Dashboard SK Yayasan</a></li>
+                        <li><a href="<?php echo e(route('sk-yayasan.pengajuan.index')); ?>">Pengajuan Perpanjangan SK</a></li>
+                        <li><a href="<?php echo e(route('sk-yayasan.template.index')); ?>">Template SK Yayasan</a></li>
+                        <li><a href="<?php echo e(route('sk-yayasan.generate.index')); ?>">Generate SK Yayasan</a></li>
+                    </ul>
+                </li>
+                <?php elseif($userRole === 'admin'): ?>
+                <li>
+                    <a href="<?php echo e(route('sk-yayasan.sekolah.index')); ?>" class="waves-effect">
+                        <i class="bx bx-certification"></i>
+                        <span>Perpanjangan SK</span>
+                    </a>
+                </li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                 <?php
                     $isAdminOnly = $userRole === 'admin';
                 ?>

@@ -136,19 +136,19 @@
                 <div class="col-12">
                     <?php
                         $scheduleAttendanceStatus = $schedule->attendance->status ?? null;
-                        $isAcademicCalendarAuto = (bool) ($schedule->attendance->is_academic_calendar_auto ?? false);
+                        $isAcademicCalendarEvent = (bool) ($schedule->attendance->is_academic_calendar_event ?? false);
                         $displayStatusLabel = $schedule->attendance->display_status_label ?? (($scheduleAttendanceStatus === 'izin') ? 'Izin' : 'Hadir');
-                        $cardStateClass = $isAcademicCalendarAuto
+                        $cardStateClass = $isAcademicCalendarEvent
                             ? 'attendance-izin'
                             : ($scheduleAttendanceStatus === 'izin'
                             ? 'attendance-izin'
                             : ($schedule->attendance ? 'attendance-success' : ($isIzinApprovedToday ? 'attendance-izin' : 'attendance-pending')));
-                        $badgeClass = $isAcademicCalendarAuto
+                        $badgeClass = $isAcademicCalendarEvent
                             ? 'bg-info'
                             : ($scheduleAttendanceStatus === 'izin'
                             ? 'bg-info'
                             : ($schedule->attendance ? 'bg-success' : ($isIzinApprovedToday ? 'bg-info' : 'bg-warning')));
-                        $badgeIcon = $isAcademicCalendarAuto
+                        $badgeIcon = $isAcademicCalendarEvent
                             ? 'bx-calendar-check'
                             : ($scheduleAttendanceStatus === 'izin'
                             ? 'bx-info'
@@ -208,13 +208,13 @@
 
                             <!-- Attendance Status -->
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance): ?>
-                                <div class="alert <?php echo e($isAcademicCalendarAuto || (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success'); ?> border-0 rounded-3 p-3 mb-0">
-                                    <div class="d-flex align-items-center">
-                                        <i class="bx <?php echo e($isAcademicCalendarAuto ? 'bx-calendar-check' : ((($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle')); ?> fs-4 me-3"></i>
-                                        <div>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isAcademicCalendarAuto): ?>
-                                                <h6 class="mb-1"><?php echo e($displayStatusLabel); ?></h6>
-                                                <small class="text-muted">Presensi otomatis dari Kalender Akademik.</small>
+                                    <div class="alert <?php echo e($isAcademicCalendarEvent || (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success'); ?> border-0 rounded-3 p-3 mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bx <?php echo e($isAcademicCalendarEvent ? 'bx-calendar-check' : ((($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle')); ?> fs-4 me-3"></i>
+                                            <div>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isAcademicCalendarEvent): ?>
+                                                    <h6 class="mb-1"><?php echo e($displayStatusLabel); ?></h6>
+                                                <small class="text-muted">Jadwal ini berstatus izin karena event Kalender Akademik yang sudah disetujui kepala sekolah.</small>
                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance->academicCalendarEvent): ?>
                                                     <div class="text-muted small mt-1">
                                                         <i class="bx bx-bookmark me-1"></i><?php echo e($schedule->attendance->academicCalendarEvent->name); ?>

@@ -13,8 +13,13 @@
                 <div class="mb-4">
                     <h4 class="mb-1"><?php echo e($isEdit ? 'Ubah Event Akademik' : 'Tambah Event Akademik'); ?></h4>
                     <p class="text-muted mb-0">
-                        Sekolah: <strong><?php echo e($school->name); ?></strong>. Event di halaman ini akan mengisi presensi mengajar otomatis tanpa memakai tabel `holidays`.
+                        Sekolah: <strong><?php echo e($school?->name ?? 'Pilih sekolah terlebih dahulu'); ?></strong>
                     </p>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isEdit && $event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED): ?>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            Event ini sebelumnya ditolak. Setelah Anda simpan perubahan, event akan otomatis dapat diajukan ulang ke kepala sekolah.
+                        </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
                 <form action="<?php echo e($isEdit ? route('academic-calendar-events.update', $event) : route('academic-calendar-events.store')); ?>" method="POST">
@@ -24,6 +29,43 @@
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <div class="row g-3">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role === 'super_admin'): ?>
+                            <div class="col-12">
+                                <label class="form-label">Sekolah</label>
+                                <select name="school_id" class="form-select <?php $__errorArgs = ['school_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                                    <option value="">Pilih sekolah</option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schoolOption): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <option value="<?php echo e($schoolOption->id); ?>" <?php if((string) old('school_id', $event->school_id) === (string) $schoolOption->id): echo 'selected'; endif; ?>>
+                                            <?php echo e($schoolOption->name); ?>
+
+                                        </option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </select>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['school_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="col-12">
+                                <label class="form-label">Sekolah</label>
+                                <input type="text" class="form-control" value="<?php echo e($school?->name ?? '-'); ?>" readonly>
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                         <div class="col-md-8">
                             <label class="form-label">Nama Kegiatan</label>
                             <input type="text" name="name" class="form-control <?php $__errorArgs = ['name'];
@@ -139,6 +181,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
 
                         <div class="col-12">
+                            <input type="hidden" name="is_all_day" value="0">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch" id="is_all_day" name="is_all_day" value="1" <?php if(old('is_all_day', $event->is_all_day ?? true)): echo 'checked'; endif; ?>>
                                 <label class="form-check-label" for="is_all_day">Berlaku seharian penuh</label>
@@ -165,6 +208,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <small class="text-muted">Disimpan sebagai jam agenda event.</small>
                         </div>
 
                         <div class="col-md-3 time-field">
@@ -187,6 +231,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <small class="text-muted">Disimpan sebagai jam agenda event.</small>
                         </div>
 
                         <div class="col-md-6">
@@ -212,9 +257,10 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
 
                         <div class="col-12">
+                            <input type="hidden" name="is_active" value="0">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch" id="is_active" name="is_active" value="1" <?php if(old('is_active', $event->is_active ?? true)): echo 'checked'; endif; ?>>
-                                <label class="form-check-label" for="is_active">Event aktif dan langsung mempengaruhi presensi mengajar</label>
+                                <label class="form-check-label" for="is_active">Event aktif dan siap diajukan ke kepala sekolah</label>
                             </div>
                         </div>
                     </div>
@@ -240,9 +286,10 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
             <div class="card-body">
                 <h5 class="mb-3">Catatan Integrasi</h5>
                 <ul class="text-muted ps-3 mb-0">
-                    <li>Event ini hanya tambahan baru dan tidak menggantikan sistem holiday lama.</li>
-                    <li>Jika event aktif dan bentrok dengan jadwal guru, presensi mengajar akan terisi otomatis.</li>
-                    <li>Status laporan tetap aman karena presensi otomatis ditandai sebagai hasil kalender akademik.</li>
+                    
+                    <li>Semua jadwal mengajar pada tanggal event akan menjadi izin setelah kepala sekolah menyetujui event.</li>
+                    <li>Sebelum disetujui, event belum mempengaruhi presensi mengajar guru.</li>
+                    
                 </ul>
             </div>
         </div>

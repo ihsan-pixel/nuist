@@ -373,7 +373,7 @@
                                 </div>
                                 <div class="text-end">
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance): ?>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance->is_academic_calendar_auto ?? false): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance->is_academic_calendar_event ?? false): ?>
                                             <div class="badge bg-info text-dark"><?php echo e($schedule->attendance->display_status_label); ?></div>
                                         <?php elseif(($schedule->attendance->status ?? 'hadir') === 'izin'): ?>
                                             <div class="badge bg-info text-dark"><?php echo e($schedule->attendance->display_status_label); ?></div>
@@ -392,13 +392,13 @@
 
                             <div class="mt-3">
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance): ?>
-                                    <div class="alert <?php echo e(($schedule->attendance->is_academic_calendar_auto ?? false) || (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success'); ?> mb-0">
+                                    <div class="alert <?php echo e(($schedule->attendance->is_academic_calendar_event ?? false) || (($schedule->attendance->status ?? 'hadir') === 'izin') ? 'alert-info' : 'alert-success'); ?> mb-0">
                                         <div class="d-flex align-items-center">
-                                            <i class="bx <?php echo e(($schedule->attendance->is_academic_calendar_auto ?? false) ? 'bx-calendar-check' : ((($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle')); ?> fs-4 me-2"></i>
+                                            <i class="bx <?php echo e(($schedule->attendance->is_academic_calendar_event ?? false) ? 'bx-calendar-check' : ((($schedule->attendance->status ?? 'hadir') === 'izin') ? 'bx-info-circle' : 'bx-check-circle')); ?> fs-4 me-2"></i>
                                             <div>
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance->is_academic_calendar_auto ?? false): ?>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance->is_academic_calendar_event ?? false): ?>
                                                     <div class="fw-semibold"><?php echo e($schedule->attendance->display_status_label); ?></div>
-                                                    <small class="small-muted">Presensi otomatis dari Kalender Akademik.</small>
+                                                    <small class="small-muted">Jadwal ini berstatus izin karena event Kalender Akademik yang sudah disetujui kepala sekolah.</small>
                                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance->academicCalendarEvent): ?>
                                                         <div class="small-muted mt-1">
                                                             <i class="bx bx-bookmark me-1"></i><?php echo e($schedule->attendance->academicCalendarEvent->name); ?>

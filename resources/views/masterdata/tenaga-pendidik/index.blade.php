@@ -20,6 +20,41 @@
 <link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
+<style>
+    .tp-modal-dialog {
+        max-width: min(1180px, calc(100vw - 2rem));
+    }
+
+    .tp-form-section {
+        background: #f8fafc;
+        border: 1px solid #e9edf4;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        height: 100%;
+    }
+
+    .tp-form-section-title {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 1rem;
+    }
+
+    .tp-form-hint {
+        background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+        border: 1px solid #dbeafe;
+        border-radius: 1rem;
+        padding: 1rem 1.25rem;
+    }
+
+    .tp-form-label {
+        font-weight: 600;
+        margin-bottom: .4rem;
+    }
+</style>
 @endsection
 
 <div class="row">
@@ -466,152 +501,208 @@
 
 <!-- Modal Tambah -->
 <div class="modal fade" id="modalTambahTP" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable tp-modal-dialog">
         <form action="{{ route('tenaga-pendidik.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah Tenaga Pendidik</h5>
+                    <div>
+                        <h5 class="modal-title mb-1">Tambah Tenaga Pendidik</h5>
+                        <p class="text-muted mb-0 small">Lengkapi data utama tenaga pendidik. Struktur field tetap sama sehingga proses simpan tidak berubah.</p>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body row g-3">
-
-                    <div class="col-md-6">
-                        <label>Nama Lengkap</label>
-                        <input type="text" name="nama" class="form-control" required>
+                <div class="modal-body">
+                    <div class="tp-form-hint mb-4">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
+                            <div>
+                                <div class="fw-semibold text-primary mb-1">Informasi wajib</div>
+                                <div class="text-muted small">Nama, email, dan password wajib diisi. Data lainnya bisa dilengkapi sekarang atau nanti.</div>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bx bx-shield-quarter me-1"></i>
+                                Pengiriman data tetap memakai endpoint dan field yang sama seperti sebelumnya.
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <label>Email</label>
-                        <input type="email" name="email" class="form-control" required>
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="tp-form-section">
+                                <div class="tp-form-section-title">
+                                    <i class="bx bx-lock-alt text-primary"></i>
+                                    <span>Akun & Penugasan</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Nama Lengkap</label>
+                                        <input type="text" name="nama" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Email</label>
+                                        <input type="email" name="email" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Password</label>
+                                        <input type="password" name="password" class="form-control" required>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Madrasah</label>
+                                        <select name="madrasah_id" class="form-control">
+                                            <option value="">-- Pilih Madrasah --</option>
+                                            @foreach($madrasahs as $madrasah)
+                                                <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Status Kepegawaian</label>
+                                        <select name="status_kepegawaian_id" class="form-control">
+                                            <option value="">-- Pilih Status Kepegawaian --</option>
+                                            @foreach($statusKepegawaian as $status)
+                                                <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Ketugasan</label>
+                                        <select name="ketugasan" class="form-control">
+                                            <option value="">-- Pilih Ketugasan --</option>
+                                            <option value="tenaga pendidik">Tenaga Pendidik</option>
+                                            <option value="penjaga sekolah">Penjaga Sekolah</option>
+                                            <option value="kepala madrasah/sekolah">Kepala Madrasah/Sekolah</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Mengajar</label>
+                                        <input type="text" name="mengajar" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">TMT</label>
+                                        <input type="date" name="tmt" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="tp-form-section">
+                                <div class="tp-form-section-title">
+                                    <i class="bx bx-user text-primary"></i>
+                                    <span>Profil Pribadi</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Tempat Lahir</label>
+                                        <input type="text" name="tempat_lahir" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Tanggal Lahir</label>
+                                        <input type="date" name="tanggal_lahir" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">No HP</label>
+                                        <input type="text" name="no_hp" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Kartu NU</label>
+                                        <input type="text" name="kartanu" class="form-control">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label tp-form-label">Alamat</label>
+                                        <textarea name="alamat" class="form-control" rows="4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="tp-form-section">
+                                <div class="tp-form-section-title">
+                                    <i class="bx bx-id-card text-primary"></i>
+                                    <span>Data Kepegawaian</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">NIP Ma'arif</label>
+                                        <input type="text" name="nip" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">NUPTK</label>
+                                        <input type="text" name="nuptk" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">NPK</label>
+                                        <input type="text" name="npk" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
+                                        <select name="pemenuhan_beban_kerja_lain" id="pemenuhan_beban_kerja_lain_add" class="form-control">
+                                            <option value="">-- Pilih --</option>
+                                            <option value="1">Iya</option>
+                                            <option value="0">Tidak</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12" id="madrasah_tambahan_add_container" style="display: none;">
+                                        <label class="form-label tp-form-label">Madrasah Tambahan</label>
+                                        <select name="madrasah_id_tambahan" class="form-control">
+                                            <option value="">-- Pilih Madrasah --</option>
+                                            @foreach($madrasahs as $madrasah)
+                                                <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="tp-form-section">
+                                <div class="tp-form-section-title">
+                                    <i class="bx bx-book-content text-primary"></i>
+                                    <span>Pendidikan & Lampiran</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Pendidikan Terakhir</label>
+                                        <input type="text" name="pendidikan_terakhir" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Tahun Lulus</label>
+                                        <input type="number" name="tahun_lulus" class="form-control">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label tp-form-label">Program Studi</label>
+                                        <input type="text" name="program_studi" class="form-control">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label tp-form-label">Foto Profile</label>
+                                        <input type="file" name="avatar" class="form-control">
+                                        <small class="text-muted">Opsional, boleh dikosongkan.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <label>Password</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Tempat Lahir</label>
-                        <input type="text" name="tempat_lahir" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Tanggal Lahir</label>
-                        <input type="date" name="tanggal_lahir" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>No HP</label>
-                        <input type="text" name="no_hp" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Kartu NU</label>
-                        <input type="text" name="kartanu" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>NIP Ma'arif</label>
-                        <input type="text" name="nip" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>NUPTK</label>
-                        <input type="text" name="nuptk" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>NPK</label>
-                        <input type="text" name="npk" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Madrasah</label>
-                        <select name="madrasah_id" class="form-control">
-                            <option value="">-- Pilih Madrasah --</option>
-                            @foreach($madrasahs as $madrasah)
-                                <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Status Kepegawaian</label>
-                        <select name="status_kepegawaian_id" class="form-control">
-                            <option value="">-- Pilih Status Kepegawaian --</option>
-                            @foreach($statusKepegawaian as $status)
-                                <option value="{{ $status->id }}">{{ $status->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Pendidikan Terakhir</label>
-                        <input type="text" name="pendidikan_terakhir" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Tahun Lulus</label>
-                        <input type="number" name="tahun_lulus" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>TMT</label>
-                        <input type="date" name="tmt" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Program Studi</label>
-                        <input type="text" name="program_studi" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Foto Profile</label>
-                        <input type="file" name="avatar" class="form-control">
-                        <small class="text-muted">Opsional, boleh dikosongkan</small>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Ketugasan</label>
-                        <select name="ketugasan" class="form-control">
-                            <option value="">-- Pilih Ketugasan --</option>
-                            <option value="tenaga pendidik">Tenaga Pendidik</option>
-                            <option value="penjaga sekolah">Penjaga Sekolah</option>
-                            <option value="kepala madrasah/sekolah">Kepala Madrasah/Sekolah</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label>Mengajar</label>
-                        <input type="text" name="mengajar" class="form-control">
-                    </div>
-
-                                            <div class="col-md-6">
-                                                <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
-                                                <select name="pemenuhan_beban_kerja_lain" id="pemenuhan_beban_kerja_lain_add" class="form-control">
-                                                    <option value="">-- Pilih --</option>
-                                                    <option value="1">Iya</option>
-                                                    <option value="0">Tidak</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6" id="madrasah_tambahan_add_container" style="display: none;">
-                                                <label>Madrasah Tambahan</label>
-                                                <select name="madrasah_id_tambahan" class="form-control">
-                                                    <option value="">-- Pilih Madrasah --</option>
-                                                    @foreach($madrasahs as $madrasah)
-                                                        <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="col-12">
-                                                <label>Alamat</label>
-                                                <textarea name="alamat" class="form-control" rows="2"></textarea>
-                                            </div>
-
-                                        </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan</button>

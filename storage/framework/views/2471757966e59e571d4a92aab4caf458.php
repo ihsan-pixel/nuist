@@ -139,9 +139,6 @@
                 <div>
                     <div class="small text-white-50 text-uppercase fw-bold mb-2" style="letter-spacing: 0.16em;">Laporan Pembayaran</div>
                     <h3 class="text-white mb-2">Rekap SPP siswa yang lebih ringkas dan mudah dipantau</h3>
-                    <p class="mb-0 text-white-50">
-                        Pantau jumlah siswa, total tagihan, realisasi pembayaran, dan distribusi kelas dalam satu halaman laporan desktop.
-                    </p>
                 </div>
                 <form method="GET" class="row g-2 align-items-end" style="min-width: 280px;">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
@@ -180,7 +177,7 @@
                     </div>
                     <span class="report-icon" style="background: linear-gradient(135deg, #0f7cda, #52a2f2);"><i class="bx bx-user"></i></span>
                 </div>
-                <div class="report-stat-note">Jumlah siswa yang masuk dalam cakupan laporan saat ini.</div>
+                
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -192,7 +189,7 @@
                     </div>
                     <span class="report-icon" style="background: linear-gradient(135deg, #6b53f2, #9b85ff);"><i class="bx bx-grid-alt"></i></span>
                 </div>
-                <div class="report-stat-note">Distribusi kelas berdasarkan data siswa yang tersedia.</div>
+                
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -204,7 +201,7 @@
                     </div>
                     <span class="report-icon" style="background: linear-gradient(135deg, #0f8f6a, #48c39a);"><i class="bx bx-receipt"></i></span>
                 </div>
-                <div class="report-stat-note">Jumlah seluruh tagihan SPP yang sudah diterbitkan.</div>
+                
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -216,7 +213,7 @@
                     </div>
                     <span class="report-icon" style="background: linear-gradient(135deg, #d4881d, #f0b450);"><i class="bx bx-line-chart"></i></span>
                 </div>
-                <div class="report-stat-note">Rasio pembayaran berhasil dari total nominal tagihan.</div>
+                
             </div>
         </div>
     </div>
@@ -226,7 +223,7 @@
             <div class="report-card h-100">
                 <div class="card-body p-4">
                     <h5 class="report-section-title">Ringkasan kelas</h5>
-                    <p class="report-section-subtitle mb-4">Distribusi siswa per kelas untuk membantu pemetaan tagihan.</p>
+                    
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $classSummary; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <div class="report-class-item">
@@ -249,7 +246,7 @@
                     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
                         <div>
                             <h5 class="report-section-title">Ringkasan nominal pembayaran</h5>
-                            <p class="report-section-subtitle">Perbandingan antara total tagihan, pembayaran berhasil, dan sisa outstanding.</p>
+                            
                         </div>
                     </div>
 
@@ -287,7 +284,7 @@
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
                 <div>
                     <h5 class="report-section-title">Rekap per siswa</h5>
-                    <p class="report-section-subtitle">Detail jumlah tagihan, status pelunasan, dan progres pembayaran pada setiap siswa.</p>
+                    
                 </div>
             </div>
 

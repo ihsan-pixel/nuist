@@ -36,6 +36,11 @@
                 <a href="<?php echo e(route('admin.create_mgmp_user')); ?>" class="btn btn-light">
                     <i class="mdi mdi-account-plus-outline me-1"></i> Buat User MGMP
                 </a>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->role === 'super_admin'): ?>
+                    <a href="<?php echo e(route('admin.mgmp_reset_uploads')); ?>" class="btn btn-light">
+                        <i class="mdi mdi-cloud-upload-outline me-1"></i> Monitoring Reset
+                    </a>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <a href="<?php echo e(route('mgmp.data-mgmp')); ?>" class="btn btn-light">
                     <i class="mdi mdi-domain me-1"></i> Kelola Data MGMP
                 </a>

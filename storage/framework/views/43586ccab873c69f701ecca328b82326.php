@@ -22,7 +22,7 @@
     <div class="card-body d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
         <div>
             <h4 class="mb-1">Transaksi SPP Siswa</h4>
-            <p class="text-muted mb-0">Monitoring pembayaran SPP siswa. Transaksi BNI Virtual Account akan diperbarui otomatis.</p>
+            
         </div>
         
     </div>

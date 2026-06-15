@@ -45,8 +45,9 @@
                     <div class="text-muted small"><?php echo e(optional($item->teachingSchedule->school)->name ?? '-'); ?></div>
                     <div class="text-muted small">Kelas: <?php echo e(optional($item->teachingSchedule)->class_name ?? '-'); ?></div>
                     <div class="text-muted small">Status: <?php echo e($item->display_status_label); ?></div>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item->is_academic_calendar_auto && $item->academicCalendarEvent): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($item->is_academic_calendar_event ?? false) && $item->academicCalendarEvent): ?>
                         <div class="text-muted small">Event: <?php echo e($item->academicCalendarEvent->name); ?></div>
+                        <div class="text-muted small">Status ini berasal dari event yang sudah disetujui kepala sekolah.</div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item->materi): ?>
                         <div class="text-muted small">Materi: <?php echo e($item->materi); ?></div>

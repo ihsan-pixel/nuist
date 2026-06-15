@@ -204,9 +204,43 @@
     text-align: center;
 }
 
+.spp-operator-art {
+    display: block;
+    height: auto;
+    margin: 0 auto;
+    margin-bottom: -0.25rem;
+    max-height: 280px;
+    max-width: min(100%, 460px);
+    width: 80%;
+}
+
+@media (min-width: 1200px) {
+    .spp-hero-side {
+        position: static;
+    }
+
+    .spp-hero-media-slot {
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        right: 1.75rem;
+        width: min(32%, 460px);
+        z-index: 1;
+    }
+
+    .spp-hero-media-slot .spp-operator-art {
+        margin-bottom: -1.5rem;
+        max-height: 300px;
+    }
+}
+
 @media (max-width: 991.98px) {
     .spp-hero-title {
         font-size: 1.6rem;
+    }
+
+    .spp-operator-art {
+        max-height: 220px;
     }
 }
 </style>
@@ -228,19 +262,16 @@
             <div class="row g-4 align-items-end">
                 <div class="col-xl-8">
                     
-                    <div class="spp-hero-title mb-3">Pusat kontrol pembuatan tagihan SPP siswa</div>
-                    <p class="spp-hero-summary mb-4">
-                        Panel ini disusun untuk operator agar proses create tagihan lebih terukur, cepat dipantau, dan mudah ditindaklanjuti dari satu halaman kerja desktop.
-                    </p>
+                    <div class="spp-hero-title mb-3">Dashboard Monitoring SPP siswa</div>
                     <div class="d-flex flex-wrap gap-2">
                         <span class="spp-badge-soft"><i class="bx bx-buildings"></i><?php echo e($scopeLabel); ?></span>
                         <span class="spp-badge-soft"><i class="bx bx-calendar"></i><?php echo e(now()->translatedFormat('F Y')); ?></span>
                         <span class="spp-badge-soft"><i class="bx bx-layer"></i><?php echo e(number_format($monitoring['created_this_month'])); ?> tagihan dibuat bulan ini</span>
                     </div>
                 </div>
-                <div class="col-xl-4">
-                    <form method="GET" class="row g-2">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
+                <div class="col-xl-4 spp-hero-side">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
+                        <form method="GET" class="row g-2">
                             <div class="col-12">
                                 <label class="form-label text-white">Madrasah</label>
                                 <select name="madrasah_id" class="form-select">
@@ -258,18 +289,12 @@
                                     <i class="bx bx-filter-alt me-1"></i>Terapkan Filter
                                 </button>
                             </div>
-                        <?php else: ?>
-                            <div class="col-12">
-                                <div class="spp-desktop-card" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.1);">
-                                    <div class="card-body">
-                                        <div class="small text-white-50 mb-2">Fokus operator</div>
-                                        <div class="h5 text-white mb-1"><?php echo e($scopeLabel); ?></div>
-                                        <div class="text-white-50 small">Akses dibatasi pada madrasah yang terhubung dengan akun ini.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </form>
+                        </form>
+                    <?php else: ?>
+                        <div class="spp-hero-media-slot" aria-hidden="true">
+                            <img src="<?php echo e(asset('images/admin-spp1.png')); ?>" alt="" class="spp-operator-art">
+                        </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -285,7 +310,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #0d6b61, #33a18c);"><i class="bx bx-plus-circle"></i></span>
                 </div>
-                <div class="spp-stat-foot">Volume create tagihan yang tercatat pada tanggal <?php echo e(now()->format('d M Y')); ?>.</div>
+                
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -297,7 +322,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #1947b8, #4d83f6);"><i class="bx bx-calendar-event"></i></span>
                 </div>
-                <div class="spp-stat-foot">Monitoring progres create tagihan sepanjang periode aktif saat ini.</div>
+                
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -309,7 +334,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #9a5b0a, #f0a43a);"><i class="bx bx-error-circle"></i></span>
                 </div>
-                <div class="spp-stat-foot">Tagihan belum lunas yang sudah melewati tanggal jatuh tempo.</div>
+                
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
@@ -321,7 +346,7 @@
                     </div>
                     <span class="spp-stat-icon" style="background: linear-gradient(135deg, #9b4437, #d46e5c);"><i class="bx bx-revision"></i></span>
                 </div>
-                <div class="spp-stat-foot">Transaksi BNI Virtual Account yang masih pending.</div>
+                
             </div>
         </div>
     </div>
@@ -333,7 +358,7 @@
                     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
                         <div>
                             <h5 class="spp-section-title">Ringkasan operasional tagihan</h5>
-                            <p class="spp-section-subtitle">Status cakupan siswa, performa pembayaran, dan nominal outstanding untuk pemantauan harian.</p>
+                            
                         </div>
                         <div class="d-flex flex-wrap gap-2">
                             <a href="<?php echo e(route('spp-siswa.tagihan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>" class="btn btn-primary">
@@ -351,7 +376,7 @@
                                 <div class="spp-stat-label mb-2">Cakupan Siswa</div>
                                 <div class="h3 mb-1 text-dark"><?php echo e(number_format($monitoring['students_with_bills'])); ?> <span class="text-muted fs-6">/ <?php echo e(number_format($stats['total_siswa'])); ?></span></div>
                                 <div class="spp-metric-bar mb-2"><span style="width: <?php echo e(min(100, $monitoring['coverage_ratio'])); ?>%;"></span></div>
-                                <div class="small text-muted"><?php echo e(number_format($monitoring['coverage_ratio'], 1)); ?>% siswa sudah memiliki tagihan.</div>
+                                
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -359,14 +384,14 @@
                                 <div class="spp-stat-label mb-2">Realisasi Pembayaran</div>
                                 <div class="h3 mb-1 text-dark"><?php echo e(number_format($monitoring['paid_ratio'], 1)); ?>%</div>
                                 <div class="spp-metric-bar mb-2"><span style="width: <?php echo e(min(100, $monitoring['paid_ratio'])); ?>%;"></span></div>
-                                <div class="small text-muted">Rp <?php echo e(number_format($stats['nominal_terbayar'], 0, ',', '.')); ?> dari total Rp <?php echo e(number_format($stats['nominal_tagihan'], 0, ',', '.')); ?>.</div>
+                                
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="rounded-4 p-3" style="background: #fff8f3;">
                                 <div class="spp-stat-label mb-2">Outstanding</div>
                                 <div class="h3 mb-1 text-dark">Rp <?php echo e(number_format($monitoring['outstanding_amount'], 0, ',', '.')); ?></div>
-                                <div class="small text-muted">Sisa tagihan yang belum tercatat sebagai pembayaran berhasil.</div>
+                                
                             </div>
                         </div>
                     </div>
@@ -376,28 +401,28 @@
                             <a href="<?php echo e(route('spp-siswa.tagihan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-receipt"></i></span>
                                 <h6 class="mb-1">Manajemen Tagihan</h6>
-                                <div class="text-muted small">Kelola create tagihan satuan, massal, dan import.</div>
+                                
                             </a>
                         </div>
                         <div class="col-md-3">
                             <a href="<?php echo e(route('spp-siswa.transaksi', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-wallet-alt"></i></span>
                                 <h6 class="mb-1">Monitor Pembayaran</h6>
-                                <div class="text-muted small">Pantau transaksi masuk dan status callback pembayarannya.</div>
+                                
                             </a>
                         </div>
                         <div class="col-md-3">
                             <a href="<?php echo e(route('spp-siswa.laporan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-bar-chart-alt-2"></i></span>
                                 <h6 class="mb-1">Laporan Per Siswa</h6>
-                                <div class="text-muted small">Cek rekap tagihan dan pelunasan per kelas atau siswa.</div>
+                                
                             </a>
                         </div>
                         <div class="col-md-3">
                             <a href="<?php echo e(route('spp-siswa.pengaturan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>" class="spp-action-tile">
                                 <span class="spp-action-icon mb-3"><i class="bx bx-cog"></i></span>
                                 <h6 class="mb-1">Pengaturan Pembayaran</h6>
-                                <div class="text-muted small">Atur provider, VA expiry, dan catatan pembayaran.</div>
+                                
                             </a>
                         </div>
                     </div>
@@ -409,7 +434,7 @@
             <div class="spp-desktop-card h-100">
                 <div class="card-body p-4">
                     <h5 class="spp-section-title mb-1">Pengaturan aktif</h5>
-                    <p class="spp-section-subtitle mb-4">Provider dan konfigurasi yang sedang dipakai saat create tagihan.</p>
+                    
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($activeSetting): ?>
                         <div class="rounded-4 p-3 mb-3" style="background: #f5faf8;">
@@ -433,7 +458,7 @@
                             <div>
                                 <i class="bx bx-cog mb-2" style="font-size: 2rem;"></i>
                                 <div class="fw-semibold mb-1">Pengaturan aktif belum tersedia</div>
-                                <div class="small">Siapkan provider pembayaran terlebih dahulu agar proses create tagihan lebih terkontrol.</div>
+                                
                             </div>
                         </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -449,7 +474,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h5 class="spp-section-title">Tagihan terbaru dibuat</h5>
-                            <p class="spp-section-subtitle">Urutan terbaru untuk memantau aktivitas create tagihan operator.</p>
+                            
                         </div>
                         <a href="<?php echo e(route('spp-siswa.tagihan', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>" class="btn btn-sm btn-outline-primary">Lihat semua</a>
                     </div>
@@ -502,7 +527,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h5 class="spp-section-title">Tagihan perlu perhatian</h5>
-                            <p class="spp-section-subtitle">Prioritaskan tagihan yang jatuh temponya paling dekat atau sudah lewat.</p>
+                            
                         </div>
                         <a href="<?php echo e(route('spp-siswa.transaksi', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>" class="btn btn-sm btn-outline-secondary">Buka transaksi</a>
                     </div>

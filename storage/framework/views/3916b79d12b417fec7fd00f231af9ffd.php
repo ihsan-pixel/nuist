@@ -29,7 +29,7 @@
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
             <div>
                 <h4 class="mb-1">Tagihan Siswa</h4>
-                <p class="text-muted mb-0">Tagihan pada modul ini dikunci khusus untuk pembuatan tagihan SPP siswa.</p>
+                
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a class="btn btn-outline-secondary" href="<?php echo e(route('spp-siswa.tagihan.template', $selectedMadrasahId ? ['madrasah_id' => $selectedMadrasahId] : [])); ?>"><i class="bx bx-download me-1"></i>Template Import</a>
