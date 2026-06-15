@@ -55,7 +55,7 @@ class SkYayasanUserImportTemplateExport implements FromArray, WithHeadings, Shou
                 'Pendidikan Matematika',
                 'Matematika',
                 '85,00',
-                'perpanjangan gty',
+                'Perpanjangan GTY',
             ],
         ];
     }

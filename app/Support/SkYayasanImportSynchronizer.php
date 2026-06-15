@@ -17,12 +17,12 @@ class SkYayasanImportSynchronizer
     public static function allowedKeteranganOptions(): array
     {
         return [
-            'perpanjangan gty',
-            'perpanjangan pty',
-            'perpanjangan gtt',
-            'perpanjangan ptt',
-            'pengangkatan gty',
-            'pengangkatan ptt',
+            'Perpanjangan GTY',
+            'Perpanjangan PTY',
+            'Pengangkatan/Perpanjangan GTT',
+            'Pengangkatan/Perpanjangan PTT',
+            'Pengangkatan GTY',
+            'Pengangkatan PTY',
         ];
     }
 
@@ -396,11 +396,12 @@ class SkYayasanImportSynchronizer
             return null;
         }
 
-        $normalized = Str::lower(preg_replace('/\s+/', ' ', $string));
-        $allowedOptions = array_combine(
-            self::allowedKeteranganOptions(),
-            self::allowedKeteranganOptions()
-        );
+        $normalized = Str::lower(trim((string) preg_replace('/\s+/', ' ', $string)));
+        $allowedOptions = [];
+
+        foreach (self::allowedKeteranganOptions() as $option) {
+            $allowedOptions[Str::lower($option)] = $option;
+        }
 
         return $allowedOptions[$normalized] ?? null;
     }
