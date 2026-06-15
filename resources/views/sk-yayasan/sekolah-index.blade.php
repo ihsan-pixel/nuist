@@ -143,7 +143,12 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">File Pakta Integritas</label>
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <label class="form-label mb-0">File Pakta Integritas</label>
+                                <a href="{{ asset('templates/sk-yayasan/contoh-template-pakta-integritas.pdf') }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
+                                </a>
+                            </div>
                             <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,application/pdf" required>
                             <small class="text-muted">Format: PDF.</small>
                             @error('fakta_integritas_file')
@@ -151,7 +156,12 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">File Form Penilaian Perilaku Kinerja Pegawai</label>
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <label class="form-label mb-0">File Form Penilaian Perilaku Kinerja Pegawai</label>
+                                <a href="{{ asset('templates/sk-yayasan/contoh-template-form-penilaian-kinerja.pdf') }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
+                                </a>
+                            </div>
                             <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,application/pdf" required>
                             <small class="text-muted">Format: PDF.</small>
                             @error('penilaian_perilaku_file')
