@@ -24,15 +24,22 @@
     }
 
     .tp-modal-form {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
         height: 100%;
     }
 
     .tp-modal-content {
+        display: flex;
+        flex-direction: column;
         max-height: calc(100vh - 2rem);
         overflow: hidden;
     }
 
     .tp-modal-body {
+        flex: 1 1 auto;
+        min-height: 0;
         overflow-y: auto;
         overscroll-behavior: contain;
         padding-bottom: 1.5rem;
@@ -510,9 +517,9 @@
 <!-- Modal Tambah -->
 <div class="modal fade" id="modalTambahTP" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable tp-modal-dialog">
-        <form action="<?php echo e(route('tenaga-pendidik.store')); ?>" method="POST" enctype="multipart/form-data" class="tp-modal-form">
-            <?php echo csrf_field(); ?>
-            <div class="modal-content tp-modal-content">
+        <div class="modal-content tp-modal-content">
+            <form action="<?php echo e(route('tenaga-pendidik.store')); ?>" method="POST" enctype="multipart/form-data" class="tp-modal-form">
+                <?php echo csrf_field(); ?>
                 <div class="modal-header">
                     <div>
                         <h5 class="modal-title mb-1">Tambah Tenaga Pendidik</h5>
@@ -715,8 +722,8 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 <?php else: ?>
