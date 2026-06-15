@@ -109,22 +109,6 @@
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportTP"><i class="bx bx-upload"></i> Import Data TP</button>
                 </div>
 
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bx bx-check-circle me-2"></i><?php echo e(session('success')); ?>
-
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bx bx-error-circle me-2"></i><?php echo e(session('error')); ?>
-
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
         <div class="table-responsive">
             <table class="table table-bordered dt-responsive nowrap w-100" id="datatable-buttons">
                 <thead class="table-light">
@@ -173,10 +157,10 @@
                                     </button>
                                 <?php else: ?>
                                     <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP<?php echo e($tp->id); ?>">Edit</button>
-                                    <form action="<?php echo e(route('tenaga-pendidik.destroy', $tp->id)); ?>" method="POST" style="display:inline-block;">
+                                    <form action="<?php echo e(route('tenaga-pendidik.destroy', $tp->id)); ?>" method="POST" style="display:inline-block;" class="delete-tenaga-pendidik-form" data-name="<?php echo e($tp->name); ?>">
                                         <?php echo csrf_field(); ?>
                                         <?php echo method_field('DELETE'); ?>
-                                        <button class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                     </form>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </td>
@@ -874,6 +858,7 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="<?php echo e(asset('build/libs/datatables.net/js/jquery.dataTables.min.js')); ?>"></script>
     <script src="<?php echo e(asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js')); ?>"></script>
     <script src="<?php echo e(asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js')); ?>"></script>
@@ -889,6 +874,24 @@
 
     <script>
         $(document).ready(function () {
+            <?php if(session('success')): ?>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: <?php echo json_encode(session('success'), 15, 512) ?>,
+                    confirmButtonColor: '#0e8549'
+                });
+            <?php endif; ?>
+
+            <?php if(session('error')): ?>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: <?php echo json_encode(session('error'), 15, 512) ?>,
+                    confirmButtonColor: '#d33'
+                });
+            <?php endif; ?>
+
             let table = $("#datatable-buttons").DataTable({
                 responsive: true,
                 lengthChange: true,
@@ -898,6 +901,36 @@
 
             table.buttons().container()
                 .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+
+            $('.delete-tenaga-pendidik-form').on('submit', function (event) {
+                event.preventDefault();
+
+                const form = this;
+                const teacherName = $(form).data('name') || 'data ini';
+
+                Swal.fire({
+                    title: 'Hapus tenaga pendidik?',
+                    text: `Data ${teacherName} akan dihapus permanen.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                        return;
+                    }
+
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Dibatalkan',
+                        text: 'Penghapusan data dibatalkan.',
+                        confirmButtonColor: '#0e8549'
+                    });
+                });
+            });
 
             // Handle add modal
             $('#pemenuhan_beban_kerja_lain_add').change(function() {

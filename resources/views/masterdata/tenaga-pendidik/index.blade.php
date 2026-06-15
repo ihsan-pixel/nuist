@@ -111,20 +111,6 @@
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportTP"><i class="bx bx-upload"></i> Import Data TP</button>
                 </div>
 
-        @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bx bx-error-circle me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        @endif
-
         <div class="table-responsive">
             <table class="table table-bordered dt-responsive nowrap w-100" id="datatable-buttons">
                 <thead class="table-light">
@@ -182,10 +168,10 @@
                                     </button>
                                 @else
                                     <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
-                                    <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
+                                    <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;" class="delete-tenaga-pendidik-form" data-name="{{ $tp->name }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                                     </form>
                                 @endif
                             </td>
@@ -895,6 +881,7 @@
 @endsection
 
 @section('script')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
@@ -910,6 +897,24 @@
 
     <script>
         $(document).ready(function () {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: @json(session('success')),
+                    confirmButtonColor: '#0e8549'
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: @json(session('error')),
+                    confirmButtonColor: '#d33'
+                });
+            @endif
+
             let table = $("#datatable-buttons").DataTable({
                 responsive: true,
                 lengthChange: true,
@@ -919,6 +924,36 @@
 
             table.buttons().container()
                 .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+
+            $('.delete-tenaga-pendidik-form').on('submit', function (event) {
+                event.preventDefault();
+
+                const form = this;
+                const teacherName = $(form).data('name') || 'data ini';
+
+                Swal.fire({
+                    title: 'Hapus tenaga pendidik?',
+                    text: `Data ${teacherName} akan dihapus permanen.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                        return;
+                    }
+
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Dibatalkan',
+                        text: 'Penghapusan data dibatalkan.',
+                        confirmButtonColor: '#0e8549'
+                    });
+                });
+            });
 
             // Handle add modal
             $('#pemenuhan_beban_kerja_lain_add').change(function() {
