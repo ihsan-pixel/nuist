@@ -394,6 +394,7 @@ class SkYayasanController extends Controller
 
         $submissions = SkYayasanRequest::query()
             ->with(['madrasah', 'employee.statusKepegawaian', 'submitter', 'reviewer', 'template', 'document', 'importBatch'])
+            ->where('current_status', '!=', 'rejected')
             ->when($request->filled('status'), fn ($query) => $query->where('current_status', $request->string('status')->toString()))
             ->when($request->filled('madrasah_id'), fn ($query) => $query->where('madrasah_id', (int) $request->madrasah_id))
             ->when($request->filled('q'), function ($query) use ($request) {

@@ -227,7 +227,7 @@
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
                         <option value="">Semua status</option>
-                        @foreach(['submitted', 'reviewed', 'approved', 'rejected', 'published'] as $status)
+                        @foreach(['submitted', 'reviewed', 'approved', 'published'] as $status)
                             <option value="{{ $status }}" @selected(request('status') === $status)>{{ strtoupper($status) }}</option>
                         @endforeach
                     </select>
