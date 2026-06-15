@@ -260,12 +260,12 @@
                                         <div class="small mb-2"><strong>Catatan review:</strong> {{ $batch->review_notes }}</div>
                                     @endif
 
-                                    @if($batch->status === 'rejected')
+                                    @if(in_array($batch->status, ['pending_review', 'rejected']))
                                         <div class="d-flex flex-wrap gap-2 mb-2">
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#updateRejectedBatchModal{{ $batch->id }}">
                                                 Perbarui Berkas
                                             </button>
-                                            <small class="text-muted align-self-center">Upload ulang Excel dan/atau lampiran PDF untuk mengirim revisi.</small>
+                                            <small class="text-muted align-self-center">Perbarui Excel dan/atau lampiran PDF sebelum atau sesudah review Yayasan.</small>
                                         </div>
                                     @endif
 
@@ -372,19 +372,19 @@
         $batchSubmission = $batch->requests->first();
     @endphp
 
-    @if($batch->status === 'rejected' && $batchSubmission)
+    @if(in_array($batch->status, ['pending_review', 'rejected']) && $batchSubmission)
         <div class="modal fade" id="updateRejectedBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <form action="{{ route('sk-yayasan.sekolah.import-batches.update', $batch) }}" method="POST" enctype="multipart/form-data" class="modal-content">
                     @csrf
                     @method('PATCH')
                     <div class="modal-header">
-                        <h5 class="modal-title">Perbarui Berkas Pengajuan Ditolak</h5>
+                        <h5 class="modal-title">Perbarui Berkas Pengajuan</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning py-2 px-3 small">
-                            Perbarui file yang perlu direvisi. Kosongkan file yang tidak ingin diganti. Setelah disimpan, batch akan kembali masuk ke antrean review Yayasan.
+                            Perbarui file yang perlu diganti. Kosongkan file yang tidak ingin diubah. Setelah disimpan, batch akan masuk atau tetap berada di antrean review Yayasan.
                         </div>
 
                         <div class="row g-3 mb-3">

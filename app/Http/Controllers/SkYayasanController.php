@@ -255,8 +255,8 @@ class SkYayasanController extends Controller
         $user = $this->ensureSchoolAdmin();
         $this->authorizeImportBatchAccess($batch);
 
-        if ($batch->status !== 'rejected') {
-            return back()->with('error', 'Hanya batch yang ditolak yang dapat diperbarui.');
+        if (!in_array($batch->status, ['pending_review', 'rejected'], true)) {
+            return back()->with('error', 'Batch ini sudah diproses dan tidak dapat diperbarui lagi.');
         }
 
         $validated = $request->validate([
@@ -359,7 +359,7 @@ class SkYayasanController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Berkas pengajuan yang ditolak berhasil diperbarui dan dikirim ulang untuk direview.');
+        return back()->with('success', 'Berkas pengajuan berhasil diperbarui dan dikirim ulang untuk direview.');
     }
 
     public function downloadImportBatchAttachment(SkYayasanImportBatch $batch, string $type)
