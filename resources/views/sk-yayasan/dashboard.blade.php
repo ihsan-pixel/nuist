@@ -143,7 +143,10 @@
                                 <tbody>
                                     @foreach($latestRequests as $submission)
                                         <tr>
-                                            <td class="fw-semibold">{{ $submission->request_number }}</td>
+                                            <td>
+                                                <div class="fw-semibold">{{ $submission->request_number }}</div>
+                                                <small class="text-muted">{{ $submission->submission_letter_number ?? '-' }}</small>
+                                            </td>
                                             <td>{{ $submission->madrasah?->name ?? '-' }}</td>
                                             <td>{{ $submission->employee?->name ?? '-' }}</td>
                                             <td>

@@ -17,6 +17,8 @@ class SkYayasanRequest extends Model
         'reviewed_by',
         'template_id',
         'request_number',
+        'submission_letter_number',
+        'submission_letter_date',
         'request_type',
         'employment_category',
         'current_status',
@@ -26,6 +28,7 @@ class SkYayasanRequest extends Model
     ];
 
     protected $casts = [
+        'submission_letter_date' => 'date',
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
     ];

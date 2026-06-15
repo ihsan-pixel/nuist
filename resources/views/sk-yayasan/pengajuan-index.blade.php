@@ -67,7 +67,7 @@
             <form method="GET" class="row g-2 align-items-end mb-3">
                 <div class="col-md-4">
                     <label class="form-label">Cari</label>
-                    <input type="text" name="q" class="form-control" value="{{ request('q') }}" placeholder="Nomor pengajuan / nama pegawai / sekolah">
+                    <input type="text" name="q" class="form-control" value="{{ request('q') }}" placeholder="No pengajuan / no surat / nama pegawai / sekolah">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Sekolah</label>
@@ -98,6 +98,7 @@
                         <thead>
                             <tr>
                                 <th>No Pengajuan</th>
+                                <th>Surat Pengajuan</th>
                                 <th>Sekolah</th>
                                 <th>Pegawai/Guru</th>
                                 <th>Status</th>
@@ -109,6 +110,10 @@
                             @foreach($submissions as $submission)
                                 <tr>
                                     <td class="fw-semibold">{{ $submission->request_number }}</td>
+                                    <td>
+                                        <div class="fw-semibold">{{ $submission->submission_letter_number ?? '-' }}</div>
+                                        <small class="text-muted">{{ optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? '-' }}</small>
+                                    </td>
                                     <td>{{ $submission->madrasah?->name ?? '-' }}</td>
                                     <td>
                                         <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
@@ -275,6 +280,18 @@
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-1">Status Kepegawaian</div>
                                     <div class="fw-semibold">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="sky-soft-card p-3 h-100">
+                                    <div class="sky-panel-label mb-1">Nomor Surat Pengajuan</div>
+                                    <div class="fw-semibold">{{ $submission->submission_letter_number ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="sky-soft-card p-3 h-100">
+                                    <div class="sky-panel-label mb-1">Tanggal Surat Pengajuan</div>
+                                    <div class="fw-semibold">{{ optional($submission->submission_letter_date)->translatedFormat('d F Y') ?? '-' }}</div>
                                 </div>
                             </div>
                         </div>

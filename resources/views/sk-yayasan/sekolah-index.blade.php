@@ -85,6 +85,23 @@
 
                     <form action="{{ route('sk-yayasan.sekolah.store') }}" method="POST" enctype="multipart/form-data" class="mb-3">
                         @csrf
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Nomor Surat Pengajuan</label>
+                                <input type="text" name="submission_letter_number" class="form-control" value="{{ old('submission_letter_number') }}" placeholder="Contoh: 421.5/SMK-PD/VI/2026" required>
+                                <small class="text-muted">Nomor surat dari sekolah yang menjadi dasar pengajuan ke Yayasan.</small>
+                                @error('submission_letter_number')
+                                    <small class="text-danger d-block">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Tanggal Surat Pengajuan</label>
+                                <input type="date" name="submission_letter_date" class="form-control" value="{{ old('submission_letter_date') }}" required>
+                                @error('submission_letter_date')
+                                    <small class="text-danger d-block">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
                                 <label class="form-label mb-0">Guru/Pegawai</label>
@@ -223,6 +240,7 @@
                                 <thead>
                                     <tr>
                                         <th>No Pengajuan</th>
+                                        <th>Surat Pengajuan</th>
                                         <th>Nama</th>
                                         <th>Status</th>
                                         <th>Catatan Review</th>
@@ -233,6 +251,10 @@
                                     @foreach($submissions as $submission)
                                         <tr>
                                             <td class="fw-semibold">{{ $submission->request_number }}</td>
+                                            <td>
+                                                <div class="fw-semibold">{{ $submission->submission_letter_number ?? '-' }}</div>
+                                                <small class="text-muted">{{ optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? '-' }}</small>
+                                            </td>
                                             <td>
                                                 <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
                                                 <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</small>

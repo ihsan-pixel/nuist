@@ -143,6 +143,8 @@ class SkYayasanController extends Controller
         $madrasahId = (int) $user->madrasah_id;
 
         $request->validate([
+            'submission_letter_number' => ['required', 'string', 'max:255'],
+            'submission_letter_date' => ['required', 'date'],
             'employee_ids' => ['required', 'array', 'min:1'],
             'employee_ids.*' => ['required', 'integer', 'distinct'],
             'excel_file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
@@ -248,7 +250,7 @@ class SkYayasanController extends Controller
 
             return $batch;
         });
-        DB::transaction(function () use ($availableEmployees, $madrasahId, $user, $batch) {
+        DB::transaction(function () use ($availableEmployees, $madrasahId, $user, $batch, $request) {
             foreach ($availableEmployees as $employee) {
                 SkYayasanRequest::create([
                     'madrasah_id' => $madrasahId,
@@ -256,6 +258,8 @@ class SkYayasanController extends Controller
                     'employee_id' => $employee->id,
                     'submitted_by' => $user->id,
                     'request_number' => $this->generateRequestNumber(),
+                    'submission_letter_number' => $request->string('submission_letter_number')->trim()->toString(),
+                    'submission_letter_date' => $request->date('submission_letter_date'),
                     'request_type' => 'perpanjangan',
                     'employment_category' => $employee->statusKepegawaian?->name ?? $employee->ketugasan,
                     'current_status' => 'submitted',
@@ -396,6 +400,7 @@ class SkYayasanController extends Controller
                 $keyword = trim((string) $request->q);
                 $query->where(function ($builder) use ($keyword) {
                     $builder->where('request_number', 'like', '%' . $keyword . '%')
+                        ->orWhere('submission_letter_number', 'like', '%' . $keyword . '%')
                         ->orWhereHas('employee', fn ($employee) => $employee->where('name', 'like', '%' . $keyword . '%'))
                         ->orWhereHas('madrasah', fn ($madrasah) => $madrasah->where('name', 'like', '%' . $keyword . '%'));
                 });
@@ -851,6 +856,8 @@ class SkYayasanController extends Controller
             '{{nama_penandatangan}}' => $overrides['nama_penandatangan'] ?? 'Ketua Yayasan',
             '{{jabatan_penandatangan}}' => $overrides['jabatan_penandatangan'] ?? 'Ketua Yayasan',
             '{{catatan_pengajuan}}' => '',
+            '{{nomor_surat_pengajuan}}' => $pick($submission->submission_letter_number),
+            '{{tanggal_surat_pengajuan}}' => $pick(optional($submission->submission_letter_date)?->translatedFormat('d F Y')),
             '{{catatan_penerbitan}}' => $overrides['catatan_penerbitan'] ?? '-',
             '{{excel_no}}' => $pick($importRow?->excel_no),
             '{{source_nama}}' => $pick($importRow?->source_nama, $employee->name),

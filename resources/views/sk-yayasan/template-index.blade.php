@@ -325,6 +325,8 @@ HTML;
         '@{{nama_penandatangan}}' => 'Dr. Tadkiroatun Musfiroh, M. Hum.',
         '@{{jabatan_penandatangan}}' => 'Pengurus LP Ma\'arif NU PWNU DIY',
         '@{{catatan_pengajuan}}' => '-',
+        '@{{nomor_surat_pengajuan}}' => '421.5/SMK-PD/VI/2026',
+        '@{{tanggal_surat_pengajuan}}' => '13 Juni 2026',
         '@{{catatan_penerbitan}}' => '-',
         '@{{excel_no}}' => '1',
         '@{{source_nama}}' => 'Ahmad Fathoni, S.Pd.',
@@ -380,6 +382,8 @@ HTML;
             '@{{penilaian_kinerja}}',
             '@{{keterangan_sk_yayasan}}',
             '@{{catatan_pengajuan}}',
+            '@{{nomor_surat_pengajuan}}',
+            '@{{tanggal_surat_pengajuan}}',
             '@{{catatan_penerbitan}}',
         ],
         'Penandatangan' => [
