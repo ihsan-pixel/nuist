@@ -507,9 +507,11 @@
                             </div>
                         @endif
 
-                        <div class="sky-inline-note sky-inline-note-danger mb-3">
-                            Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
-                        </div>
+                        @if($batch->invalid_rows > 0)
+                            <div class="sky-inline-note sky-inline-note-danger mb-3">
+                                Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
+                            </div>
+                        @endif
 
                         <form method="POST" action="{{ route('sk-yayasan.import-batches.rows.update', $batch) }}" id="editImportBatchForm{{ $batch->id }}">
                             @csrf

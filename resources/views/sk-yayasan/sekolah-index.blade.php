@@ -562,9 +562,11 @@
                             Perubahan pada tabel ini akan mengganti data hasil upload Excel untuk batch ini. Setelah disimpan, batch kembali ke antrean review Yayasan.
                         </div>
 
-                        <div class="sky-inline-note sky-inline-note-danger mb-3">
-                            Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
-                        </div>
+                        @if($batch->invalid_rows > 0)
+                            <div class="sky-inline-note sky-inline-note-danger mb-3">
+                                Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
+                            </div>
+                        @endif
 
                         @if($batch->review_notes)
                             <div class="sky-inline-note sky-inline-note-secondary mb-3">
