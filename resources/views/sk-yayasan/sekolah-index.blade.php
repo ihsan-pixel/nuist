@@ -331,7 +331,7 @@
                         <div class="sky-panel-label mb-1">Form Pengajuan</div>
                         <h6 class="mb-3">Pengajuan baru dinonaktifkan</h6>
                         <div class="sky-inline-note sky-inline-note-warning mb-3">
-                            Sekolah ini sudah memiliki pengajuan SK Yayasan. Form pengajuan baru disembunyikan agar setiap sekolah hanya dapat upload satu kali.
+                            Sekolah anda sudah memiliki pengajuan SK Yayasan.
                         </div>
                         @if($latestSchoolSubmissionBatch)
                             <div class="sky-inline-note sky-inline-note-secondary small mb-3">
