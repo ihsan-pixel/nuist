@@ -332,7 +332,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Riwayat Pengajuan</div>
-                            <h6 class="mb-0">Status dan perkembangan pengajuan</h6>
+                            <h6 class="mb-0">Status pengajuan berdasarkan batch upload</h6>
                         </div>
                         <form method="GET" class="d-flex gap-2">
                             <select name="status" class="form-select form-select-sm">
@@ -345,43 +345,101 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </form>
                     </div>
 
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissions->count() > 0): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissionHistoryBatches->count() > 0): ?>
                         <div class="table-responsive">
                             <table class="table align-middle">
                                 <thead>
                                     <tr>
-                                        <th>No Pengajuan</th>
+                                        <th>File Upload</th>
                                         <th>Surat Pengajuan</th>
-                                        <th>Nama</th>
+                                        <th>Data Diupload</th>
                                         <th>Status</th>
                                         <th>Catatan Review</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $submissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $submission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $submissionHistoryBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <?php
+                                            $batchRequests = $batch->requests;
+                                            $firstRequest = $batchRequests->first();
+                                            $publishedRequests = $batchRequests->filter(fn ($requestItem) => $requestItem->document);
+                                            $requestStatusCounts = $batchRequests
+                                                ->pluck('current_status')
+                                                ->filter()
+                                                ->countBy();
+
+                                            if ($batch->status === 'rejected' || ($requestStatusCounts['rejected'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'danger', 'label' => 'Ditolak'];
+                                            } elseif (($requestStatusCounts['published'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'success', 'label' => ($requestStatusCounts->count() === 1 ? 'Terbit' : 'Terbit Sebagian')];
+                                            } elseif (($requestStatusCounts['approved'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'primary', 'label' => 'Disetujui'];
+                                            } elseif (($requestStatusCounts['reviewed'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'info', 'label' => 'Direview'];
+                                            } elseif ($batch->status === 'synced') {
+                                                $historyBadge = ['color' => 'success', 'label' => 'Tersinkron'];
+                                            } else {
+                                                $historyBadge = ['color' => 'warning', 'label' => 'Diajukan'];
+                                            }
+
+                                            $employeeNames = $batchRequests
+                                                ->pluck('employee.name')
+                                                ->filter()
+                                                ->values();
+                                        ?>
                                         <tr>
-                                            <td class="fw-semibold"><?php echo e($submission->request_number); ?></td>
                                             <td>
-                                                <div class="fw-semibold"><?php echo e($submission->submission_letter_number ?? '-'); ?></div>
-                                                <small class="text-muted"><?php echo e(optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? '-'); ?></small>
+                                                <div class="fw-semibold"><?php echo e($batch->original_filename); ?></div>
+                                                <small class="text-muted"><?php echo e(optional($batch->uploaded_at)->format('d/m/Y H:i') ?? '-'); ?></small>
                                             </td>
                                             <td>
-                                                <div class="fw-semibold"><?php echo e($submission->employee?->name ?? '-'); ?></div>
-                                                <small class="text-muted"><?php echo e($submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-')); ?></small>
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->importBatch): ?>
-                                                    <div><small class="text-muted">Dari file import</small></div>
-                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <div class="fw-semibold"><?php echo e($firstRequest?->submission_letter_number ?? '-'); ?></div>
+                                                <small class="text-muted"><?php echo e(optional($firstRequest?->submission_letter_date)->translatedFormat('d M Y') ?? '-'); ?></small>
                                             </td>
                                             <td>
-                                                <span class="badge bg-secondary-subtle text-secondary text-uppercase"><?php echo e($submission->current_status); ?></span>
+                                                <div class="fw-semibold"><?php echo e($batchRequests->count()); ?> pegawai</div>
+                                                <small class="text-muted">
+                                                    <?php echo e($employeeNames->take(2)->implode(', ') ?: '-'); ?>
+
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($employeeNames->count() > 2): ?>
+                                                        +<?php echo e($employeeNames->count() - 2); ?> lainnya
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                </small>
                                             </td>
-                                            <td><?php echo e($submission->review_notes ?? '-'); ?></td>
                                             <td>
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->document): ?>
-                                                    <a href="<?php echo e(route('sk-yayasan.documents.download', $submission->document)); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                                                        Unduh SK
-                                                    </a>
+                                                <div class="d-flex flex-column gap-1">
+                                                    <span class="badge bg-<?php echo e($historyBadge['color']); ?>-subtle text-<?php echo e($historyBadge['color']); ?> text-uppercase align-self-start">
+                                                        <?php echo e($historyBadge['label']); ?>
+
+                                                    </span>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($requestStatusCounts->isNotEmpty()): ?>
+                                                        <small class="text-muted">
+                                                            <?php echo e(collect([
+                                                                ($requestStatusCounts['submitted'] ?? 0) ? (($requestStatusCounts['submitted'] ?? 0) . ' diajukan') : null,
+                                                                ($requestStatusCounts['reviewed'] ?? 0) ? (($requestStatusCounts['reviewed'] ?? 0) . ' direview') : null,
+                                                                ($requestStatusCounts['approved'] ?? 0) ? (($requestStatusCounts['approved'] ?? 0) . ' disetujui') : null,
+                                                                ($requestStatusCounts['published'] ?? 0) ? (($requestStatusCounts['published'] ?? 0) . ' terbit') : null,
+                                                            ])->filter()->implode(' • ')); ?>
+
+                                                        </small>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                </div>
+                                            </td>
+                                            <td><?php echo e($batch->review_notes ?? $firstRequest?->review_notes ?? '-'); ?></td>
+                                            <td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedRequests->isNotEmpty()): ?>
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $publishedRequests->take(2); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $publishedRequest): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                            <a href="<?php echo e(route('sk-yayasan.documents.download', $publishedRequest->document)); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                                SK <?php echo e(\Illuminate\Support\Str::limit($publishedRequest->employee?->name ?? 'Pegawai', 14)); ?>
+
+                                                            </a>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($publishedRequests->count() > 2): ?>
+                                                            <span class="text-muted small align-self-center">+<?php echo e($publishedRequests->count() - 2); ?> SK lainnya</span>
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                    </div>
                                                 <?php else: ?>
                                                     <span class="text-muted small">Menunggu proses Yayasan</span>
                                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -400,10 +458,10 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissions->hasPages()): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissionHistoryBatches->hasPages()): ?>
                     <div class="card-footer bg-white">
                         <div class="sky-pagination-wrap">
-                            <?php echo e($submissions->links('pagination::bootstrap-5')); ?>
+                            <?php echo e($submissionHistoryBatches->links('pagination::bootstrap-5')); ?>
 
                         </div>
                     </div>

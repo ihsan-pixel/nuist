@@ -287,7 +287,7 @@
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Riwayat Pengajuan</div>
-                            <h6 class="mb-0">Status dan perkembangan pengajuan</h6>
+                            <h6 class="mb-0">Status pengajuan berdasarkan batch upload</h6>
                         </div>
                         <form method="GET" class="d-flex gap-2">
                             <select name="status" class="form-select form-select-sm">
@@ -300,43 +300,97 @@
                         </form>
                     </div>
 
-                    @if($submissions->count() > 0)
+                    @if($submissionHistoryBatches->count() > 0)
                         <div class="table-responsive">
                             <table class="table align-middle">
                                 <thead>
                                     <tr>
-                                        <th>No Pengajuan</th>
+                                        <th>File Upload</th>
                                         <th>Surat Pengajuan</th>
-                                        <th>Nama</th>
+                                        <th>Data Diupload</th>
                                         <th>Status</th>
                                         <th>Catatan Review</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($submissions as $submission)
+                                    @foreach($submissionHistoryBatches as $batch)
+                                        @php
+                                            $batchRequests = $batch->requests;
+                                            $firstRequest = $batchRequests->first();
+                                            $publishedRequests = $batchRequests->filter(fn ($requestItem) => $requestItem->document);
+                                            $requestStatusCounts = $batchRequests
+                                                ->pluck('current_status')
+                                                ->filter()
+                                                ->countBy();
+
+                                            if ($batch->status === 'rejected' || ($requestStatusCounts['rejected'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'danger', 'label' => 'Ditolak'];
+                                            } elseif (($requestStatusCounts['published'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'success', 'label' => ($requestStatusCounts->count() === 1 ? 'Terbit' : 'Terbit Sebagian')];
+                                            } elseif (($requestStatusCounts['approved'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'primary', 'label' => 'Disetujui'];
+                                            } elseif (($requestStatusCounts['reviewed'] ?? 0) > 0) {
+                                                $historyBadge = ['color' => 'info', 'label' => 'Direview'];
+                                            } elseif ($batch->status === 'synced') {
+                                                $historyBadge = ['color' => 'success', 'label' => 'Tersinkron'];
+                                            } else {
+                                                $historyBadge = ['color' => 'warning', 'label' => 'Diajukan'];
+                                            }
+
+                                            $employeeNames = $batchRequests
+                                                ->pluck('employee.name')
+                                                ->filter()
+                                                ->values();
+                                        @endphp
                                         <tr>
-                                            <td class="fw-semibold">{{ $submission->request_number }}</td>
                                             <td>
-                                                <div class="fw-semibold">{{ $submission->submission_letter_number ?? '-' }}</div>
-                                                <small class="text-muted">{{ optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? '-' }}</small>
+                                                <div class="fw-semibold">{{ $batch->original_filename }}</div>
+                                                <small class="text-muted">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') ?? '-' }}</small>
                                             </td>
                                             <td>
-                                                <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
-                                                <small class="text-muted">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</small>
-                                                @if($submission->importBatch)
-                                                    <div><small class="text-muted">Dari file import</small></div>
-                                                @endif
+                                                <div class="fw-semibold">{{ $firstRequest?->submission_letter_number ?? '-' }}</div>
+                                                <small class="text-muted">{{ optional($firstRequest?->submission_letter_date)->translatedFormat('d M Y') ?? '-' }}</small>
                                             </td>
                                             <td>
-                                                <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ $submission->current_status }}</span>
+                                                <div class="fw-semibold">{{ $batchRequests->count() }} pegawai</div>
+                                                <small class="text-muted">
+                                                    {{ $employeeNames->take(2)->implode(', ') ?: '-' }}
+                                                    @if($employeeNames->count() > 2)
+                                                        +{{ $employeeNames->count() - 2 }} lainnya
+                                                    @endif
+                                                </small>
                                             </td>
-                                            <td>{{ $submission->review_notes ?? '-' }}</td>
                                             <td>
-                                                @if($submission->document)
-                                                    <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                                        Unduh SK
-                                                    </a>
+                                                <div class="d-flex flex-column gap-1">
+                                                    <span class="badge bg-{{ $historyBadge['color'] }}-subtle text-{{ $historyBadge['color'] }} text-uppercase align-self-start">
+                                                        {{ $historyBadge['label'] }}
+                                                    </span>
+                                                    @if($requestStatusCounts->isNotEmpty())
+                                                        <small class="text-muted">
+                                                            {{ collect([
+                                                                ($requestStatusCounts['submitted'] ?? 0) ? (($requestStatusCounts['submitted'] ?? 0) . ' diajukan') : null,
+                                                                ($requestStatusCounts['reviewed'] ?? 0) ? (($requestStatusCounts['reviewed'] ?? 0) . ' direview') : null,
+                                                                ($requestStatusCounts['approved'] ?? 0) ? (($requestStatusCounts['approved'] ?? 0) . ' disetujui') : null,
+                                                                ($requestStatusCounts['published'] ?? 0) ? (($requestStatusCounts['published'] ?? 0) . ' terbit') : null,
+                                                            ])->filter()->implode(' • ') }}
+                                                        </small>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>{{ $batch->review_notes ?? $firstRequest?->review_notes ?? '-' }}</td>
+                                            <td>
+                                                @if($publishedRequests->isNotEmpty())
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        @foreach($publishedRequests->take(2) as $publishedRequest)
+                                                            <a href="{{ route('sk-yayasan.documents.download', $publishedRequest->document) }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                                SK {{ \Illuminate\Support\Str::limit($publishedRequest->employee?->name ?? 'Pegawai', 14) }}
+                                                            </a>
+                                                        @endforeach
+                                                        @if($publishedRequests->count() > 2)
+                                                            <span class="text-muted small align-self-center">+{{ $publishedRequests->count() - 2 }} SK lainnya</span>
+                                                        @endif
+                                                    </div>
                                                 @else
                                                     <span class="text-muted small">Menunggu proses Yayasan</span>
                                                 @endif
@@ -355,10 +409,10 @@
                     @endif
                 </div>
 
-                @if($submissions->hasPages())
+                @if($submissionHistoryBatches->hasPages())
                     <div class="card-footer bg-white">
                         <div class="sky-pagination-wrap">
-                            {{ $submissions->links('pagination::bootstrap-5') }}
+                            {{ $submissionHistoryBatches->links('pagination::bootstrap-5') }}
                         </div>
                     </div>
                 @endif

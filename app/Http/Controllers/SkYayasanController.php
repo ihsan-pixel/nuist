@@ -103,8 +103,30 @@ class SkYayasanController extends Controller
             ->latest('synced_at')
             ->first();
 
+        $submissionHistoryBatches = SkYayasanImportBatch::query()
+            ->with(['reviewer', 'requests.employee.statusKepegawaian', 'requests.document'])
+            ->where('madrasah_id', $madrasahId)
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $status = $request->string('status')->toString();
+
+                if ($status === 'rejected') {
+                    $query->where(function ($builder) {
+                        $builder->where('status', 'rejected')
+                            ->orWhereHas('requests', fn ($requestQuery) => $requestQuery->where('current_status', 'rejected'));
+                    });
+
+                    return;
+                }
+
+                $query->whereHas('requests', fn ($requestQuery) => $requestQuery->where('current_status', $status));
+            })
+            ->latest('uploaded_at')
+            ->paginate(10, ['*'], 'history_page')
+            ->withQueryString();
+
         return view('sk-yayasan.sekolah-index', [
             'submissions' => $submissions,
+            'submissionHistoryBatches' => $submissionHistoryBatches,
             'employees' => $employees,
             'statusCounts' => $statusCounts,
             'importBatches' => SkYayasanImportBatch::query()
