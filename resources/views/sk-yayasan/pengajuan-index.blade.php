@@ -73,10 +73,6 @@
         min-width: 88px;
     }
 
-    .sky-edit-row-number {
-        min-width: 56px;
-        white-space: nowrap;
-    }
 </style>
 
 @php
@@ -466,7 +462,6 @@
                                 <table class="table table-sm align-middle sky-compact-table mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Baris</th>
                                             @foreach($importPreviewColumns as $column)
                                                 <th>{{ $column }}</th>
                                             @endforeach
@@ -478,10 +473,7 @@
                                     <tbody>
                                         @foreach($batch->rows as $row)
                                             <tr>
-                                                <td class="sky-edit-row-number">
-                                                    {{ $row->row_number ?? '-' }}
-                                                    <input type="hidden" name="rows[{{ $loop->index }}][row_number]" value="{{ $row->row_number }}">
-                                                </td>
+                                                <input type="hidden" name="rows[{{ $loop->index }}][row_number]" value="{{ $row->row_number }}">
                                                 @foreach($importPreviewColumns as $column)
                                                     @php
                                                         $field = $importPreviewFieldMap[$column] ?? null;
