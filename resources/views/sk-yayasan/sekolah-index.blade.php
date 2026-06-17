@@ -489,7 +489,7 @@
     @endphp
 
     @if(in_array($batch->status, ['pending_review', 'rejected']) && $batchSubmission)
-        <div class="modal fade" id="editImportBatchRowsModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal fade sky-admin-import-modal" id="editImportBatchRowsModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
                 <form action="{{ route('sk-yayasan.sekolah.import-batches.rows.update', $batch) }}" method="POST" class="modal-content">
                     @csrf
@@ -600,7 +600,7 @@
             </div>
         </div>
 
-        <div class="modal fade" id="updateRejectedBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal fade sky-admin-import-modal" id="updateRejectedBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <form action="{{ route('sk-yayasan.sekolah.import-batches.update', $batch) }}" method="POST" enctype="multipart/form-data" class="modal-content">
                     @csrf
@@ -671,6 +671,12 @@
 
     $(document).ready(function () {
         const $employeeSelect = $('.select2-pegawai');
+
+        document.querySelectorAll('.sky-admin-import-modal').forEach(function (modalElement) {
+            if (modalElement.parentElement !== document.body) {
+                document.body.appendChild(modalElement);
+            }
+        });
 
         $employeeSelect.select2({
             width: '100%',
