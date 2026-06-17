@@ -64,6 +64,40 @@
     .sky-edit-cell-sm {
         min-width: 88px;
     }
+
+    .sky-upload-actions {
+        position: relative;
+        z-index: 2;
+    }
+
+    .sky-upload-actions .btn {
+        cursor: pointer;
+        pointer-events: auto;
+    }
+
+    .sky-admin-import-modal {
+        background: rgba(15, 23, 42, 0.48);
+    }
+
+    .sky-admin-import-modal .modal-dialog {
+        margin: 1.75rem auto;
+    }
+
+    .sky-cell-error {
+        background: #fff1f1 !important;
+    }
+
+    .sky-cell-error .form-control,
+    .sky-cell-error .form-select {
+        background: #fff7f7;
+        border-color: #dc3545 !important;
+        color: #842029;
+    }
+
+    .sky-cell-error-readonly {
+        background: #fff1f1 !important;
+        color: #842029 !important;
+    }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -98,6 +132,42 @@
         'Penilaian Kinerja' => 'source_penilaian_kinerja',
         'Keterangan' => 'source_keterangan',
     ];
+
+    $resolveImportErrorFields = function ($row) {
+        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+        $fields = [];
+        $identifierFields = ['source_nuist_id', 'source_nama', 'source_nip_maarif', 'source_nuptk'];
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Isi minimal salah satu data pencocokan'))) {
+            $fields = array_merge($fields, $identifierFields);
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'User tidak ditemukan'))) {
+            $fields = array_merge($fields, $identifierFields, ['matched_name']);
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tanggal Lahir tidak valid'))) {
+            $fields[] = 'source_tanggal_lahir';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'TMT Pertama tidak valid'))) {
+            $fields[] = 'source_tmt_pertama';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tahun Lulus harus 4 digit'))) {
+            $fields[] = 'source_tahun_lulus';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Penilaian Kinerja harus berupa angka'))) {
+            $fields[] = 'source_penilaian_kinerja';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Keterangan wajib diisi'))) {
+            $fields[] = 'source_keterangan';
+        }
+
+        return array_values(array_unique($fields));
+    };
 ?>
 
 <div class="sky-page">
@@ -146,160 +216,177 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
-                    <div class="sky-panel-label mb-1">Form Pengajuan</div>
-                    <h6 class="mb-3">Pilih guru/pegawai dan lengkapi berkas pengajuan</h6>
-                    <p class="text-muted small mb-3">
-                        Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file Pakta integritas, dan file form penilaian perilaku kinerja pegawai.
-                    </p>
-                    
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestSyncedImport): ?>
-                        <div class="sky-inline-note sky-inline-note-success py-2 px-3 small mb-3">
-                            Sinkronisasi terakhir sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari data import ini.
-                        </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$hasExistingSchoolSubmission): ?>
+                        <div class="sky-panel-label mb-1">Form Pengajuan</div>
+                        <h6 class="mb-3">Pilih guru/pegawai dan lengkapi berkas pengajuan</h6>
+                        <p class="text-muted small mb-3">
+                            Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file Pakta integritas, dan file form penilaian perilaku kinerja pegawai.
+                        </p>
+                        
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestSyncedImport): ?>
+                            <div class="sky-inline-note sky-inline-note-success py-2 px-3 small mb-3">
+                                Sinkronisasi terakhir sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari data import ini.
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                    <form action="<?php echo e(route('sk-yayasan.sekolah.store')); ?>" method="POST" enctype="multipart/form-data" class="mb-3">
-                        <?php echo csrf_field(); ?>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-7">
-                                <label class="form-label">Nomor Surat Pengajuan</label>
-                                <input type="text" name="submission_letter_number" class="form-control" value="<?php echo e(old('submission_letter_number')); ?>" placeholder="Contoh: 421.5/SMK-PD/VI/2026" required>
-                                <small class="text-muted">Nomor surat dari sekolah yang menjadi dasar pengajuan ke Yayasan.</small>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['submission_letter_number'];
+                        <form action="<?php echo e(route('sk-yayasan.sekolah.store')); ?>" method="POST" enctype="multipart/form-data" class="mb-3">
+                            <?php echo csrf_field(); ?>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-7">
+                                    <label class="form-label">Nomor Surat Pengajuan</label>
+                                    <input type="text" name="submission_letter_number" class="form-control" value="<?php echo e(old('submission_letter_number')); ?>" placeholder="Contoh: 421.5/SMK-PD/VI/2026" required>
+                                    <small class="text-muted">Nomor surat dari sekolah yang menjadi dasar pengajuan ke Yayasan.</small>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['submission_letter_number'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                    <small class="text-danger d-block"><?php echo e($message); ?></small>
-                                <?php unset($message);
+                                        <small class="text-danger d-block"><?php echo e($message); ?></small>
+                                    <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label">Tanggal Surat Pengajuan</label>
-                                <input type="date" name="submission_letter_date" class="form-control" value="<?php echo e(old('submission_letter_date')); ?>" required>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['submission_letter_date'];
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label">Tanggal Surat Pengajuan</label>
+                                    <input type="date" name="submission_letter_date" class="form-control" value="<?php echo e(old('submission_letter_date')); ?>" required>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['submission_letter_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                    <small class="text-danger d-block"><?php echo e($message); ?></small>
-                                <?php unset($message);
+                                        <small class="text-danger d-block"><?php echo e($message); ?></small>
+                                    <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">Guru/Pegawai</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" id="select-all-employees">
-                                        Pilih Semua
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-employees">
-                                        Kosongkan
-                                    </button>
                                 </div>
                             </div>
-                            <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                    <option value="<?php echo e($employee->id); ?>" <?php if(in_array($employee->id, $autoSelectedEmployeeIds ?? [])): echo 'selected'; endif; ?>>
-                                        <?php echo e($employee->name); ?> - <?php echo e($employee->statusKepegawaian?->name ?? ($employee->ketugasan ?? '-')); ?>
+                            <div class="mb-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <label class="form-label mb-0">Guru/Pegawai</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="select-all-employees">
+                                            Pilih Semua
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-employees">
+                                            Kosongkan
+                                        </button>
+                                    </div>
+                                </div>
+                                <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $employees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $employee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <option value="<?php echo e($employee->id); ?>" <?php if(in_array($employee->id, $autoSelectedEmployeeIds ?? [])): echo 'selected'; endif; ?>>
+                                            <?php echo e($employee->name); ?> - <?php echo e($employee->statusKepegawaian?->name ?? ($employee->ketugasan ?? '-')); ?>
 
-                                    </option>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                            </select>
-                            <small class="text-muted">
-                                Bisa pilih lebih dari satu pegawai sekaligus.
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($autoSelectedEmployeeIds)): ?>
-                                    Data hasil import terakhir sudah dipilih otomatis.
-                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </small>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['employee_ids'];
+                                        </option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </select>
+                                <small class="text-muted">
+                                    Bisa pilih lebih dari satu pegawai sekaligus.
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($autoSelectedEmployeeIds)): ?>
+                                        Data hasil import terakhir sudah dipilih otomatis.
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </small>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['employee_ids'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <small class="text-danger d-block"><?php echo e($message); ?></small>
-                            <?php unset($message);
+                                    <small class="text-danger d-block"><?php echo e($message); ?></small>
+                                <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['employee_ids.*'];
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['employee_ids.*'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <small class="text-danger"><?php echo e($message); ?></small>
-                            <?php unset($message);
+                                    <small class="text-danger"><?php echo e($message); ?></small>
+                                <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">File Excel Data Tenaga Pendidik</label>
-                                <a href="<?php echo e(route('sk-yayasan.sekolah.template-import')); ?>" class="btn btn-sm btn-outline-primary">
-                                    <i class="mdi mdi-file-excel-outline me-1"></i> Template Import
-                                </a>
                             </div>
-                            <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv" required>
-                            <small class="text-muted">Format: XLSX, XLS, atau CSV.</small>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['excel_file'];
+                            <div class="mb-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <label class="form-label mb-0">File Excel Data Tenaga Pendidik</label>
+                                    <a href="<?php echo e(route('sk-yayasan.sekolah.template-import')); ?>" class="btn btn-sm btn-outline-primary">
+                                        <i class="mdi mdi-file-excel-outline me-1"></i> Template Import
+                                    </a>
+                                </div>
+                                <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                                <small class="text-muted">Format: XLSX, XLS, atau CSV.</small>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['excel_file'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <small class="text-danger d-block"><?php echo e($message); ?></small>
-                            <?php unset($message);
+                                    <small class="text-danger d-block"><?php echo e($message); ?></small>
+                                <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">File Pakta Integritas</label>
-                                <a href="<?php echo e(asset('templates/sk-yayasan/contoh-template-pakta-integritas.pdf')); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                                    <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
-                                </a>
                             </div>
-                            <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,application/pdf" required>
-                            <small class="text-muted">Format: PDF.</small>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['fakta_integritas_file'];
+                            <div class="mb-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <label class="form-label mb-0">File Pakta Integritas</label>
+                                    <a href="<?php echo e(asset('templates/sk-yayasan/contoh-template-pakta-integritas.pdf')); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
+                                    </a>
+                                </div>
+                                <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,application/pdf" required>
+                                <small class="text-muted">Format: PDF.</small>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['fakta_integritas_file'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <small class="text-danger d-block"><?php echo e($message); ?></small>
-                            <?php unset($message);
+                                    <small class="text-danger d-block"><?php echo e($message); ?></small>
+                                <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">File Form Penilaian Perilaku Kinerja Pegawai</label>
-                                <a href="<?php echo e(asset('templates/sk-yayasan/contoh-template-form-penilaian-kinerja.pdf')); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                                    <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
-                                </a>
                             </div>
-                            <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,application/pdf" required>
-                            <small class="text-muted">Format: PDF.</small>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['penilaian_perilaku_file'];
+                            <div class="mb-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <label class="form-label mb-0">File Form Penilaian Perilaku Kinerja Pegawai</label>
+                                    <a href="<?php echo e(asset('templates/sk-yayasan/contoh-template-form-penilaian-kinerja.pdf')); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
+                                    </a>
+                                </div>
+                                <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,application/pdf" required>
+                                <small class="text-muted">Format: PDF.</small>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['penilaian_perilaku_file'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <small class="text-danger d-block"><?php echo e($message); ?></small>
-                            <?php unset($message);
+                                    <small class="text-danger d-block"><?php echo e($message); ?></small>
+                                <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
+                        </form>
+                    <?php else: ?>
+                        <div class="sky-panel-label mb-1">Form Pengajuan</div>
+                        <h6 class="mb-3">Pengajuan baru dinonaktifkan</h6>
+                        <div class="sky-inline-note sky-inline-note-warning mb-3">
+                            Sekolah ini sudah memiliki pengajuan SK Yayasan. Form pengajuan baru disembunyikan agar setiap sekolah hanya dapat upload satu kali.
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
-                    </form>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestSchoolSubmissionBatch): ?>
+                            <div class="sky-inline-note sky-inline-note-secondary small mb-3">
+                                Batch terakhir:
+                                <strong><?php echo e($latestSchoolSubmissionBatch->original_filename); ?></strong>
+                                dengan status
+                                <strong><?php echo e(str_replace('_', ' ', $latestSchoolSubmissionBatch->status)); ?></strong>.
+                                Gunakan bagian riwayat upload di bawah untuk meninjau atau memperbarui data.
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($importBatches->isNotEmpty()): ?>
                         <div class="border-top pt-3">
@@ -345,11 +432,17 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($batch->status, ['pending_review', 'rejected'])): ?>
-                                        <div class="d-flex flex-wrap gap-2 mb-2">
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editImportBatchRowsModal<?php echo e($batch->id); ?>">
+                                        <div class="d-flex flex-wrap gap-2 mb-2 sky-upload-actions">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="return window.skyOpenModal('#editImportBatchRowsModal<?php echo e($batch->id); ?>')"
+                                                    data-sky-open-modal="#editImportBatchRowsModal<?php echo e($batch->id); ?>">
                                                 Edit Data Import
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#updateRejectedBatchModal<?php echo e($batch->id); ?>">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return window.skyOpenModal('#updateRejectedBatchModal<?php echo e($batch->id); ?>')"
+                                                    data-sky-open-modal="#updateRejectedBatchModal<?php echo e($batch->id); ?>">
                                                 Perbarui Berkas
                                             </button>
                                             <small class="text-muted align-self-center">Edit isi data Excel atau perbarui file/lampiran sebelum atau sesudah review Yayasan.</small>
@@ -519,7 +612,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
     ?>
 
     <?php if(in_array($batch->status, ['pending_review', 'rejected']) && $batchSubmission): ?>
-        <div class="modal fade" id="editImportBatchRowsModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
+        <div class="modal fade sky-admin-import-modal" id="editImportBatchRowsModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
                 <form action="<?php echo e(route('sk-yayasan.sekolah.import-batches.rows.update', $batch)); ?>" method="POST" class="modal-content">
                     <?php echo csrf_field(); ?>
@@ -529,12 +622,18 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                             <h5 class="modal-title mb-1">Edit Data Import</h5>
                             <div class="sky-file-meta"><?php echo e($batch->original_filename); ?> - upload <?php echo e(optional($batch->uploaded_at)->format('d/m/Y H:i') ?? '-'); ?></div>
                         </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-sky-close-modal></button>
                     </div>
                     <div class="modal-body">
                         <div class="sky-inline-note sky-inline-note-warning mb-3">
                             Perubahan pada tabel ini akan mengganti data hasil upload Excel untuk batch ini. Setelah disimpan, batch kembali ke antrean review Yayasan.
                         </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->invalid_rows > 0): ?>
+                            <div class="sky-inline-note sky-inline-note-danger mb-3">
+                                Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->review_notes): ?>
                             <div class="sky-inline-note sky-inline-note-secondary mb-3">
@@ -584,14 +683,18 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                 </thead>
                                 <tbody>
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $batch->rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <?php
+                                            $rowErrorFields = $resolveImportErrorFields($row);
+                                        ?>
                                         <tr>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                                 <?php
                                                     $field = $importPreviewFieldMap[$column] ?? null;
                                                     $value = $field ? data_get($row, $field, '') : '';
                                                     $value = $value === '-' ? '' : $value;
+                                                    $hasFieldError = $field && in_array($field, $rowErrorFields, true);
                                                 ?>
-                                                <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?>">
+                                                <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?> <?php echo e($hasFieldError ? 'sky-cell-error' : ''); ?>">
                                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loop->first): ?>
                                                         <input type="hidden" name="rows[<?php echo e($loop->parent->index); ?>][row_number]" value="<?php echo e($row->row_number); ?>">
                                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -610,7 +713,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 </td>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                                            <td><?php echo e($row->matched_name ?? '-'); ?></td>
+                                            <td class="<?php echo e(in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : ''); ?>"><?php echo e($row->matched_name ?? '-'); ?></td>
                                             <td>
                                                 <span class="badge bg-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>-subtle text-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>">
                                                     <?php echo e($row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan')); ?>
@@ -625,21 +728,21 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-light" data-sky-close-modal>Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan Data Import</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <div class="modal fade" id="updateRejectedBatchModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
+        <div class="modal fade sky-admin-import-modal" id="updateRejectedBatchModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <form action="<?php echo e(route('sk-yayasan.sekolah.import-batches.update', $batch)); ?>" method="POST" enctype="multipart/form-data" class="modal-content">
                     <?php echo csrf_field(); ?>
                     <?php echo method_field('PATCH'); ?>
                     <div class="modal-header">
                         <h5 class="modal-title">Perbarui Berkas Pengajuan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-sky-close-modal></button>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning py-2 px-3 small">
@@ -676,7 +779,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-light" data-sky-close-modal>Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan & Kirim Ulang</button>
                     </div>
                 </form>
@@ -689,8 +792,48 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 <?php $__env->startSection('script'); ?>
 <script src="<?php echo e(asset('build/libs/select2/js/select2.min.js')); ?>"></script>
 <script>
+    window.skyOpenModal = function (target) {
+        const modalElement = target ? document.querySelector(target) : null;
+
+        if (!modalElement) {
+            return false;
+        }
+
+        modalElement.style.display = 'block';
+        modalElement.classList.add('show');
+        modalElement.removeAttribute('aria-hidden');
+        modalElement.setAttribute('aria-modal', 'true');
+        document.body.classList.add('modal-open');
+
+        return false;
+    };
+
+    window.skyCloseModal = function (target) {
+        const modalElement = typeof target === 'string'
+            ? document.querySelector(target)
+            : target;
+
+        if (!modalElement) {
+            return false;
+        }
+
+        modalElement.classList.remove('show');
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.removeAttribute('aria-modal');
+        modalElement.style.display = 'none';
+        document.body.classList.remove('modal-open');
+
+        return false;
+    };
+
     $(document).ready(function () {
         const $employeeSelect = $('.select2-pegawai');
+
+        document.querySelectorAll('.sky-admin-import-modal').forEach(function (modalElement) {
+            if (modalElement.parentElement !== document.body) {
+                document.body.appendChild(modalElement);
+            }
+        });
 
         $employeeSelect.select2({
             width: '100%',
@@ -708,6 +851,34 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
         $('#clear-all-employees').on('click', function () {
             $employeeSelect.val(null).trigger('change');
+        });
+
+        $(document).on('click', '[data-sky-open-modal]', function (event) {
+            event.preventDefault();
+
+            const target = $(this).data('sky-open-modal');
+            window.skyOpenModal(target);
+        });
+
+        $(document).on('click', '[data-sky-close-modal]', function (event) {
+            event.preventDefault();
+            window.skyCloseModal($(this).closest('.sky-admin-import-modal').get(0));
+        });
+
+        $(document).on('click', '.sky-admin-import-modal', function (event) {
+            if (event.target === this) {
+                window.skyCloseModal(this);
+            }
+        });
+
+        $(document).on('keydown', function (event) {
+            if (event.key === 'Escape') {
+                const activeModal = document.querySelector('.sky-admin-import-modal.show');
+
+                if (activeModal) {
+                    window.skyCloseModal(activeModal);
+                }
+            }
         });
     });
 </script>

@@ -103,6 +103,11 @@ class SkYayasanController extends Controller
             ->latest('synced_at')
             ->first();
 
+        $latestSchoolSubmissionBatch = SkYayasanImportBatch::query()
+            ->where('madrasah_id', $madrasahId)
+            ->latest('uploaded_at')
+            ->first();
+
         $submissionHistoryBatches = SkYayasanImportBatch::query()
             ->with(['reviewer', 'requests.employee.statusKepegawaian', 'requests.document'])
             ->where('madrasah_id', $madrasahId)
@@ -135,6 +140,8 @@ class SkYayasanController extends Controller
                 ->latest('uploaded_at')
                 ->take(8)
                 ->get(),
+            'hasExistingSchoolSubmission' => $latestSchoolSubmissionBatch !== null,
+            'latestSchoolSubmissionBatch' => $latestSchoolSubmissionBatch,
             'autoSelectedEmployeeIds' => old('employee_ids', $latestSyncedImport?->matched_user_ids ?? []),
             'latestSyncedImport' => $latestSyncedImport,
             'publishedDocuments' => SkYayasanDocument::query()
@@ -163,6 +170,14 @@ class SkYayasanController extends Controller
     {
         $user = $this->ensureSchoolAdmin();
         $madrasahId = (int) $user->madrasah_id;
+
+        $hasExistingBatch = SkYayasanImportBatch::query()
+            ->where('madrasah_id', $madrasahId)
+            ->exists();
+
+        if ($hasExistingBatch) {
+            return back()->with('error', 'Sekolah ini sudah pernah mengajukan batch SK Yayasan. Gunakan menu riwayat upload untuk memperbarui data yang sudah dikirim.');
+        }
 
         $request->validate([
             'submission_letter_number' => ['required', 'string', 'max:255'],

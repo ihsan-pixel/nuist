@@ -71,6 +71,22 @@
         min-width: 88px;
     }
 
+    .sky-cell-error {
+        background: #fff1f1 !important;
+    }
+
+    .sky-cell-error .form-control,
+    .sky-cell-error .form-select {
+        background: #fff7f7;
+        border-color: #dc3545 !important;
+        color: #842029;
+    }
+
+    .sky-cell-error-readonly {
+        background: #fff1f1 !important;
+        color: #842029 !important;
+    }
+
 </style>
 
 <?php
@@ -98,6 +114,42 @@
     $importBatchModalItems = $pendingImportBatches->getCollection()
         ->merge($rejectedImportBatches->getCollection())
         ->unique('id');
+
+    $resolveImportErrorFields = function ($row) {
+        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+        $fields = [];
+        $identifierFields = ['source_nuist_id', 'source_nama', 'source_nip_maarif', 'source_nuptk'];
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Isi minimal salah satu data pencocokan'))) {
+            $fields = array_merge($fields, $identifierFields);
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'User tidak ditemukan'))) {
+            $fields = array_merge($fields, $identifierFields, ['matched_name']);
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tanggal Lahir tidak valid'))) {
+            $fields[] = 'source_tanggal_lahir';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'TMT Pertama tidak valid'))) {
+            $fields[] = 'source_tmt_pertama';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tahun Lulus harus 4 digit'))) {
+            $fields[] = 'source_tahun_lulus';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Penilaian Kinerja harus berupa angka'))) {
+            $fields[] = 'source_penilaian_kinerja';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Keterangan wajib diisi'))) {
+            $fields[] = 'source_keterangan';
+        }
+
+        return array_values(array_unique($fields));
+    };
 ?>
 
 <div class="sky-page">
@@ -456,6 +508,12 @@
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->invalid_rows > 0): ?>
+                            <div class="sky-inline-note sky-inline-note-danger mb-3">
+                                Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                         <form method="POST" action="<?php echo e(route('sk-yayasan.import-batches.rows.update', $batch)); ?>" id="editImportBatchForm<?php echo e($batch->id); ?>">
                             <?php echo csrf_field(); ?>
                             <?php echo method_field('PATCH'); ?>
@@ -473,6 +531,9 @@
                                     </thead>
                                     <tbody>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $batch->rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                            <?php
+                                                $rowErrorFields = $resolveImportErrorFields($row);
+                                            ?>
                                             <tr>
                                                 <input type="hidden" name="rows[<?php echo e($loop->index); ?>][row_number]" value="<?php echo e($row->row_number); ?>">
                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
@@ -480,8 +541,9 @@
                                                         $field = $importPreviewFieldMap[$column] ?? null;
                                                         $value = $field ? data_get($row, $field, '') : '';
                                                         $value = $value === '-' ? '' : $value;
+                                                        $hasFieldError = $field && in_array($field, $rowErrorFields, true);
                                                     ?>
-                                                    <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?>">
+                                                    <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?> <?php echo e($hasFieldError ? 'sky-cell-error' : ''); ?>">
                                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($column === 'Keterangan'): ?>
                                                             <select name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]" class="form-select form-select-sm">
                                                                 <option value="">Pilih</option>
@@ -497,7 +559,7 @@
                                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </td>
                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                                                <td><?php echo e($row->matched_name ?? '-'); ?></td>
+                                                <td class="<?php echo e(in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : ''); ?>"><?php echo e($row->matched_name ?? '-'); ?></td>
                                                 <td>
                                                     <span class="badge bg-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>-subtle text-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>">
                                                         <?php echo e($row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan')); ?>

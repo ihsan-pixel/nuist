@@ -220,112 +220,129 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
-                    <div class="sky-panel-label mb-1">Form Pengajuan</div>
-                    <h6 class="mb-3">Pilih guru/pegawai dan lengkapi berkas pengajuan</h6>
-                    <p class="text-muted small mb-3">
-                        Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file Pakta integritas, dan file form penilaian perilaku kinerja pegawai.
-                    </p>
-                    {{-- <div class="alert alert-info py-2 px-3 small mb-3">
-                        Hasil import Excel akan diparsing langsung ke database staging. Super admin mereview isi data dan lampiran pendukung sebelum memutuskan sinkronisasi atau penolakan.
-                    </div> --}}
-                    @if($latestSyncedImport)
-                        <div class="sky-inline-note sky-inline-note-success py-2 px-3 small mb-3">
-                            Sinkronisasi terakhir sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari data import ini.
-                        </div>
-                    @endif
+                    @if(!$hasExistingSchoolSubmission)
+                        <div class="sky-panel-label mb-1">Form Pengajuan</div>
+                        <h6 class="mb-3">Pilih guru/pegawai dan lengkapi berkas pengajuan</h6>
+                        <p class="text-muted small mb-3">
+                            Pengajuan perpanjangan SK harus menyertakan file Excel data tenaga pendidik, file Pakta integritas, dan file form penilaian perilaku kinerja pegawai.
+                        </p>
+                        {{-- <div class="alert alert-info py-2 px-3 small mb-3">
+                            Hasil import Excel akan diparsing langsung ke database staging. Super admin mereview isi data dan lampiran pendukung sebelum memutuskan sinkronisasi atau penolakan.
+                        </div> --}}
+                        @if($latestSyncedImport)
+                            <div class="sky-inline-note sky-inline-note-success py-2 px-3 small mb-3">
+                                Sinkronisasi terakhir sudah berhasil. Nama guru pada form pengajuan di bawah dipilih otomatis dari data import ini.
+                            </div>
+                        @endif
 
-                    <form action="{{ route('sk-yayasan.sekolah.store') }}" method="POST" enctype="multipart/form-data" class="mb-3">
-                        @csrf
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-7">
-                                <label class="form-label">Nomor Surat Pengajuan</label>
-                                <input type="text" name="submission_letter_number" class="form-control" value="{{ old('submission_letter_number') }}" placeholder="Contoh: 421.5/SMK-PD/VI/2026" required>
-                                <small class="text-muted">Nomor surat dari sekolah yang menjadi dasar pengajuan ke Yayasan.</small>
-                                @error('submission_letter_number')
-                                    <small class="text-danger d-block">{{ $message }}</small>
-                                @enderror
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label">Tanggal Surat Pengajuan</label>
-                                <input type="date" name="submission_letter_date" class="form-control" value="{{ old('submission_letter_date') }}" required>
-                                @error('submission_letter_date')
-                                    <small class="text-danger d-block">{{ $message }}</small>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">Guru/Pegawai</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" id="select-all-employees">
-                                        Pilih Semua
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-employees">
-                                        Kosongkan
-                                    </button>
+                        <form action="{{ route('sk-yayasan.sekolah.store') }}" method="POST" enctype="multipart/form-data" class="mb-3">
+                            @csrf
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-7">
+                                    <label class="form-label">Nomor Surat Pengajuan</label>
+                                    <input type="text" name="submission_letter_number" class="form-control" value="{{ old('submission_letter_number') }}" placeholder="Contoh: 421.5/SMK-PD/VI/2026" required>
+                                    <small class="text-muted">Nomor surat dari sekolah yang menjadi dasar pengajuan ke Yayasan.</small>
+                                    @error('submission_letter_number')
+                                        <small class="text-danger d-block">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label">Tanggal Surat Pengajuan</label>
+                                    <input type="date" name="submission_letter_date" class="form-control" value="{{ old('submission_letter_date') }}" required>
+                                    @error('submission_letter_date')
+                                        <small class="text-danger d-block">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
-                            <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}" @selected(in_array($employee->id, $autoSelectedEmployeeIds ?? []))>
-                                        {{ $employee->name }} - {{ $employee->statusKepegawaian?->name ?? ($employee->ketugasan ?? '-') }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small class="text-muted">
-                                Bisa pilih lebih dari satu pegawai sekaligus.
-                                @if(!empty($autoSelectedEmployeeIds))
-                                    Data hasil import terakhir sudah dipilih otomatis.
-                                @endif
-                            </small>
-                            @error('employee_ids')
-                                <small class="text-danger d-block">{{ $message }}</small>
-                            @enderror
-                            @error('employee_ids.*')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">File Excel Data Tenaga Pendidik</label>
-                                <a href="{{ route('sk-yayasan.sekolah.template-import') }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="mdi mdi-file-excel-outline me-1"></i> Template Import
-                                </a>
+                            <div class="mb-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <label class="form-label mb-0">Guru/Pegawai</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="select-all-employees">
+                                            Pilih Semua
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-all-employees">
+                                            Kosongkan
+                                        </button>
+                                    </div>
+                                </div>
+                                <select name="employee_ids[]" class="form-select select2-pegawai" multiple required data-placeholder="Pilih satu atau lebih pegawai">
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->id }}" @selected(in_array($employee->id, $autoSelectedEmployeeIds ?? []))>
+                                            {{ $employee->name }} - {{ $employee->statusKepegawaian?->name ?? ($employee->ketugasan ?? '-') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">
+                                    Bisa pilih lebih dari satu pegawai sekaligus.
+                                    @if(!empty($autoSelectedEmployeeIds))
+                                        Data hasil import terakhir sudah dipilih otomatis.
+                                    @endif
+                                </small>
+                                @error('employee_ids')
+                                    <small class="text-danger d-block">{{ $message }}</small>
+                                @enderror
+                                @error('employee_ids.*')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv" required>
-                            <small class="text-muted">Format: XLSX, XLS, atau CSV.</small>
-                            @error('excel_file')
-                                <small class="text-danger d-block">{{ $message }}</small>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">File Pakta Integritas</label>
-                                <a href="{{ asset('templates/sk-yayasan/contoh-template-pakta-integritas.pdf') }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                    <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
-                                </a>
+                            <div class="mb-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <label class="form-label mb-0">File Excel Data Tenaga Pendidik</label>
+                                    <a href="{{ route('sk-yayasan.sekolah.template-import') }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="mdi mdi-file-excel-outline me-1"></i> Template Import
+                                    </a>
+                                </div>
+                                <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                                <small class="text-muted">Format: XLSX, XLS, atau CSV.</small>
+                                @error('excel_file')
+                                    <small class="text-danger d-block">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,application/pdf" required>
-                            <small class="text-muted">Format: PDF.</small>
-                            @error('fakta_integritas_file')
-                                <small class="text-danger d-block">{{ $message }}</small>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                <label class="form-label mb-0">File Form Penilaian Perilaku Kinerja Pegawai</label>
-                                <a href="{{ asset('templates/sk-yayasan/contoh-template-form-penilaian-kinerja.pdf') }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                    <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
-                                </a>
+                            <div class="mb-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <label class="form-label mb-0">File Pakta Integritas</label>
+                                    <a href="{{ asset('templates/sk-yayasan/contoh-template-pakta-integritas.pdf') }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
+                                    </a>
+                                </div>
+                                <input type="file" name="fakta_integritas_file" class="form-control" accept=".pdf,application/pdf" required>
+                                <small class="text-muted">Format: PDF.</small>
+                                @error('fakta_integritas_file')
+                                    <small class="text-danger d-block">{{ $message }}</small>
+                                @enderror
                             </div>
-                            <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,application/pdf" required>
-                            <small class="text-muted">Format: PDF.</small>
-                            @error('penilaian_perilaku_file')
-                                <small class="text-danger d-block">{{ $message }}</small>
-                            @enderror
+                            <div class="mb-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                    <label class="form-label mb-0">File Form Penilaian Perilaku Kinerja Pegawai</label>
+                                    <a href="{{ asset('templates/sk-yayasan/contoh-template-form-penilaian-kinerja.pdf') }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="mdi mdi-file-download-outline me-1"></i> Contoh File
+                                    </a>
+                                </div>
+                                <input type="file" name="penilaian_perilaku_file" class="form-control" accept=".pdf,application/pdf" required>
+                                <small class="text-muted">Format: PDF.</small>
+                                @error('penilaian_perilaku_file')
+                                    <small class="text-danger d-block">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
+                        </form>
+                    @else
+                        <div class="sky-panel-label mb-1">Form Pengajuan</div>
+                        <h6 class="mb-3">Pengajuan baru dinonaktifkan</h6>
+                        <div class="sky-inline-note sky-inline-note-warning mb-3">
+                            Sekolah ini sudah memiliki pengajuan SK Yayasan. Form pengajuan baru disembunyikan agar setiap sekolah hanya dapat upload satu kali.
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Kirim Pengajuan</button>
-                    </form>
+                        @if($latestSchoolSubmissionBatch)
+                            <div class="sky-inline-note sky-inline-note-secondary small mb-3">
+                                Batch terakhir:
+                                <strong>{{ $latestSchoolSubmissionBatch->original_filename }}</strong>
+                                dengan status
+                                <strong>{{ str_replace('_', ' ', $latestSchoolSubmissionBatch->status) }}</strong>.
+                                Gunakan bagian riwayat upload di bawah untuk meninjau atau memperbarui data.
+                            </div>
+                        @endif
+                    @endif
 
                     @if($importBatches->isNotEmpty())
                         <div class="border-top pt-3">
