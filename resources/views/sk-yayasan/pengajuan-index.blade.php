@@ -80,6 +80,10 @@
         'Penilaian Kinerja' => 'source_penilaian_kinerja',
         'Keterangan' => 'source_keterangan',
     ];
+
+    $importBatchModalItems = $pendingImportBatches->getCollection()
+        ->merge($rejectedImportBatches->getCollection())
+        ->unique('id');
 @endphp
 
 <div class="sky-page">
@@ -103,113 +107,161 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-                <div>
-                    <div class="sky-panel-label mb-1">Review Import Data</div>
-                    <h6 class="mb-0">Tinjau file Excel dari admin sekolah sebelum sinkronisasi ke database</h6>
+    <div class="row g-3">
+        <div class="col-xl-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                        <div>
+                            <div class="sky-panel-label mb-1">Review Import Data</div>
+                            <h6 class="mb-0">Batch dengan status pending review</h6>
+                        </div>
+                        <span class="sky-chip">{{ $pendingImportBatches->total() }} pending review</span>
+                    </div>
+
+                    @if($pendingImportBatches->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>File Import</th>
+                                        <th>Sekolah</th>
+                                        <th>Upload</th>
+                                        <th>Validasi</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($pendingImportBatches as $batch)
+                                        <tr>
+                                            <td><div class="fw-semibold">{{ $batch->original_filename }}</div></td>
+                                            <td>{{ $batch->madrasah?->name ?? '-' }}</td>
+                                            <td>
+                                                <div>{{ $batch->uploader?->name ?? '-' }}</div>
+                                                <small class="text-muted">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold">{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</div>
+                                                <small class="text-muted">{{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                                        Lihat Review
+                                                    </button>
+                                                    <form method="POST"
+                                                          action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                                          data-sk-swal-confirm
+                                                          data-sk-swal-title="Hapus pengajuan ini?"
+                                                          data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
+                                                          data-sk-swal-confirm-text="Ya, hapus"
+                                                          data-sk-swal-icon="warning">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="sky-empty-state py-5">
+                            <i class="bx bx-spreadsheet"></i>
+                            <strong>Tidak ada batch pending review</strong>
+                            <small>Batch baru dari sekolah akan muncul di sini sebelum disinkronkan.</small>
+                        </div>
+                    @endif
                 </div>
-                <span class="sky-chip">{{ $importBatches->total() }} total batch</span>
+
+                @if($pendingImportBatches->hasPages())
+                    <div class="card-footer bg-white">
+                        <div class="sky-pagination-wrap">
+                            {{ $pendingImportBatches->links('pagination::bootstrap-5') }}
+                        </div>
+                    </div>
+                @endif
             </div>
-
-            <form method="GET" class="row g-2 align-items-end mb-3">
-                <input type="hidden" name="q" value="{{ request('q') }}">
-                <input type="hidden" name="madrasah_id" value="{{ request('madrasah_id') }}">
-                <input type="hidden" name="status" value="{{ request('status') }}">
-                <div class="col-md-4">
-                    <label class="form-label">Status Batch Import</label>
-                    <select name="import_status" class="form-select">
-                        <option value="">Semua status batch</option>
-                        @foreach(['pending_review' => 'Pending Review', 'rejected' => 'Ditolak', 'synced' => 'Tersinkron'] as $value => $label)
-                            <option value="{{ $value }}" @selected(request('import_status') === $value)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2 d-grid">
-                    <button type="submit" class="btn btn-outline-primary">Filter Batch</button>
-                </div>
-            </form>
-
-            @if($importBatches->count() > 0)
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>File Import</th>
-                                <th>Sekolah</th>
-                                <th>Upload</th>
-                                <th>Validasi</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($importBatches as $batch)
-                                @php
-                                    $batchBadge = $batch->status === 'synced'
-                                        ? ['bg' => 'success', 'label' => 'TERSINKRON']
-                                        : ($batch->status === 'rejected'
-                                            ? ['bg' => 'danger', 'label' => 'DITOLAK']
-                                            : ['bg' => 'warning', 'label' => 'PENDING REVIEW']);
-                                @endphp
-                                <tr>
-                                    <td>
-                                        <div class="fw-semibold">{{ $batch->original_filename }}</div>
-                                    </td>
-                                    <td>{{ $batch->madrasah?->name ?? '-' }}</td>
-                                    <td>
-                                        <div>{{ $batch->uploader?->name ?? '-' }}</div>
-                                        <small class="text-muted">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') }}</small>
-                                    </td>
-                                    <td>
-                                        <div class="fw-semibold">{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</div>
-                                        <small class="text-muted">
-                                            {{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ $batchBadge['bg'] }}-subtle text-{{ $batchBadge['bg'] }}">{{ $batchBadge['label'] }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
-                                                Lihat Review
-                                            </button>
-                                            <form method="POST"
-                                                  action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
-                                                  data-sk-swal-confirm
-                                                  data-sk-swal-title="Hapus pengajuan ini?"
-                                                  data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
-                                                  data-sk-swal-confirm-text="Ya, hapus"
-                                                  data-sk-swal-icon="warning">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="sky-empty-state py-5">
-                    <i class="bx bx-spreadsheet"></i>
-                    <strong>Belum ada batch import dari sekolah</strong>
-                    <small>File Excel yang diupload admin sekolah akan muncul di sini untuk direview sebelum sinkronisasi.</small>
-                </div>
-            @endif
         </div>
 
-        @if($importBatches->hasPages())
-            <div class="card-footer bg-white">
-                <div class="sky-pagination-wrap">
-                    {{ $importBatches->links('pagination::bootstrap-5') }}
+        <div class="col-xl-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                        <div>
+                            <div class="sky-panel-label mb-1">Batch Ditolak</div>
+                            <h6 class="mb-0">Riwayat batch yang dikembalikan ke sekolah</h6>
+                        </div>
+                        <span class="sky-chip">{{ $rejectedImportBatches->total() }} ditolak</span>
+                    </div>
+
+                    @if($rejectedImportBatches->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>File Import</th>
+                                        <th>Sekolah</th>
+                                        <th>Direview</th>
+                                        <th>Catatan</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($rejectedImportBatches as $batch)
+                                        <tr>
+                                            <td><div class="fw-semibold">{{ $batch->original_filename }}</div></td>
+                                            <td>{{ $batch->madrasah?->name ?? '-' }}</td>
+                                            <td>
+                                                <div>{{ $batch->reviewer?->name ?? '-' }}</div>
+                                                <small class="text-muted">{{ optional($batch->reviewed_at)->format('d/m/Y H:i') ?? '-' }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="small">{{ \Illuminate\Support\Str::limit($batch->review_notes ?: 'Tidak ada catatan.', 90) }}</div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                                        Lihat Review
+                                                    </button>
+                                                    <form method="POST"
+                                                          action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                                          data-sk-swal-confirm
+                                                          data-sk-swal-title="Hapus pengajuan ini?"
+                                                          data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
+                                                          data-sk-swal-confirm-text="Ya, hapus"
+                                                          data-sk-swal-icon="warning">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="sky-empty-state py-5">
+                            <i class="bx bx-check-shield"></i>
+                            <strong>Tidak ada batch ditolak</strong>
+                            <small>Batch yang pernah ditolak oleh Yayasan akan tampil terpisah di sini.</small>
+                        </div>
+                    @endif
                 </div>
+
+                @if($rejectedImportBatches->hasPages())
+                    <div class="card-footer bg-white">
+                        <div class="sky-pagination-wrap">
+                            {{ $rejectedImportBatches->links('pagination::bootstrap-5') }}
+                        </div>
+                    </div>
+                @endif
             </div>
-        @endif
+        </div>
     </div>
 
     @foreach($submissions as $submission)
@@ -294,7 +346,7 @@
         </div>
     @endforeach
 
-    @foreach($importBatches as $batch)
+    @foreach($importBatchModalItems as $batch)
         @php
             $batchBadge = $batch->status === 'synced'
                 ? ['bg' => 'success', 'label' => 'TERSINKRON']
