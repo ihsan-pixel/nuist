@@ -71,6 +71,11 @@
         position: relative;
         z-index: 2;
     }
+
+    .sky-upload-actions .btn {
+        cursor: pointer;
+        pointer-events: auto;
+    }
 </style>
 @endsection
 
@@ -308,6 +313,7 @@
                                         <div class="d-flex flex-wrap gap-2 mb-2 sky-upload-actions">
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-primary"
+                                                    onclick="return window.skyOpenModal('#editImportBatchRowsModal{{ $batch->id }}')"
                                                     data-sky-open-modal="#editImportBatchRowsModal{{ $batch->id }}"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#editImportBatchRowsModal{{ $batch->id }}">
@@ -315,6 +321,7 @@
                                             </button>
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-danger"
+                                                    onclick="return window.skyOpenModal('#updateRejectedBatchModal{{ $batch->id }}')"
                                                     data-sky-open-modal="#updateRejectedBatchModal{{ $batch->id }}"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#updateRejectedBatchModal{{ $batch->id }}">
@@ -650,6 +657,18 @@
 @section('script')
 <script src="{{ asset('build/libs/select2/js/select2.min.js') }}"></script>
 <script>
+    window.skyOpenModal = function (target) {
+        const modalElement = target ? document.querySelector(target) : null;
+
+        if (!modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            return false;
+        }
+
+        bootstrap.Modal.getOrCreateInstance(modalElement).show();
+
+        return false;
+    };
+
     $(document).ready(function () {
         const $employeeSelect = $('.select2-pegawai');
 
@@ -675,13 +694,7 @@
             event.preventDefault();
 
             const target = $(this).data('sky-open-modal');
-            const modalElement = target ? document.querySelector(target) : null;
-
-            if (!modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
-                return;
-            }
-
-            bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            window.skyOpenModal(target);
         });
     });
 </script>
