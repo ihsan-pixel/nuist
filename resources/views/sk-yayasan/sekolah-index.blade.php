@@ -66,6 +66,11 @@
     .sky-edit-cell-sm {
         min-width: 88px;
     }
+
+    .sky-upload-actions {
+        position: relative;
+        z-index: 2;
+    }
 </style>
 @endsection
 
@@ -300,11 +305,19 @@
                                     @endif
 
                                     @if(in_array($batch->status, ['pending_review', 'rejected']))
-                                        <div class="d-flex flex-wrap gap-2 mb-2">
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editImportBatchRowsModal{{ $batch->id }}">
+                                        <div class="d-flex flex-wrap gap-2 mb-2 sky-upload-actions">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    data-sky-open-modal="#editImportBatchRowsModal{{ $batch->id }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editImportBatchRowsModal{{ $batch->id }}">
                                                 Edit Data Import
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#updateRejectedBatchModal{{ $batch->id }}">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    data-sky-open-modal="#updateRejectedBatchModal{{ $batch->id }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#updateRejectedBatchModal{{ $batch->id }}">
                                                 Perbarui Berkas
                                             </button>
                                             <small class="text-muted align-self-center">Edit isi data Excel atau perbarui file/lampiran sebelum atau sesudah review Yayasan.</small>
@@ -656,6 +669,19 @@
 
         $('#clear-all-employees').on('click', function () {
             $employeeSelect.val(null).trigger('change');
+        });
+
+        $(document).on('click', '[data-sky-open-modal]', function (event) {
+            event.preventDefault();
+
+            const target = $(this).data('sky-open-modal');
+            const modalElement = target ? document.querySelector(target) : null;
+
+            if (!modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+                return;
+            }
+
+            bootstrap.Modal.getOrCreateInstance(modalElement).show();
         });
     });
 </script>
