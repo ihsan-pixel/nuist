@@ -76,6 +76,14 @@
         cursor: pointer;
         pointer-events: auto;
     }
+
+    .sky-admin-import-modal {
+        background: rgba(15, 23, 42, 0.48);
+    }
+
+    .sky-admin-import-modal .modal-dialog {
+        margin: 1.75rem auto;
+    }
 </style>
 @endsection
 
@@ -314,17 +322,13 @@
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-primary"
                                                     onclick="return window.skyOpenModal('#editImportBatchRowsModal{{ $batch->id }}')"
-                                                    data-sky-open-modal="#editImportBatchRowsModal{{ $batch->id }}"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#editImportBatchRowsModal{{ $batch->id }}">
+                                                    data-sky-open-modal="#editImportBatchRowsModal{{ $batch->id }}">
                                                 Edit Data Import
                                             </button>
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-danger"
                                                     onclick="return window.skyOpenModal('#updateRejectedBatchModal{{ $batch->id }}')"
-                                                    data-sky-open-modal="#updateRejectedBatchModal{{ $batch->id }}"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#updateRejectedBatchModal{{ $batch->id }}">
+                                                    data-sky-open-modal="#updateRejectedBatchModal{{ $batch->id }}">
                                                 Perbarui Berkas
                                             </button>
                                             <small class="text-muted align-self-center">Edit isi data Excel atau perbarui file/lampiran sebelum atau sesudah review Yayasan.</small>
@@ -499,7 +503,7 @@
                             <h5 class="modal-title mb-1">Edit Data Import</h5>
                             <div class="sky-file-meta">{{ $batch->original_filename }} - upload {{ optional($batch->uploaded_at)->format('d/m/Y H:i') ?? '-' }}</div>
                         </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-sky-close-modal></button>
                     </div>
                     <div class="modal-body">
                         <div class="sky-inline-note sky-inline-note-warning mb-3">
@@ -593,7 +597,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-light" data-sky-close-modal>Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan Data Import</button>
                     </div>
                 </form>
@@ -607,7 +611,7 @@
                     @method('PATCH')
                     <div class="modal-header">
                         <h5 class="modal-title">Perbarui Berkas Pengajuan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-sky-close-modal></button>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning py-2 px-3 small">
@@ -644,7 +648,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-light" data-sky-close-modal>Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan & Kirim Ulang</button>
                     </div>
                 </form>
@@ -660,11 +664,33 @@
     window.skyOpenModal = function (target) {
         const modalElement = target ? document.querySelector(target) : null;
 
-        if (!modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        if (!modalElement) {
             return false;
         }
 
-        bootstrap.Modal.getOrCreateInstance(modalElement).show();
+        modalElement.style.display = 'block';
+        modalElement.classList.add('show');
+        modalElement.removeAttribute('aria-hidden');
+        modalElement.setAttribute('aria-modal', 'true');
+        document.body.classList.add('modal-open');
+
+        return false;
+    };
+
+    window.skyCloseModal = function (target) {
+        const modalElement = typeof target === 'string'
+            ? document.querySelector(target)
+            : target;
+
+        if (!modalElement) {
+            return false;
+        }
+
+        modalElement.classList.remove('show');
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.removeAttribute('aria-modal');
+        modalElement.style.display = 'none';
+        document.body.classList.remove('modal-open');
 
         return false;
     };
@@ -701,6 +727,27 @@
 
             const target = $(this).data('sky-open-modal');
             window.skyOpenModal(target);
+        });
+
+        $(document).on('click', '[data-sky-close-modal]', function (event) {
+            event.preventDefault();
+            window.skyCloseModal($(this).closest('.sky-admin-import-modal').get(0));
+        });
+
+        $(document).on('click', '.sky-admin-import-modal', function (event) {
+            if (event.target === this) {
+                window.skyCloseModal(this);
+            }
+        });
+
+        $(document).on('keydown', function (event) {
+            if (event.key === 'Escape') {
+                const activeModal = document.querySelector('.sky-admin-import-modal.show');
+
+                if (activeModal) {
+                    window.skyCloseModal(activeModal);
+                }
+            }
         });
     });
 </script>
