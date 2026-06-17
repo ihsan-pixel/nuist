@@ -58,9 +58,29 @@
         border-color: #bfd7cb;
         color: #0e8549;
     }
+
+    .sky-edit-cell {
+        min-width: 130px;
+    }
+
+    .sky-edit-cell .form-control,
+    .sky-edit-cell .form-select {
+        min-width: 130px;
+        padding: .35rem .55rem;
+    }
+
+    .sky-edit-cell-sm {
+        min-width: 88px;
+    }
+
+    .sky-edit-row-number {
+        min-width: 56px;
+        white-space: nowrap;
+    }
 </style>
 
 @php
+    $keteranganOptions = \App\Support\SkYayasanImportSynchronizer::allowedKeteranganOptions();
     $importPreviewFieldMap = [
         'No' => 'excel_no',
         'NUIST ID' => 'source_nuist_id',
@@ -439,71 +459,95 @@
                             </div>
                         @endif
 
-                        <div class="sky-modal-table-wrap">
-                            <table class="table table-sm align-middle sky-compact-table mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Baris</th>
-                                        @foreach($importPreviewColumns as $column)
-                                            <th>{{ $column }}</th>
-                                        @endforeach
-                                        <th>Match User</th>
-                                        <th>Status</th>
-                                        <th class="wrap">Keterangan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($batch->rows as $row)
+                        <form method="POST" action="{{ route('sk-yayasan.import-batches.rows.update', $batch) }}" id="editImportBatchForm{{ $batch->id }}">
+                            @csrf
+                            @method('PATCH')
+                            <div class="sky-modal-table-wrap">
+                                <table class="table table-sm align-middle sky-compact-table mb-0">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $row->row_number ?? '-' }}</td>
+                                            <th>Baris</th>
                                             @foreach($importPreviewColumns as $column)
-                                                <td>{{ data_get($row, $importPreviewFieldMap[$column] ?? '', '-') ?: '-' }}</td>
+                                                <th>{{ $column }}</th>
                                             @endforeach
-                                            <td>{{ $row->matched_name ?? '-' }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
-                                                    {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
-                                                </span>
-                                            </td>
-                                            <td class="wrap">{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap disinkronkan.' }}</td>
+                                            <th>Match User</th>
+                                            <th>Status</th>
+                                            <th class="wrap">Keterangan</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($batch->rows as $row)
+                                            <tr>
+                                                <td class="sky-edit-row-number">
+                                                    {{ $row->row_number ?? '-' }}
+                                                    <input type="hidden" name="rows[{{ $loop->index }}][row_number]" value="{{ $row->row_number }}">
+                                                </td>
+                                                @foreach($importPreviewColumns as $column)
+                                                    @php
+                                                        $field = $importPreviewFieldMap[$column] ?? null;
+                                                        $value = $field ? data_get($row, $field, '') : '';
+                                                        $value = $value === '-' ? '' : $value;
+                                                    @endphp
+                                                    <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }}">
+                                                        @if($column === 'Keterangan')
+                                                            <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
+                                                                <option value="">Pilih</option>
+                                                                @foreach($keteranganOptions as $option)
+                                                                    <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        @else
+                                                            <input type="text"
+                                                                   name="rows[{{ $loop->parent->index }}][{{ $field }}]"
+                                                                   value="{{ $value }}"
+                                                                   class="form-control form-control-sm">
+                                                        @endif
+                                                    </td>
+                                                @endforeach
+                                                <td>{{ $row->matched_name ?? '-' }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
+                                                        {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
+                                                    </span>
+                                                </td>
+                                                <td class="wrap">{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap disinkronkan.' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
                     </div>
                     <div class="modal-footer">
                         @if($batch->status === 'pending_review')
-                            <form method="POST" action="{{ route('sk-yayasan.import-batches.review', $batch) }}" class="w-100">
-                                @csrf
-                                @method('PATCH')
-                                <div class="mb-3">
-                                    <label class="form-label">Catatan Review</label>
-                                    <textarea name="review_notes" rows="3" class="form-control" placeholder="Isi catatan untuk admin sekolah bila perlu."></textarea>
+                            <div class="w-100">
+                                <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                                    <div class="text-muted small">
+                                        Data pada tabel bisa diedit langsung. Simpan dulu agar status validasi dan match user diperbarui.
+                                    </div>
+                                    <button type="submit"
+                                            form="editImportBatchForm{{ $batch->id }}"
+                                            class="btn btn-outline-primary">
+                                        Simpan Perubahan Tabel
+                                    </button>
                                 </div>
-                                <div class="d-flex flex-wrap justify-content-end gap-2">
-                                    <button type="submit" name="action" value="reject" class="btn btn-outline-danger">Tolak Batch</button>
-                                    <button type="submit" name="action" value="sync" class="btn btn-primary" @disabled(!$batch->headings_valid || $batch->invalid_rows > 0)>Sinkronkan ke Database</button>
-                                </div>
-                            </form>
-                            <form method="POST"
-                                  action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
-                                  class="w-100 mt-2"
-                                  data-sk-swal-confirm
-                                  data-sk-swal-title="Hapus pengajuan ini?"
-                                  data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
-                                  data-sk-swal-confirm-text="Ya, hapus"
-                                  data-sk-swal-icon="warning">
-                                @csrf
-                                @method('DELETE')
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
-                                </div>
-                            </form>
-                        @else
-                            <div class="d-flex flex-wrap justify-content-between gap-2 w-100">
+
+                                <form method="POST" action="{{ route('sk-yayasan.import-batches.review', $batch) }}" class="w-100">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="mb-3">
+                                        <label class="form-label">Catatan Review</label>
+                                        <textarea name="review_notes" rows="3" class="form-control" placeholder="Isi catatan untuk admin sekolah bila perlu."></textarea>
+                                    </div>
+                                    <div class="d-flex flex-wrap justify-content-end gap-2">
+                                        <button type="submit" name="action" value="reject" class="btn btn-outline-danger">Tolak Batch</button>
+                                        <button type="submit" name="action" value="sync" class="btn btn-primary" @disabled(!$batch->headings_valid || $batch->invalid_rows > 0)>Sinkronkan ke Database</button>
+                                    </div>
+                                </form>
+
                                 <form method="POST"
                                       action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                      class="w-100 mt-2"
                                       data-sk-swal-confirm
                                       data-sk-swal-title="Hapus pengajuan ini?"
                                       data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
@@ -511,9 +555,32 @@
                                       data-sk-swal-icon="warning">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
+                                    </div>
                                 </form>
-                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                            </div>
+                        @else
+                            <div class="d-flex flex-wrap justify-content-between gap-2 w-100">
+                                <button type="submit"
+                                        form="editImportBatchForm{{ $batch->id }}"
+                                        class="btn btn-outline-primary">
+                                    Simpan & Kembalikan ke Pending Review
+                                </button>
+                                <div class="d-flex flex-wrap gap-2 ms-auto">
+                                    <form method="POST"
+                                          action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                          data-sk-swal-confirm
+                                          data-sk-swal-title="Hapus pengajuan ini?"
+                                          data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
+                                          data-sk-swal-confirm-text="Ya, hapus"
+                                          data-sk-swal-icon="warning">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
+                                    </form>
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                                </div>
                             </div>
                         @endif
                     </div>

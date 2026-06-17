@@ -481,6 +481,72 @@ class SkYayasanController extends Controller
         return back()->with('success', "Batch import berhasil disinkronkan. {$updated} data diperbarui, {$unchanged} baris tidak mengubah data.");
     }
 
+    public function updateImportBatchRows(Request $request, SkYayasanImportBatch $batch): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        if (!in_array($batch->status, ['pending_review', 'rejected'], true)) {
+            return back()->with('error', 'Batch import ini sudah diproses dan tidak dapat diedit lagi.');
+        }
+
+        $validated = $request->validate([
+            'rows' => ['required', 'array', 'min:1'],
+            'rows.*.row_number' => ['required', 'integer', 'min:1'],
+            'rows.*.excel_no' => ['nullable', 'string', 'max:100'],
+            'rows.*.source_nuist_id' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_nama' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_gelar' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_tempat_lahir' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_tanggal_lahir' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_nip_maarif' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_nuptk' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_nomor_kartanu' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_tmt_pertama' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_masa_kerja' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_pendidikan_terakhir' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_tahun_lulus' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_program_studi' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_mapel_tugas' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_penilaian_kinerja' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_keterangan' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $report = $this->inspectEditableImportRows($validated['rows'], (int) $batch->madrasah_id);
+        $wasRejected = $batch->status === 'rejected';
+
+        DB::transaction(function () use ($batch, $report, $wasRejected) {
+            $batch->update([
+                'status' => 'pending_review',
+                'reviewed_by' => null,
+                'review_notes' => null,
+                'reviewed_at' => null,
+                'synced_at' => null,
+                'total_rows' => count($report['rows']),
+                'valid_rows' => $report['valid_count'],
+                'invalid_rows' => $report['invalid_count'],
+                'headings_valid' => true,
+                'missing_headings' => [],
+                'unexpected_headings' => [],
+                'payload_rows' => $report['rows'],
+                'matched_user_ids' => $report['valid_user_ids'],
+            ]);
+
+            $batch->rows()->delete();
+            $batch->rows()->createMany($this->buildImportBatchRowsPayload($report['rows']));
+
+            if ($wasRejected) {
+                $batch->requests()->update([
+                    'current_status' => 'submitted',
+                    'review_notes' => null,
+                    'reviewed_by' => null,
+                    'reviewed_at' => null,
+                ]);
+            }
+        });
+
+        return back()->with('success', 'Data review import berhasil diperbarui. Batch kembali ke status pending review.');
+    }
+
     public function destroyImportBatch(SkYayasanImportBatch $batch): RedirectResponse
     {
         $this->ensureSuperAdmin();
@@ -917,6 +983,78 @@ class SkYayasanController extends Controller
         $synchronizer = new SkYayasanImportSynchronizer($madrasahId);
 
         return $synchronizer->inspectSheet($sheet[0] ?? []);
+    }
+
+    private function inspectEditableImportRows(array $rows, int $madrasahId): array
+    {
+        $synchronizer = new SkYayasanImportSynchronizer($madrasahId);
+        $normalizedRows = collect($rows)
+            ->sortBy(fn (array $row) => (int) ($row['row_number'] ?? 0))
+            ->values();
+
+        $analysedRows = [];
+        $validUserIds = [];
+        $validCount = 0;
+        $invalidCount = 0;
+
+        foreach ($normalizedRows as $index => $row) {
+            $rowData = [
+                'no' => $this->nullableImportCell($row['excel_no'] ?? null),
+                'nuist_id' => $this->nullableImportCell($row['source_nuist_id'] ?? null),
+                'nama' => $this->nullableImportCell($row['source_nama'] ?? null),
+                'gelar' => $this->nullableImportCell($row['source_gelar'] ?? null),
+                'tempat_lahir' => $this->nullableImportCell($row['source_tempat_lahir'] ?? null),
+                'tanggal_lahir' => $this->nullableImportCell($row['source_tanggal_lahir'] ?? null),
+                'nip_ma_arif' => $this->nullableImportCell($row['source_nip_maarif'] ?? null),
+                'nuptk' => $this->nullableImportCell($row['source_nuptk'] ?? null),
+                'nomor_kartanu' => $this->nullableImportCell($row['source_nomor_kartanu'] ?? null),
+                'tmt_pertama' => $this->nullableImportCell($row['source_tmt_pertama'] ?? null),
+                'masa_kerja' => $this->nullableImportCell($row['source_masa_kerja'] ?? null),
+                'pendidikan_terakhir' => $this->nullableImportCell($row['source_pendidikan_terakhir'] ?? null),
+                'tahun_lulus' => $this->nullableImportCell($row['source_tahun_lulus'] ?? null),
+                'program_studi' => $this->nullableImportCell($row['source_program_studi'] ?? null),
+                'mapel_tugas_yang_diampu' => $this->nullableImportCell($row['source_mapel_tugas'] ?? null),
+                'penilaian_kinerja' => $this->nullableImportCell($row['source_penilaian_kinerja'] ?? null),
+                'keterangan' => $this->nullableImportCell($row['source_keterangan'] ?? null),
+            ];
+
+            $analysis = $synchronizer->analyzeRow(
+                $rowData,
+                (int) ($row['row_number'] ?? ($index + 2))
+            );
+
+            $analysedRows[] = $analysis;
+
+            if ($analysis['is_valid']) {
+                $validCount++;
+                $validUserIds[] = $analysis['user_id'];
+            } else {
+                $invalidCount++;
+            }
+        }
+
+        return [
+            'expected_headings' => SkYayasanImportSynchronizer::expectedHeadings(),
+            'headings_valid' => true,
+            'missing_headings' => [],
+            'unexpected_headings' => [],
+            'rows' => $analysedRows,
+            'valid_count' => $validCount,
+            'invalid_count' => $invalidCount,
+            'valid_user_ids' => array_values(array_unique(array_filter($validUserIds))),
+            'can_upload' => $validCount > 0 && $invalidCount === 0,
+        ];
+    }
+
+    private function nullableImportCell(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $string = trim((string) $value);
+
+        return $string === '' ? null : $string;
     }
 
     private function buildImportBatchRowsPayload(array $rows): array
