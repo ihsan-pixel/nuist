@@ -73,6 +73,22 @@
         min-width: 88px;
     }
 
+    .sky-cell-error {
+        background: #fff1f1 !important;
+    }
+
+    .sky-cell-error .form-control,
+    .sky-cell-error .form-select {
+        background: #fff7f7;
+        border-color: #dc3545 !important;
+        color: #842029;
+    }
+
+    .sky-cell-error-readonly {
+        background: #fff1f1 !important;
+        color: #842029 !important;
+    }
+
 </style>
 
 @php
@@ -100,6 +116,42 @@
     $importBatchModalItems = $pendingImportBatches->getCollection()
         ->merge($rejectedImportBatches->getCollection())
         ->unique('id');
+
+    $resolveImportErrorFields = function ($row) {
+        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+        $fields = [];
+        $identifierFields = ['source_nuist_id', 'source_nama', 'source_nip_maarif', 'source_nuptk'];
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Isi minimal salah satu data pencocokan'))) {
+            $fields = array_merge($fields, $identifierFields);
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'User tidak ditemukan'))) {
+            $fields = array_merge($fields, $identifierFields, ['matched_name']);
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tanggal Lahir tidak valid'))) {
+            $fields[] = 'source_tanggal_lahir';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'TMT Pertama tidak valid'))) {
+            $fields[] = 'source_tmt_pertama';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tahun Lulus harus 4 digit'))) {
+            $fields[] = 'source_tahun_lulus';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Penilaian Kinerja harus berupa angka'))) {
+            $fields[] = 'source_penilaian_kinerja';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Keterangan wajib diisi'))) {
+            $fields[] = 'source_keterangan';
+        }
+
+        return array_values(array_unique($fields));
+    };
 @endphp
 
 <div class="sky-page">
@@ -455,6 +507,10 @@
                             </div>
                         @endif
 
+                        <div class="sky-inline-note sky-inline-note-danger mb-3">
+                            Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
+                        </div>
+
                         <form method="POST" action="{{ route('sk-yayasan.import-batches.rows.update', $batch) }}" id="editImportBatchForm{{ $batch->id }}">
                             @csrf
                             @method('PATCH')
@@ -472,6 +528,9 @@
                                     </thead>
                                     <tbody>
                                         @foreach($batch->rows as $row)
+                                            @php
+                                                $rowErrorFields = $resolveImportErrorFields($row);
+                                            @endphp
                                             <tr>
                                                 <input type="hidden" name="rows[{{ $loop->index }}][row_number]" value="{{ $row->row_number }}">
                                                 @foreach($importPreviewColumns as $column)
@@ -479,8 +538,9 @@
                                                         $field = $importPreviewFieldMap[$column] ?? null;
                                                         $value = $field ? data_get($row, $field, '') : '';
                                                         $value = $value === '-' ? '' : $value;
+                                                        $hasFieldError = $field && in_array($field, $rowErrorFields, true);
                                                     @endphp
-                                                    <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }}">
+                                                    <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ $hasFieldError ? 'sky-cell-error' : '' }}">
                                                         @if($column === 'Keterangan')
                                                             <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
                                                                 <option value="">Pilih</option>
@@ -496,7 +556,7 @@
                                                         @endif
                                                     </td>
                                                 @endforeach
-                                                <td>{{ $row->matched_name ?? '-' }}</td>
+                                                <td class="{{ in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : '' }}">{{ $row->matched_name ?? '-' }}</td>
                                                 <td>
                                                     <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
                                                         {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
