@@ -130,7 +130,7 @@ class SkYayasanController extends Controller
             'employees' => $employees,
             'statusCounts' => $statusCounts,
             'importBatches' => SkYayasanImportBatch::query()
-                ->with(['reviewer', 'requests.employee'])
+                ->with(['reviewer', 'requests.employee', 'rows'])
                 ->where('madrasah_id', $madrasahId)
                 ->latest('uploaded_at')
                 ->take(8)
@@ -382,6 +382,74 @@ class SkYayasanController extends Controller
         });
 
         return back()->with('success', 'Berkas pengajuan berhasil diperbarui dan dikirim ulang untuk direview.');
+    }
+
+    public function updateSchoolImportBatchRows(Request $request, SkYayasanImportBatch $batch): RedirectResponse
+    {
+        $user = $this->ensureSchoolAdmin();
+        $this->authorizeImportBatchAccess($batch);
+
+        if (!in_array($batch->status, ['pending_review', 'rejected'], true)) {
+            return back()->with('error', 'Data import pada batch ini sudah diproses dan tidak dapat diedit lagi.');
+        }
+
+        $validated = $request->validate([
+            'rows' => ['required', 'array', 'min:1'],
+            'rows.*.row_number' => ['required', 'integer', 'min:1'],
+            'rows.*.excel_no' => ['nullable', 'string', 'max:100'],
+            'rows.*.source_nuist_id' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_nama' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_gelar' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_tempat_lahir' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_tanggal_lahir' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_nip_maarif' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_nuptk' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_nomor_kartanu' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_tmt_pertama' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_masa_kerja' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_pendidikan_terakhir' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_tahun_lulus' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_program_studi' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_mapel_tugas' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_penilaian_kinerja' => ['nullable', 'string', 'max:255'],
+            'rows.*.source_keterangan' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $report = $this->inspectEditableImportRows($validated['rows'], (int) $batch->madrasah_id);
+
+        DB::transaction(function () use ($batch, $report, $user) {
+            $batch->update([
+                'status' => 'pending_review',
+                'uploaded_by' => $user->id,
+                'reviewed_by' => null,
+                'review_notes' => null,
+                'reviewed_at' => null,
+                'synced_at' => null,
+                'uploaded_at' => now(),
+                'total_rows' => count($report['rows']),
+                'valid_rows' => $report['valid_count'],
+                'invalid_rows' => $report['invalid_count'],
+                'headings_valid' => true,
+                'missing_headings' => [],
+                'unexpected_headings' => [],
+                'payload_rows' => $report['rows'],
+                'matched_user_ids' => $report['valid_user_ids'],
+            ]);
+
+            $batch->rows()->delete();
+            $batch->rows()->createMany($this->buildImportBatchRowsPayload($report['rows']));
+
+            $batch->requests()->update([
+                'current_status' => 'submitted',
+                'review_notes' => null,
+                'submitted_by' => $user->id,
+                'reviewed_by' => null,
+                'submitted_at' => now(),
+                'reviewed_at' => null,
+            ]);
+        });
+
+        return back()->with('success', 'Data import berhasil diperbarui dan dikirim ulang untuk direview.');
     }
 
     public function downloadImportBatchAttachment(SkYayasanImportBatch $batch, string $type)

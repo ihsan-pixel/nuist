@@ -51,6 +51,21 @@
         border-color: #bfd7cb;
         color: #0e8549;
     }
+
+    .sky-edit-cell {
+        min-width: 130px;
+    }
+
+    .sky-edit-cell .form-control,
+    .sky-edit-cell .form-select {
+        min-width: 130px;
+        min-height: 36px;
+        padding: .35rem .55rem;
+    }
+
+    .sky-edit-cell-sm {
+        min-width: 88px;
+    }
 </style>
 @endsection
 
@@ -62,6 +77,30 @@
 
 @include('sk-yayasan.partials.ui-styles')
 @include('sk-yayasan.partials.sweet-alert')
+
+@php
+    $keteranganOptions = \App\Support\SkYayasanImportSynchronizer::allowedKeteranganOptions();
+    $importPreviewColumns = \App\Support\SkYayasanImportSynchronizer::expectedHeadings();
+    $importPreviewFieldMap = [
+        'No' => 'excel_no',
+        'NUIST ID' => 'source_nuist_id',
+        'Nama' => 'source_nama',
+        'Gelar' => 'source_gelar',
+        'Tempat Lahir' => 'source_tempat_lahir',
+        'Tanggal Lahir' => 'source_tanggal_lahir',
+        "NIP Ma'arif" => 'source_nip_maarif',
+        'NUPTK' => 'source_nuptk',
+        'Nomor Kartanu' => 'source_nomor_kartanu',
+        'TMT Pertama' => 'source_tmt_pertama',
+        'Masa Kerja' => 'source_masa_kerja',
+        'Pendidikan Terakhir' => 'source_pendidikan_terakhir',
+        'Tahun Lulus' => 'source_tahun_lulus',
+        'Program Studi' => 'source_program_studi',
+        'Mapel/Tugas yang Diampu' => 'source_mapel_tugas',
+        'Penilaian Kinerja' => 'source_penilaian_kinerja',
+        'Keterangan' => 'source_keterangan',
+    ];
+@endphp
 
 <div class="sky-page">
     <div class="sky-hero-strip mb-4">
@@ -262,10 +301,13 @@
 
                                     @if(in_array($batch->status, ['pending_review', 'rejected']))
                                         <div class="d-flex flex-wrap gap-2 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editImportBatchRowsModal{{ $batch->id }}">
+                                                Edit Data Import
+                                            </button>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#updateRejectedBatchModal{{ $batch->id }}">
                                                 Perbarui Berkas
                                             </button>
-                                            <small class="text-muted align-self-center">Perbarui Excel dan/atau lampiran PDF sebelum atau sesudah review Yayasan.</small>
+                                            <small class="text-muted align-self-center">Edit isi data Excel atau perbarui file/lampiran sebelum atau sesudah review Yayasan.</small>
                                         </div>
                                     @endif
 
@@ -427,6 +469,117 @@
     @endphp
 
     @if(in_array($batch->status, ['pending_review', 'rejected']) && $batchSubmission)
+        <div class="modal fade" id="editImportBatchRowsModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
+                <form action="{{ route('sk-yayasan.sekolah.import-batches.rows.update', $batch) }}" method="POST" class="modal-content">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title mb-1">Edit Data Import</h5>
+                            <div class="sky-file-meta">{{ $batch->original_filename }} - upload {{ optional($batch->uploaded_at)->format('d/m/Y H:i') ?? '-' }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="sky-inline-note sky-inline-note-warning mb-3">
+                            Perubahan pada tabel ini akan mengganti data hasil upload Excel untuk batch ini. Setelah disimpan, batch kembali ke antrean review Yayasan.
+                        </div>
+
+                        @if($batch->review_notes)
+                            <div class="sky-inline-note sky-inline-note-secondary mb-3">
+                                <strong>Catatan review terakhir:</strong> {{ $batch->review_notes }}
+                            </div>
+                        @endif
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Status</div>
+                                    <div class="value text-capitalize">{{ str_replace('_', ' ', $batch->status) }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Valid</div>
+                                    <div class="value">{{ $batch->valid_rows }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Perlu Cek</div>
+                                    <div class="value">{{ $batch->invalid_rows }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Data Pegawai</div>
+                                    <div class="value">{{ $batch->requests->count() }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sky-modal-table-wrap">
+                            <table class="table table-sm align-middle sky-compact-table mb-0">
+                                <thead>
+                                    <tr>
+                                        @foreach($importPreviewColumns as $column)
+                                            <th>{{ $column }}</th>
+                                        @endforeach
+                                        <th>Match User</th>
+                                        <th>Status</th>
+                                        <th class="wrap">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($batch->rows as $row)
+                                        <tr>
+                                            @foreach($importPreviewColumns as $column)
+                                                @php
+                                                    $field = $importPreviewFieldMap[$column] ?? null;
+                                                    $value = $field ? data_get($row, $field, '') : '';
+                                                    $value = $value === '-' ? '' : $value;
+                                                @endphp
+                                                <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }}">
+                                                    @if($loop->first)
+                                                        <input type="hidden" name="rows[{{ $loop->parent->index }}][row_number]" value="{{ $row->row_number }}">
+                                                    @endif
+                                                    @if($column === 'Keterangan')
+                                                        <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
+                                                            <option value="">Pilih</option>
+                                                            @foreach($keteranganOptions as $option)
+                                                                <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @else
+                                                        <input type="text"
+                                                               name="rows[{{ $loop->parent->index }}][{{ $field }}]"
+                                                               value="{{ $value }}"
+                                                               class="form-control form-control-sm">
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                            <td>{{ $row->matched_name ?? '-' }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
+                                                    {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
+                                                </span>
+                                            </td>
+                                            <td class="wrap">{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap direview.' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Data Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="modal fade" id="updateRejectedBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <form action="{{ route('sk-yayasan.sekolah.import-batches.update', $batch) }}" method="POST" enctype="multipart/form-data" class="modal-content">

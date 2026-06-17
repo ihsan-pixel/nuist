@@ -49,6 +49,21 @@
         border-color: #bfd7cb;
         color: #0e8549;
     }
+
+    .sky-edit-cell {
+        min-width: 130px;
+    }
+
+    .sky-edit-cell .form-control,
+    .sky-edit-cell .form-select {
+        min-width: 130px;
+        min-height: 36px;
+        padding: .35rem .55rem;
+    }
+
+    .sky-edit-cell-sm {
+        min-width: 88px;
+    }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -60,6 +75,30 @@
 
 <?php echo $__env->make('sk-yayasan.partials.ui-styles', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php echo $__env->make('sk-yayasan.partials.sweet-alert', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+<?php
+    $keteranganOptions = \App\Support\SkYayasanImportSynchronizer::allowedKeteranganOptions();
+    $importPreviewColumns = \App\Support\SkYayasanImportSynchronizer::expectedHeadings();
+    $importPreviewFieldMap = [
+        'No' => 'excel_no',
+        'NUIST ID' => 'source_nuist_id',
+        'Nama' => 'source_nama',
+        'Gelar' => 'source_gelar',
+        'Tempat Lahir' => 'source_tempat_lahir',
+        'Tanggal Lahir' => 'source_tanggal_lahir',
+        "NIP Ma'arif" => 'source_nip_maarif',
+        'NUPTK' => 'source_nuptk',
+        'Nomor Kartanu' => 'source_nomor_kartanu',
+        'TMT Pertama' => 'source_tmt_pertama',
+        'Masa Kerja' => 'source_masa_kerja',
+        'Pendidikan Terakhir' => 'source_pendidikan_terakhir',
+        'Tahun Lulus' => 'source_tahun_lulus',
+        'Program Studi' => 'source_program_studi',
+        'Mapel/Tugas yang Diampu' => 'source_mapel_tugas',
+        'Penilaian Kinerja' => 'source_penilaian_kinerja',
+        'Keterangan' => 'source_keterangan',
+    ];
+?>
 
 <div class="sky-page">
     <div class="sky-hero-strip mb-4">
@@ -307,10 +346,13 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($batch->status, ['pending_review', 'rejected'])): ?>
                                         <div class="d-flex flex-wrap gap-2 mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editImportBatchRowsModal<?php echo e($batch->id); ?>">
+                                                Edit Data Import
+                                            </button>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#updateRejectedBatchModal<?php echo e($batch->id); ?>">
                                                 Perbarui Berkas
                                             </button>
-                                            <small class="text-muted align-self-center">Perbarui Excel dan/atau lampiran PDF sebelum atau sesudah review Yayasan.</small>
+                                            <small class="text-muted align-self-center">Edit isi data Excel atau perbarui file/lampiran sebelum atau sesudah review Yayasan.</small>
                                         </div>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -477,6 +519,119 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
     ?>
 
     <?php if(in_array($batch->status, ['pending_review', 'rejected']) && $batchSubmission): ?>
+        <div class="modal fade" id="editImportBatchRowsModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
+                <form action="<?php echo e(route('sk-yayasan.sekolah.import-batches.rows.update', $batch)); ?>" method="POST" class="modal-content">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PATCH'); ?>
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title mb-1">Edit Data Import</h5>
+                            <div class="sky-file-meta"><?php echo e($batch->original_filename); ?> - upload <?php echo e(optional($batch->uploaded_at)->format('d/m/Y H:i') ?? '-'); ?></div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="sky-inline-note sky-inline-note-warning mb-3">
+                            Perubahan pada tabel ini akan mengganti data hasil upload Excel untuk batch ini. Setelah disimpan, batch kembali ke antrean review Yayasan.
+                        </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->review_notes): ?>
+                            <div class="sky-inline-note sky-inline-note-secondary mb-3">
+                                <strong>Catatan review terakhir:</strong> <?php echo e($batch->review_notes); ?>
+
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Status</div>
+                                    <div class="value text-capitalize"><?php echo e(str_replace('_', ' ', $batch->status)); ?></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Valid</div>
+                                    <div class="value"><?php echo e($batch->valid_rows); ?></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Perlu Cek</div>
+                                    <div class="value"><?php echo e($batch->invalid_rows); ?></div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Data Pegawai</div>
+                                    <div class="value"><?php echo e($batch->requests->count()); ?></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sky-modal-table-wrap">
+                            <table class="table table-sm align-middle sky-compact-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                            <th><?php echo e($column); ?></th>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                        <th>Match User</th>
+                                        <th>Status</th>
+                                        <th class="wrap">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $batch->rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <tr>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                <?php
+                                                    $field = $importPreviewFieldMap[$column] ?? null;
+                                                    $value = $field ? data_get($row, $field, '') : '';
+                                                    $value = $value === '-' ? '' : $value;
+                                                ?>
+                                                <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?>">
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loop->first): ?>
+                                                        <input type="hidden" name="rows[<?php echo e($loop->parent->index); ?>][row_number]" value="<?php echo e($row->row_number); ?>">
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($column === 'Keterangan'): ?>
+                                                        <select name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]" class="form-select form-select-sm">
+                                                            <option value="">Pilih</option>
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $keteranganOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $option): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                                <option value="<?php echo e($option); ?>" <?php if($value === $option): echo 'selected'; endif; ?>><?php echo e($option); ?></option>
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                        </select>
+                                                    <?php else: ?>
+                                                        <input type="text"
+                                                               name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]"
+                                                               value="<?php echo e($value); ?>"
+                                                               class="form-control form-control-sm">
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                </td>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                            <td><?php echo e($row->matched_name ?? '-'); ?></td>
+                                            <td>
+                                                <span class="badge bg-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>-subtle text-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>">
+                                                    <?php echo e($row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan')); ?>
+
+                                                </span>
+                                            </td>
+                                            <td class="wrap"><?php echo e(!empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap direview.'); ?></td>
+                                        </tr>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Data Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="modal fade" id="updateRejectedBatchModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <form action="<?php echo e(route('sk-yayasan.sekolah.import-batches.update', $batch)); ?>" method="POST" enctype="multipart/form-data" class="modal-content">

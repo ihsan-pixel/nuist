@@ -656,6 +656,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::get('/perpanjangan', [SkYayasanController::class, 'schoolIndex'])->name('sekolah.index');
         Route::post('/perpanjangan', [SkYayasanController::class, 'storeSchoolSubmission'])->name('sekolah.store');
         Route::patch('/perpanjangan/import-batches/{batch}', [SkYayasanController::class, 'updateRejectedSchoolSubmission'])->name('sekolah.import-batches.update');
+        Route::patch('/perpanjangan/import-batches/{batch}/rows', [SkYayasanController::class, 'updateSchoolImportBatchRows'])->name('sekolah.import-batches.rows.update');
         Route::get('/perpanjangan/template-import', [SkYayasanController::class, 'schoolImportTemplate'])->name('sekolah.template-import');
         Route::post('/perpanjangan/import', [SkYayasanController::class, 'importSchoolUsers'])->name('sekolah.import');
     });
