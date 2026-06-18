@@ -586,7 +586,7 @@
         $batchSubmission = $batch->requests->first();
     @endphp
 
-    @if(in_array($batch->status, ['pending_review', 'rejected']) && $batchSubmission)
+    @if(in_array($batch->status, ['pending_review', 'rejected']))
         @if($batch->invalid_rows > 0)
             <div class="modal fade sky-admin-import-modal" id="editImportBatchRowsModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
@@ -728,16 +728,22 @@
                             Perbarui file yang perlu diganti. Kosongkan file yang tidak ingin diubah. Setelah disimpan, batch akan masuk atau tetap berada di antrean review Yayasan.
                         </div>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-7">
-                                <label class="form-label">Nomor Surat Pengajuan</label>
-                                <input type="text" name="submission_letter_number" class="form-control" value="{{ old('submission_letter_number', $batchSubmission->submission_letter_number) }}" required>
+                        @if($batchSubmission)
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-7">
+                                    <label class="form-label">Nomor Surat Pengajuan</label>
+                                    <input type="text" name="submission_letter_number" class="form-control" value="{{ old('submission_letter_number', $batchSubmission->submission_letter_number) }}" required>
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label">Tanggal Surat Pengajuan</label>
+                                    <input type="date" name="submission_letter_date" class="form-control" value="{{ old('submission_letter_date', optional($batchSubmission->submission_letter_date)->format('Y-m-d')) }}" required>
+                                </div>
                             </div>
-                            <div class="col-md-5">
-                                <label class="form-label">Tanggal Surat Pengajuan</label>
-                                <input type="date" name="submission_letter_date" class="form-control" value="{{ old('submission_letter_date', optional($batchSubmission->submission_letter_date)->format('Y-m-d')) }}" required>
+                        @else
+                            <div class="sky-inline-note sky-inline-note-secondary mb-3">
+                                Batch ini belum menghasilkan data pengajuan pegawai. Anda tetap bisa memperbarui file Excel atau lampiran lain agar batch dapat direview ulang.
                             </div>
-                        </div>
+                        @endif
 
                         <div class="mb-3">
                             <label class="form-label">File Excel Data Tenaga Pendidik</label>

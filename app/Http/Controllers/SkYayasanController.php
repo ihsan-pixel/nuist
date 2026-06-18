@@ -296,40 +296,44 @@ class SkYayasanController extends Controller
             return back()->with('error', 'Batch ini sudah diproses dan tidak dapat diperbarui lagi.');
         }
 
+        $batch->loadMissing('requests');
+        $firstRequest = $batch->requests->first();
+
         $validated = $request->validate([
-            'submission_letter_number' => ['required', 'string', 'max:255'],
-            'submission_letter_date' => ['required', 'date'],
+            'submission_letter_number' => [$firstRequest ? 'required' : 'nullable', 'string', 'max:255'],
+            'submission_letter_date' => [$firstRequest ? 'required' : 'nullable', 'date'],
             'excel_file' => ['nullable', 'file', 'mimes:xlsx,xls,csv'],
             'fakta_integritas_file' => ['nullable', 'file', 'mimes:pdf'],
             'penilaian_perilaku_file' => ['nullable', 'file', 'mimes:pdf'],
         ]);
 
-        $batch->loadMissing('requests');
-        $firstRequest = $batch->requests->first();
-
-        if (!$firstRequest) {
-            return back()->with('error', 'Batch ini tidak memiliki data pengajuan yang bisa diperbarui.');
-        }
-
-        $newLetterNumber = trim((string) $validated['submission_letter_number']);
-        $newLetterDate = Carbon::parse($validated['submission_letter_date'])->toDateString();
-        $oldLetterNumber = (string) ($firstRequest->submission_letter_number ?? '');
-        $oldLetterDate = optional($firstRequest->submission_letter_date)->toDateString();
+        $newLetterNumber = $firstRequest
+            ? trim((string) ($validated['submission_letter_number'] ?? ''))
+            : null;
+        $newLetterDate = $firstRequest && !empty($validated['submission_letter_date'])
+            ? Carbon::parse($validated['submission_letter_date'])->toDateString()
+            : null;
+        $oldLetterNumber = $firstRequest ? (string) ($firstRequest->submission_letter_number ?? '') : null;
+        $oldLetterDate = $firstRequest ? optional($firstRequest->submission_letter_date)->toDateString() : null;
 
         $hasFileUpdate = $request->hasFile('excel_file')
             || $request->hasFile('fakta_integritas_file')
             || $request->hasFile('penilaian_perilaku_file');
-        $hasLetterUpdate = $newLetterNumber !== $oldLetterNumber || $newLetterDate !== $oldLetterDate;
+        $hasLetterUpdate = $firstRequest
+            ? ($newLetterNumber !== $oldLetterNumber || $newLetterDate !== $oldLetterDate)
+            : false;
 
         if (!$hasFileUpdate && !$hasLetterUpdate) {
-            return back()->with('error', 'Tidak ada perubahan yang dikirim. Ubah nomor/tanggal surat atau upload file baru.');
+            return back()->with('error', $firstRequest
+                ? 'Tidak ada perubahan yang dikirim. Ubah nomor/tanggal surat atau upload file baru.'
+                : 'Tidak ada perubahan yang dikirim. Upload file baru untuk memperbarui batch ini.');
         }
 
         $report = $request->hasFile('excel_file')
             ? $this->inspectSchoolSheetFile($request->file('excel_file'), (int) $user->madrasah_id)
             : null;
 
-        DB::transaction(function () use ($request, $batch, $user, $newLetterNumber, $newLetterDate, $report) {
+        DB::transaction(function () use ($request, $batch, $user, $newLetterNumber, $newLetterDate, $report, $firstRequest) {
             $batchUpdatePayload = [
                 'status' => 'pending_review',
                 'uploaded_by' => $user->id,
@@ -384,16 +388,18 @@ class SkYayasanController extends Controller
                 $batch->rows()->createMany($this->buildImportBatchRowsPayload($report['rows']));
             }
 
-            $batch->requests()->update([
-                'submission_letter_number' => $newLetterNumber,
-                'submission_letter_date' => $newLetterDate,
-                'current_status' => 'submitted',
-                'review_notes' => null,
-                'submitted_by' => $user->id,
-                'reviewed_by' => null,
-                'submitted_at' => now(),
-                'reviewed_at' => null,
-            ]);
+            if ($firstRequest) {
+                $batch->requests()->update([
+                    'submission_letter_number' => $newLetterNumber,
+                    'submission_letter_date' => $newLetterDate,
+                    'current_status' => 'submitted',
+                    'review_notes' => null,
+                    'submitted_by' => $user->id,
+                    'reviewed_by' => null,
+                    'submitted_at' => now(),
+                    'reviewed_at' => null,
+                ]);
+            }
         });
 
         return back()->with('success', 'Berkas pengajuan berhasil diperbarui dan dikirim ulang untuk direview.');
