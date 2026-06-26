@@ -96,9 +96,9 @@
             <div class="card-body bg-primary bg-gradient text-white rounded">
             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                 <div>
-                    <div class="text-uppercase small fw-semibold mb-2">Data Sekolah</div>
+                    {{-- <div class="text-uppercase small fw-semibold mb-2">Data Sekolah</div> --}}
                     <h4 class="mb-1">Data Siswa</h4>
-                    <p class="mb-0 text-white-50">Kelola data siswa administrasi dengan input manual modal atau import template sekolah.</p>
+                    {{-- <p class="mb-0 text-white-50">Kelola data siswa administrasi dengan input manual modal atau import template sekolah.</p> --}}
                 </div>
                 @if($userRole !== 'admin_spp')
                     <div class="d-flex flex-wrap gap-2">
