@@ -195,7 +195,7 @@
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-3">
+    <div class="col-md-6 col-xl">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -208,7 +208,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-6 col-xl">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -221,21 +221,35 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-6 col-xl">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-info"><i class="bx bx-task"></i></div>
                     <div class="ms-3">
                         <p class="text-muted mb-1">Data Lengkap</p>
-                        <h4 class="mb-0">{{ $stats['kelengkapan'] }}%</h4>
-                        <small class="text-muted">{{ number_format($stats['kelengkapan_penuh']) }} siswa sudah 100%</small>
+                        <h4 class="mb-0">{{ $stats['rata_rata_kelengkapan'] }}%</h4>
+                        <small class="text-muted">Rata-rata dari {{ number_format($stats['total']) }} data siswa</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-6 col-xl">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-warning"><i class="bx bx-buildings"></i></div>
+                    <div class="ms-3">
+                        <p class="text-muted mb-1">Sekolah Upload</p>
+                        <h4 class="mb-0">{{ number_format($stats['sekolah_upload']) }}</h4>
+                        <small class="text-muted">Sekolah sudah memiliki data siswa</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">

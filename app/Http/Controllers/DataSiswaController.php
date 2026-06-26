@@ -88,8 +88,8 @@ class DataSiswaController extends Controller
         $stats = [
             'total' => (clone $statsQuery)->count(),
             'aktif' => (clone $statsQuery)->where('is_active', true)->count(),
-            'kelengkapan' => $siswas->isNotEmpty() ? (int) round($siswas->avg('completion_percentage')) : 0,
-            'kelengkapan_penuh' => $siswas->where('completion_percentage', 100)->count(),
+            'rata_rata_kelengkapan' => $siswas->isNotEmpty() ? (int) round($siswas->avg('completion_percentage')) : 0,
+            'sekolah_upload' => (clone $statsQuery)->whereNotNull('madrasah_id')->distinct('madrasah_id')->count('madrasah_id'),
             'kelas' => (clone $statsQuery)->distinct('kelas')->count('kelas'),
             'nisn' => (clone $statsQuery)->whereNotNull('nisn')->count(),
         ];
