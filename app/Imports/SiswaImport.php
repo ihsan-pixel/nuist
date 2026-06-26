@@ -165,13 +165,30 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             'no_hp_orang_tua_wali' => ['no_hp_orang_tua_wali', 'no_hp_wali', 'hp_orang_tua_wali'],
         ];
 
+        $rowArray = $row->toArray();
+        $normalizedRow = [];
+
+        foreach ($rowArray as $key => $value) {
+            $normalizedRow[$this->normalizeHeadingKey((string) $key)] = $value;
+        }
+
         foreach ($aliases[$field] ?? [$field] as $key) {
-            if (array_key_exists($key, $row->toArray()) && !blank($row[$key])) {
+            if (array_key_exists($key, $rowArray) && !blank($row[$key])) {
                 return $row[$key];
+            }
+
+            $normalizedKey = $this->normalizeHeadingKey($key);
+            if (array_key_exists($normalizedKey, $normalizedRow) && !blank($normalizedRow[$normalizedKey])) {
+                return $normalizedRow[$normalizedKey];
             }
         }
 
         return null;
+    }
+
+    private function normalizeHeadingKey(string $value): string
+    {
+        return preg_replace('/[^a-z0-9]+/i', '', strtolower(trim($value))) ?: '';
     }
 
     private function resolveParentGuardianName($row): ?string

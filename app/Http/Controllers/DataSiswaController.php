@@ -8,6 +8,7 @@ use App\Models\Madrasah;
 use App\Models\Siswa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
@@ -130,9 +131,15 @@ class DataSiswaController extends Controller
 
         $import = new SiswaImport($this->restrictedMadrasahIdFor($user));
 
-        DB::transaction(function () use ($validated, $import) {
-            Excel::import($import, $validated['file']);
-        });
+        try {
+            DB::transaction(function () use ($validated, $import) {
+                Excel::import($import, $validated['file']);
+            });
+        } catch (\InvalidArgumentException $exception) {
+            return back()
+                ->withInput(Arr::except($request->all(), ['file']))
+                ->withErrors(['file' => $exception->getMessage()]);
+        }
 
         return back()->with(
             'success',
