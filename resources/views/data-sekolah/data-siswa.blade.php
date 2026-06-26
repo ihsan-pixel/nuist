@@ -4,20 +4,6 @@
 
 @section('css')
 <style>
-.hero-card {
-    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-    color: #fff;
-    border: none;
-    border-radius: 18px;
-    box-shadow: 0 12px 32px rgba(0, 75, 76, 0.18);
-}
-
-.stats-card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-}
-
 .stats-icon {
     width: 48px;
     height: 48px;
@@ -29,9 +15,51 @@
     font-size: 1.2rem;
 }
 
-.table thead th {
-    white-space: nowrap;
-    vertical-align: middle;
+.sky-pagination-wrap {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sky-pagination-wrap nav {
+    width: auto;
+}
+
+.sky-pagination-wrap .pagination {
+    gap: .35rem;
+    justify-content: flex-end;
+    margin-bottom: 0;
+}
+
+.sky-pagination-wrap .page-item .page-link {
+    align-items: center;
+    border: 1px solid #dbe7e1;
+    border-radius: 10px;
+    color: #34524a;
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 600;
+    height: 34px;
+    justify-content: center;
+    min-width: 34px;
+    padding: .35rem .65rem;
+}
+
+.sky-pagination-wrap .page-item.active .page-link {
+    background: linear-gradient(135deg, #004b4c, #0e8549);
+    border-color: transparent;
+    color: #fff;
+}
+
+.sky-pagination-wrap .page-item.disabled .page-link {
+    background: #f4f8f6;
+    border-color: #e6efea;
+    color: #9aa9a3;
+}
+
+.sky-pagination-wrap .page-link:hover {
+    background: #eef7f2;
+    border-color: #bfd7cb;
+    color: #0e8549;
 }
 
 .student-modal .modal-dialog {
@@ -87,6 +115,9 @@
     @slot('title') Data Siswa @endslot
 @endcomponent
 
+@include('sk-yayasan.partials.ui-styles')
+
+<div class="sky-page">
 <div class="row">
     <div class="col-12">
         @if(session('success'))
@@ -108,27 +139,26 @@
             </div>
         @endif
 
-        <div class="card hero-card mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                    <div>
-                        <h4 class="text-white mb-2"><i class="bx bx-id-card me-2"></i>Data Siswa</h4>
-                        <p class="mb-0 text-white-50">Kelola data siswa administrasi dengan input manual modal atau import template sekolah.</p>
-                    </div>
-                    @if($userRole !== 'admin_spp')
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ route('data-sekolah.data-siswa.template') }}" class="btn btn-light">
-                                <i class="bx bx-download me-1"></i>Template
-                            </a>
-                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">
-                                <i class="bx bx-upload me-1"></i>Import
-                            </button>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
-                                <i class="bx bx-plus me-1"></i>Tambah Siswa
-                            </button>
-                        </div>
-                    @endif
+        <div class="sky-hero-strip mb-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                <div>
+                    <div class="sky-kicker mb-2">Data Sekolah</div>
+                    <h4 class="mb-1">Data Siswa</h4>
+                    <p class="mb-0 text-white-50">Kelola data siswa administrasi dengan input manual modal atau import template sekolah.</p>
                 </div>
+                @if($userRole !== 'admin_spp')
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ route('data-sekolah.data-siswa.template') }}" class="btn btn-light">
+                            <i class="bx bx-download me-1"></i>Template
+                        </a>
+                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#importModal">
+                            <i class="bx bx-upload me-1"></i>Import
+                        </button>
+                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#createModal">
+                            <i class="bx bx-plus me-1"></i>Tambah Siswa
+                        </button>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -136,7 +166,7 @@
 
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="card stats-card h-100">
+        <div class="card sky-stat-card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-primary"><i class="bx bx-user"></i></div>
@@ -149,7 +179,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card stats-card h-100">
+        <div class="card sky-stat-card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-success"><i class="bx bx-check-circle"></i></div>
@@ -162,7 +192,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card stats-card h-100">
+        <div class="card sky-stat-card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-info"><i class="bx bx-buildings"></i></div>
@@ -175,7 +205,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card stats-card h-100">
+        <div class="card sky-stat-card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-dark"><i class="bx bx-bar-chart"></i></div>
@@ -231,12 +261,17 @@
 
 <div class="card">
     <div class="card-body">
-        {{-- <div class="alert alert-info">
-            Halaman ini tidak lagi membuat akun login siswa. Kolom email hanya disimpan sebagai data kontak, bukan kredensial autentikasi.
-        </div> --}}
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+                <div class="sky-panel-label mb-1">Master Data</div>
+                <h6 class="mb-0">Daftar siswa tersimpan</h6>
+            </div>
+            <span class="sky-chip">{{ $siswas->total() }} data</span>
+        </div>
 
+        @if($siswas->count() > 0)
         <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+            <table class="table align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
@@ -326,19 +361,28 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="9" class="text-center text-muted py-4">Belum ada data siswa.</td>
-                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-
-        <div class="mt-3">
-            {{ $siswas->links('pagination::bootstrap-5') }}
-        </div>
+        @else
+            <div class="sky-empty-state py-5">
+                <i class="bx bx-user-x"></i>
+                <strong>Belum ada data siswa</strong>
+                <small>Tambah manual atau import file template untuk mulai mengisi master data siswa.</small>
+            </div>
+        @endif
     </div>
+
+    @if($siswas->hasPages())
+        <div class="card-footer bg-white">
+            <div class="sky-pagination-wrap">
+                {{ $siswas->links('pagination::bootstrap-5') }}
+            </div>
+        </div>
+    @endif
 </div>
+ </div>
 
 @if($userRole !== 'admin_spp')
     <div class="modal fade student-modal" id="createModal" tabindex="-1" aria-hidden="true">
