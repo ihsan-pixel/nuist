@@ -7,15 +7,182 @@
 <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
 <style>
-.stats-icon {
-    width: 48px;
-    height: 48px;
+.data-siswa-page {
+    --ds-ink: #102d28;
+    --ds-muted: #6b7b75;
+    --ds-line: #e5eee9;
+    --ds-soft: #f5faf7;
+    --ds-green: #0e8549;
+    --ds-teal: #004b4c;
+    --ds-gold: #efaa0c;
+}
+
+.data-siswa-page .card {
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 12px 34px rgba(16, 45, 40, 0.08);
+}
+
+.data-siswa-page .alert {
+    border: 0;
     border-radius: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+}
+
+.data-siswa-page .btn {
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.data-siswa-page .btn-success,
+.data-siswa-page .btn-primary {
+    background: linear-gradient(135deg, var(--ds-teal), var(--ds-green));
+    border: 0;
+}
+
+.data-siswa-page .btn-secondary {
+    background: #eef4f1;
+    border-color: #eef4f1;
+    color: var(--ds-ink);
+}
+
+.data-siswa-page .btn-light {
+    border-color: rgba(255, 255, 255, 0.28);
+}
+
+.data-siswa-page .form-control,
+.data-siswa-page .form-select {
+    border-color: #dce7e2;
+    border-radius: 12px;
+    min-height: 44px;
+}
+
+.data-siswa-page .form-control:focus,
+.data-siswa-page .form-select:focus {
+    border-color: rgba(14, 133, 73, .45);
+    box-shadow: 0 0 0 0.2rem rgba(14, 133, 73, 0.12);
+}
+
+.data-siswa-hero {
+    background:
+        radial-gradient(circle at top right, rgba(239, 170, 12, 0.28), transparent 28%),
+        linear-gradient(135deg, var(--ds-teal), var(--ds-green));
+    border-radius: 22px;
+    box-shadow: 0 18px 42px rgba(0, 75, 76, 0.20);
     color: #fff;
-    font-size: 1.2rem;
+    overflow: hidden;
+    padding: 24px;
+    position: relative;
+}
+
+.data-siswa-hero::after {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    content: "";
+    height: 180px;
+    position: absolute;
+    right: -70px;
+    top: -70px;
+    width: 180px;
+}
+
+.data-siswa-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.data-siswa-kicker {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.data-siswa-subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 640px;
+}
+
+.data-siswa-stat {
+    border: 1px solid var(--ds-line);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.data-siswa-stat:hover {
+    transform: translateY(-3px);
+}
+
+.stats-icon {
+    align-items: center;
+    border-radius: 16px;
+    display: inline-flex;
+    font-size: 1.15rem;
+    height: 52px;
+    justify-content: center;
+    width: 52px;
+}
+
+.stats-icon-soft-primary {
+    background: rgba(13, 110, 253, 0.12);
+    color: #0d6efd;
+}
+
+.stats-icon-soft-success {
+    background: rgba(25, 135, 84, 0.12);
+    color: #198754;
+}
+
+.stats-icon-soft-info {
+    background: rgba(13, 202, 240, 0.14);
+    color: #0aa2c0;
+}
+
+.stats-icon-soft-warning {
+    background: rgba(255, 193, 7, 0.16);
+    color: #c58a00;
+}
+
+.stats-icon-soft-dark {
+    background: rgba(33, 37, 41, 0.10);
+    color: #212529;
+}
+
+.data-siswa-panel-head {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.data-siswa-panel-kicker {
+    color: var(--ds-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.data-siswa-chip {
+    background: rgba(14, 133, 73, .10);
+    border: 1px solid rgba(14, 133, 73, .16);
+    border-radius: 999px;
+    color: var(--ds-green);
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+}
+
+.data-siswa-filter {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+}
+
+.data-siswa-filter-grid {
+    background: var(--ds-soft);
+    border: 1px solid var(--ds-line);
+    border-radius: 16px;
+    padding: 1rem;
 }
 
 .completion-bar {
@@ -146,6 +313,7 @@
     @slot('title') Data Siswa @endslot
 @endcomponent
 
+<div class="data-siswa-page">
 <div class="row">
     <div class="col-12">
         @if(session('success'))
@@ -167,13 +335,12 @@
             </div>
         @endif
 
-        <div class="card mb-4">
-            <div class="card-body bg-primary bg-gradient text-white rounded">
+        <div class="data-siswa-hero mb-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                 <div>
-                    {{-- <div class="text-uppercase small fw-semibold mb-2">Data Sekolah</div> --}}
+                    <div class="data-siswa-kicker mb-2">Data Sekolah</div>
                     <h4 class="mb-1">Data Siswa</h4>
-                    {{-- <p class="mb-0 text-white-50">Kelola data siswa administrasi dengan input manual modal atau import template sekolah.</p> --}}
+                    <p class="mb-0 data-siswa-subtitle">Kelola data siswa lebih rapi melalui input manual, import template, dan pemutakhiran massal tanpa mengubah struktur tabel utama.</p>
                 </div>
                 @if($userRole !== 'admin_spp')
                     <div class="d-flex flex-wrap gap-2">
@@ -189,17 +356,16 @@
                     </div>
                 @endif
             </div>
-            </div>
         </div>
     </div>
 </div>
 
 <div class="row mb-4">
     <div class="col-md-6 col-xl">
-        <div class="card h-100">
-            <div class="card-body">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-primary"><i class="bx bx-user"></i></div>
+                    <div class="stats-icon stats-icon-soft-primary"><i class="bx bx-user"></i></div>
                     <div class="ms-3">
                         <p class="text-muted mb-1">Total Siswa</p>
                         <h4 class="mb-0">{{ number_format($stats['total']) }}</h4>
@@ -209,10 +375,10 @@
         </div>
     </div>
     <div class="col-md-6 col-xl">
-        <div class="card h-100">
-            <div class="card-body">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-success"><i class="bx bx-check-circle"></i></div>
+                    <div class="stats-icon stats-icon-soft-success"><i class="bx bx-check-circle"></i></div>
                     <div class="ms-3">
                         <p class="text-muted mb-1">Siswa Aktif</p>
                         <h4 class="mb-0">{{ number_format($stats['aktif']) }}</h4>
@@ -222,10 +388,10 @@
         </div>
     </div>
     <div class="col-md-6 col-xl">
-        <div class="card h-100">
-            <div class="card-body">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-info"><i class="bx bx-task"></i></div>
+                    <div class="stats-icon stats-icon-soft-info"><i class="bx bx-task"></i></div>
                     <div class="ms-3">
                         <p class="text-muted mb-1">Data Lengkap</p>
                         <h4 class="mb-0">{{ $stats['rata_rata_kelengkapan'] }}%</h4>
@@ -236,10 +402,10 @@
         </div>
     </div>
     <div class="col-md-6 col-xl">
-        <div class="card h-100">
-            <div class="card-body">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-warning"><i class="bx bx-buildings"></i></div>
+                    <div class="stats-icon stats-icon-soft-warning"><i class="bx bx-buildings"></i></div>
                     <div class="ms-3">
                         <p class="text-muted mb-1">Sekolah Upload</p>
                         <h4 class="mb-0">{{ number_format($stats['sekolah_upload']) }}</h4>
@@ -250,10 +416,10 @@
         </div>
     </div>
     <div class="col-md-6 col-xl">
-        <div class="card h-100">
-            <div class="card-body">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-dark"><i class="bx bx-bar-chart"></i></div>
+                    <div class="stats-icon stats-icon-soft-dark"><i class="bx bx-bar-chart"></i></div>
                     <div class="ms-3">
                         <p class="text-muted mb-1">Memiliki NISN</p>
                         <h4 class="mb-0">{{ number_format($stats['nisn']) }}</h4>
@@ -264,10 +430,17 @@
     </div>
 </div>
 
-<div class="card mb-4">
+<div class="card data-siswa-filter mb-4">
     <div class="card-body">
+        <div class="data-siswa-panel-head">
+            <div>
+                <div class="data-siswa-panel-kicker mb-1">Filter Data</div>
+                <h6 class="mb-0">Pencarian dan penyaringan siswa</h6>
+            </div>
+            <span class="data-siswa-chip">Filter aktif sesuai kebutuhan</span>
+        </div>
         <form method="GET" action="{{ route('data-sekolah.data-siswa.index') }}">
-            <div class="row g-3 align-items-end">
+            <div class="row g-3 align-items-end data-siswa-filter-grid">
                 @if(!in_array($userRole, ['admin', 'admin_spp']))
                     <div class="col-md-3">
                         <label for="madrasah_id" class="form-label">Madrasah</label>
@@ -434,6 +607,7 @@
         </div>
     </div>
 </div>
+ </div>
 
 @if($userRole !== 'admin_spp')
     <div class="modal fade student-modal" id="createModal" tabindex="-1" aria-hidden="true">
