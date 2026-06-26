@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SiswaUploadSummaryExport;
 use App\Exports\SiswaTemplateExport;
 use App\Imports\SiswaImport;
 use App\Models\Madrasah;
 use App\Models\Siswa;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -29,46 +32,7 @@ class DataSiswaController extends Controller
             ? $user->madrasah_id
             : $request->integer('madrasah_id');
 
-        $query = Siswa::query()->with('madrasah');
-
-        if ($selectedMadrasahId) {
-            $query->where('madrasah_id', $selectedMadrasahId);
-        }
-
-        if ($request->filled('kelas')) {
-            $query->where('kelas', 'like', '%' . trim((string) $request->kelas) . '%');
-        }
-
-        if ($request->filled('jurusan')) {
-            $query->where('jurusan', 'like', '%' . trim((string) $request->jurusan) . '%');
-        }
-
-        if ($request->filled('q')) {
-            $keyword = trim((string) $request->q);
-            $query->where(function ($builder) use ($keyword) {
-                $builder->where('scod', 'like', '%' . $keyword . '%')
-                    ->orWhere('nama_madrasah', 'like', '%' . $keyword . '%')
-                    ->orWhere('nis', 'like', '%' . $keyword . '%')
-                    ->orWhere('nisn', 'like', '%' . $keyword . '%')
-                    ->orWhere('nik', 'like', '%' . $keyword . '%')
-                    ->orWhere('nama_lengkap', 'like', '%' . $keyword . '%')
-                    ->orWhere('no_hp', 'like', '%' . $keyword . '%')
-                    ->orWhere('email', 'like', '%' . $keyword . '%')
-                    ->orWhere('nama_ayah', 'like', '%' . $keyword . '%')
-                    ->orWhere('nama_ibu', 'like', '%' . $keyword . '%')
-                    ->orWhere('nama_orang_tua_wali', 'like', '%' . $keyword . '%');
-            });
-        }
-
-        if ($userRole === 'super_admin') {
-            $query->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
-                ->orderBy('scod')
-                ->orderByRaw("CASE WHEN nama_madrasah IS NULL OR nama_madrasah = '' THEN 1 ELSE 0 END")
-                ->orderBy('nama_madrasah')
-                ->orderBy('nama_lengkap');
-        } else {
-            $query->latest();
-        }
+        $query = $this->buildSiswaIndexQuery($request, $selectedMadrasahId, $userRole);
 
         $siswas = $query->get()->transform(function (Siswa $siswa) {
             $completion = $this->calculateCompletionStats($siswa);
@@ -101,6 +65,30 @@ class DataSiswaController extends Controller
             'stats' => $stats,
             'userRole' => $userRole,
         ]);
+    }
+
+    public function exportUploadSummary(Request $request)
+    {
+        $user = auth()->user();
+        $userRole = $this->normalizedRole($user->role);
+        abort_if($userRole !== 'super_admin', 403);
+
+        $selectedMadrasahId = $request->integer('madrasah_id');
+        $siswas = $this->buildSiswaIndexQuery($request, $selectedMadrasahId, $userRole)
+            ->get()
+            ->transform(function (Siswa $siswa) {
+                $completion = $this->calculateCompletionStats($siswa);
+                $siswa->setAttribute('completion_percentage', $completion['percentage']);
+
+                return $siswa;
+            });
+
+        $summaryRows = $this->buildUploadSummaryRows($siswas);
+
+        return Excel::download(
+            new SiswaUploadSummaryExport($summaryRows),
+            'ringkasan-upload-data-siswa-' . now()->format('Ymd_His') . '.xlsx'
+        );
     }
 
     public function store(Request $request): RedirectResponse
@@ -480,6 +468,79 @@ class DataSiswaController extends Controller
         }
 
         return trim((string) $value) !== '';
+    }
+
+    private function buildSiswaIndexQuery(Request $request, ?int $selectedMadrasahId, string $userRole): Builder
+    {
+        $query = Siswa::query()->with('madrasah');
+
+        if ($selectedMadrasahId) {
+            $query->where('madrasah_id', $selectedMadrasahId);
+        }
+
+        if ($request->filled('kelas')) {
+            $query->where('kelas', 'like', '%' . trim((string) $request->kelas) . '%');
+        }
+
+        if ($request->filled('jurusan')) {
+            $query->where('jurusan', 'like', '%' . trim((string) $request->jurusan) . '%');
+        }
+
+        if ($request->filled('q')) {
+            $keyword = trim((string) $request->q);
+            $query->where(function ($builder) use ($keyword) {
+                $builder->where('scod', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_madrasah', 'like', '%' . $keyword . '%')
+                    ->orWhere('nis', 'like', '%' . $keyword . '%')
+                    ->orWhere('nisn', 'like', '%' . $keyword . '%')
+                    ->orWhere('nik', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_lengkap', 'like', '%' . $keyword . '%')
+                    ->orWhere('no_hp', 'like', '%' . $keyword . '%')
+                    ->orWhere('email', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_ayah', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_ibu', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_orang_tua_wali', 'like', '%' . $keyword . '%');
+            });
+        }
+
+        if ($userRole === 'super_admin') {
+            $query->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+                ->orderBy('scod')
+                ->orderByRaw("CASE WHEN nama_madrasah IS NULL OR nama_madrasah = '' THEN 1 ELSE 0 END")
+                ->orderBy('nama_madrasah')
+                ->orderBy('nama_lengkap');
+        } else {
+            $query->latest();
+        }
+
+        return $query;
+    }
+
+    private function buildUploadSummaryRows(Collection $siswas): Collection
+    {
+        return $siswas
+            ->groupBy(fn (Siswa $siswa) => $siswa->madrasah_id ?: 'unknown')
+            ->map(function (Collection $group) {
+                $first = $group->first();
+
+                return [
+                    'scod' => $first?->scod ?: $first?->madrasah?->scod ?: '-',
+                    'nama_sekolah' => $first?->nama_madrasah ?: $first?->madrasah?->name ?: 'Tanpa Sekolah',
+                    'jumlah_siswa' => $group->count(),
+                    'rata_rata_kelengkapan' => (int) round($group->avg('completion_percentage')),
+                ];
+            })
+            ->sortBy(fn (array $row) => sprintf('%s|%s', $row['scod'], $row['nama_sekolah']))
+            ->values()
+            ->map(function (array $row, int $index) {
+                return [
+                    'no' => $index + 1,
+                    'scod' => $row['scod'],
+                    'nama_sekolah' => $row['nama_sekolah'],
+                    'jumlah_siswa' => $row['jumlah_siswa'],
+                    'rata_rata_kelengkapan' => $row['rata_rata_kelengkapan'] . '%',
+                ];
+            });
     }
 
     private function prefixBulkValidationMessages(array $errors, int $rowNumber): array

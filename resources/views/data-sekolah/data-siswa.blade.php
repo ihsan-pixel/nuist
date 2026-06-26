@@ -486,6 +486,14 @@
             </div>
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <span class="badge bg-light text-dark border">{{ $siswas->count() }} data</span>
+                @if($userRole === 'super_admin')
+                    <a
+                        href="{{ route('data-sekolah.data-siswa.export-upload-summary', request()->query()) }}"
+                        class="btn btn-success btn-sm"
+                    >
+                        <i class="bx bx-spreadsheet me-1"></i>Export Excel Upload Sekolah
+                    </a>
+                @endif
                 @if($userRole !== 'admin_spp')
                     <button
                         type="button"
