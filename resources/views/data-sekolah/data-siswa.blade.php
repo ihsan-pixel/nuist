@@ -378,9 +378,14 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning mb-3">
-                            Gunakan template resmi. Kolom data siswa boleh kosong. Jika kolom <strong>SCOD</strong> dan <strong>ASAL SEKOLAH/MADRASAH</strong> di file kosong, pilih madrasah pada form import ini sebagai tujuan penyimpanan.
+                            Gunakan template resmi. Kolom data siswa boleh kosong.
+                            @if($userRole === 'super_admin')
+                                Pastikan kolom <strong>SCOD</strong> pada file terisi agar sekolah tujuan dikenali otomatis.
+                            @else
+                                Jika kolom <strong>SCOD</strong> dan <strong>ASAL SEKOLAH/MADRASAH</strong> di file kosong, pilih madrasah pada form import ini sebagai tujuan penyimpanan.
+                            @endif
                         </div>
-                        @if(!in_array($userRole, ['admin', 'admin_spp']))
+                        @if(!in_array($userRole, ['admin', 'admin_spp', 'super_admin']))
                             <div class="mb-3">
                                 <label for="import_madrasah_id" class="form-label">Madrasah Tujuan Import</label>
                                 <select class="form-select" id="import_madrasah_id" name="madrasah_id">
@@ -392,7 +397,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                        @else
+                        @elseif(in_array($userRole, ['admin', 'admin_spp']))
                             <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
                         @endif
                         <label for="file" class="form-label">File Excel/CSV</label>
