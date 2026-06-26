@@ -1,11 +1,5 @@
 <div class="row g-3">
     <div class="col-12">
-        <div class="alert alert-light border mb-0">
-            Form ini hanya menyimpan data siswa administrasi. Sistem tidak membuat akun login siswa dari input manual maupun import.
-        </div>
-    </div>
-
-    <div class="col-12">
         <h6 class="mb-1">Sekolah</h6>
         <hr class="mt-0">
     </div>
