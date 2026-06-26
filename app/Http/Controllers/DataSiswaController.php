@@ -58,7 +58,15 @@ class DataSiswaController extends Controller
             });
         }
 
-        $siswas = $query->get();
+        $siswas = $query->get()->transform(function (Siswa $siswa) {
+            $completion = $this->calculateCompletionStats($siswa);
+
+            $siswa->setAttribute('completion_filled', $completion['filled']);
+            $siswa->setAttribute('completion_total', $completion['total']);
+            $siswa->setAttribute('completion_percentage', $completion['percentage']);
+
+            return $siswa;
+        });
 
         $statsQuery = Siswa::query();
         if ($selectedMadrasahId) {
@@ -68,7 +76,8 @@ class DataSiswaController extends Controller
         $stats = [
             'total' => (clone $statsQuery)->count(),
             'aktif' => (clone $statsQuery)->where('is_active', true)->count(),
-            'madrasah' => $selectedMadrasahId ? 1 : $madrasahOptions->count(),
+            'kelengkapan' => $siswas->isNotEmpty() ? (int) round($siswas->avg('completion_percentage')) : 0,
+            'kelengkapan_penuh' => $siswas->where('completion_percentage', 100)->count(),
             'kelas' => (clone $statsQuery)->distinct('kelas')->count('kelas'),
             'nisn' => (clone $statsQuery)->whereNotNull('nisn')->count(),
         ];
@@ -345,6 +354,52 @@ class DataSiswaController extends Controller
     {
         return $this->restrictedMadrasahIdFor($user)
             ?? (!empty($validated['madrasah_id']) ? (int) $validated['madrasah_id'] : null);
+    }
+
+    private function calculateCompletionStats(Siswa $siswa): array
+    {
+        $fields = [
+            $siswa->scod ?: $siswa->madrasah?->scod,
+            $siswa->nama_madrasah ?: $siswa->madrasah?->name,
+            $siswa->nis,
+            $siswa->nisn,
+            $siswa->nik,
+            $siswa->no_kk,
+            $siswa->nama_lengkap,
+            $siswa->jenis_kelamin,
+            $siswa->tempat_lahir,
+            $siswa->tanggal_lahir,
+            $siswa->agama,
+            $siswa->kelas,
+            $siswa->jurusan,
+            $siswa->alamat,
+            $siswa->dusun,
+            $siswa->kelurahan,
+            $siswa->kecamatan,
+            $siswa->no_hp,
+            $siswa->email,
+            $siswa->nama_ayah,
+            $siswa->nama_ibu,
+            $siswa->no_hp_orang_tua_wali,
+        ];
+
+        $filled = collect($fields)->filter(fn ($value) => $this->fieldHasValue($value))->count();
+        $total = count($fields);
+
+        return [
+            'filled' => $filled,
+            'total' => $total,
+            'percentage' => $total > 0 ? (int) round(($filled / $total) * 100) : 0,
+        ];
+    }
+
+    private function fieldHasValue($value): bool
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return true;
+        }
+
+        return trim((string) $value) !== '';
     }
 
     private function nullableString($value): ?string

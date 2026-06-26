@@ -18,6 +18,19 @@
     font-size: 1.2rem;
 }
 
+.completion-bar {
+    background-color: #e9ecef;
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.completion-bar-value {
+    border-radius: 999px;
+    height: 100%;
+    transition: width .25s ease;
+}
+
 .student-modal .modal-dialog {
     margin: 0.75rem auto;
     height: calc(100vh - 1.5rem);
@@ -150,10 +163,11 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-info"><i class="bx bx-buildings"></i></div>
+                    <div class="stats-icon bg-info"><i class="bx bx-task"></i></div>
                     <div class="ms-3">
-                        <p class="text-muted mb-1">Madrasah</p>
-                        <h4 class="mb-0">{{ number_format($stats['madrasah']) }}</h4>
+                        <p class="text-muted mb-1">Data Lengkap</p>
+                        <h4 class="mb-0">{{ $stats['kelengkapan'] }}%</h4>
+                        <small class="text-muted">{{ number_format($stats['kelengkapan_penuh']) }} siswa sudah 100%</small>
                     </div>
                 </div>
             </div>
@@ -235,12 +249,18 @@
                         <th>Nama Siswa</th>
                         <th>Kelas / Jurusan</th>
                         <th>Kontak Siswa</th>
-                        <th>Orang Tua</th>
+                        <th>Kelengkapan</th>
                         <th style="min-width: 160px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($siswas as $index => $siswa)
+                        @php
+                            $completionPercentage = (int) $siswa->completion_percentage;
+                            $completionBarClass = $completionPercentage >= 80
+                                ? 'bg-success'
+                                : ($completionPercentage >= 50 ? 'bg-warning' : 'bg-danger');
+                        @endphp
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $siswa->scod ?: ($siswa->madrasah->scod ?? '-') }}</td>
@@ -267,8 +287,13 @@
                                 <small class="text-muted">{{ $siswa->email ?: '-' }}</small>
                             </td>
                             <td>
-                                <div>{{ $siswa->nama_orang_tua_wali ?: ($siswa->nama_ayah ?: ($siswa->nama_ibu ?: '-')) }}</div>
-                                <small class="text-muted">{{ $siswa->no_hp_orang_tua_wali ?: '-' }}</small>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold">{{ $completionPercentage }}%</span>
+                                    <small class="text-muted">{{ $siswa->completion_filled }}/{{ $siswa->completion_total }} kolom</small>
+                                </div>
+                                <div class="completion-bar">
+                                    <div class="completion-bar-value {{ $completionBarClass }}" style="width: {{ $completionPercentage }}%;"></div>
+                                </div>
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-2">
