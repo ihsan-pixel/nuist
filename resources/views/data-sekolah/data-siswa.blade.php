@@ -432,13 +432,13 @@
 
 <div class="card data-siswa-filter mb-4">
     <div class="card-body">
-        <div class="data-siswa-panel-head">
+        {{-- <div class="data-siswa-panel-head">
             <div>
                 <div class="data-siswa-panel-kicker mb-1">Filter Data</div>
                 <h6 class="mb-0">Pencarian dan penyaringan siswa</h6>
             </div>
             <span class="data-siswa-chip">Filter aktif sesuai kebutuhan</span>
-        </div>
+        </div> --}}
         <form method="GET" action="{{ route('data-sekolah.data-siswa.index') }}">
             <div class="row g-3 align-items-end data-siswa-filter-grid">
                 @if(!in_array($userRole, ['admin', 'admin_spp']))
