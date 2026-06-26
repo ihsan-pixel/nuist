@@ -364,7 +364,9 @@ class DataSiswaController extends Controller
 
     private function normalizedRole(?string $role): string
     {
-        return preg_replace('/\s+/', '_', trim(strtolower((string) $role))) ?? '';
+        $normalized = preg_replace('/[^a-z0-9]+/', '_', trim(strtolower((string) $role))) ?? '';
+
+        return trim($normalized, '_');
     }
 
     private function resolveParentGuardianName(array $validated): ?string
