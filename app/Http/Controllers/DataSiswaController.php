@@ -58,7 +58,7 @@ class DataSiswaController extends Controller
             });
         }
 
-        $siswas = $query->paginate(15)->withQueryString();
+        $siswas = $query->get();
 
         $statsQuery = Siswa::query();
         if ($selectedMadrasahId) {

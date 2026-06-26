@@ -3,6 +3,9 @@
 @section('title')Data Siswa @endsection
 
 @section('css')
+<link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
 <style>
 .stats-icon {
     width: 48px;
@@ -13,53 +16,6 @@
     justify-content: center;
     color: #fff;
     font-size: 1.2rem;
-}
-
-.sky-pagination-wrap {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.sky-pagination-wrap nav {
-    width: auto;
-}
-
-.sky-pagination-wrap .pagination {
-    gap: .35rem;
-    justify-content: flex-end;
-    margin-bottom: 0;
-}
-
-.sky-pagination-wrap .page-item .page-link {
-    align-items: center;
-    border: 1px solid #dbe7e1;
-    border-radius: 10px;
-    color: #34524a;
-    display: inline-flex;
-    font-size: 12px;
-    font-weight: 600;
-    height: 34px;
-    justify-content: center;
-    min-width: 34px;
-    padding: .35rem .65rem;
-}
-
-.sky-pagination-wrap .page-item.active .page-link {
-    background: linear-gradient(135deg, #004b4c, #0e8549);
-    border-color: transparent;
-    color: #fff;
-}
-
-.sky-pagination-wrap .page-item.disabled .page-link {
-    background: #f4f8f6;
-    border-color: #e6efea;
-    color: #9aa9a3;
-}
-
-.sky-pagination-wrap .page-link:hover {
-    background: #eef7f2;
-    border-color: #bfd7cb;
-    color: #0e8549;
 }
 
 .student-modal .modal-dialog {
@@ -115,9 +71,6 @@
     @slot('title') Data Siswa @endslot
 @endcomponent
 
-@include('sk-yayasan.partials.ui-styles')
-
-<div class="sky-page">
 <div class="row">
     <div class="col-12">
         @if(session('success'))
@@ -139,10 +92,11 @@
             </div>
         @endif
 
-        <div class="sky-hero-strip mb-4">
+        <div class="card mb-4">
+            <div class="card-body bg-primary bg-gradient text-white rounded">
             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                 <div>
-                    <div class="sky-kicker mb-2">Data Sekolah</div>
+                    <div class="text-uppercase small fw-semibold mb-2">Data Sekolah</div>
                     <h4 class="mb-1">Data Siswa</h4>
                     <p class="mb-0 text-white-50">Kelola data siswa administrasi dengan input manual modal atau import template sekolah.</p>
                 </div>
@@ -160,13 +114,14 @@
                     </div>
                 @endif
             </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="card sky-stat-card h-100">
+        <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-primary"><i class="bx bx-user"></i></div>
@@ -179,7 +134,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card sky-stat-card h-100">
+        <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-success"><i class="bx bx-check-circle"></i></div>
@@ -192,7 +147,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card sky-stat-card h-100">
+        <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-info"><i class="bx bx-buildings"></i></div>
@@ -205,7 +160,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card sky-stat-card h-100">
+        <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-dark"><i class="bx bx-bar-chart"></i></div>
@@ -263,15 +218,14 @@
     <div class="card-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
             <div>
-                <div class="sky-panel-label mb-1">Master Data</div>
+                <div class="text-uppercase text-muted small fw-semibold mb-1">Master Data</div>
                 <h6 class="mb-0">Daftar siswa tersimpan</h6>
             </div>
-            <span class="sky-chip">{{ $siswas->total() }} data</span>
+            <span class="badge bg-light text-dark border">{{ $siswas->count() }} data</span>
         </div>
 
-        @if($siswas->count() > 0)
         <div class="table-responsive">
-            <table class="table align-middle">
+            <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100 align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
@@ -288,7 +242,7 @@
                 <tbody>
                     @forelse($siswas as $index => $siswa)
                         <tr>
-                            <td>{{ $siswas->firstItem() + $index }}</td>
+                            <td>{{ $index + 1 }}</td>
                             <td>{{ $siswa->scod ?: ($siswa->madrasah->scod ?? '-') }}</td>
                             <td>{{ $siswa->nama_madrasah ?: ($siswa->madrasah->name ?? '-') }}</td>
                             <td>
@@ -361,28 +315,15 @@
                             </td>
                         </tr>
                     @empty
+                        <tr>
+                            <td colspan="9" class="text-center p-4">Belum ada data siswa.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @else
-            <div class="sky-empty-state py-5">
-                <i class="bx bx-user-x"></i>
-                <strong>Belum ada data siswa</strong>
-                <small>Tambah manual atau import file template untuk mulai mengisi master data siswa.</small>
-            </div>
-        @endif
     </div>
-
-    @if($siswas->hasPages())
-        <div class="card-footer bg-white">
-            <div class="sky-pagination-wrap">
-                {{ $siswas->links('pagination::bootstrap-5') }}
-            </div>
-        </div>
-    @endif
 </div>
- </div>
 
 @if($userRole !== 'admin_spp')
     <div class="modal fade student-modal" id="createModal" tabindex="-1" aria-hidden="true">
@@ -473,8 +414,33 @@
 @endsection
 
 @section('script')
+<script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/jszip/jszip.min.js') }}"></script>
+<script src="{{ asset('build/libs/pdfmake/build/pdfmake.min.js') }}"></script>
+<script src="{{ asset('build/libs/pdfmake/build/vfs_fonts.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const dataTableElement = $('#datatable-buttons');
+    if (dataTableElement.length) {
+        const table = dataTableElement.DataTable({
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            buttons: ['copy', 'excel', 'pdf', 'print', 'colvis']
+        });
+
+        table.buttons().container()
+            .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    }
+
     const syncSchoolMetadata = (form) => {
         if (!form) {
             return;
