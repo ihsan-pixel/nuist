@@ -738,6 +738,7 @@ Route::middleware(['auth', 'role:super_admin,admin,admin_spp,pengurus'])->prefix
     Route::post('/update-guru/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateGuru'])->name('update-guru');
     Route::get('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'index'])->name('data-siswa.index');
     Route::post('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'store'])->name('data-siswa.store');
+    Route::put('/data-siswa/bulk-update', [App\Http\Controllers\DataSiswaController::class, 'bulkUpdate'])->name('data-siswa.bulk-update');
     Route::put('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'update'])->name('data-siswa.update');
     Route::delete('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'destroy'])->name('data-siswa.destroy');
     Route::post('/data-siswa/import', [App\Http\Controllers\DataSiswaController::class, 'import'])->name('data-siswa.import');

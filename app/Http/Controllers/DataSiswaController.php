@@ -10,7 +10,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
 class DataSiswaController extends Controller
@@ -121,6 +123,69 @@ class DataSiswaController extends Controller
         return back()->with('success', 'Data siswa berhasil diperbarui.');
     }
 
+    public function bulkUpdate(Request $request): RedirectResponse
+    {
+        $user = auth()->user();
+        $this->authorizeStudentDataMutation($user);
+
+        $rows = $request->input('rows', []);
+        if (!is_array($rows) || $rows === []) {
+            return back()->withErrors(['bulk_edit' => 'Tidak ada data siswa yang dikirim untuk update massal.']);
+        }
+
+        $siswaIds = collect(array_keys($rows))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values();
+
+        $siswas = Siswa::query()
+            ->with('madrasah')
+            ->whereIn('id', $siswaIds)
+            ->get()
+            ->keyBy('id');
+
+        if ($siswas->count() !== $siswaIds->count()) {
+            return back()->withErrors(['bulk_edit' => 'Sebagian data siswa tidak ditemukan untuk update massal.']);
+        }
+
+        DB::transaction(function () use ($rows, $siswas, $user) {
+            $rowNumber = 1;
+
+            foreach ($rows as $siswaId => $row) {
+                $siswa = $siswas->get((int) $siswaId);
+                if (!$siswa) {
+                    throw ValidationException::withMessages([
+                        'bulk_edit' => ["Baris {$rowNumber}: data siswa tidak ditemukan."],
+                    ]);
+                }
+
+                $this->authorizeSiswaAccess($siswa, $user);
+
+                try {
+                    $validated = $this->validateSiswaData((array) $row, $user, $siswa);
+                } catch (ValidationException $exception) {
+                    throw ValidationException::withMessages($this->prefixBulkValidationMessages(
+                        $exception->errors(),
+                        $rowNumber
+                    ));
+                }
+
+                $madrasah = $this->resolveMadrasah((int) $validated['madrasah_id'], $user);
+
+                $siswa->update($this->buildSiswaPayload(
+                    $validated,
+                    $madrasah,
+                    (bool) $siswa->is_active,
+                    $siswa
+                ));
+
+                $rowNumber++;
+            }
+        });
+
+        return back()->with('success', 'Perubahan data siswa berhasil disimpan melalui edit massal.');
+    }
+
     public function destroy(Siswa $siswa): RedirectResponse
     {
         $this->authorizeSiswaAccess($siswa, auth()->user());
@@ -172,12 +237,17 @@ class DataSiswaController extends Controller
 
     private function validateSiswa(Request $request, $user, ?Siswa $siswa = null): array
     {
-        $madrasahId = (int) ($request->input('madrasah_id') ?: $user->madrasah_id);
+        return $this->validateSiswaData($request->all(), $user, $siswa);
+    }
+
+    private function validateSiswaData(array $input, $user, ?Siswa $siswa = null): array
+    {
+        $madrasahId = (int) (($input['madrasah_id'] ?? null) ?: $user->madrasah_id);
         $madrasahRule = $this->hasRestrictedMadrasahScope($this->normalizedRole($user->role))
             ? Rule::in([$user->madrasah_id])
             : Rule::exists('madrasahs', 'id');
 
-        return $request->validate([
+        return Validator::make($input, [
             'madrasah_id' => ['required', 'integer', $madrasahRule],
             'scod' => ['nullable', 'string', 'max:50'],
             'asal_sekolah_madrasah' => ['nullable', 'string', 'max:255'],
@@ -214,7 +284,7 @@ class DataSiswaController extends Controller
             'kecamatan' => ['nullable', 'string', 'max:150'],
             'nama_ayah' => ['nullable', 'string', 'max:255'],
             'nama_ibu' => ['nullable', 'string', 'max:255'],
-        ]);
+        ])->validate();
     }
 
     private function buildSiswaPayload(array $validated, Madrasah $madrasah, bool $isActive, ?Siswa $existing = null): array
@@ -400,6 +470,19 @@ class DataSiswaController extends Controller
         }
 
         return trim((string) $value) !== '';
+    }
+
+    private function prefixBulkValidationMessages(array $errors, int $rowNumber): array
+    {
+        $messages = [];
+
+        foreach ($errors as $field => $fieldErrors) {
+            $messages[$field] = collect($fieldErrors)
+                ->map(fn ($message) => "Baris {$rowNumber}: {$message}")
+                ->all();
+        }
+
+        return $messages;
     }
 
     private function nullableString($value): ?string

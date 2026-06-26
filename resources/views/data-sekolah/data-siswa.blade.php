@@ -31,12 +31,63 @@
     transition: width .25s ease;
 }
 
+.bulk-edit-modal .modal-dialog {
+    margin: 1rem auto;
+    max-width: calc(100vw - 2rem);
+}
+
+.bulk-edit-modal .modal-body {
+    overflow: auto;
+    padding: 1rem;
+}
+
+.bulk-edit-table {
+    min-width: 3400px;
+}
+
+.bulk-edit-table th {
+    background: #f8f9fa;
+    font-size: .75rem;
+    position: sticky;
+    text-transform: uppercase;
+    top: 0;
+    white-space: nowrap;
+    z-index: 2;
+}
+
+.bulk-edit-table td {
+    min-width: 140px;
+    padding: .35rem;
+    vertical-align: top;
+}
+
+.bulk-grid-input {
+    font-size: .8125rem;
+    min-width: 120px;
+}
+
+.bulk-grid-textarea {
+    min-height: 68px;
+    min-width: 220px;
+}
+
 #editModal .field-empty-highlight {
     background-color: #fff5f5;
     border-color: #dc3545;
 }
 
 #editModal .field-empty-highlight:focus {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+#bulkEditModal .field-empty-highlight {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+}
+
+#bulkEditModal .field-empty-highlight:focus {
     background-color: #fff5f5;
     border-color: #dc3545;
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
@@ -246,7 +297,20 @@
                 <div class="text-uppercase text-muted small fw-semibold mb-1">Master Data</div>
                 <h6 class="mb-0">Daftar siswa tersimpan</h6>
             </div>
-            <span class="badge bg-light text-dark border">{{ $siswas->count() }} data</span>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge bg-light text-dark border">{{ $siswas->count() }} data</span>
+                @if($userRole !== 'admin_spp')
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#bulkEditModal"
+                        {{ $siswas->isEmpty() ? 'disabled' : '' }}
+                    >
+                        <i class="bx bx-table me-1"></i>Edit Data Keseluruhan
+                    </button>
+                @endif
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -380,6 +444,143 @@
     </div>
 @endif
 
+@if($userRole !== 'admin_spp')
+    <div class="modal fade bulk-edit-modal" id="bulkEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-xl-down">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('data-sekolah.data-siswa.bulk-update') }}" id="bulkEditForm">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="bulk_edit_submit" value="1">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Data Siswa Keseluruhan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info mb-3">
+                            Edit seluruh data siswa dalam format seperti spreadsheet. Kolom yang masih kosong akan ditandai merah sampai diisi.
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle bulk-edit-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        @if(!in_array($userRole, ['admin', 'admin_spp']))
+                                            <th>Madrasah / Sekolah</th>
+                                        @endif
+                                        <th>SCOD</th>
+                                        <th>Asal Sekolah / Madrasah</th>
+                                        <th>NIS</th>
+                                        <th>NISN</th>
+                                        <th>NIK</th>
+                                        <th>NO_KK</th>
+                                        <th>Nama Peserta Didik</th>
+                                        <th>Jenis Kelamin</th>
+                                        <th>Tempat Lahir</th>
+                                        <th>Tanggal Lahir</th>
+                                        <th>Agama</th>
+                                        <th>Kelas</th>
+                                        <th>Jurusan</th>
+                                        <th>Alamat</th>
+                                        <th>Dusun</th>
+                                        <th>Kelurahan</th>
+                                        <th>Kecamatan</th>
+                                        <th>No HP Siswa</th>
+                                        <th>Email Siswa</th>
+                                        <th>Nama Ayah</th>
+                                        <th>Nama Ibu</th>
+                                        <th>No HP Orang Tua / Wali</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($siswas as $index => $siswa)
+                                        <tr class="js-bulk-edit-row">
+                                            <td class="text-center fw-semibold">{{ $index + 1 }}</td>
+                                            @if(!in_array($userRole, ['admin', 'admin_spp']))
+                                                <td>
+                                                    <select
+                                                        name="rows[{{ $siswa->id }}][madrasah_id]"
+                                                        class="form-select form-select-sm bulk-grid-input js-bulk-school-select"
+                                                    >
+                                                        <option value="">Pilih Madrasah</option>
+                                                        @foreach($madrasahOptions as $madrasah)
+                                                            <option
+                                                                value="{{ $madrasah->id }}"
+                                                                data-scod="{{ $madrasah->scod }}"
+                                                                data-name="{{ $madrasah->name }}"
+                                                                {{ (string) old("rows.{$siswa->id}.madrasah_id", $siswa->madrasah_id) === (string) $madrasah->id ? 'selected' : '' }}
+                                                            >
+                                                                {{ $madrasah->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+                                            @endif
+                                            <td>
+                                                @if(in_array($userRole, ['admin', 'admin_spp']))
+                                                    <input type="hidden" name="rows[{{ $siswa->id }}][madrasah_id]" value="{{ old("rows.{$siswa->id}.madrasah_id", $siswa->madrasah_id) }}">
+                                                @endif
+                                                <input
+                                                    type="text"
+                                                    name="rows[{{ $siswa->id }}][scod]"
+                                                    class="form-control form-control-sm bulk-grid-input js-bulk-scod"
+                                                    value="{{ old("rows.{$siswa->id}.scod", $siswa->scod ?: ($siswa->madrasah->scod ?? '')) }}"
+                                                    readonly
+                                                >
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    name="rows[{{ $siswa->id }}][asal_sekolah_madrasah]"
+                                                    class="form-control form-control-sm bulk-grid-input js-bulk-school-name"
+                                                    value="{{ old("rows.{$siswa->id}.asal_sekolah_madrasah", $siswa->nama_madrasah ?: ($siswa->madrasah->name ?? '')) }}"
+                                                    readonly
+                                                >
+                                            </td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][nis]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nis", $siswa->nis) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][nisn]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nisn", $siswa->nisn) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][nik]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nik", $siswa->nik) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][no_kk]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.no_kk", $siswa->no_kk) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][nama_lengkap]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nama_lengkap", $siswa->nama_lengkap) }}"></td>
+                                            <td>
+                                                <select name="rows[{{ $siswa->id }}][jenis_kelamin]" class="form-select form-select-sm bulk-grid-input">
+                                                    <option value="">Pilih</option>
+                                                    <option value="L" {{ old("rows.{$siswa->id}.jenis_kelamin", $siswa->jenis_kelamin) === 'L' ? 'selected' : '' }}>L</option>
+                                                    <option value="P" {{ old("rows.{$siswa->id}.jenis_kelamin", $siswa->jenis_kelamin) === 'P' ? 'selected' : '' }}>P</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][tempat_lahir]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.tempat_lahir", $siswa->tempat_lahir) }}"></td>
+                                            <td><input type="date" name="rows[{{ $siswa->id }}][tanggal_lahir]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.tanggal_lahir", optional($siswa->tanggal_lahir)->format('Y-m-d')) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][agama]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.agama", $siswa->agama) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][kelas]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.kelas", $siswa->kelas) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][jurusan]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.jurusan", $siswa->jurusan) }}"></td>
+                                            <td>
+                                                <textarea name="rows[{{ $siswa->id }}][alamat]" class="form-control form-control-sm bulk-grid-input bulk-grid-textarea">{{ old("rows.{$siswa->id}.alamat", $siswa->alamat) }}</textarea>
+                                            </td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][dusun]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.dusun", $siswa->dusun) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][kelurahan]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.kelurahan", $siswa->kelurahan) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][kecamatan]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.kecamatan", $siswa->kecamatan) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][no_hp]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.no_hp", $siswa->no_hp) }}"></td>
+                                            <td><input type="email" name="rows[{{ $siswa->id }}][email]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.email", $siswa->email) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][nama_ayah]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nama_ayah", $siswa->nama_ayah) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][nama_ibu]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nama_ibu", $siswa->nama_ibu) }}"></td>
+                                            <td><input type="text" name="rows[{{ $siswa->id }}][no_hp_orang_tua_wali]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.no_hp_orang_tua_wali", $siswa->no_hp_orang_tua_wali) }}"></td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Semua Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endif
+
 <div class="modal fade student-modal" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-scrollable">
         <div class="modal-content">
@@ -499,6 +700,39 @@ document.addEventListener('DOMContentLoaded', function () {
         schoolNameField.value = selectedOption?.getAttribute('data-name') ?? '';
     };
 
+    const updateFieldHighlights = (container) => {
+        if (!container) {
+            return;
+        }
+
+        container.querySelectorAll('input, select, textarea').forEach(function (field) {
+            if (['hidden', 'button', 'submit', 'file'].includes(field.type)) {
+                return;
+            }
+
+            const isEmpty = (field.value ?? '').trim() === '';
+            field.classList.toggle('field-empty-highlight', isEmpty);
+        });
+    };
+
+    const bindFieldHighlightListeners = (container) => {
+        if (!container) {
+            return;
+        }
+
+        container.querySelectorAll('input, select, textarea').forEach(function (field) {
+            if (field.dataset.highlightBound === '1' || ['hidden', 'button', 'submit', 'file'].includes(field.type)) {
+                return;
+            }
+
+            const eventName = field.tagName === 'SELECT' ? 'change' : 'input';
+            field.addEventListener(eventName, function () {
+                updateFieldHighlights(container);
+            });
+            field.dataset.highlightBound = '1';
+        });
+    };
+
     document.querySelectorAll('.student-modal form').forEach(function (form) {
         syncSchoolMetadata(form);
 
@@ -510,81 +744,96 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    const editModal = document.getElementById('editModal');
-    if (!editModal) {
-        return;
+    const bulkEditForm = document.getElementById('bulkEditForm');
+    if (bulkEditForm) {
+        bindFieldHighlightListeners(bulkEditForm);
+
+        bulkEditForm.querySelectorAll('.js-bulk-edit-row').forEach(function (row) {
+            const select = row.querySelector('.js-bulk-school-select');
+            const scodField = row.querySelector('.js-bulk-scod');
+            const schoolNameField = row.querySelector('.js-bulk-school-name');
+
+            const syncBulkSchoolMetadata = () => {
+                if (!select || !scodField || !schoolNameField) {
+                    return;
+                }
+
+                const selectedOption = select.options[select.selectedIndex];
+                scodField.value = selectedOption?.getAttribute('data-scod') ?? '';
+                schoolNameField.value = selectedOption?.getAttribute('data-name') ?? '';
+            };
+
+            syncBulkSchoolMetadata();
+
+            if (select && select.dataset.syncBound !== '1') {
+                select.addEventListener('change', function () {
+                    syncBulkSchoolMetadata();
+                    updateFieldHighlights(row);
+                });
+                select.dataset.syncBound = '1';
+            }
+        });
+
+        updateFieldHighlights(bulkEditForm);
     }
-
-    const updateEditFieldHighlights = (form) => {
-        form.querySelectorAll('input, select, textarea').forEach(function (field) {
-            if (field.type === 'hidden') {
-                return;
-            }
-
-            const isEmpty = (field.value ?? '').trim() === '';
-            field.classList.toggle('field-empty-highlight', isEmpty);
-        });
-    };
-
-    const bindEditFieldHighlightListeners = (form) => {
-        form.querySelectorAll('input, select, textarea').forEach(function (field) {
-            if (field.type === 'hidden') {
-                return;
-            }
-
-            const eventName = field.tagName === 'SELECT' ? 'change' : 'input';
-            field.addEventListener(eventName, function () {
-                updateEditFieldHighlights(form);
-            });
-        });
-    };
 
     const editForm = document.getElementById('editForm');
     if (editForm) {
-        bindEditFieldHighlightListeners(editForm);
+        bindFieldHighlightListeners(editForm);
     }
 
-    editModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const form = document.getElementById('editForm');
-        const siswaId = button.getAttribute('data-id');
+    const editModal = document.getElementById('editModal');
+    if (editModal) {
+        editModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const form = document.getElementById('editForm');
+            const siswaId = button.getAttribute('data-id');
 
-        const setValue = (name, attribute) => {
-            const field = form.querySelector(`[name="${name}"]`);
-            if (!field) {
-                return;
-            }
+            const setValue = (name, attribute) => {
+                const field = form.querySelector(`[name="${name}"]`);
+                if (!field) {
+                    return;
+                }
 
-            field.value = button.getAttribute(attribute) ?? '';
-        };
+                field.value = button.getAttribute(attribute) ?? '';
+            };
 
-        form.action = `{{ route('data-sekolah.data-siswa.index') }}/${siswaId}`;
-        setValue('madrasah_id', 'data-madrasah_id');
-        syncSchoolMetadata(form);
-        setValue('scod', 'data-scod');
-        setValue('asal_sekolah_madrasah', 'data-asal_sekolah_madrasah');
-        setValue('nis', 'data-nis');
-        setValue('nisn', 'data-nisn');
-        setValue('nik', 'data-nik');
-        setValue('no_kk', 'data-no_kk');
-        setValue('nama_lengkap', 'data-nama_lengkap');
-        setValue('jenis_kelamin', 'data-jenis_kelamin');
-        setValue('tempat_lahir', 'data-tempat_lahir');
-        setValue('tanggal_lahir', 'data-tanggal_lahir');
-        setValue('agama', 'data-agama');
-        setValue('kelas', 'data-kelas');
-        setValue('jurusan', 'data-jurusan');
-        setValue('alamat', 'data-alamat');
-        setValue('dusun', 'data-dusun');
-        setValue('kelurahan', 'data-kelurahan');
-        setValue('kecamatan', 'data-kecamatan');
-        setValue('no_hp', 'data-no_hp');
-        setValue('email', 'data-email');
-        setValue('nama_ayah', 'data-nama_ayah');
-        setValue('nama_ibu', 'data-nama_ibu');
-        setValue('no_hp_orang_tua_wali', 'data-no_hp_orang_tua_wali');
-        updateEditFieldHighlights(form);
-    });
+            form.action = `{{ route('data-sekolah.data-siswa.index') }}/${siswaId}`;
+            setValue('madrasah_id', 'data-madrasah_id');
+            syncSchoolMetadata(form);
+            setValue('scod', 'data-scod');
+            setValue('asal_sekolah_madrasah', 'data-asal_sekolah_madrasah');
+            setValue('nis', 'data-nis');
+            setValue('nisn', 'data-nisn');
+            setValue('nik', 'data-nik');
+            setValue('no_kk', 'data-no_kk');
+            setValue('nama_lengkap', 'data-nama_lengkap');
+            setValue('jenis_kelamin', 'data-jenis_kelamin');
+            setValue('tempat_lahir', 'data-tempat_lahir');
+            setValue('tanggal_lahir', 'data-tanggal_lahir');
+            setValue('agama', 'data-agama');
+            setValue('kelas', 'data-kelas');
+            setValue('jurusan', 'data-jurusan');
+            setValue('alamat', 'data-alamat');
+            setValue('dusun', 'data-dusun');
+            setValue('kelurahan', 'data-kelurahan');
+            setValue('kecamatan', 'data-kecamatan');
+            setValue('no_hp', 'data-no_hp');
+            setValue('email', 'data-email');
+            setValue('nama_ayah', 'data-nama_ayah');
+            setValue('nama_ibu', 'data-nama_ibu');
+            setValue('no_hp_orang_tua_wali', 'data-no_hp_orang_tua_wali');
+            updateFieldHighlights(form);
+        });
+    }
+
+    const shouldReopenBulkModal = @json((bool) old('bulk_edit_submit'));
+    if (shouldReopenBulkModal) {
+        const bulkEditModal = document.getElementById('bulkEditModal');
+        if (bulkEditModal && window.bootstrap?.Modal) {
+            window.bootstrap.Modal.getOrCreateInstance(bulkEditModal).show();
+        }
+    }
 });
 </script>
 @endsection
