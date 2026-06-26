@@ -395,7 +395,7 @@
                     <div class="ms-3">
                         <p class="text-muted mb-1">Data Lengkap</p>
                         <h4 class="mb-0">{{ $stats['rata_rata_kelengkapan'] }}%</h4>
-                        <small class="text-muted">Rata-rata dari {{ number_format($stats['total']) }} data siswa</small>
+                        {{-- <small class="text-muted">Rata-rata dari {{ number_format($stats['total']) }} data siswa</small> --}}
                     </div>
                 </div>
             </div>
@@ -409,7 +409,7 @@
                     <div class="ms-3">
                         <p class="text-muted mb-1">Sekolah Upload</p>
                         <h4 class="mb-0">{{ number_format($stats['sekolah_upload']) }}</h4>
-                        <small class="text-muted">Sekolah sudah memiliki data siswa</small>
+                        {{-- <small class="text-muted">Sekolah sudah memiliki data siswa</small> --}}
                     </div>
                 </div>
             </div>
