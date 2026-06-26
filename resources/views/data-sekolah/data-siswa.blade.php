@@ -31,6 +31,17 @@
     transition: width .25s ease;
 }
 
+#editModal .field-empty-highlight {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+}
+
+#editModal .field-empty-highlight:focus {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
 .student-modal .modal-dialog {
     margin: 0.75rem auto;
     height: calc(100vh - 1.5rem);
@@ -504,6 +515,35 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    const updateEditFieldHighlights = (form) => {
+        form.querySelectorAll('input, select, textarea').forEach(function (field) {
+            if (field.type === 'hidden') {
+                return;
+            }
+
+            const isEmpty = (field.value ?? '').trim() === '';
+            field.classList.toggle('field-empty-highlight', isEmpty);
+        });
+    };
+
+    const bindEditFieldHighlightListeners = (form) => {
+        form.querySelectorAll('input, select, textarea').forEach(function (field) {
+            if (field.type === 'hidden') {
+                return;
+            }
+
+            const eventName = field.tagName === 'SELECT' ? 'change' : 'input';
+            field.addEventListener(eventName, function () {
+                updateEditFieldHighlights(form);
+            });
+        });
+    };
+
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        bindEditFieldHighlightListeners(editForm);
+    }
+
     editModal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
         const form = document.getElementById('editForm');
@@ -543,6 +583,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setValue('nama_ayah', 'data-nama_ayah');
         setValue('nama_ibu', 'data-nama_ibu');
         setValue('no_hp_orang_tua_wali', 'data-no_hp_orang_tua_wali');
+        updateEditFieldHighlights(form);
     });
 });
 </script>
