@@ -9,7 +9,6 @@ use App\Models\Siswa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -44,11 +43,16 @@ class DataSiswaController extends Controller
         if ($request->filled('q')) {
             $keyword = trim((string) $request->q);
             $query->where(function ($builder) use ($keyword) {
-                $builder->where('nis', 'like', '%' . $keyword . '%')
+                $builder->where('scod', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_madrasah', 'like', '%' . $keyword . '%')
+                    ->orWhere('nis', 'like', '%' . $keyword . '%')
                     ->orWhere('nisn', 'like', '%' . $keyword . '%')
                     ->orWhere('nik', 'like', '%' . $keyword . '%')
                     ->orWhere('nama_lengkap', 'like', '%' . $keyword . '%')
+                    ->orWhere('no_hp', 'like', '%' . $keyword . '%')
                     ->orWhere('email', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_ayah', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_ibu', 'like', '%' . $keyword . '%')
                     ->orWhere('nama_orang_tua_wali', 'like', '%' . $keyword . '%');
             });
         }
@@ -65,6 +69,7 @@ class DataSiswaController extends Controller
             'aktif' => (clone $statsQuery)->where('is_active', true)->count(),
             'madrasah' => $selectedMadrasahId ? 1 : $madrasahOptions->count(),
             'kelas' => (clone $statsQuery)->distinct('kelas')->count('kelas'),
+            'nisn' => (clone $statsQuery)->whereNotNull('nisn')->count(),
         ];
 
         return view('data-sekolah.data-siswa', [
@@ -83,15 +88,9 @@ class DataSiswaController extends Controller
         $validated = $this->validateSiswa($request, $user);
         $madrasah = $this->resolveMadrasah($validated['madrasah_id'], $user);
 
-        Siswa::create($this->buildSiswaPayload(
-            $validated,
-            $madrasah,
-            $request->boolean('is_active', true)
-        ) + [
-            'password' => Hash::make($validated['nis']),
-        ]);
+        Siswa::create($this->buildSiswaPayload($validated, $madrasah, true));
 
-        return back()->with('success', 'Data siswa berhasil ditambahkan. Password default siswa adalah NIS.');
+        return back()->with('success', 'Data siswa berhasil ditambahkan tanpa membuat akun login siswa.');
     }
 
     public function update(Request $request, Siswa $siswa): RedirectResponse
@@ -105,7 +104,7 @@ class DataSiswaController extends Controller
         $siswa->update($this->buildSiswaPayload(
             $validated,
             $madrasah,
-            $request->boolean('is_active'),
+            (bool) $siswa->is_active,
             $siswa
         ));
 
@@ -124,27 +123,20 @@ class DataSiswaController extends Controller
     {
         $user = auth()->user();
         $this->authorizeStudentDataMutation($user);
-        $userRole = $this->normalizedRole($user->role);
-
-        $madrasahRule = $this->hasRestrictedMadrasahScope($userRole)
-            ? Rule::in([$user->madrasah_id])
-            : Rule::exists('madrasahs', 'id');
 
         $validated = $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
-            'madrasah_id' => ['required', 'integer', $madrasahRule],
         ]);
 
-        $madrasah = $this->resolveMadrasah((int) $validated['madrasah_id'], $user);
-        $import = new SiswaImport($madrasah);
+        $import = new SiswaImport($this->restrictedMadrasahIdFor($user));
 
-        DB::transaction(function () use ($request, $import) {
-            Excel::import($import, $request->file('file'));
+        DB::transaction(function () use ($validated, $import) {
+            Excel::import($import, $validated['file']);
         });
 
         return back()->with(
             'success',
-            "Import selesai. {$import->created} data baru ditambahkan, {$import->updated} data diperbarui. Password default akun siswa adalah NIS."
+            "Import selesai. {$import->created} data baru ditambahkan, {$import->updated} data diperbarui. Data siswa hanya disimpan sebagai data administrasi tanpa akun login."
         );
     }
 
@@ -157,17 +149,22 @@ class DataSiswaController extends Controller
 
     private function validateSiswa(Request $request, $user, ?Siswa $siswa = null): array
     {
+        $madrasahId = (int) ($request->input('madrasah_id') ?: $user->madrasah_id);
         $madrasahRule = $this->hasRestrictedMadrasahScope($this->normalizedRole($user->role))
             ? Rule::in([$user->madrasah_id])
             : Rule::exists('madrasahs', 'id');
 
         return $request->validate([
             'madrasah_id' => ['required', 'integer', $madrasahRule],
+            'scod' => ['nullable', 'string', 'max:50'],
+            'asal_sekolah_madrasah' => ['nullable', 'string', 'max:255'],
             'nis' => [
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('siswa', 'nis')->ignore($siswa?->id),
+                Rule::unique('siswa', 'nis')
+                    ->where(fn ($query) => $query->where('madrasah_id', $madrasahId))
+                    ->ignore($siswa?->id),
             ],
             'nisn' => [
                 'nullable',
@@ -183,51 +180,25 @@ class DataSiswaController extends Controller
             'tanggal_lahir' => ['nullable', 'date'],
             'agama' => ['nullable', 'string', 'max:50'],
             'nama_orang_tua_wali' => ['nullable', 'string', 'max:255'],
-            'email' => [
-                'nullable',
-                'email',
-                'max:255',
-                Rule::unique('siswa', 'email')->ignore($siswa?->id),
-            ],
-            'email_orang_tua_wali' => ['nullable', 'email', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
             'no_hp' => ['nullable', 'string', 'max:25'],
             'no_hp_orang_tua_wali' => ['nullable', 'string', 'max:25'],
             'kelas' => ['required', 'string', 'max:50'],
             'jurusan' => ['nullable', 'string', 'max:100'],
-            'tahun_masuk' => ['nullable', 'digits:4'],
-            'jenis_tinggal' => ['nullable', 'string', 'max:100'],
-            'alat_transportasi' => ['nullable', 'string', 'max:100'],
             'alamat' => ['nullable', 'string'],
             'dusun' => ['nullable', 'string', 'max:150'],
             'kelurahan' => ['nullable', 'string', 'max:150'],
             'kecamatan' => ['nullable', 'string', 'max:150'],
-            'kode_pos' => ['nullable', 'string', 'max:20'],
             'nama_ayah' => ['nullable', 'string', 'max:255'],
-            'pendidikan_ayah' => ['nullable', 'string', 'max:100'],
-            'pekerjaan_ayah' => ['nullable', 'string', 'max:100'],
-            'penghasilan_ayah' => ['nullable', 'string', 'max:100'],
             'nama_ibu' => ['nullable', 'string', 'max:255'],
-            'pendidikan_ibu' => ['nullable', 'string', 'max:100'],
-            'pekerjaan_ibu' => ['nullable', 'string', 'max:100'],
-            'penghasilan_ibu' => ['nullable', 'string', 'max:100'],
-            'nama_wali' => ['nullable', 'string', 'max:255'],
-            'pendidikan_wali' => ['nullable', 'string', 'max:100'],
-            'pekerjaan_wali' => ['nullable', 'string', 'max:100'],
-            'penghasilan_wali' => ['nullable', 'string', 'max:100'],
         ]);
     }
 
     private function buildSiswaPayload(array $validated, Madrasah $madrasah, bool $isActive, ?Siswa $existing = null): array
     {
-        $email = $this->resolveStudentEmail(
-            $validated['email'] ?? null,
-            $validated['nis'],
-            $validated['nisn'] ?? null,
-            $madrasah->id
-        );
-
         return [
             'madrasah_id' => $madrasah->id,
+            'scod' => $this->nullableString($madrasah->scod ?: ($validated['scod'] ?? null)),
             'nis' => $validated['nis'],
             'nisn' => $this->nullableString($validated['nisn'] ?? null),
             'nik' => $this->nullableString($validated['nik'] ?? null),
@@ -238,33 +209,36 @@ class DataSiswaController extends Controller
             'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
             'agama' => $this->nullableString($validated['agama'] ?? null),
             'nama_orang_tua_wali' => $this->resolveParentGuardianName($validated),
-            'email' => $email,
-            'email_orang_tua_wali' => $this->nullableString($validated['email_orang_tua_wali'] ?? null),
+            'email' => $this->nullableString($validated['email'] ?? null),
+            'email_orang_tua_wali' => null,
             'no_hp' => $this->nullableString($validated['no_hp'] ?? null),
             'no_hp_orang_tua_wali' => $this->nullableString($validated['no_hp_orang_tua_wali'] ?? null),
             'kelas' => $validated['kelas'],
             'jurusan' => $this->nullableString($validated['jurusan'] ?? null),
-            'tahun_masuk' => $this->nullableString($validated['tahun_masuk'] ?? null),
-            'jenis_tinggal' => $this->nullableString($validated['jenis_tinggal'] ?? null),
-            'alat_transportasi' => $this->nullableString($validated['alat_transportasi'] ?? null),
-            'nama_madrasah' => $madrasah->name,
+            'tahun_masuk' => null,
+            'jenis_tinggal' => null,
+            'alat_transportasi' => null,
+            'nama_madrasah' => $this->nullableString($validated['asal_sekolah_madrasah'] ?? null) ?: $madrasah->name,
             'alamat' => $this->resolveAddress($validated, $existing?->alamat),
             'dusun' => $this->nullableString($validated['dusun'] ?? null),
             'kelurahan' => $this->nullableString($validated['kelurahan'] ?? null),
             'kecamatan' => $this->nullableString($validated['kecamatan'] ?? null),
-            'kode_pos' => $this->nullableString($validated['kode_pos'] ?? null),
+            'kode_pos' => null,
             'nama_ayah' => $this->nullableString($validated['nama_ayah'] ?? null),
-            'pendidikan_ayah' => $this->nullableString($validated['pendidikan_ayah'] ?? null),
-            'pekerjaan_ayah' => $this->nullableString($validated['pekerjaan_ayah'] ?? null),
-            'penghasilan_ayah' => $this->nullableString($validated['penghasilan_ayah'] ?? null),
+            'pendidikan_ayah' => null,
+            'pekerjaan_ayah' => null,
+            'penghasilan_ayah' => null,
             'nama_ibu' => $this->nullableString($validated['nama_ibu'] ?? null),
-            'pendidikan_ibu' => $this->nullableString($validated['pendidikan_ibu'] ?? null),
-            'pekerjaan_ibu' => $this->nullableString($validated['pekerjaan_ibu'] ?? null),
-            'penghasilan_ibu' => $this->nullableString($validated['penghasilan_ibu'] ?? null),
-            'nama_wali' => $this->nullableString($validated['nama_wali'] ?? null),
-            'pendidikan_wali' => $this->nullableString($validated['pendidikan_wali'] ?? null),
-            'pekerjaan_wali' => $this->nullableString($validated['pekerjaan_wali'] ?? null),
-            'penghasilan_wali' => $this->nullableString($validated['penghasilan_wali'] ?? null),
+            'pendidikan_ibu' => null,
+            'pekerjaan_ibu' => null,
+            'penghasilan_ibu' => null,
+            'nama_wali' => null,
+            'pendidikan_wali' => null,
+            'pekerjaan_wali' => null,
+            'penghasilan_wali' => null,
+            'password' => null,
+            'email_verified_at' => null,
+            'last_login_at' => null,
             'is_active' => $isActive,
         ];
     }
@@ -302,27 +276,10 @@ class DataSiswaController extends Controller
         return preg_replace('/\s+/', '_', trim(strtolower((string) $role))) ?? '';
     }
 
-    private function resolveStudentEmail(?string $email, string $nis, ?string $nisn, int $madrasahId): string
-    {
-        $normalized = $this->nullableString($email);
-        if ($normalized) {
-            return strtolower($normalized);
-        }
-
-        $identifier = $this->nullableString($nisn) ?: $nis;
-
-        return sprintf(
-            'siswa.%s.%s@nuist.local',
-            $madrasahId,
-            preg_replace('/[^a-zA-Z0-9]+/', '', strtolower($identifier))
-        );
-    }
-
     private function resolveParentGuardianName(array $validated): ?string
     {
         foreach ([
             $validated['nama_orang_tua_wali'] ?? null,
-            $validated['nama_wali'] ?? null,
             $validated['nama_ayah'] ?? null,
             $validated['nama_ibu'] ?? null,
         ] as $candidate) {
@@ -361,6 +318,13 @@ class DataSiswaController extends Controller
         $normalized = strtoupper(trim((string) $gender));
 
         return in_array($normalized, ['L', 'P'], true) ? $normalized : null;
+    }
+
+    private function restrictedMadrasahIdFor($user): ?int
+    {
+        return $this->hasRestrictedMadrasahScope($this->normalizedRole($user->role))
+            ? (int) $user->madrasah_id
+            : null;
     }
 
     private function nullableString($value): ?string

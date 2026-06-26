@@ -16,6 +16,7 @@ class Siswa extends Authenticatable
 
     protected $fillable = [
         'madrasah_id',
+        'scod',
         'nis',
         'nisn',
         'nik',
@@ -96,6 +97,11 @@ class Siswa extends Authenticatable
         $this->attributes['nis'] = trim((string) $value);
     }
 
+    public function setScodAttribute($value): void
+    {
+        $this->attributes['scod'] = $this->normalizeNullableString($value);
+    }
+
     public function setNisnAttribute($value): void
     {
         $this->attributes['nisn'] = $this->normalizeNullableString($value);
@@ -134,7 +140,8 @@ class Siswa extends Authenticatable
 
     public function setEmailAttribute($value): void
     {
-        $this->attributes['email'] = Str::lower(trim((string) $value));
+        $normalized = $this->normalizeNullableString($value);
+        $this->attributes['email'] = $normalized ? Str::lower($normalized) : null;
     }
 
     public function setEmailOrangTuaWaliAttribute($value): void
@@ -181,12 +188,12 @@ class Siswa extends Authenticatable
 
     public function setNamaMadrasahAttribute($value): void
     {
-        $this->attributes['nama_madrasah'] = trim((string) $value);
+        $this->attributes['nama_madrasah'] = $this->normalizeNullableString($value);
     }
 
     public function setAlamatAttribute($value): void
     {
-        $this->attributes['alamat'] = trim((string) $value);
+        $this->attributes['alamat'] = $this->normalizeNullableString($value);
     }
 
     public function setDusunAttribute($value): void

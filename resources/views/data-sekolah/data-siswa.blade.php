@@ -34,20 +34,6 @@
     vertical-align: middle;
 }
 
-.badge-soft-success {
-    background: rgba(14, 133, 73, 0.12);
-    color: #0e8549;
-}
-
-.badge-soft-secondary {
-    background: rgba(100, 116, 139, 0.14);
-    color: #475569;
-}
-
-.modal .form-label {
-    font-weight: 600;
-}
-
 .student-modal .modal-dialog {
     margin: 0.75rem auto;
     height: calc(100vh - 1.5rem);
@@ -127,6 +113,7 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                     <div>
                         <h4 class="text-white mb-2"><i class="bx bx-id-card me-2"></i>Data Siswa</h4>
+                        <p class="mb-0 text-white-50">Kelola data siswa administrasi dengan input manual modal atau import template sekolah.</p>
                     </div>
                     @if($userRole !== 'admin_spp')
                         <div class="d-flex flex-wrap gap-2">
@@ -167,7 +154,7 @@
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-success"><i class="bx bx-check-circle"></i></div>
                     <div class="ms-3">
-                        <p class="text-muted mb-1">Akun Aktif</p>
+                        <p class="text-muted mb-1">Siswa Aktif</p>
                         <h4 class="mb-0">{{ number_format($stats['aktif']) }}</h4>
                     </div>
                 </div>
@@ -191,10 +178,10 @@
         <div class="card stats-card h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-dark"><i class="bx bx-grid-alt"></i></div>
+                    <div class="stats-icon bg-dark"><i class="bx bx-bar-chart"></i></div>
                     <div class="ms-3">
-                        <p class="text-muted mb-1">Jumlah Kelas</p>
-                        <h4 class="mb-0">{{ number_format($stats['kelas']) }}</h4>
+                        <p class="text-muted mb-1">Memiliki NISN</p>
+                        <h4 class="mb-0">{{ number_format($stats['nisn']) }}</h4>
                     </div>
                 </div>
             </div>
@@ -207,29 +194,29 @@
         <form method="GET" action="{{ route('data-sekolah.data-siswa.index') }}">
             <div class="row g-3 align-items-end">
                 @if(!in_array($userRole, ['admin', 'admin_spp']))
-                <div class="col-md-3">
-                    <label for="madrasah_id" class="form-label">Madrasah</label>
-                    <select name="madrasah_id" id="madrasah_id" class="form-select">
-                        <option value="">Semua Madrasah</option>
-                        @foreach($madrasahOptions as $madrasah)
-                            <option value="{{ $madrasah->id }}" {{ (string) request('madrasah_id') === (string) $madrasah->id ? 'selected' : '' }}>
-                                {{ $madrasah->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                    <div class="col-md-3">
+                        <label for="madrasah_id" class="form-label">Madrasah</label>
+                        <select name="madrasah_id" id="madrasah_id" class="form-select">
+                            <option value="">Semua Madrasah</option>
+                            @foreach($madrasahOptions as $madrasah)
+                                <option value="{{ $madrasah->id }}" {{ (string) request('madrasah_id') === (string) $madrasah->id ? 'selected' : '' }}>
+                                    {{ $madrasah->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 @endif
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="kelas" class="form-label">Kelas</label>
                     <input type="text" name="kelas" id="kelas" class="form-control" value="{{ request('kelas') }}" placeholder="Contoh: X IPA 1">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="jurusan" class="form-label">Jurusan</label>
                     <input type="text" name="jurusan" id="jurusan" class="form-control" value="{{ request('jurusan') }}" placeholder="Contoh: IPA">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label for="q" class="form-label">Pencarian</label>
-                    <input type="text" name="q" id="q" class="form-control" value="{{ request('q') }}" placeholder="Cari NIS, NISN, NIK, nama, email, wali">
+                    <input type="text" name="q" id="q" class="form-control" value="{{ request('q') }}" placeholder="Cari SCOD, sekolah, NIS, NISN, NIK, nama">
                 </div>
                 <div class="col-md-2">
                     <div class="d-grid gap-2">
@@ -244,32 +231,31 @@
 
 <div class="card">
     <div class="card-body">
-        @if($userRole !== 'admin_spp')
-            <div class="alert alert-info">
-                Password default akun siswa saat tambah/import adalah <strong>NIS</strong>. Jika email siswa kosong pada file template, sistem akan membuat email internal otomatis.
-            </div>
-        @endif
+        <div class="alert alert-info">
+            Halaman ini tidak lagi membuat akun login siswa. Kolom email hanya disimpan sebagai data kontak, bukan kredensial autentikasi.
+        </div>
 
         <div class="table-responsive">
             <table class="table table-bordered align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
+                        <th>SCOD</th>
+                        <th>Asal Sekolah/Madrasah</th>
                         <th>NIS / NISN</th>
                         <th>Nama Siswa</th>
-                        <th>Kelas</th>
-                        <th>Jurusan</th>
-                        <th>Madrasah</th>
-                        <th>Email Siswa</th>
-                        <th>Orang Tua/Wali</th>
-                        <th>Status</th>
-                        <th style="min-width: 180px;">Aksi</th>
+                        <th>Kelas / Jurusan</th>
+                        <th>Kontak Siswa</th>
+                        <th>Orang Tua</th>
+                        <th style="min-width: 160px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($siswas as $index => $siswa)
                         <tr>
                             <td>{{ $siswas->firstItem() + $index }}</td>
+                            <td>{{ $siswa->scod ?: ($siswa->madrasah->scod ?? '-') }}</td>
+                            <td>{{ $siswa->nama_madrasah ?: ($siswa->madrasah->name ?? '-') }}</td>
                             <td>
                                 <div class="fw-semibold">{{ $siswa->nis }}</div>
                                 <small class="text-muted">{{ $siswa->nisn ?: '-' }}</small>
@@ -279,25 +265,21 @@
                                 <small class="text-muted">
                                     {{ $siswa->jenis_kelamin ?: '-' }}
                                     @if($siswa->tempat_lahir || $siswa->tanggal_lahir)
-                                        • {{ $siswa->tempat_lahir ?: '-' }}{{ $siswa->tanggal_lahir ? ', ' . $siswa->tanggal_lahir->format('d-m-Y') : '' }}
+                                        | {{ $siswa->tempat_lahir ?: '-' }}{{ $siswa->tanggal_lahir ? ', ' . $siswa->tanggal_lahir->format('d-m-Y') : '' }}
                                     @endif
                                 </small>
                             </td>
-                            <td>{{ $siswa->kelas }}</td>
-                            <td>{{ $siswa->jurusan }}</td>
-                            <td>{{ $siswa->nama_madrasah }}</td>
                             <td>
-                                <div>{{ $siswa->email }}</div>
-                                <small class="text-muted">{{ $siswa->email_orang_tua_wali }}</small>
+                                <div>{{ $siswa->kelas }}</div>
+                                <small class="text-muted">{{ $siswa->jurusan ?: '-' }}</small>
                             </td>
                             <td>
-                                <div>{{ $siswa->nama_orang_tua_wali }}</div>
-                                <small class="text-muted">{{ $siswa->no_hp_orang_tua_wali }}</small>
+                                <div>{{ $siswa->no_hp ?: '-' }}</div>
+                                <small class="text-muted">{{ $siswa->email ?: '-' }}</small>
                             </td>
                             <td>
-                                <span class="badge {{ $siswa->is_active ? 'badge-soft-success' : 'badge-soft-secondary' }}">
-                                    {{ $siswa->is_active ? 'Aktif' : 'Nonaktif' }}
-                                </span>
+                                <div>{{ $siswa->nama_orang_tua_wali ?: ($siswa->nama_ayah ?: ($siswa->nama_ibu ?: '-')) }}</div>
+                                <small class="text-muted">{{ $siswa->no_hp_orang_tua_wali ?: '-' }}</small>
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-2">
@@ -308,6 +290,8 @@
                                         data-bs-target="#editModal"
                                         data-id="{{ $siswa->id }}"
                                         data-madrasah_id="{{ $siswa->madrasah_id }}"
+                                        data-scod="{{ $siswa->scod ?: ($siswa->madrasah->scod ?? '') }}"
+                                        data-asal_sekolah_madrasah="{{ $siswa->nama_madrasah ?: ($siswa->madrasah->name ?? '') }}"
                                         data-nis="{{ $siswa->nis }}"
                                         data-nisn="{{ $siswa->nisn }}"
                                         data-nik="{{ $siswa->nik }}"
@@ -317,34 +301,17 @@
                                         data-tempat_lahir="{{ $siswa->tempat_lahir }}"
                                         data-tanggal_lahir="{{ optional($siswa->tanggal_lahir)->format('Y-m-d') }}"
                                         data-agama="{{ $siswa->agama }}"
-                                        data-nama_orang_tua_wali="{{ $siswa->nama_orang_tua_wali }}"
-                                        data-email="{{ $siswa->email }}"
-                                        data-email_orang_tua_wali="{{ $siswa->email_orang_tua_wali }}"
-                                        data-no_hp="{{ $siswa->no_hp }}"
-                                        data-no_hp_orang_tua_wali="{{ $siswa->no_hp_orang_tua_wali }}"
                                         data-kelas="{{ $siswa->kelas }}"
                                         data-jurusan="{{ $siswa->jurusan }}"
-                                        data-tahun_masuk="{{ $siswa->tahun_masuk }}"
-                                        data-jenis_tinggal="{{ $siswa->jenis_tinggal }}"
-                                        data-alat_transportasi="{{ $siswa->alat_transportasi }}"
                                         data-alamat="{{ $siswa->alamat }}"
                                         data-dusun="{{ $siswa->dusun }}"
                                         data-kelurahan="{{ $siswa->kelurahan }}"
                                         data-kecamatan="{{ $siswa->kecamatan }}"
-                                        data-kode_pos="{{ $siswa->kode_pos }}"
+                                        data-no_hp="{{ $siswa->no_hp }}"
+                                        data-email="{{ $siswa->email }}"
                                         data-nama_ayah="{{ $siswa->nama_ayah }}"
-                                        data-pendidikan_ayah="{{ $siswa->pendidikan_ayah }}"
-                                        data-pekerjaan_ayah="{{ $siswa->pekerjaan_ayah }}"
-                                        data-penghasilan_ayah="{{ $siswa->penghasilan_ayah }}"
                                         data-nama_ibu="{{ $siswa->nama_ibu }}"
-                                        data-pendidikan_ibu="{{ $siswa->pendidikan_ibu }}"
-                                        data-pekerjaan_ibu="{{ $siswa->pekerjaan_ibu }}"
-                                        data-penghasilan_ibu="{{ $siswa->penghasilan_ibu }}"
-                                        data-nama_wali="{{ $siswa->nama_wali }}"
-                                        data-pendidikan_wali="{{ $siswa->pendidikan_wali }}"
-                                        data-pekerjaan_wali="{{ $siswa->pekerjaan_wali }}"
-                                        data-penghasilan_wali="{{ $siswa->penghasilan_wali }}"
-                                        data-is_active="{{ $siswa->is_active ? 1 : 0 }}"
+                                        data-no_hp_orang_tua_wali="{{ $siswa->no_hp_orang_tua_wali }}"
                                     >
                                         <i class="bx bx-edit"></i>
                                     </button>
@@ -360,7 +327,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center text-muted py-4">Belum ada data siswa.</td>
+                            <td colspan="9" class="text-center text-muted py-4">Belum ada data siswa.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -430,27 +397,8 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning mb-3">
-                            Gunakan template agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS, NISN, atau email siswa sudah ada, data akan diperbarui.
+                            Gunakan template resmi. Kolom <strong>SCOD</strong>, <strong>ASAL SEKOLAH/MADRASAH</strong>, <strong>NIS</strong>, <strong>NAMA_PESERTA_DIDIK</strong>, dan <strong>KELAS</strong> wajib terisi.
                         </div>
-                        @if(!in_array($userRole, ['admin', 'admin_spp']))
-                            <div class="mb-3">
-                                <label for="import_madrasah_id" class="form-label">Madrasah/Sekolah</label>
-                                <select class="form-select" id="import_madrasah_id" name="madrasah_id" required>
-                                    <option value="">Pilih Madrasah</option>
-                                    @foreach($madrasahOptions as $madrasah)
-                                        <option value="{{ $madrasah->id }}" {{ (string) old('madrasah_id', $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : '' }}>
-                                            {{ $madrasah->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        @else
-                            <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
-                            <div class="mb-3">
-                                <label class="form-label">Madrasah/Sekolah</label>
-                                <input type="text" class="form-control" value="{{ optional($madrasahOptions->first())->name }}" readonly>
-                            </div>
-                        @endif
                         <label for="file" class="form-label">File Excel/CSV</label>
                         <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
                     </div>
@@ -468,6 +416,35 @@
 @section('script')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const syncSchoolMetadata = (form) => {
+        if (!form) {
+            return;
+        }
+
+        const select = form.querySelector('.js-student-school-select');
+        const scodField = form.querySelector('.js-student-scod');
+        const schoolNameField = form.querySelector('.js-student-school-name');
+
+        if (!select || !scodField || !schoolNameField) {
+            return;
+        }
+
+        const selectedOption = select.options[select.selectedIndex];
+        scodField.value = selectedOption?.getAttribute('data-scod') ?? '';
+        schoolNameField.value = selectedOption?.getAttribute('data-name') ?? '';
+    };
+
+    document.querySelectorAll('.student-modal form').forEach(function (form) {
+        syncSchoolMetadata(form);
+
+        const select = form.querySelector('.js-student-school-select');
+        if (select) {
+            select.addEventListener('change', function () {
+                syncSchoolMetadata(form);
+            });
+        }
+    });
+
     const editModal = document.getElementById('editModal');
     if (!editModal) {
         return;
@@ -477,6 +454,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const button = event.relatedTarget;
         const form = document.getElementById('editForm');
         const siswaId = button.getAttribute('data-id');
+
         const setValue = (name, attribute) => {
             const field = form.querySelector(`[name="${name}"]`);
             if (!field) {
@@ -488,6 +466,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         form.action = `{{ route('data-sekolah.data-siswa.index') }}/${siswaId}`;
         setValue('madrasah_id', 'data-madrasah_id');
+        syncSchoolMetadata(form);
+        setValue('scod', 'data-scod');
+        setValue('asal_sekolah_madrasah', 'data-asal_sekolah_madrasah');
         setValue('nis', 'data-nis');
         setValue('nisn', 'data-nisn');
         setValue('nik', 'data-nik');
@@ -497,34 +478,17 @@ document.addEventListener('DOMContentLoaded', function () {
         setValue('tempat_lahir', 'data-tempat_lahir');
         setValue('tanggal_lahir', 'data-tanggal_lahir');
         setValue('agama', 'data-agama');
-        setValue('nama_orang_tua_wali', 'data-nama_orang_tua_wali');
-        setValue('email', 'data-email');
-        setValue('email_orang_tua_wali', 'data-email_orang_tua_wali');
-        setValue('no_hp', 'data-no_hp');
-        setValue('no_hp_orang_tua_wali', 'data-no_hp_orang_tua_wali');
         setValue('kelas', 'data-kelas');
         setValue('jurusan', 'data-jurusan');
-        setValue('tahun_masuk', 'data-tahun_masuk');
-        setValue('jenis_tinggal', 'data-jenis_tinggal');
-        setValue('alat_transportasi', 'data-alat_transportasi');
         setValue('alamat', 'data-alamat');
         setValue('dusun', 'data-dusun');
         setValue('kelurahan', 'data-kelurahan');
         setValue('kecamatan', 'data-kecamatan');
-        setValue('kode_pos', 'data-kode_pos');
+        setValue('no_hp', 'data-no_hp');
+        setValue('email', 'data-email');
         setValue('nama_ayah', 'data-nama_ayah');
-        setValue('pendidikan_ayah', 'data-pendidikan_ayah');
-        setValue('pekerjaan_ayah', 'data-pekerjaan_ayah');
-        setValue('penghasilan_ayah', 'data-penghasilan_ayah');
         setValue('nama_ibu', 'data-nama_ibu');
-        setValue('pendidikan_ibu', 'data-pendidikan_ibu');
-        setValue('pekerjaan_ibu', 'data-pekerjaan_ibu');
-        setValue('penghasilan_ibu', 'data-penghasilan_ibu');
-        setValue('nama_wali', 'data-nama_wali');
-        setValue('pendidikan_wali', 'data-pendidikan_wali');
-        setValue('pekerjaan_wali', 'data-pekerjaan_wali');
-        setValue('penghasilan_wali', 'data-penghasilan_wali');
-        form.querySelector('[name="is_active"]').checked = button.getAttribute('data-is_active') === '1';
+        setValue('no_hp_orang_tua_wali', 'data-no_hp_orang_tua_wali');
     });
 });
 </script>

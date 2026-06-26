@@ -20,9 +20,10 @@ class SiswaMobileAuthService
                     ->orWhere('nisn', $identifier);
             })
             ->where('is_active', true)
+            ->whereNotNull('password')
             ->first();
 
-        if (!$siswa || !Hash::check($password, $siswa->password)) {
+        if (!$siswa || blank($siswa->password) || !Hash::check($password, $siswa->password)) {
             return null;
         }
 
