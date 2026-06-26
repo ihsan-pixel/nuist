@@ -29,7 +29,7 @@ class DataSiswaController extends Controller
             ? $user->madrasah_id
             : $request->integer('madrasah_id');
 
-        $query = Siswa::query()->with('madrasah')->latest();
+        $query = Siswa::query()->with('madrasah');
 
         if ($selectedMadrasahId) {
             $query->where('madrasah_id', $selectedMadrasahId);
@@ -58,6 +58,16 @@ class DataSiswaController extends Controller
                     ->orWhere('nama_ibu', 'like', '%' . $keyword . '%')
                     ->orWhere('nama_orang_tua_wali', 'like', '%' . $keyword . '%');
             });
+        }
+
+        if ($userRole === 'super_admin') {
+            $query->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+                ->orderBy('scod')
+                ->orderByRaw("CASE WHEN nama_madrasah IS NULL OR nama_madrasah = '' THEN 1 ELSE 0 END")
+                ->orderBy('nama_madrasah')
+                ->orderBy('nama_lengkap');
+        } else {
+            $query->latest();
         }
 
         $siswas = $query->get()->transform(function (Siswa $siswa) {
