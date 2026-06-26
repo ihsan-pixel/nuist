@@ -431,7 +431,7 @@
 </div>
 
 <div class="card data-siswa-filter mb-4">
-    <div class="card-body">
+    {{-- <div class="card-body"> --}}
         {{-- <div class="data-siswa-panel-head">
             <div>
                 <div class="data-siswa-panel-kicker mb-1">Filter Data</div>
@@ -474,7 +474,7 @@
                 </div>
             </div>
         </form>
-    </div>
+    {{-- </div> --}}
 </div>
 
 <div class="card">
