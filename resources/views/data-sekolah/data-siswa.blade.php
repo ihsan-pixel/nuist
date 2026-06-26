@@ -240,7 +240,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($siswas as $index => $siswa)
+                    @foreach($siswas as $index => $siswa)
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $siswa->scod ?: ($siswa->madrasah->scod ?? '-') }}</td>
@@ -314,11 +314,7 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="text-center p-4">Belum ada data siswa.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -434,7 +430,10 @@ document.addEventListener('DOMContentLoaded', function () {
             responsive: true,
             lengthChange: true,
             autoWidth: false,
-            buttons: ['copy', 'excel', 'pdf', 'print', 'colvis']
+            buttons: ['copy', 'excel', 'pdf', 'print', 'colvis'],
+            language: {
+                emptyTable: 'Belum ada data siswa.'
+            }
         });
 
         table.buttons().container()
