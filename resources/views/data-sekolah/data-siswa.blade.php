@@ -231,9 +231,9 @@
 
 <div class="card">
     <div class="card-body">
-        <div class="alert alert-info">
+        {{-- <div class="alert alert-info">
             Halaman ini tidak lagi membuat akun login siswa. Kolom email hanya disimpan sebagai data kontak, bukan kredensial autentikasi.
-        </div>
+        </div> --}}
 
         <div class="table-responsive">
             <table class="table table-bordered align-middle">
