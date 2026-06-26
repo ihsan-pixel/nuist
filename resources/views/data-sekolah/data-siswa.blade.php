@@ -457,9 +457,6 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-info mb-3">
-                            Edit seluruh data siswa dalam format seperti spreadsheet. Kolom yang masih kosong akan ditandai merah sampai diisi.
-                        </div>
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle bulk-edit-table">
                                 <thead>
@@ -468,8 +465,6 @@
                                         @if(!in_array($userRole, ['admin', 'admin_spp']))
                                             <th>Madrasah / Sekolah</th>
                                         @endif
-                                        <th>SCOD</th>
-                                        <th>Asal Sekolah / Madrasah</th>
                                         <th>NIS</th>
                                         <th>NISN</th>
                                         <th>NIK</th>
@@ -521,23 +516,19 @@
                                                     <input type="hidden" name="rows[{{ $siswa->id }}][madrasah_id]" value="{{ old("rows.{$siswa->id}.madrasah_id", $siswa->madrasah_id) }}">
                                                 @endif
                                                 <input
-                                                    type="text"
+                                                    type="hidden"
                                                     name="rows[{{ $siswa->id }}][scod]"
-                                                    class="form-control form-control-sm bulk-grid-input js-bulk-scod"
+                                                    class="js-bulk-scod"
                                                     value="{{ old("rows.{$siswa->id}.scod", $siswa->scod ?: ($siswa->madrasah->scod ?? '')) }}"
-                                                    readonly
                                                 >
-                                            </td>
-                                            <td>
                                                 <input
-                                                    type="text"
+                                                    type="hidden"
                                                     name="rows[{{ $siswa->id }}][asal_sekolah_madrasah]"
-                                                    class="form-control form-control-sm bulk-grid-input js-bulk-school-name"
+                                                    class="js-bulk-school-name"
                                                     value="{{ old("rows.{$siswa->id}.asal_sekolah_madrasah", $siswa->nama_madrasah ?: ($siswa->madrasah->name ?? '')) }}"
-                                                    readonly
                                                 >
+                                                <input type="text" name="rows[{{ $siswa->id }}][nis]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nis", $siswa->nis) }}">
                                             </td>
-                                            <td><input type="text" name="rows[{{ $siswa->id }}][nis]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nis", $siswa->nis) }}"></td>
                                             <td><input type="text" name="rows[{{ $siswa->id }}][nisn]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nisn", $siswa->nisn) }}"></td>
                                             <td><input type="text" name="rows[{{ $siswa->id }}][nik]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.nik", $siswa->nik) }}"></td>
                                             <td><input type="text" name="rows[{{ $siswa->id }}][no_kk]" class="form-control form-control-sm bulk-grid-input" value="{{ old("rows.{$siswa->id}.no_kk", $siswa->no_kk) }}"></td>
