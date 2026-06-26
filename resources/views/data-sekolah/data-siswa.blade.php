@@ -397,8 +397,23 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning mb-3">
-                            Gunakan template resmi. Kolom <strong>SCOD</strong>, <strong>ASAL SEKOLAH/MADRASAH</strong>, <strong>NIS</strong>, <strong>NAMA_PESERTA_DIDIK</strong>, dan <strong>KELAS</strong> wajib terisi.
+                            Gunakan template resmi. Kolom data siswa boleh kosong. Jika kolom <strong>SCOD</strong> dan <strong>ASAL SEKOLAH/MADRASAH</strong> di file kosong, pilih madrasah pada form import ini sebagai tujuan penyimpanan.
                         </div>
+                        @if(!in_array($userRole, ['admin', 'admin_spp']))
+                            <div class="mb-3">
+                                <label for="import_madrasah_id" class="form-label">Madrasah Tujuan Import</label>
+                                <select class="form-select" id="import_madrasah_id" name="madrasah_id">
+                                    <option value="">Gunakan SCOD/Asal Sekolah dari file</option>
+                                    @foreach($madrasahOptions as $madrasah)
+                                        <option value="{{ $madrasah->id }}" {{ (string) old('madrasah_id', $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : '' }}>
+                                            {{ $madrasah->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
+                        @endif
                         <label for="file" class="form-label">File Excel/CSV</label>
                         <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
                     </div>

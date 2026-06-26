@@ -89,12 +89,13 @@ class Siswa extends Authenticatable
 
     public function setNamaLengkapAttribute($value): void
     {
-        $this->attributes['nama_lengkap'] = Str::upper(trim((string) $value));
+        $normalized = $this->normalizeNullableString($value);
+        $this->attributes['nama_lengkap'] = $normalized ? Str::upper($normalized) : null;
     }
 
     public function setNisAttribute($value): void
     {
-        $this->attributes['nis'] = trim((string) $value);
+        $this->attributes['nis'] = $this->normalizeNullableString($value);
     }
 
     public function setScodAttribute($value): void
@@ -162,7 +163,8 @@ class Siswa extends Authenticatable
 
     public function setKelasAttribute($value): void
     {
-        $this->attributes['kelas'] = Str::upper(trim((string) $value));
+        $normalized = $this->normalizeNullableString($value);
+        $this->attributes['kelas'] = $normalized ? Str::upper($normalized) : null;
     }
 
     public function setJurusanAttribute($value): void

@@ -124,12 +124,19 @@ class DataSiswaController extends Controller
     {
         $user = auth()->user();
         $this->authorizeStudentDataMutation($user);
+        $userRole = $this->normalizedRole($user->role);
+
+        $madrasahRule = $this->hasRestrictedMadrasahScope($userRole)
+            ? Rule::in([$user->madrasah_id])
+            : Rule::exists('madrasahs', 'id');
 
         $validated = $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+            'madrasah_id' => ['nullable', 'integer', $madrasahRule],
         ]);
 
-        $import = new SiswaImport($this->restrictedMadrasahIdFor($user));
+        $fallbackMadrasahId = $this->resolveImportMadrasahId($validated, $user);
+        $import = new SiswaImport($fallbackMadrasahId, $this->restrictedMadrasahIdFor($user));
 
         try {
             DB::transaction(function () use ($validated, $import) {
@@ -166,7 +173,7 @@ class DataSiswaController extends Controller
             'scod' => ['nullable', 'string', 'max:50'],
             'asal_sekolah_madrasah' => ['nullable', 'string', 'max:255'],
             'nis' => [
-                'required',
+                'nullable',
                 'string',
                 'max:50',
                 Rule::unique('siswa', 'nis')
@@ -181,7 +188,7 @@ class DataSiswaController extends Controller
             ],
             'nik' => ['nullable', 'string', 'max:32'],
             'no_kk' => ['nullable', 'string', 'max:32'],
-            'nama_lengkap' => ['required', 'string', 'max:255'],
+            'nama_lengkap' => ['nullable', 'string', 'max:255'],
             'jenis_kelamin' => ['nullable', 'in:L,P,l,p'],
             'tempat_lahir' => ['nullable', 'string', 'max:100'],
             'tanggal_lahir' => ['nullable', 'date'],
@@ -190,7 +197,7 @@ class DataSiswaController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'no_hp' => ['nullable', 'string', 'max:25'],
             'no_hp_orang_tua_wali' => ['nullable', 'string', 'max:25'],
-            'kelas' => ['required', 'string', 'max:50'],
+            'kelas' => ['nullable', 'string', 'max:50'],
             'jurusan' => ['nullable', 'string', 'max:100'],
             'alamat' => ['nullable', 'string'],
             'dusun' => ['nullable', 'string', 'max:150'],
@@ -205,12 +212,12 @@ class DataSiswaController extends Controller
     {
         return [
             'madrasah_id' => $madrasah->id,
-            'scod' => $this->nullableString($madrasah->scod ?: ($validated['scod'] ?? null)),
-            'nis' => $validated['nis'],
+            'scod' => $this->nullableString($validated['scod'] ?? null),
+            'nis' => $this->nullableString($validated['nis'] ?? null),
             'nisn' => $this->nullableString($validated['nisn'] ?? null),
             'nik' => $this->nullableString($validated['nik'] ?? null),
             'no_kk' => $this->nullableString($validated['no_kk'] ?? null),
-            'nama_lengkap' => $validated['nama_lengkap'],
+            'nama_lengkap' => $this->nullableString($validated['nama_lengkap'] ?? null),
             'jenis_kelamin' => $this->normalizeGender($validated['jenis_kelamin'] ?? null),
             'tempat_lahir' => $this->nullableString($validated['tempat_lahir'] ?? null),
             'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
@@ -220,12 +227,12 @@ class DataSiswaController extends Controller
             'email_orang_tua_wali' => null,
             'no_hp' => $this->nullableString($validated['no_hp'] ?? null),
             'no_hp_orang_tua_wali' => $this->nullableString($validated['no_hp_orang_tua_wali'] ?? null),
-            'kelas' => $validated['kelas'],
+            'kelas' => $this->nullableString($validated['kelas'] ?? null),
             'jurusan' => $this->nullableString($validated['jurusan'] ?? null),
             'tahun_masuk' => null,
             'jenis_tinggal' => null,
             'alat_transportasi' => null,
-            'nama_madrasah' => $this->nullableString($validated['asal_sekolah_madrasah'] ?? null) ?: $madrasah->name,
+            'nama_madrasah' => $this->nullableString($validated['asal_sekolah_madrasah'] ?? null),
             'alamat' => $this->resolveAddress($validated, $existing?->alamat),
             'dusun' => $this->nullableString($validated['dusun'] ?? null),
             'kelurahan' => $this->nullableString($validated['kelurahan'] ?? null),
@@ -299,7 +306,7 @@ class DataSiswaController extends Controller
         return null;
     }
 
-    private function resolveAddress(array $validated, ?string $fallback = null): string
+    private function resolveAddress(array $validated, ?string $fallback = null): ?string
     {
         $alamat = $this->nullableString($validated['alamat'] ?? null);
         if ($alamat) {
@@ -317,7 +324,7 @@ class DataSiswaController extends Controller
             return implode(', ', $segments);
         }
 
-        return $fallback ?: '-';
+        return $fallback ? $this->nullableString($fallback) : null;
     }
 
     private function normalizeGender(?string $gender): ?string
@@ -332,6 +339,12 @@ class DataSiswaController extends Controller
         return $this->hasRestrictedMadrasahScope($this->normalizedRole($user->role))
             ? (int) $user->madrasah_id
             : null;
+    }
+
+    private function resolveImportMadrasahId(array $validated, $user): ?int
+    {
+        return $this->restrictedMadrasahIdFor($user)
+            ?? (!empty($validated['madrasah_id']) ? (int) $validated['madrasah_id'] : null);
     }
 
     private function nullableString($value): ?string

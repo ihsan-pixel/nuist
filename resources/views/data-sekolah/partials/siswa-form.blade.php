@@ -50,7 +50,7 @@
 
     <div class="col-md-3">
         <label class="form-label">NIS</label>
-        <input type="text" name="nis" class="form-control" value="{{ old('nis', $siswa->nis ?? '') }}" required>
+        <input type="text" name="nis" class="form-control" value="{{ old('nis', $siswa->nis ?? '') }}">
     </div>
     <div class="col-md-3">
         <label class="form-label">NISN</label>
@@ -66,7 +66,7 @@
     </div>
     <div class="col-md-6">
         <label class="form-label">NAMA_PESERTA_DIDIK</label>
-        <input type="text" name="nama_lengkap" class="form-control" value="{{ old('nama_lengkap', $siswa->nama_lengkap ?? '') }}" required>
+        <input type="text" name="nama_lengkap" class="form-control" value="{{ old('nama_lengkap', $siswa->nama_lengkap ?? '') }}">
     </div>
     <div class="col-md-2">
         <label class="form-label">JENIS_KELAMIN</label>
@@ -90,7 +90,7 @@
     </div>
     <div class="col-md-3">
         <label class="form-label">KELAS</label>
-        <input type="text" name="kelas" class="form-control" value="{{ old('kelas', $siswa->kelas ?? '') }}" required>
+        <input type="text" name="kelas" class="form-control" value="{{ old('kelas', $siswa->kelas ?? '') }}">
     </div>
     <div class="col-md-3">
         <label class="form-label">JURUSAN</label>

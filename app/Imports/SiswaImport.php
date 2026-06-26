@@ -17,6 +17,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     public int $updated = 0;
 
     public function __construct(
+        private readonly ?int $fallbackMadrasahId = null,
         private readonly ?int $restrictedMadrasahId = null
     ) {
     }
@@ -26,14 +27,8 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         foreach ($rows as $index => $row) {
             $line = $index + 2;
 
-            foreach (['scod', 'asal_sekolah_madrasah', 'nis', 'nama_peserta_didik', 'kelas'] as $field) {
-                if (blank($this->getRowValue($row, $field))) {
-                    throw new \InvalidArgumentException("Baris {$line}: kolom {$field} wajib diisi.");
-                }
-            }
-
             $madrasah = $this->resolveMadrasahForRow($row, $line);
-            $nis = trim((string) $this->getRowValue($row, 'nis'));
+            $nis = $this->nullableString($this->getRowValue($row, 'nis'));
             $nisn = $this->nullableString($this->getRowValue($row, 'nisn'));
             $nik = $this->nullableString($this->getRowValue($row, 'nik'));
             $emailSiswa = $this->nullableString($this->getRowValue($row, 'email_siswa'));
@@ -44,19 +39,19 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
             $attributes = [
                 'madrasah_id' => $madrasah->id,
-                'scod' => $this->nullableString($madrasah->scod ?: $this->getRowValue($row, 'scod')),
+                'scod' => $this->nullableString($this->getRowValue($row, 'scod')),
                 'nis' => $nis,
                 'nisn' => $nisn,
                 'nik' => $nik,
                 'no_kk' => $this->nullableString($this->getRowValue($row, 'no_kk')),
-                'nama_lengkap' => trim((string) $this->getRowValue($row, 'nama_peserta_didik')),
+                'nama_lengkap' => $this->nullableString($this->getRowValue($row, 'nama_peserta_didik')),
                 'jenis_kelamin' => $this->normalizeGender($this->getRowValue($row, 'jenis_kelamin')),
                 'tempat_lahir' => $this->nullableString($this->getRowValue($row, 'tempat_lahir')),
                 'tanggal_lahir' => $this->normalizeDate($this->getRowValue($row, 'tanggal_lahir')),
                 'agama' => $this->nullableString($this->getRowValue($row, 'agama')),
-                'kelas' => trim((string) $this->getRowValue($row, 'kelas')),
+                'kelas' => $this->nullableString($this->getRowValue($row, 'kelas')),
                 'jurusan' => $this->nullableString($this->getRowValue($row, 'jurusan')),
-                'nama_madrasah' => $this->nullableString($this->getRowValue($row, 'asal_sekolah_madrasah')) ?: $madrasah->name,
+                'nama_madrasah' => $this->nullableString($this->getRowValue($row, 'asal_sekolah_madrasah')),
                 'alamat' => $this->resolveAddress($row),
                 'dusun' => $this->nullableString($this->getRowValue($row, 'dusun')),
                 'kelurahan' => $this->nullableString($this->getRowValue($row, 'kelurahan')),
@@ -107,12 +102,22 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         $scod = trim((string) $this->getRowValue($row, 'scod'));
         $schoolName = trim((string) $this->getRowValue($row, 'asal_sekolah_madrasah'));
 
+        if ($scod === '' && $schoolName === '' && $this->fallbackMadrasahId) {
+            $madrasah = Madrasah::query()->find($this->fallbackMadrasahId);
+
+            if ($madrasah) {
+                return $madrasah;
+            }
+        }
+
         $query = Madrasah::query();
 
         if ($scod !== '') {
             $query->where('scod', $scod);
-        } else {
+        } elseif ($schoolName !== '') {
             $query->where('name', $schoolName);
+        } else {
+            throw new \InvalidArgumentException("Baris {$line}: kolom SCOD dan ASAL SEKOLAH/MADRASAH kosong. Pilih madrasah pada form import atau isi salah satu kolom tersebut.");
         }
 
         $madrasah = $query->first();
@@ -134,24 +139,33 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         return $madrasah;
     }
 
-    private function findExistingStudent(int $madrasahId, string $nis, ?string $nisn, ?string $nik): ?Siswa
+    private function findExistingStudent(int $madrasahId, ?string $nis, ?string $nisn, ?string $nik): ?Siswa
     {
-        return Siswa::query()
-            ->where(function ($query) use ($madrasahId, $nis, $nisn, $nik) {
-                $query->where(function ($scopedQuery) use ($madrasahId, $nis) {
-                    $scopedQuery->where('madrasah_id', $madrasahId)
-                        ->where('nis', $nis);
-                });
+        if (!$nis && !$nisn && !$nik) {
+            return null;
+        }
 
-                if ($nisn) {
-                    $query->orWhere('nisn', $nisn);
-                }
+        $query = Siswa::query();
+        $hasCondition = false;
 
-                if ($nik) {
-                    $query->orWhere('nik', $nik);
-                }
-            })
-            ->first();
+        if ($nis) {
+            $query->where(function ($scopedQuery) use ($madrasahId, $nis) {
+                $scopedQuery->where('madrasah_id', $madrasahId)
+                    ->where('nis', $nis);
+            });
+            $hasCondition = true;
+        }
+
+        if ($nisn) {
+            ($hasCondition ? $query->orWhere('nisn', $nisn) : $query->where('nisn', $nisn));
+            $hasCondition = true;
+        }
+
+        if ($nik) {
+            ($hasCondition ? $query->orWhere('nik', $nik) : $query->where('nik', $nik));
+        }
+
+        return $query->first();
     }
 
     private function getRowValue($row, string $field): mixed
@@ -207,7 +221,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         return null;
     }
 
-    private function resolveAddress($row): string
+    private function resolveAddress($row): ?string
     {
         $alamat = $this->nullableString($this->getRowValue($row, 'alamat'));
         if ($alamat) {
@@ -220,7 +234,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             $this->nullableString($this->getRowValue($row, 'kecamatan')),
         ]);
 
-        return $segments !== [] ? implode(', ', $segments) : '-';
+        return $segments !== [] ? implode(', ', $segments) : null;
     }
 
     private function nullableString($value): ?string

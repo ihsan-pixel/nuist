@@ -32,6 +32,11 @@ return new class extends Migration
 
         if (DB::getDriverName() === 'mysql') {
             DB::statement('UPDATE siswa s LEFT JOIN madrasahs m ON m.id = s.madrasah_id SET s.scod = COALESCE(NULLIF(s.scod, \'\'), m.scod)');
+            DB::statement('ALTER TABLE siswa MODIFY nis VARCHAR(50) NULL');
+            DB::statement('ALTER TABLE siswa MODIFY nama_lengkap VARCHAR(255) NULL');
+            DB::statement('ALTER TABLE siswa MODIFY kelas VARCHAR(50) NULL');
+            DB::statement('ALTER TABLE siswa MODIFY nama_madrasah VARCHAR(255) NULL');
+            DB::statement('ALTER TABLE siswa MODIFY alamat TEXT NULL');
             DB::statement('ALTER TABLE siswa MODIFY email VARCHAR(255) NULL');
             DB::statement('ALTER TABLE siswa MODIFY password VARCHAR(255) NULL');
         }
@@ -54,8 +59,18 @@ return new class extends Migration
         }
 
         if (DB::getDriverName() === 'mysql') {
+            DB::statement("UPDATE siswa SET nis = COALESCE(NULLIF(nis, ''), CONCAT('NIS-', id))");
+            DB::statement("UPDATE siswa SET nama_lengkap = COALESCE(NULLIF(nama_lengkap, ''), CONCAT('SISWA ', id))");
+            DB::statement("UPDATE siswa SET kelas = COALESCE(NULLIF(kelas, ''), '-')");
+            DB::statement("UPDATE siswa SET nama_madrasah = COALESCE(NULLIF(nama_madrasah, ''), '-')");
+            DB::statement("UPDATE siswa SET alamat = COALESCE(NULLIF(alamat, ''), '-')");
             DB::statement("UPDATE siswa SET email = CONCAT('siswa-', id, '@nuist.local') WHERE email IS NULL OR email = ''");
             DB::statement("UPDATE siswa SET password = CONCAT('legacy-', id) WHERE password IS NULL OR password = ''");
+            DB::statement('ALTER TABLE siswa MODIFY nis VARCHAR(50) NOT NULL');
+            DB::statement('ALTER TABLE siswa MODIFY nama_lengkap VARCHAR(255) NOT NULL');
+            DB::statement('ALTER TABLE siswa MODIFY kelas VARCHAR(50) NOT NULL');
+            DB::statement('ALTER TABLE siswa MODIFY nama_madrasah VARCHAR(255) NOT NULL');
+            DB::statement('ALTER TABLE siswa MODIFY alamat TEXT NOT NULL');
             DB::statement('ALTER TABLE siswa MODIFY email VARCHAR(255) NOT NULL');
             DB::statement('ALTER TABLE siswa MODIFY password VARCHAR(255) NOT NULL');
         }
