@@ -20,6 +20,7 @@ class SiswaUploadSummaryExport implements FromCollection, WithHeadings, ShouldAu
             'No',
             'SCOD',
             'Nama Sekolah / Madrasah',
+            'Status Upload',
             'Jumlah Siswa',
             'Rata-rata Kelengkapan',
         ];

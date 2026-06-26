@@ -74,7 +74,16 @@ class DataSiswaController extends Controller
         abort_if($userRole !== 'super_admin', 403);
 
         $selectedMadrasahId = $request->integer('madrasah_id');
-        $siswas = $this->buildSiswaIndexQuery($request, $selectedMadrasahId, $userRole)
+        $madrasahs = Madrasah::query()
+            ->when($selectedMadrasahId, fn ($query) => $query->whereKey($selectedMadrasahId))
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderBy('scod')
+            ->orderBy('name')
+            ->get();
+
+        $siswas = Siswa::query()
+            ->with('madrasah')
+            ->when($selectedMadrasahId, fn ($query) => $query->where('madrasah_id', $selectedMadrasahId))
             ->get()
             ->transform(function (Siswa $siswa) {
                 $completion = $this->calculateCompletionStats($siswa);
@@ -83,7 +92,7 @@ class DataSiswaController extends Controller
                 return $siswa;
             });
 
-        $summaryRows = $this->buildUploadSummaryRows($siswas);
+        $summaryRows = $this->buildUploadSummaryRows($madrasahs, $siswas);
 
         return Excel::download(
             new SiswaUploadSummaryExport($summaryRows),
@@ -518,27 +527,33 @@ class DataSiswaController extends Controller
         return $query;
     }
 
-    private function buildUploadSummaryRows(Collection $siswas): Collection
+    private function buildUploadSummaryRows(Collection $madrasahs, Collection $siswas): Collection
     {
-        return $siswas
-            ->groupBy(fn (Siswa $siswa) => $siswa->madrasah_id ?: 'unknown')
-            ->map(function (Collection $group) {
-                $first = $group->first();
+        $groupedSiswas = $siswas->groupBy('madrasah_id');
+
+        return $madrasahs
+            ->map(function (Madrasah $madrasah) use ($groupedSiswas) {
+                $students = $groupedSiswas->get($madrasah->id, collect());
+                $jumlahSiswa = $students->count();
+                $rataRataKelengkapan = $jumlahSiswa > 0
+                    ? (int) round($students->avg('completion_percentage'))
+                    : 0;
 
                 return [
-                    'scod' => $first?->scod ?: $first?->madrasah?->scod ?: '-',
-                    'nama_sekolah' => $first?->nama_madrasah ?: $first?->madrasah?->name ?: 'Tanpa Sekolah',
-                    'jumlah_siswa' => $group->count(),
-                    'rata_rata_kelengkapan' => (int) round($group->avg('completion_percentage')),
+                    'scod' => $madrasah->scod ?: '-',
+                    'nama_sekolah' => $madrasah->name,
+                    'status_upload' => $jumlahSiswa > 0 ? 'Sudah Upload' : 'Belum Upload',
+                    'jumlah_siswa' => $jumlahSiswa,
+                    'rata_rata_kelengkapan' => $rataRataKelengkapan,
                 ];
             })
-            ->sortBy(fn (array $row) => sprintf('%s|%s', $row['scod'], $row['nama_sekolah']))
             ->values()
             ->map(function (array $row, int $index) {
                 return [
                     'no' => $index + 1,
                     'scod' => $row['scod'],
                     'nama_sekolah' => $row['nama_sekolah'],
+                    'status_upload' => $row['status_upload'],
                     'jumlah_siswa' => $row['jumlah_siswa'],
                     'rata_rata_kelengkapan' => $row['rata_rata_kelengkapan'] . '%',
                 ];
