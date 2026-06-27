@@ -601,11 +601,12 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
-        if (!in_array($batch->status, ['pending_review', 'rejected'], true)) {
+        if (!in_array($batch->status, ['pending_review', 'rejected', 'synced'], true)) {
             return back()->with('error', 'Batch import ini sudah diproses dan tidak dapat diedit lagi.');
         }
 
         $validated = $request->validate([
+            'action' => ['nullable', 'in:save,sync'],
             'rows' => ['required', 'array', 'min:1'],
             'rows.*.row_number' => ['required', 'integer', 'min:1'],
             'rows.*.excel_no' => ['nullable', 'string', 'max:100'],
@@ -625,18 +626,26 @@ class SkYayasanController extends Controller
             'rows.*.source_mapel_tugas' => ['nullable', 'string', 'max:255'],
             'rows.*.source_penilaian_kinerja' => ['nullable', 'string', 'max:255'],
             'rows.*.source_keterangan' => ['nullable', 'string', 'max:255'],
+            'review_notes' => ['nullable', 'string'],
         ]);
 
         $report = $this->inspectEditableImportRows($validated['rows'], (int) $batch->madrasah_id);
         $wasRejected = $batch->status === 'rejected';
+        $shouldSync = ($validated['action'] ?? 'save') === 'sync';
 
-        DB::transaction(function () use ($batch, $report, $wasRejected) {
+        if ($shouldSync && $report['invalid_count'] > 0) {
+            return back()->with('error', 'Data masih memiliki baris yang belum valid. Perbaiki semua baris sebelum sinkronisasi ulang.');
+        }
+
+        $message = 'Data review import berhasil diperbarui. Batch kembali ke status pending review.';
+
+        DB::transaction(function () use ($batch, $report, $wasRejected, $shouldSync, $validated, &$message) {
             $batch->update([
-                'status' => 'pending_review',
-                'reviewed_by' => null,
-                'review_notes' => null,
-                'reviewed_at' => null,
-                'synced_at' => null,
+                'status' => $shouldSync ? 'synced' : 'pending_review',
+                'reviewed_by' => $shouldSync ? auth()->id() : null,
+                'review_notes' => $validated['review_notes'] ?? null,
+                'reviewed_at' => $shouldSync ? now() : null,
+                'synced_at' => $shouldSync ? now() : null,
                 'total_rows' => count($report['rows']),
                 'valid_rows' => $report['valid_count'],
                 'invalid_rows' => $report['invalid_count'],
@@ -650,6 +659,46 @@ class SkYayasanController extends Controller
             $batch->rows()->delete();
             $batch->rows()->createMany($this->buildImportBatchRowsPayload($report['rows']));
 
+            if ($shouldSync) {
+                $batch->load('rows');
+                $synchronizer = new SkYayasanImportSynchronizer((int) $batch->madrasah_id);
+                $updated = 0;
+                $unchanged = 0;
+
+                $batch->rows->each(function ($row) use ($synchronizer, &$updated, &$unchanged) {
+                    $userId = $row->matched_user_id;
+                    $user = $userId ? User::query()->find($userId) : null;
+
+                    if (!$user) {
+                        $unchanged++;
+                        return;
+                    }
+
+                    $hasChanges = $synchronizer->syncRow(
+                        $user,
+                        $row->user_payload ?? [],
+                        $row->sk_payload ?? []
+                    );
+
+                    if ($hasChanges) {
+                        $updated++;
+                        return;
+                    }
+
+                    $unchanged++;
+                });
+
+                $batch->requests()->update([
+                    'current_status' => 'submitted',
+                    'review_notes' => $validated['review_notes'] ?? null,
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+
+                $message = "Data review import berhasil diperbarui dan disinkronisasi ulang. {$updated} data diperbarui, {$unchanged} baris tidak mengubah data.";
+                return;
+            }
+
             if ($wasRejected) {
                 $batch->requests()->update([
                     'current_status' => 'submitted',
@@ -660,7 +709,7 @@ class SkYayasanController extends Controller
             }
         });
 
-        return back()->with('success', 'Data review import berhasil diperbarui. Batch kembali ke status pending review.');
+        return back()->with('success', $message);
     }
 
     public function destroyImportBatch(SkYayasanImportBatch $batch): RedirectResponse
@@ -999,7 +1048,9 @@ class SkYayasanController extends Controller
                 'employee.statusKepegawaian',
                 'template',
                 'document.template',
-                'importBatch',
+                'importBatch.rows',
+                'importBatch.uploader',
+                'importBatch.reviewer',
             ])
             ->where('madrasah_id', $madrasah->id)
             ->where($eligibleRequests)
@@ -1026,6 +1077,7 @@ class SkYayasanController extends Controller
             'requests' => $requests,
             'templates' => $templates,
             'coreData' => $this->buildSchoolSkCoreData($madrasah),
+            'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee', 'request.madrasah'])
                 ->where('status', 'published')

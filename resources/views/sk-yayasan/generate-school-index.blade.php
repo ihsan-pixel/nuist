@@ -12,6 +12,67 @@
 @include('sk-yayasan.partials.ui-styles')
 @include('sk-yayasan.partials.sweet-alert')
 
+@php
+    $keteranganOptions = \App\Support\SkYayasanImportSynchronizer::allowedKeteranganOptions();
+    $importPreviewFieldMap = [
+        'No' => 'excel_no',
+        'NUIST ID' => 'source_nuist_id',
+        'Nama' => 'source_nama',
+        'Gelar' => 'source_gelar',
+        'Tempat Lahir' => 'source_tempat_lahir',
+        'Tanggal Lahir' => 'source_tanggal_lahir',
+        "NIP Ma'arif" => 'source_nip_maarif',
+        'NUPTK' => 'source_nuptk',
+        'Nomor Kartanu' => 'source_nomor_kartanu',
+        'TMT Pertama' => 'source_tmt_pertama',
+        'Masa Kerja' => 'source_masa_kerja',
+        'Pendidikan Terakhir' => 'source_pendidikan_terakhir',
+        'Tahun Lulus' => 'source_tahun_lulus',
+        'Program Studi' => 'source_program_studi',
+        'Mapel/Tugas yang Diampu' => 'source_mapel_tugas',
+        'Penilaian Kinerja' => 'source_penilaian_kinerja',
+        'Keterangan' => 'source_keterangan',
+    ];
+
+    $importBatchModalItems = $requests->getCollection()
+        ->pluck('importBatch')
+        ->filter()
+        ->unique('id')
+        ->values();
+
+    $resolveImportErrorFields = function ($row) {
+        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+        $fields = [];
+        $identifierFields = ['source_nuist_id', 'source_nama', 'source_nip_maarif', 'source_nuptk'];
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Isi minimal salah satu data pencocokan'))) {
+            $fields = array_merge($fields, $identifierFields);
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'User tidak ditemukan'))) {
+            $fields = array_merge($fields, $identifierFields, ['matched_name']);
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tanggal Lahir tidak valid'))) {
+            $fields[] = 'source_tanggal_lahir';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'TMT Pertama tidak valid'))) {
+            $fields[] = 'source_tmt_pertama';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Penilaian Kinerja wajib diisi'))) {
+            $fields[] = 'source_penilaian_kinerja';
+        }
+
+        if ($errors->contains(fn ($error) => str_contains($error, 'Keterangan wajib diisi'))) {
+            $fields[] = 'source_keterangan';
+        }
+
+        return array_values(array_unique($fields));
+    };
+@endphp
+
 <div class="sky-page">
     <div class="sky-hero-strip mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
@@ -56,129 +117,102 @@
                     </div>
 
                     @if($requests->count() > 0)
-                        <div class="accordion" id="generateAccordion">
-                            @foreach($requests as $submission)
-                                @php
-                                    $isSyncedBatch = in_array($submission->current_status, ['submitted', 'reviewed'], true)
-                                        && $submission->importBatch?->status === 'synced';
-                                    $badgeConfig = $submission->current_status === 'published'
-                                        ? ['bg' => 'success', 'text' => 'success', 'label' => 'PUBLISHED']
-                                        : ($submission->current_status === 'approved'
-                                            ? ['bg' => 'primary', 'text' => 'primary', 'label' => 'APPROVED']
-                                            : ($isSyncedBatch
-                                                ? ['bg' => 'info', 'text' => 'info', 'label' => 'TERSINKRON']
-                                                : ['bg' => 'warning', 'text' => 'warning', 'label' => strtoupper($submission->current_status)]));
-                                @endphp
-                                <div class="accordion-item mb-3">
-                                    <h2 class="accordion-header" id="generateHeading{{ $submission->id }}">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#generateCollapse{{ $submission->id }}">
-                                            <div class="w-100 me-3 d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <div class="fw-semibold">{{ $submission->request_number }} - {{ $submission->employee?->name ?? '-' }}</div>
-                                                    <small class="text-muted">{{ $submission->submission_type_label }}</small>
-                                                </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Request</th>
+                                        <th>Guru/Pegawai</th>
+                                        <th>Jenis Pengajuan</th>
+                                        <th>Template</th>
+                                        <th>Status</th>
+                                        <th>Nomor SK</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($requests as $submission)
+                                        @php
+                                            $isSyncedBatch = in_array($submission->current_status, ['submitted', 'reviewed'], true)
+                                                && $submission->importBatch?->status === 'synced';
+                                            $badgeConfig = $submission->current_status === 'published'
+                                                ? ['bg' => 'success', 'text' => 'success', 'label' => 'PUBLISHED']
+                                                : ($submission->current_status === 'approved'
+                                                    ? ['bg' => 'primary', 'text' => 'primary', 'label' => 'APPROVED']
+                                                    : ($isSyncedBatch
+                                                        ? ['bg' => 'info', 'text' => 'info', 'label' => 'TERSINKRON']
+                                                        : ['bg' => 'warning', 'text' => 'warning', 'label' => strtoupper($submission->current_status)]));
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                <div class="fw-semibold">{{ $submission->request_number }}</div>
+                                                @if($submission->importBatch)
+                                                    <small class="text-muted">{{ $submission->importBatch->original_filename }}</small>
+                                                @endif
+                                            </td>
+                                            <td>{{ $submission->employee?->name ?? '-' }}</td>
+                                            <td>{{ $submission->submission_type_label }}</td>
+                                            <td>
+                                                @if($submission->resolved_template)
+                                                    <div class="fw-semibold">{{ $submission->resolved_template->name }}</div>
+                                                @else
+                                                    <span class="text-muted">Pilih manual saat generate</span>
+                                                @endif
+                                            </td>
+                                            <td>
                                                 <span class="badge bg-{{ $badgeConfig['bg'] }}-subtle text-{{ $badgeConfig['text'] }}">
                                                     {{ $badgeConfig['label'] }}
                                                 </span>
-                                            </div>
-                                        </button>
-                                    </h2>
-                                    <div id="generateCollapse{{ $submission->id }}" class="accordion-collapse collapse" data-bs-parent="#generateAccordion">
-                                        <div class="accordion-body">
-                                            @if($isSyncedBatch)
-                                                <div class="sky-inline-note mb-3">
-                                                    Data pengajuan ini berasal dari batch yang sudah berhasil tersinkronisasi pada {{ optional($submission->importBatch?->synced_at)->format('d/m/Y H:i') ?? '-' }}.
-                                                </div>
-                                            @endif
-
-                                            <div class="row g-3 mb-3">
-                                                <div class="col-md-4">
-                                                    <div class="sky-soft-card p-3 h-100">
-                                                        <div class="sky-panel-label mb-1">Sekolah</div>
-                                                        <div class="fw-semibold">{{ $submission->madrasah?->name ?? '-' }}</div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <div class="sky-soft-card p-3 h-100">
-                                                        <div class="sky-panel-label mb-1">Pegawai/Guru</div>
-                                                        <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <div class="sky-soft-card p-3 h-100">
-                                                        <div class="sky-panel-label mb-1">Jenis Pengajuan</div>
-                                                        <div class="fw-semibold">{{ $submission->submission_type_label }}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <form method="POST" action="{{ route('sk-yayasan.generate.store') }}" target="_blank">
-                                                @csrf
-                                                <input type="hidden" name="request_id" value="{{ $submission->id }}">
-                                                <input type="hidden" name="preview_pdf" value="1">
-                                                <input type="hidden" name="issued_date" value="{{ $coreData['issued_date'] }}" data-sk-core-target="issued_date">
-                                                <input type="hidden" name="school_year" value="{{ $coreData['school_year'] }}" data-sk-core-target="school_year">
-                                                <input type="hidden" name="document_number_start" value="{{ $coreData['document_number_start'] }}" data-sk-core-target="document_number_start">
-                                                <input type="hidden" name="signer_name" value="{{ $coreData['signer_name'] }}" data-sk-core-target="signer_name">
-                                                <input type="hidden" name="signer_position" value="{{ $coreData['signer_position'] }}" data-sk-core-target="signer_position">
-                                                <input type="hidden" name="established_at" value="{{ $coreData['established_at'] }}" data-sk-core-target="established_at">
-                                                <input type="hidden" name="copy_recipient_1" value="{{ $coreData['copy_recipient_1'] }}" data-sk-core-target="copy_recipient_1">
-                                                <input type="hidden" name="copy_recipient_2" value="{{ $coreData['copy_recipient_2'] }}" data-sk-core-target="copy_recipient_2">
-                                                <div class="row">
-                                                    <div class="col-md-6 mb-3">
-                                                        <label class="form-label">Template</label>
-                                                        @if($submission->resolved_template)
-                                                            <input type="text" class="form-control" value="{{ $submission->resolved_template->name }}" readonly>
-                                                            <input type="hidden" name="template_id" value="{{ $submission->resolved_template->id }}">
-                                                            <small class="text-muted">Template otomatis mengikuti jenis pengajuan ini.</small>
-                                                        @else
-                                                            <select name="template_id" class="form-select" required>
-                                                                <option value="">Pilih template</option>
-                                                                @foreach($templates as $template)
-                                                                    <option value="{{ $template->id }}" @selected($submission->template_id == $template->id)>{{ $template->name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                            <small class="text-muted">Template belum bisa dipetakan otomatis, silakan pilih manual.</small>
-                                                        @endif
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
-                                                        <label class="form-label">Generate Otomatis</label>
-                                                        <div class="sky-soft-card p-3 h-100">
-                                                            <div class="small text-muted mb-1">Nomor SK otomatis berurutan</div>
-                                                            <div class="fw-semibold">{{ $coreData['document_number_start'] }}/{{ $coreData['number_format_suffix'] }}</div>
-                                                            <small class="text-muted">Generate satu guru tetap mengikuti urutan nomor SK global.</small>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-12 mb-3">
-                                                        <label class="form-label">Catatan Penerbitan</label>
-                                                        <input type="text" name="publication_notes" class="form-control" value="{{ $submission->document?->publication_notes }}">
-                                                    </div>
-                                                </div>
+                                            </td>
+                                            <td>{{ $submission->document?->document_number ?? '-' }}</td>
+                                            <td>
                                                 <div class="d-flex flex-wrap gap-2">
-                                                    <button type="submit" class="btn btn-outline-primary">Generate 1 Guru</button>
+                                                    <form method="POST" action="{{ route('sk-yayasan.generate.store') }}" target="_blank">
+                                                        @csrf
+                                                        <input type="hidden" name="request_id" value="{{ $submission->id }}">
+                                                        <input type="hidden" name="preview_pdf" value="1">
+                                                        <input type="hidden" name="issued_date" value="{{ $coreData['issued_date'] }}">
+                                                        <input type="hidden" name="school_year" value="{{ $coreData['school_year'] }}">
+                                                        <input type="hidden" name="document_number_start" value="{{ $coreData['document_number_start'] }}">
+                                                        <input type="hidden" name="signer_name" value="{{ $coreData['signer_name'] }}">
+                                                        <input type="hidden" name="signer_position" value="{{ $coreData['signer_position'] }}">
+                                                        <input type="hidden" name="established_at" value="{{ $coreData['established_at'] }}">
+                                                        <input type="hidden" name="copy_recipient_1" value="{{ $coreData['copy_recipient_1'] }}">
+                                                        <input type="hidden" name="copy_recipient_2" value="{{ $coreData['copy_recipient_2'] }}">
+                                                        <input type="hidden" name="publication_notes" value="{{ $submission->document?->publication_notes }}">
+                                                        @if($submission->resolved_template)
+                                                            <input type="hidden" name="template_id" value="{{ $submission->resolved_template->id }}">
+                                                        @else
+                                                            <input type="hidden" name="template_id" value="{{ $submission->template_id }}">
+                                                        @endif
+                                                        <button type="submit" class="btn btn-sm btn-outline-primary" @disabled(!$submission->resolved_template && !$submission->template_id)>
+                                                            Generate 1 Guru
+                                                        </button>
+                                                    </form>
                                                     @if($submission->document)
-                                                        <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-outline-primary" target="_blank">Preview PDF</a>
+                                                        <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-sm btn-outline-primary" target="_blank">Preview PDF</a>
+                                                    @endif
+                                                    @if($submission->importBatch)
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-primary"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#generateImportBatchModal{{ $submission->importBatch->id }}">
+                                                            Lihat Data Detail
+                                                        </button>
                                                     @endif
                                                 </div>
-                                            </form>
-
-                                            @if($submission->document && $submission->document->status !== 'published')
-                                                <form method="POST" action="{{ route('sk-yayasan.generate.publish', $submission->document) }}" class="mt-3" data-sk-swal-confirm data-sk-swal-title="Terbitkan dokumen?" data-sk-swal-text="Dokumen akan dipublikasikan sebagai SK Yayasan." data-sk-swal-confirm-text="Ya, terbitkan" data-sk-swal-icon="question">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit" class="btn btn-success">Terbitkan SK Yayasan</button>
-                                                </form>
-                                            @elseif($submission->document && $submission->document->status === 'published')
-                                                <div class="sky-inline-note sky-inline-note-success mt-3 mb-0">
-                                                    Dokumen ini sudah diterbitkan pada {{ optional($submission->document->published_at)->format('d/m/Y H:i') }}.
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
+                                                @if($submission->document && $submission->document->status !== 'published')
+                                                    <form method="POST" action="{{ route('sk-yayasan.generate.publish', $submission->document) }}" class="mt-2 d-inline-block" data-sk-swal-confirm data-sk-swal-title="Terbitkan dokumen?" data-sk-swal-text="Dokumen akan dipublikasikan sebagai SK Yayasan." data-sk-swal-confirm-text="Ya, terbitkan" data-sk-swal-icon="question">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" class="btn btn-sm btn-success">Terbitkan</button>
+                                                    </form>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     @else
                         <div class="sky-empty-state py-5">
@@ -198,4 +232,153 @@
         </div>
     </div>
 </div>
+
+@foreach($importBatchModalItems as $batch)
+    @php
+        $batchBadge = $batch->status === 'synced'
+            ? ['bg' => 'success', 'label' => 'TERSINKRON']
+            : ($batch->status === 'rejected'
+                ? ['bg' => 'danger', 'label' => 'DITOLAK']
+                : ['bg' => 'warning', 'label' => 'PENDING REVIEW']);
+    @endphp
+    <div class="modal fade" id="generateImportBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title mb-1">Detail Data Sinkronisasi</h5>
+                        <div class="sky-file-meta">{{ $batch->original_filename }} - {{ $batch->madrasah?->name ?? '-' }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3 col-6">
+                            <div class="sky-mini-stat">
+                                <div class="label">Uploader</div>
+                                <div class="value">{{ $batch->uploader?->name ?? '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="sky-mini-stat">
+                                <div class="label">Upload</div>
+                                <div class="value">{{ optional($batch->uploaded_at)->format('d/m/Y') ?? '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="sky-mini-stat">
+                                <div class="label">Valid</div>
+                                <div class="value">{{ $batch->valid_rows }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="sky-mini-stat">
+                                <div class="label">Perlu Cek</div>
+                                <div class="value">{{ $batch->invalid_rows }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <span class="badge bg-{{ $batchBadge['bg'] }}-subtle text-{{ $batchBadge['bg'] }}">{{ $batchBadge['label'] }}</span>
+                        <span class="sky-chip">{{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}</span>
+                    </div>
+
+                    <form method="POST" action="{{ route('sk-yayasan.import-batches.rows.update', $batch) }}" id="generateEditImportBatchForm{{ $batch->id }}">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="action" value="save" data-sync-action>
+                        <div class="sky-modal-table-wrap">
+                            <table class="table table-sm align-middle sky-compact-table mb-0">
+                                <thead>
+                                    <tr>
+                                        @foreach($importPreviewColumns as $column)
+                                            <th>{{ $column }}</th>
+                                        @endforeach
+                                        <th>Match User</th>
+                                        <th>Status</th>
+                                        <th class="wrap">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($batch->rows as $row)
+                                        @php
+                                            $rowErrorFields = $resolveImportErrorFields($row);
+                                        @endphp
+                                        <tr>
+                                            <input type="hidden" name="rows[{{ $loop->index }}][row_number]" value="{{ $row->row_number }}">
+                                            @foreach($importPreviewColumns as $column)
+                                                @php
+                                                    $field = $importPreviewFieldMap[$column] ?? null;
+                                                    $value = $field ? data_get($row, $field, '') : '';
+                                                    $value = $value === '-' ? '' : $value;
+                                                    $hasFieldError = $field && in_array($field, $rowErrorFields, true);
+                                                @endphp
+                                                <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ $hasFieldError ? 'sky-cell-error' : '' }}">
+                                                    @if($column === 'Keterangan')
+                                                        <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
+                                                            <option value="">Pilih</option>
+                                                            @foreach($keteranganOptions as $option)
+                                                                <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    @else
+                                                        <input type="text"
+                                                               name="rows[{{ $loop->parent->index }}][{{ $field }}]"
+                                                               value="{{ $value }}"
+                                                               class="form-control form-control-sm">
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                            <td class="{{ in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : '' }}">{{ $row->matched_name ?? '-' }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
+                                                    {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
+                                                </span>
+                                            </td>
+                                            <td class="wrap">{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap disinkronkan.' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                            <div class="text-muted small">
+                                Data di sini tetap bisa diedit. Setelah diperbarui, lakukan sinkronisasi ulang agar hasilnya dipakai kembali saat generate SK.
+                            </div>
+                            <button type="submit"
+                                    form="generateEditImportBatchForm{{ $batch->id }}"
+                                    class="btn btn-outline-primary"
+                                    onclick="this.form.querySelector('[data-sync-action]').value='save'">
+                                <i class="bx bx-save me-1"></i>Simpan Perubahan Tabel
+                            </button>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Catatan Sinkronisasi Ulang</label>
+                            <textarea name="review_notes"
+                                      rows="3"
+                                      class="form-control"
+                                      form="generateEditImportBatchForm{{ $batch->id }}"
+                                      placeholder="Catatan opsional untuk sinkronisasi ulang batch ini."></textarea>
+                        </div>
+                        <div class="d-flex flex-wrap justify-content-end gap-2">
+                            <button type="submit"
+                                    form="generateEditImportBatchForm{{ $batch->id }}"
+                                    class="btn btn-primary"
+                                    onclick="this.form.querySelector('[data-sync-action]').value='sync'"
+                                    @disabled(!$batch->headings_valid || $batch->invalid_rows > 0)>
+                                <i class="bx bx-refresh me-1"></i>Sinkronisasi Ulang
+                            </button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
 @endsection

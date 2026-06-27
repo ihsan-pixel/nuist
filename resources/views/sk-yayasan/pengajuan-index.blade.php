@@ -506,6 +506,7 @@
                         <form method="POST" action="{{ route('sk-yayasan.import-batches.rows.update', $batch) }}" id="editImportBatchForm{{ $batch->id }}">
                             @csrf
                             @method('PATCH')
+                            <input type="hidden" name="action" value="save" data-sync-action>
                             <div class="sky-modal-table-wrap">
                                 <table class="table table-sm align-middle sky-compact-table mb-0">
                                     <thead>
@@ -571,7 +572,8 @@
                                     </div>
                                     <button type="submit"
                                             form="editImportBatchForm{{ $batch->id }}"
-                                            class="btn btn-outline-primary">
+                                            class="btn btn-outline-primary"
+                                            onclick="this.form.querySelector('[data-sync-action]').value='save'">
                                         Simpan Perubahan Tabel
                                     </button>
                                 </div>
@@ -608,7 +610,8 @@
                             <div class="d-flex flex-wrap justify-content-between gap-2 w-100">
                                 <button type="submit"
                                         form="editImportBatchForm{{ $batch->id }}"
-                                        class="btn btn-outline-primary">
+                                        class="btn btn-outline-primary"
+                                        onclick="this.form.querySelector('[data-sync-action]').value='save'">
                                     Simpan & Kembalikan ke Pending Review
                                 </button>
                                 <div class="d-flex flex-wrap gap-2 ms-auto">
@@ -623,6 +626,39 @@
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
                                     </form>
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        @elseif($batch->status === 'synced')
+                            <div class="w-100">
+                                <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                                    <div class="text-muted small">
+                                        Data yang sudah tersinkron tetap bisa diedit. Simpan perubahan lalu lakukan sinkronisasi ulang agar perubahan diterapkan kembali ke aplikasi.
+                                    </div>
+                                    <button type="submit"
+                                            form="editImportBatchForm{{ $batch->id }}"
+                                            class="btn btn-outline-primary"
+                                            onclick="this.form.querySelector('[data-sync-action]').value='save'">
+                                        <i class="bx bx-save me-1"></i>Simpan Perubahan Tabel
+                                    </button>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Catatan Sinkronisasi Ulang</label>
+                                    <textarea name="review_notes"
+                                              rows="3"
+                                              class="form-control"
+                                              form="editImportBatchForm{{ $batch->id }}"
+                                              placeholder="Catatan opsional untuk sinkronisasi ulang batch ini."></textarea>
+                                </div>
+                                <div class="d-flex flex-wrap justify-content-end gap-2">
+                                    <button type="submit"
+                                            form="editImportBatchForm{{ $batch->id }}"
+                                            class="btn btn-primary"
+                                            onclick="this.form.querySelector('[data-sync-action]').value='sync'"
+                                            @disabled(!$batch->headings_valid || $batch->invalid_rows > 0)>
+                                        <i class="bx bx-refresh me-1"></i>Sinkronisasi Ulang
+                                    </button>
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
                                 </div>
                             </div>
