@@ -1259,9 +1259,20 @@ class SkYayasanController extends Controller
         $submission->loadMissing(['madrasah.yayasan', 'employee.statusKepegawaian', 'document', 'importBatch.rows']);
 
         $existingDocument = $submission->document;
+        $requestedStartNumber = max(1, (int) ($data['document_number_start'] ?? 0)) ?: null;
+        $existingDocumentNumber = $existingDocument?->document_number;
+        $existingSequence = $this->extractDocumentNumberSequence($existingDocumentNumber);
+        $canReuseExistingNumber = $existingDocumentNumber
+            && (
+                $requestedStartNumber === null
+                || ($existingSequence !== null && $existingSequence >= $requestedStartNumber)
+            );
+
         $documentNumber = !empty($data['document_number'])
             ? $data['document_number']
-            : ($existingDocument?->document_number ?: $this->generateDocumentNumber($template, $submission, $issuedDate));
+            : ($canReuseExistingNumber
+                ? $existingDocumentNumber
+                : $this->generateDocumentNumber($template, $submission, $issuedDate, $requestedStartNumber));
 
         $placeholders = $this->buildTemplatePlaceholders($submission, [
             'nomor_sk' => $documentNumber,
@@ -1726,22 +1737,19 @@ class SkYayasanController extends Controller
         return 'REQ-SKY/' . now()->format('Ym') . '/' . $sequence;
     }
 
-    private function generateDocumentNumber(SkYayasanTemplate $template, SkYayasanRequest $submission, Carbon $issuedDate): string
+    private function generateDocumentNumber(
+        SkYayasanTemplate $template,
+        SkYayasanRequest $submission,
+        Carbon $issuedDate,
+        ?int $preferredStartNumber = null
+    ): string
     {
         $globalSettings = $this->getGlobalSkSettings();
-        $startNumber = max(1, (int) $globalSettings['number_start']);
+        $startNumber = max(1, $preferredStartNumber ?? (int) $globalSettings['number_start']);
         $lastUsedSequence = SkYayasanDocument::query()
             ->pluck('document_number')
             ->map(function (?string $documentNumber) {
-                if (!is_string($documentNumber)) {
-                    return null;
-                }
-
-                if (preg_match('/^(\d+)\//', $documentNumber, $matches) === 1) {
-                    return (int) $matches[1];
-                }
-
-                return null;
+                return $this->extractDocumentNumberSequence($documentNumber);
             })
             ->filter(fn ($value) => $value !== null)
             ->max();
@@ -1759,6 +1767,19 @@ class SkYayasanController extends Controller
             '{month_roman}' => $this->romanMonth((int) $issuedDate->format('n')),
             '{year}' => $issuedDate->format('Y'),
         ]);
+    }
+
+    private function extractDocumentNumberSequence(?string $documentNumber): ?int
+    {
+        if (!is_string($documentNumber)) {
+            return null;
+        }
+
+        if (preg_match('/^(\d+)\//', $documentNumber, $matches) !== 1) {
+            return null;
+        }
+
+        return (int) $matches[1];
     }
 
     private function buildTemplatePlaceholders(SkYayasanRequest $submission, array $overrides = []): array
