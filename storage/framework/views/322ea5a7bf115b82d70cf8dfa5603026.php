@@ -61,16 +61,16 @@
     <div class="content">
         <?php echo $document->rendered_content; ?>
 
-    </div>
-
-    <div class="footer">
-        <div class="signature">
-            <div><?php echo e(optional($document->issued_date)->translatedFormat('d F Y')); ?></div>
-            <div><?php echo e($document->signer_position ?? 'Ketua Yayasan'); ?></div>
-            <br><br><br>
-            <div><strong><?php echo e($document->signer_name); ?></strong></div>
         </div>
-    </div>
+
+        <div class="footer">
+            <div class="signature">
+            <div><?php echo e(optional($document->issued_date)->locale('id')->translatedFormat('d F Y')); ?></div>
+                <div><?php echo e($document->signer_position ?? 'Ketua Yayasan'); ?></div>
+                <br><br><br>
+                <div><strong><?php echo e($document->signer_name); ?></strong></div>
+            </div>
+        </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </body>
 </html>

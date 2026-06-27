@@ -72,7 +72,7 @@
 
             <div class="footer">
                 <div class="signature">
-                    <div>{{ optional($document->issued_date)->translatedFormat('d F Y') }}</div>
+                    <div>{{ optional($document->issued_date)->locale('id')->translatedFormat('d F Y') }}</div>
                     <div>{{ $document->signer_position ?? 'Ketua Yayasan' }}</div>
                     <br><br><br>
                     <div><strong>{{ $document->signer_name }}</strong></div>

@@ -1310,7 +1310,7 @@ class SkYayasanController extends Controller
 
         $placeholders = $this->buildTemplatePlaceholders($submission, [
             'nomor_sk' => $documentNumber,
-            'tanggal_terbit' => $issuedDate->translatedFormat('d F Y'),
+            'tanggal_terbit' => $this->formatIndonesianDate($issuedDate),
             'tanggal_mulai' => '01 Juli ' . $issuedDate->format('Y'),
             'tanggal_selesai' => '30 Juni ' . $issuedDate->copy()->addYear()->format('Y'),
             'tahun_sk' => $issuedDate->format('Y'),
@@ -1320,7 +1320,7 @@ class SkYayasanController extends Controller
             'nama_penandatangan' => $data['signer_name'],
             'jabatan_penandatangan' => $data['signer_position'] ?? 'Ketua Yayasan',
             'ditetapkan_di' => $data['established_at'],
-            'tanggal_penetapan' => $issuedDate->translatedFormat('d F Y'),
+            'tanggal_penetapan' => $this->formatIndonesianDate($issuedDate),
             'tanggal_penetapan_raw' => $issuedDate->toDateString(),
             'tembusan_1' => $data['copy_recipient_1'],
             'tembusan_2' => $data['copy_recipient_2'],
@@ -1896,7 +1896,7 @@ class SkYayasanController extends Controller
             '{{status_kepegawaian}}' => $employee->statusKepegawaian?->name ?? ($submission->employment_category ?? '-'),
             '{{tanggal_mulai}}' => $overrides['tanggal_mulai'] ?? '01 Juli ' . now()->format('Y'),
             '{{tanggal_selesai}}' => $overrides['tanggal_selesai'] ?? '30 Juni ' . now()->addYear()->format('Y'),
-            '{{tanggal_terbit}}' => $overrides['tanggal_terbit'] ?? now()->translatedFormat('d F Y'),
+            '{{tanggal_terbit}}' => $overrides['tanggal_terbit'] ?? $this->formatIndonesianDate(now()),
             '{{tahun_sk}}' => $overrides['tahun_sk'] ?? now()->format('Y'),
             '{{tahun_sk_berikutnya}}' => $overrides['tahun_sk_berikutnya'] ?? now()->addYear()->format('Y'),
             '{{tahun_penerbitan_sk}}' => $overrides['tahun_penerbitan_sk'] ?? (now()->format('Y') . '-' . now()->addYear()->format('Y')),
@@ -1904,7 +1904,7 @@ class SkYayasanController extends Controller
             '{{nama_penandatangan}}' => $overrides['nama_penandatangan'] ?? 'Ketua Yayasan',
             '{{jabatan_penandatangan}}' => $overrides['jabatan_penandatangan'] ?? 'Ketua Yayasan',
             '{{ditetapkan_di}}' => $overrides['ditetapkan_di'] ?? 'Yogyakarta',
-            '{{tanggal_penetapan}}' => $overrides['tanggal_penetapan'] ?? ($overrides['tanggal_terbit'] ?? now()->translatedFormat('d F Y')),
+            '{{tanggal_penetapan}}' => $overrides['tanggal_penetapan'] ?? ($overrides['tanggal_terbit'] ?? $this->formatIndonesianDate(now())),
             '{{tembusan_1}}' => $overrides['tembusan_1'] ?? '-',
             '{{tembusan_2}}' => $overrides['tembusan_2'] ?? '-',
             '{{catatan_pengajuan}}' => '',
@@ -2126,10 +2126,13 @@ class SkYayasanController extends Controller
 
                 $valueText = trim(preg_replace('/\s+/u', ' ', html_entity_decode($cells[3]->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8')));
 
-                if ($valueText === '' || $valueText === '-' || $valueText === '@' || str_contains($valueText, '@{{')) {
-                    $table->removeChild($row);
-                    continue;
+                $normalizedValueText = $this->normalizePersonRowValueText($valueText);
+
+                if ($normalizedValueText === '' || $normalizedValueText === '@' || str_contains($normalizedValueText, '@{{')) {
+                    $normalizedValueText = '-';
                 }
+
+                $cells[3]->nodeValue = $normalizedValueText;
 
                 $cells[0]->nodeValue = $visibleIndex . '.';
                 $visibleIndex++;
@@ -2151,6 +2154,15 @@ class SkYayasanController extends Controller
         libxml_use_internal_errors($previousUseInternalErrors);
 
         return $output;
+    }
+
+    private function normalizePersonRowValueText(string $valueText): string
+    {
+        $normalized = preg_replace('/\s*,\s*/u', ', ', trim($valueText)) ?? trim($valueText);
+        $normalized = preg_replace('/(?:^|,\s*)-(?:\s*,\s*-)+$/u', '-', $normalized) ?? $normalized;
+        $normalized = preg_replace('/^-\s*,\s*$/u', '-', $normalized) ?? $normalized;
+
+        return $normalized;
     }
 
     private function templatePreviewPlaceholders(string $documentTitle, Carbon $issuedDate): array
@@ -2191,7 +2203,7 @@ class SkYayasanController extends Controller
             '{{status_kepegawaian}}' => 'Guru Tetap Yayasan',
             '{{tanggal_mulai}}' => '01 Juli ' . $issuedDate->format('Y'),
             '{{tanggal_selesai}}' => '30 Juni ' . $issuedDate->copy()->addYear()->format('Y'),
-            '{{tanggal_terbit}}' => $issuedDate->translatedFormat('d F Y'),
+            '{{tanggal_terbit}}' => $this->formatIndonesianDate($issuedDate),
             '{{tahun_sk}}' => $issuedDate->format('Y'),
             '{{tahun_sk_berikutnya}}' => $issuedDate->copy()->addYear()->format('Y'),
             '{{nama_penandatangan}}' => 'Dr. Tadkiroatun Musfiroh, M. Hum.',
