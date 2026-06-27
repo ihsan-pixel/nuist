@@ -934,6 +934,15 @@ class SkYayasanController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $schools->getCollection()->transform(function (Madrasah $school) {
+            $school->core_data = $this->buildSchoolSkCoreData(
+                $school,
+                $this->latestSchoolGeneratedDocument((int) $school->id)
+            );
+
+            return $school;
+        });
+
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
             'totalRequestsCount' => SkYayasanRequest::query()->where($eligibleRequests)->count(),
@@ -1172,6 +1181,16 @@ class SkYayasanController extends Controller
             'copy_recipient_1' => $meta['copy_recipient_1'] ?? $copyRecipients['copy_recipient_1'],
             'copy_recipient_2' => $meta['copy_recipient_2'] ?? $copyRecipients['copy_recipient_2'],
         ];
+    }
+
+    private function latestSchoolGeneratedDocument(int $madrasahId): ?SkYayasanDocument
+    {
+        return SkYayasanDocument::query()
+            ->with('request')
+            ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasahId))
+            ->latest('generated_at')
+            ->latest('published_at')
+            ->first();
     }
 
     private function resolveSchoolCopyRecipients(Madrasah $madrasah): array

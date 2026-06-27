@@ -28,6 +28,68 @@
         </div>
     </div>
 
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Data Pokok SK</div>
+                    <h6 class="mb-0">Ringkasan data pokok SK per sekolah dalam antrean generate</h6>
+                </div>
+                <span class="sky-chip">{{ $schools->count() }} sekolah di halaman ini</span>
+            </div>
+
+            @if($schools->count() > 0)
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Sekolah</th>
+                                <th>Tahun SK</th>
+                                <th>Nomor SK Mulai</th>
+                                <th>Ketua Yayasan</th>
+                                <th>Ditetapkan</th>
+                                <th>Tembusan 1</th>
+                                <th>Tembusan 2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($schools as $school)
+                                @php($coreData = $school->core_data ?? [])
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">
+                                            <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="text-decoration-none">
+                                                {{ $school->name }}
+                                            </a>
+                                        </div>
+                                        <small class="text-muted">{{ number_format($school->generate_requests_count) }} pengajuan</small>
+                                    </td>
+                                    <td>{{ $coreData['school_year'] ?? '-' }}</td>
+                                    <td>{{ $coreData['document_number_start'] ?: '-' }}</td>
+                                    <td>{{ $coreData['signer_name'] ?: '-' }}</td>
+                                    <td>
+                                        <div>{{ $coreData['established_at'] ?? '-' }}</div>
+                                        <small class="text-muted">
+                                            {{ !empty($coreData['issued_date']) ? \Illuminate\Support\Carbon::parse($coreData['issued_date'])->translatedFormat('d F Y') : '-' }}
+                                        </small>
+                                    </td>
+                                    <td class="small">{{ $coreData['copy_recipient_1'] ?? '-' }}</td>
+                                    <td class="small">{{ $coreData['copy_recipient_2'] ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="sky-empty-state py-4">
+                    <i class="bx bx-detail"></i>
+                    <strong>Belum ada data pokok SK</strong>
+                    <small>Data pokok SK akan muncul setelah ada sekolah yang masuk antrean generate.</small>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <div class="row g-3">
         <div class="col-xl-8">
             <div class="card">

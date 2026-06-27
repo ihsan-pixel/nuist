@@ -26,6 +26,70 @@
         </div>
     </div>
 
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Data Pokok SK</div>
+                    <h6 class="mb-0">Ringkasan data pokok SK per sekolah dalam antrean generate</h6>
+                </div>
+                <span class="sky-chip"><?php echo e($schools->count()); ?> sekolah di halaman ini</span>
+            </div>
+
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schools->count() > 0): ?>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Sekolah</th>
+                                <th>Tahun SK</th>
+                                <th>Nomor SK Mulai</th>
+                                <th>Ketua Yayasan</th>
+                                <th>Ditetapkan</th>
+                                <th>Tembusan 1</th>
+                                <th>Tembusan 2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $school): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <?php ($coreData = $school->core_data ?? []); ?>
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">
+                                            <a href="<?php echo e(route('sk-yayasan.generate.school', $school)); ?>" class="text-decoration-none">
+                                                <?php echo e($school->name); ?>
+
+                                            </a>
+                                        </div>
+                                        <small class="text-muted"><?php echo e(number_format($school->generate_requests_count)); ?> pengajuan</small>
+                                    </td>
+                                    <td><?php echo e($coreData['school_year'] ?? '-'); ?></td>
+                                    <td><?php echo e($coreData['document_number_start'] ?: '-'); ?></td>
+                                    <td><?php echo e($coreData['signer_name'] ?: '-'); ?></td>
+                                    <td>
+                                        <div><?php echo e($coreData['established_at'] ?? '-'); ?></div>
+                                        <small class="text-muted">
+                                            <?php echo e(!empty($coreData['issued_date']) ? \Illuminate\Support\Carbon::parse($coreData['issued_date'])->translatedFormat('d F Y') : '-'); ?>
+
+                                        </small>
+                                    </td>
+                                    <td class="small"><?php echo e($coreData['copy_recipient_1'] ?? '-'); ?></td>
+                                    <td class="small"><?php echo e($coreData['copy_recipient_2'] ?? '-'); ?></td>
+                                </tr>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <div class="sky-empty-state py-4">
+                    <i class="bx bx-detail"></i>
+                    <strong>Belum ada data pokok SK</strong>
+                    <small>Data pokok SK akan muncul setelah ada sekolah yang masuk antrean generate.</small>
+                </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+    </div>
+
     <div class="row g-3">
         <div class="col-xl-8">
             <div class="card">

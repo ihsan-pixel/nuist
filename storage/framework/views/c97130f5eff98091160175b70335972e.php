@@ -1,4 +1,4 @@
-<?php if (! $__env->hasRenderedOnce('e3ac6b22-0f38-49e2-bca5-31e0634af7dc')): $__env->markAsRenderedOnce('e3ac6b22-0f38-49e2-bca5-31e0634af7dc'); ?>
+<?php if (! $__env->hasRenderedOnce('38badb50-7452-4e55-8554-ff650ac0cb07')): $__env->markAsRenderedOnce('38badb50-7452-4e55-8554-ff650ac0cb07'); ?>
     <?php $__env->startPush('scripts'); ?>
         <link rel="stylesheet" href="<?php echo e(asset('build/libs/sweetalert2/sweetalert2.min.css')); ?>">
         <script src="<?php echo e(asset('build/libs/sweetalert2/sweetalert2.min.js')); ?>"></script>
