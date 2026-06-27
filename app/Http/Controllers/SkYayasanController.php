@@ -11,9 +11,13 @@ use App\Models\SkYayasanTemplate;
 use App\Models\User;
 use App\Models\Yayasan;
 use App\Support\SkYayasanImportSynchronizer;
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -918,15 +922,47 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
+        $eligibleRequests = $this->generateEligibleRequestsConstraint();
+
+        $schools = Madrasah::query()
+            ->whereHas('skYayasanRequests', $eligibleRequests)
+            ->withCount([
+                'skYayasanRequests as generate_requests_count' => $eligibleRequests,
+            ])
+            ->orderByDesc('generate_requests_count')
+            ->orderBy('name')
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('sk-yayasan.generate-index', [
+            'schools' => $schools,
+            'totalRequestsCount' => SkYayasanRequest::query()->where($eligibleRequests)->count(),
+            'publishedDocuments' => SkYayasanDocument::query()
+                ->with(['request.employee', 'request.madrasah'])
+                ->where('status', 'published')
+                ->latest('published_at')
+                ->take(10)
+                ->get(),
+        ]);
+    }
+
+    public function generateSchoolIndex(Madrasah $madrasah): View
+    {
+        $this->ensureSuperAdmin();
+
+        $eligibleRequests = $this->generateEligibleRequestsConstraint();
+        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+
         $requests = SkYayasanRequest::query()
-            ->with(['madrasah', 'employee.statusKepegawaian', 'template', 'document', 'importBatch'])
-            ->where(function ($query) {
-                $query->whereIn('current_status', ['approved', 'published'])
-                    ->orWhere(function ($syncedQuery) {
-                        $syncedQuery->whereIn('current_status', ['submitted', 'reviewed'])
-                            ->whereHas('importBatch', fn ($batchQuery) => $batchQuery->where('status', 'synced'));
-                    });
-            })
+            ->with([
+                'madrasah',
+                'employee.statusKepegawaian',
+                'template',
+                'document.template',
+                'importBatch',
+            ])
+            ->where('madrasah_id', $madrasah->id)
+            ->where($eligibleRequests)
             ->orderByRaw("
                 CASE
                     WHEN current_status = 'published' THEN 2
@@ -941,11 +977,18 @@ class SkYayasanController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return view('sk-yayasan.generate-index', [
+        $requests->getCollection()->transform(function (SkYayasanRequest $submission) use ($templates) {
+            return $this->decorateGenerateSubmission($submission, $templates);
+        });
+
+        return view('sk-yayasan.generate-school-index', [
+            'madrasah' => $madrasah,
             'requests' => $requests,
-            'templates' => SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get(),
+            'templates' => $templates,
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee', 'request.madrasah'])
+                ->where('status', 'published')
+                ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasah->id))
                 ->latest('published_at')
                 ->take(10)
                 ->get(),
@@ -967,21 +1010,19 @@ class SkYayasanController extends Controller
         ]);
 
         $submission = SkYayasanRequest::query()
-            ->with(['madrasah.yayasan', 'employee.statusKepegawaian', 'document', 'importBatch'])
+            ->with(['madrasah.yayasan', 'employee.statusKepegawaian', 'template', 'document.template', 'importBatch'])
             ->whereKey($validated['request_id'])
             ->firstOrFail();
 
-        $canGenerate = in_array($submission->current_status, ['approved', 'published'], true)
-            || (
-                in_array($submission->current_status, ['submitted', 'reviewed'], true)
-                && $submission->importBatch?->status === 'synced'
-            );
+        $canGenerate = $this->submissionCanBeGenerated($submission);
 
         if (!$canGenerate) {
             return back()->with('error', 'Dokumen hanya bisa digenerate dari pengajuan yang sudah disetujui atau batch yang sudah tersinkron.');
         }
 
-        $template = SkYayasanTemplate::query()->findOrFail($validated['template_id']);
+        $activeTemplates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+        $template = $this->resolveTemplateForSubmission($submission, $activeTemplates)
+            ?? SkYayasanTemplate::query()->findOrFail($validated['template_id']);
         $issuedDate = Carbon::parse($validated['issued_date']);
         $documentNumber = !empty($validated['document_number'])
             ? $validated['document_number']
@@ -1058,6 +1099,178 @@ class SkYayasanController extends Controller
         return response($pdf->output(), 200)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $document->document_number . '.pdf"');
+    }
+
+    private function generateEligibleRequestsConstraint(): Closure
+    {
+        return function (Builder $query) {
+            $query->whereIn('current_status', ['approved', 'published'])
+                ->orWhere(function (Builder $syncedQuery) {
+                    $syncedQuery->whereIn('current_status', ['submitted', 'reviewed'])
+                        ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced'));
+                });
+        };
+    }
+
+    private function submissionCanBeGenerated(SkYayasanRequest $submission): bool
+    {
+        return in_array($submission->current_status, ['approved', 'published'], true)
+            || (
+                in_array($submission->current_status, ['submitted', 'reviewed'], true)
+                && $submission->importBatch?->status === 'synced'
+            );
+    }
+
+    private function decorateGenerateSubmission(SkYayasanRequest $submission, Collection $templates): SkYayasanRequest
+    {
+        $submission->submission_type_label = $this->formatSubmissionTypeLabel($submission);
+        $submission->resolved_template = $this->resolveTemplateForSubmission($submission, $templates);
+
+        return $submission;
+    }
+
+    private function formatSubmissionTypeLabel(SkYayasanRequest $submission): string
+    {
+        $employmentType = $this->detectEmploymentType($submission);
+        $requestType = trim((string) $submission->request_type);
+
+        if ($requestType === '' && $employmentType !== null) {
+            return strtoupper($employmentType);
+        }
+
+        $requestLabel = $requestType !== ''
+            ? Str::of($requestType)->replace('_', ' ')->title()->toString()
+            : 'Pengajuan';
+
+        return trim($requestLabel . ' ' . strtoupper((string) $employmentType));
+    }
+
+    private function resolveTemplateForSubmission(SkYayasanRequest $submission, Collection $templates): ?SkYayasanTemplate
+    {
+        if ($submission->document?->template) {
+            return $submission->document->template;
+        }
+
+        if ($submission->template) {
+            return $submission->template;
+        }
+
+        $templateKey = $this->resolveTemplateKey($submission);
+
+        if ($templateKey === null) {
+            return null;
+        }
+
+        return $templates
+            ->map(function (SkYayasanTemplate $template) use ($templateKey) {
+                return [
+                    'template' => $template,
+                    'score' => $this->scoreTemplateMatch($template, $templateKey),
+                ];
+            })
+            ->filter(fn (array $item) => $item['score'] > 0)
+            ->sortByDesc('score')
+            ->pluck('template')
+            ->first();
+    }
+
+    private function resolveTemplateKey(SkYayasanRequest $submission): ?string
+    {
+        $employmentType = $this->detectEmploymentType($submission);
+
+        if ($employmentType === null) {
+            return null;
+        }
+
+        if (in_array($employmentType, ['gtt', 'ptt'], true)) {
+            return $employmentType;
+        }
+
+        $requestText = $this->normalizeTemplateText((string) $submission->request_type);
+
+        if ($this->containsTemplateWord($requestText, 'pengangkatan')) {
+            return 'pengangkatan_' . $employmentType;
+        }
+
+        return $employmentType;
+    }
+
+    private function detectEmploymentType(SkYayasanRequest $submission): ?string
+    {
+        $source = $this->normalizeTemplateText(implode(' ', array_filter([
+            $submission->employment_category,
+            $submission->request_type,
+            $submission->employee?->statusKepegawaian?->name,
+            $submission->employee?->ketugasan,
+        ])));
+
+        foreach (['gty', 'pty', 'gtt', 'ptt'] as $type) {
+            if ($this->containsTemplateWord($source, $type)) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
+    private function scoreTemplateMatch(SkYayasanTemplate $template, string $templateKey): int
+    {
+        $haystack = $this->normalizeTemplateText(implode(' ', array_filter([
+            $template->name,
+            $template->category,
+            $template->document_title,
+        ])));
+
+        $employmentType = Str::startsWith($templateKey, 'pengangkatan_')
+            ? Str::after($templateKey, 'pengangkatan_')
+            : $templateKey;
+
+        if (!$this->containsTemplateWord($haystack, $employmentType)) {
+            return 0;
+        }
+
+        $score = 20;
+
+        if (in_array($templateKey, ['gty', 'pty'], true)) {
+            $score += $this->containsTemplateWord($haystack, 'pengangkatan') ? -10 : 30;
+        } elseif (in_array($templateKey, ['pengangkatan_gty', 'pengangkatan_pty'], true)) {
+            $score += $this->containsTemplateWord($haystack, 'pengangkatan') ? 40 : -10;
+        } else {
+            $score += $this->containsTemplateWord($haystack, 'pengangkatan') ? -5 : 25;
+        }
+
+        if ($this->containsTemplateWord($this->normalizeTemplateText((string) $template->name), $employmentType)) {
+            $score += 15;
+        }
+
+        if ($templateKey === 'pengangkatan_' . $employmentType
+            && Str::contains($this->normalizeTemplateText((string) $template->name), 'pengangkatan ' . $employmentType)) {
+            $score += 20;
+        }
+
+        if ($templateKey === $employmentType
+            && Str::startsWith($this->normalizeTemplateText((string) $template->name), $employmentType . ' ')) {
+            $score += 20;
+        }
+
+        return $score;
+    }
+
+    private function normalizeTemplateText(string $value): string
+    {
+        $normalized = Str::of($value)
+            ->lower()
+            ->replace(['/', '-', '_'], ' ')
+            ->replaceMatches('/[^a-z0-9\s]+/', ' ')
+            ->squish()
+            ->toString();
+
+        return trim($normalized);
+    }
+
+    private function containsTemplateWord(string $haystack, string $word): bool
+    {
+        return preg_match('/\b' . preg_quote($word, '/') . '\b/', $haystack) === 1;
     }
 
     private function ensureSuperAdmin(): User

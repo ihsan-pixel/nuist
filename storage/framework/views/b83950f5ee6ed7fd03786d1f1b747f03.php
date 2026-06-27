@@ -105,11 +105,6 @@ Pendaftaran Operator SPP
                     <input id="no_hp" type="text" name="no_hp" class="form-control" value="<?php echo e(old('no_hp')); ?>">
                 </div>
 
-                <div class="notice-box">
-                    <strong>Catatan</strong>
-                    <span>Status akun akan direview oleh Super Admin. Password akan dibuat saat approval.</span>
-                </div>
-
                 <button type="submit" class="submit-btn">Kirim Pendaftaran</button>
                 <a href="<?php echo e(route('login.operator-spp')); ?>" class="back-link">Sudah punya akun? Login Operator SPP</a>
             </form>

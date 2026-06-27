@@ -648,6 +648,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::put('/template/{template}', [SkYayasanController::class, 'updateTemplate'])->name('template.update');
         Route::delete('/template/{template}', [SkYayasanController::class, 'destroyTemplate'])->name('template.destroy');
         Route::get('/generate', [SkYayasanController::class, 'generateIndex'])->name('generate.index');
+        Route::get('/generate/sekolah/{madrasah}', [SkYayasanController::class, 'generateSchoolIndex'])->name('generate.school');
         Route::post('/generate', [SkYayasanController::class, 'generateDocument'])->name('generate.store');
         Route::patch('/generate/{document}/publish', [SkYayasanController::class, 'publishDocument'])->name('generate.publish');
     });

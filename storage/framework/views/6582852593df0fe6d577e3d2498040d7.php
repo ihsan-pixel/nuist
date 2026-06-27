@@ -1,49 +1,269 @@
 <?php $__env->startSection('title'); ?>Data Siswa <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('css'); ?>
+<link href="<?php echo e(asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css')); ?>" rel="stylesheet" />
+<link href="<?php echo e(asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css')); ?>" rel="stylesheet" />
+<link href="<?php echo e(asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css')); ?>" rel="stylesheet" />
 <style>
-.hero-card {
-    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-    color: #fff;
-    border: none;
-    border-radius: 18px;
-    box-shadow: 0 12px 32px rgba(0, 75, 76, 0.18);
+.data-siswa-page {
+    --ds-ink: #102d28;
+    --ds-muted: #6b7b75;
+    --ds-line: #e5eee9;
+    --ds-soft: #f5faf7;
+    --ds-green: #0e8549;
+    --ds-teal: #004b4c;
+    --ds-gold: #efaa0c;
 }
 
-.stats-card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+.data-siswa-page .card {
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 12px 34px rgba(16, 45, 40, 0.08);
+}
+
+.data-siswa-page .alert {
+    border: 0;
+    border-radius: 14px;
+}
+
+.data-siswa-page .btn {
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.data-siswa-page .btn-success,
+.data-siswa-page .btn-primary {
+    background: linear-gradient(135deg, var(--ds-teal), var(--ds-green));
+    border: 0;
+}
+
+.data-siswa-page .btn-secondary {
+    background: #eef4f1;
+    border-color: #eef4f1;
+    color: var(--ds-ink);
+}
+
+.data-siswa-page .btn-light {
+    border-color: rgba(255, 255, 255, 0.28);
+}
+
+.data-siswa-page .form-control,
+.data-siswa-page .form-select {
+    border-color: #dce7e2;
+    border-radius: 12px;
+    min-height: 44px;
+}
+
+.data-siswa-page .form-control:focus,
+.data-siswa-page .form-select:focus {
+    border-color: rgba(14, 133, 73, .45);
+    box-shadow: 0 0 0 0.2rem rgba(14, 133, 73, 0.12);
+}
+
+.data-siswa-hero {
+    background:
+        radial-gradient(circle at top right, rgba(239, 170, 12, 0.28), transparent 28%),
+        linear-gradient(135deg, var(--ds-teal), var(--ds-green));
+    border-radius: 22px;
+    box-shadow: 0 18px 42px rgba(0, 75, 76, 0.20);
+    color: #fff;
+    overflow: hidden;
+    padding: 24px;
+    position: relative;
+}
+
+.data-siswa-hero::after {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    content: "";
+    height: 180px;
+    position: absolute;
+    right: -70px;
+    top: -70px;
+    width: 180px;
+}
+
+.data-siswa-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.data-siswa-kicker {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.data-siswa-subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 640px;
+}
+
+.data-siswa-stat {
+    border: 1px solid var(--ds-line);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.data-siswa-stat .card-body {
+    padding: .85rem 1rem !important;
+}
+
+.data-siswa-stat h4 {
+    line-height: 1.1;
+}
+
+.data-siswa-stat:hover {
+    transform: translateY(-3px);
 }
 
 .stats-icon {
-    width: 48px;
-    height: 48px;
+    align-items: center;
     border-radius: 14px;
     display: inline-flex;
-    align-items: center;
+    font-size: 1rem;
+    height: 44px;
     justify-content: center;
-    color: #fff;
-    font-size: 1.2rem;
+    width: 44px;
 }
 
-.table thead th {
+.stats-icon-soft-primary {
+    background: rgba(13, 110, 253, 0.12);
+    color: #0d6efd;
+}
+
+.stats-icon-soft-success {
+    background: rgba(25, 135, 84, 0.12);
+    color: #198754;
+}
+
+.stats-icon-soft-info {
+    background: rgba(13, 202, 240, 0.14);
+    color: #0aa2c0;
+}
+
+.stats-icon-soft-warning {
+    background: rgba(255, 193, 7, 0.16);
+    color: #c58a00;
+}
+
+.stats-icon-soft-dark {
+    background: rgba(33, 37, 41, 0.10);
+    color: #212529;
+}
+
+.data-siswa-panel-head {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.data-siswa-panel-kicker {
+    color: var(--ds-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.data-siswa-chip {
+    background: rgba(14, 133, 73, .10);
+    border: 1px solid rgba(14, 133, 73, .16);
+    border-radius: 999px;
+    color: var(--ds-green);
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+}
+
+.data-siswa-filter {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+}
+
+.data-siswa-filter-grid {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+}
+
+.completion-bar {
+    background-color: #e9ecef;
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.completion-bar-value {
+    border-radius: 999px;
+    height: 100%;
+    transition: width .25s ease;
+}
+
+.bulk-edit-modal .modal-dialog {
+    margin: 1rem auto;
+    max-width: calc(100vw - 2rem);
+}
+
+.bulk-edit-modal .modal-body {
+    overflow: auto;
+    padding: 1rem;
+}
+
+.bulk-edit-table {
+    min-width: 3400px;
+}
+
+.bulk-edit-table th {
+    background: #f8f9fa;
+    font-size: .75rem;
+    position: sticky;
+    text-transform: uppercase;
+    top: 0;
     white-space: nowrap;
-    vertical-align: middle;
+    z-index: 2;
 }
 
-.badge-soft-success {
-    background: rgba(14, 133, 73, 0.12);
-    color: #0e8549;
+.bulk-edit-table td {
+    min-width: 140px;
+    padding: .35rem;
+    vertical-align: top;
 }
 
-.badge-soft-secondary {
-    background: rgba(100, 116, 139, 0.14);
-    color: #475569;
+.bulk-grid-input {
+    font-size: .8125rem;
+    min-width: 120px;
 }
 
-.modal .form-label {
-    font-weight: 600;
+.bulk-grid-textarea {
+    min-height: 68px;
+    min-width: 220px;
+}
+
+#editModal .field-empty-highlight {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+}
+
+#editModal .field-empty-highlight:focus {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+#bulkEditModal .field-empty-highlight {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+}
+
+#bulkEditModal .field-empty-highlight:focus {
+    background-color: #fff5f5;
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
 }
 
 .student-modal .modal-dialog {
@@ -99,6 +319,7 @@
     <?php $__env->slot('title'); ?> Data Siswa <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
+<div class="data-siswa-page">
 <div class="row">
     <div class="col-12">
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
@@ -121,37 +342,37 @@
             </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <div class="card hero-card mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                    <div>
-                        <h4 class="text-white mb-2"><i class="bx bx-id-card me-2"></i>Data Siswa</h4>
-                    </div>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="<?php echo e(route('data-sekolah.data-siswa.template')); ?>" class="btn btn-light">
-                                <i class="bx bx-download me-1"></i>Template
-                            </a>
-                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">
-                                <i class="bx bx-upload me-1"></i>Import
-                            </button>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
-                                <i class="bx bx-plus me-1"></i>Tambah Siswa
-                            </button>
-                        </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <div class="data-siswa-hero mb-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                <div>
+                    <div class="data-siswa-kicker mb-2">Data Sekolah</div>
+                    <h4 class="mb-1">Data Siswa</h4>
+                    <p class="mb-0 data-siswa-subtitle">Kelola data siswa lebih rapi melalui input manual, import template, dan pemutakhiran massal tanpa mengubah struktur tabel utama.</p>
                 </div>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="<?php echo e(route('data-sekolah.data-siswa.template')); ?>" class="btn btn-light">
+                            <i class="bx bx-download me-1"></i>Template
+                        </a>
+                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#importModal">
+                            <i class="bx bx-upload me-1"></i>Import
+                        </button>
+                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#createModal">
+                            <i class="bx bx-plus me-1"></i>Tambah Siswa
+                        </button>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card stats-card h-100">
-            <div class="card-body">
+    <div class="col-md-6 col-xl">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-primary"><i class="bx bx-user"></i></div>
+                    <div class="stats-icon stats-icon-soft-primary"><i class="bx bx-user"></i></div>
                     <div class="ms-3">
                         <p class="text-muted mb-1">Total Siswa</p>
                         <h4 class="mb-0"><?php echo e(number_format($stats['total'])); ?></h4>
@@ -160,40 +381,55 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stats-card h-100">
-            <div class="card-body">
+    <div class="col-md-6 col-xl">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-success"><i class="bx bx-check-circle"></i></div>
+                    <div class="stats-icon stats-icon-soft-success"><i class="bx bx-check-circle"></i></div>
                     <div class="ms-3">
-                        <p class="text-muted mb-1">Akun Aktif</p>
+                        <p class="text-muted mb-1">Siswa Aktif</p>
                         <h4 class="mb-0"><?php echo e(number_format($stats['aktif'])); ?></h4>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stats-card h-100">
-            <div class="card-body">
+    <div class="col-md-6 col-xl">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-info"><i class="bx bx-buildings"></i></div>
+                    <div class="stats-icon stats-icon-soft-info"><i class="bx bx-task"></i></div>
                     <div class="ms-3">
-                        <p class="text-muted mb-1">Madrasah</p>
-                        <h4 class="mb-0"><?php echo e(number_format($stats['madrasah'])); ?></h4>
+                        <p class="text-muted mb-1">Data Lengkap</p>
+                        <h4 class="mb-0"><?php echo e($stats['rata_rata_kelengkapan']); ?>%</h4>
+                        
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stats-card h-100">
-            <div class="card-body">
+    <div class="col-md-6 col-xl">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-dark"><i class="bx bx-grid-alt"></i></div>
+                    <div class="stats-icon stats-icon-soft-warning"><i class="bx bx-buildings"></i></div>
                     <div class="ms-3">
-                        <p class="text-muted mb-1">Jumlah Kelas</p>
-                        <h4 class="mb-0"><?php echo e(number_format($stats['kelas'])); ?></h4>
+                        <p class="text-muted mb-1">Sekolah Upload</p>
+                        <h4 class="mb-0"><?php echo e(number_format($stats['sekolah_upload'])); ?></h4>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="card data-siswa-stat h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon stats-icon-soft-dark"><i class="bx bx-bar-chart"></i></div>
+                    <div class="ms-3">
+                        <p class="text-muted mb-1">Memiliki NISN</p>
+                        <h4 class="mb-0"><?php echo e(number_format($stats['nisn'])); ?></h4>
                     </div>
                 </div>
             </div>
@@ -201,35 +437,36 @@
     </div>
 </div>
 
-<div class="card mb-4">
+<div class="card data-siswa-filter mb-4">
     <div class="card-body">
+        
         <form method="GET" action="<?php echo e(route('data-sekolah.data-siswa.index')); ?>">
-            <div class="row g-3 align-items-end">
+            <div class="row g-3 align-items-end data-siswa-filter-grid">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!in_array($userRole, ['admin', 'admin_spp'])): ?>
-                <div class="col-md-3">
-                    <label for="madrasah_id" class="form-label">Madrasah</label>
-                    <select name="madrasah_id" id="madrasah_id" class="form-select">
-                        <option value="">Semua Madrasah</option>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                            <option value="<?php echo e($madrasah->id); ?>" <?php echo e((string) request('madrasah_id') === (string) $madrasah->id ? 'selected' : ''); ?>>
-                                <?php echo e($madrasah->name); ?>
+                    <div class="col-md-3">
+                        <label for="madrasah_id" class="form-label">Madrasah</label>
+                        <select name="madrasah_id" id="madrasah_id" class="form-select">
+                            <option value="">Semua Madrasah</option>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <option value="<?php echo e($madrasah->id); ?>" <?php echo e((string) request('madrasah_id') === (string) $madrasah->id ? 'selected' : ''); ?>>
+                                    <?php echo e($madrasah->name); ?>
 
-                            </option>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                    </select>
-                </div>
+                                </option>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        </select>
+                    </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="kelas" class="form-label">Kelas</label>
                     <input type="text" name="kelas" id="kelas" class="form-control" value="<?php echo e(request('kelas')); ?>" placeholder="Contoh: X IPA 1">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="jurusan" class="form-label">Jurusan</label>
                     <input type="text" name="jurusan" id="jurusan" class="form-control" value="<?php echo e(request('jurusan')); ?>" placeholder="Contoh: IPA">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label for="q" class="form-label">Pencarian</label>
-                    <input type="text" name="q" id="q" class="form-control" value="<?php echo e(request('q')); ?>" placeholder="Cari NIS, NISN, NIK, nama, email, wali">
+                    <input type="text" name="q" id="q" class="form-control" value="<?php echo e(request('q')); ?>" placeholder="Cari SCOD, sekolah, NIS, NISN, NIK, nama">
                 </div>
                 <div class="col-md-2">
                     <div class="d-grid gap-2">
@@ -244,32 +481,63 @@
 
 <div class="card">
     <div class="card-body">
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
-            <div class="alert alert-info">
-                Password default akun siswa saat tambah/import adalah <strong>NIS</strong>. Jika email siswa kosong pada file template, sistem akan membuat email internal otomatis.
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+                <div class="text-uppercase text-muted small fw-semibold mb-1">Master Data</div>
+                <h6 class="mb-0">Daftar siswa tersimpan</h6>
             </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge bg-light text-dark border"><?php echo e($siswas->count()); ?> data</span>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
+                    <a
+                        href="<?php echo e(route('data-sekolah.data-siswa.export-upload-summary', request()->query())); ?>"
+                        class="btn btn-success btn-sm"
+                    >
+                        <i class="bx bx-spreadsheet me-1"></i>Export Excel Upload Sekolah
+                    </a>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#bulkEditModal"
+                        <?php echo e($siswas->isEmpty() ? 'disabled' : ''); ?>
+
+                    >
+                        <i class="bx bx-table me-1"></i>Edit Data Keseluruhan
+                    </button>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+        </div>
 
         <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+            <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100 align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
+                        <th>SCOD</th>
+                        <th>Asal Sekolah/Madrasah</th>
                         <th>NIS / NISN</th>
                         <th>Nama Siswa</th>
-                        <th>Kelas</th>
-                        <th>Jurusan</th>
-                        <th>Madrasah</th>
-                        <th>Email Siswa</th>
-                        <th>Orang Tua/Wali</th>
-                        <th>Status</th>
-                        <th style="min-width: 180px;">Aksi</th>
+                        <th>Kelas / Jurusan</th>
+                        <th>Kontak Siswa</th>
+                        <th>Kelengkapan</th>
+                        <th style="min-width: 160px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $siswas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $siswa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $siswas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $siswa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <?php
+                            $completionPercentage = (int) $siswa->completion_percentage;
+                            $completionBarClass = $completionPercentage >= 80
+                                ? 'bg-success'
+                                : ($completionPercentage >= 50 ? 'bg-warning' : 'bg-danger');
+                        ?>
                         <tr>
-                            <td><?php echo e($siswas->firstItem() + $index); ?></td>
+                            <td><?php echo e($index + 1); ?></td>
+                            <td><?php echo e($siswa->scod ?: ($siswa->madrasah->scod ?? '-')); ?></td>
+                            <td><?php echo e($siswa->nama_madrasah ?: ($siswa->madrasah->name ?? '-')); ?></td>
                             <td>
                                 <div class="fw-semibold"><?php echo e($siswa->nis); ?></div>
                                 <small class="text-muted"><?php echo e($siswa->nisn ?: '-'); ?></small>
@@ -280,27 +548,27 @@
                                     <?php echo e($siswa->jenis_kelamin ?: '-'); ?>
 
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($siswa->tempat_lahir || $siswa->tanggal_lahir): ?>
-                                        • <?php echo e($siswa->tempat_lahir ?: '-'); ?><?php echo e($siswa->tanggal_lahir ? ', ' . $siswa->tanggal_lahir->format('d-m-Y') : ''); ?>
+                                        | <?php echo e($siswa->tempat_lahir ?: '-'); ?><?php echo e($siswa->tanggal_lahir ? ', ' . $siswa->tanggal_lahir->format('d-m-Y') : ''); ?>
 
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </small>
                             </td>
-                            <td><?php echo e($siswa->kelas); ?></td>
-                            <td><?php echo e($siswa->jurusan); ?></td>
-                            <td><?php echo e($siswa->nama_madrasah); ?></td>
                             <td>
-                                <div><?php echo e($siswa->email); ?></div>
-                                <small class="text-muted"><?php echo e($siswa->email_orang_tua_wali); ?></small>
+                                <div><?php echo e($siswa->kelas); ?></div>
+                                <small class="text-muted"><?php echo e($siswa->jurusan ?: '-'); ?></small>
                             </td>
                             <td>
-                                <div><?php echo e($siswa->nama_orang_tua_wali); ?></div>
-                                <small class="text-muted"><?php echo e($siswa->no_hp_orang_tua_wali); ?></small>
+                                <div><?php echo e($siswa->no_hp ?: '-'); ?></div>
+                                <small class="text-muted"><?php echo e($siswa->email ?: '-'); ?></small>
                             </td>
                             <td>
-                                <span class="badge <?php echo e($siswa->is_active ? 'badge-soft-success' : 'badge-soft-secondary'); ?>">
-                                    <?php echo e($siswa->is_active ? 'Aktif' : 'Nonaktif'); ?>
-
-                                </span>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold"><?php echo e($completionPercentage); ?>%</span>
+                                    <small class="text-muted"><?php echo e($siswa->completion_filled); ?>/<?php echo e($siswa->completion_total); ?> kolom</small>
+                                </div>
+                                <div class="completion-bar">
+                                    <div class="completion-bar-value <?php echo e($completionBarClass); ?>" style="width: <?php echo e($completionPercentage); ?>%;"></div>
+                                </div>
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-2">
@@ -311,6 +579,8 @@
                                         data-bs-target="#editModal"
                                         data-id="<?php echo e($siswa->id); ?>"
                                         data-madrasah_id="<?php echo e($siswa->madrasah_id); ?>"
+                                        data-scod="<?php echo e($siswa->scod ?: ($siswa->madrasah->scod ?? '')); ?>"
+                                        data-asal_sekolah_madrasah="<?php echo e($siswa->nama_madrasah ?: ($siswa->madrasah->name ?? '')); ?>"
                                         data-nis="<?php echo e($siswa->nis); ?>"
                                         data-nisn="<?php echo e($siswa->nisn); ?>"
                                         data-nik="<?php echo e($siswa->nik); ?>"
@@ -320,34 +590,17 @@
                                         data-tempat_lahir="<?php echo e($siswa->tempat_lahir); ?>"
                                         data-tanggal_lahir="<?php echo e(optional($siswa->tanggal_lahir)->format('Y-m-d')); ?>"
                                         data-agama="<?php echo e($siswa->agama); ?>"
-                                        data-nama_orang_tua_wali="<?php echo e($siswa->nama_orang_tua_wali); ?>"
-                                        data-email="<?php echo e($siswa->email); ?>"
-                                        data-email_orang_tua_wali="<?php echo e($siswa->email_orang_tua_wali); ?>"
-                                        data-no_hp="<?php echo e($siswa->no_hp); ?>"
-                                        data-no_hp_orang_tua_wali="<?php echo e($siswa->no_hp_orang_tua_wali); ?>"
                                         data-kelas="<?php echo e($siswa->kelas); ?>"
                                         data-jurusan="<?php echo e($siswa->jurusan); ?>"
-                                        data-tahun_masuk="<?php echo e($siswa->tahun_masuk); ?>"
-                                        data-jenis_tinggal="<?php echo e($siswa->jenis_tinggal); ?>"
-                                        data-alat_transportasi="<?php echo e($siswa->alat_transportasi); ?>"
                                         data-alamat="<?php echo e($siswa->alamat); ?>"
                                         data-dusun="<?php echo e($siswa->dusun); ?>"
                                         data-kelurahan="<?php echo e($siswa->kelurahan); ?>"
                                         data-kecamatan="<?php echo e($siswa->kecamatan); ?>"
-                                        data-kode_pos="<?php echo e($siswa->kode_pos); ?>"
+                                        data-no_hp="<?php echo e($siswa->no_hp); ?>"
+                                        data-email="<?php echo e($siswa->email); ?>"
                                         data-nama_ayah="<?php echo e($siswa->nama_ayah); ?>"
-                                        data-pendidikan_ayah="<?php echo e($siswa->pendidikan_ayah); ?>"
-                                        data-pekerjaan_ayah="<?php echo e($siswa->pekerjaan_ayah); ?>"
-                                        data-penghasilan_ayah="<?php echo e($siswa->penghasilan_ayah); ?>"
                                         data-nama_ibu="<?php echo e($siswa->nama_ibu); ?>"
-                                        data-pendidikan_ibu="<?php echo e($siswa->pendidikan_ibu); ?>"
-                                        data-pekerjaan_ibu="<?php echo e($siswa->pekerjaan_ibu); ?>"
-                                        data-penghasilan_ibu="<?php echo e($siswa->penghasilan_ibu); ?>"
-                                        data-nama_wali="<?php echo e($siswa->nama_wali); ?>"
-                                        data-pendidikan_wali="<?php echo e($siswa->pendidikan_wali); ?>"
-                                        data-pekerjaan_wali="<?php echo e($siswa->pekerjaan_wali); ?>"
-                                        data-penghasilan_wali="<?php echo e($siswa->penghasilan_wali); ?>"
-                                        data-is_active="<?php echo e($siswa->is_active ? 1 : 0); ?>"
+                                        data-no_hp_orang_tua_wali="<?php echo e($siswa->no_hp_orang_tua_wali); ?>"
                                     >
                                         <i class="bx bx-edit"></i>
                                     </button>
@@ -361,21 +614,13 @@
                                 </div>
                             </td>
                         </tr>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                        <tr>
-                            <td colspan="10" class="text-center text-muted py-4">Belum ada data siswa.</td>
-                        </tr>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                 </tbody>
             </table>
         </div>
-
-        <div class="mt-3">
-            <?php echo e($siswas->links('pagination::bootstrap-5')); ?>
-
-        </div>
     </div>
 </div>
+ </div>
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
     <div class="modal fade student-modal" id="createModal" tabindex="-1" aria-hidden="true">
@@ -393,6 +638,136 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-success">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
+    <div class="modal fade bulk-edit-modal" id="bulkEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-xl-down">
+            <div class="modal-content">
+                <form method="POST" action="<?php echo e(route('data-sekolah.data-siswa.bulk-update')); ?>" id="bulkEditForm">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PUT'); ?>
+                    <input type="hidden" name="bulk_edit_submit" value="1">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Data Siswa Keseluruhan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle bulk-edit-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!in_array($userRole, ['admin', 'admin_spp'])): ?>
+                                            <th>Madrasah / Sekolah</th>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <th>NIS</th>
+                                        <th>NISN</th>
+                                        <th>NIK</th>
+                                        <th>NO_KK</th>
+                                        <th>Nama Peserta Didik</th>
+                                        <th>Jenis Kelamin</th>
+                                        <th>Tempat Lahir</th>
+                                        <th>Tanggal Lahir</th>
+                                        <th>Agama</th>
+                                        <th>Kelas</th>
+                                        <th>Jurusan</th>
+                                        <th>Alamat</th>
+                                        <th>Dusun</th>
+                                        <th>Kelurahan</th>
+                                        <th>Kecamatan</th>
+                                        <th>No HP Siswa</th>
+                                        <th>Email Siswa</th>
+                                        <th>Nama Ayah</th>
+                                        <th>Nama Ibu</th>
+                                        <th>No HP Orang Tua / Wali</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $siswas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $siswa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <tr class="js-bulk-edit-row">
+                                            <td class="text-center fw-semibold"><?php echo e($index + 1); ?></td>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!in_array($userRole, ['admin', 'admin_spp'])): ?>
+                                                <td>
+                                                    <select
+                                                        name="rows[<?php echo e($siswa->id); ?>][madrasah_id]"
+                                                        class="form-select form-select-sm bulk-grid-input js-bulk-school-select"
+                                                    >
+                                                        <option value="">Pilih Madrasah</option>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                            <option
+                                                                value="<?php echo e($madrasah->id); ?>"
+                                                                data-scod="<?php echo e($madrasah->scod); ?>"
+                                                                data-name="<?php echo e($madrasah->name); ?>"
+                                                                <?php echo e((string) old("rows.{$siswa->id}.madrasah_id", $siswa->madrasah_id) === (string) $madrasah->id ? 'selected' : ''); ?>
+
+                                                            >
+                                                                <?php echo e($madrasah->name); ?>
+
+                                                            </option>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                    </select>
+                                                </td>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            <td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['admin', 'admin_spp'])): ?>
+                                                    <input type="hidden" name="rows[<?php echo e($siswa->id); ?>][madrasah_id]" value="<?php echo e(old("rows.{$siswa->id}.madrasah_id", $siswa->madrasah_id)); ?>">
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <input
+                                                    type="hidden"
+                                                    name="rows[<?php echo e($siswa->id); ?>][scod]"
+                                                    class="js-bulk-scod"
+                                                    value="<?php echo e(old("rows.{$siswa->id}.scod", $siswa->scod ?: ($siswa->madrasah->scod ?? ''))); ?>"
+                                                >
+                                                <input
+                                                    type="hidden"
+                                                    name="rows[<?php echo e($siswa->id); ?>][asal_sekolah_madrasah]"
+                                                    class="js-bulk-school-name"
+                                                    value="<?php echo e(old("rows.{$siswa->id}.asal_sekolah_madrasah", $siswa->nama_madrasah ?: ($siswa->madrasah->name ?? ''))); ?>"
+                                                >
+                                                <input type="text" name="rows[<?php echo e($siswa->id); ?>][nis]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.nis", $siswa->nis)); ?>">
+                                            </td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][nisn]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.nisn", $siswa->nisn)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][nik]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.nik", $siswa->nik)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][no_kk]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.no_kk", $siswa->no_kk)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][nama_lengkap]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.nama_lengkap", $siswa->nama_lengkap)); ?>"></td>
+                                            <td>
+                                                <select name="rows[<?php echo e($siswa->id); ?>][jenis_kelamin]" class="form-select form-select-sm bulk-grid-input">
+                                                    <option value="">Pilih</option>
+                                                    <option value="L" <?php echo e(old("rows.{$siswa->id}.jenis_kelamin", $siswa->jenis_kelamin) === 'L' ? 'selected' : ''); ?>>L</option>
+                                                    <option value="P" <?php echo e(old("rows.{$siswa->id}.jenis_kelamin", $siswa->jenis_kelamin) === 'P' ? 'selected' : ''); ?>>P</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][tempat_lahir]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.tempat_lahir", $siswa->tempat_lahir)); ?>"></td>
+                                            <td><input type="date" name="rows[<?php echo e($siswa->id); ?>][tanggal_lahir]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.tanggal_lahir", optional($siswa->tanggal_lahir)->format('Y-m-d'))); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][agama]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.agama", $siswa->agama)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][kelas]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.kelas", $siswa->kelas)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][jurusan]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.jurusan", $siswa->jurusan)); ?>"></td>
+                                            <td>
+                                                <textarea name="rows[<?php echo e($siswa->id); ?>][alamat]" class="form-control form-control-sm bulk-grid-input bulk-grid-textarea"><?php echo e(old("rows.{$siswa->id}.alamat", $siswa->alamat)); ?></textarea>
+                                            </td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][dusun]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.dusun", $siswa->dusun)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][kelurahan]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.kelurahan", $siswa->kelurahan)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][kecamatan]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.kecamatan", $siswa->kecamatan)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][no_hp]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.no_hp", $siswa->no_hp)); ?>"></td>
+                                            <td><input type="email" name="rows[<?php echo e($siswa->id); ?>][email]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.email", $siswa->email)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][nama_ayah]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.nama_ayah", $siswa->nama_ayah)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][nama_ibu]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.nama_ibu", $siswa->nama_ibu)); ?>"></td>
+                                            <td><input type="text" name="rows[<?php echo e($siswa->id); ?>][no_hp_orang_tua_wali]" class="form-control form-control-sm bulk-grid-input" value="<?php echo e(old("rows.{$siswa->id}.no_hp_orang_tua_wali", $siswa->no_hp_orang_tua_wali)); ?>"></td>
+                                        </tr>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Semua Perubahan</button>
                     </div>
                 </form>
             </div>
@@ -434,13 +809,18 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-warning mb-3">
-                            Gunakan template agar nama kolom sesuai. Kolom nama madrasah tidak perlu ada di file import. Jika NIS, NISN, atau email siswa sudah ada, data akan diperbarui.
+                            Gunakan template resmi. Kolom data siswa boleh kosong.
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
+                                Pastikan kolom <strong>SCOD</strong> pada file terisi agar sekolah tujuan dikenali otomatis.
+                            <?php else: ?>
+                                Jika kolom <strong>SCOD</strong> dan <strong>ASAL SEKOLAH/MADRASAH</strong> di file kosong, pilih madrasah pada form import ini sebagai tujuan penyimpanan.
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!in_array($userRole, ['admin', 'admin_spp'])): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!in_array($userRole, ['admin', 'admin_spp', 'super_admin'])): ?>
                             <div class="mb-3">
-                                <label for="import_madrasah_id" class="form-label">Madrasah/Sekolah</label>
-                                <select class="form-select" id="import_madrasah_id" name="madrasah_id" required>
-                                    <option value="">Pilih Madrasah</option>
+                                <label for="import_madrasah_id" class="form-label">Madrasah Tujuan Import</label>
+                                <select class="form-select" id="import_madrasah_id" name="madrasah_id">
+                                    <option value="">Gunakan SCOD/Asal Sekolah dari file</option>
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                         <option value="<?php echo e($madrasah->id); ?>" <?php echo e((string) old('madrasah_id', $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : ''); ?>>
                                             <?php echo e($madrasah->name); ?>
@@ -449,12 +829,8 @@
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 </select>
                             </div>
-                        <?php else: ?>
+                        <?php elseif(in_array($userRole, ['admin', 'admin_spp'])): ?>
                             <input type="hidden" name="madrasah_id" value="<?php echo e($selectedMadrasahId); ?>">
-                            <div class="mb-3">
-                                <label class="form-label">Madrasah/Sekolah</label>
-                                <input type="text" class="form-control" value="<?php echo e(optional($madrasahOptions->first())->name); ?>" readonly>
-                            </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <label for="file" class="form-label">File Excel/CSV</label>
                         <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
@@ -471,66 +847,188 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
+<script src="<?php echo e(asset('build/libs/datatables.net/js/jquery.dataTables.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/jszip/jszip.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/pdfmake/build/pdfmake.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/pdfmake/build/vfs_fonts.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/datatables.net-buttons/js/buttons.html5.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/datatables.net-buttons/js/buttons.print.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js')); ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const editModal = document.getElementById('editModal');
-    if (!editModal) {
-        return;
+    const dataTableElement = $('#datatable-buttons');
+    if (dataTableElement.length) {
+        const table = dataTableElement.DataTable({
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            buttons: ['copy', 'excel', 'pdf', 'print', 'colvis'],
+            language: {
+                emptyTable: 'Belum ada data siswa.'
+            }
+        });
+
+        table.buttons().container()
+            .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
     }
 
-    editModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const form = document.getElementById('editForm');
-        const siswaId = button.getAttribute('data-id');
-        const setValue = (name, attribute) => {
-            const field = form.querySelector(`[name="${name}"]`);
-            if (!field) {
+    const syncSchoolMetadata = (form) => {
+        if (!form) {
+            return;
+        }
+
+        const select = form.querySelector('.js-student-school-select');
+        const scodField = form.querySelector('.js-student-scod');
+        const schoolNameField = form.querySelector('.js-student-school-name');
+
+        if (!select || !scodField || !schoolNameField) {
+            return;
+        }
+
+        const selectedOption = select.options[select.selectedIndex];
+        scodField.value = selectedOption?.getAttribute('data-scod') ?? '';
+        schoolNameField.value = selectedOption?.getAttribute('data-name') ?? '';
+    };
+
+    const updateFieldHighlights = (container) => {
+        if (!container) {
+            return;
+        }
+
+        container.querySelectorAll('input, select, textarea').forEach(function (field) {
+            if (['hidden', 'button', 'submit', 'file'].includes(field.type)) {
                 return;
             }
 
-            field.value = button.getAttribute(attribute) ?? '';
-        };
+            const isEmpty = (field.value ?? '').trim() === '';
+            field.classList.toggle('field-empty-highlight', isEmpty);
+        });
+    };
 
-        form.action = `<?php echo e(route('data-sekolah.data-siswa.index')); ?>/${siswaId}`;
-        setValue('madrasah_id', 'data-madrasah_id');
-        setValue('nis', 'data-nis');
-        setValue('nisn', 'data-nisn');
-        setValue('nik', 'data-nik');
-        setValue('no_kk', 'data-no_kk');
-        setValue('nama_lengkap', 'data-nama_lengkap');
-        setValue('jenis_kelamin', 'data-jenis_kelamin');
-        setValue('tempat_lahir', 'data-tempat_lahir');
-        setValue('tanggal_lahir', 'data-tanggal_lahir');
-        setValue('agama', 'data-agama');
-        setValue('nama_orang_tua_wali', 'data-nama_orang_tua_wali');
-        setValue('email', 'data-email');
-        setValue('email_orang_tua_wali', 'data-email_orang_tua_wali');
-        setValue('no_hp', 'data-no_hp');
-        setValue('no_hp_orang_tua_wali', 'data-no_hp_orang_tua_wali');
-        setValue('kelas', 'data-kelas');
-        setValue('jurusan', 'data-jurusan');
-        setValue('tahun_masuk', 'data-tahun_masuk');
-        setValue('jenis_tinggal', 'data-jenis_tinggal');
-        setValue('alat_transportasi', 'data-alat_transportasi');
-        setValue('alamat', 'data-alamat');
-        setValue('dusun', 'data-dusun');
-        setValue('kelurahan', 'data-kelurahan');
-        setValue('kecamatan', 'data-kecamatan');
-        setValue('kode_pos', 'data-kode_pos');
-        setValue('nama_ayah', 'data-nama_ayah');
-        setValue('pendidikan_ayah', 'data-pendidikan_ayah');
-        setValue('pekerjaan_ayah', 'data-pekerjaan_ayah');
-        setValue('penghasilan_ayah', 'data-penghasilan_ayah');
-        setValue('nama_ibu', 'data-nama_ibu');
-        setValue('pendidikan_ibu', 'data-pendidikan_ibu');
-        setValue('pekerjaan_ibu', 'data-pekerjaan_ibu');
-        setValue('penghasilan_ibu', 'data-penghasilan_ibu');
-        setValue('nama_wali', 'data-nama_wali');
-        setValue('pendidikan_wali', 'data-pendidikan_wali');
-        setValue('pekerjaan_wali', 'data-pekerjaan_wali');
-        setValue('penghasilan_wali', 'data-penghasilan_wali');
-        form.querySelector('[name="is_active"]').checked = button.getAttribute('data-is_active') === '1';
+    const bindFieldHighlightListeners = (container) => {
+        if (!container) {
+            return;
+        }
+
+        container.querySelectorAll('input, select, textarea').forEach(function (field) {
+            if (field.dataset.highlightBound === '1' || ['hidden', 'button', 'submit', 'file'].includes(field.type)) {
+                return;
+            }
+
+            const eventName = field.tagName === 'SELECT' ? 'change' : 'input';
+            field.addEventListener(eventName, function () {
+                updateFieldHighlights(container);
+            });
+            field.dataset.highlightBound = '1';
+        });
+    };
+
+    document.querySelectorAll('.student-modal form').forEach(function (form) {
+        syncSchoolMetadata(form);
+
+        const select = form.querySelector('.js-student-school-select');
+        if (select) {
+            select.addEventListener('change', function () {
+                syncSchoolMetadata(form);
+            });
+        }
     });
+
+    const bulkEditForm = document.getElementById('bulkEditForm');
+    if (bulkEditForm) {
+        bindFieldHighlightListeners(bulkEditForm);
+
+        bulkEditForm.querySelectorAll('.js-bulk-edit-row').forEach(function (row) {
+            const select = row.querySelector('.js-bulk-school-select');
+            const scodField = row.querySelector('.js-bulk-scod');
+            const schoolNameField = row.querySelector('.js-bulk-school-name');
+
+            const syncBulkSchoolMetadata = () => {
+                if (!select || !scodField || !schoolNameField) {
+                    return;
+                }
+
+                const selectedOption = select.options[select.selectedIndex];
+                scodField.value = selectedOption?.getAttribute('data-scod') ?? '';
+                schoolNameField.value = selectedOption?.getAttribute('data-name') ?? '';
+            };
+
+            syncBulkSchoolMetadata();
+
+            if (select && select.dataset.syncBound !== '1') {
+                select.addEventListener('change', function () {
+                    syncBulkSchoolMetadata();
+                    updateFieldHighlights(row);
+                });
+                select.dataset.syncBound = '1';
+            }
+        });
+
+        updateFieldHighlights(bulkEditForm);
+    }
+
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        bindFieldHighlightListeners(editForm);
+    }
+
+    const editModal = document.getElementById('editModal');
+    if (editModal) {
+        editModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const form = document.getElementById('editForm');
+            const siswaId = button.getAttribute('data-id');
+
+            const setValue = (name, attribute) => {
+                const field = form.querySelector(`[name="${name}"]`);
+                if (!field) {
+                    return;
+                }
+
+                field.value = button.getAttribute(attribute) ?? '';
+            };
+
+            form.action = `<?php echo e(route('data-sekolah.data-siswa.index')); ?>/${siswaId}`;
+            setValue('madrasah_id', 'data-madrasah_id');
+            syncSchoolMetadata(form);
+            setValue('scod', 'data-scod');
+            setValue('asal_sekolah_madrasah', 'data-asal_sekolah_madrasah');
+            setValue('nis', 'data-nis');
+            setValue('nisn', 'data-nisn');
+            setValue('nik', 'data-nik');
+            setValue('no_kk', 'data-no_kk');
+            setValue('nama_lengkap', 'data-nama_lengkap');
+            setValue('jenis_kelamin', 'data-jenis_kelamin');
+            setValue('tempat_lahir', 'data-tempat_lahir');
+            setValue('tanggal_lahir', 'data-tanggal_lahir');
+            setValue('agama', 'data-agama');
+            setValue('kelas', 'data-kelas');
+            setValue('jurusan', 'data-jurusan');
+            setValue('alamat', 'data-alamat');
+            setValue('dusun', 'data-dusun');
+            setValue('kelurahan', 'data-kelurahan');
+            setValue('kecamatan', 'data-kecamatan');
+            setValue('no_hp', 'data-no_hp');
+            setValue('email', 'data-email');
+            setValue('nama_ayah', 'data-nama_ayah');
+            setValue('nama_ibu', 'data-nama_ibu');
+            setValue('no_hp_orang_tua_wali', 'data-no_hp_orang_tua_wali');
+            updateFieldHighlights(form);
+        });
+    }
+
+    const shouldReopenBulkModal = <?php echo json_encode((bool) old('bulk_edit_submit'), 15, 512) ?>;
+    if (shouldReopenBulkModal) {
+        const bulkEditModal = document.getElementById('bulkEditModal');
+        if (bulkEditModal && window.bootstrap?.Modal) {
+            window.bootstrap.Modal.getOrCreateInstance(bulkEditModal).show();
+        }
+    }
 });
 </script>
 <?php $__env->stopSection(); ?>
