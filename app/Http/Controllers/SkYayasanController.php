@@ -1276,6 +1276,7 @@ class SkYayasanController extends Controller
             'jabatan_penandatangan' => $data['signer_position'] ?? 'Ketua Yayasan',
             'ditetapkan_di' => $data['established_at'],
             'tanggal_penetapan' => $issuedDate->translatedFormat('d F Y'),
+            'tanggal_penetapan_raw' => $issuedDate->toDateString(),
             'tembusan_1' => $data['copy_recipient_1'],
             'tembusan_2' => $data['copy_recipient_2'],
             'catatan_penerbitan' => $data['publication_notes'] ?? '-',
@@ -1775,6 +1776,27 @@ class SkYayasanController extends Controller
         $employeeSkData = $employee?->skYayasanEmployeeData;
         $importRow = $submission->importBatch?->rows
             ?->first(fn ($row) => (int) $row->matched_user_id === (int) $submission->employee_id);
+        $issuedDate = $this->parseFlexibleDate($overrides['tanggal_penetapan_raw'] ?? $overrides['tanggal_terbit'] ?? null);
+        $formattedName = $this->formatNameWithDegree(
+            $importRow?->source_nama,
+            $importRow?->source_gelar,
+            $employee?->name,
+            $employee?->gelar
+        );
+        $formattedBirthDate = $this->formatIndonesianDate(
+            $importRow?->source_tanggal_lahir,
+            $employee?->tanggal_lahir
+        );
+        $formattedTmt = $this->formatIndonesianDate(
+            $importRow?->source_tmt_pertama,
+            $employee?->tmt
+        );
+        $formattedTenure = $this->formatTenureFromTmt(
+            $importRow?->source_tmt_pertama,
+            $employee?->tmt,
+            $issuedDate,
+            $employee?->masa_kerja
+        );
 
         $pick = function (...$values) {
             foreach ($values as $value) {
@@ -1798,15 +1820,15 @@ class SkYayasanController extends Controller
             '{{nama_yayasan}}' => $yayasan?->name ?? 'Yayasan',
             '{{alamat_yayasan}}' => $yayasan?->alamat ?? '-',
             '{{nama_sekolah}}' => $madrasah->name ?? '-',
-            '{{nama_pegawai}}' => $pick($importRow?->source_nama, $employee->name),
+            '{{nama_pegawai}}' => $formattedName,
             '{{gelar}}' => $pick($importRow?->source_gelar, $employee->gelar),
             '{{tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
-            '{{tanggal_lahir}}' => $pick($importRow?->source_tanggal_lahir, optional($employee->tanggal_lahir)?->translatedFormat('d F Y')),
+            '{{tanggal_lahir}}' => $formattedBirthDate,
             '{{nip_maarif}}' => $pick($importRow?->source_nip_maarif, $employee->nip),
             '{{nuptk}}' => $pick($importRow?->source_nuptk, $employee->nuptk),
             '{{nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
-            '{{tmt_pertama}}' => $pick($importRow?->source_tmt_pertama, optional($employee->tmt)?->translatedFormat('d F Y')),
-            '{{masa_kerja}}' => $pick($importRow?->source_masa_kerja, $employee->masa_kerja),
+            '{{tmt_pertama}}' => $formattedTmt,
+            '{{masa_kerja}}' => $formattedTenure,
             '{{pendidikan_terakhir}}' => $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir),
             '{{tahun_lulus}}' => $pick($importRow?->source_tahun_lulus, $employee->tahun_lulus),
             '{{program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
@@ -1830,18 +1852,18 @@ class SkYayasanController extends Controller
             '{{tembusan_2}}' => $overrides['tembusan_2'] ?? '-',
             '{{catatan_pengajuan}}' => '',
             '{{nomor_surat_pengajuan}}' => $pick($submission->submission_letter_number),
-            '{{tanggal_surat_pengajuan}}' => $pick(optional($submission->submission_letter_date)?->translatedFormat('d F Y')),
+            '{{tanggal_surat_pengajuan}}' => $this->formatIndonesianDate($submission->submission_letter_date),
             '{{catatan_penerbitan}}' => $overrides['catatan_penerbitan'] ?? '-',
             '{{excel_no}}' => $pick($importRow?->excel_no),
-            '{{source_nama}}' => $pick($importRow?->source_nama, $employee->name),
+            '{{source_nama}}' => $formattedName,
             '{{source_gelar}}' => $pick($importRow?->source_gelar, $employee->gelar),
             '{{source_tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
-            '{{source_tanggal_lahir}}' => $pick($importRow?->source_tanggal_lahir, optional($employee->tanggal_lahir)?->translatedFormat('d F Y')),
+            '{{source_tanggal_lahir}}' => $formattedBirthDate,
             '{{source_nip_maarif}}' => $pick($importRow?->source_nip_maarif, $employee->nip),
             '{{source_nuptk}}' => $pick($importRow?->source_nuptk, $employee->nuptk),
             '{{source_nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
-            '{{source_tmt_pertama}}' => $pick($importRow?->source_tmt_pertama, optional($employee->tmt)?->translatedFormat('d F Y')),
-            '{{source_masa_kerja}}' => $pick($importRow?->source_masa_kerja, $employee->masa_kerja),
+            '{{source_tmt_pertama}}' => $formattedTmt,
+            '{{source_masa_kerja}}' => $formattedTenure,
             '{{source_pendidikan_terakhir}}' => $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir),
             '{{source_tahun_lulus}}' => $pick($importRow?->source_tahun_lulus, $employee->tahun_lulus),
             '{{source_program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
@@ -1855,6 +1877,111 @@ class SkYayasanController extends Controller
         }
 
         return $base;
+    }
+
+    private function formatNameWithDegree(
+        mixed $primaryName,
+        mixed $primaryDegree = null,
+        mixed $fallbackName = null,
+        mixed $fallbackDegree = null
+    ): string {
+        $name = $this->normalizePersonName($primaryName ?? $fallbackName);
+        $degree = $this->normalizeDegree($primaryDegree ?? $fallbackDegree);
+
+        if ($name === '-') {
+            return '-';
+        }
+
+        if ($degree === null || $degree === '') {
+            return $name;
+        }
+
+        $nameWithoutDegree = preg_replace('/,\s*' . preg_quote($degree, '/') . '$/i', '', $name) ?: $name;
+
+        return trim($nameWithoutDegree) . ', ' . $degree;
+    }
+
+    private function normalizePersonName(mixed $value): string
+    {
+        $string = trim((string) $value);
+
+        if ($string === '') {
+            return '-';
+        }
+
+        return mb_convert_case(mb_strtolower($string), MB_CASE_TITLE, 'UTF-8');
+    }
+
+    private function normalizeDegree(mixed $value): ?string
+    {
+        $string = trim((string) $value);
+
+        return $string === '' ? null : $string;
+    }
+
+    private function formatIndonesianDate(mixed ...$values): string
+    {
+        foreach ($values as $value) {
+            $date = $this->parseFlexibleDate($value);
+
+            if ($date !== null) {
+                return $date->locale('id')->translatedFormat('d F Y');
+            }
+        }
+
+        return '-';
+    }
+
+    private function parseFlexibleDate(mixed $value): ?Carbon
+    {
+        if ($value instanceof Carbon) {
+            return $value->copy();
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return Carbon::instance($value);
+        }
+
+        $string = trim((string) $value);
+
+        if ($string === '' || $string === '-') {
+            return null;
+        }
+
+        foreach (['Y-m-d', 'd/m/Y', 'd-m-Y', 'd.m.Y', 'j/n/Y', 'j-n-Y', 'd/m/y', 'd-m-y'] as $format) {
+            try {
+                return Carbon::createFromFormat($format, $string)->startOfDay();
+            } catch (\Throwable) {
+            }
+        }
+
+        try {
+            return Carbon::parse($string)->startOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function formatTenureFromTmt(
+        mixed $primaryTmt,
+        mixed $fallbackTmt,
+        ?Carbon $issuedDate = null,
+        mixed $fallbackTenure = null
+    ): string {
+        $tmtDate = $this->parseFlexibleDate($primaryTmt) ?? $this->parseFlexibleDate($fallbackTmt);
+
+        if (!$tmtDate || !$issuedDate) {
+            $fallback = trim((string) $fallbackTenure);
+            return $fallback !== '' ? $fallback : '-';
+        }
+
+        if ($tmtDate->greaterThan($issuedDate)) {
+            return '0 tahun 0 bulan';
+        }
+
+        $diff = $tmtDate->diff($issuedDate);
+
+        return sprintf('%d tahun %d bulan', $diff->y, $diff->m);
     }
 
     private function renderTemplate(string $body, array $placeholders): string
