@@ -201,13 +201,6 @@
                                                         <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-sm btn-outline-primary" target="_blank">Preview PDF</a>
                                                     @endif
                                                 </div>
-                                                @if($submission->document && $submission->document->status !== 'published')
-                                                    <form method="POST" action="{{ route('sk-yayasan.generate.publish', $submission->document) }}" class="mt-2 d-inline-block" data-sk-swal-confirm data-sk-swal-title="Terbitkan dokumen?" data-sk-swal-text="Dokumen akan dipublikasikan sebagai SK Yayasan." data-sk-swal-confirm-text="Ya, terbitkan" data-sk-swal-icon="question">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <button type="submit" class="btn btn-sm btn-success">Terbitkan</button>
-                                                    </form>
-                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
