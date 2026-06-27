@@ -74,7 +74,7 @@
 
                         <div class="col-12">
                             <label class="form-label">Keterangan</label>
-                            <textarea name="description" rows="4" class="form-control @error('description') is-invalid @enderror" placeholder="Contoh: Guru memilih hari piket selama libur semester untuk pelayanan sekolah dan administrasi.">{{ old('description', $period->description) }}</textarea>
+                            <textarea name="description" rows="4" class="form-control @error('description') is-invalid @enderror" placeholder="Contoh: Admin sekolah menyusun hari piket guru selama libur semester untuk pelayanan sekolah dan administrasi.">{{ old('description', $period->description) }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -84,8 +84,64 @@
                             <input type="hidden" name="is_active" value="0">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch" id="is_active" name="is_active" value="1" @checked(old('is_active', $period->is_active ?? true))>
-                                <label class="form-check-label" for="is_active">Periode aktif dan bisa diajukan oleh tenaga pendidik</label>
+                                <label class="form-check-label" for="is_active">Periode aktif dan pengajuannya disusun oleh admin sekolah</label>
                             </div>
+                        </div>
+
+                        <div class="col-12">
+                            <hr class="my-2">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div>
+                                    <h5 class="mb-1">Susun Hari Piket Guru</h5>
+                                    <small class="text-muted">Admin sekolah memilih langsung hari masuk piket untuk setiap tenaga pendidik.</small>
+                                </div>
+                                <span class="badge bg-primary">{{ $teachers->count() }} guru</span>
+                            </div>
+
+                            @error('teacher_dates')
+                                <div class="alert alert-danger">{{ $message }}</div>
+                            @enderror
+
+                            @if($teachers->isEmpty())
+                                <div class="alert alert-light border mb-0">Data tenaga pendidik belum tersedia untuk sekolah ini.</div>
+                            @elseif(empty($dateChoices))
+                                <div class="alert alert-light border mb-0">Rentang tanggal belum tersedia. Isi tanggal mulai dan tanggal selesai yang valid terlebih dahulu.</div>
+                            @else
+                                <div class="d-grid gap-3">
+                                    @foreach($teachers as $teacher)
+                                        @php
+                                            $selectedDates = collect(old('teacher_dates.' . $teacher->id, $existingSelections[$teacher->id] ?? []));
+                                        @endphp
+                                        <div class="border rounded-3 p-3">
+                                            <div class="fw-semibold">{{ $teacher->name }}</div>
+                                            <small class="text-muted d-block mb-3">{{ $teacher->ketugasan ?: 'Tenaga pendidik' }}</small>
+
+                                            <div class="row g-2">
+                                                @foreach($dateChoices as $choice)
+                                                    <div class="col-md-6">
+                                                        <label class="d-flex align-items-start gap-2 border rounded p-2 h-100 {{ $choice['is_sunday'] ? 'bg-light text-muted' : '' }}">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="teacher_dates[{{ $teacher->id }}][]"
+                                                                value="{{ $choice['date'] }}"
+                                                                class="mt-1"
+                                                                @checked($selectedDates->contains($choice['date']))
+                                                                @disabled($choice['is_sunday'])
+                                                            >
+                                                            <span style="font-size: 13px;">
+                                                                {{ $choice['label'] }}
+                                                                @if($choice['is_sunday'])
+                                                                    <small class="d-block text-danger">Hari Minggu tidak bisa dipilih</small>
+                                                                @endif
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -104,9 +160,9 @@
                 <h5 class="mb-3">Alur Fitur</h5>
                 <ul class="text-muted ps-3 mb-0">
                     <li>Admin membuat periode libur semester.</li>
-                    <li>Semua tenaga pendidik di sekolah dapat memilih hari piketnya.</li>
-                    <li>Pengajuan masuk ke menu Approval Event milik kepala sekolah.</li>
-                    <li>Jika rentang tanggal perlu diubah, sebaiknya dilakukan sebelum ada pengajuan guru.</li>
+                    <li>Admin sekolah memilih langsung hari piket untuk setiap tenaga pendidik.</li>
+                    <li>Semua pilihan admin masuk ke Approval Event milik kepala sekolah.</li>
+                    <li>Perubahan jadwal dari admin akan mengajukan ulang approval.</li>
                 </ul>
             </div>
         </div>
@@ -126,9 +182,6 @@
                                 <div class="fw-semibold">{{ $teacher->name }}</div>
                                 <small class="text-muted">
                                     {{ $teacher->ketugasan ?: 'Tenaga pendidik' }}
-                                    @if($teacher->jabatan)
-                                        • {{ $teacher->jabatan }}
-                                    @endif
                                 </small>
                             </div>
                         @endforeach

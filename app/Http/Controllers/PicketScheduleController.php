@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -42,7 +43,12 @@ class PicketScheduleController extends Controller
     public function create()
     {
         $user = Auth::user();
-        $selectedSchoolId = $this->resolveSelectedSchoolId($user, request(), false);
+        $selectedSchoolId = old('school_id');
+        $selectedSchoolId = $selectedSchoolId !== null && $selectedSchoolId !== ''
+            ? (int) $selectedSchoolId
+            : $this->resolveSelectedSchoolId($user, request(), false);
+        $startDate = old('start_date', now('Asia/Jakarta')->toDateString());
+        $endDate = old('end_date', now('Asia/Jakarta')->addWeek()->toDateString());
         $school = $selectedSchoolId ? Madrasah::findOrFail($selectedSchoolId) : null;
         $schools = $user->role === 'super_admin'
             ? Madrasah::orderBy('name')->get(['id', 'name'])
@@ -51,13 +57,18 @@ class PicketScheduleController extends Controller
         return view('picket-schedules.form', [
             'period' => new PicketSchedulePeriod([
                 'school_id' => $selectedSchoolId,
-                'start_date' => now('Asia/Jakarta')->toDateString(),
-                'end_date' => now('Asia/Jakarta')->addWeek()->toDateString(),
+                'start_date' => $startDate,
+                'end_date' => $endDate,
                 'is_active' => true,
             ]),
             'school' => $school,
             'schools' => $schools,
             'teachers' => $selectedSchoolId ? $this->getTeachersForSchool((int) $selectedSchoolId) : collect(),
+            'dateChoices' => $selectedSchoolId ? $this->buildDateChoicesFromRange(
+                $startDate,
+                $endDate,
+            ) : [],
+            'existingSelections' => [],
             'isEdit' => false,
         ]);
     }
@@ -70,27 +81,43 @@ class PicketScheduleController extends Controller
 
         $this->ensureNoConflict($validated['school_id'], $validated);
 
-        PicketSchedulePeriod::create(array_merge($validated, [
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-        ]));
+        DB::transaction(function () use ($validated, $user, $request) {
+            $period = PicketSchedulePeriod::create(array_merge($validated, [
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]));
+
+            $this->syncAdminSubmissions($period, $request->input('teacher_dates', []));
+        });
 
         return redirect()
             ->route('picket-schedule-periods.index')
-            ->with('success', 'Periode izin jadwal piket berhasil ditambahkan.');
+            ->with('success', 'Periode izin jadwal piket berhasil ditambahkan dan disusun oleh admin sekolah.');
     }
 
     public function edit(PicketSchedulePeriod $picketSchedulePeriod)
     {
         $this->authorizePeriod($picketSchedulePeriod);
+        $selectedSchoolId = Auth::user()->role === 'super_admin'
+            ? (int) old('school_id', $picketSchedulePeriod->school_id)
+            : (int) $picketSchedulePeriod->school_id;
+        $startDate = old('start_date', optional($picketSchedulePeriod->start_date)->format('Y-m-d') ?: $picketSchedulePeriod->getRawOriginal('start_date'));
+        $endDate = old('end_date', optional($picketSchedulePeriod->end_date)->format('Y-m-d') ?: $picketSchedulePeriod->getRawOriginal('end_date'));
 
         return view('picket-schedules.form', [
             'period' => $picketSchedulePeriod,
-            'school' => $picketSchedulePeriod->school,
+            'school' => Madrasah::find($selectedSchoolId) ?: $picketSchedulePeriod->school,
             'schools' => Auth::user()->role === 'super_admin'
                 ? Madrasah::orderBy('name')->get(['id', 'name'])
                 : collect(),
-            'teachers' => $this->getTeachersForSchool((int) $picketSchedulePeriod->school_id),
+            'teachers' => $this->getTeachersForSchool($selectedSchoolId),
+            'dateChoices' => $this->buildDateChoicesFromRange($startDate, $endDate),
+            'existingSelections' => $picketSchedulePeriod->submissions()
+                ->get(['user_id', 'selected_dates'])
+                ->mapWithKeys(fn (PicketScheduleSubmission $submission) => [
+                    $submission->user_id => collect($submission->selected_dates ?? [])->values()->all(),
+                ])
+                ->all(),
             'isEdit' => true,
         ]);
     }
@@ -104,26 +131,19 @@ class PicketScheduleController extends Controller
             ? $this->resolveSelectedSchoolId(Auth::user(), $request)
             : (int) $picketSchedulePeriod->school_id;
 
-        $hasExistingSubmissions = $picketSchedulePeriod->submissions()->exists();
-        $rangeChanged = $validated['school_id'] !== (int) $picketSchedulePeriod->school_id
-            || $validated['start_date'] !== $picketSchedulePeriod->getRawOriginal('start_date')
-            || $validated['end_date'] !== $picketSchedulePeriod->getRawOriginal('end_date');
-
-        if ($hasExistingSubmissions && $rangeChanged) {
-            throw ValidationException::withMessages([
-                'start_date' => 'Rentang tanggal atau sekolah tidak dapat diubah karena sudah ada pengajuan guru pada periode ini.',
-            ]);
-        }
-
         $this->ensureNoConflict($validated['school_id'], $validated, $picketSchedulePeriod->id);
 
-        $picketSchedulePeriod->update(array_merge($validated, [
-            'updated_by' => Auth::id(),
-        ]));
+        DB::transaction(function () use ($picketSchedulePeriod, $validated, $request) {
+            $picketSchedulePeriod->update(array_merge($validated, [
+                'updated_by' => Auth::id(),
+            ]));
+
+            $this->syncAdminSubmissions($picketSchedulePeriod->fresh(), $request->input('teacher_dates', []));
+        });
 
         return redirect()
             ->route('picket-schedule-periods.index')
-            ->with('success', 'Periode izin jadwal piket berhasil diperbarui.');
+            ->with('success', 'Periode izin jadwal piket berhasil diperbarui dan diajukan ulang oleh admin sekolah.');
     }
 
     public function destroy(PicketSchedulePeriod $picketSchedulePeriod)
@@ -164,69 +184,7 @@ class PicketScheduleController extends Controller
 
     public function mobileSubmit(Request $request, PicketSchedulePeriod $picketSchedulePeriod)
     {
-        $user = Auth::user();
-        if (
-            !$user ||
-            $user->role !== 'tenaga_pendidik' ||
-            (int) $user->madrasah_id !== (int) $picketSchedulePeriod->school_id ||
-            !$picketSchedulePeriod->is_active
-        ) {
-            abort(403);
-        }
-
-        $selectedDates = collect($request->input('selected_dates', []))
-            ->map(fn ($date) => trim((string) $date))
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values();
-
-        if ($selectedDates->isEmpty()) {
-            throw ValidationException::withMessages([
-                'selected_dates' => 'Pilih minimal satu hari jadwal piket.',
-            ]);
-        }
-
-        foreach ($selectedDates as $date) {
-            try {
-                $carbonDate = Carbon::createFromFormat('Y-m-d', $date, 'Asia/Jakarta')->startOfDay();
-            } catch (\Throwable $exception) {
-                throw ValidationException::withMessages([
-                    'selected_dates' => 'Format tanggal jadwal piket tidak valid.',
-                ]);
-            }
-
-            if (!$picketSchedulePeriod->containsDate($carbonDate)) {
-                throw ValidationException::withMessages([
-                    'selected_dates' => 'Terdapat tanggal di luar rentang periode libur semester.',
-                ]);
-            }
-
-            if ($carbonDate->isSunday()) {
-                throw ValidationException::withMessages([
-                    'selected_dates' => 'Hari Minggu tidak dapat dipilih sebagai jadwal piket.',
-                ]);
-            }
-        }
-
-        $submission = PicketScheduleSubmission::query()->firstOrNew([
-            'picket_schedule_period_id' => $picketSchedulePeriod->id,
-            'user_id' => $user->id,
-        ]);
-
-        $submission->fill([
-            'selected_dates' => $selectedDates->values()->all(),
-            'approval_status' => PicketScheduleSubmission::APPROVAL_PENDING,
-            'submitted_at' => now('Asia/Jakarta'),
-            'approved_by' => null,
-            'approved_at' => null,
-            'approval_notes' => null,
-        ]);
-        $submission->save();
-
-        return redirect()
-            ->route('mobile.picket-schedules.index')
-            ->with('success', 'Pengajuan izin jadwal piket berhasil dikirim dan menunggu persetujuan kepala sekolah.');
+        abort(403, 'Pengajuan izin jadwal piket hanya dapat disusun oleh admin sekolah.');
     }
 
     public function principalApprove(Request $request, PicketScheduleSubmission $picketScheduleSubmission)
@@ -377,11 +335,95 @@ class PicketScheduleController extends Controller
             ->get(['id', 'name', 'ketugasan']);
     }
 
+    private function syncAdminSubmissions(PicketSchedulePeriod $period, array $teacherDates): void
+    {
+        $teacherIds = $this->getTeachersForSchool((int) $period->school_id)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+        $validTeacherIds = array_flip($teacherIds);
+        $payload = [];
+
+        foreach ($teacherDates as $teacherId => $dates) {
+            $teacherId = (int) $teacherId;
+
+            if (!isset($validTeacherIds[$teacherId])) {
+                continue;
+            }
+
+            $normalizedDates = collect(is_array($dates) ? $dates : [])
+                ->map(fn ($date) => trim((string) $date))
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values();
+
+            if ($normalizedDates->isEmpty()) {
+                continue;
+            }
+
+            foreach ($normalizedDates as $date) {
+                try {
+                    $carbonDate = Carbon::createFromFormat('Y-m-d', $date, 'Asia/Jakarta')->startOfDay();
+                } catch (\Throwable $exception) {
+                    throw ValidationException::withMessages([
+                        'teacher_dates' => 'Terdapat format tanggal jadwal piket yang tidak valid.',
+                    ]);
+                }
+
+                if (!$period->containsDate($carbonDate)) {
+                    throw ValidationException::withMessages([
+                        'teacher_dates' => 'Terdapat tanggal jadwal piket di luar rentang periode yang dipilih.',
+                    ]);
+                }
+
+                if ($carbonDate->isSunday()) {
+                    throw ValidationException::withMessages([
+                        'teacher_dates' => 'Hari Minggu tidak dapat dijadikan jadwal piket.',
+                    ]);
+                }
+            }
+
+            $payload[] = [
+                'user_id' => $teacherId,
+                'selected_dates' => $normalizedDates->all(),
+                'approval_status' => PicketScheduleSubmission::APPROVAL_PENDING,
+                'submitted_at' => now('Asia/Jakarta'),
+                'approved_by' => null,
+                'approved_at' => null,
+                'approval_notes' => null,
+            ];
+        }
+
+        if (empty($payload)) {
+            throw ValidationException::withMessages([
+                'teacher_dates' => 'Pilih minimal satu hari piket untuk minimal satu tenaga pendidik.',
+            ]);
+        }
+
+        $period->submissions()->delete();
+
+        foreach ($payload as $submission) {
+            $period->submissions()->create($submission);
+        }
+    }
+
     private function buildDateChoices(PicketSchedulePeriod $period): array
     {
+        return $this->buildDateChoicesFromRange($period->start_date, $period->end_date);
+    }
+
+    private function buildDateChoicesFromRange(Carbon|string $startDate, Carbon|string $endDate): array
+    {
+        $startDate = $startDate instanceof Carbon ? $startDate->copy()->startOfDay() : Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay();
+        $endDate = $endDate instanceof Carbon ? $endDate->copy()->startOfDay() : Carbon::parse($endDate, 'Asia/Jakarta')->startOfDay();
         $choices = [];
 
-        foreach (CarbonPeriod::create($period->start_date, $period->end_date) as $date) {
+        if ($endDate->lt($startDate)) {
+            return [];
+        }
+
+        foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
             $choices[] = [
                 'date' => $date->toDateString(),
                 'label' => $date->locale('id')->isoFormat('dddd, D MMMM YYYY'),

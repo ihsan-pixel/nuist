@@ -1,7 +1,7 @@
 @extends('layouts.mobile')
 
 @section('title', 'Jadwal Piket')
-@section('subtitle', 'Pengajuan Izin Jadwal Piket')
+@section('subtitle', 'Status Izin Jadwal Piket')
 
 @section('content')
 <div class="container py-3" style="max-width: 720px; margin: auto;">
@@ -9,36 +9,6 @@
         .picket-card {
             border-radius: 16px;
             overflow: hidden;
-        }
-
-        .picket-date-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 8px;
-            max-height: 320px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .picket-date-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            border: 1px solid #edf0f2;
-        }
-
-        .picket-date-item.disabled {
-            opacity: 0.6;
-            background: #f1f3f5;
-        }
-
-        .picket-date-label {
-            font-size: 12px;
-            color: #495057;
-            line-height: 1.35;
         }
 
         .picket-helper {
@@ -66,7 +36,7 @@
         </button>
         <div>
             <div class="fw-bold" style="color: #004b4c; font-size: 16px;">Izin Jadwal Piket</div>
-            <small class="text-muted">Pilih hari piket Anda selama periode libur semester.</small>
+            <small class="text-muted">Jadwal piket disusun oleh admin sekolah dan menunggu approval kepala sekolah.</small>
         </div>
     </div>
 
@@ -93,7 +63,6 @@
             @foreach($periods as $period)
                 @php
                     $submission = $period->getRelation('currentSubmission');
-                    $selectedDates = collect($submission?->selected_dates ?? []);
                     $badgeClass = match ($submission?->approval_status) {
                         \App\Models\PicketScheduleSubmission::APPROVAL_APPROVED => 'bg-success',
                         \App\Models\PicketScheduleSubmission::APPROVAL_REJECTED => 'bg-danger',
@@ -111,7 +80,7 @@
                             @if($submission)
                                 <span class="badge {{ $badgeClass }}">{{ $submission->approval_status_label }}</span>
                             @else
-                                <span class="badge bg-light text-dark border">Belum diajukan</span>
+                                <span class="badge bg-light text-dark border">Belum disusun admin</span>
                             @endif
                         </div>
 
@@ -130,42 +99,19 @@
                             </div>
                         @endif
 
-                        @if($submission && $submission->approval_status === \App\Models\PicketScheduleSubmission::APPROVAL_APPROVED)
-                            <div class="mb-2 fw-semibold" style="font-size: 13px;">Hari piket yang disetujui</div>
+                        @if($submission)
+                            <div class="mb-2 fw-semibold" style="font-size: 13px;">
+                                {{ $submission->approval_status === \App\Models\PicketScheduleSubmission::APPROVAL_APPROVED ? 'Hari piket yang disetujui' : 'Hari piket yang diajukan admin' }}
+                            </div>
                             <div class="selected-list">
                                 @foreach($submission->selected_date_labels as $label)
                                     <div class="selected-list-item">{{ $label }}</div>
                                 @endforeach
                             </div>
                         @else
-                            <form method="POST" action="{{ route('mobile.picket-schedules.submit', $period) }}">
-                                @csrf
-                                <div class="picket-helper mb-2">
-                                    Centang tanggal yang menjadi jadwal piket Anda. Hari Minggu tidak dapat dipilih.
-                                </div>
-                                <div class="picket-date-grid mb-3">
-                                    @foreach($period->date_choices as $choice)
-                                        <label class="picket-date-item {{ $choice['is_sunday'] ? 'disabled' : '' }}">
-                                            <input
-                                                type="checkbox"
-                                                name="selected_dates[]"
-                                                value="{{ $choice['date'] }}"
-                                                @checked($selectedDates->contains($choice['date']))
-                                                @disabled($choice['is_sunday'])
-                                            >
-                                            <div class="picket-date-label">
-                                                {{ $choice['label'] }}
-                                                @if($choice['is_sunday'])
-                                                    <div class="text-danger small">Hari Minggu</div>
-                                                @endif
-                                            </div>
-                                        </label>
-                                    @endforeach
-                                </div>
-                                <button type="submit" class="btn btn-success w-100">
-                                    <i class="bx bx-send me-1"></i>{{ $submission ? 'Perbarui Pengajuan' : 'Ajukan Jadwal Piket' }}
-                                </button>
-                            </form>
+                            <div class="alert alert-light border mb-0" style="font-size: 12px;">
+                                Admin sekolah belum menyusun jadwal piket Anda pada periode ini.
+                            </div>
                         @endif
                     </div>
                 </div>
