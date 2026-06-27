@@ -1217,8 +1217,8 @@ $progressColor = "rgb($red, $green, 0)";
                 <div class="service-label">Presensi Mengajar</div>
             </div>
             <div class="service-wrapper">
-                <a href="{{ route('mobile.izin', ['type' => 'tidak_masuk']) }}" class="service-item" style="background: #fff; border: 1px solid rgba(0,75,76,0.12); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                    <i class="bx bx-user-x" style="position: relative; z-index: 1;"></i>
+                <a href="{{ route('mobile.izin', ['type' => 'tidak_masuk']) }}" class="service-item">
+                    <img src="{{ asset('images/menu_icon/3.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                 </a>
                 <div class="service-label">Izin Tidak Masuk</div>
             </div>
