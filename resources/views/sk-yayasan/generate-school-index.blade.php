@@ -112,6 +112,14 @@
                                         <i class="bx bx-printer me-1"></i>Generate Semua Guru Sekolah Ini
                                     </button>
                                 </form>
+                                @foreach($importBatchModalItems as $batch)
+                                    <button type="button"
+                                            class="btn btn-outline-primary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#generateImportBatchModal{{ $batch->id }}">
+                                        <i class="bx bx-detail me-1"></i>Lihat Data Detail{{ $importBatchModalItems->count() > 1 ? ' Batch ' . $loop->iteration : '' }}
+                                    </button>
+                                @endforeach
                             @endif
                         </div>
                     </div>
@@ -191,14 +199,6 @@
                                                     </form>
                                                     @if($submission->document)
                                                         <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-sm btn-outline-primary" target="_blank">Preview PDF</a>
-                                                    @endif
-                                                    @if($submission->importBatch)
-                                                        <button type="button"
-                                                                class="btn btn-sm btn-primary"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#generateImportBatchModal{{ $submission->importBatch->id }}">
-                                                            Lihat Data Detail
-                                                        </button>
                                                     @endif
                                                 </div>
                                                 @if($submission->document && $submission->document->status !== 'published')
