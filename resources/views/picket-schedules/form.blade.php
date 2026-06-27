@@ -119,19 +119,19 @@
                                             <div class="row g-2">
                                                 @foreach($dateChoices as $choice)
                                                     <div class="col-md-6">
-                                                        <label class="d-flex align-items-start gap-2 border rounded p-2 h-100 {{ $choice['is_sunday'] ? 'bg-light text-muted' : '' }}">
+                                                        <label class="d-flex align-items-start gap-2 border rounded p-2 h-100 {{ $choice['is_disabled'] ? 'bg-light text-muted' : '' }}">
                                                             <input
                                                                 type="checkbox"
                                                                 name="teacher_dates[{{ $teacher->id }}][]"
                                                                 value="{{ $choice['date'] }}"
                                                                 class="mt-1"
                                                                 @checked($selectedDates->contains($choice['date']))
-                                                                @disabled($choice['is_sunday'])
+                                                                @disabled($choice['is_disabled'])
                                                             >
                                                             <span style="font-size: 13px;">
                                                                 {{ $choice['label'] }}
-                                                                @if($choice['is_sunday'])
-                                                                    <small class="d-block text-danger">Hari Minggu tidak bisa dipilih</small>
+                                                                @if($choice['is_disabled'])
+                                                                    <small class="d-block text-danger">{{ $choice['disabled_reason'] }}</small>
                                                                 @endif
                                                             </span>
                                                         </label>

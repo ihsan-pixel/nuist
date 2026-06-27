@@ -67,6 +67,7 @@ class PicketScheduleController extends Controller
             'dateChoices' => $selectedSchoolId ? $this->buildDateChoicesFromRange(
                 $startDate,
                 $endDate,
+                $selectedSchoolId,
             ) : [],
             'existingSelections' => [],
             'isEdit' => false,
@@ -111,7 +112,7 @@ class PicketScheduleController extends Controller
                 ? Madrasah::orderBy('name')->get(['id', 'name'])
                 : collect(),
             'teachers' => $this->getTeachersForSchool($selectedSchoolId),
-            'dateChoices' => $this->buildDateChoicesFromRange($startDate, $endDate),
+            'dateChoices' => $this->buildDateChoicesFromRange($startDate, $endDate, $selectedSchoolId),
             'existingSelections' => $picketSchedulePeriod->submissions()
                 ->get(['user_id', 'selected_dates'])
                 ->mapWithKeys(fn (PicketScheduleSubmission $submission) => [
@@ -337,6 +338,7 @@ class PicketScheduleController extends Controller
 
     private function syncAdminSubmissions(PicketSchedulePeriod $period, array $teacherDates): void
     {
+        $isFiveDaySchool = $this->isFiveDaySchool((int) $period->school_id);
         $teacherIds = $this->getTeachersForSchool((int) $period->school_id)
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
@@ -382,6 +384,12 @@ class PicketScheduleController extends Controller
                         'teacher_dates' => 'Hari Minggu tidak dapat dijadikan jadwal piket.',
                     ]);
                 }
+
+                if ($isFiveDaySchool && $carbonDate->isSaturday()) {
+                    throw ValidationException::withMessages([
+                        'teacher_dates' => 'Hari Sabtu tidak dapat dijadikan jadwal piket untuk sekolah dengan 5 hari kerja.',
+                    ]);
+                }
             }
 
             $payload[] = [
@@ -410,27 +418,49 @@ class PicketScheduleController extends Controller
 
     private function buildDateChoices(PicketSchedulePeriod $period): array
     {
-        return $this->buildDateChoicesFromRange($period->start_date, $period->end_date);
+        return $this->buildDateChoicesFromRange($period->start_date, $period->end_date, (int) $period->school_id);
     }
 
-    private function buildDateChoicesFromRange(Carbon|string $startDate, Carbon|string $endDate): array
+    private function buildDateChoicesFromRange(Carbon|string $startDate, Carbon|string $endDate, ?int $schoolId = null): array
     {
         $startDate = $startDate instanceof Carbon ? $startDate->copy()->startOfDay() : Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay();
         $endDate = $endDate instanceof Carbon ? $endDate->copy()->startOfDay() : Carbon::parse($endDate, 'Asia/Jakarta')->startOfDay();
         $choices = [];
+        $isFiveDaySchool = $schoolId ? $this->isFiveDaySchool($schoolId) : false;
 
         if ($endDate->lt($startDate)) {
             return [];
         }
 
         foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+            $isSunday = $date->isSunday();
+            $isSaturday = $date->isSaturday();
+            $isDisabled = $isSunday || ($isFiveDaySchool && $isSaturday);
+
+            $disabledReason = null;
+            if ($isSunday) {
+                $disabledReason = 'Hari Minggu tidak bisa dipilih';
+            } elseif ($isFiveDaySchool && $isSaturday) {
+                $disabledReason = 'Sekolah ini memakai 5 hari kerja';
+            }
+
             $choices[] = [
                 'date' => $date->toDateString(),
                 'label' => $date->locale('id')->isoFormat('dddd, D MMMM YYYY'),
-                'is_sunday' => $date->isSunday(),
+                'is_sunday' => $isSunday,
+                'is_saturday' => $isSaturday,
+                'is_disabled' => $isDisabled,
+                'disabled_reason' => $disabledReason,
             ];
         }
 
         return $choices;
+    }
+
+    private function isFiveDaySchool(int $schoolId): bool
+    {
+        $school = Madrasah::query()->find($schoolId, ['id', 'hari_kbm']);
+
+        return (string) ($school?->hari_kbm ?? '') === '5';
     }
 }
