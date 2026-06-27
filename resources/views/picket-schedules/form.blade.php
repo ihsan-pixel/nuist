@@ -9,9 +9,85 @@
 @endcomponent
 
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-xl-10">
         <div class="card border-0 shadow-sm">
             <div class="card-body">
+                <style>
+                    .picket-page-note {
+                        border: 1px solid #e6edf0;
+                        border-radius: 14px;
+                        padding: 14px 16px;
+                        background: #f8fbfb;
+                        color: #5f6b72;
+                        font-size: 13px;
+                        line-height: 1.5;
+                    }
+
+                    .picket-teacher-list {
+                        display: grid;
+                        gap: 14px;
+                    }
+
+                    .picket-teacher-card {
+                        border: 1px solid #e9eef1;
+                        border-radius: 16px;
+                        padding: 14px;
+                        background: #fff;
+                    }
+
+                    .picket-teacher-name {
+                        font-size: 15px;
+                        font-weight: 600;
+                        color: #223035;
+                        margin-bottom: 2px;
+                    }
+
+                    .picket-teacher-role {
+                        font-size: 12px;
+                        color: #7a8790;
+                        margin-bottom: 10px;
+                    }
+
+                    .picket-date-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                        gap: 8px;
+                    }
+
+                    .picket-date-option {
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 10px;
+                        border: 1px solid #e7ecef;
+                        border-radius: 12px;
+                        padding: 10px 12px;
+                        background: #fbfcfc;
+                        min-height: 100%;
+                    }
+
+                    .picket-date-option.disabled {
+                        background: #f4f6f7;
+                        color: #95a1a8;
+                    }
+
+                    .picket-date-text {
+                        font-size: 13px;
+                        line-height: 1.4;
+                        color: #304047;
+                    }
+
+                    .picket-date-option.disabled .picket-date-text {
+                        color: #7f8b91;
+                    }
+
+                    .picket-date-reason {
+                        display: block;
+                        margin-top: 2px;
+                        font-size: 11px;
+                        color: #d14d41;
+                    }
+                </style>
+
                 <div class="mb-4">
                     <h4 class="mb-1">{{ $isEdit ? 'Ubah Periode Jadwal Piket' : 'Tambah Periode Jadwal Piket' }}</h4>
                     <p class="text-muted mb-0">
@@ -47,6 +123,12 @@
                                 <input type="text" class="form-control" value="{{ $school?->name ?? '-' }}" readonly>
                             </div>
                         @endif
+
+                        <div class="col-12">
+                            <div class="picket-page-note">
+                                Admin sekolah menyusun langsung hari piket tiap tenaga pendidik dalam satu form, lalu seluruh susunan ini dikirim ke approval kepala sekolah.
+                            </div>
+                        </div>
 
                         <div class="col-12">
                             <label class="form-label">Nama Periode</label>
@@ -89,11 +171,10 @@
                         </div>
 
                         <div class="col-12">
-                            <hr class="my-2">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pt-2">
                                 <div>
                                     <h5 class="mb-1">Susun Hari Piket Guru</h5>
-                                    <small class="text-muted">Admin sekolah memilih langsung hari masuk piket untuk setiap tenaga pendidik.</small>
+                                    <small class="text-muted">Pilih hanya hari kerja yang benar-benar menjadi jadwal piket.</small>
                                 </div>
                                 <span class="badge bg-primary">{{ $teachers->count() }} guru</span>
                             </div>
@@ -107,35 +188,33 @@
                             @elseif(empty($dateChoices))
                                 <div class="alert alert-light border mb-0">Rentang tanggal belum tersedia. Isi tanggal mulai dan tanggal selesai yang valid terlebih dahulu.</div>
                             @else
-                                <div class="d-grid gap-3">
+                                <div class="picket-teacher-list">
                                     @foreach($teachers as $teacher)
                                         @php
                                             $selectedDates = collect(old('teacher_dates.' . $teacher->id, $existingSelections[$teacher->id] ?? []));
                                         @endphp
-                                        <div class="border rounded-3 p-3">
-                                            <div class="fw-semibold">{{ $teacher->name }}</div>
-                                            <small class="text-muted d-block mb-3">{{ $teacher->ketugasan ?: 'Tenaga pendidik' }}</small>
+                                        <div class="picket-teacher-card">
+                                            <div class="picket-teacher-name">{{ $teacher->name }}</div>
+                                            <div class="picket-teacher-role">{{ $teacher->ketugasan ?: 'Tenaga pendidik' }}</div>
 
-                                            <div class="row g-2">
+                                            <div class="picket-date-grid">
                                                 @foreach($dateChoices as $choice)
-                                                    <div class="col-md-6">
-                                                        <label class="d-flex align-items-start gap-2 border rounded p-2 h-100 {{ $choice['is_disabled'] ? 'bg-light text-muted' : '' }}">
-                                                            <input
-                                                                type="checkbox"
-                                                                name="teacher_dates[{{ $teacher->id }}][]"
-                                                                value="{{ $choice['date'] }}"
-                                                                class="mt-1"
-                                                                @checked($selectedDates->contains($choice['date']))
-                                                                @disabled($choice['is_disabled'])
-                                                            >
-                                                            <span style="font-size: 13px;">
-                                                                {{ $choice['label'] }}
-                                                                @if($choice['is_disabled'])
-                                                                    <small class="d-block text-danger">{{ $choice['disabled_reason'] }}</small>
-                                                                @endif
-                                                            </span>
-                                                        </label>
-                                                    </div>
+                                                    <label class="picket-date-option {{ $choice['is_disabled'] ? 'disabled' : '' }}">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="teacher_dates[{{ $teacher->id }}][]"
+                                                            value="{{ $choice['date'] }}"
+                                                            class="mt-1"
+                                                            @checked($selectedDates->contains($choice['date']))
+                                                            @disabled($choice['is_disabled'])
+                                                        >
+                                                        <span class="picket-date-text">
+                                                            {{ $choice['label'] }}
+                                                            @if($choice['is_disabled'])
+                                                                <small class="picket-date-reason">{{ $choice['disabled_reason'] }}</small>
+                                                            @endif
+                                                        </span>
+                                                    </label>
                                                 @endforeach
                                             </div>
                                         </div>
@@ -150,43 +229,6 @@
                         <a href="{{ route('picket-schedule-periods.index') }}" class="btn btn-outline-secondary">Kembali</a>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body">
-                <h5 class="mb-3">Alur Fitur</h5>
-                <ul class="text-muted ps-3 mb-0">
-                    <li>Admin membuat periode libur semester.</li>
-                    <li>Admin sekolah memilih langsung hari piket untuk setiap tenaga pendidik.</li>
-                    <li>Semua pilihan admin masuk ke Approval Event milik kepala sekolah.</li>
-                    <li>Perubahan jadwal dari admin akan mengajukan ulang approval.</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="mb-0">Data Tenaga Pendidik</h5>
-                    <span class="badge bg-primary">{{ $teachers->count() }}</span>
-                </div>
-                @if($teachers->isEmpty())
-                    <div class="text-muted small">Data guru belum tersedia untuk sekolah ini.</div>
-                @else
-                    <div class="d-grid gap-2">
-                        @foreach($teachers as $teacher)
-                            <div class="border rounded p-2">
-                                <div class="fw-semibold">{{ $teacher->name }}</div>
-                                <small class="text-muted">
-                                    {{ $teacher->ketugasan ?: 'Tenaga pendidik' }}
-                                </small>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
             </div>
         </div>
     </div>
