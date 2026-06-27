@@ -919,9 +919,25 @@ class SkYayasanController extends Controller
         $this->ensureSuperAdmin();
 
         $requests = SkYayasanRequest::query()
-            ->with(['madrasah', 'employee.statusKepegawaian', 'template', 'document'])
-            ->whereIn('current_status', ['approved', 'published'])
-            ->latest('reviewed_at')
+            ->with(['madrasah', 'employee.statusKepegawaian', 'template', 'document', 'importBatch'])
+            ->where(function ($query) {
+                $query->whereIn('current_status', ['approved', 'published'])
+                    ->orWhere(function ($syncedQuery) {
+                        $syncedQuery->whereIn('current_status', ['submitted', 'reviewed'])
+                            ->whereHas('importBatch', fn ($batchQuery) => $batchQuery->where('status', 'synced'));
+                    });
+            })
+            ->orderByRaw("
+                CASE
+                    WHEN current_status = 'published' THEN 2
+                    WHEN current_status = 'approved' THEN 1
+                    WHEN current_status = 'reviewed' THEN 0
+                    WHEN current_status = 'submitted' THEN 0
+                    ELSE 3
+                END
+            ")
+            ->orderByDesc('reviewed_at')
+            ->orderByDesc('submitted_at')
             ->paginate(12)
             ->withQueryString();
 
@@ -951,12 +967,18 @@ class SkYayasanController extends Controller
         ]);
 
         $submission = SkYayasanRequest::query()
-            ->with(['madrasah.yayasan', 'employee.statusKepegawaian', 'document'])
+            ->with(['madrasah.yayasan', 'employee.statusKepegawaian', 'document', 'importBatch'])
             ->whereKey($validated['request_id'])
             ->firstOrFail();
 
-        if (!in_array($submission->current_status, ['approved', 'published'], true)) {
-            return back()->with('error', 'Dokumen hanya bisa digenerate dari pengajuan yang sudah disetujui.');
+        $canGenerate = in_array($submission->current_status, ['approved', 'published'], true)
+            || (
+                in_array($submission->current_status, ['submitted', 'reviewed'], true)
+                && $submission->importBatch?->status === 'synced'
+            );
+
+        if (!$canGenerate) {
+            return back()->with('error', 'Dokumen hanya bisa digenerate dari pengajuan yang sudah disetujui atau batch yang sudah tersinkron.');
         }
 
         $template = SkYayasanTemplate::query()->findOrFail($validated['template_id']);

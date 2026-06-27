@@ -18,7 +18,7 @@
                 <div class="sky-kicker mb-2">Generate SK Yayasan</div>
                 <h4 class="mb-1">Susun draft, preview, lalu terbitkan dokumen</h4>
                 <p class="mb-0 text-white-50">
-                    Pilih template, isi metadata penerbitan, lalu generate SK berdasarkan pengajuan yang sudah disetujui.
+                    Pilih template, isi metadata penerbitan, lalu generate SK berdasarkan pengajuan yang sudah disetujui atau batch yang sudah tersinkronisasi.
                 </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
@@ -35,7 +35,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Antrean Generate</div>
-                            <h6 class="mb-0">Pengajuan siap diproses menjadi SK</h6>
+                            <h6 class="mb-0">Pengajuan siap diproses menjadi SK/PDF</h6>
                         </div>
                         <span class="sky-chip">{{ $requests->total() }} data</span>
                     </div>
@@ -43,6 +43,17 @@
                     @if($requests->count() > 0)
                         <div class="accordion" id="generateAccordion">
                             @foreach($requests as $submission)
+                                @php
+                                    $isSyncedBatch = in_array($submission->current_status, ['submitted', 'reviewed'], true)
+                                        && $submission->importBatch?->status === 'synced';
+                                    $badgeConfig = $submission->current_status === 'published'
+                                        ? ['bg' => 'success', 'text' => 'success', 'label' => 'PUBLISHED']
+                                        : ($submission->current_status === 'approved'
+                                            ? ['bg' => 'primary', 'text' => 'primary', 'label' => 'APPROVED']
+                                            : ($isSyncedBatch
+                                                ? ['bg' => 'info', 'text' => 'info', 'label' => 'TERSINKRON']
+                                                : ['bg' => 'warning', 'text' => 'warning', 'label' => strtoupper($submission->current_status)]));
+                                @endphp
                                 <div class="accordion-item mb-3">
                                     <h2 class="accordion-header" id="generateHeading{{ $submission->id }}">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#generateCollapse{{ $submission->id }}">
@@ -51,14 +62,19 @@
                                                     <div class="fw-semibold">{{ $submission->request_number }} - {{ $submission->employee?->name ?? '-' }}</div>
                                                     <small class="text-muted">{{ $submission->madrasah?->name ?? '-' }}</small>
                                                 </div>
-                                                <span class="badge bg-{{ $submission->current_status === 'published' ? 'success' : 'warning' }}-subtle text-{{ $submission->current_status === 'published' ? 'success' : 'warning' }}">
-                                                    {{ strtoupper($submission->current_status) }}
+                                                <span class="badge bg-{{ $badgeConfig['bg'] }}-subtle text-{{ $badgeConfig['text'] }}">
+                                                    {{ $badgeConfig['label'] }}
                                                 </span>
                                             </div>
                                         </button>
                                     </h2>
                                     <div id="generateCollapse{{ $submission->id }}" class="accordion-collapse collapse" data-bs-parent="#generateAccordion">
                                         <div class="accordion-body">
+                                            @if($isSyncedBatch)
+                                                <div class="sky-inline-note mb-3">
+                                                    Data pengajuan ini berasal dari batch yang sudah berhasil tersinkronisasi pada {{ optional($submission->importBatch?->synced_at)->format('d/m/Y H:i') ?? '-' }}.
+                                                </div>
+                                            @endif
                                             <div class="row g-3 mb-3">
                                                 <div class="col-md-4">
                                                     <div class="sky-soft-card p-3 h-100">
@@ -146,7 +162,7 @@
                         <div class="sky-empty-state py-5">
                             <i class="bx bx-file-find"></i>
                             <strong>Belum ada pengajuan yang siap digenerate</strong>
-                            <small>Setelah pengajuan disetujui, antreannya akan muncul di halaman ini.</small>
+                            <small>Pengajuan yang sudah disetujui atau batch yang sudah tersinkronisasi akan tampil di halaman ini.</small>
                         </div>
                     @endif
                 </div>
