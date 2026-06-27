@@ -1863,7 +1863,7 @@ class SkYayasanController extends Controller
 
                 $string = trim((string) $value);
 
-                if ($string !== '' && $string !== '-') {
+                if ($string !== '' && $string !== '-' && $string !== '?') {
                     return $string;
                 }
             }
@@ -2159,8 +2159,11 @@ class SkYayasanController extends Controller
     private function normalizePersonRowValueText(string $valueText): string
     {
         $normalized = preg_replace('/\s*,\s*/u', ', ', trim($valueText)) ?? trim($valueText);
+        $normalized = preg_replace('/(^|[\s,;:()])\?($|[\s,;:()])/u', '$1-$2', $normalized) ?? $normalized;
+        $normalized = preg_replace('/^\?+$/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/(?:^|,\s*)-(?:\s*,\s*-)+$/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/^-\s*,\s*$/u', '-', $normalized) ?? $normalized;
+        $normalized = preg_replace('/^-\s*,\s*-\s*$/u', '-', $normalized) ?? $normalized;
 
         return $normalized;
     }
