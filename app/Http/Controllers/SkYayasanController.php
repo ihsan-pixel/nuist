@@ -985,6 +985,14 @@ class SkYayasanController extends Controller
             'madrasah' => $madrasah,
             'requests' => $requests,
             'templates' => $templates,
+            'coreData' => $this->buildSchoolSkCoreData(
+                $madrasah,
+                $requests->getCollection()
+                    ->pluck('document')
+                    ->filter()
+                    ->sortByDesc(fn (SkYayasanDocument $document) => optional($document->generated_at)?->timestamp ?? 0)
+                    ->first()
+            ),
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee', 'request.madrasah'])
                 ->where('status', 'published')
@@ -1004,8 +1012,13 @@ class SkYayasanController extends Controller
             'template_id' => ['required', 'integer', 'exists:sk_yayasan_templates,id'],
             'issued_date' => ['required', 'date'],
             'document_number' => ['nullable', 'string', 'max:255'],
+            'school_year' => ['required', 'string', 'max:50'],
+            'document_number_start' => ['nullable', 'string', 'max:255'],
+            'established_at' => ['required', 'string', 'max:255'],
             'signer_name' => ['required', 'string', 'max:255'],
             'signer_position' => ['nullable', 'string', 'max:255'],
+            'copy_recipient_1' => ['required', 'string', 'max:255'],
+            'copy_recipient_2' => ['required', 'string', 'max:255'],
             'publication_notes' => ['nullable', 'string'],
         ]);
 
@@ -1036,8 +1049,14 @@ class SkYayasanController extends Controller
                 'tanggal_selesai' => '30 Juni ' . $issuedDate->copy()->addYear()->format('Y'),
                 'tahun_sk' => $issuedDate->format('Y'),
                 'tahun_sk_berikutnya' => $issuedDate->copy()->addYear()->format('Y'),
+                'tahun_penerbitan_sk' => $validated['school_year'],
+                'nomor_sk_yayasan_mulai' => $validated['document_number_start'] ?? '-',
                 'nama_penandatangan' => $validated['signer_name'],
                 'jabatan_penandatangan' => $validated['signer_position'] ?? 'Ketua Yayasan',
+                'ditetapkan_di' => $validated['established_at'],
+                'tanggal_penetapan' => $issuedDate->translatedFormat('d F Y'),
+                'tembusan_1' => $validated['copy_recipient_1'],
+                'tembusan_2' => $validated['copy_recipient_2'],
                 'catatan_penerbitan' => $validated['publication_notes'] ?? '-',
             ]);
 
@@ -1053,6 +1072,13 @@ class SkYayasanController extends Controller
                     'signer_name' => $validated['signer_name'],
                     'signer_position' => $validated['signer_position'] ?? 'Ketua Yayasan',
                     'publication_notes' => $validated['publication_notes'] ?? null,
+                    'meta_payload' => [
+                        'school_year' => $validated['school_year'],
+                        'document_number_start' => $validated['document_number_start'] ?? null,
+                        'established_at' => $validated['established_at'],
+                        'copy_recipient_1' => $validated['copy_recipient_1'],
+                        'copy_recipient_2' => $validated['copy_recipient_2'],
+                    ],
                     'rendered_content' => $renderedContent,
                     'status' => $submission->current_status === 'published' ? 'published' : 'draft',
                     'generated_at' => now(),
@@ -1127,6 +1153,44 @@ class SkYayasanController extends Controller
         $submission->resolved_template = $this->resolveTemplateForSubmission($submission, $templates);
 
         return $submission;
+    }
+
+    private function buildSchoolSkCoreData(Madrasah $madrasah, ?SkYayasanDocument $document = null): array
+    {
+        $issueDate = $document?->issued_date ?? now();
+        $year = (int) $issueDate->format('Y');
+        $copyRecipients = $this->resolveSchoolCopyRecipients($madrasah);
+        $meta = $document?->meta_payload ?? [];
+
+        return [
+            'school_year' => $meta['school_year'] ?? ($year . '-' . ($year + 1)),
+            'document_number_start' => $meta['document_number_start'] ?? '',
+            'signer_name' => $document?->signer_name ?? '',
+            'signer_position' => $document?->signer_position ?? 'Ketua Yayasan',
+            'established_at' => $meta['established_at'] ?? 'Yogyakarta',
+            'issued_date' => $issueDate->format('Y-m-d'),
+            'copy_recipient_1' => $meta['copy_recipient_1'] ?? $copyRecipients['copy_recipient_1'],
+            'copy_recipient_2' => $meta['copy_recipient_2'] ?? $copyRecipients['copy_recipient_2'],
+        ];
+    }
+
+    private function resolveSchoolCopyRecipients(Madrasah $madrasah): array
+    {
+        $specialMadrasahIds = [6, 7, 43, 45];
+        $kabupaten = trim((string) ($madrasah->kabupaten ?? 'setempat'));
+        $kabupaten = $kabupaten !== '' ? $kabupaten : 'setempat';
+
+        if (in_array((int) $madrasah->id, $specialMadrasahIds, true)) {
+            return [
+                'copy_recipient_1' => 'Kepala Kantor Wilayah Kementerian Agama DIY',
+                'copy_recipient_2' => 'Kepala Kantor Kementerian Agama Kabupaten ' . $kabupaten,
+            ];
+        }
+
+        return [
+            'copy_recipient_1' => 'Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY',
+            'copy_recipient_2' => 'Kepala Balai Pendidikan Menengah Kabupaten ' . $kabupaten,
+        ];
     }
 
     private function formatSubmissionTypeLabel(SkYayasanRequest $submission): string
@@ -1521,8 +1585,14 @@ class SkYayasanController extends Controller
             '{{tanggal_terbit}}' => $overrides['tanggal_terbit'] ?? now()->translatedFormat('d F Y'),
             '{{tahun_sk}}' => $overrides['tahun_sk'] ?? now()->format('Y'),
             '{{tahun_sk_berikutnya}}' => $overrides['tahun_sk_berikutnya'] ?? now()->addYear()->format('Y'),
+            '{{tahun_penerbitan_sk}}' => $overrides['tahun_penerbitan_sk'] ?? (now()->format('Y') . '-' . now()->addYear()->format('Y')),
+            '{{nomor_sk_yayasan_mulai}}' => $overrides['nomor_sk_yayasan_mulai'] ?? '-',
             '{{nama_penandatangan}}' => $overrides['nama_penandatangan'] ?? 'Ketua Yayasan',
             '{{jabatan_penandatangan}}' => $overrides['jabatan_penandatangan'] ?? 'Ketua Yayasan',
+            '{{ditetapkan_di}}' => $overrides['ditetapkan_di'] ?? 'Yogyakarta',
+            '{{tanggal_penetapan}}' => $overrides['tanggal_penetapan'] ?? ($overrides['tanggal_terbit'] ?? now()->translatedFormat('d F Y')),
+            '{{tembusan_1}}' => $overrides['tembusan_1'] ?? '-',
+            '{{tembusan_2}}' => $overrides['tembusan_2'] ?? '-',
             '{{catatan_pengajuan}}' => '',
             '{{nomor_surat_pengajuan}}' => $pick($submission->submission_letter_number),
             '{{tanggal_surat_pengajuan}}' => $pick(optional($submission->submission_letter_date)?->translatedFormat('d F Y')),

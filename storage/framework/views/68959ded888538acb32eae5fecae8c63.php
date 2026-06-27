@@ -102,6 +102,14 @@
                                             <form method="POST" action="<?php echo e(route('sk-yayasan.generate.store')); ?>">
                                                 <?php echo csrf_field(); ?>
                                                 <input type="hidden" name="request_id" value="<?php echo e($submission->id); ?>">
+                                                <input type="hidden" name="issued_date" value="<?php echo e($coreData['issued_date']); ?>" data-sk-core-target="issued_date">
+                                                <input type="hidden" name="school_year" value="<?php echo e($coreData['school_year']); ?>" data-sk-core-target="school_year">
+                                                <input type="hidden" name="document_number_start" value="<?php echo e($coreData['document_number_start']); ?>" data-sk-core-target="document_number_start">
+                                                <input type="hidden" name="signer_name" value="<?php echo e($coreData['signer_name']); ?>" data-sk-core-target="signer_name">
+                                                <input type="hidden" name="signer_position" value="<?php echo e($coreData['signer_position']); ?>" data-sk-core-target="signer_position">
+                                                <input type="hidden" name="established_at" value="<?php echo e($coreData['established_at']); ?>" data-sk-core-target="established_at">
+                                                <input type="hidden" name="copy_recipient_1" value="<?php echo e($coreData['copy_recipient_1']); ?>" data-sk-core-target="copy_recipient_1">
+                                                <input type="hidden" name="copy_recipient_2" value="<?php echo e($coreData['copy_recipient_2']); ?>" data-sk-core-target="copy_recipient_2">
                                                 <div class="row">
                                                     <div class="col-md-6 mb-3">
                                                         <label class="form-label">Template</label>
@@ -120,24 +128,18 @@
                                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label class="form-label">Tanggal Terbit</label>
-                                                        <input type="date" name="issued_date" class="form-control" value="<?php echo e(optional($submission->document?->issued_date)->format('Y-m-d') ?? now()->format('Y-m-d')); ?>" required>
+                                                        <label class="form-label">Data Pokok SK</label>
+                                                        <div class="sky-soft-card p-3 h-100">
+                                                            <div class="small text-muted mb-1">Tahun <?php echo e($coreData['school_year']); ?></div>
+                                                            <div class="fw-semibold"><?php echo e($coreData['established_at']); ?>, <?php echo e(\Illuminate\Support\Carbon::parse($coreData['issued_date'])->translatedFormat('d F Y')); ?></div>
+                                                            <small class="text-muted">Penandatangan mengikuti panel Data Pokok SK di sisi kanan.</small>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-6 mb-3">
                                                         <label class="form-label">Nomor SK</label>
                                                         <input type="text" name="document_number" class="form-control" value="<?php echo e($submission->document?->document_number); ?>">
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
-                                                        <label class="form-label">Penandatangan</label>
-                                                        <input type="text" name="signer_name" class="form-control" value="<?php echo e($submission->document?->signer_name ?? 'Ketua Yayasan'); ?>" required>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-6 mb-3">
-                                                        <label class="form-label">Jabatan Penandatangan</label>
-                                                        <input type="text" name="signer_position" class="form-control" value="<?php echo e($submission->document?->signer_position ?? 'Ketua Yayasan'); ?>">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
                                                         <label class="form-label">Catatan Penerbitan</label>
@@ -189,28 +191,68 @@
         <div class="col-xl-4">
             <div class="card">
                 <div class="card-body">
-                    <div class="sky-panel-label mb-1">Dokumen Terbit</div>
-                    <h6 class="mb-3">Publikasi terbaru sekolah ini</h6>
+                    <div class="sky-panel-label mb-1">Data Pokok SK</div>
+                    <h6 class="mb-3">Metadata utama untuk generate SK sekolah ini</h6>
 
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $publishedDocuments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $document): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                        <div class="sky-document-card mb-3">
-                            <div class="fw-semibold"><?php echo e($document->document_number); ?></div>
-                            <div class="sky-document-meta"><?php echo e($document->request?->employee?->name ?? '-'); ?> - <?php echo e($document->request?->madrasah?->name ?? '-'); ?></div>
-                            <div class="small mb-3 mt-2">Terbit <?php echo e(optional($document->published_at)->format('d/m/Y H:i')); ?></div>
-                            <a href="<?php echo e(route('sk-yayasan.documents.download', $document)); ?>" class="btn btn-sm btn-outline-primary" target="_blank">Lihat PDF</a>
-                        </div>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                        <div class="sky-empty-state">
-                            <i class="bx bx-printer"></i>
-                            <strong>Belum ada dokumen terbit</strong>
-                            <small>Dokumen yang berhasil dipublish untuk sekolah ini akan tampil di panel ini.</small>
-                        </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <div class="mb-3">
+                        <label class="form-label">Tahun Penerbitan SK</label>
+                        <input type="text" class="form-control" value="<?php echo e($coreData['school_year']); ?>" data-sk-core-source="school_year">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nomor SK Yayasan Mulai</label>
+                        <input type="text" class="form-control" value="<?php echo e($coreData['document_number_start']); ?>" data-sk-core-source="document_number_start" placeholder="Contoh: /SK.02/LPM.DIY/VII/2026">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nama Ketua Yayasan</label>
+                        <input type="text" class="form-control" value="<?php echo e($coreData['signer_name']); ?>" data-sk-core-source="signer_name" placeholder="Nama penandatangan">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Jabatan Penandatangan</label>
+                        <input type="text" class="form-control" value="<?php echo e($coreData['signer_position']); ?>" data-sk-core-source="signer_position">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ditetapkan Di</label>
+                        <input type="text" class="form-control" value="<?php echo e($coreData['established_at']); ?>" data-sk-core-source="established_at">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pada Tanggal Penetapan</label>
+                        <input type="date" class="form-control" value="<?php echo e($coreData['issued_date']); ?>" data-sk-core-source="issued_date">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tembusan 1</label>
+                        <textarea class="form-control" rows="2" data-sk-core-source="copy_recipient_1"><?php echo e($coreData['copy_recipient_1']); ?></textarea>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Tembusan 2</label>
+                        <textarea class="form-control" rows="2" data-sk-core-source="copy_recipient_2"><?php echo e($coreData['copy_recipient_2']); ?></textarea>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sources = document.querySelectorAll('[data-sk-core-source]');
+
+    const syncCoreData = () => {
+        sources.forEach((source) => {
+            const key = source.getAttribute('data-sk-core-source');
+            document.querySelectorAll(`[data-sk-core-target="${key}"]`).forEach((target) => {
+                target.value = source.value;
+            });
+        });
+    };
+
+    sources.forEach((source) => {
+        source.addEventListener('input', syncCoreData);
+        source.addEventListener('change', syncCoreData);
+    });
+
+    syncCoreData();
+});
+</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/sk-yayasan/generate-school-index.blade.php ENDPATH**/ ?>

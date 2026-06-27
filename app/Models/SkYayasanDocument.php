@@ -19,6 +19,7 @@ class SkYayasanDocument extends Model
         'signer_name',
         'signer_position',
         'publication_notes',
+        'meta_payload',
         'rendered_content',
         'status',
         'generated_at',
@@ -27,6 +28,7 @@ class SkYayasanDocument extends Model
 
     protected $casts = [
         'issued_date' => 'date',
+        'meta_payload' => 'array',
         'generated_at' => 'datetime',
         'published_at' => 'datetime',
     ];
