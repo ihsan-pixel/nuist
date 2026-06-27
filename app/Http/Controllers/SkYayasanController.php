@@ -931,7 +931,8 @@ class SkYayasanController extends Controller
             ->withCount([
                 'skYayasanRequests as generate_requests_count' => $eligibleRequests,
             ])
-            ->orderByDesc('generate_requests_count')
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();

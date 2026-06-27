@@ -18,7 +18,7 @@
                 <div class="sky-kicker mb-2">Generate SK Yayasan</div>
                 <h4 class="mb-1">Antrean generate per sekolah</h4>
                 <p class="mb-0 text-white-50">
-                    Pilih nama sekolah untuk melihat daftar pengajuan SK Yayasan yang siap dibuat draft PDF sesuai template masing-masing.
+                    Pilih nama sekolah untuk melihat daftar pengajuan SK Yayasan yang siap dibuat draft PDF sesuai template masing-masing. Urutan sekolah mengikuti SCOD dari yang terendah ke tertinggi.
                 </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
@@ -75,7 +75,7 @@
                 </div>
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
                     <div class="small text-muted">
-                        Tembusan 1 dan 2 tetap dihitung otomatis per sekolah berdasarkan ID madrasah dan kabupaten.
+                        Tembusan 1 dan 2 tetap dihitung otomatis per sekolah berdasarkan ID madrasah dan kabupaten. Gunakan antrean sekolah sesuai urutan SCOD agar penomoran global berjalan berurutan.
                     </div>
                     <button type="submit" class="btn btn-primary">Simpan Data Pokok SK Global</button>
                 </div>
