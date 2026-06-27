@@ -106,6 +106,15 @@
                                       action="<?php echo e(route('sk-yayasan.generate.school.pdf', $madrasah)); ?>"
                                       target="_blank">
                                     <?php echo csrf_field(); ?>
+                                    <input type="hidden" name="issued_date" value="<?php echo e($coreData['issued_date']); ?>">
+                                    <input type="hidden" name="school_year" value="<?php echo e($coreData['school_year']); ?>">
+                                    <input type="hidden" name="document_number_start" value="<?php echo e($coreData['document_number_start']); ?>">
+                                    <input type="hidden" name="number_format_suffix" value="<?php echo e($coreData['number_format_suffix']); ?>">
+                                    <input type="hidden" name="signer_name" value="<?php echo e($coreData['signer_name']); ?>">
+                                    <input type="hidden" name="signer_position" value="<?php echo e($coreData['signer_position']); ?>">
+                                    <input type="hidden" name="established_at" value="<?php echo e($coreData['established_at']); ?>">
+                                    <input type="hidden" name="copy_recipient_1" value="<?php echo e($coreData['copy_recipient_1']); ?>">
+                                    <input type="hidden" name="copy_recipient_2" value="<?php echo e($coreData['copy_recipient_2']); ?>">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="bx bx-printer me-1"></i>Generate Semua Guru Sekolah Ini
                                     </button>
@@ -182,6 +191,7 @@
                                                         <input type="hidden" name="issued_date" value="<?php echo e($coreData['issued_date']); ?>">
                                                         <input type="hidden" name="school_year" value="<?php echo e($coreData['school_year']); ?>">
                                                         <input type="hidden" name="document_number_start" value="<?php echo e($coreData['document_number_start']); ?>">
+                                                        <input type="hidden" name="number_format_suffix" value="<?php echo e($coreData['number_format_suffix']); ?>">
                                                         <input type="hidden" name="signer_name" value="<?php echo e($coreData['signer_name']); ?>">
                                                         <input type="hidden" name="signer_position" value="<?php echo e($coreData['signer_position']); ?>">
                                                         <input type="hidden" name="established_at" value="<?php echo e($coreData['established_at']); ?>">

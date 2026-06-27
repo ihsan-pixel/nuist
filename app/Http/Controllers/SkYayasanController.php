@@ -1098,6 +1098,7 @@ class SkYayasanController extends Controller
             'document_number' => ['nullable', 'string', 'max:255'],
             'school_year' => ['required', 'string', 'max:50'],
             'document_number_start' => ['nullable', 'string', 'max:255'],
+            'number_format_suffix' => ['nullable', 'string', 'max:255'],
             'established_at' => ['required', 'string', 'max:255'],
             'signer_name' => ['required', 'string', 'max:255'],
             'signer_position' => ['nullable', 'string', 'max:255'],
@@ -1125,6 +1126,7 @@ class SkYayasanController extends Controller
         $document = $this->persistGeneratedDocument($submission, $template, $issuedDate, [
             'school_year' => $validated['school_year'],
             'document_number_start' => $validated['document_number_start'] ?? null,
+            'number_format_suffix' => $validated['number_format_suffix'] ?? null,
             'signer_name' => $validated['signer_name'],
             'signer_position' => $validated['signer_position'] ?? 'Ketua Yayasan',
             'established_at' => $validated['established_at'],
@@ -1145,6 +1147,18 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
+        $validated = $request->validate([
+            'issued_date' => ['nullable', 'date'],
+            'school_year' => ['nullable', 'string', 'max:50'],
+            'document_number_start' => ['nullable', 'string', 'max:255'],
+            'number_format_suffix' => ['nullable', 'string', 'max:255'],
+            'signer_name' => ['nullable', 'string', 'max:255'],
+            'signer_position' => ['nullable', 'string', 'max:255'],
+            'established_at' => ['nullable', 'string', 'max:255'],
+            'copy_recipient_1' => ['nullable', 'string', 'max:255'],
+            'copy_recipient_2' => ['nullable', 'string', 'max:255'],
+        ]);
+
         $requests = SkYayasanRequest::query()
             ->with([
                 'madrasah.yayasan',
@@ -1163,7 +1177,20 @@ class SkYayasanController extends Controller
         }
 
         $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
-        $coreData = $this->buildSchoolSkCoreData($madrasah);
+        $coreData = array_merge(
+            $this->buildSchoolSkCoreData($madrasah),
+            array_filter([
+                'school_year' => $validated['school_year'] ?? null,
+                'document_number_start' => $validated['document_number_start'] ?? null,
+                'number_format_suffix' => $validated['number_format_suffix'] ?? null,
+                'signer_name' => $validated['signer_name'] ?? null,
+                'signer_position' => $validated['signer_position'] ?? null,
+                'established_at' => $validated['established_at'] ?? null,
+                'issued_date' => $validated['issued_date'] ?? null,
+                'copy_recipient_1' => $validated['copy_recipient_1'] ?? null,
+                'copy_recipient_2' => $validated['copy_recipient_2'] ?? null,
+            ], fn ($value) => $value !== null && $value !== '')
+        );
         $issuedDate = Carbon::parse($coreData['issued_date']);
         $sortedRequests = $requests
             ->sortBy(fn (SkYayasanRequest $submission) => mb_strtolower((string) ($submission->employee?->name ?? '')))
@@ -1187,6 +1214,7 @@ class SkYayasanController extends Controller
                 $generatedDocuments->push($this->persistGeneratedDocument($submission, $template, $issuedDate, [
                     'school_year' => $coreData['school_year'],
                     'document_number_start' => $coreData['document_number_start'],
+                    'number_format_suffix' => $coreData['number_format_suffix'],
                     'signer_name' => $coreData['signer_name'],
                     'signer_position' => $coreData['signer_position'],
                     'established_at' => $coreData['established_at'],
@@ -1259,6 +1287,7 @@ class SkYayasanController extends Controller
 
         $existingDocument = $submission->document;
         $requestedStartNumber = max(1, (int) ($data['document_number_start'] ?? 0)) ?: null;
+        $requestedNumberFormatSuffix = trim((string) ($data['number_format_suffix'] ?? ''));
         $existingDocumentNumber = $existingDocument?->document_number;
         $existingSequence = $this->extractDocumentNumberSequence($existingDocumentNumber);
         $canReuseExistingNumber = $existingDocumentNumber
@@ -1271,7 +1300,13 @@ class SkYayasanController extends Controller
             ? $data['document_number']
             : ($canReuseExistingNumber
                 ? $existingDocumentNumber
-                : $this->generateDocumentNumber($template, $submission, $issuedDate, $requestedStartNumber));
+                : $this->generateDocumentNumber(
+                    $template,
+                    $submission,
+                    $issuedDate,
+                    $requestedStartNumber,
+                    $requestedNumberFormatSuffix !== '' ? $requestedNumberFormatSuffix : null
+                ));
 
         $placeholders = $this->buildTemplatePlaceholders($submission, [
             'nomor_sk' => $documentNumber,
@@ -1740,7 +1775,8 @@ class SkYayasanController extends Controller
         SkYayasanTemplate $template,
         SkYayasanRequest $submission,
         Carbon $issuedDate,
-        ?int $preferredStartNumber = null
+        ?int $preferredStartNumber = null,
+        ?string $preferredNumberFormatSuffix = null
     ): string
     {
         $globalSettings = $this->getGlobalSkSettings();
@@ -1758,7 +1794,8 @@ class SkYayasanController extends Controller
             : $startNumber;
 
         $sequence = (string) $nextSequence;
-        $format = '{seq}/' . ($globalSettings['number_format_suffix'] ?: 'SK.02/LPM.DIY/{month_roman}/{year}');
+        $numberFormatSuffix = $preferredNumberFormatSuffix ?: $globalSettings['number_format_suffix'];
+        $format = '{seq}/' . ($numberFormatSuffix ?: 'SK.02/LPM.DIY/{month_roman}/{year}');
 
         return strtr($format, [
             '{seq}' => $sequence,
