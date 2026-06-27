@@ -33,60 +33,53 @@
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                 <div>
                     <div class="sky-panel-label mb-1">Data Pokok SK</div>
-                    <h6 class="mb-0">Ringkasan data pokok SK per sekolah dalam antrean generate</h6>
+                    <h6 class="mb-0">Metadata global untuk semua sekolah yang sudah tersinkronisasi</h6>
                 </div>
-                <span class="sky-chip">{{ $schools->count() }} sekolah di halaman ini</span>
+                <span class="sky-chip">Global untuk seluruh antrean generate</span>
             </div>
 
-            @if($schools->count() > 0)
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Sekolah</th>
-                                <th>Tahun SK</th>
-                                <th>Nomor SK Mulai</th>
-                                <th>Ketua Yayasan</th>
-                                <th>Ditetapkan</th>
-                                <th>Tembusan 1</th>
-                                <th>Tembusan 2</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($schools as $school)
-                                @php($coreData = $school->core_data ?? [])
-                                <tr>
-                                    <td>
-                                        <div class="fw-semibold">
-                                            <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="text-decoration-none">
-                                                {{ $school->name }}
-                                            </a>
-                                        </div>
-                                        <small class="text-muted">{{ number_format($school->generate_requests_count) }} pengajuan</small>
-                                    </td>
-                                    <td>{{ $coreData['school_year'] ?? '-' }}</td>
-                                    <td>{{ $coreData['document_number_start'] ?: '-' }}</td>
-                                    <td>{{ $coreData['signer_name'] ?: '-' }}</td>
-                                    <td>
-                                        <div>{{ $coreData['established_at'] ?? '-' }}</div>
-                                        <small class="text-muted">
-                                            {{ !empty($coreData['issued_date']) ? \Illuminate\Support\Carbon::parse($coreData['issued_date'])->translatedFormat('d F Y') : '-' }}
-                                        </small>
-                                    </td>
-                                    <td class="small">{{ $coreData['copy_recipient_1'] ?? '-' }}</td>
-                                    <td class="small">{{ $coreData['copy_recipient_2'] ?? '-' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            <form method="POST" action="{{ route('sk-yayasan.generate.settings.update') }}">
+                @csrf
+                @method('PATCH')
+                <div class="row g-3">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Tahun Penerbitan SK</label>
+                        <input type="text" name="sk_yayasan_school_year" class="form-control" value="{{ old('sk_yayasan_school_year', $globalSkSettings['school_year']) }}" required>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Nomor SK Mulai</label>
+                        <input type="number" name="sk_yayasan_number_start" class="form-control" min="1" value="{{ old('sk_yayasan_number_start', $globalSkSettings['number_start']) }}" required>
+                        <small class="text-muted">Contoh `1565` akan menghasilkan `1565/SK.02/LPM.DIY/VI/2026`.</small>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Nama Ketua Yayasan</label>
+                        <input type="text" name="sk_yayasan_signer_name" class="form-control" value="{{ old('sk_yayasan_signer_name', $globalSkSettings['signer_name']) }}" required>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Jabatan Penandatangan</label>
+                        <input type="text" name="sk_yayasan_signer_position" class="form-control" value="{{ old('sk_yayasan_signer_position', $globalSkSettings['signer_position']) }}">
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Ditetapkan Di</label>
+                        <input type="text" name="sk_yayasan_established_at" class="form-control" value="{{ old('sk_yayasan_established_at', $globalSkSettings['established_at']) }}" required>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Pada Tanggal Penetapan</label>
+                        <input type="date" name="sk_yayasan_issued_date" class="form-control" value="{{ old('sk_yayasan_issued_date', $globalSkSettings['issued_date']) }}" required>
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">Format Nomor SK</label>
+                        <input type="text" name="sk_yayasan_number_format_suffix" class="form-control" value="{{ old('sk_yayasan_number_format_suffix', $globalSkSettings['number_format_suffix']) }}" required>
+                        <small class="text-muted">Bagian depan nomor akan diisi otomatis dari `Nomor SK Mulai` dan berlanjut global untuk semua guru.</small>
+                    </div>
                 </div>
-            @else
-                <div class="sky-empty-state py-4">
-                    <i class="bx bx-detail"></i>
-                    <strong>Belum ada data pokok SK</strong>
-                    <small>Data pokok SK akan muncul setelah ada sekolah yang masuk antrean generate.</small>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+                    <div class="small text-muted">
+                        Tembusan 1 dan 2 tetap dihitung otomatis per sekolah berdasarkan ID madrasah dan kabupaten.
+                    </div>
+                    <button type="submit" class="btn btn-primary">Simpan Data Pokok SK Global</button>
                 </div>
-            @endif
+            </form>
         </div>
     </div>
 
@@ -110,11 +103,13 @@
                                         <th>Nama Sekolah</th>
                                         <th>SCOD</th>
                                         <th>Antrean</th>
+                                        <th>Tembusan Otomatis</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($schools as $school)
+                                        @php($coreData = $school->core_data ?? [])
                                         <tr>
                                             <td>
                                                 <div class="fw-semibold">
@@ -129,6 +124,10 @@
                                                 <span class="badge bg-primary-subtle text-primary">
                                                     {{ number_format($school->generate_requests_count) }} pengajuan
                                                 </span>
+                                            </td>
+                                            <td class="small">
+                                                <div>{{ $coreData['copy_recipient_1'] ?? '-' }}</div>
+                                                <div class="text-muted mt-1">{{ $coreData['copy_recipient_2'] ?? '-' }}</div>
                                             </td>
                                             <td>
                                                 <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-primary">

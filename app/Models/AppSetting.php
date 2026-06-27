@@ -32,6 +32,13 @@ class AppSetting extends Model
         'bni_va_merchant_id',
         'bni_va_prefix',
         'bni_va_callback_token',
+        'sk_yayasan_school_year',
+        'sk_yayasan_number_start',
+        'sk_yayasan_signer_name',
+        'sk_yayasan_signer_position',
+        'sk_yayasan_established_at',
+        'sk_yayasan_issued_date',
+        'sk_yayasan_number_format_suffix',
     ];
 
     protected $casts = [
@@ -41,6 +48,8 @@ class AppSetting extends Model
         'session_lifetime' => 'integer',
         'bni_va_enabled' => 'boolean',
         'bni_va_mock_mode' => 'boolean',
+        'sk_yayasan_number_start' => 'integer',
+        'sk_yayasan_issued_date' => 'date',
     ];
 
     /**
@@ -60,6 +69,13 @@ class AppSetting extends Model
             'session_lifetime' => 120,
             'bni_va_enabled' => false,
             'bni_va_mock_mode' => true,
+            'sk_yayasan_school_year' => now()->format('Y') . '-' . now()->addYear()->format('Y'),
+            'sk_yayasan_number_start' => 1,
+            'sk_yayasan_signer_name' => '',
+            'sk_yayasan_signer_position' => 'Ketua Yayasan',
+            'sk_yayasan_established_at' => 'Yogyakarta',
+            'sk_yayasan_issued_date' => now()->toDateString(),
+            'sk_yayasan_number_format_suffix' => 'SK.02/LPM.DIY/{month_roman}/{year}',
         ]);
     }
 

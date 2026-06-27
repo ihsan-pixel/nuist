@@ -34,43 +34,43 @@
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                 <div>
                     <div class="sky-panel-label mb-1">Data Pokok SK</div>
-                    <h6 class="mb-0">Metadata utama untuk generate SK sekolah ini</h6>
+                    <h6 class="mb-0">Metadata global yang dipakai untuk seluruh sekolah tersinkron</h6>
                 </div>
-                <span class="sky-chip">Berlaku untuk semua pengajuan di halaman ini</span>
+                <a href="<?php echo e(route('sk-yayasan.generate.index')); ?>" class="btn btn-sm btn-outline-primary">Ubah di Halaman Generate</a>
             </div>
 
             <div class="row g-3">
                 <div class="col-lg-4 col-md-6">
                     <label class="form-label">Tahun Penerbitan SK</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['school_year']); ?>" data-sk-core-source="school_year">
+                    <input type="text" class="form-control" value="<?php echo e($coreData['school_year']); ?>" readonly>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <label class="form-label">Nomor SK Yayasan Mulai</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['document_number_start']); ?>" data-sk-core-source="document_number_start" placeholder="Contoh: /SK.02/LPM.DIY/VII/2026">
+                    <input type="text" class="form-control" value="<?php echo e($coreData['document_number_start']); ?>" readonly>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <label class="form-label">Nama Ketua Yayasan</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['signer_name']); ?>" data-sk-core-source="signer_name" placeholder="Nama penandatangan">
+                    <input type="text" class="form-control" value="<?php echo e($coreData['signer_name']); ?>" readonly>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <label class="form-label">Jabatan Penandatangan</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['signer_position']); ?>" data-sk-core-source="signer_position">
+                    <input type="text" class="form-control" value="<?php echo e($coreData['signer_position']); ?>" readonly>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <label class="form-label">Ditetapkan Di</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['established_at']); ?>" data-sk-core-source="established_at">
+                    <input type="text" class="form-control" value="<?php echo e($coreData['established_at']); ?>" readonly>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <label class="form-label">Pada Tanggal Penetapan</label>
-                    <input type="date" class="form-control" value="<?php echo e($coreData['issued_date']); ?>" data-sk-core-source="issued_date">
+                    <input type="date" class="form-control" value="<?php echo e($coreData['issued_date']); ?>" readonly>
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label">Tembusan 1</label>
-                    <textarea class="form-control" rows="2" data-sk-core-source="copy_recipient_1"><?php echo e($coreData['copy_recipient_1']); ?></textarea>
+                    <textarea class="form-control" rows="2" readonly><?php echo e($coreData['copy_recipient_1']); ?></textarea>
                 </div>
                 <div class="col-lg-6">
                     <label class="form-label">Tembusan 2</label>
-                    <textarea class="form-control" rows="2" data-sk-core-source="copy_recipient_2"><?php echo e($coreData['copy_recipient_2']); ?></textarea>
+                    <textarea class="form-control" rows="2" readonly><?php echo e($coreData['copy_recipient_2']); ?></textarea>
                 </div>
             </div>
         </div>
@@ -179,7 +179,7 @@
                                                         <div class="sky-soft-card p-3 h-100">
                                                             <div class="small text-muted mb-1">Tahun <?php echo e($coreData['school_year']); ?></div>
                                                             <div class="fw-semibold"><?php echo e($coreData['established_at']); ?>, <?php echo e(\Illuminate\Support\Carbon::parse($coreData['issued_date'])->translatedFormat('d F Y')); ?></div>
-                                                            <small class="text-muted">Penandatangan mengikuti panel Data Pokok SK di atas daftar pengajuan.</small>
+                                                            <small class="text-muted">Nomor SK mengikuti setting global dari halaman generate utama.</small>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -236,28 +236,6 @@
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const sources = document.querySelectorAll('[data-sk-core-source]');
-
-    const syncCoreData = () => {
-        sources.forEach((source) => {
-            const key = source.getAttribute('data-sk-core-source');
-            document.querySelectorAll(`[data-sk-core-target="${key}"]`).forEach((target) => {
-                target.value = source.value;
-            });
-        });
-    };
-
-    sources.forEach((source) => {
-        source.addEventListener('input', syncCoreData);
-        source.addEventListener('change', syncCoreData);
-    });
-
-    syncCoreData();
-});
-</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/sk-yayasan/generate-school-index.blade.php ENDPATH**/ ?>

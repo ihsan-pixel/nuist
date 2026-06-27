@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SkYayasanUserImportTemplateExport;
+use App\Models\AppSetting;
 use App\Models\Madrasah;
 use App\Models\SkYayasanDocument;
 use App\Models\SkYayasanImportBatch;
@@ -923,6 +924,7 @@ class SkYayasanController extends Controller
         $this->ensureSuperAdmin();
 
         $eligibleRequests = $this->generateEligibleRequestsConstraint();
+        $globalSkSettings = $this->getGlobalSkSettings();
 
         $schools = Madrasah::query()
             ->whereHas('skYayasanRequests', $eligibleRequests)
@@ -937,7 +939,7 @@ class SkYayasanController extends Controller
         $schools->getCollection()->transform(function (Madrasah $school) {
             $school->core_data = $this->buildSchoolSkCoreData(
                 $school,
-                $this->latestSchoolGeneratedDocument((int) $school->id)
+                null
             );
 
             return $school;
@@ -946,6 +948,7 @@ class SkYayasanController extends Controller
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
             'totalRequestsCount' => SkYayasanRequest::query()->where($eligibleRequests)->count(),
+            'globalSkSettings' => $globalSkSettings,
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee', 'request.madrasah'])
                 ->where('status', 'published')
@@ -953,6 +956,33 @@ class SkYayasanController extends Controller
                 ->take(10)
                 ->get(),
         ]);
+    }
+
+    public function updateGenerateSettings(Request $request): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        $validated = $request->validate([
+            'sk_yayasan_school_year' => ['required', 'string', 'max:50'],
+            'sk_yayasan_number_start' => ['required', 'integer', 'min:1'],
+            'sk_yayasan_signer_name' => ['required', 'string', 'max:255'],
+            'sk_yayasan_signer_position' => ['nullable', 'string', 'max:255'],
+            'sk_yayasan_established_at' => ['required', 'string', 'max:255'],
+            'sk_yayasan_issued_date' => ['required', 'date'],
+            'sk_yayasan_number_format_suffix' => ['required', 'string', 'max:255'],
+        ]);
+
+        AppSetting::getSettings()->update([
+            'sk_yayasan_school_year' => $validated['sk_yayasan_school_year'],
+            'sk_yayasan_number_start' => $validated['sk_yayasan_number_start'],
+            'sk_yayasan_signer_name' => $validated['sk_yayasan_signer_name'],
+            'sk_yayasan_signer_position' => $validated['sk_yayasan_signer_position'] ?: 'Ketua Yayasan',
+            'sk_yayasan_established_at' => $validated['sk_yayasan_established_at'],
+            'sk_yayasan_issued_date' => $validated['sk_yayasan_issued_date'],
+            'sk_yayasan_number_format_suffix' => $validated['sk_yayasan_number_format_suffix'],
+        ]);
+
+        return back()->with('success', 'Data pokok SK global berhasil diperbarui.');
     }
 
     public function generateSchoolIndex(Madrasah $madrasah): View
@@ -994,14 +1024,7 @@ class SkYayasanController extends Controller
             'madrasah' => $madrasah,
             'requests' => $requests,
             'templates' => $templates,
-            'coreData' => $this->buildSchoolSkCoreData(
-                $madrasah,
-                $requests->getCollection()
-                    ->pluck('document')
-                    ->filter()
-                    ->sortByDesc(fn (SkYayasanDocument $document) => optional($document->generated_at)?->timestamp ?? 0)
-                    ->first()
-            ),
+            'coreData' => $this->buildSchoolSkCoreData($madrasah),
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee', 'request.madrasah'])
                 ->where('status', 'published')
@@ -1046,9 +1069,10 @@ class SkYayasanController extends Controller
         $template = $this->resolveTemplateForSubmission($submission, $activeTemplates)
             ?? SkYayasanTemplate::query()->findOrFail($validated['template_id']);
         $issuedDate = Carbon::parse($validated['issued_date']);
+        $existingDocument = $submission->document;
         $documentNumber = !empty($validated['document_number'])
             ? $validated['document_number']
-            : $this->generateDocumentNumber($template, $submission, $issuedDate);
+            : ($existingDocument?->document_number ?: $this->generateDocumentNumber($template, $submission, $issuedDate));
 
         DB::transaction(function () use ($submission, $template, $validated, $issuedDate, $documentNumber) {
             $placeholders = $this->buildTemplatePlaceholders($submission, [
@@ -1166,20 +1190,21 @@ class SkYayasanController extends Controller
 
     private function buildSchoolSkCoreData(Madrasah $madrasah, ?SkYayasanDocument $document = null): array
     {
-        $issueDate = $document?->issued_date ?? now();
+        $globalSettings = $this->getGlobalSkSettings();
+        $issueDate = $document?->issued_date ?? Carbon::parse($globalSettings['issued_date']);
         $year = (int) $issueDate->format('Y');
         $copyRecipients = $this->resolveSchoolCopyRecipients($madrasah);
-        $meta = $document?->meta_payload ?? [];
 
         return [
-            'school_year' => $meta['school_year'] ?? ($year . '-' . ($year + 1)),
-            'document_number_start' => $meta['document_number_start'] ?? '',
-            'signer_name' => $document?->signer_name ?? '',
-            'signer_position' => $document?->signer_position ?? 'Ketua Yayasan',
-            'established_at' => $meta['established_at'] ?? 'Yogyakarta',
+            'school_year' => $globalSettings['school_year'],
+            'document_number_start' => (string) $globalSettings['number_start'],
+            'signer_name' => $globalSettings['signer_name'],
+            'signer_position' => $globalSettings['signer_position'],
+            'established_at' => $globalSettings['established_at'],
             'issued_date' => $issueDate->format('Y-m-d'),
-            'copy_recipient_1' => $meta['copy_recipient_1'] ?? $copyRecipients['copy_recipient_1'],
-            'copy_recipient_2' => $meta['copy_recipient_2'] ?? $copyRecipients['copy_recipient_2'],
+            'number_format_suffix' => $globalSettings['number_format_suffix'],
+            'copy_recipient_1' => $copyRecipients['copy_recipient_1'],
+            'copy_recipient_2' => $copyRecipients['copy_recipient_2'],
         ];
     }
 
@@ -1209,6 +1234,24 @@ class SkYayasanController extends Controller
         return [
             'copy_recipient_1' => 'Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY',
             'copy_recipient_2' => 'Kepala Balai Pendidikan Menengah Kabupaten ' . $kabupaten,
+        ];
+    }
+
+    private function getGlobalSkSettings(): array
+    {
+        $settings = AppSetting::getSettings();
+        $issuedDate = $settings->sk_yayasan_issued_date
+            ? Carbon::parse($settings->sk_yayasan_issued_date)
+            : now();
+
+        return [
+            'school_year' => $settings->sk_yayasan_school_year ?: ($issuedDate->format('Y') . '-' . $issuedDate->copy()->addYear()->format('Y')),
+            'number_start' => (int) ($settings->sk_yayasan_number_start ?: 1),
+            'signer_name' => (string) ($settings->sk_yayasan_signer_name ?: ''),
+            'signer_position' => (string) ($settings->sk_yayasan_signer_position ?: 'Ketua Yayasan'),
+            'established_at' => (string) ($settings->sk_yayasan_established_at ?: 'Yogyakarta'),
+            'issued_date' => $issuedDate->toDateString(),
+            'number_format_suffix' => (string) ($settings->sk_yayasan_number_format_suffix ?: 'SK.02/LPM.DIY/{month_roman}/{year}'),
         ];
     }
 
@@ -1531,16 +1574,36 @@ class SkYayasanController extends Controller
 
     private function generateDocumentNumber(SkYayasanTemplate $template, SkYayasanRequest $submission, Carbon $issuedDate): string
     {
-        $sequence = str_pad((string) (SkYayasanDocument::query()->count() + 1), 4, '0', STR_PAD_LEFT);
-        $format = $template->document_number_format ?: '{seq}/SKY/{school_code}/{month}/{year}';
-        $schoolCode = $submission->madrasah->scod ?: ('SCH' . $submission->madrasah_id);
+        $globalSettings = $this->getGlobalSkSettings();
+        $startNumber = max(1, (int) $globalSettings['number_start']);
+        $lastUsedSequence = SkYayasanDocument::query()
+            ->pluck('document_number')
+            ->map(function (?string $documentNumber) {
+                if (!is_string($documentNumber)) {
+                    return null;
+                }
+
+                if (preg_match('/^(\d+)\//', $documentNumber, $matches) === 1) {
+                    return (int) $matches[1];
+                }
+
+                return null;
+            })
+            ->filter(fn ($value) => $value !== null)
+            ->max();
+
+        $nextSequence = $lastUsedSequence !== null
+            ? max($startNumber, ((int) $lastUsedSequence) + 1)
+            : $startNumber;
+
+        $sequence = (string) $nextSequence;
+        $format = '{seq}/' . ($globalSettings['number_format_suffix'] ?: 'SK.02/LPM.DIY/{month_roman}/{year}');
 
         return strtr($format, [
             '{seq}' => $sequence,
             '{month}' => $issuedDate->format('m'),
             '{month_roman}' => $this->romanMonth((int) $issuedDate->format('n')),
             '{year}' => $issuedDate->format('Y'),
-            '{school_code}' => $schoolCode,
         ]);
     }
 
