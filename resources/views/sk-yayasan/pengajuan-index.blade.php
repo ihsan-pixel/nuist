@@ -114,7 +114,7 @@
     ];
 
     $importBatchModalItems = $pendingImportBatches->getCollection()
-        ->merge($rejectedImportBatches->getCollection())
+        ->merge($syncedImportBatches->getCollection())
         ->unique('id');
 
     $resolveImportErrorFields = function ($row) {
@@ -259,52 +259,42 @@
                 <div class="card-body">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                         <div>
-                            <div class="sky-panel-label mb-1">Batch Ditolak</div>
-                            <h6 class="mb-0">Riwayat batch yang dikembalikan ke sekolah</h6>
+                            <div class="sky-panel-label mb-1">Pengajuan Tersinkron</div>
+                            <h6 class="mb-0">Pengajuan yang sudah tersingkronisasikan di aplikasi</h6>
                         </div>
-                        <span class="sky-chip">{{ $rejectedImportBatches->total() }} ditolak</span>
+                        <span class="sky-chip">{{ $syncedImportBatches->total() }} tersinkron</span>
                     </div>
 
-                    @if($rejectedImportBatches->count() > 0)
+                    @if($syncedImportBatches->count() > 0)
                         <div class="table-responsive">
                             <table class="table align-middle">
                                 <thead>
                                     <tr>
                                         <th>File Import</th>
                                         <th>Sekolah</th>
-                                        <th>Direview</th>
-                                        <th>Catatan</th>
+                                        <th>Tersinkron</th>
+                                        <th>Data Sinkron</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($rejectedImportBatches as $batch)
+                                    @foreach($syncedImportBatches as $batch)
                                         <tr>
                                             <td><div class="fw-semibold">{{ $batch->original_filename }}</div></td>
                                             <td>{{ $batch->madrasah?->name ?? '-' }}</td>
                                             <td>
                                                 <div>{{ $batch->reviewer?->name ?? '-' }}</div>
-                                                <small class="text-muted">{{ optional($batch->reviewed_at)->format('d/m/Y H:i') ?? '-' }}</small>
+                                                <small class="text-muted">{{ optional($batch->synced_at)->format('d/m/Y H:i') ?? '-' }}</small>
                                             </td>
                                             <td>
-                                                <div class="small">{{ \Illuminate\Support\Str::limit($batch->review_notes ?: 'Tidak ada catatan.', 90) }}</div>
+                                                <div class="small fw-semibold">{{ number_format($batch->requests_count) }} pengajuan</div>
+                                                <small class="text-muted">{{ number_format($batch->valid_rows) }} dari {{ number_format($batch->total_rows) }} baris valid</small>
                                             </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
-                                                        Lihat Review
+                                                        Lihat Detail
                                                     </button>
-                                                    <form method="POST"
-                                                          action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
-                                                          data-sk-swal-confirm
-                                                          data-sk-swal-title="Hapus pengajuan ini?"
-                                                          data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
-                                                          data-sk-swal-confirm-text="Ya, hapus"
-                                                          data-sk-swal-icon="warning">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
-                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>
@@ -315,16 +305,16 @@
                     @else
                         <div class="sky-empty-state py-5">
                             <i class="bx bx-check-shield"></i>
-                            <strong>Tidak ada batch ditolak</strong>
-                            <small>Batch yang pernah ditolak oleh Yayasan akan tampil terpisah di sini.</small>
+                            <strong>Belum ada batch tersinkron</strong>
+                            <small>Batch yang sudah berhasil disinkronkan ke aplikasi akan tampil di sini.</small>
                         </div>
                     @endif
                 </div>
 
-                @if($rejectedImportBatches->hasPages())
+                @if($syncedImportBatches->hasPages())
                     <div class="card-footer bg-white">
                         <div class="sky-pagination-wrap">
-                            {{ $rejectedImportBatches->links('pagination::bootstrap-5') }}
+                            {{ $syncedImportBatches->links('pagination::bootstrap-5') }}
                         </div>
                     </div>
                 @endif
@@ -614,7 +604,7 @@
                                     </div>
                                 </form>
                             </div>
-                        @else
+                        @elseif($batch->status === 'rejected')
                             <div class="d-flex flex-wrap justify-content-between gap-2 w-100">
                                 <button type="submit"
                                         form="editImportBatchForm{{ $batch->id }}"
@@ -635,6 +625,10 @@
                                     </form>
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
                                 </div>
+                            </div>
+                        @else
+                            <div class="d-flex justify-content-end w-100">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
                             </div>
                         @endif
                     </div>

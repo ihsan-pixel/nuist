@@ -713,7 +713,8 @@ class SkYayasanController extends Controller
             ->withQueryString();
 
         $importBatchQuery = SkYayasanImportBatch::query()
-            ->with(['madrasah', 'uploader', 'reviewer', 'rows']);
+            ->with(['madrasah', 'uploader', 'reviewer', 'rows'])
+            ->withCount('requests');
 
         $pendingImportBatches = (clone $importBatchQuery)
             ->where('status', 'pending_review')
@@ -721,17 +722,17 @@ class SkYayasanController extends Controller
             ->paginate(8, ['*'], 'pending_import_page')
             ->withQueryString();
 
-        $rejectedImportBatches = (clone $importBatchQuery)
-            ->where('status', 'rejected')
-            ->latest('reviewed_at')
+        $syncedImportBatches = (clone $importBatchQuery)
+            ->where('status', 'synced')
+            ->latest('synced_at')
             ->latest('uploaded_at')
-            ->paginate(8, ['*'], 'rejected_import_page')
+            ->paginate(8, ['*'], 'synced_import_page')
             ->withQueryString();
 
         return view('sk-yayasan.pengajuan-index', [
             'submissions' => $submissions,
             'pendingImportBatches' => $pendingImportBatches,
-            'rejectedImportBatches' => $rejectedImportBatches,
+            'syncedImportBatches' => $syncedImportBatches,
             'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
             'madrasahs' => Madrasah::query()->orderBy('name')->get(['id', 'name']),
             'templates' => SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get(),
