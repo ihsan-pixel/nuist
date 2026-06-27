@@ -188,6 +188,13 @@
                             @elseif(empty($dateChoices))
                                 <div class="alert alert-light border mb-0">Rentang tanggal belum tersedia. Isi tanggal mulai dan tanggal selesai yang valid terlebih dahulu.</div>
                             @else
+                                @php
+                                    $activeDateChoices = collect($dateChoices)->reject(fn ($choice) => $choice['is_disabled'])->values();
+                                @endphp
+
+                                @if($activeDateChoices->isEmpty())
+                                    <div class="alert alert-light border mb-0">Tidak ada hari aktif yang bisa dipilih pada rentang tanggal ini.</div>
+                                @else
                                 <div class="picket-teacher-list">
                                     @foreach($teachers as $teacher)
                                         @php
@@ -198,21 +205,17 @@
                                             <div class="picket-teacher-role">{{ $teacher->ketugasan ?: 'Tenaga pendidik' }}</div>
 
                                             <div class="picket-date-grid">
-                                                @foreach($dateChoices as $choice)
-                                                    <label class="picket-date-option {{ $choice['is_disabled'] ? 'disabled' : '' }}">
+                                                @foreach($activeDateChoices as $choice)
+                                                    <label class="picket-date-option">
                                                         <input
                                                             type="checkbox"
                                                             name="teacher_dates[{{ $teacher->id }}][]"
                                                             value="{{ $choice['date'] }}"
                                                             class="mt-1"
                                                             @checked($selectedDates->contains($choice['date']))
-                                                            @disabled($choice['is_disabled'])
                                                         >
                                                         <span class="picket-date-text">
                                                             {{ $choice['label'] }}
-                                                            @if($choice['is_disabled'])
-                                                                <small class="picket-date-reason">{{ $choice['disabled_reason'] }}</small>
-                                                            @endif
                                                         </span>
                                                     </label>
                                                 @endforeach
@@ -220,6 +223,7 @@
                                         </div>
                                     @endforeach
                                 </div>
+                                @endif
                             @endif
                         </div>
                     </div>
