@@ -807,6 +807,7 @@
     @php
         $user = Auth::user();
         $isPenjagaSekolah = $user->ketugasan === 'penjaga sekolah';
+        $hasApprovedPicketToday = !empty($approvedPicketSubmission);
 
         // For penjaga sekolah, check for any open presensi regardless of date
         if ($isPenjagaSekolah) {
@@ -818,7 +819,7 @@
         }
     @endphp
 
-    @if($isHoliday && !$isPenjagaSekolah)
+    @if($isHoliday && !$isPenjagaSekolah && !$hasApprovedPicketToday)
     <div class="alert-custom warning">
         <div class="d-flex align-items-center">
             <div class="status-icon">
@@ -827,6 +828,29 @@
             <div>
                 <h6 class="mb-0">Hari Libur</h6>
                 <p class="mb-0">{{ $holiday->name ?? 'Hari ini libur' }}</p>
+            </div>
+        </div>
+    </div>
+
+    @elseif($hasApprovedPicketToday && !$isPenjagaSekolah && (!$presensiHariIni || $presensiHariIni->count() === 0))
+    <div class="status-card success">
+        <div class="d-flex align-items-center">
+            <div class="status-icon">
+                <i class="bx bx-calendar-check"></i>
+            </div>
+            <div class="w-100">
+                <h6 class="mb-1">Jadwal Piket Disetujui</h6>
+                <div class="status-detail-list">
+                    <div class="status-detail-item">
+                        <small>{{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}</small>
+                        <p>Hari ini termasuk jadwal piket Anda dan presensi tetap dibuka.</p>
+                    </div>
+                    <div class="status-detail-item">
+                        <small>Periode</small>
+                        <p><strong>{{ $approvedPicketSubmission->period->name ?? 'Jadwal Piket' }}</strong></p>
+                    </div>
+                </div>
+                <p class="status-inline-note mb-0">Silakan lakukan presensi seperti biasa pada hari piket yang telah disetujui.</p>
             </div>
         </div>
     </div>
@@ -975,7 +999,7 @@
                 // For penjaga sekolah, always allow presensi
                 $isDisabled = false;
                 $buttonText = 'Presensi Sekarang';
-            } elseif ($isHoliday) {
+            } elseif ($isHoliday && !$hasApprovedPicketToday) {
                 $isDisabled = true;
                 $buttonText = 'Hari Libur - Presensi Ditutup';
                 $buttonIcon = 'calendar-x';

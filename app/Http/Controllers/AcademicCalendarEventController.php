@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AcademicCalendarEvent;
 use App\Models\Madrasah;
+use App\Models\PicketScheduleSubmission;
 use App\Services\AcademicCalendarEventService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -150,7 +151,17 @@ class AcademicCalendarEventController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return view('mobile.academic-calendar-approvals', compact('events', 'school'));
+        $picketSubmissions = PicketScheduleSubmission::query()
+            ->with(['user', 'approver', 'period'])
+            ->whereHas('period', function ($query) use ($schoolId) {
+                $query->where('school_id', $schoolId);
+            })
+            ->orderByRaw("CASE approval_status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END")
+            ->orderByDesc('submitted_at')
+            ->orderByDesc('id')
+            ->get();
+
+        return view('mobile.academic-calendar-approvals', compact('events', 'picketSubmissions', 'school'));
     }
 
     public function principalApprove(Request $request, AcademicCalendarEvent $academicCalendarEvent)

@@ -1285,6 +1285,14 @@ $progressColor = "rgb($red, $green, 0)";
                 </a>
                 <div class="service-label">Pengaturan</div>
             </div>
+            @if(Auth::user()->role === 'tenaga_pendidik')
+            <div class="extra-service service-wrapper">
+                <a href="{{ route('mobile.picket-schedules.index') }}" class="service-item" style="background: #fff; border: 1px solid rgba(0,75,76,0.12); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <i class="bx bx-calendar-event" style="position: relative; z-index: 1;"></i>
+                </a>
+                <div class="service-label">Jadwal Piket</div>
+            </div>
+            @endif
             @if(Auth::user()->pemenuhan_beban_kerja_lain)
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'mengajar_sekolah_lain']) }}" class="service-item" style="background: #fff; border: 1px solid rgba(0,75,76,0.12); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">

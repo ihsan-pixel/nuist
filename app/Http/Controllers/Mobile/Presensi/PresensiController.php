@@ -15,11 +15,12 @@ use App\Models\User;
 use App\Models\Holiday;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
+use App\Services\PicketScheduleApprovalService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PresensiController extends \App\Http\Controllers\Controller
 {
-    public function __construct()
+    public function __construct(private PicketScheduleApprovalService $picketScheduleApprovalService)
     {
         $this->middleware(['web', 'auth']);
     }
@@ -113,6 +114,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         // Check holiday
         $isHoliday = Holiday::isHoliday($dateString);
         $holiday = $isHoliday ? Holiday::getHoliday($dateString) : null;
+        $approvedPicketSubmission = $this->picketScheduleApprovalService->approvedSubmissionForDate($user, $selectedDate);
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $selectedDate);
 
@@ -180,7 +182,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             $timeRanges['masuk_end'] = null;
         }
 
-        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'approvedBlockingIzin', 'timeRanges', 'mapData', 'user'));
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'approvedPicketSubmission', 'presensiHariIni', 'approvedBlockingIzin', 'timeRanges', 'mapData', 'user'));
     }
 
     // Store presensi (mobile)
@@ -224,8 +226,9 @@ class PresensiController extends \App\Http\Controllers\Controller
         // Check if it's a holiday or Sunday - prevent presensi
         $isHoliday = Holiday::isHoliday($tanggal);
         $isSunday = Carbon::parse($tanggal)->dayOfWeek === Carbon::SUNDAY;
+        $approvedPicketSubmission = $this->picketScheduleApprovalService->approvedSubmissionForDate($user, $tanggal);
 
-        if ($isHoliday || $isSunday) {
+        if (($isHoliday || $isSunday) && !$approvedPicketSubmission) {
             $holiday = $isHoliday ? Holiday::getHoliday($tanggal) : null;
             $reason = $isHoliday ? "hari libur ({$holiday->name})" : "hari Minggu";
             return response()->json([

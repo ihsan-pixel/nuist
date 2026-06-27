@@ -17,6 +17,7 @@ use App\Services\AcademicCalendarEventService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\FcmPushService;
 use App\Services\ExternalTeachingPermissionService;
+use App\Services\PicketScheduleApprovalService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -37,7 +38,10 @@ class TeacherAppController extends Controller
     private const SCHEDULE_DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     private const SCHEDULE_NEW_VALUE = '__new__';
 
-    public function __construct(private AcademicCalendarEventService $academicCalendarEventService)
+    public function __construct(
+        private AcademicCalendarEventService $academicCalendarEventService,
+        private PicketScheduleApprovalService $picketScheduleApprovalService,
+    )
     {
     }
 
@@ -383,6 +387,7 @@ class TeacherAppController extends Controller
             ->where('is_active', true)
             ->whereDate('date', $today->toDateString())
             ->first();
+        $approvedPicketSubmission = $this->picketScheduleApprovalService->approvedSubmissionForDate($user, $today);
         $isSunday = $today->isSunday();
         $approvedBlockingIzin = $this->findApprovedBlockingIzin($user, $today);
         $pendingLatePermit = Presensi::query()
@@ -398,6 +403,7 @@ class TeacherAppController extends Controller
             $todayPresensi,
             $holiday,
             $isSunday,
+            $approvedPicketSubmission,
             $approvedBlockingIzin,
             $pendingLatePermit,
         );
@@ -416,6 +422,7 @@ class TeacherAppController extends Controller
                     $approvedBlockingIzin,
                     $holiday,
                     $isSunday,
+                    $approvedPicketSubmission,
                 ),
                 'recent' => $recent->map(function (Presensi $item) {
                     $autoPresentIzin = $this->findApprovedAutoPresentIzin($item->user_id, $item->tanggal);
@@ -471,8 +478,9 @@ class TeacherAppController extends Controller
             ->where('is_active', true)
             ->whereDate('date', $tanggal->toDateString())
             ->first();
+        $approvedPicketSubmission = $this->picketScheduleApprovalService->approvedSubmissionForDate($user, $tanggal);
 
-        if ($holiday || $tanggal->isSunday()) {
+        if (($holiday || $tanggal->isSunday()) && !$approvedPicketSubmission) {
             $reason = $holiday
                 ? 'hari libur (' . $holiday->name . ')'
                 : 'hari Minggu';
@@ -2060,6 +2068,7 @@ class TeacherAppController extends Controller
         ?Izin $approvedBlockingIzin = null,
         ?Holiday $holiday = null,
         bool $isSunday = false,
+        ?\App\Models\PicketScheduleSubmission $approvedPicketSubmission = null,
     ): array {
         if ($items->isNotEmpty()) {
             return $this->serializeTodayAttendance($items);
@@ -2081,6 +2090,19 @@ class TeacherAppController extends Controller
         }
 
         if ($holiday) {
+            if ($approvedPicketSubmission) {
+                return [
+                    'status' => 'jadwal_piket',
+                    'status_label' => 'Jadwal piket disetujui',
+                    'check_in' => null,
+                    'check_out' => null,
+                    'location' => null,
+                    'location_out' => null,
+                    'entries' => [],
+                    'note' => 'Hari ini masuk dalam jadwal piket yang telah disetujui.',
+                ];
+            }
+
             return [
                 'status' => 'libur',
                 'status_label' => 'Hari libur',
@@ -2124,6 +2146,7 @@ class TeacherAppController extends Controller
         $todayPresensi,
         ?Holiday $holiday,
         bool $isSunday,
+        ?\App\Models\PicketScheduleSubmission $approvedPicketSubmission,
         ?Izin $approvedBlockingIzin,
         bool $pendingLatePermit,
     ): array {
@@ -2139,7 +2162,7 @@ class TeacherAppController extends Controller
         $completedToday = $hadirRecords
             ->contains(fn (Presensi $item) => !empty($item->waktu_masuk) && !empty($item->waktu_keluar));
 
-        if ($holiday) {
+        if ($holiday && !$approvedPicketSubmission) {
             $blockedMessage = 'Hari ini libur: ' . $holiday->name . '.';
         } elseif ($isSunday) {
             $blockedMessage = 'Presensi tidak tersedia pada hari Minggu.';
@@ -2166,8 +2189,9 @@ class TeacherAppController extends Controller
             'next_mode' => $nextMode,
             'next_mode_label' => $nextModeLabel,
             'blocked_message' => $blockedMessage,
-            'is_holiday' => (bool) $holiday,
+            'is_holiday' => (bool) $holiday && !$approvedPicketSubmission,
             'holiday_name' => $holiday?->name,
+            'has_approved_picket_schedule' => (bool) $approvedPicketSubmission,
             'pending_late_permit' => $pendingLatePermit,
             'guidance' => [
                 'Aktifkan GPS dan ambil lokasi terbaru sebelum submit.',

@@ -19,6 +19,7 @@ use App\Http\Controllers\TeachingScheduleController;
 use App\Http\Controllers\TeachingClassStudentCountController;
 use App\Http\Controllers\DpsController;
 use App\Http\Controllers\AcademicCalendarEventController;
+use App\Http\Controllers\PicketScheduleController;
 use App\Http\Controllers\SkYayasanController;
 
 use App\Http\Controllers\PPDB\{
@@ -129,6 +130,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::resource('academic-calendar-events', AcademicCalendarEventController::class)->except(['show']);
+        Route::resource('picket-schedule-periods', PicketScheduleController::class)->except(['show']);
     });
 
     // Teaching Attendances Routes
@@ -436,6 +438,10 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::get('/academic-calendar-approvals', [AcademicCalendarEventController::class, 'principalIndex'])->name('academic-calendar-approvals');
     Route::post('/academic-calendar-approvals/{academic_calendar_event}/approve', [AcademicCalendarEventController::class, 'principalApprove'])->name('academic-calendar-approvals.approve');
     Route::post('/academic-calendar-approvals/{academic_calendar_event}/reject', [AcademicCalendarEventController::class, 'principalReject'])->name('academic-calendar-approvals.reject');
+    Route::get('/picket-schedules', [PicketScheduleController::class, 'mobileIndex'])->name('picket-schedules.index');
+    Route::post('/picket-schedules/{picket_schedule_period}/submit', [PicketScheduleController::class, 'mobileSubmit'])->name('picket-schedules.submit');
+    Route::post('/academic-calendar-approvals/picket-submissions/{picket_schedule_submission}/approve', [PicketScheduleController::class, 'principalApprove'])->name('academic-calendar-approvals.picket-submissions.approve');
+    Route::post('/academic-calendar-approvals/picket-submissions/{picket_schedule_submission}/reject', [PicketScheduleController::class, 'principalReject'])->name('academic-calendar-approvals.picket-submissions.reject');
 
     // Notification routes
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications');

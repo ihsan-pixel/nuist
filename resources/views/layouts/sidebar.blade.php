@@ -108,10 +108,14 @@
 
                 @if(in_array($userRole, ['super_admin', 'admin']))
                 <li>
-                    <a href="{{ route('academic-calendar-events.index') }}" class="waves-effect">
+                    <a href="#academicCalendarSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
                         <i class="bx bx-calendar-check"></i>
                         <span>Kalender Akademik</span>
                     </a>
+                    <ul class="sub-menu collapse" id="academicCalendarSubmenu">
+                        <li><a href="{{ route('academic-calendar-events.index') }}">Event Akademik</a></li>
+                        <li><a href="{{ route('picket-schedule-periods.index') }}">Izin Jadwal Piket</a></li>
+                    </ul>
                 </li>
                 @endif
 

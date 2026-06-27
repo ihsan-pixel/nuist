@@ -1,7 +1,7 @@
 @extends('layouts.mobile')
 
 @section('title', 'Approval Event')
-@section('subtitle', 'Persetujuan Kalender Akademik')
+@section('subtitle', 'Persetujuan Kalender Akademik dan Jadwal Piket')
 
 @section('content')
 <div class="container py-3" style="max-width: 720px; margin: auto;">
@@ -76,93 +76,183 @@
         <div class="alert alert-success border-0 shadow-sm">{{ session('success') }}</div>
     @endif
 
-    @if($events->isEmpty())
+    @if($events->isEmpty() && $picketSubmissions->isEmpty())
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-5">
                 <i class="bx bx-calendar-x fs-1 text-muted"></i>
-                <h6 class="mt-3 mb-1">Belum ada event akademik</h6>
-                <small class="text-muted">Admin sekolah belum mengajukan event untuk disetujui.</small>
+                <h6 class="mt-3 mb-1">Belum ada pengajuan approval</h6>
+                <small class="text-muted">Belum ada event akademik atau pengajuan jadwal piket yang menunggu persetujuan.</small>
             </div>
         </div>
     @else
         <div class="d-grid gap-3">
-            @foreach($events as $event)
-                @php
-                    $badgeClass = match ($event->approval_status) {
-                        \App\Models\AcademicCalendarEvent::APPROVAL_APPROVED => 'bg-success',
-                        \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED => 'bg-danger',
-                        default => 'bg-warning text-dark',
-                    };
-                @endphp
-                <div class="card border-0 shadow-sm approval-card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-                            <div class="pe-2">
-                                <h6 class="mb-1" style="font-size: 14px;">{{ $event->name }}</h6>
-                                <div class="text-muted small">{{ $event->resolved_type_label }}</div>
-                            </div>
-                            <span class="badge {{ $badgeClass }} approval-badge">{{ $event->approval_status_label }}</span>
-                        </div>
+            @if($events->isNotEmpty())
+                <div>
+                    <div class="fw-bold mb-2" style="color: #004b4c;">Event Akademik</div>
+                    <div class="d-grid gap-3">
+                        @foreach($events as $event)
+                            @php
+                                $badgeClass = match ($event->approval_status) {
+                                    \App\Models\AcademicCalendarEvent::APPROVAL_APPROVED => 'bg-success',
+                                    \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED => 'bg-danger',
+                                    default => 'bg-warning text-dark',
+                                };
+                            @endphp
+                            <div class="card border-0 shadow-sm approval-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                        <div class="pe-2">
+                                            <h6 class="mb-1" style="font-size: 14px;">{{ $event->name }}</h6>
+                                            <div class="text-muted small">{{ $event->resolved_type_label }}</div>
+                                        </div>
+                                        <span class="badge {{ $badgeClass }} approval-badge">{{ $event->approval_status_label }}</span>
+                                    </div>
 
-                        <div class="approval-meta mb-2">
-                            <div class="approval-meta-item">
-                                <i class="bx bx-calendar me-1"></i>{{ $event->date_range_label }}
-                            </div>
-                            <div class="approval-meta-item">
-                                <i class="bx bx-time me-1"></i>{{ $event->time_range_label }}
-                            </div>
-                            <div class="approval-meta-item">
-                                <i class="bx bx-user me-1"></i>{{ $event->creator->name ?? '-' }}
-                                <span class="mx-1">•</span>
-                                diperbarui {{ optional($event->updated_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }}
-                            </div>
-                        </div>
+                                    <div class="approval-meta mb-2">
+                                        <div class="approval-meta-item">
+                                            <i class="bx bx-calendar me-1"></i>{{ $event->date_range_label }}
+                                        </div>
+                                        <div class="approval-meta-item">
+                                            <i class="bx bx-time me-1"></i>{{ $event->time_range_label }}
+                                        </div>
+                                        <div class="approval-meta-item">
+                                            <i class="bx bx-user me-1"></i>{{ $event->creator->name ?? '-' }}
+                                            <span class="mx-1">•</span>
+                                            diperbarui {{ optional($event->updated_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }}
+                                        </div>
+                                    </div>
 
-                        @if($event->description)
-                            <div class="approval-meta-item mb-2">
-                                <i class="bx bx-note me-1"></i>{{ $event->description }}
-                            </div>
-                        @endif
-                        @if($event->approval_notes)
-                            <div class="approval-meta-item mb-2">
-                                <i class="bx bx-message-detail me-1"></i>{{ $event->approval_notes }}
-                            </div>
-                        @endif
-                        @if($event->approver)
-                            <div class="approval-meta-item mb-2">
-                                <i class="bx bx-check-shield me-1"></i>{{ $event->approver->name }}
-                                @if($event->approved_at)
-                                    pada {{ optional($event->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }}
-                                @endif
-                            </div>
-                        @endif
+                                    @if($event->description)
+                                        <div class="approval-meta-item mb-2">
+                                            <i class="bx bx-note me-1"></i>{{ $event->description }}
+                                        </div>
+                                    @endif
+                                    @if($event->approval_notes)
+                                        <div class="approval-meta-item mb-2">
+                                            <i class="bx bx-message-detail me-1"></i>{{ $event->approval_notes }}
+                                        </div>
+                                    @endif
+                                    @if($event->approver)
+                                        <div class="approval-meta-item mb-2">
+                                            <i class="bx bx-check-shield me-1"></i>{{ $event->approver->name }}
+                                            @if($event->approved_at)
+                                                pada {{ optional($event->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }}
+                                            @endif
+                                        </div>
+                                    @endif
 
-                        @if($event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING)
-                            <div class="alert alert-warning border-0 approval-note">
-                                Setelah disetujui, semua jadwal mengajar pada tanggal event ini akan berstatus izin.
-                            </div>
+                                    @if($event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING)
+                                        <div class="alert alert-warning border-0 approval-note">
+                                            Setelah disetujui, semua jadwal mengajar pada tanggal event ini akan berstatus izin.
+                                        </div>
 
-                            <form method="POST" action="{{ route('mobile.academic-calendar-approvals.approve', $event) }}" id="approve-form-{{ $event->id }}">
-                                @csrf
-                                <textarea name="approval_notes" class="form-control form-control-sm approval-textarea" placeholder="Catatan approval atau penolakan (opsional)"></textarea>
-                                <div class="approval-actions">
-                                    <button type="submit" class="btn btn-success">
-                                            <i class="bx bx-check-circle me-1"></i>Setujui Event
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        class="btn btn-outline-danger"
-                                        formaction="{{ route('mobile.academic-calendar-approvals.reject', $event) }}"
-                                        formmethod="POST"
-                                    >
-                                            <i class="bx bx-x-circle me-1"></i>Tolak Event
-                                    </button>
+                                        <form method="POST" action="{{ route('mobile.academic-calendar-approvals.approve', $event) }}" id="approve-form-{{ $event->id }}">
+                                            @csrf
+                                            <textarea name="approval_notes" class="form-control form-control-sm approval-textarea" placeholder="Catatan approval atau penolakan (opsional)"></textarea>
+                                            <div class="approval-actions">
+                                                <button type="submit" class="btn btn-success">
+                                                        <i class="bx bx-check-circle me-1"></i>Setujui Event
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-danger"
+                                                    formaction="{{ route('mobile.academic-calendar-approvals.reject', $event) }}"
+                                                    formmethod="POST"
+                                                >
+                                                        <i class="bx bx-x-circle me-1"></i>Tolak Event
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @endif
                                 </div>
-                            </form>
-                        @endif
+                            </div>
+                        @endforeach
                     </div>
                 </div>
-            @endforeach
+            @endif
+
+            @if($picketSubmissions->isNotEmpty())
+                <div>
+                    <div class="fw-bold mb-2" style="color: #004b4c;">Izin Jadwal Piket</div>
+                    <div class="d-grid gap-3">
+                        @foreach($picketSubmissions as $submission)
+                            @php
+                                $badgeClass = match ($submission->approval_status) {
+                                    \App\Models\PicketScheduleSubmission::APPROVAL_APPROVED => 'bg-success',
+                                    \App\Models\PicketScheduleSubmission::APPROVAL_REJECTED => 'bg-danger',
+                                    default => 'bg-warning text-dark',
+                                };
+                            @endphp
+                            <div class="card border-0 shadow-sm approval-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                        <div class="pe-2">
+                                            <h6 class="mb-1" style="font-size: 14px;">{{ $submission->user->name ?? '-' }}</h6>
+                                            <div class="text-muted small">{{ $submission->period->name ?? 'Periode piket' }}</div>
+                                        </div>
+                                        <span class="badge {{ $badgeClass }} approval-badge">{{ $submission->approval_status_label }}</span>
+                                    </div>
+
+                                    <div class="approval-meta mb-2">
+                                        <div class="approval-meta-item">
+                                            <i class="bx bx-calendar me-1"></i>{{ $submission->period->date_range_label ?? '-' }}
+                                        </div>
+                                        <div class="approval-meta-item">
+                                            <i class="bx bx-list-check me-1"></i>{{ $submission->selected_dates_count }} hari dipilih
+                                        </div>
+                                        <div class="approval-meta-item">
+                                            <i class="bx bx-time me-1"></i>Diajukan {{ optional($submission->submitted_at)->timezone('Asia/Jakarta')->format('d M Y H:i') ?: '-' }}
+                                        </div>
+                                    </div>
+
+                                    <div class="approval-meta-item mb-2">
+                                        <i class="bx bx-check-square me-1"></i>
+                                        {{ implode(', ', $submission->selected_date_labels) }}
+                                    </div>
+
+                                    @if($submission->approval_notes)
+                                        <div class="approval-meta-item mb-2">
+                                            <i class="bx bx-message-detail me-1"></i>{{ $submission->approval_notes }}
+                                        </div>
+                                    @endif
+                                    @if($submission->approver)
+                                        <div class="approval-meta-item mb-2">
+                                            <i class="bx bx-check-shield me-1"></i>{{ $submission->approver->name }}
+                                            @if($submission->approved_at)
+                                                pada {{ optional($submission->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }}
+                                            @endif
+                                        </div>
+                                    @endif
+
+                                    @if($submission->approval_status === \App\Models\PicketScheduleSubmission::APPROVAL_PENDING)
+                                        <div class="alert alert-warning border-0 approval-note">
+                                            Setelah disetujui, daftar hari ini menjadi jadwal piket resmi guru pada masa libur semester.
+                                        </div>
+
+                                        <form method="POST" action="{{ route('mobile.academic-calendar-approvals.picket-submissions.approve', $submission) }}">
+                                            @csrf
+                                            <textarea name="approval_notes" class="form-control form-control-sm approval-textarea" placeholder="Catatan approval atau penolakan (opsional)"></textarea>
+                                            <div class="approval-actions">
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="bx bx-check-circle me-1"></i>Setujui Jadwal
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-danger"
+                                                    formaction="{{ route('mobile.academic-calendar-approvals.picket-submissions.reject', $submission) }}"
+                                                    formmethod="POST"
+                                                >
+                                                    <i class="bx bx-x-circle me-1"></i>Tolak Jadwal
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     @endif
 </div>
