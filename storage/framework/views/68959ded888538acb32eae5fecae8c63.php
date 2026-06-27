@@ -29,53 +29,6 @@
         </div>
     </div>
 
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                <div>
-                    <div class="sky-panel-label mb-1">Data Pokok SK</div>
-                    <h6 class="mb-0">Metadata global yang dipakai untuk seluruh sekolah tersinkron</h6>
-                </div>
-                <a href="<?php echo e(route('sk-yayasan.generate.index')); ?>" class="btn btn-sm btn-outline-primary">Ubah di Halaman Generate</a>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label">Tahun Penerbitan SK</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['school_year']); ?>" readonly>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label">Nomor SK Yayasan Mulai</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['document_number_start']); ?>" readonly>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label">Nama Ketua Yayasan</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['signer_name']); ?>" readonly>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label">Jabatan Penandatangan</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['signer_position']); ?>" readonly>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label">Ditetapkan Di</label>
-                    <input type="text" class="form-control" value="<?php echo e($coreData['established_at']); ?>" readonly>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label">Pada Tanggal Penetapan</label>
-                    <input type="date" class="form-control" value="<?php echo e($coreData['issued_date']); ?>" readonly>
-                </div>
-                <div class="col-lg-6">
-                    <label class="form-label">Tembusan 1</label>
-                    <textarea class="form-control" rows="2" readonly><?php echo e($coreData['copy_recipient_1']); ?></textarea>
-                </div>
-                <div class="col-lg-6">
-                    <label class="form-label">Tembusan 2</label>
-                    <textarea class="form-control" rows="2" readonly><?php echo e($coreData['copy_recipient_2']); ?></textarea>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="row g-3">
         <div class="col-12">
             <div class="card">
@@ -83,9 +36,21 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Antrean Generate</div>
-                            <h6 class="mb-0">Data pengajuan SK Yayasan per sekolah</h6>
+                            <h6 class="mb-0">Generate otomatis satu sekolah atau tetap per guru</h6>
                         </div>
-                        <span class="sky-chip"><?php echo e($requests->total()); ?> data</span>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="sky-chip"><?php echo e($requests->total()); ?> data</span>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($requests->count() > 0): ?>
+                                <form method="POST"
+                                      action="<?php echo e(route('sk-yayasan.generate.school.pdf', $madrasah)); ?>"
+                                      target="_blank">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bx bx-printer me-1"></i>Generate Semua Guru Sekolah Ini
+                                    </button>
+                                </form>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
                     </div>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($requests->count() > 0): ?>
@@ -146,9 +111,10 @@
                                                 </div>
                                             </div>
 
-                                            <form method="POST" action="<?php echo e(route('sk-yayasan.generate.store')); ?>">
+                                            <form method="POST" action="<?php echo e(route('sk-yayasan.generate.store')); ?>" target="_blank">
                                                 <?php echo csrf_field(); ?>
                                                 <input type="hidden" name="request_id" value="<?php echo e($submission->id); ?>">
+                                                <input type="hidden" name="preview_pdf" value="1">
                                                 <input type="hidden" name="issued_date" value="<?php echo e($coreData['issued_date']); ?>" data-sk-core-target="issued_date">
                                                 <input type="hidden" name="school_year" value="<?php echo e($coreData['school_year']); ?>" data-sk-core-target="school_year">
                                                 <input type="hidden" name="document_number_start" value="<?php echo e($coreData['document_number_start']); ?>" data-sk-core-target="document_number_start">
@@ -175,26 +141,22 @@
                                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label class="form-label">Data Pokok SK</label>
+                                                        <label class="form-label">Generate Otomatis</label>
                                                         <div class="sky-soft-card p-3 h-100">
-                                                            <div class="small text-muted mb-1">Tahun <?php echo e($coreData['school_year']); ?></div>
-                                                            <div class="fw-semibold"><?php echo e($coreData['established_at']); ?>, <?php echo e(\Illuminate\Support\Carbon::parse($coreData['issued_date'])->translatedFormat('d F Y')); ?></div>
-                                                            <small class="text-muted">Nomor SK mengikuti setting global dari halaman generate utama.</small>
+                                                            <div class="small text-muted mb-1">Nomor SK otomatis berurutan</div>
+                                                            <div class="fw-semibold"><?php echo e($coreData['document_number_start']); ?>/<?php echo e($coreData['number_format_suffix']); ?></div>
+                                                            <small class="text-muted">Generate satu guru tetap mengikuti urutan nomor SK global.</small>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="row">
-                                                    <div class="col-md-6 mb-3">
-                                                        <label class="form-label">Nomor SK</label>
-                                                        <input type="text" name="document_number" class="form-control" value="<?php echo e($submission->document?->document_number); ?>">
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
+                                                    <div class="col-md-12 mb-3">
                                                         <label class="form-label">Catatan Penerbitan</label>
                                                         <input type="text" name="publication_notes" class="form-control" value="<?php echo e($submission->document?->publication_notes); ?>">
                                                     </div>
                                                 </div>
                                                 <div class="d-flex flex-wrap gap-2">
-                                                    <button type="submit" class="btn btn-primary">Generate Draft</button>
+                                                    <button type="submit" class="btn btn-outline-primary">Generate 1 Guru</button>
                                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->document): ?>
                                                         <a href="<?php echo e(route('sk-yayasan.documents.download', $submission->document)); ?>" class="btn btn-outline-primary" target="_blank">Preview PDF</a>
                                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

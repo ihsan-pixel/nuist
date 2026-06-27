@@ -650,6 +650,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::get('/generate', [SkYayasanController::class, 'generateIndex'])->name('generate.index');
         Route::patch('/generate/settings', [SkYayasanController::class, 'updateGenerateSettings'])->name('generate.settings.update');
         Route::get('/generate/sekolah/{madrasah}', [SkYayasanController::class, 'generateSchoolIndex'])->name('generate.school');
+        Route::post('/generate/sekolah/{madrasah}/pdf', [SkYayasanController::class, 'generateSchoolPdf'])->name('generate.school.pdf');
         Route::post('/generate', [SkYayasanController::class, 'generateDocument'])->name('generate.store');
         Route::patch('/generate/{document}/publish', [SkYayasanController::class, 'publishDocument'])->name('generate.publish');
     });

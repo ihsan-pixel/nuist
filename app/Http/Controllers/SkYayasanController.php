@@ -1036,7 +1036,7 @@ class SkYayasanController extends Controller
         ]);
     }
 
-    public function generateDocument(Request $request): RedirectResponse
+    public function generateDocument(Request $request)
     {
         $this->ensureSuperAdmin();
 
@@ -1053,6 +1053,7 @@ class SkYayasanController extends Controller
             'copy_recipient_1' => ['required', 'string', 'max:255'],
             'copy_recipient_2' => ['required', 'string', 'max:255'],
             'publication_notes' => ['nullable', 'string'],
+            'preview_pdf' => ['nullable', 'boolean'],
         ]);
 
         $submission = SkYayasanRequest::query()
@@ -1070,61 +1071,85 @@ class SkYayasanController extends Controller
         $template = $this->resolveTemplateForSubmission($submission, $activeTemplates)
             ?? SkYayasanTemplate::query()->findOrFail($validated['template_id']);
         $issuedDate = Carbon::parse($validated['issued_date']);
-        $existingDocument = $submission->document;
-        $documentNumber = !empty($validated['document_number'])
-            ? $validated['document_number']
-            : ($existingDocument?->document_number ?: $this->generateDocumentNumber($template, $submission, $issuedDate));
+        $document = $this->persistGeneratedDocument($submission, $template, $issuedDate, [
+            'school_year' => $validated['school_year'],
+            'document_number_start' => $validated['document_number_start'] ?? null,
+            'signer_name' => $validated['signer_name'],
+            'signer_position' => $validated['signer_position'] ?? 'Ketua Yayasan',
+            'established_at' => $validated['established_at'],
+            'copy_recipient_1' => $validated['copy_recipient_1'],
+            'copy_recipient_2' => $validated['copy_recipient_2'],
+            'publication_notes' => $validated['publication_notes'] ?? null,
+            'document_number' => $validated['document_number'] ?? null,
+        ]);
 
-        DB::transaction(function () use ($submission, $template, $validated, $issuedDate, $documentNumber) {
-            $placeholders = $this->buildTemplatePlaceholders($submission, [
-                'nomor_sk' => $documentNumber,
-                'tanggal_terbit' => $issuedDate->translatedFormat('d F Y'),
-                'tanggal_mulai' => '01 Juli ' . $issuedDate->format('Y'),
-                'tanggal_selesai' => '30 Juni ' . $issuedDate->copy()->addYear()->format('Y'),
-                'tahun_sk' => $issuedDate->format('Y'),
-                'tahun_sk_berikutnya' => $issuedDate->copy()->addYear()->format('Y'),
-                'tahun_penerbitan_sk' => $validated['school_year'],
-                'nomor_sk_yayasan_mulai' => $validated['document_number_start'] ?? '-',
-                'nama_penandatangan' => $validated['signer_name'],
-                'jabatan_penandatangan' => $validated['signer_position'] ?? 'Ketua Yayasan',
-                'ditetapkan_di' => $validated['established_at'],
-                'tanggal_penetapan' => $issuedDate->translatedFormat('d F Y'),
-                'tembusan_1' => $validated['copy_recipient_1'],
-                'tembusan_2' => $validated['copy_recipient_2'],
-                'catatan_penerbitan' => $validated['publication_notes'] ?? '-',
-            ]);
-
-            $renderedContent = $this->renderTemplate($template->body, $placeholders);
-
-            SkYayasanDocument::query()->updateOrCreate(
-                ['request_id' => $submission->id],
-                [
-                    'template_id' => $template->id,
-                    'generated_by' => auth()->id(),
-                    'document_number' => $documentNumber,
-                    'issued_date' => $issuedDate->toDateString(),
-                    'signer_name' => $validated['signer_name'],
-                    'signer_position' => $validated['signer_position'] ?? 'Ketua Yayasan',
-                    'publication_notes' => $validated['publication_notes'] ?? null,
-                    'meta_payload' => [
-                        'school_year' => $validated['school_year'],
-                        'document_number_start' => $validated['document_number_start'] ?? null,
-                        'established_at' => $validated['established_at'],
-                        'copy_recipient_1' => $validated['copy_recipient_1'],
-                        'copy_recipient_2' => $validated['copy_recipient_2'],
-                    ],
-                    'rendered_content' => $renderedContent,
-                    'status' => $submission->current_status === 'published' ? 'published' : 'draft',
-                    'generated_at' => now(),
-                ]
-            );
-
-            $submission->update([
-                'template_id' => $template->id,
-            ]);
-        });
+        if ((bool) ($validated['preview_pdf'] ?? false)) {
+            return $this->downloadDocument($document);
+        }
 
         return back()->with('success', 'Draft SK Yayasan berhasil digenerate.');
+    }
+
+    public function generateSchoolPdf(Request $request, Madrasah $madrasah)
+    {
+        $this->ensureSuperAdmin();
+
+        $requests = SkYayasanRequest::query()
+            ->with([
+                'madrasah.yayasan',
+                'employee.statusKepegawaian',
+                'employee.skYayasanEmployeeData',
+                'template',
+                'document.template',
+                'importBatch.rows',
+            ])
+            ->where('madrasah_id', $madrasah->id)
+            ->where($this->generateEligibleRequestsConstraint())
+            ->get();
+
+        if ($requests->isEmpty()) {
+            return back()->with('error', 'Tidak ada pengajuan pada sekolah ini yang bisa digenerate.');
+        }
+
+        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+        $coreData = $this->buildSchoolSkCoreData($madrasah);
+        $issuedDate = Carbon::parse($coreData['issued_date']);
+        $sortedRequests = $requests
+            ->sortBy(fn (SkYayasanRequest $submission) => mb_strtolower((string) ($submission->employee?->name ?? '')))
+            ->values();
+
+        $missingTemplates = $sortedRequests
+            ->filter(fn (SkYayasanRequest $submission) => !$this->resolveTemplateForSubmission($submission, $templates))
+            ->map(fn (SkYayasanRequest $submission) => $submission->employee?->name ?? ('Request #' . $submission->id))
+            ->all();
+
+        if (!empty($missingTemplates)) {
+            return back()->with('error', 'Template belum tersedia untuk: ' . implode(', ', $missingTemplates));
+        }
+
+        $documents = DB::transaction(function () use ($sortedRequests, $templates, $issuedDate, $coreData) {
+            $generatedDocuments = collect();
+
+            foreach ($sortedRequests as $submission) {
+                $template = $this->resolveTemplateForSubmission($submission, $templates);
+
+                $generatedDocuments->push($this->persistGeneratedDocument($submission, $template, $issuedDate, [
+                    'school_year' => $coreData['school_year'],
+                    'document_number_start' => $coreData['document_number_start'],
+                    'signer_name' => $coreData['signer_name'],
+                    'signer_position' => $coreData['signer_position'],
+                    'established_at' => $coreData['established_at'],
+                    'copy_recipient_1' => $coreData['copy_recipient_1'],
+                    'copy_recipient_2' => $coreData['copy_recipient_2'],
+                    'publication_notes' => null,
+                    'document_number' => null,
+                ]));
+            }
+
+            return $generatedDocuments;
+        });
+
+        return $this->downloadSchoolDocumentsPdf($madrasah, $documents);
     }
 
     public function publishDocument(SkYayasanDocument $document): RedirectResponse
@@ -1159,6 +1184,81 @@ class SkYayasanController extends Controller
         return response($pdf->output(), 200)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $document->document_number . '.pdf"');
+    }
+
+    private function downloadSchoolDocumentsPdf(Madrasah $madrasah, Collection $documents)
+    {
+        $pdf = PDF::loadView('pdf.sk-yayasan-school-bundle', [
+            'madrasah' => $madrasah,
+            'documents' => $documents,
+        ])->setPaper('a4', 'portrait');
+
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="sk-yayasan-' . Str::slug($madrasah->name ?: 'sekolah') . '.pdf"');
+    }
+
+    private function persistGeneratedDocument(
+        SkYayasanRequest $submission,
+        SkYayasanTemplate $template,
+        Carbon $issuedDate,
+        array $data
+    ): SkYayasanDocument {
+        $submission->loadMissing(['madrasah.yayasan', 'employee.statusKepegawaian', 'document', 'importBatch.rows']);
+
+        $existingDocument = $submission->document;
+        $documentNumber = !empty($data['document_number'])
+            ? $data['document_number']
+            : ($existingDocument?->document_number ?: $this->generateDocumentNumber($template, $submission, $issuedDate));
+
+        $placeholders = $this->buildTemplatePlaceholders($submission, [
+            'nomor_sk' => $documentNumber,
+            'tanggal_terbit' => $issuedDate->translatedFormat('d F Y'),
+            'tanggal_mulai' => '01 Juli ' . $issuedDate->format('Y'),
+            'tanggal_selesai' => '30 Juni ' . $issuedDate->copy()->addYear()->format('Y'),
+            'tahun_sk' => $issuedDate->format('Y'),
+            'tahun_sk_berikutnya' => $issuedDate->copy()->addYear()->format('Y'),
+            'tahun_penerbitan_sk' => $data['school_year'],
+            'nomor_sk_yayasan_mulai' => $data['document_number_start'] ?? '-',
+            'nama_penandatangan' => $data['signer_name'],
+            'jabatan_penandatangan' => $data['signer_position'] ?? 'Ketua Yayasan',
+            'ditetapkan_di' => $data['established_at'],
+            'tanggal_penetapan' => $issuedDate->translatedFormat('d F Y'),
+            'tembusan_1' => $data['copy_recipient_1'],
+            'tembusan_2' => $data['copy_recipient_2'],
+            'catatan_penerbitan' => $data['publication_notes'] ?? '-',
+        ]);
+
+        $renderedContent = $this->renderTemplate($template->body, $placeholders);
+
+        $document = SkYayasanDocument::query()->updateOrCreate(
+            ['request_id' => $submission->id],
+            [
+                'template_id' => $template->id,
+                'generated_by' => auth()->id(),
+                'document_number' => $documentNumber,
+                'issued_date' => $issuedDate->toDateString(),
+                'signer_name' => $data['signer_name'],
+                'signer_position' => $data['signer_position'] ?? 'Ketua Yayasan',
+                'publication_notes' => $data['publication_notes'] ?? null,
+                'meta_payload' => [
+                    'school_year' => $data['school_year'],
+                    'document_number_start' => $data['document_number_start'] ?? null,
+                    'established_at' => $data['established_at'],
+                    'copy_recipient_1' => $data['copy_recipient_1'],
+                    'copy_recipient_2' => $data['copy_recipient_2'],
+                ],
+                'rendered_content' => $renderedContent,
+                'status' => $submission->current_status === 'published' ? 'published' : 'draft',
+                'generated_at' => now(),
+            ]
+        );
+
+        $submission->update([
+            'template_id' => $template->id,
+        ]);
+
+        return $document->fresh(['request.madrasah.yayasan', 'request.employee.statusKepegawaian', 'template']);
     }
 
     private function generateEligibleRequestsConstraint(): Closure
