@@ -374,7 +374,7 @@ class PicketScheduleController extends Controller
             ->where('role', 'tenaga_pendidik')
             ->orderByRaw("CASE WHEN ketugasan = 'kepala madrasah/sekolah' THEN 0 ELSE 1 END")
             ->orderBy('name')
-            ->get(['id', 'name', 'ketugasan', 'jabatan']);
+            ->get(['id', 'name', 'ketugasan']);
     }
 
     private function buildDateChoices(PicketSchedulePeriod $period): array
