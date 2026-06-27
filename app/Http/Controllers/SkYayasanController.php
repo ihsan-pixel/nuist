@@ -2052,8 +2052,10 @@ class SkYayasanController extends Controller
             }
         }
 
-        return $this->normalizePersonRows(
-            strtr($body, $normalizedPlaceholders)
+        return $this->normalizeRenderedQuestionMarks(
+            $this->normalizePersonRows(
+                strtr($body, $normalizedPlaceholders)
+            )
         );
     }
 
@@ -2165,6 +2167,11 @@ class SkYayasanController extends Controller
         $normalized = preg_replace('/^-\s*,\s*-\s*$/u', '-', $normalized) ?? $normalized;
 
         return $normalized;
+    }
+
+    private function normalizeRenderedQuestionMarks(string $html): string
+    {
+        return str_replace(['?', '&#63;'], '-', $html);
     }
 
     private function templatePreviewPlaceholders(string $documentTitle, Carbon $issuedDate): array
