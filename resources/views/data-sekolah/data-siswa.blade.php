@@ -108,18 +108,26 @@
     transition: transform .2s ease, box-shadow .2s ease;
 }
 
+.data-siswa-stat .card-body {
+    padding: .85rem 1rem !important;
+}
+
+.data-siswa-stat h4 {
+    line-height: 1.1;
+}
+
 .data-siswa-stat:hover {
     transform: translateY(-3px);
 }
 
 .stats-icon {
     align-items: center;
-    border-radius: 16px;
+    border-radius: 14px;
     display: inline-flex;
-    font-size: 1.15rem;
-    height: 52px;
+    font-size: 1rem;
+    height: 44px;
     justify-content: center;
-    width: 52px;
+    width: 44px;
 }
 
 .stats-icon-soft-primary {
@@ -179,10 +187,10 @@
 }
 
 .data-siswa-filter-grid {
-    background: var(--ds-soft);
-    border: 1px solid var(--ds-line);
-    border-radius: 16px;
-    padding: 1rem;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
 }
 
 .completion-bar {
