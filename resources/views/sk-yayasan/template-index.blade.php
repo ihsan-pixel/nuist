@@ -1579,7 +1579,7 @@ HTML;
     </div>
 
     <div class="sk-title" style="font-size:${safeFontSize(config.documentTitleFontSize)}pt;">${escapeHtml(title)}</div>
-    <div class="sk-number" style="font-size:${safeFontSize(config.numberFontSize)}pt;">${escapeHtml(config.numberLabelText)} ${escapeHtml(numberText)}</div>
+    <div class="sk-number" style="font-size:${safeFontSize(config.numberFontSize)}pt;">${escapeHtml(config.numberLabelText)} @{{nomor_sk}}</div>
 
     <p class="sk-subject" style="font-size:${safeFontSize(config.subjectFontSize)}pt;">${nl2br(config.subjectText)}</p>
 
