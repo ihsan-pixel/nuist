@@ -10,6 +10,12 @@
 <?php echo $__env->make('sk-yayasan.partials.sweet-alert', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <?php
+    $globalPreviewIssuedDate = \Carbon\Carbon::parse($globalSkSettings['issued_date'] ?? now()->toDateString());
+    $globalPreviewNumber = max(1, (int) ($globalSkSettings['number_start'] ?? 1)) . '/' . str_replace(
+        ['{month}', '{month_roman}', '{year}'],
+        [$globalPreviewIssuedDate->format('m'), ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][$globalPreviewIssuedDate->month - 1], $globalPreviewIssuedDate->format('Y')],
+        $globalSkSettings['number_format_suffix'] ?? 'SK.02/LPM.DIY/{month_roman}/{year}'
+    );
     $defaultSkBody = <<<'HTML'
 <style>
 @page { margin: 6mm 16mm 5mm 16mm; }
@@ -293,7 +299,7 @@
 HTML;
 
     $samplePlaceholders = [
-        '@{{nomor_sk}}' => '/SK.02/LPM.DIY/VII/2026',
+        '@{{nomor_sk}}' => $globalPreviewNumber,
         '@{{judul_sk}}' => 'SURAT KEPUTUSAN KETUA LP MA\'ARIF NU PWNU DIY',
         '@{{nama_yayasan}}' => 'Lembaga Pendidikan Ma\'arif NU PWNU DIY',
         '@{{alamat_yayasan}}' => 'Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta',
@@ -1038,7 +1044,6 @@ HTML;
                                             <form action="<?php echo e(route('sk-yayasan.template.preview-pdf')); ?>" method="POST" target="_blank" class="d-inline">
                                                 <?php echo csrf_field(); ?>
                                                 <input type="hidden" name="document_title" value="<?php echo e($template->document_title); ?>">
-                                                <input type="hidden" name="document_number_format" value="<?php echo e($template->document_number_format); ?>">
                                                 <input type="hidden" name="body" value="<?php echo e($template->body); ?>">
                                                 <button type="submit" class="btn btn-sm btn-outline-primary">View PDF</button>
                                             </form>
@@ -1114,7 +1119,8 @@ HTML;
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Format Nomor SK</label>
-                                <input type="text" name="document_number_format" class="form-control" value="<?php echo e(old('document_number_format', '{seq}/SK.02/LPM.DIY/{month_roman}/{year}')); ?>" placeholder="{seq}/SK.02/LPM.DIY/{month_roman}/{year}" data-sk-preview-number-format>
+                                <div class="form-control bg-light-subtle"><?php echo e($globalPreviewNumber); ?></div>
+                                <small class="text-muted">Nomor SK mengikuti meta data global pada halaman generate, bukan diatur per template.</small>
                             </div>
                             <div class="mb-0">
                                 <label class="form-label">Deskripsi</label>
@@ -1213,7 +1219,8 @@ HTML;
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Format Nomor</label>
-                                    <input type="text" name="document_number_format" value="<?php echo e($template->document_number_format); ?>" class="form-control" data-sk-preview-number-format>
+                                    <div class="form-control bg-light-subtle"><?php echo e($globalPreviewNumber); ?></div>
+                                    <small class="text-muted">Preview nomor mengikuti meta data global SK Yayasan yang aktif.</small>
                                 </div>
                                 <div class="mb-0">
                                     <label class="form-label">Deskripsi</label>
@@ -1294,32 +1301,12 @@ HTML;
         const samplePlaceholders = <?php echo json_encode($samplePlaceholders, 15, 512) ?>;
         const defaultTemplateConfig = <?php echo json_encode($defaultTemplateConfig, 15, 512) ?>;
         const templateEditorGroups = <?php echo json_encode($templateEditorGroups, 15, 512) ?>;
+        const globalDocumentNumberPreview = <?php echo json_encode($globalPreviewNumber, 15, 512) ?>;
         const metaPrefix = '<!--SK_TEMPLATE_META:';
         const metaSuffix = '-->';
-        const romanMonths = {
-            '01': 'I',
-            '02': 'II',
-            '03': 'III',
-            '04': 'IV',
-            '05': 'V',
-            '06': 'VI',
-            '07': 'VII',
-            '08': 'VIII',
-            '09': 'IX',
-            '10': 'X',
-            '11': 'XI',
-            '12': 'XII',
-        };
 
-        function formatDocumentNumber(format) {
-            const selectedFormat = format || '{seq}/SK.02/LPM.DIY/{month_roman}/{year}';
-
-            return selectedFormat
-                .replaceAll('{seq}', '001')
-                .replaceAll('{school_code}', 'SMK-DLINGO')
-                .replaceAll('{month}', '07')
-                .replaceAll('{month_roman}', romanMonths['07'])
-                .replaceAll('{year}', '2026');
+        function formatDocumentNumber() {
+            return globalDocumentNumberPreview;
         }
 
         function legacyWrapper(renderedBody, editor, placeholders) {
@@ -1661,7 +1648,6 @@ HTML;
         function syncStructuredBody(editor) {
             const bodyInput = editor.querySelector('[data-sk-preview-body]');
             const titleInput = editor.querySelector('[data-sk-preview-title]');
-            const numberFormatInput = editor.querySelector('[data-sk-preview-number-format]');
             const config = { ...defaultTemplateConfig };
 
             editor.querySelectorAll('[data-sk-config-key]').forEach((input) => {
@@ -1673,7 +1659,7 @@ HTML;
             const rendered = buildStructuredHtml(
                 config,
                 titleInput?.value || samplePlaceholders['{{judul_sk}}'],
-                `${config.numberLabelText} ${formatDocumentNumber(numberFormatInput?.value)}`.replace(`${config.numberLabelText} `, '')
+                `${config.numberLabelText} ${formatDocumentNumber()}`.replace(`${config.numberLabelText} `, '')
             );
 
             bodyInput.value = `${metaPrefix}${encodeMeta(config)}${metaSuffix}\n${rendered}`;
@@ -1867,11 +1853,10 @@ HTML;
 
             const bodyInput = editor.querySelector('[data-sk-preview-body]');
             const titleInput = editor.querySelector('[data-sk-preview-title]');
-            const numberFormatInput = editor.querySelector('[data-sk-preview-number-format]');
             const placeholders = {
                 ...samplePlaceholders,
                 '{{judul_sk}}': titleInput?.value || samplePlaceholders['{{judul_sk}}'],
-                '{{nomor_sk}}': formatDocumentNumber(numberFormatInput?.value),
+                '{{nomor_sk}}': formatDocumentNumber(),
             };
 
             let rendered = bodyInput?.value || '';

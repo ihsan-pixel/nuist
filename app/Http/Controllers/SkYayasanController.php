@@ -820,6 +820,7 @@ class SkYayasanController extends Controller
 
         return view('sk-yayasan.template-index', [
             'templates' => SkYayasanTemplate::query()->oldest()->get(),
+            'globalSkSettings' => $this->getGlobalSkSettings(),
         ]);
     }
 
@@ -883,14 +884,12 @@ class SkYayasanController extends Controller
 
         $validated = $request->validate([
             'document_title' => ['required', 'string', 'max:255'],
-            'document_number_format' => ['nullable', 'string', 'max:255'],
             'body' => ['required', 'string'],
         ]);
 
         $issuedDate = now();
         $placeholders = $this->templatePreviewPlaceholders(
             $validated['document_title'],
-            $validated['document_number_format'] ?? null,
             $issuedDate
         );
 
@@ -2100,12 +2099,12 @@ class SkYayasanController extends Controller
         return $output;
     }
 
-    private function templatePreviewPlaceholders(string $documentTitle, ?string $documentNumberFormat, Carbon $issuedDate): array
+    private function templatePreviewPlaceholders(string $documentTitle, Carbon $issuedDate): array
     {
+        $globalSettings = $this->getGlobalSkSettings();
         $documentNumber = strtr(
-            $documentNumberFormat ?: '{seq}/SK.02/LPM.DIY/{month_roman}/{year}',
+            max(1, (int) ($globalSettings['number_start'] ?? 1)) . '/' . ($globalSettings['number_format_suffix'] ?: 'SK.02/LPM.DIY/{month_roman}/{year}'),
             [
-                '{seq}' => '001',
                 '{school_code}' => 'SMK-DLINGO',
                 '{month}' => $issuedDate->format('m'),
                 '{month_roman}' => $this->romanMonth((int) $issuedDate->format('n')),
