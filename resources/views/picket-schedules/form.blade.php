@@ -9,7 +9,7 @@
 @endcomponent
 
 <div class="row">
-    <div class="col-xl-10">
+    <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <style>
