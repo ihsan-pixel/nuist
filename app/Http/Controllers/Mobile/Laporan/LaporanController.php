@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\Holiday;
+use App\Models\Izin;
 use App\Models\Presensi;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
@@ -102,9 +103,13 @@ class LaporanController extends \App\Http\Controllers\Controller
             abort(403, 'Unauthorized.');
         }
 
+        if ($request->filled('export_month') && !$request->filled('month')) {
+            $request->merge(['month' => $request->input('export_month')]);
+        }
+
         $reportData = $this->buildAttendancePercentageReportData($request, $user);
         $schoolName = trim((string) ($user->madrasah->name ?? 'sekolah'));
-        $filename = 'rekap-persentase-kehadiran-' . preg_replace('/[^a-z0-9]+/i', '-', strtolower($schoolName)) . '.pdf';
+        $filename = 'rekap-persentase-kehadiran-' . preg_replace('/[^a-z0-9]+/i', '-', strtolower($schoolName)) . '-' . $reportData['selectedMonthValue'] . '.pdf';
 
         $pdf = Pdf::loadView('pdf.mobile-attendance-percentage-school-rekap', array_merge($reportData, [
             'school' => $user->madrasah,
@@ -211,6 +216,7 @@ class LaporanController extends \App\Http\Controllers\Controller
             ->get(['id', 'name', 'ketugasan', 'madrasah_id']);
 
         $today = Carbon::today('Asia/Jakarta');
+        $availableMonths = $this->getAvailableAttendanceMonths($teacherOptions, $today);
 
         $selectedWeek = $request->filled('week') && preg_match('/^\d{4}-W\d{2}$/', $request->week)
             ? Carbon::now('Asia/Jakarta')->setISODate(
@@ -219,9 +225,15 @@ class LaporanController extends \App\Http\Controllers\Controller
             )->startOfWeek(Carbon::MONDAY)
             : $today->copy()->startOfWeek(Carbon::MONDAY);
 
-        $selectedMonth = $request->filled('month')
-            ? Carbon::createFromFormat('Y-m', $request->month, 'Asia/Jakarta')->startOfMonth()
-            : $today->copy()->startOfMonth();
+        $selectedMonthValue = $request->filled('month') && preg_match('/^\d{4}-\d{2}$/', (string) $request->month)
+            ? $request->month
+            : ($availableMonths->first()['value'] ?? $today->format('Y-m'));
+
+        if ($availableMonths->isNotEmpty() && !$availableMonths->contains(fn ($item) => $item['value'] === $selectedMonthValue)) {
+            $selectedMonthValue = $availableMonths->first()['value'];
+        }
+
+        $selectedMonth = Carbon::createFromFormat('Y-m', $selectedMonthValue, 'Asia/Jakarta')->startOfMonth();
 
         $selectedTeacherId = (int) ($request->input('teacher_id') ?: 0);
         $selectedTeacher = $teacherOptions->firstWhere('id', $selectedTeacherId)
@@ -263,10 +275,11 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         return [
             'selectedWeekValue' => $selectedWeek->format('o-\WW'),
-            'selectedMonthValue' => $selectedMonth->format('Y-m'),
+            'selectedMonthValue' => $selectedMonthValue,
             'selectedWeekLabel' => $selectedWeek->copy()->startOfWeek(Carbon::MONDAY)->translatedFormat('d M Y')
                 . ' - ' . $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY)->translatedFormat('d M Y'),
             'selectedMonthLabel' => $selectedMonth->translatedFormat('F Y'),
+            'availableMonths' => $availableMonths,
             'teacherOptions' => $teacherOptions,
             'selectedTeacher' => $selectedTeacher,
             'weeklySummary' => $weeklySummary,
@@ -274,6 +287,48 @@ class LaporanController extends \App\Http\Controllers\Controller
             'schoolTeacherSummaries' => $schoolTeacherSummaries,
             'schoolOverview' => $schoolOverview,
         ];
+    }
+
+    private function getAvailableAttendanceMonths($teacherOptions, Carbon $today)
+    {
+        $teacherIds = $teacherOptions->pluck('id')->filter()->values();
+
+        if ($teacherIds->isEmpty()) {
+            return collect([[
+                'value' => $today->format('Y-m'),
+                'label' => $today->translatedFormat('F Y'),
+            ]]);
+        }
+
+        $presensiMonths = Presensi::query()
+            ->whereIn('user_id', $teacherIds)
+            ->selectRaw("DISTINCT DATE_FORMAT(tanggal, '%Y-%m') as month_value")
+            ->pluck('month_value');
+
+        $izinMonths = Izin::query()
+            ->whereIn('user_id', $teacherIds)
+            ->selectRaw("DISTINCT DATE_FORMAT(tanggal, '%Y-%m') as month_value")
+            ->pluck('month_value');
+
+        $months = $presensiMonths
+            ->concat($izinMonths)
+            ->filter(fn ($month) => is_string($month) && preg_match('/^\d{4}-\d{2}$/', $month))
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->map(fn ($month) => [
+                'value' => $month,
+                'label' => Carbon::createFromFormat('Y-m', $month, 'Asia/Jakarta')->translatedFormat('F Y'),
+            ]);
+
+        if ($months->isEmpty()) {
+            return collect([[
+                'value' => $today->format('Y-m'),
+                'label' => $today->translatedFormat('F Y'),
+            ]]);
+        }
+
+        return $months;
     }
 
     private function buildAttendanceSummary(int $userId, ?string $hariKbm, Carbon $startDate, Carbon $endDate, Carbon $today): array

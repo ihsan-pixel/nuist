@@ -320,13 +320,30 @@
                         <label class="form-label mb-1 d-none d-md-block" style="font-size: 11px;">Aksi</label>
                         <button type="submit" class="btn btn-sm" style="background: #004b4c; color: #fff;">Tampilkan</button>
                     </div>
-                    <div class="col-12 d-grid">
-                        <a
-                            href="{{ route('mobile.laporan.persentase-kehadiran.download', ['teacher_id' => optional($selectedTeacher)->id, 'week' => $selectedWeekValue, 'month' => $selectedMonthValue]) }}"
-                            class="btn btn-sm btn-outline-danger"
-                        >
-                            <i class="bx bxs-file-pdf me-1"></i>Export PDF Rekap Sekolah
-                        </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card filter-card">
+        <div class="card-body">
+            <form method="GET" action="{{ route('mobile.laporan.persentase-kehadiran.download') }}">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-8 col-12">
+                        <label for="export_month" class="form-label mb-1" style="font-size: 11px;">Bulan Rekap PDF</label>
+                        <select id="export_month" name="export_month" class="form-select form-select-sm">
+                            @foreach($availableMonths as $monthOption)
+                                <option value="{{ $monthOption['value'] }}" {{ $selectedMonthValue === $monthOption['value'] ? 'selected' : '' }}>
+                                    {{ ucfirst($monthOption['label']) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Pilihan bulan mengikuti data presensi yang tersedia.</small>
+                    </div>
+                    <div class="col-md-4 col-12 d-grid">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bx bxs-file-pdf me-1"></i>Export PDF Bulanan
+                        </button>
                     </div>
                 </div>
             </form>
