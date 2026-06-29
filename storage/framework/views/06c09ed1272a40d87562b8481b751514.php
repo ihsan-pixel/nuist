@@ -324,14 +324,15 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
         function syncCurrentSelections() {
             const nextState = {};
+            const fieldPrefix = 'teacher_dates[';
+            const fieldSuffix = '][]';
 
             container.querySelectorAll('input[type="checkbox"][name^="teacher_dates["]:checked').forEach((input) => {
-                const match = input.name.match(/^teacher_dates\[(.+?)\]\[\]$/);
-                if (!match) {
+                if (!input.name.startsWith(fieldPrefix) || !input.name.endsWith(fieldSuffix)) {
                     return;
                 }
 
-                const teacherId = match[1];
+                const teacherId = input.name.slice(fieldPrefix.length, -fieldSuffix.length);
                 if (!nextState[teacherId]) {
                     nextState[teacherId] = [];
                 }
