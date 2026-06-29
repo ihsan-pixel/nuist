@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class AcademicCalendarEventService
 {
@@ -24,6 +25,10 @@ class AcademicCalendarEventService
 
     public function syncTeacherDate(User $teacher, Carbon|string $date): void
     {
+        if (!$this->hasAcademicCalendarAttendanceTrackingColumns()) {
+            return;
+        }
+
         $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
 
         TeachingAttendance::query()
@@ -36,6 +41,10 @@ class AcademicCalendarEventService
 
     public function syncTeacherRange(User $teacher, Carbon|string $startDate, Carbon|string $endDate): void
     {
+        if (!$this->hasAcademicCalendarAttendanceTrackingColumns()) {
+            return;
+        }
+
         $startDate = $startDate instanceof Carbon ? $startDate->copy()->startOfDay() : Carbon::parse($startDate, 'Asia/Jakarta')->startOfDay();
         $endDate = $endDate instanceof Carbon ? $endDate->copy()->startOfDay() : Carbon::parse($endDate, 'Asia/Jakarta')->startOfDay();
 
@@ -53,6 +62,10 @@ class AcademicCalendarEventService
 
     public function syncSchoolDate(int $schoolId, Carbon|string $date): void
     {
+        if (!$this->hasAcademicCalendarAttendanceTrackingColumns()) {
+            return;
+        }
+
         $date = $date instanceof Carbon ? $date->copy() : Carbon::parse($date, 'Asia/Jakarta');
 
         TeachingAttendance::query()
@@ -93,6 +106,10 @@ class AcademicCalendarEventService
 
     public function removeGeneratedAttendancesForEvent(AcademicCalendarEvent $event): void
     {
+        if (!$this->hasAcademicCalendarEventAttendanceColumns()) {
+            return;
+        }
+
         TeachingAttendance::query()
             ->where('academic_calendar_event_id', $event->id)
             ->where('attendance_source', TeachingAttendance::SOURCE_ACADEMIC_CALENDAR)
@@ -227,10 +244,27 @@ class AcademicCalendarEventService
 
     private function removeGeneratedAttendancesForSchedule(TeachingSchedule $schedule): void
     {
+        if (!$this->hasAcademicCalendarAttendanceTrackingColumns()) {
+            return;
+        }
+
         TeachingAttendance::query()
             ->where('teaching_schedule_id', $schedule->id)
             ->where('attendance_source', TeachingAttendance::SOURCE_ACADEMIC_CALENDAR)
             ->where('is_auto_generated', true)
             ->delete();
+    }
+
+    private function hasAcademicCalendarAttendanceTrackingColumns(): bool
+    {
+        return Schema::hasTable('teaching_attendances')
+            && Schema::hasColumn('teaching_attendances', 'attendance_source')
+            && Schema::hasColumn('teaching_attendances', 'is_auto_generated');
+    }
+
+    private function hasAcademicCalendarEventAttendanceColumns(): bool
+    {
+        return $this->hasAcademicCalendarAttendanceTrackingColumns()
+            && Schema::hasColumn('teaching_attendances', 'academic_calendar_event_id');
     }
 }
