@@ -261,6 +261,13 @@
                         'rejected' => 'approval-status-rejected',
                         default => 'approval-status-pending',
                     };
+                    $statusLabel = $isPicketPeriod
+                        ? match ($item['status']) {
+                            \App\Models\PicketScheduleSubmission::APPROVAL_APPROVED => \App\Models\PicketScheduleSubmission::approvalOptions()[\App\Models\PicketScheduleSubmission::APPROVAL_APPROVED],
+                            \App\Models\PicketScheduleSubmission::APPROVAL_REJECTED => \App\Models\PicketScheduleSubmission::approvalOptions()[\App\Models\PicketScheduleSubmission::APPROVAL_REJECTED],
+                            default => \App\Models\PicketScheduleSubmission::approvalOptions()[\App\Models\PicketScheduleSubmission::APPROVAL_PENDING],
+                        }
+                        : $model->approval_status_label;
                     $typeLabel = $isEvent ? 'Event Akademik' : 'Jadwal Piket';
                     $title = $isEvent
                         ? $model->name
@@ -296,7 +303,7 @@
                                 <div class="fw-semibold approval-item-title"><?php echo e($title); ?></div>
                                 <div class="approval-item-subtitle"><?php echo e($subtitle); ?></div>
                             </div>
-                            <span class="approval-chip <?php echo e($statusClass); ?>"><?php echo e($model->approval_status_label); ?></span>
+                            <span class="approval-chip <?php echo e($statusClass); ?>"><?php echo e($statusLabel); ?></span>
                         </div>
 
                         <div class="approval-item-meta">
