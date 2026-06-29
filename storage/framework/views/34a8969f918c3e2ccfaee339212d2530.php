@@ -152,9 +152,26 @@
         }
 
         @media (max-width: 576px) {
-            .approval-summary-grid,
             .approval-actions {
                 grid-template-columns: 1fr;
+            }
+
+            .approval-summary-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 8px;
+            }
+
+            .approval-summary-stat {
+                padding: 10px 8px;
+                text-align: center;
+            }
+
+            .approval-summary-stat small {
+                font-size: 10px;
+            }
+
+            .approval-summary-stat strong {
+                font-size: 16px;
             }
         }
     </style>
