@@ -1,64 +1,169 @@
 <?php $__env->startSection('title', 'Approval Event'); ?>
-<?php $__env->startSection('subtitle', 'Persetujuan Kalender Akademik'); ?>
+<?php $__env->startSection('subtitle', 'Persetujuan Kalender Akademik dan Jadwal Piket'); ?>
 
 <?php $__env->startSection('content'); ?>
 <div class="container py-3" style="max-width: 720px; margin: auto;">
     <style>
-        .approval-card {
-            border-radius: 16px;
-            overflow: hidden;
+        .approval-summary-card,
+        .approval-item-card {
+            border-radius: 18px;
         }
 
-        .approval-card .card-body {
+        .approval-summary-card {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: #fff;
+        }
+
+        .approval-summary-card .card-body {
+            padding: 18px;
+        }
+
+        .approval-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .approval-summary-stat {
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 14px;
+            padding: 10px 12px;
+        }
+
+        .approval-summary-stat small {
+            display: block;
+            opacity: 0.78;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .approval-summary-stat strong {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .approval-item-card {
+            border: 1px solid #edf1ef;
+            box-shadow: 0 10px 24px rgba(15, 56, 57, 0.08);
+        }
+
+        .approval-item-card .card-body {
             padding: 14px;
         }
 
-        .approval-meta {
-            display: grid;
-            gap: 6px;
+        .approval-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1;
         }
 
-        .approval-meta-item {
-            font-size: 12px;
-            color: #6c757d;
+        .approval-chip-type {
+            background: #eef7f4;
+            color: #0e8549;
+        }
+
+        .approval-chip-latest {
+            background: #fff5d6;
+            color: #946200;
+        }
+
+        .approval-status-pending {
+            background: #fff3cd;
+            color: #7a5a00;
+        }
+
+        .approval-status-approved {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .approval-status-rejected {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .approval-item-title {
+            font-size: 14px;
             line-height: 1.35;
         }
 
-        .approval-badge {
-            font-size: 10px;
-            padding: 6px 9px;
-            border-radius: 999px;
-            white-space: normal;
-            text-align: center;
-            max-width: 140px;
+        .approval-item-subtitle,
+        .approval-item-meta,
+        .approval-item-detail,
+        .approval-item-note {
+            font-size: 12px;
+            line-height: 1.45;
         }
 
-        .approval-note {
-            font-size: 12px;
-            border-radius: 12px;
+        .approval-item-subtitle,
+        .approval-item-meta,
+        .approval-item-detail {
+            color: #6c757d;
+        }
+
+        .approval-item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            margin-top: 8px;
+        }
+
+        .approval-item-detail-list {
+            display: grid;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .approval-item-note {
+            margin-top: 10px;
             padding: 10px 12px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            background: #f6f8f8;
+            color: #4d5a5a;
+        }
+
+        .approval-form {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #edf1ef;
+        }
+
+        .approval-form .form-control {
+            min-height: 64px;
+            font-size: 12px;
+            padding: 10px 12px;
         }
 
         .approval-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
+            margin-top: 8px;
         }
 
-        .approval-textarea {
-            min-height: 68px;
-            resize: vertical;
-            font-size: 12px;
-            margin-bottom: 8px;
+        .approval-empty-card {
+            border-radius: 18px;
         }
 
         @media (max-width: 576px) {
+            .approval-summary-grid,
             .approval-actions {
                 grid-template-columns: 1fr;
             }
         }
     </style>
+
+    <?php
+        $pendingCount = $approvalItems->where('status', 'pending')->count();
+        $approvedCount = $approvalItems->where('status', 'approved')->count();
+        $rejectedCount = $approvalItems->where('status', 'rejected')->count();
+    ?>
 
     <div class="d-flex align-items-center mb-3">
         <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
@@ -74,94 +179,140 @@
         <div class="alert alert-success border-0 shadow-sm"><?php echo e(session('success')); ?></div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($events->isEmpty()): ?>
-        <div class="card border-0 shadow-sm">
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($approvalItems->isEmpty()): ?>
+        <div class="card border-0 shadow-sm approval-empty-card">
             <div class="card-body text-center py-5">
                 <i class="bx bx-calendar-x fs-1 text-muted"></i>
-                <h6 class="mt-3 mb-1">Belum ada event akademik</h6>
-                <small class="text-muted">Admin sekolah belum mengajukan event untuk disetujui.</small>
+                <h6 class="mt-3 mb-1">Belum ada pengajuan</h6>
+                <small class="text-muted">Belum ada event akademik atau jadwal piket yang masuk ke antrian approval.</small>
             </div>
         </div>
     <?php else: ?>
+        <div class="card border-0 shadow-sm approval-summary-card mb-3">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between gap-3">
+                    <div>
+                        <div class="fw-semibold" style="font-size: 16px;">Daftar approval</div>
+                        <div style="font-size: 12px; opacity: 0.82;">Pengajuan terbaru tampil paling atas.</div>
+                    </div>
+                    <div class="text-end">
+                        <div style="font-size: 11px; opacity: 0.78;">Total pengajuan</div>
+                        <div class="fw-bold" style="font-size: 24px; line-height: 1;"><?php echo e($approvalItems->count()); ?></div>
+                    </div>
+                </div>
+
+                <div class="approval-summary-grid">
+                    <div class="approval-summary-stat">
+                        <small>Menunggu</small>
+                        <strong><?php echo e($pendingCount); ?></strong>
+                    </div>
+                    <div class="approval-summary-stat">
+                        <small>Disetujui</small>
+                        <strong><?php echo e($approvedCount); ?></strong>
+                    </div>
+                    <div class="approval-summary-stat">
+                        <small>Ditolak</small>
+                        <strong><?php echo e($rejectedCount); ?></strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="d-grid gap-3">
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $events; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $approvalItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                 <?php
-                    $badgeClass = match ($event->approval_status) {
-                        \App\Models\AcademicCalendarEvent::APPROVAL_APPROVED => 'bg-success',
-                        \App\Models\AcademicCalendarEvent::APPROVAL_REJECTED => 'bg-danger',
-                        default => 'bg-warning text-dark',
+                    $model = $item['model'];
+                    $isEvent = $item['kind'] === 'event';
+                    $statusClass = match ($item['status']) {
+                        'approved' => 'approval-status-approved',
+                        'rejected' => 'approval-status-rejected',
+                        default => 'approval-status-pending',
                     };
+                    $typeLabel = $isEvent ? 'Event Akademik' : 'Jadwal Piket';
+                    $title = $isEvent ? $model->name : ($model->user->name ?? '-');
+                    $subtitle = $isEvent ? $model->resolved_type_label : ($model->period->name ?? 'Periode piket');
+                    $requestedAt = optional($item['requested_at'])->timezone('Asia/Jakarta')->format('d M Y H:i');
+                    $approverName = $model->approver->name ?? null;
+                    $approvedAt = optional($model->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i');
+                    $helperNote = $isEvent
+                        ? 'Jika disetujui, jadwal mengajar pada tanggal event ini akan tercatat sebagai izin.'
+                        : 'Jika disetujui, hari yang dipilih akan menjadi jadwal piket resmi pada masa libur semester.';
                 ?>
-                <div class="card border-0 shadow-sm approval-card">
+
+                <div class="card border-0 approval-item-card">
                     <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
                             <div class="pe-2">
-                                <h6 class="mb-1" style="font-size: 14px;"><?php echo e($event->name); ?></h6>
-                                <div class="text-muted small"><?php echo e($event->resolved_type_label); ?></div>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    <span class="approval-chip approval-chip-type"><?php echo e($typeLabel); ?></span>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($loop->first): ?>
+                                        <span class="approval-chip approval-chip-latest">Terbaru</span>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </div>
+                                <div class="fw-semibold approval-item-title"><?php echo e($title); ?></div>
+                                <div class="approval-item-subtitle"><?php echo e($subtitle); ?></div>
                             </div>
-                            <span class="badge <?php echo e($badgeClass); ?> approval-badge"><?php echo e($event->approval_status_label); ?></span>
+                            <span class="approval-chip <?php echo e($statusClass); ?>"><?php echo e($model->approval_status_label); ?></span>
                         </div>
 
-                        <div class="approval-meta mb-2">
-                            <div class="approval-meta-item">
-                                <i class="bx bx-calendar me-1"></i><?php echo e($event->date_range_label); ?>
-
-                            </div>
-                            <div class="approval-meta-item">
-                                <i class="bx bx-time me-1"></i><?php echo e($event->time_range_label); ?>
-
-                            </div>
-                            <div class="approval-meta-item">
-                                <i class="bx bx-user me-1"></i><?php echo e($event->creator->name ?? '-'); ?>
-
-                                <span class="mx-1">•</span>
-                                diperbarui <?php echo e(optional($event->updated_at)->timezone('Asia/Jakarta')->format('d M Y H:i')); ?>
-
-                            </div>
+                        <div class="approval-item-meta">
+                            <span><i class="bx bx-time-five me-1"></i>Diajukan <?php echo e($requestedAt ?: '-'); ?></span>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isEvent): ?>
+                                <span><i class="bx bx-user me-1"></i><?php echo e($model->creator->name ?? '-'); ?></span>
+                            <?php else: ?>
+                                <span><i class="bx bx-calendar me-1"></i><?php echo e($model->period->date_range_label ?? '-'); ?></span>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($event->description): ?>
-                            <div class="approval-meta-item mb-2">
-                                <i class="bx bx-note me-1"></i><?php echo e($event->description); ?>
+                        <div class="approval-item-detail-list">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isEvent): ?>
+                                <div class="approval-item-detail"><i class="bx bx-calendar-event me-1"></i><?php echo e($model->date_range_label); ?></div>
+                                <div class="approval-item-detail"><i class="bx bx-time me-1"></i><?php echo e($model->time_range_label); ?></div>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($model->description): ?>
+                                    <div class="approval-item-detail"><i class="bx bx-note me-1"></i><?php echo e(\Illuminate\Support\Str::limit($model->description, 140)); ?></div>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php else: ?>
+                                <div class="approval-item-detail"><i class="bx bx-list-check me-1"></i><?php echo e($model->selected_dates_count); ?> hari dipilih</div>
+                                <div class="approval-item-detail"><i class="bx bx-check-square me-1"></i><?php echo e(\Illuminate\Support\Str::limit(implode(', ', $model->selected_date_labels), 140)); ?></div>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($model->approval_notes): ?>
+                            <div class="approval-item-note">
+                                <i class="bx bx-message-detail me-1"></i><?php echo e($model->approval_notes); ?>
 
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($event->approval_notes): ?>
-                            <div class="approval-meta-item mb-2">
-                                <i class="bx bx-message-detail me-1"></i><?php echo e($event->approval_notes); ?>
 
-                            </div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($event->approver): ?>
-                            <div class="approval-meta-item mb-2">
-                                <i class="bx bx-check-shield me-1"></i><?php echo e($event->approver->name); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($approverName): ?>
+                            <div class="approval-item-note">
+                                <i class="bx bx-check-shield me-1"></i><?php echo e($approverName); ?>
 
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($event->approved_at): ?>
-                                    pada <?php echo e(optional($event->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i')); ?>
-
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($approvedAt): ?>
+                                    <span class="text-muted"> • <?php echo e($approvedAt); ?></span>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($event->approval_status === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING): ?>
-                            <div class="alert alert-warning border-0 approval-note">
-                                Setelah disetujui, semua jadwal mengajar pada tanggal event ini akan berstatus izin.
-                            </div>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item['status'] === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING): ?>
+                            <div class="approval-item-note"><?php echo e($helperNote); ?></div>
 
-                            <form method="POST" action="<?php echo e(route('mobile.academic-calendar-approvals.approve', $event)); ?>" id="approve-form-<?php echo e($event->id); ?>">
+                            <form method="POST" action="<?php echo e($isEvent ? route('mobile.academic-calendar-approvals.approve', $model) : route('mobile.academic-calendar-approvals.picket-submissions.approve', $model)); ?>" class="approval-form">
                                 <?php echo csrf_field(); ?>
-                                <textarea name="approval_notes" class="form-control form-control-sm approval-textarea" placeholder="Catatan approval atau penolakan (opsional)"></textarea>
+                                <textarea name="approval_notes" class="form-control form-control-sm" placeholder="Catatan approval atau penolakan (opsional)"></textarea>
                                 <div class="approval-actions">
                                     <button type="submit" class="btn btn-success">
-                                            <i class="bx bx-check-circle me-1"></i>Setujui Event
+                                        <i class="bx bx-check-circle me-1"></i><?php echo e($isEvent ? 'Setujui Event' : 'Setujui Jadwal'); ?>
+
                                     </button>
                                     <button
                                         type="submit"
                                         class="btn btn-outline-danger"
-                                        formaction="<?php echo e(route('mobile.academic-calendar-approvals.reject', $event)); ?>"
+                                        formaction="<?php echo e($isEvent ? route('mobile.academic-calendar-approvals.reject', $model) : route('mobile.academic-calendar-approvals.picket-submissions.reject', $model)); ?>"
                                         formmethod="POST"
                                     >
-                                            <i class="bx bx-x-circle me-1"></i>Tolak Event
+                                        <i class="bx bx-x-circle me-1"></i><?php echo e($isEvent ? 'Tolak Event' : 'Tolak Jadwal'); ?>
+
                                     </button>
                                 </div>
                             </form>

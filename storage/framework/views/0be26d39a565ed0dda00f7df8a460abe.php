@@ -108,10 +108,14 @@
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'admin'])): ?>
                 <li>
-                    <a href="<?php echo e(route('academic-calendar-events.index')); ?>" class="waves-effect">
+                    <a href="#academicCalendarSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
                         <i class="bx bx-calendar-check"></i>
                         <span>Kalender Akademik</span>
                     </a>
+                    <ul class="sub-menu collapse" id="academicCalendarSubmenu">
+                        <li><a href="<?php echo e(route('academic-calendar-events.index')); ?>">Event Akademik</a></li>
+                        <li><a href="<?php echo e(route('picket-schedule-periods.index')); ?>">Izin Jadwal Piket</a></li>
+                    </ul>
                 </li>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 

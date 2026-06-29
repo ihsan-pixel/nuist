@@ -146,8 +146,7 @@ class AcademicCalendarEventController extends Controller
         $events = AcademicCalendarEvent::query()
             ->with(['creator', 'approver'])
             ->where('school_id', $schoolId)
-            ->orderByRaw("CASE approval_status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END")
-            ->orderByDesc('updated_at')
+            ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->get();
 
@@ -156,12 +155,37 @@ class AcademicCalendarEventController extends Controller
             ->whereHas('period', function ($query) use ($schoolId) {
                 $query->where('school_id', $schoolId);
             })
-            ->orderByRaw("CASE approval_status WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 ELSE 2 END")
             ->orderByDesc('submitted_at')
             ->orderByDesc('id')
             ->get();
 
-        return view('mobile.academic-calendar-approvals', compact('events', 'picketSubmissions', 'school'));
+        $approvalItems = $events
+            ->map(function (AcademicCalendarEvent $event) {
+                $requestedAt = $event->created_at ?? $event->updated_at;
+
+                return [
+                    'kind' => 'event',
+                    'status' => $event->approval_status,
+                    'requested_at' => $requestedAt,
+                    'sort_at' => optional($requestedAt)->timestamp ?? 0,
+                    'model' => $event,
+                ];
+            })
+            ->concat($picketSubmissions->map(function (PicketScheduleSubmission $submission) {
+                $requestedAt = $submission->submitted_at ?? $submission->created_at;
+
+                return [
+                    'kind' => 'picket_submission',
+                    'status' => $submission->approval_status,
+                    'requested_at' => $requestedAt,
+                    'sort_at' => optional($requestedAt)->timestamp ?? 0,
+                    'model' => $submission,
+                ];
+            }))
+            ->sortByDesc('sort_at')
+            ->values();
+
+        return view('mobile.academic-calendar-approvals', compact('approvalItems', 'school'));
     }
 
     public function principalApprove(Request $request, AcademicCalendarEvent $academicCalendarEvent)

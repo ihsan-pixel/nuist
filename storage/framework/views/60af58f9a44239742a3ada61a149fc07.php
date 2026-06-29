@@ -1155,14 +1155,12 @@ $progressColor = "rgb($red, $green, 0)";
                 </a>
                 <div class="service-label">Presensi Mengajar</div>
             </div>
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->pemenuhan_beban_kerja_lain): ?>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('mobile.izin', ['type' => 'mengajar_sekolah_lain'])); ?>" class="service-item" style="background: #fff; border: 1px solid rgba(0,75,76,0.12); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                    <i class="bx bx-buildings" style="position: relative; z-index: 1;"></i>
+                <a href="<?php echo e(route('mobile.izin', ['type' => 'tidak_masuk'])); ?>" class="service-item">
+                    <img src="<?php echo e(asset('images/menu_icon/3.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                 </a>
-                <div class="service-label">Mengajar Sekolah Lain</div>
+                <div class="service-label">Izin Tidak Masuk</div>
             </div>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <div class="service-wrapper">
                 <a href="<?php echo e(route('mobile.izin', ['type' => 'cuti'])); ?>" class="service-item">
                     <img src="<?php echo e(asset('images/menu_icon/3.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
@@ -1191,19 +1189,19 @@ $progressColor = "rgb($red, $green, 0)";
                 </a>
                 <div class="service-label">Izin Dinas Luar</div>
             </div>
-            <div class="service-wrapper">
-                <a href="<?php echo e(route('mobile.jadwal')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/7.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    
-                </a>
-                <div class="service-label">Jadwal Mengajar</div>
-            </div>
             <div id="viewAllBtn" class="service-wrapper">
                 <a href="#" class="service-item" onclick="return toggleServices(event)">
                     <img src="<?php echo e(asset('images/menu_icon/12.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     
                 </a>
                 <div class="service-label" id="serviceLabel">Lihat Semua</div>
+            </div>
+            <div class="extra-service service-wrapper">
+                <a href="<?php echo e(route('mobile.jadwal')); ?>" class="service-item">
+                    <img src="<?php echo e(asset('images/menu_icon/7.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    
+                </a>
+                <div class="service-label">Jadwal Mengajar</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="<?php echo e(route('mobile.profile')); ?>" class="service-item">
@@ -1226,6 +1224,14 @@ $progressColor = "rgb($red, $green, 0)";
                 </a>
                 <div class="service-label">Pengaturan</div>
             </div>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->pemenuhan_beban_kerja_lain): ?>
+            <div class="extra-service service-wrapper">
+                <a href="<?php echo e(route('mobile.izin', ['type' => 'mengajar_sekolah_lain'])); ?>" class="service-item" style="background: #fff; border: 1px solid rgba(0,75,76,0.12); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <i class="bx bx-buildings" style="position: relative; z-index: 1;"></i>
+                </a>
+                <div class="service-label">Mengajar Sekolah Lain</div>
+            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <?php if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
             <div class="extra-service service-wrapper">
