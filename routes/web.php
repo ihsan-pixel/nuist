@@ -437,6 +437,7 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::get('/monitor-map', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorMap'])->name('monitor-map');
     Route::get('/monitor-jadwal-mengajar', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorJadwalMengajar'])->name('monitor-jadwal-mengajar');
     Route::get('/academic-calendar-approvals', [AcademicCalendarEventController::class, 'principalIndex'])->name('academic-calendar-approvals');
+    Route::post('/academic-calendar-approvals/approve-all', [AcademicCalendarEventController::class, 'principalApproveAll'])->name('academic-calendar-approvals.approve-all');
     Route::post('/academic-calendar-approvals/{academic_calendar_event}/approve', [AcademicCalendarEventController::class, 'principalApprove'])->name('academic-calendar-approvals.approve');
     Route::post('/academic-calendar-approvals/{academic_calendar_event}/reject', [AcademicCalendarEventController::class, 'principalReject'])->name('academic-calendar-approvals.reject');
     Route::get('/picket-schedules', [PicketScheduleController::class, 'mobileIndex'])->name('picket-schedules.index');

@@ -9,6 +9,7 @@ use App\Services\AcademicCalendarEventService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -211,6 +212,58 @@ class AcademicCalendarEventController extends Controller
         return redirect()
             ->route('mobile.academic-calendar-approvals')
             ->with('success', 'Event akademik disetujui. Semua jadwal mengajar pada tanggal event akan tercatat sebagai izin.');
+    }
+
+    public function principalApproveAll()
+    {
+        $schoolId = $this->resolvePrincipalSchoolId(Auth::user());
+
+        $events = AcademicCalendarEvent::query()
+            ->where('school_id', $schoolId)
+            ->where('approval_status', AcademicCalendarEvent::APPROVAL_PENDING)
+            ->get();
+
+        $picketSubmissions = PicketScheduleSubmission::query()
+            ->whereHas('period', function ($query) use ($schoolId) {
+                $query->where('school_id', $schoolId);
+            })
+            ->where('approval_status', PicketScheduleSubmission::APPROVAL_PENDING)
+            ->get();
+
+        if ($events->isEmpty() && $picketSubmissions->isEmpty()) {
+            return redirect()
+                ->route('mobile.academic-calendar-approvals')
+                ->with('success', 'Tidak ada pengajuan yang menunggu persetujuan.');
+        }
+
+        $approvedAt = now('Asia/Jakarta');
+        $approverId = Auth::id();
+
+        DB::transaction(function () use ($events, $picketSubmissions, $approvedAt, $approverId) {
+            foreach ($events as $event) {
+                $event->update([
+                    'approval_status' => AcademicCalendarEvent::APPROVAL_APPROVED,
+                    'approved_by' => $approverId,
+                    'approved_at' => $approvedAt,
+                ]);
+
+                $this->academicCalendarEventService->syncEvent($event->fresh());
+            }
+
+            foreach ($picketSubmissions as $submission) {
+                $submission->update([
+                    'approval_status' => PicketScheduleSubmission::APPROVAL_APPROVED,
+                    'approved_by' => $approverId,
+                    'approved_at' => $approvedAt,
+                ]);
+            }
+        });
+
+        $totalApproved = $events->count() + $picketSubmissions->count();
+
+        return redirect()
+            ->route('mobile.academic-calendar-approvals')
+            ->with('success', $totalApproved . ' pengajuan berhasil disetujui sekaligus.');
     }
 
     public function principalReject(Request $request, AcademicCalendarEvent $academicCalendarEvent)

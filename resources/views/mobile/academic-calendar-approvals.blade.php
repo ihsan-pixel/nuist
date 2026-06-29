@@ -179,6 +179,7 @@
     </style>
 
     @php
+        $pendingItems = $approvalItems->where('status', 'pending')->values();
         $pendingCount = $approvalItems->where('status', 'pending')->count();
         $approvedCount = $approvalItems->where('status', 'approved')->count();
         $rejectedCount = $approvalItems->where('status', 'rejected')->count();
@@ -219,6 +220,20 @@
                         <div class="fw-bold" style="font-size: 24px; line-height: 1;">{{ $approvalItems->count() }}</div>
                     </div>
                 </div>
+
+                @if($pendingItems->isNotEmpty())
+                    <div class="mt-3">
+                        <button
+                            type="button"
+                            class="btn btn-light btn-sm w-100"
+                            data-bs-toggle="modal"
+                            data-bs-target="#approveAllModal"
+                            style="border-radius: 12px; font-weight: 600;"
+                        >
+                            <i class="bx bx-check-double me-1"></i>Setujui Semua Pengajuan Pending
+                        </button>
+                    </div>
+                @endif
 
                 <div class="approval-summary-grid">
                     <div class="approval-summary-stat">
@@ -339,6 +354,51 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+    @endif
+
+    @if($pendingItems->isNotEmpty())
+        <div class="modal fade" id="approveAllModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-0" style="border-radius: 18px;">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Setujui Semua Pengajuan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-muted small mb-3">
+                            Pengajuan berikut akan langsung disetujui sekaligus:
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            @foreach($pendingItems as $item)
+                                @php
+                                    $model = $item['model'];
+                                    $isEvent = $item['kind'] === 'event';
+                                    $modalTitle = $isEvent ? $model->name : ($model->user->name ?? '-');
+                                    $modalSubtitle = $isEvent
+                                        ? ($model->resolved_type_label . ' • ' . $model->date_range_label)
+                                        : (($model->period->name ?? 'Periode piket') . ' • ' . ($model->selected_dates_count ?? 0) . ' hari');
+                                @endphp
+                                <div class="border rounded-3 p-2">
+                                    <div class="fw-semibold" style="font-size: 13px;">{{ $modalTitle }}</div>
+                                    <div class="text-muted" style="font-size: 11px;">{{ $isEvent ? 'Event Akademik' : 'Jadwal Piket' }}</div>
+                                    <div class="text-muted" style="font-size: 11px;">{{ $modalSubtitle }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                        <form method="POST" action="{{ route('mobile.academic-calendar-approvals.approve-all') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="bx bx-check-double me-1"></i>Ya, Setujui Semua
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     @endif
 </div>
