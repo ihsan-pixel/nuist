@@ -320,7 +320,11 @@
         }
 
         function renderTeacherBuilder() {
-            syncCurrentSelections();
+            const hasRenderedCheckboxes = !!container.querySelector('input[type="checkbox"][name^="teacher_dates["]');
+
+            if (hasRenderedCheckboxes) {
+                syncCurrentSelections();
+            }
 
             if (!teachers.length) {
                 container.innerHTML = '<div class="picket-inline-alert">Data tenaga pendidik belum tersedia untuk sekolah ini.</div>';
