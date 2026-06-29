@@ -98,7 +98,7 @@
                 <div class="mb-4">
                     <h4 class="mb-1"><?php echo e($isEdit ? 'Ubah Periode Jadwal Piket' : 'Tambah Periode Jadwal Piket'); ?></h4>
                     <p class="text-muted mb-0">
-                        Sekolah: <strong><?php echo e($school?->name ?? 'Pilih sekolah terlebih dahulu'); ?></strong>
+                        Sekolah: <strong><?php echo e(optional($school)->name ?? 'Pilih sekolah terlebih dahulu'); ?></strong>
                     </p>
                 </div>
 
@@ -142,7 +142,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         <?php else: ?>
                             <div class="col-12">
                                 <label class="form-label">Sekolah</label>
-                                <input type="text" class="form-control" value="<?php echo e($school?->name ?? '-'); ?>" readonly>
+                                <input type="text" class="form-control" value="<?php echo e(optional($school)->name ?? '-'); ?>" readonly>
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -283,11 +283,21 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 </div>
 
 <?php
+    $teacherPayload = $teachers->map(function ($teacher) {
+        return [
+            'id' => (string) $teacher->id,
+            'name' => $teacher->name,
+            'ketugasan' => $teacher->ketugasan ?: 'Tenaga pendidik',
+        ];
+    })->values()->all();
+
     $initialTeacherDates = collect(old('teacher_dates', $existingSelections ?? []))
         ->mapWithKeys(function ($dates, $teacherId) {
             return [(string) $teacherId => collect(is_array($dates) ? $dates : [])->filter()->values()->all()];
         })
         ->all();
+
+    $isFiveDaySchool = (string) (optional($school)->hari_kbm ?? '') === '5';
 ?>
 
 <script>
@@ -300,10 +310,9 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
             return;
         }
 
-        const teachers = <?php echo json_encode($teachers->map(fn ($teacher) => [
-            'id' => (string) $teacher->id, 'name' => $teacher->name, 'ketugasan' => $teacher->ketugasan ?: 'Tenaga pendidik') ?>;
+        const teachers = <?php echo json_encode($teacherPayload, 15, 512) ?>;
         const initialSelections = <?php echo json_encode($initialTeacherDates, 15, 512) ?>;
-        const isFiveDaySchool = <?php echo json_encode((string) ($school?->hari_kbm ?? '') === '5', 15, 512) ?>;
+        const isFiveDaySchool = <?php echo json_encode($isFiveDaySchool, 15, 512) ?>;
         const formatter = new Intl.DateTimeFormat('id-ID', {
             weekday: 'long',
             day: 'numeric',

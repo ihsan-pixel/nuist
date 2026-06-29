@@ -100,7 +100,7 @@
                 <div class="mb-4">
                     <h4 class="mb-1">{{ $isEdit ? 'Ubah Periode Jadwal Piket' : 'Tambah Periode Jadwal Piket' }}</h4>
                     <p class="text-muted mb-0">
-                        Sekolah: <strong>{{ $school?->name ?? 'Pilih sekolah terlebih dahulu' }}</strong>
+                        Sekolah: <strong>{{ optional($school)->name ?? 'Pilih sekolah terlebih dahulu' }}</strong>
                     </p>
                 </div>
 
@@ -129,7 +129,7 @@
                         @else
                             <div class="col-12">
                                 <label class="form-label">Sekolah</label>
-                                <input type="text" class="form-control" value="{{ $school?->name ?? '-' }}" readonly>
+                                <input type="text" class="form-control" value="{{ optional($school)->name ?? '-' }}" readonly>
                             </div>
                         @endif
 
@@ -207,11 +207,21 @@
 </div>
 
 @php
+    $teacherPayload = $teachers->map(function ($teacher) {
+        return [
+            'id' => (string) $teacher->id,
+            'name' => $teacher->name,
+            'ketugasan' => $teacher->ketugasan ?: 'Tenaga pendidik',
+        ];
+    })->values()->all();
+
     $initialTeacherDates = collect(old('teacher_dates', $existingSelections ?? []))
         ->mapWithKeys(function ($dates, $teacherId) {
             return [(string) $teacherId => collect(is_array($dates) ? $dates : [])->filter()->values()->all()];
         })
         ->all();
+
+    $isFiveDaySchool = (string) (optional($school)->hari_kbm ?? '') === '5';
 @endphp
 
 <script>
@@ -224,13 +234,9 @@
             return;
         }
 
-        const teachers = @json($teachers->map(fn ($teacher) => [
-            'id' => (string) $teacher->id,
-            'name' => $teacher->name,
-            'ketugasan' => $teacher->ketugasan ?: 'Tenaga pendidik',
-        ])->values());
+        const teachers = @json($teacherPayload);
         const initialSelections = @json($initialTeacherDates);
-        const isFiveDaySchool = @json((string) ($school?->hari_kbm ?? '') === '5');
+        const isFiveDaySchool = @json($isFiveDaySchool);
         const formatter = new Intl.DateTimeFormat('id-ID', {
             weekday: 'long',
             day: 'numeric',
