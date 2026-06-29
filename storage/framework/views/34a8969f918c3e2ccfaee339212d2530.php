@@ -253,26 +253,34 @@
         <div class="d-grid gap-3">
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $approvalItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                 <?php
-                    $model = $item['model'];
                     $isEvent = $item['kind'] === 'event';
+                    $isPicketPeriod = $item['kind'] === 'picket_period';
+                    $model = $isPicketPeriod ? null : $item['model'];
                     $statusClass = match ($item['status']) {
                         'approved' => 'approval-status-approved',
                         'rejected' => 'approval-status-rejected',
                         default => 'approval-status-pending',
                     };
                     $typeLabel = $isEvent ? 'Event Akademik' : 'Jadwal Piket';
-                    $title = $isEvent ? $model->name : ($model->user->name ?? '-');
-                    $subtitle = $isEvent ? $model->resolved_type_label : ($model->period->name ?? 'Periode piket');
+                    $title = $isEvent
+                        ? $model->name
+                        : ($isPicketPeriod ? ($item['period']->name ?? 'Periode piket') : ($model->user->name ?? '-'));
+                    $subtitle = $isEvent
+                        ? $model->resolved_type_label
+                        : ($isPicketPeriod
+                            ? (($item['pending_count'] ?? 0) . ' menunggu • ' . ($item['submission_count'] ?? 0) . ' pengaju')
+                            : ($model->period->name ?? 'Periode piket'));
                     $requestedAt = $item['requested_at']
                         ? \Carbon\Carbon::parse($item['requested_at'])->timezone('Asia/Jakarta')->format('d M Y H:i')
                         : null;
-                    $approverName = $model->approver->name ?? null;
-                    $approvedAt = $model->approved_at
+                    $approverName = $isPicketPeriod ? null : ($model->approver->name ?? null);
+                    $approvedAt = !$isPicketPeriod && $model->approved_at
                         ? \Carbon\Carbon::parse($model->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i')
                         : null;
                     $helperNote = $isEvent
                         ? 'Jika disetujui, jadwal mengajar pada tanggal event ini akan tercatat sebagai izin.'
                         : 'Jika disetujui, hari yang dipilih akan menjadi jadwal piket resmi pada masa libur semester.';
+                    $groupCollapseId = $isPicketPeriod ? 'picket-period-' . ($item['period']->id ?? $loop->index) : null;
                 ?>
 
                 <div class="card border-0 approval-item-card">
@@ -295,6 +303,9 @@
                             <span><i class="bx bx-time-five me-1"></i>Diajukan <?php echo e($requestedAt ?: '-'); ?></span>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isEvent): ?>
                                 <span><i class="bx bx-user me-1"></i><?php echo e($model->creator->name ?? '-'); ?></span>
+                            <?php elseif($isPicketPeriod): ?>
+                                <span><i class="bx bx-calendar me-1"></i><?php echo e($item['period']->date_range_label ?? '-'); ?></span>
+                                <span><i class="bx bx-group me-1"></i><?php echo e($item['submission_count']); ?> guru</span>
                             <?php else: ?>
                                 <span><i class="bx bx-calendar me-1"></i><?php echo e($model->period->date_range_label ?? '-'); ?></span>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -307,20 +318,33 @@
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($model->description): ?>
                                     <div class="approval-item-detail"><i class="bx bx-note me-1"></i><?php echo e(\Illuminate\Support\Str::limit($model->description, 140)); ?></div>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php elseif($isPicketPeriod): ?>
+                                <div class="approval-item-detail"><i class="bx bx-calendar-event me-1"></i><?php echo e($item['period']->date_range_label ?? '-'); ?></div>
+                                <div class="approval-item-detail"><i class="bx bx-check-circle me-1"></i><?php echo e($item['approved_count']); ?> disetujui • <?php echo e($item['rejected_count']); ?> ditolak</div>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary btn-sm mt-2"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#<?php echo e($groupCollapseId); ?>"
+                                    aria-expanded="false"
+                                    aria-controls="<?php echo e($groupCollapseId); ?>"
+                                >
+                                    <i class="bx bx-list-ul me-1"></i>Lihat Guru Pengaju
+                                </button>
                             <?php else: ?>
                                 <div class="approval-item-detail"><i class="bx bx-list-check me-1"></i><?php echo e($model->selected_dates_count); ?> hari dipilih</div>
                                 <div class="approval-item-detail"><i class="bx bx-check-square me-1"></i><?php echo e(\Illuminate\Support\Str::limit(implode(', ', $model->selected_date_labels), 140)); ?></div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($model->approval_notes): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$isPicketPeriod && $model->approval_notes): ?>
                             <div class="approval-item-note">
                                 <i class="bx bx-message-detail me-1"></i><?php echo e($model->approval_notes); ?>
 
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($approverName): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$isPicketPeriod && $approverName): ?>
                             <div class="approval-item-note">
                                 <i class="bx bx-check-shield me-1"></i><?php echo e($approverName); ?>
 
@@ -330,7 +354,80 @@
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item['status'] === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isPicketPeriod): ?>
+                            <div class="collapse mt-3" id="<?php echo e($groupCollapseId); ?>">
+                                <div class="d-grid gap-2">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $item['submissions']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $submission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <?php
+                                            $submissionStatusClass = match ($submission->approval_status) {
+                                                \App\Models\PicketScheduleSubmission::APPROVAL_APPROVED => 'approval-status-approved',
+                                                \App\Models\PicketScheduleSubmission::APPROVAL_REJECTED => 'approval-status-rejected',
+                                                default => 'approval-status-pending',
+                                            };
+                                            $submissionRequestedAt = $submission->submitted_at
+                                                ? \Carbon\Carbon::parse($submission->submitted_at)->timezone('Asia/Jakarta')->format('d M Y H:i')
+                                                : null;
+                                            $submissionApprovedAt = $submission->approved_at
+                                                ? \Carbon\Carbon::parse($submission->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i')
+                                                : null;
+                                        ?>
+                                        <div class="border rounded-3 p-3">
+                                            <div class="d-flex align-items-start justify-content-between gap-2">
+                                                <div>
+                                                    <div class="fw-semibold approval-item-title"><?php echo e($submission->user->name ?? '-'); ?></div>
+                                                    <div class="approval-item-subtitle"><?php echo e($submission->selected_dates_count); ?> hari diajukan</div>
+                                                </div>
+                                                <span class="approval-chip <?php echo e($submissionStatusClass); ?>"><?php echo e($submission->approval_status_label); ?></span>
+                                            </div>
+
+                                            <div class="approval-item-meta">
+                                                <span><i class="bx bx-time-five me-1"></i><?php echo e($submissionRequestedAt ?: '-'); ?></span>
+                                                <span><i class="bx bx-check-square me-1"></i><?php echo e(\Illuminate\Support\Str::limit(implode(', ', $submission->selected_date_labels), 120)); ?></span>
+                                            </div>
+
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->approval_notes): ?>
+                                                <div class="approval-item-note">
+                                                    <i class="bx bx-message-detail me-1"></i><?php echo e($submission->approval_notes); ?>
+
+                                                </div>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->approver): ?>
+                                                <div class="approval-item-note">
+                                                    <i class="bx bx-check-shield me-1"></i><?php echo e($submission->approver->name); ?>
+
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissionApprovedAt): ?>
+                                                        <span class="text-muted"> • <?php echo e($submissionApprovedAt); ?></span>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                </div>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->approval_status === \App\Models\PicketScheduleSubmission::APPROVAL_PENDING): ?>
+                                                <div class="approval-item-note"><?php echo e($helperNote); ?></div>
+
+                                                <form method="POST" action="<?php echo e(route('mobile.academic-calendar-approvals.picket-submissions.approve', $submission)); ?>" class="approval-form">
+                                                    <?php echo csrf_field(); ?>
+                                                    <textarea name="approval_notes" class="form-control form-control-sm" placeholder="Catatan approval atau penolakan (opsional)"></textarea>
+                                                    <div class="approval-actions">
+                                                        <button type="submit" class="btn btn-success">
+                                                            <i class="bx bx-check-circle me-1"></i>Setujui Jadwal
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-outline-danger"
+                                                            formaction="<?php echo e(route('mobile.academic-calendar-approvals.picket-submissions.reject', $submission)); ?>"
+                                                            formmethod="POST"
+                                                        >
+                                                            <i class="bx bx-x-circle me-1"></i>Tolak Jadwal
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        </div>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </div>
+                            </div>
+                        <?php elseif($item['status'] === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING): ?>
                             <div class="approval-item-note"><?php echo e($helperNote); ?></div>
 
                             <form method="POST" action="<?php echo e($isEvent ? route('mobile.academic-calendar-approvals.approve', $model) : route('mobile.academic-calendar-approvals.picket-submissions.approve', $model)); ?>" class="approval-form">
@@ -375,12 +472,17 @@
                         <div class="d-grid gap-2">
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $pendingItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                 <?php
-                                    $model = $item['model'];
                                     $isEvent = $item['kind'] === 'event';
-                                    $modalTitle = $isEvent ? $model->name : ($model->user->name ?? '-');
+                                    $isPicketPeriod = $item['kind'] === 'picket_period';
+                                    $model = $isPicketPeriod ? null : $item['model'];
+                                    $modalTitle = $isEvent
+                                        ? $model->name
+                                        : ($isPicketPeriod ? ($item['period']->name ?? 'Periode piket') : ($model->user->name ?? '-'));
                                     $modalSubtitle = $isEvent
                                         ? ($model->resolved_type_label . ' • ' . $model->date_range_label)
-                                        : (($model->period->name ?? 'Periode piket') . ' • ' . ($model->selected_dates_count ?? 0) . ' hari');
+                                        : ($isPicketPeriod
+                                            ? (($item['pending_count'] ?? 0) . ' pengajuan pending • ' . ($item['submission_count'] ?? 0) . ' guru')
+                                            : (($model->period->name ?? 'Periode piket') . ' • ' . ($model->selected_dates_count ?? 0) . ' hari'));
                                 ?>
                                 <div class="border rounded-3 p-2">
                                     <div class="fw-semibold" style="font-size: 13px;"><?php echo e($modalTitle); ?></div>

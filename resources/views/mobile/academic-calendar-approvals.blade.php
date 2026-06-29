@@ -255,26 +255,34 @@
         <div class="d-grid gap-3">
             @foreach($approvalItems as $item)
                 @php
-                    $model = $item['model'];
                     $isEvent = $item['kind'] === 'event';
+                    $isPicketPeriod = $item['kind'] === 'picket_period';
+                    $model = $isPicketPeriod ? null : $item['model'];
                     $statusClass = match ($item['status']) {
                         'approved' => 'approval-status-approved',
                         'rejected' => 'approval-status-rejected',
                         default => 'approval-status-pending',
                     };
                     $typeLabel = $isEvent ? 'Event Akademik' : 'Jadwal Piket';
-                    $title = $isEvent ? $model->name : ($model->user->name ?? '-');
-                    $subtitle = $isEvent ? $model->resolved_type_label : ($model->period->name ?? 'Periode piket');
+                    $title = $isEvent
+                        ? $model->name
+                        : ($isPicketPeriod ? ($item['period']->name ?? 'Periode piket') : ($model->user->name ?? '-'));
+                    $subtitle = $isEvent
+                        ? $model->resolved_type_label
+                        : ($isPicketPeriod
+                            ? (($item['pending_count'] ?? 0) . ' menunggu • ' . ($item['submission_count'] ?? 0) . ' pengaju')
+                            : ($model->period->name ?? 'Periode piket'));
                     $requestedAt = $item['requested_at']
                         ? \Carbon\Carbon::parse($item['requested_at'])->timezone('Asia/Jakarta')->format('d M Y H:i')
                         : null;
-                    $approverName = $model->approver->name ?? null;
-                    $approvedAt = $model->approved_at
+                    $approverName = $isPicketPeriod ? null : ($model->approver->name ?? null);
+                    $approvedAt = !$isPicketPeriod && $model->approved_at
                         ? \Carbon\Carbon::parse($model->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i')
                         : null;
                     $helperNote = $isEvent
                         ? 'Jika disetujui, jadwal mengajar pada tanggal event ini akan tercatat sebagai izin.'
                         : 'Jika disetujui, hari yang dipilih akan menjadi jadwal piket resmi pada masa libur semester.';
+                    $groupCollapseId = $isPicketPeriod ? 'picket-period-' . ($item['period']->id ?? $loop->index) : null;
                 @endphp
 
                 <div class="card border-0 approval-item-card">
@@ -297,6 +305,9 @@
                             <span><i class="bx bx-time-five me-1"></i>Diajukan {{ $requestedAt ?: '-' }}</span>
                             @if($isEvent)
                                 <span><i class="bx bx-user me-1"></i>{{ $model->creator->name ?? '-' }}</span>
+                            @elseif($isPicketPeriod)
+                                <span><i class="bx bx-calendar me-1"></i>{{ $item['period']->date_range_label ?? '-' }}</span>
+                                <span><i class="bx bx-group me-1"></i>{{ $item['submission_count'] }} guru</span>
                             @else
                                 <span><i class="bx bx-calendar me-1"></i>{{ $model->period->date_range_label ?? '-' }}</span>
                             @endif
@@ -309,19 +320,32 @@
                                 @if($model->description)
                                     <div class="approval-item-detail"><i class="bx bx-note me-1"></i>{{ \Illuminate\Support\Str::limit($model->description, 140) }}</div>
                                 @endif
+                            @elseif($isPicketPeriod)
+                                <div class="approval-item-detail"><i class="bx bx-calendar-event me-1"></i>{{ $item['period']->date_range_label ?? '-' }}</div>
+                                <div class="approval-item-detail"><i class="bx bx-check-circle me-1"></i>{{ $item['approved_count'] }} disetujui • {{ $item['rejected_count'] }} ditolak</div>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary btn-sm mt-2"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#{{ $groupCollapseId }}"
+                                    aria-expanded="false"
+                                    aria-controls="{{ $groupCollapseId }}"
+                                >
+                                    <i class="bx bx-list-ul me-1"></i>Lihat Guru Pengaju
+                                </button>
                             @else
                                 <div class="approval-item-detail"><i class="bx bx-list-check me-1"></i>{{ $model->selected_dates_count }} hari dipilih</div>
                                 <div class="approval-item-detail"><i class="bx bx-check-square me-1"></i>{{ \Illuminate\Support\Str::limit(implode(', ', $model->selected_date_labels), 140) }}</div>
                             @endif
                         </div>
 
-                        @if($model->approval_notes)
+                        @if(!$isPicketPeriod && $model->approval_notes)
                             <div class="approval-item-note">
                                 <i class="bx bx-message-detail me-1"></i>{{ $model->approval_notes }}
                             </div>
                         @endif
 
-                        @if($approverName)
+                        @if(!$isPicketPeriod && $approverName)
                             <div class="approval-item-note">
                                 <i class="bx bx-check-shield me-1"></i>{{ $approverName }}
                                 @if($approvedAt)
@@ -330,7 +354,78 @@
                             </div>
                         @endif
 
-                        @if($item['status'] === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING)
+                        @if($isPicketPeriod)
+                            <div class="collapse mt-3" id="{{ $groupCollapseId }}">
+                                <div class="d-grid gap-2">
+                                    @foreach($item['submissions'] as $submission)
+                                        @php
+                                            $submissionStatusClass = match ($submission->approval_status) {
+                                                \App\Models\PicketScheduleSubmission::APPROVAL_APPROVED => 'approval-status-approved',
+                                                \App\Models\PicketScheduleSubmission::APPROVAL_REJECTED => 'approval-status-rejected',
+                                                default => 'approval-status-pending',
+                                            };
+                                            $submissionRequestedAt = $submission->submitted_at
+                                                ? \Carbon\Carbon::parse($submission->submitted_at)->timezone('Asia/Jakarta')->format('d M Y H:i')
+                                                : null;
+                                            $submissionApprovedAt = $submission->approved_at
+                                                ? \Carbon\Carbon::parse($submission->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i')
+                                                : null;
+                                        @endphp
+                                        <div class="border rounded-3 p-3">
+                                            <div class="d-flex align-items-start justify-content-between gap-2">
+                                                <div>
+                                                    <div class="fw-semibold approval-item-title">{{ $submission->user->name ?? '-' }}</div>
+                                                    <div class="approval-item-subtitle">{{ $submission->selected_dates_count }} hari diajukan</div>
+                                                </div>
+                                                <span class="approval-chip {{ $submissionStatusClass }}">{{ $submission->approval_status_label }}</span>
+                                            </div>
+
+                                            <div class="approval-item-meta">
+                                                <span><i class="bx bx-time-five me-1"></i>{{ $submissionRequestedAt ?: '-' }}</span>
+                                                <span><i class="bx bx-check-square me-1"></i>{{ \Illuminate\Support\Str::limit(implode(', ', $submission->selected_date_labels), 120) }}</span>
+                                            </div>
+
+                                            @if($submission->approval_notes)
+                                                <div class="approval-item-note">
+                                                    <i class="bx bx-message-detail me-1"></i>{{ $submission->approval_notes }}
+                                                </div>
+                                            @endif
+
+                                            @if($submission->approver)
+                                                <div class="approval-item-note">
+                                                    <i class="bx bx-check-shield me-1"></i>{{ $submission->approver->name }}
+                                                    @if($submissionApprovedAt)
+                                                        <span class="text-muted"> • {{ $submissionApprovedAt }}</span>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                            @if($submission->approval_status === \App\Models\PicketScheduleSubmission::APPROVAL_PENDING)
+                                                <div class="approval-item-note">{{ $helperNote }}</div>
+
+                                                <form method="POST" action="{{ route('mobile.academic-calendar-approvals.picket-submissions.approve', $submission) }}" class="approval-form">
+                                                    @csrf
+                                                    <textarea name="approval_notes" class="form-control form-control-sm" placeholder="Catatan approval atau penolakan (opsional)"></textarea>
+                                                    <div class="approval-actions">
+                                                        <button type="submit" class="btn btn-success">
+                                                            <i class="bx bx-check-circle me-1"></i>Setujui Jadwal
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-outline-danger"
+                                                            formaction="{{ route('mobile.academic-calendar-approvals.picket-submissions.reject', $submission) }}"
+                                                            formmethod="POST"
+                                                        >
+                                                            <i class="bx bx-x-circle me-1"></i>Tolak Jadwal
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @elseif($item['status'] === \App\Models\AcademicCalendarEvent::APPROVAL_PENDING)
                             <div class="approval-item-note">{{ $helperNote }}</div>
 
                             <form method="POST" action="{{ $isEvent ? route('mobile.academic-calendar-approvals.approve', $model) : route('mobile.academic-calendar-approvals.picket-submissions.approve', $model) }}" class="approval-form">
@@ -373,12 +468,17 @@
                         <div class="d-grid gap-2">
                             @foreach($pendingItems as $item)
                                 @php
-                                    $model = $item['model'];
                                     $isEvent = $item['kind'] === 'event';
-                                    $modalTitle = $isEvent ? $model->name : ($model->user->name ?? '-');
+                                    $isPicketPeriod = $item['kind'] === 'picket_period';
+                                    $model = $isPicketPeriod ? null : $item['model'];
+                                    $modalTitle = $isEvent
+                                        ? $model->name
+                                        : ($isPicketPeriod ? ($item['period']->name ?? 'Periode piket') : ($model->user->name ?? '-'));
                                     $modalSubtitle = $isEvent
                                         ? ($model->resolved_type_label . ' • ' . $model->date_range_label)
-                                        : (($model->period->name ?? 'Periode piket') . ' • ' . ($model->selected_dates_count ?? 0) . ' hari');
+                                        : ($isPicketPeriod
+                                            ? (($item['pending_count'] ?? 0) . ' pengajuan pending • ' . ($item['submission_count'] ?? 0) . ' guru')
+                                            : (($model->period->name ?? 'Periode piket') . ' • ' . ($model->selected_dates_count ?? 0) . ' hari'));
                                 @endphp
                                 <div class="border rounded-3 p-2">
                                     <div class="fw-semibold" style="font-size: 13px;">{{ $modalTitle }}</div>

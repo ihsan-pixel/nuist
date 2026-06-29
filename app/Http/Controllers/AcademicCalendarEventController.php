@@ -160,6 +160,40 @@ class AcademicCalendarEventController extends Controller
             ->orderByDesc('id')
             ->get();
 
+        $picketPeriodItems = $picketSubmissions
+            ->groupBy('picket_schedule_period_id')
+            ->map(function ($groupedSubmissions) {
+                $submissions = $groupedSubmissions->sortByDesc(function (PicketScheduleSubmission $submission) {
+                    return optional($submission->submitted_at ?? $submission->created_at)->timestamp ?? 0;
+                })->values();
+
+                $period = $submissions->first()?->period;
+                $requestedAt = $submissions->first()?->submitted_at ?? $submissions->first()?->created_at;
+                $pendingCount = $submissions->where('approval_status', PicketScheduleSubmission::APPROVAL_PENDING)->count();
+                $approvedCount = $submissions->where('approval_status', PicketScheduleSubmission::APPROVAL_APPROVED)->count();
+                $rejectedCount = $submissions->where('approval_status', PicketScheduleSubmission::APPROVAL_REJECTED)->count();
+
+                $status = $pendingCount > 0
+                    ? PicketScheduleSubmission::APPROVAL_PENDING
+                    : ($approvedCount > 0 && $rejectedCount === 0
+                        ? PicketScheduleSubmission::APPROVAL_APPROVED
+                        : PicketScheduleSubmission::APPROVAL_REJECTED);
+
+                return [
+                    'kind' => 'picket_period',
+                    'status' => $status,
+                    'requested_at' => $requestedAt,
+                    'sort_at' => optional($requestedAt)->timestamp ?? 0,
+                    'period' => $period,
+                    'submissions' => $submissions,
+                    'pending_count' => $pendingCount,
+                    'approved_count' => $approvedCount,
+                    'rejected_count' => $rejectedCount,
+                    'submission_count' => $submissions->count(),
+                ];
+            })
+            ->values();
+
         $approvalItems = $events
             ->map(function (AcademicCalendarEvent $event) {
                 $requestedAt = $event->created_at ?? $event->updated_at;
@@ -172,17 +206,7 @@ class AcademicCalendarEventController extends Controller
                     'model' => $event,
                 ];
             })
-            ->concat($picketSubmissions->map(function (PicketScheduleSubmission $submission) {
-                $requestedAt = $submission->submitted_at ?? $submission->created_at;
-
-                return [
-                    'kind' => 'picket_submission',
-                    'status' => $submission->approval_status,
-                    'requested_at' => $requestedAt,
-                    'sort_at' => optional($requestedAt)->timestamp ?? 0,
-                    'model' => $submission,
-                ];
-            }))
+            ->concat($picketPeriodItems)
             ->sortByDesc('sort_at')
             ->values();
 
