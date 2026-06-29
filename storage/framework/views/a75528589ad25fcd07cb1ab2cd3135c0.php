@@ -49,7 +49,7 @@
                         </div>
                     </div>
                     <h6 class="mb-0">Persentase Presensi Kehadiran</h6>
-                    <p class="text-muted small mb-0">Pilih tenaga pendidik di madrasah Anda lalu lihat persentasenya</p>
+                    <p class="text-muted small mb-0">Lihat rekap seluruh tenaga pendidik dan export PDF sekolah</p>
                 </div>
             </a>
         </div>

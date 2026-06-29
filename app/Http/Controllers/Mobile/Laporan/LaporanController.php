@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Services\AcademicCalendarEventService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends \App\Http\Controllers\Controller
 {
@@ -90,56 +91,27 @@ class LaporanController extends \App\Http\Controllers\Controller
             abort(403, 'Unauthorized.');
         }
 
-        $teacherOptions = User::query()
-            ->where('role', 'tenaga_pendidik')
-            ->where('madrasah_id', $user->madrasah_id)
-            ->orderBy('name')
-            ->get(['id', 'name', 'ketugasan']);
+        return view('mobile.laporan-persentase-kehadiran', $this->buildAttendancePercentageReportData($request, $user));
+    }
 
-        $selectedTeacherId = (int) ($request->input('teacher_id') ?: $user->id);
-        $selectedTeacher = $teacherOptions->firstWhere('id', $selectedTeacherId) ?? $teacherOptions->firstWhere('id', $user->id);
+    public function downloadPersentaseKehadiranPdf(Request $request)
+    {
+        $user = Auth::user();
 
-        if (!$selectedTeacher) {
-            abort(404, 'Data tenaga pendidik tidak ditemukan.');
+        if (!$this->canAccessAttendancePercentageReport($user)) {
+            abort(403, 'Unauthorized.');
         }
 
-        $today = Carbon::today('Asia/Jakarta');
+        $reportData = $this->buildAttendancePercentageReportData($request, $user);
+        $schoolName = trim((string) ($user->madrasah->name ?? 'sekolah'));
+        $filename = 'rekap-persentase-kehadiran-' . preg_replace('/[^a-z0-9]+/i', '-', strtolower($schoolName)) . '.pdf';
 
-        $selectedWeek = $request->filled('week') && preg_match('/^\d{4}-W\d{2}$/', $request->week)
-            ? Carbon::now('Asia/Jakarta')->setISODate(
-                (int) substr($request->week, 0, 4),
-                (int) substr($request->week, 6, 2)
-            )->startOfWeek(Carbon::MONDAY)
-            : $today->copy()->startOfWeek(Carbon::MONDAY);
+        $pdf = Pdf::loadView('pdf.mobile-attendance-percentage-school-rekap', array_merge($reportData, [
+            'school' => $user->madrasah,
+            'generatedAt' => Carbon::now('Asia/Jakarta'),
+        ]))->setPaper('A4', 'landscape');
 
-        $selectedMonth = $request->filled('month')
-            ? Carbon::createFromFormat('Y-m', $request->month, 'Asia/Jakarta')->startOfMonth()
-            : $today->copy()->startOfMonth();
-
-        $weeklySummary = $this->buildAttendanceSummary(
-            $selectedTeacher->id,
-            $user->madrasah?->hari_kbm,
-            $selectedWeek->copy()->startOfWeek(Carbon::MONDAY),
-            $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY),
-            $today
-        );
-
-        $monthlySummary = $this->buildAttendanceSummary(
-            $selectedTeacher->id,
-            $user->madrasah?->hari_kbm,
-            $selectedMonth->copy()->startOfMonth(),
-            $selectedMonth->copy()->endOfMonth(),
-            $today
-        );
-
-        return view('mobile.laporan-persentase-kehadiran', [
-            'selectedWeekValue' => $selectedWeek->format('o-\WW'),
-            'selectedMonthValue' => $selectedMonth->format('Y-m'),
-            'teacherOptions' => $teacherOptions,
-            'selectedTeacher' => $selectedTeacher,
-            'weeklySummary' => $weeklySummary,
-            'monthlySummary' => $monthlySummary,
-        ]);
+        return $pdf->download($filename);
     }
 
     // Teaching attendances (mobile)
@@ -230,26 +202,86 @@ class LaporanController extends \App\Http\Controllers\Controller
         return $schoolId . '|' . strtolower(trim((string) $className));
     }
 
+    private function buildAttendancePercentageReportData(Request $request, User $user): array
+    {
+        $teacherOptions = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $user->madrasah_id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'ketugasan', 'madrasah_id']);
+
+        $today = Carbon::today('Asia/Jakarta');
+
+        $selectedWeek = $request->filled('week') && preg_match('/^\d{4}-W\d{2}$/', $request->week)
+            ? Carbon::now('Asia/Jakarta')->setISODate(
+                (int) substr($request->week, 0, 4),
+                (int) substr($request->week, 6, 2)
+            )->startOfWeek(Carbon::MONDAY)
+            : $today->copy()->startOfWeek(Carbon::MONDAY);
+
+        $selectedMonth = $request->filled('month')
+            ? Carbon::createFromFormat('Y-m', $request->month, 'Asia/Jakarta')->startOfMonth()
+            : $today->copy()->startOfMonth();
+
+        $selectedTeacherId = (int) ($request->input('teacher_id') ?: 0);
+        $selectedTeacher = $teacherOptions->firstWhere('id', $selectedTeacherId)
+            ?? $teacherOptions->firstWhere('id', $user->id)
+            ?? $teacherOptions->first();
+
+        $schoolTeacherSummaries = $this->buildSchoolTeacherSummaries(
+            $teacherOptions,
+            $user->madrasah?->hari_kbm,
+            $selectedWeek,
+            $selectedMonth,
+            $today
+        );
+
+        $schoolOverview = $this->buildSchoolAttendanceOverview($schoolTeacherSummaries);
+        $selectedTeacherSummary = $selectedTeacher
+            ? $schoolTeacherSummaries->first(fn ($item) => $item['teacher']->id === $selectedTeacher->id)
+            : null;
+
+        $weeklySummary = $selectedTeacher
+            ? (($selectedTeacherSummary['weekly'] ?? null) ?: $this->emptyAttendanceSummary(
+                $selectedWeek->copy()->startOfWeek(Carbon::MONDAY),
+                $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY)
+            ))
+            : $this->emptyAttendanceSummary(
+                $selectedWeek->copy()->startOfWeek(Carbon::MONDAY),
+                $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY)
+            );
+
+        $monthlySummary = $selectedTeacher
+            ? (($selectedTeacherSummary['monthly'] ?? null) ?: $this->emptyAttendanceSummary(
+                $selectedMonth->copy()->startOfMonth(),
+                $selectedMonth->copy()->endOfMonth()
+            ))
+            : $this->emptyAttendanceSummary(
+                $selectedMonth->copy()->startOfMonth(),
+                $selectedMonth->copy()->endOfMonth()
+            );
+
+        return [
+            'selectedWeekValue' => $selectedWeek->format('o-\WW'),
+            'selectedMonthValue' => $selectedMonth->format('Y-m'),
+            'selectedWeekLabel' => $selectedWeek->copy()->startOfWeek(Carbon::MONDAY)->translatedFormat('d M Y')
+                . ' - ' . $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY)->translatedFormat('d M Y'),
+            'selectedMonthLabel' => $selectedMonth->translatedFormat('F Y'),
+            'teacherOptions' => $teacherOptions,
+            'selectedTeacher' => $selectedTeacher,
+            'weeklySummary' => $weeklySummary,
+            'monthlySummary' => $monthlySummary,
+            'schoolTeacherSummaries' => $schoolTeacherSummaries,
+            'schoolOverview' => $schoolOverview,
+        ];
+    }
+
     private function buildAttendanceSummary(int $userId, ?string $hariKbm, Carbon $startDate, Carbon $endDate, Carbon $today): array
     {
         $effectiveEndDate = $endDate->copy()->min($today);
 
         if ($effectiveEndDate->lt($startDate)) {
-            return [
-                'periode_label' => $startDate->translatedFormat('d M Y') . ' - ' . $endDate->translatedFormat('d M Y'),
-                'total_hari_kerja' => 0,
-                'total_hadir' => 0,
-                'total_izin' => 0,
-                'total_belum_hadir' => 0,
-                'persentase_kehadiran' => 0,
-                'details' => collect(),
-                'breakdown' => [
-                    'hari_kerja' => [],
-                    'hadir' => [],
-                    'izin' => [],
-                    'belum_hadir' => [],
-                ],
-            ];
+            return $this->emptyAttendanceSummary($startDate, $endDate);
         }
 
         $summaryUser = User::with('madrasah')->find($userId);
@@ -340,6 +372,69 @@ class LaporanController extends \App\Http\Controllers\Controller
             'persentase_kehadiran' => $totalDasarPersentase > 0 ? round(($totalHadir / $totalDasarPersentase) * 100, 1) : 0,
             'details' => $details,
             'breakdown' => $breakdown,
+        ];
+    }
+
+    private function buildSchoolTeacherSummaries($teacherOptions, ?string $hariKbm, Carbon $selectedWeek, Carbon $selectedMonth, Carbon $today)
+    {
+        return $teacherOptions
+            ->map(function (User $teacher) use ($hariKbm, $selectedWeek, $selectedMonth, $today) {
+                return [
+                    'teacher' => $teacher,
+                    'weekly' => $this->buildAttendanceSummary(
+                        $teacher->id,
+                        $hariKbm,
+                        $selectedWeek->copy()->startOfWeek(Carbon::MONDAY),
+                        $selectedWeek->copy()->endOfWeek(Carbon::SUNDAY),
+                        $today
+                    ),
+                    'monthly' => $this->buildAttendanceSummary(
+                        $teacher->id,
+                        $hariKbm,
+                        $selectedMonth->copy()->startOfMonth(),
+                        $selectedMonth->copy()->endOfMonth(),
+                        $today
+                    ),
+                ];
+            })
+            ->values();
+    }
+
+    private function buildSchoolAttendanceOverview($schoolTeacherSummaries): array
+    {
+        $teacherCount = $schoolTeacherSummaries->count();
+
+        return [
+            'teacher_count' => $teacherCount,
+            'weekly_average' => $teacherCount > 0
+                ? round($schoolTeacherSummaries->avg(fn ($item) => $item['weekly']['persentase_kehadiran']), 1)
+                : 0,
+            'monthly_average' => $teacherCount > 0
+                ? round($schoolTeacherSummaries->avg(fn ($item) => $item['monthly']['persentase_kehadiran']), 1)
+                : 0,
+            'weekly_hadir_total' => $schoolTeacherSummaries->sum(fn ($item) => $item['weekly']['total_hadir']),
+            'monthly_hadir_total' => $schoolTeacherSummaries->sum(fn ($item) => $item['monthly']['total_hadir']),
+            'weekly_belum_total' => $schoolTeacherSummaries->sum(fn ($item) => $item['weekly']['total_belum_hadir']),
+            'monthly_belum_total' => $schoolTeacherSummaries->sum(fn ($item) => $item['monthly']['total_belum_hadir']),
+        ];
+    }
+
+    private function emptyAttendanceSummary(Carbon $startDate, Carbon $endDate): array
+    {
+        return [
+            'periode_label' => $startDate->translatedFormat('d M Y') . ' - ' . $endDate->translatedFormat('d M Y'),
+            'total_hari_kerja' => 0,
+            'total_hadir' => 0,
+            'total_izin' => 0,
+            'total_belum_hadir' => 0,
+            'persentase_kehadiran' => 0,
+            'details' => collect(),
+            'breakdown' => [
+                'hari_kerja' => [],
+                'hadir' => [],
+                'izin' => [],
+                'belum_hadir' => [],
+            ],
         ];
     }
 
