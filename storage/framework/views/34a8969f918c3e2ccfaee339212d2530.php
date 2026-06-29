@@ -248,9 +248,13 @@
                     $typeLabel = $isEvent ? 'Event Akademik' : 'Jadwal Piket';
                     $title = $isEvent ? $model->name : ($model->user->name ?? '-');
                     $subtitle = $isEvent ? $model->resolved_type_label : ($model->period->name ?? 'Periode piket');
-                    $requestedAt = optional($item['requested_at'])->timezone('Asia/Jakarta')->format('d M Y H:i');
+                    $requestedAt = $item['requested_at']
+                        ? \Carbon\Carbon::parse($item['requested_at'])->timezone('Asia/Jakarta')->format('d M Y H:i')
+                        : null;
                     $approverName = $model->approver->name ?? null;
-                    $approvedAt = optional($model->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i');
+                    $approvedAt = $model->approved_at
+                        ? \Carbon\Carbon::parse($model->approved_at)->timezone('Asia/Jakarta')->format('d M Y H:i')
+                        : null;
                     $helperNote = $isEvent
                         ? 'Jika disetujui, jadwal mengajar pada tanggal event ini akan tercatat sebagai izin.'
                         : 'Jika disetujui, hari yang dipilih akan menjadi jadwal piket resmi pada masa libur semester.';
