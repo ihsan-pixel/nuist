@@ -288,7 +288,7 @@
             <div>
                 <div class="hero-label">Rekap Sekolah</div>
                 <div class="hero-title">Persentase Presensi Kehadiran</div>
-                <div class="hero-caption">Lihat rekap seluruh tenaga pendidik dalam satu sekolah dan detail per guru pada periode yang dipilih.</div>
+                {{-- <div class="hero-caption">Lihat rekap seluruh tenaga pendidik dalam satu sekolah dan detail per guru pada periode yang dipilih.</div> --}}
             </div>
             <i class="bx bx-bar-chart-alt-2" style="font-size: 34px;"></i>
         </div>
