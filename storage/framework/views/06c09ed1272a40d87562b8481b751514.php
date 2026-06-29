@@ -84,6 +84,15 @@
                         font-size: 11px;
                         color: #d14d41;
                     }
+
+                    .picket-inline-alert {
+                        border: 1px solid #e9eef1;
+                        border-radius: 14px;
+                        padding: 14px 16px;
+                        background: #fbfcfc;
+                        color: #5f6b72;
+                        font-size: 13px;
+                    }
                 </style>
 
                 <div class="mb-4">
@@ -167,7 +176,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
                         <div class="col-md-6">
                             <label class="form-label">Tanggal Mulai</label>
-                            <input type="date" name="start_date" class="form-control <?php $__errorArgs = ['start_date'];
+                            <input type="date" id="start_date" name="start_date" class="form-control <?php $__errorArgs = ['start_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -189,7 +198,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
                         <div class="col-md-6">
                             <label class="form-label">Tanggal Selesai</label>
-                            <input type="date" name="end_date" class="form-control <?php $__errorArgs = ['end_date'];
+                            <input type="date" id="end_date" name="end_date" class="form-control <?php $__errorArgs = ['end_date'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -259,49 +268,7 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($teachers->isEmpty()): ?>
-                                <div class="alert alert-light border mb-0">Data tenaga pendidik belum tersedia untuk sekolah ini.</div>
-                            <?php elseif(empty($dateChoices)): ?>
-                                <div class="alert alert-light border mb-0">Rentang tanggal belum tersedia. Isi tanggal mulai dan tanggal selesai yang valid terlebih dahulu.</div>
-                            <?php else: ?>
-                                <?php
-                                    $activeDateChoices = collect($dateChoices)->reject(fn ($choice) => $choice['is_disabled'])->values();
-                                ?>
-
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($activeDateChoices->isEmpty()): ?>
-                                    <div class="alert alert-light border mb-0">Tidak ada hari aktif yang bisa dipilih pada rentang tanggal ini.</div>
-                                <?php else: ?>
-                                <div class="picket-teacher-list">
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $teachers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $teacher): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                        <?php
-                                            $selectedDates = collect(old('teacher_dates.' . $teacher->id, $existingSelections[$teacher->id] ?? []));
-                                        ?>
-                                        <div class="picket-teacher-card">
-                                            <div class="picket-teacher-name"><?php echo e($teacher->name); ?></div>
-                                            <div class="picket-teacher-role"><?php echo e($teacher->ketugasan ?: 'Tenaga pendidik'); ?></div>
-
-                                            <div class="picket-date-grid">
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $activeDateChoices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $choice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                                    <label class="picket-date-option">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="teacher_dates[<?php echo e($teacher->id); ?>][]"
-                                                            value="<?php echo e($choice['date']); ?>"
-                                                            class="mt-1"
-                                                            <?php if($selectedDates->contains($choice['date'])): echo 'checked'; endif; ?>
-                                                        >
-                                                        <span class="picket-date-text">
-                                                            <?php echo e($choice['label']); ?>
-
-                                                        </span>
-                                                    </label>
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                                            </div>
-                                        </div>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                                </div>
-                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <div id="picket-teacher-builder"></div>
                         </div>
                     </div>
 
@@ -314,6 +281,168 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         </div>
     </div>
 </div>
+
+<?php
+    $initialTeacherDates = collect(old('teacher_dates', $existingSelections ?? []))
+        ->mapWithKeys(function ($dates, $teacherId) {
+            return [(string) $teacherId => collect(is_array($dates) ? $dates : [])->filter()->values()->all()];
+        })
+        ->all();
+?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const container = document.getElementById('picket-teacher-builder');
+
+        if (!startInput || !endInput || !container) {
+            return;
+        }
+
+        const teachers = <?php echo json_encode($teachers->map(fn ($teacher) => [
+            'id' => (string) $teacher->id, 'name' => $teacher->name, 'ketugasan' => $teacher->ketugasan ?: 'Tenaga pendidik') ?>;
+        const initialSelections = <?php echo json_encode($initialTeacherDates, 15, 512) ?>;
+        const isFiveDaySchool = <?php echo json_encode((string) ($school?->hari_kbm ?? '') === '5', 15, 512) ?>;
+        const formatter = new Intl.DateTimeFormat('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+
+        let selectionState = JSON.parse(JSON.stringify(initialSelections));
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function syncCurrentSelections() {
+            const nextState = {};
+
+            container.querySelectorAll('input[type="checkbox"][name^="teacher_dates["]:checked').forEach((input) => {
+                const match = input.name.match(/^teacher_dates\[(.+?)\]\[\]$/);
+                if (!match) {
+                    return;
+                }
+
+                const teacherId = match[1];
+                if (!nextState[teacherId]) {
+                    nextState[teacherId] = [];
+                }
+
+                nextState[teacherId].push(input.value);
+            });
+
+            selectionState = nextState;
+        }
+
+        function formatDateValue(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        }
+
+        function buildActiveDateChoices(startValue, endValue) {
+            if (!startValue || !endValue) {
+                return [];
+            }
+
+            const start = new Date(`${startValue}T00:00:00`);
+            const end = new Date(`${endValue}T00:00:00`);
+
+            if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) {
+                return [];
+            }
+
+            const choices = [];
+            const current = new Date(start);
+
+            while (current <= end) {
+                const day = current.getDay();
+                const isSunday = day === 0;
+                const isSaturday = day === 6;
+
+                if (!isSunday && !(isFiveDaySchool && isSaturday)) {
+                    const dateValue = formatDateValue(current);
+                    const label = formatter.format(current).replace(/\./g, '');
+                    choices.push({
+                        date: dateValue,
+                        label: label.charAt(0).toUpperCase() + label.slice(1),
+                    });
+                }
+
+                current.setDate(current.getDate() + 1);
+            }
+
+            return choices;
+        }
+
+        function renderTeacherBuilder() {
+            syncCurrentSelections();
+
+            if (!teachers.length) {
+                container.innerHTML = '<div class="picket-inline-alert">Data tenaga pendidik belum tersedia untuk sekolah ini.</div>';
+                return;
+            }
+
+            const activeDateChoices = buildActiveDateChoices(startInput.value, endInput.value);
+
+            if (!startInput.value || !endInput.value) {
+                container.innerHTML = '<div class="picket-inline-alert">Rentang tanggal belum tersedia. Isi tanggal mulai dan tanggal selesai yang valid terlebih dahulu.</div>';
+                return;
+            }
+
+            if (!activeDateChoices.length) {
+                container.innerHTML = '<div class="picket-inline-alert">Tidak ada hari aktif yang bisa dipilih pada rentang tanggal ini.</div>';
+                return;
+            }
+
+            const teacherCards = teachers.map((teacher) => {
+                const selectedDates = new Set(selectionState[teacher.id] || []);
+                const options = activeDateChoices.map((choice) => `
+                    <label class="picket-date-option">
+                        <input
+                            type="checkbox"
+                            name="teacher_dates[${escapeHtml(teacher.id)}][]"
+                            value="${escapeHtml(choice.date)}"
+                            class="mt-1"
+                            ${selectedDates.has(choice.date) ? 'checked' : ''}
+                        >
+                        <span class="picket-date-text">${escapeHtml(choice.label)}</span>
+                    </label>
+                `).join('');
+
+                return `
+                    <div class="picket-teacher-card">
+                        <div class="picket-teacher-name">${escapeHtml(teacher.name)}</div>
+                        <div class="picket-teacher-role">${escapeHtml(teacher.ketugasan)}</div>
+                        <div class="picket-date-grid">${options}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `<div class="picket-teacher-list">${teacherCards}</div>`;
+        }
+
+        startInput.addEventListener('change', renderTeacherBuilder);
+        endInput.addEventListener('change', renderTeacherBuilder);
+        container.addEventListener('change', (event) => {
+            if (event.target.matches('input[type="checkbox"][name^="teacher_dates["]')) {
+                syncCurrentSelections();
+            }
+        });
+
+        renderTeacherBuilder();
+    });
+</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/picket-schedules/form.blade.php ENDPATH**/ ?>

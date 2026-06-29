@@ -86,6 +86,15 @@
                         font-size: 11px;
                         color: #d14d41;
                     }
+
+                    .picket-inline-alert {
+                        border: 1px solid #e9eef1;
+                        border-radius: 14px;
+                        padding: 14px 16px;
+                        background: #fbfcfc;
+                        color: #5f6b72;
+                        font-size: 13px;
+                    }
                 </style>
 
                 <div class="mb-4">
@@ -140,7 +149,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Tanggal Mulai</label>
-                            <input type="date" name="start_date" class="form-control @error('start_date') is-invalid @enderror" value="{{ old('start_date', optional($period->start_date)->format('Y-m-d') ?: $period->start_date) }}">
+                            <input type="date" id="start_date" name="start_date" class="form-control @error('start_date') is-invalid @enderror" value="{{ old('start_date', optional($period->start_date)->format('Y-m-d') ?: $period->start_date) }}">
                             @error('start_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -148,7 +157,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Tanggal Selesai</label>
-                            <input type="date" name="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date', optional($period->end_date)->format('Y-m-d') ?: $period->end_date) }}">
+                            <input type="date" id="end_date" name="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date', optional($period->end_date)->format('Y-m-d') ?: $period->end_date) }}">
                             @error('end_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -183,48 +192,7 @@
                                 <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
 
-                            @if($teachers->isEmpty())
-                                <div class="alert alert-light border mb-0">Data tenaga pendidik belum tersedia untuk sekolah ini.</div>
-                            @elseif(empty($dateChoices))
-                                <div class="alert alert-light border mb-0">Rentang tanggal belum tersedia. Isi tanggal mulai dan tanggal selesai yang valid terlebih dahulu.</div>
-                            @else
-                                @php
-                                    $activeDateChoices = collect($dateChoices)->reject(fn ($choice) => $choice['is_disabled'])->values();
-                                @endphp
-
-                                @if($activeDateChoices->isEmpty())
-                                    <div class="alert alert-light border mb-0">Tidak ada hari aktif yang bisa dipilih pada rentang tanggal ini.</div>
-                                @else
-                                <div class="picket-teacher-list">
-                                    @foreach($teachers as $teacher)
-                                        @php
-                                            $selectedDates = collect(old('teacher_dates.' . $teacher->id, $existingSelections[$teacher->id] ?? []));
-                                        @endphp
-                                        <div class="picket-teacher-card">
-                                            <div class="picket-teacher-name">{{ $teacher->name }}</div>
-                                            <div class="picket-teacher-role">{{ $teacher->ketugasan ?: 'Tenaga pendidik' }}</div>
-
-                                            <div class="picket-date-grid">
-                                                @foreach($activeDateChoices as $choice)
-                                                    <label class="picket-date-option">
-                                                        <input
-                                                            type="checkbox"
-                                                            name="teacher_dates[{{ $teacher->id }}][]"
-                                                            value="{{ $choice['date'] }}"
-                                                            class="mt-1"
-                                                            @checked($selectedDates->contains($choice['date']))
-                                                        >
-                                                        <span class="picket-date-text">
-                                                            {{ $choice['label'] }}
-                                                        </span>
-                                                    </label>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                @endif
-                            @endif
+                            <div id="picket-teacher-builder"></div>
                         </div>
                     </div>
 
@@ -237,4 +205,169 @@
         </div>
     </div>
 </div>
+
+@php
+    $initialTeacherDates = collect(old('teacher_dates', $existingSelections ?? []))
+        ->mapWithKeys(function ($dates, $teacherId) {
+            return [(string) $teacherId => collect(is_array($dates) ? $dates : [])->filter()->values()->all()];
+        })
+        ->all();
+@endphp
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const container = document.getElementById('picket-teacher-builder');
+
+        if (!startInput || !endInput || !container) {
+            return;
+        }
+
+        const teachers = @json($teachers->map(fn ($teacher) => [
+            'id' => (string) $teacher->id,
+            'name' => $teacher->name,
+            'ketugasan' => $teacher->ketugasan ?: 'Tenaga pendidik',
+        ])->values());
+        const initialSelections = @json($initialTeacherDates);
+        const isFiveDaySchool = @json((string) ($school?->hari_kbm ?? '') === '5');
+        const formatter = new Intl.DateTimeFormat('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+
+        let selectionState = JSON.parse(JSON.stringify(initialSelections));
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function syncCurrentSelections() {
+            const nextState = {};
+
+            container.querySelectorAll('input[type="checkbox"][name^="teacher_dates["]:checked').forEach((input) => {
+                const match = input.name.match(/^teacher_dates\[(.+?)\]\[\]$/);
+                if (!match) {
+                    return;
+                }
+
+                const teacherId = match[1];
+                if (!nextState[teacherId]) {
+                    nextState[teacherId] = [];
+                }
+
+                nextState[teacherId].push(input.value);
+            });
+
+            selectionState = nextState;
+        }
+
+        function formatDateValue(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        }
+
+        function buildActiveDateChoices(startValue, endValue) {
+            if (!startValue || !endValue) {
+                return [];
+            }
+
+            const start = new Date(`${startValue}T00:00:00`);
+            const end = new Date(`${endValue}T00:00:00`);
+
+            if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) {
+                return [];
+            }
+
+            const choices = [];
+            const current = new Date(start);
+
+            while (current <= end) {
+                const day = current.getDay();
+                const isSunday = day === 0;
+                const isSaturday = day === 6;
+
+                if (!isSunday && !(isFiveDaySchool && isSaturday)) {
+                    const dateValue = formatDateValue(current);
+                    const label = formatter.format(current).replace(/\./g, '');
+                    choices.push({
+                        date: dateValue,
+                        label: label.charAt(0).toUpperCase() + label.slice(1),
+                    });
+                }
+
+                current.setDate(current.getDate() + 1);
+            }
+
+            return choices;
+        }
+
+        function renderTeacherBuilder() {
+            syncCurrentSelections();
+
+            if (!teachers.length) {
+                container.innerHTML = '<div class="picket-inline-alert">Data tenaga pendidik belum tersedia untuk sekolah ini.</div>';
+                return;
+            }
+
+            const activeDateChoices = buildActiveDateChoices(startInput.value, endInput.value);
+
+            if (!startInput.value || !endInput.value) {
+                container.innerHTML = '<div class="picket-inline-alert">Rentang tanggal belum tersedia. Isi tanggal mulai dan tanggal selesai yang valid terlebih dahulu.</div>';
+                return;
+            }
+
+            if (!activeDateChoices.length) {
+                container.innerHTML = '<div class="picket-inline-alert">Tidak ada hari aktif yang bisa dipilih pada rentang tanggal ini.</div>';
+                return;
+            }
+
+            const teacherCards = teachers.map((teacher) => {
+                const selectedDates = new Set(selectionState[teacher.id] || []);
+                const options = activeDateChoices.map((choice) => `
+                    <label class="picket-date-option">
+                        <input
+                            type="checkbox"
+                            name="teacher_dates[${escapeHtml(teacher.id)}][]"
+                            value="${escapeHtml(choice.date)}"
+                            class="mt-1"
+                            ${selectedDates.has(choice.date) ? 'checked' : ''}
+                        >
+                        <span class="picket-date-text">${escapeHtml(choice.label)}</span>
+                    </label>
+                `).join('');
+
+                return `
+                    <div class="picket-teacher-card">
+                        <div class="picket-teacher-name">${escapeHtml(teacher.name)}</div>
+                        <div class="picket-teacher-role">${escapeHtml(teacher.ketugasan)}</div>
+                        <div class="picket-date-grid">${options}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `<div class="picket-teacher-list">${teacherCards}</div>`;
+        }
+
+        startInput.addEventListener('change', renderTeacherBuilder);
+        endInput.addEventListener('change', renderTeacherBuilder);
+        container.addEventListener('change', (event) => {
+            if (event.target.matches('input[type="checkbox"][name^="teacher_dates["]')) {
+                syncCurrentSelections();
+            }
+        });
+
+        renderTeacherBuilder();
+    });
+</script>
 @endsection
