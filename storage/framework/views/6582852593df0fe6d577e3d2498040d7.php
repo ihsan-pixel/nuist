@@ -320,6 +320,10 @@
 <?php echo $__env->renderComponent(); ?>
 
 <div class="data-siswa-page">
+<?php
+    $selectedMadrasah = $selectedMadrasahId ? $madrasahOptions->firstWhere('id', $selectedMadrasahId) : null;
+    $canReplaceSchoolImport = $userRole === 'admin' || ($userRole !== 'admin_spp' && $selectedMadrasah);
+?>
 <div class="row">
     <div class="col-12">
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
@@ -356,6 +360,17 @@
                         </a>
                         <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#importModal">
                             <i class="bx bx-upload me-1"></i>Import
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-toggle="modal"
+                            data-bs-target="#replaceImportModal"
+                            <?php echo e($canReplaceSchoolImport ? '' : 'disabled'); ?>
+
+                            title="<?php echo e($canReplaceSchoolImport ? 'Update file import per sekolah' : 'Pilih madrasah terlebih dahulu untuk update file import'); ?>"
+                        >
+                            <i class="bx bx-refresh me-1"></i>Update File Import
                         </button>
                         <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#createModal">
                             <i class="bx bx-plus me-1"></i>Tambah Siswa
@@ -803,6 +818,7 @@
             <div class="modal-content">
                 <form method="POST" action="<?php echo e(route('data-sekolah.data-siswa.import')); ?>" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
+                    <input type="hidden" name="import_mode" value="append">
                     <div class="modal-header">
                         <h5 class="modal-title">Import Data Siswa</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -844,6 +860,62 @@
         </div>
     </div>
 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
+    <div class="modal fade" id="replaceImportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="<?php echo e(route('data-sekolah.data-siswa.import')); ?>" enctype="multipart/form-data">
+                    <?php echo csrf_field(); ?>
+                    <input type="hidden" name="import_mode" value="replace_school">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update File Import Siswa</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning mb-3">
+                            Data siswa lama untuk sekolah target akan diganti berdasarkan file baru.
+                            Hanya data yang tetap ada di file baru yang dipertahankan.
+                        </div>
+                        <div class="alert alert-info mb-3">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'admin'): ?>
+                                Sekolah target: <strong><?php echo e($selectedMadrasah->name ?? '-'); ?></strong>.
+                            <?php elseif($selectedMadrasah): ?>
+                                Sekolah target: <strong><?php echo e($selectedMadrasah->name); ?></strong>.
+                            <?php else: ?>
+                                Pilih filter madrasah terlebih dahulu pada halaman ini sebelum memakai update file import.
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!in_array($userRole, ['admin', 'admin_spp'])): ?>
+                            <div class="mb-3">
+                                <label for="replace_madrasah_id" class="form-label">Madrasah Tujuan Update</label>
+                                <select class="form-select" id="replace_madrasah_id" name="madrasah_id" required>
+                                    <option value="">Pilih Madrasah</option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <option value="<?php echo e($madrasah->id); ?>" <?php echo e((string) old('madrasah_id', $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : ''); ?>>
+                                            <?php echo e($madrasah->name); ?>
+
+                                        </option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </select>
+                                <small class="text-muted">Gunakan madrasah yang sama dengan data file yang akan menggantikan upload lama.</small>
+                            </div>
+                        <?php else: ?>
+                            <input type="hidden" name="madrasah_id" value="<?php echo e($selectedMadrasahId); ?>">
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <label for="replace_file" class="form-label">File Excel/CSV Baru</label>
+                        <input type="file" class="form-control" id="replace_file" name="file" accept=".xlsx,.xls,.csv" required>
+                        <small class="text-muted d-block mt-2">Jika ada siswa lama yang sudah terhubung ke tagihan atau transaksi SPP namun tidak ada di file baru, update akan dibatalkan agar data keuangan tidak ikut terhapus.</small>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning" <?php echo e($canReplaceSchoolImport ? '' : 'disabled'); ?>>Update Sekarang</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
@@ -861,6 +933,18 @@
 <script src="<?php echo e(asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js')); ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const reopenModal = (modalId) => {
+        const modalElement = document.getElementById(modalId);
+        if (!modalElement || typeof bootstrap === 'undefined') {
+            return;
+        }
+
+        bootstrap.Modal.getOrCreateInstance(modalElement).show();
+    };
+
+    const oldImportMode = <?php echo json_encode(old('import_mode'), 15, 512) ?>;
+    const hasErrors = <?php echo json_encode($errors->any(), 15, 512) ?>;
+
     const dataTableElement = $('#datatable-buttons');
     if (dataTableElement.length) {
         const table = dataTableElement.DataTable({
@@ -975,6 +1059,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const editForm = document.getElementById('editForm');
     if (editForm) {
         bindFieldHighlightListeners(editForm);
+    }
+
+    if (hasErrors && oldImportMode === 'replace_school') {
+        reopenModal('replaceImportModal');
+    } else if (hasErrors && oldImportMode === 'append') {
+        reopenModal('importModal');
     }
 
     const editModal = document.getElementById('editModal');

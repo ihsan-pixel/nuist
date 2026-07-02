@@ -322,6 +322,10 @@
 @endcomponent
 
 <div class="data-siswa-page">
+@php
+    $selectedMadrasah = $selectedMadrasahId ? $madrasahOptions->firstWhere('id', $selectedMadrasahId) : null;
+    $canReplaceSchoolImport = $userRole === 'admin' || ($userRole !== 'admin_spp' && $selectedMadrasah);
+@endphp
 <div class="row">
     <div class="col-12">
         @if(session('success'))
@@ -357,6 +361,16 @@
                         </a>
                         <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#importModal">
                             <i class="bx bx-upload me-1"></i>Import
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-toggle="modal"
+                            data-bs-target="#replaceImportModal"
+                            {{ $canReplaceSchoolImport ? '' : 'disabled' }}
+                            title="{{ $canReplaceSchoolImport ? 'Update file import per sekolah' : 'Pilih madrasah terlebih dahulu untuk update file import' }}"
+                        >
+                            <i class="bx bx-refresh me-1"></i>Update File Import
                         </button>
                         <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#createModal">
                             <i class="bx bx-plus me-1"></i>Tambah Siswa
@@ -804,6 +818,7 @@
             <div class="modal-content">
                 <form method="POST" action="{{ route('data-sekolah.data-siswa.import') }}" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="import_mode" value="append">
                     <div class="modal-header">
                         <h5 class="modal-title">Import Data Siswa</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -844,6 +859,61 @@
         </div>
     </div>
 @endif
+
+@if($userRole !== 'admin_spp')
+    <div class="modal fade" id="replaceImportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('data-sekolah.data-siswa.import') }}" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="import_mode" value="replace_school">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update File Import Siswa</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning mb-3">
+                            Data siswa lama untuk sekolah target akan diganti berdasarkan file baru.
+                            Hanya data yang tetap ada di file baru yang dipertahankan.
+                        </div>
+                        <div class="alert alert-info mb-3">
+                            @if($userRole === 'admin')
+                                Sekolah target: <strong>{{ $selectedMadrasah->name ?? '-' }}</strong>.
+                            @elseif($selectedMadrasah)
+                                Sekolah target: <strong>{{ $selectedMadrasah->name }}</strong>.
+                            @else
+                                Pilih filter madrasah terlebih dahulu pada halaman ini sebelum memakai update file import.
+                            @endif
+                        </div>
+                        @if(!in_array($userRole, ['admin', 'admin_spp']))
+                            <div class="mb-3">
+                                <label for="replace_madrasah_id" class="form-label">Madrasah Tujuan Update</label>
+                                <select class="form-select" id="replace_madrasah_id" name="madrasah_id" required>
+                                    <option value="">Pilih Madrasah</option>
+                                    @foreach($madrasahOptions as $madrasah)
+                                        <option value="{{ $madrasah->id }}" {{ (string) old('madrasah_id', $selectedMadrasahId) === (string) $madrasah->id ? 'selected' : '' }}>
+                                            {{ $madrasah->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Gunakan madrasah yang sama dengan data file yang akan menggantikan upload lama.</small>
+                            </div>
+                        @else
+                            <input type="hidden" name="madrasah_id" value="{{ $selectedMadrasahId }}">
+                        @endif
+                        <label for="replace_file" class="form-label">File Excel/CSV Baru</label>
+                        <input type="file" class="form-control" id="replace_file" name="file" accept=".xlsx,.xls,.csv" required>
+                        <small class="text-muted d-block mt-2">Jika ada siswa lama yang sudah terhubung ke tagihan atau transaksi SPP namun tidak ada di file baru, update akan dibatalkan agar data keuangan tidak ikut terhapus.</small>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning" {{ $canReplaceSchoolImport ? '' : 'disabled' }}>Update Sekarang</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endif
 @endsection
 
 @section('script')
@@ -861,6 +931,18 @@
 <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const reopenModal = (modalId) => {
+        const modalElement = document.getElementById(modalId);
+        if (!modalElement || typeof bootstrap === 'undefined') {
+            return;
+        }
+
+        bootstrap.Modal.getOrCreateInstance(modalElement).show();
+    };
+
+    const oldImportMode = @json(old('import_mode'));
+    const hasErrors = @json($errors->any());
+
     const dataTableElement = $('#datatable-buttons');
     if (dataTableElement.length) {
         const table = dataTableElement.DataTable({
@@ -975,6 +1057,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const editForm = document.getElementById('editForm');
     if (editForm) {
         bindFieldHighlightListeners(editForm);
+    }
+
+    if (hasErrors && oldImportMode === 'replace_school') {
+        reopenModal('replaceImportModal');
+    } else if (hasErrors && oldImportMode === 'append') {
+        reopenModal('importModal');
     }
 
     const editModal = document.getElementById('editModal');

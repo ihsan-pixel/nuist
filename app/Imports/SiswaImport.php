@@ -15,10 +15,12 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 {
     public int $created = 0;
     public int $updated = 0;
+    public array $processedStudentIds = [];
 
     public function __construct(
         private readonly ?int $fallbackMadrasahId = null,
-        private readonly ?int $restrictedMadrasahId = null
+        private readonly ?int $restrictedMadrasahId = null,
+        private readonly ?int $overrideMadrasahId = null
     ) {
     }
 
@@ -88,17 +90,33 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             if ($existing) {
                 $existing->fill($attributes);
                 $existing->save();
+                $this->processedStudentIds[] = (int) $existing->id;
                 $this->updated++;
                 continue;
             }
 
-            Siswa::create($attributes);
+            $created = Siswa::create($attributes);
+            $this->processedStudentIds[] = (int) $created->id;
             $this->created++;
         }
     }
 
     private function resolveMadrasahForRow($row, int $line): Madrasah
     {
+        if ($this->overrideMadrasahId) {
+            $madrasah = Madrasah::query()->find($this->overrideMadrasahId);
+
+            if (!$madrasah) {
+                throw new \InvalidArgumentException('Madrasah tujuan update data siswa tidak ditemukan.');
+            }
+
+            if ($this->restrictedMadrasahId !== null && $madrasah->id !== $this->restrictedMadrasahId) {
+                throw new \InvalidArgumentException("Baris {$line}: Anda tidak memiliki akses untuk mengimpor data ke sekolah {$madrasah->name}.");
+            }
+
+            return $madrasah;
+        }
+
         $scod = trim((string) $this->getRowValue($row, 'scod'));
         $schoolName = trim((string) $this->getRowValue($row, 'asal_sekolah_madrasah'));
 

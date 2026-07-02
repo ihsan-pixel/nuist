@@ -214,14 +214,56 @@ class DataSiswaController extends Controller
         $validated = $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
             'madrasah_id' => ['nullable', 'integer', $madrasahRule],
+            'import_mode' => ['nullable', Rule::in(['append', 'replace_school'])],
         ]);
 
+        $importMode = $validated['import_mode'] ?? 'append';
         $fallbackMadrasahId = $this->resolveImportMadrasahId($validated, $user);
-        $import = new SiswaImport($fallbackMadrasahId, $this->restrictedMadrasahIdFor($user));
+        $replaceMadrasah = $importMode === 'replace_school'
+            ? $this->resolveReplaceImportMadrasah($validated, $user)
+            : null;
+        $import = new SiswaImport(
+            $fallbackMadrasahId,
+            $this->restrictedMadrasahIdFor($user),
+            $replaceMadrasah?->id
+        );
+        $deletedCount = 0;
 
         try {
-            DB::transaction(function () use ($validated, $import) {
+            DB::transaction(function () use ($validated, $import, $replaceMadrasah, &$deletedCount) {
                 Excel::import($import, $validated['file']);
+
+                if (!$replaceMadrasah) {
+                    return;
+                }
+
+                $processedIds = collect($import->processedStudentIds)
+                    ->map(fn ($id) => (int) $id)
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                if ($processedIds->isEmpty()) {
+                    throw new \InvalidArgumentException('File update tidak berisi data siswa yang dapat diproses. Data lama tidak diubah.');
+                }
+
+                $staleStudentsQuery = Siswa::query()
+                    ->where('madrasah_id', $replaceMadrasah->id)
+                    ->whereNotIn('id', $processedIds->all());
+
+                $protectedStudentsCount = (clone $staleStudentsQuery)
+                    ->where(function (Builder $query) {
+                        $query->has('sppBills')->orHas('sppTransactions');
+                    })
+                    ->count();
+
+                if ($protectedStudentsCount > 0) {
+                    throw new \InvalidArgumentException(
+                        "Update file tidak dapat dilanjutkan karena ada {$protectedStudentsCount} data siswa lama yang sudah terhubung ke tagihan atau transaksi SPP. Pastikan data siswa tersebut tetap ada di file baru."
+                    );
+                }
+
+                $deletedCount = (clone $staleStudentsQuery)->delete();
             });
         } catch (\InvalidArgumentException $exception) {
             return back()
@@ -229,10 +271,11 @@ class DataSiswaController extends Controller
                 ->withErrors(['file' => $exception->getMessage()]);
         }
 
-        return back()->with(
-            'success',
-            "Import selesai. {$import->created} data baru ditambahkan, {$import->updated} data diperbarui. Data siswa hanya disimpan sebagai data administrasi tanpa akun login."
-        );
+        $message = $replaceMadrasah
+            ? "Update file siswa untuk {$replaceMadrasah->name} selesai. {$import->created} data baru ditambahkan, {$import->updated} data diperbarui, dan {$deletedCount} data lama yang tidak ada di file baru dihapus."
+            : "Import selesai. {$import->created} data baru ditambahkan, {$import->updated} data diperbarui. Data siswa hanya disimpan sebagai data administrasi tanpa akun login.";
+
+        return back()->with('success', $message);
     }
 
     public function template()
@@ -433,6 +476,19 @@ class DataSiswaController extends Controller
     {
         return $this->restrictedMadrasahIdFor($user)
             ?? (!empty($validated['madrasah_id']) ? (int) $validated['madrasah_id'] : null);
+    }
+
+    private function resolveReplaceImportMadrasah(array $validated, $user): Madrasah
+    {
+        $madrasahId = $this->resolveImportMadrasahId($validated, $user);
+
+        if (!$madrasahId) {
+            throw ValidationException::withMessages([
+                'madrasah_id' => 'Pilih madrasah tujuan terlebih dahulu sebelum melakukan update file siswa.',
+            ]);
+        }
+
+        return $this->resolveMadrasah((int) $madrasahId, $user);
     }
 
     private function calculateCompletionStats(Siswa $siswa): array
