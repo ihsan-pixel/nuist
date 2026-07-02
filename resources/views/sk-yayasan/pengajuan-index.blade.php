@@ -89,6 +89,55 @@
         color: #842029 !important;
     }
 
+    .sky-summary-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .sky-summary-card {
+        border: 1px solid #e4efe9;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fcfa 100%);
+        box-shadow: 0 10px 24px rgba(8, 40, 28, 0.05);
+        padding: 1rem 1.1rem;
+    }
+
+    .sky-summary-value {
+        color: #0d5d42;
+        font-size: 1.8rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .sky-summary-label {
+        color: #6b7c75;
+        font-size: .8rem;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .sky-keterangan-grid {
+        display: grid;
+        gap: .85rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .sky-keterangan-card {
+        border: 1px solid #e6efea;
+        border-radius: 16px;
+        background: #fff;
+        padding: .95rem 1rem;
+    }
+
+    .sky-keterangan-value {
+        color: #0e8549;
+        font-size: 1.45rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
 </style>
 
 @php
@@ -171,7 +220,62 @@
                 <a href="{{ route('sk-yayasan.generate.index') }}" class="btn btn-light">
                     <i class="mdi mdi-file-document-multiple-outline me-1"></i> Generate
                 </a>
+                <a href="{{ route('sk-yayasan.pengajuan.export-school-summary') }}" class="btn btn-light">
+                    <i class="mdi mdi-microsoft-excel me-1"></i> Update Excel Sekolah
+                </a>
             </div>
+        </div>
+    </div>
+
+    <div class="sky-summary-grid mb-4">
+        <div class="sky-summary-card">
+            <div class="sky-summary-label mb-2">Sekolah Sudah Mengajukan</div>
+            <div class="sky-summary-value">{{ number_format($schoolSubmissionSummaryCards['submitted_schools'] ?? 0) }}</div>
+            <small class="text-muted d-block mt-2">Sekolah yang sudah punya pengajuan atau batch aktif.</small>
+        </div>
+        <div class="sky-summary-card">
+            <div class="sky-summary-label mb-2">Sekolah Belum Mengajukan</div>
+            <div class="sky-summary-value">{{ number_format($schoolSubmissionSummaryCards['not_submitted_schools'] ?? 0) }}</div>
+            <small class="text-muted d-block mt-2">Sekolah yang belum mengirim pengajuan aktif.</small>
+        </div>
+        <div class="sky-summary-card">
+            <div class="sky-summary-label mb-2">Total Pengajuan SK</div>
+            <div class="sky-summary-value">{{ number_format($schoolSubmissionSummaryCards['total_requests'] ?? 0) }}</div>
+            <small class="text-muted d-block mt-2">Jumlah pengajuan aktif yang sedang diproses di yayasan.</small>
+        </div>
+        <div class="sky-summary-card">
+            <div class="sky-summary-label mb-2">Belum Memiliki Akun NUist</div>
+            <div class="sky-summary-value">{{ number_format($schoolSubmissionSummaryCards['requests_without_nuist_account'] ?? 0) }}</div>
+            <small class="text-muted d-block mt-2">Baris pada batch terakhir sekolah yang belum match akun NUist.</small>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Ringkasan Keterangan Pengajuan</div>
+                    <h6 class="mb-0">Hitungan pengajuan berdasarkan jenis keterangan SK Yayasan</h6>
+                </div>
+                <span class="sky-chip">{{ number_format(collect($keteranganSummaryCounts)->sum()) }} total terpetakan</span>
+            </div>
+
+            @if(!empty($keteranganSummaryCounts))
+                <div class="sky-keterangan-grid">
+                    @foreach($keteranganSummaryCounts as $label => $count)
+                        <div class="sky-keterangan-card">
+                            <div class="sky-summary-label mb-2">{{ $label }}</div>
+                            <div class="sky-keterangan-value">{{ number_format($count) }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="sky-empty-state py-4">
+                    <i class="bx bx-receipt"></i>
+                    <strong>Belum ada kategori pengajuan yang terpetakan</strong>
+                    <small>Hitungan keterangan akan muncul setelah sekolah mengupload batch pengajuan yang aktif.</small>
+                </div>
+            @endif
         </div>
     </div>
 

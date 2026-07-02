@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SkYayasanSchoolSubmissionSummaryExport;
 use App\Exports\SkYayasanUserImportTemplateExport;
 use App\Models\AppSetting;
 use App\Models\Madrasah;
 use App\Models\SkYayasanDocument;
 use App\Models\SkYayasanImportBatch;
+use App\Models\SkYayasanImportRow;
 use App\Models\SkYayasanRequest;
 use App\Models\SkYayasanTemplate;
 use App\Models\User;
@@ -747,10 +749,10 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
-        $submissions = SkYayasanRequest::query()
+        $summaryData = $this->buildSuperAdminPengajuanSummary();
+
+        $submissions = $this->activeSuperAdminSubmissionQuery()
             ->with(['madrasah', 'employee.statusKepegawaian', 'submitter', 'reviewer', 'template', 'document', 'importBatch'])
-            ->where('current_status', '!=', 'rejected')
-            ->whereDoesntHave('importBatch', fn ($query) => $query->where('status', 'rejected'))
             ->when($request->filled('status'), fn ($query) => $query->where('current_status', $request->string('status')->toString()))
             ->when($request->filled('madrasah_id'), fn ($query) => $query->where('madrasah_id', (int) $request->madrasah_id))
             ->when($request->filled('q'), function ($query) use ($request) {
@@ -790,7 +792,25 @@ class SkYayasanController extends Controller
             'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
             'madrasahs' => Madrasah::query()->orderBy('name')->get(['id', 'name']),
             'templates' => SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get(),
+            'schoolSubmissionSummaryRows' => $summaryData['rows'],
+            'schoolSubmissionSummaryCards' => $summaryData['cards'],
+            'keteranganSummaryCounts' => $summaryData['keterangan_counts'],
         ]);
+    }
+
+    public function exportSchoolSubmissionSummary()
+    {
+        $this->ensureSuperAdmin();
+
+        $summaryData = $this->buildSuperAdminPengajuanSummary();
+
+        return Excel::download(
+            new SkYayasanSchoolSubmissionSummaryExport(
+                $summaryData['export_rows'],
+                $summaryData['export_headings']
+            ),
+            'rekap-pengajuan-sk-yayasan-sekolah-' . now()->format('Ymd_His') . '.xlsx'
+        );
     }
 
     public function updateSubmissionStatus(Request $request, SkYayasanRequest $submission): RedirectResponse
@@ -1613,6 +1633,230 @@ class SkYayasanController extends Controller
         abort_unless($user->madrasah_id, 403, 'Akun admin belum terhubung ke sekolah.');
 
         return $user;
+    }
+
+    private function activeSuperAdminSubmissionQuery(): Builder
+    {
+        return SkYayasanRequest::query()
+            ->where('current_status', '!=', 'rejected')
+            ->whereDoesntHave('importBatch', fn ($query) => $query->where('status', 'rejected'));
+    }
+
+    private function buildSuperAdminPengajuanSummary(): array
+    {
+        $keteranganOptions = SkYayasanImportSynchronizer::allowedKeteranganOptions();
+        $fallbackKeteranganLabel = 'Tanpa Keterangan';
+        $schools = Madrasah::query()
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderBy('scod')
+            ->orderBy('name')
+            ->get(['id', 'scod', 'name', 'kabupaten']);
+
+        $activeRequests = $this->activeSuperAdminSubmissionQuery()
+            ->get(['id', 'madrasah_id', 'employee_id', 'import_batch_id']);
+
+        $activeRequestBatchIds = $activeRequests->pluck('import_batch_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $requestRowsByBatch = $activeRequestBatchIds->isEmpty()
+            ? collect()
+            : SkYayasanImportRow::query()
+                ->whereIn('batch_id', $activeRequestBatchIds)
+                ->get(['batch_id', 'matched_user_id', 'source_keterangan'])
+                ->groupBy('batch_id');
+
+        $activeBatches = SkYayasanImportBatch::query()
+            ->whereIn('status', ['pending_review', 'synced'])
+            ->orderByDesc('uploaded_at')
+            ->get([
+                'id',
+                'madrasah_id',
+                'status',
+                'uploaded_at',
+                'synced_at',
+                'total_rows',
+                'valid_rows',
+                'invalid_rows',
+            ]);
+
+        $latestActiveBatches = $activeBatches
+            ->unique('madrasah_id')
+            ->keyBy(fn (SkYayasanImportBatch $batch) => (int) $batch->madrasah_id);
+
+        $activeBatchCountsBySchool = $activeBatches
+            ->groupBy('madrasah_id')
+            ->map(fn (Collection $batches) => $batches->count());
+
+        $latestBatchIds = $latestActiveBatches->pluck('id')->filter()->values();
+        $latestBatchUnmatchedCounts = $latestBatchIds->isEmpty()
+            ? collect()
+            : SkYayasanImportRow::query()
+                ->selectRaw('batch_id, COUNT(*) as total')
+                ->whereIn('batch_id', $latestBatchIds)
+                ->whereNull('matched_user_id')
+                ->groupBy('batch_id')
+                ->pluck('total', 'batch_id');
+
+        $schoolSummaries = $schools->mapWithKeys(function (Madrasah $school) use ($keteranganOptions) {
+            $keteranganCounts = [];
+
+            foreach ($keteranganOptions as $option) {
+                $keteranganCounts[$option] = 0;
+            }
+
+            return [
+                (int) $school->id => [
+                    'school_id' => (int) $school->id,
+                    'scod' => $school->scod,
+                    'school_name' => $school->name,
+                    'kabupaten' => $school->kabupaten,
+                    'total_requests' => 0,
+                    'active_batch_count' => 0,
+                    'latest_batch_status' => null,
+                    'latest_batch_uploaded_at' => null,
+                    'latest_batch_unmatched_count' => 0,
+                    'keterangan_counts' => $keteranganCounts,
+                ],
+            ];
+        });
+
+        $overallKeteranganCounts = collect($keteranganOptions)
+            ->mapWithKeys(fn (string $option) => [$option => 0])
+            ->all();
+
+        foreach ($activeRequests as $submission) {
+            $schoolId = (int) $submission->madrasah_id;
+            if (!$schoolSummaries->has($schoolId)) {
+                continue;
+            }
+
+            $summary = $schoolSummaries[$schoolId];
+            $summary['total_requests']++;
+
+            $matchedRow = collect($requestRowsByBatch->get($submission->import_batch_id, []))
+                ->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $submission->employee_id);
+
+            $keteranganLabel = $this->normalizeSkYayasanKeteranganLabel($matchedRow?->source_keterangan)
+                ?? $fallbackKeteranganLabel;
+
+            if (!array_key_exists($keteranganLabel, $summary['keterangan_counts'])) {
+                $summary['keterangan_counts'][$keteranganLabel] = 0;
+            }
+
+            if (!array_key_exists($keteranganLabel, $overallKeteranganCounts)) {
+                $overallKeteranganCounts[$keteranganLabel] = 0;
+            }
+
+            $summary['keterangan_counts'][$keteranganLabel]++;
+            $overallKeteranganCounts[$keteranganLabel]++;
+
+            $schoolSummaries[$schoolId] = $summary;
+        }
+
+        foreach ($schoolSummaries as $schoolId => $summary) {
+            $latestBatch = $latestActiveBatches->get((int) $schoolId);
+            $summary['active_batch_count'] = (int) ($activeBatchCountsBySchool->get((int) $schoolId) ?? 0);
+            $summary['latest_batch_status'] = $latestBatch?->status;
+            $summary['latest_batch_uploaded_at'] = $latestBatch?->uploaded_at;
+            $summary['latest_batch_unmatched_count'] = (int) ($latestBatch ? ($latestBatchUnmatchedCounts->get($latestBatch->id) ?? 0) : 0);
+            $summary['submission_status_label'] = ($summary['total_requests'] > 0 || $summary['active_batch_count'] > 0)
+                ? 'Sudah Mengajukan'
+                : 'Belum Mengajukan';
+
+            $schoolSummaries[$schoolId] = $summary;
+        }
+
+        $rows = $schoolSummaries->values();
+        $submittedSchoolsCount = $rows->filter(fn (array $row) => $row['submission_status_label'] === 'Sudah Mengajukan')->count();
+        $notSubmittedSchoolsCount = $rows->count() - $submittedSchoolsCount;
+        $totalWithoutNuist = $rows->sum('latest_batch_unmatched_count');
+
+        $exportHeadings = array_merge([
+            'No',
+            'SCOD',
+            'Nama Sekolah',
+            'Kabupaten',
+            'Status Pengajuan',
+            'Jumlah Pengajuan SK Yayasan',
+            'Jumlah Batch Aktif',
+            'Status Batch Terakhir',
+            'Upload Batch Terakhir',
+            'Jumlah Pengajuan Belum Memiliki Akun NUist',
+        ], $this->summaryKeteranganHeadings($overallKeteranganCounts));
+
+        $exportRows = $rows->values()->map(function (array $row, int $index) use ($overallKeteranganCounts) {
+            $baseColumns = [
+                $index + 1,
+                $row['scod'] ?: '-',
+                $row['school_name'] ?: '-',
+                $row['kabupaten'] ?: '-',
+                $row['submission_status_label'],
+                $row['total_requests'],
+                $row['active_batch_count'],
+                $this->formatImportBatchStatusLabel($row['latest_batch_status']),
+                optional($row['latest_batch_uploaded_at'])->format('d/m/Y H:i') ?: '-',
+                $row['latest_batch_unmatched_count'],
+            ];
+
+            $keteranganColumns = collect(array_keys($overallKeteranganCounts))
+                ->map(fn (string $label) => (int) ($row['keterangan_counts'][$label] ?? 0))
+                ->all();
+
+            return array_merge($baseColumns, $keteranganColumns);
+        });
+
+        return [
+            'cards' => [
+                'submitted_schools' => $submittedSchoolsCount,
+                'not_submitted_schools' => $notSubmittedSchoolsCount,
+                'total_requests' => $activeRequests->count(),
+                'requests_without_nuist_account' => $totalWithoutNuist,
+            ],
+            'keterangan_counts' => collect($overallKeteranganCounts)
+                ->filter(fn (int $count) => $count > 0)
+                ->sortKeys()
+                ->all(),
+            'rows' => $rows,
+            'export_rows' => $exportRows,
+            'export_headings' => $exportHeadings,
+        ];
+    }
+
+    private function normalizeSkYayasanKeteranganLabel(?string $value): ?string
+    {
+        $normalized = trim((string) $value);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        foreach (SkYayasanImportSynchronizer::allowedKeteranganOptions() as $option) {
+            if (Str::lower($option) === Str::lower($normalized)) {
+                return $option;
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function summaryKeteranganHeadings(array $keteranganCounts): array
+    {
+        return collect(array_keys($keteranganCounts))
+            ->map(fn (string $label) => 'Jumlah ' . $label)
+            ->values()
+            ->all();
+    }
+
+    private function formatImportBatchStatusLabel(?string $status): string
+    {
+        return match ($status) {
+            'pending_review' => 'Pending Review',
+            'synced' => 'Tersinkron',
+            'rejected' => 'Ditolak',
+            default => '-',
+        };
     }
 
     private function authorizeDocumentAccess(SkYayasanDocument $document): void

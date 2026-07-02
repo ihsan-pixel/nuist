@@ -646,6 +646,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
     Route::middleware(['role:super_admin'])->group(function () {
         Route::get('/dashboard', [SkYayasanController::class, 'dashboard'])->name('dashboard');
         Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan'])->name('pengajuan.index');
+        Route::get('/pengajuan/export-sekolah-summary', [SkYayasanController::class, 'exportSchoolSubmissionSummary'])->name('pengajuan.export-school-summary');
         Route::patch('/pengajuan/{submission}/status', [SkYayasanController::class, 'updateSubmissionStatus'])->name('pengajuan.update-status');
         Route::patch('/import-batches/{batch}/rows', [SkYayasanController::class, 'updateImportBatchRows'])->name('import-batches.rows.update');
         Route::patch('/import-batches/{batch}/review', [SkYayasanController::class, 'reviewImportBatch'])->name('import-batches.review');
