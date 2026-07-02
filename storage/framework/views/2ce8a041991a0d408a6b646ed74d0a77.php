@@ -177,6 +177,17 @@
                         <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal">
                             <i class="bx bx-upload me-1"></i>Import Jadwal
                         </button>
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger rounded-pill px-3 delete-school-schedules-btn"
+                            data-school-id="<?php echo e($school->id); ?>"
+                            data-school-name="<?php echo e($school->name); ?>"
+                            data-total-schedules="<?php echo e($totalSchedules); ?>"
+                            <?php echo e($totalSchedules > 0 ? '' : 'disabled'); ?>
+
+                        >
+                            <i class="bx bx-trash me-1"></i>Hapus Semua Jadwal
+                        </button>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -547,6 +558,34 @@ $(document).ready(function() {
                 var form = $('<form>', {
                     'method': 'POST',
                     'action': '<?php echo e(route("teaching-schedules.destroy", ":id")); ?>'.replace(':id', scheduleId)
+                });
+                form.append('<input type="hidden" name="_token" value="<?php echo e(csrf_token()); ?>">');
+                form.append('<input type="hidden" name="_method" value="DELETE">');
+                $('body').append(form);
+                form.submit();
+            }
+        });
+    });
+
+    $('.delete-school-schedules-btn').on('click', function() {
+        var schoolId = $(this).data('school-id');
+        var schoolName = $(this).data('school-name');
+        var totalSchedules = $(this).data('total-schedules');
+
+        Swal.fire({
+            title: 'Hapus semua jadwal?',
+            html: 'Seluruh <strong>' + totalSchedules + ' jadwal</strong> untuk <strong>' + schoolName + '</strong> akan dihapus permanen.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus semua',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var form = $('<form>', {
+                    'method': 'POST',
+                    'action': '<?php echo e(route("teaching-schedules.destroy-school-schedules", ":schoolId")); ?>'.replace(':schoolId', schoolId)
                 });
                 form.append('<input type="hidden" name="_token" value="<?php echo e(csrf_token()); ?>">');
                 form.append('<input type="hidden" name="_method" value="DELETE">');

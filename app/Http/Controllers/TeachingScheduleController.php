@@ -9,6 +9,7 @@ use App\Imports\TeachingScheduleImport;
 use App\Services\AcademicCalendarEventService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -379,6 +380,41 @@ class TeachingScheduleController extends Controller
         $schedule->delete();
 
         return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil dihapus.');
+    }
+
+    public function destroySchoolSchedules(string $schoolId)
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->role, ['super_admin', 'admin'], true)) {
+            abort(403);
+        }
+
+        if ($user->role === 'admin' && (int) $user->madrasah_id !== (int) $schoolId) {
+            abort(403);
+        }
+
+        $school = Madrasah::findOrFail($schoolId);
+        $schedules = TeachingSchedule::query()
+            ->where('school_id', $school->id)
+            ->get();
+
+        if ($schedules->isEmpty()) {
+            return redirect()
+                ->route('teaching-schedules.school-schedules', $school->id)
+                ->with('success', 'Tidak ada jadwal mengajar yang perlu dihapus untuk sekolah ini.');
+        }
+
+        DB::transaction(function () use ($schedules) {
+            foreach ($schedules as $schedule) {
+                app(AcademicCalendarEventService::class)->syncSchedule($schedule);
+                $schedule->delete();
+            }
+        });
+
+        return redirect()
+            ->route('teaching-schedules.school-schedules', $school->id)
+            ->with('success', $schedules->count() . ' jadwal mengajar berhasil dihapus untuk sekolah ini.');
     }
 
     /**
