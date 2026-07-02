@@ -366,7 +366,7 @@
                             <div class="sky-panel-label mb-1">Pengajuan Tersinkron</div>
                             <h6 class="mb-0">Pengajuan yang sudah tersingkronisasikan di aplikasi</h6>
                         </div>
-                        <span class="sky-chip">{{ $syncedImportBatches->total() }} tersinkron</span>
+                        <span class="sky-chip">{{ $syncedImportBatches->total() }} batch tersinkron • {{ $syncedImportBatchSchoolCount }} sekolah</span>
                     </div>
 
                     @if($syncedImportBatches->count() > 0)

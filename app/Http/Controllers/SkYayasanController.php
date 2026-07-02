@@ -785,10 +785,16 @@ class SkYayasanController extends Controller
             ->paginate(8, ['*'], 'synced_import_page')
             ->withQueryString();
 
+        $syncedImportBatchSchoolCount = SkYayasanImportBatch::query()
+            ->where('status', 'synced')
+            ->distinct('madrasah_id')
+            ->count('madrasah_id');
+
         return view('sk-yayasan.pengajuan-index', [
             'submissions' => $submissions,
             'pendingImportBatches' => $pendingImportBatches,
             'syncedImportBatches' => $syncedImportBatches,
+            'syncedImportBatchSchoolCount' => $syncedImportBatchSchoolCount,
             'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
             'madrasahs' => Madrasah::query()->orderBy('name')->get(['id', 'name']),
             'templates' => SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get(),
@@ -991,13 +997,14 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
-        $syncedQueueRequests = $this->syncedGenerateQueueRequestsConstraint();
         $globalSkSettings = $this->getGlobalSkSettings();
 
         $schools = Madrasah::query()
-            ->whereHas('skYayasanRequests', $syncedQueueRequests)
+            ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'))
             ->withCount([
-                'skYayasanRequests as generate_requests_count' => $syncedQueueRequests,
+                'skYayasanImportBatches as synced_batches_count' => fn (Builder $query) => $query->where('status', 'synced'),
+                'skYayasanRequests as generate_requests_count' => fn (Builder $query) => $query
+                    ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced')),
             ])
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
@@ -1016,7 +1023,10 @@ class SkYayasanController extends Controller
 
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
-            'totalRequestsCount' => SkYayasanRequest::query()->where($syncedQueueRequests)->count(),
+            'totalRequestsCount' => SkYayasanRequest::query()
+                ->whereHas('importBatch', fn (Builder $query) => $query->where('status', 'synced'))
+                ->count(),
+            'syncedBatchCount' => SkYayasanImportBatch::query()->where('status', 'synced')->count(),
             'globalSkSettings' => $globalSkSettings,
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee', 'request.madrasah'])

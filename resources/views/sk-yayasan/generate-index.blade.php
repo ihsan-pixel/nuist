@@ -20,9 +20,10 @@
                     <p class="mb-0 text-white-50">
                     Pilih nama sekolah untuk melihat daftar pengajuan SK Yayasan yang sudah tersinkronisasi dan siap dibuat draft PDF sesuai template masing-masing. Urutan sekolah mengikuti SCOD dari yang terendah ke tertinggi.
                     </p>
-                </div>
+            </div>
             <div class="d-flex flex-wrap gap-2">
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $schools->total() }} sekolah</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $syncedBatchCount }} batch tersinkron</span>
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $totalRequestsCount }} pengajuan</span>
             </div>
         </div>
@@ -92,7 +93,7 @@
                             <div class="sky-panel-label mb-1">Antrean Sekolah</div>
                             <h6 class="mb-0">Klik sekolah untuk membuka daftar pengajuan tersinkronisasi</h6>
                         </div>
-                        <span class="sky-chip">{{ $schools->total() }} sekolah</span>
+                        <span class="sky-chip">{{ $schools->total() }} sekolah dari {{ $syncedBatchCount }} batch tersinkron</span>
                     </div>
 
                     @if($schools->count() > 0)

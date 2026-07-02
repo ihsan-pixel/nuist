@@ -365,7 +365,7 @@
                             <div class="sky-panel-label mb-1">Pengajuan Tersinkron</div>
                             <h6 class="mb-0">Pengajuan yang sudah tersingkronisasikan di aplikasi</h6>
                         </div>
-                        <span class="sky-chip"><?php echo e($syncedImportBatches->total()); ?> tersinkron</span>
+                        <span class="sky-chip"><?php echo e($syncedImportBatches->total()); ?> batch tersinkron • <?php echo e($syncedImportBatchSchoolCount); ?> sekolah</span>
                     </div>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($syncedImportBatches->count() > 0): ?>
