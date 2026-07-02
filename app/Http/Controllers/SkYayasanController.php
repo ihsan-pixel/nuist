@@ -1058,7 +1058,7 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
-        $eligibleRequests = $this->generateEligibleRequestsConstraint();
+        $syncedQueueRequests = $this->syncedGenerateQueueRequestsConstraint();
         $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
 
         $requests = SkYayasanRequest::query()
@@ -1072,7 +1072,7 @@ class SkYayasanController extends Controller
                 'importBatch.reviewer',
             ])
             ->where('madrasah_id', $madrasah->id)
-            ->where($eligibleRequests)
+            ->where($syncedQueueRequests)
             ->orderByRaw("
                 CASE
                     WHEN current_status = 'published' THEN 2
@@ -1393,8 +1393,7 @@ class SkYayasanController extends Controller
     private function syncedGenerateQueueRequestsConstraint(): Closure
     {
         return function (Builder $query) {
-            $query->whereIn('current_status', ['submitted', 'reviewed', 'approved', 'published'])
-                ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced'));
+            $query->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced'));
         };
     }
 
