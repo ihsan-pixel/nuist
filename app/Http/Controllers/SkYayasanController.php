@@ -991,13 +991,13 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
-        $eligibleRequests = $this->generateEligibleRequestsConstraint();
+        $syncedQueueRequests = $this->syncedGenerateQueueRequestsConstraint();
         $globalSkSettings = $this->getGlobalSkSettings();
 
         $schools = Madrasah::query()
-            ->whereHas('skYayasanRequests', $eligibleRequests)
+            ->whereHas('skYayasanRequests', $syncedQueueRequests)
             ->withCount([
-                'skYayasanRequests as generate_requests_count' => $eligibleRequests,
+                'skYayasanRequests as generate_requests_count' => $syncedQueueRequests,
             ])
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
@@ -1016,7 +1016,7 @@ class SkYayasanController extends Controller
 
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
-            'totalRequestsCount' => SkYayasanRequest::query()->where($eligibleRequests)->count(),
+            'totalRequestsCount' => SkYayasanRequest::query()->where($syncedQueueRequests)->count(),
             'globalSkSettings' => $globalSkSettings,
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee', 'request.madrasah'])
@@ -1387,6 +1387,14 @@ class SkYayasanController extends Controller
                     $syncedQuery->whereIn('current_status', ['submitted', 'reviewed'])
                         ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced'));
                 });
+        };
+    }
+
+    private function syncedGenerateQueueRequestsConstraint(): Closure
+    {
+        return function (Builder $query) {
+            $query->whereIn('current_status', ['submitted', 'reviewed', 'approved', 'published'])
+                ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced'));
         };
     }
 

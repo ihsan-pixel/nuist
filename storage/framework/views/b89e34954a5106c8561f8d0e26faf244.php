@@ -12,13 +12,13 @@
 <div class="sky-page">
     <div class="sky-hero-strip mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div>
-                <div class="sky-kicker mb-2">Generate SK Yayasan</div>
-                <h4 class="mb-1">Antrean generate per sekolah</h4>
-                <p class="mb-0 text-white-50">
-                    Pilih nama sekolah untuk melihat daftar pengajuan SK Yayasan yang siap dibuat draft PDF sesuai template masing-masing. Urutan sekolah mengikuti SCOD dari yang terendah ke tertinggi.
-                </p>
-            </div>
+                <div>
+                    <div class="sky-kicker mb-2">Generate SK Yayasan</div>
+                    <h4 class="mb-1">Antrean generate per sekolah</h4>
+                    <p class="mb-0 text-white-50">
+                    Pilih nama sekolah untuk melihat daftar pengajuan SK Yayasan yang sudah tersinkronisasi dan siap dibuat draft PDF sesuai template masing-masing. Urutan sekolah mengikuti SCOD dari yang terendah ke tertinggi.
+                    </p>
+                </div>
             <div class="d-flex flex-wrap gap-2">
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($schools->total()); ?> sekolah</span>
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($totalRequestsCount); ?> pengajuan</span>
@@ -88,7 +88,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Antrean Sekolah</div>
-                            <h6 class="mb-0">Klik sekolah untuk membuka daftar pengajuan</h6>
+                            <h6 class="mb-0">Klik sekolah untuk membuka daftar pengajuan tersinkronisasi</h6>
                         </div>
                         <span class="sky-chip"><?php echo e($schools->total()); ?> sekolah</span>
                     </div>
@@ -141,8 +141,8 @@
                     <?php else: ?>
                         <div class="sky-empty-state py-5">
                             <i class="bx bx-buildings"></i>
-                            <strong>Belum ada sekolah dalam antrean generate</strong>
-                            <small>Sekolah akan muncul di sini setelah memiliki pengajuan yang disetujui atau batch yang sudah tersinkronisasi.</small>
+                            <strong>Belum ada sekolah dengan pengajuan tersinkronisasi</strong>
+                            <small>Sekolah akan muncul di sini setelah pengajuan SK Yayasannya berhasil melalui proses sinkronisasi batch.</small>
                         </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
