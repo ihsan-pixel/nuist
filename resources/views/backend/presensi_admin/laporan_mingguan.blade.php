@@ -9,7 +9,8 @@
             <div class="alert alert-info mb-0">
                 <strong>Keterangan rekap:</strong>
                 Perhitungan hadir, izin, dan alpha hanya menggunakan tenaga pendidik yang memang wajib presensi pada tanggal tersebut.
-                Tanda <strong>-</strong> berarti hari libur atau tidak ada tenaga pendidik yang memiliki kewajiban presensi pada hari itu, termasuk saat berada di luar jadwal piket yang disetujui.
+                Kolom <strong>Tidak Wajib</strong> menunjukkan jumlah tenaga pendidik yang pada tanggal tersebut tidak memiliki kewajiban presensi, termasuk saat berada di luar jadwal piket yang disetujui.
+                Tanda <strong>-</strong> berarti hari libur atau hari di luar KBM madrasah.
             </div>
         </div>
     </div>
@@ -89,12 +90,12 @@
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
                                 <th rowspan="2" class="text-center align-middle">Hari KBM</th>
                                 <th rowspan="2" class="text-center align-middle">Total Tenaga Pendidik</th>
-                                <th colspan="3" class="text-center">Senin</th>
-                                <th colspan="3" class="text-center">Selasa</th>
-                                <th colspan="3" class="text-center">Rabu</th>
-                                <th colspan="3" class="text-center">Kamis</th>
-                                <th colspan="3" class="text-center">Jumat</th>
-                                <th colspan="3" class="text-center">Sabtu</th>
+                                <th colspan="4" class="text-center">Senin</th>
+                                <th colspan="4" class="text-center">Selasa</th>
+                                <th colspan="4" class="text-center">Rabu</th>
+                                <th colspan="4" class="text-center">Kamis</th>
+                                <th colspan="4" class="text-center">Jumat</th>
+                                <th colspan="4" class="text-center">Sabtu</th>
                                 <th rowspan="2" class="text-center align-middle">Persentase Kehadiran (%)</th>
                                 <th rowspan="2" class="text-center align-middle">Rank</th>
                             </tr>
@@ -103,13 +104,14 @@
                                 <th class="text-center">Hadir</th>
                                 <th class="text-center">Izin</th>
                                 <th class="text-center">Alpha</th>
+                                <th class="text-center">Tidak Wajib</th>
                                 @endfor
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($laporanData as $kabupaten)
                             <tr class="bg-info">
-                                <td colspan="24" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
+                                <td colspan="30" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
                             </tr>
                             @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
                             <tr>
@@ -121,6 +123,7 @@
                                 <td class="text-center">{{ $presensi['hadir'] }}</td>
                                 <td class="text-center">{{ $presensi['izin'] }}</td>
                                 <td class="text-center">{{ $presensi['alpha'] }}</td>
+                                <td class="text-center">{{ $presensi['tidak_wajib'] }}</td>
                                 @endforeach
                                 <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2, ',', '.') }}%</td>
                                 <td class="text-center font-weight-bold">{{ $madrasah['rank'] }}</td>

@@ -1129,6 +1129,7 @@ class PresensiAdminController extends Controller
             $headers[] = $day . ' - Hadir';
             $headers[] = $day . ' - Izin';
             $headers[] = $day . ' - Alpha';
+            $headers[] = $day . ' - Tidak Wajib';
         }
         $headers[] = 'Persentase Kehadiran (%)';
         $headers[] = 'Rank';
@@ -1151,6 +1152,7 @@ class PresensiAdminController extends Controller
                     $row[] = $presensi['hadir'];
                     $row[] = $presensi['izin'];
                     $row[] = $presensi['alpha'];
+                    $row[] = $presensi['tidak_wajib'];
                 }
 
                 $row[] = number_format($madrasah['persentase_kehadiran'], 2, ',', '.') . '%';
@@ -1214,17 +1216,17 @@ class PresensiAdminController extends Controller
                     $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
 
                     if ($isHoliday) {
-                        $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
+                        $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-', 'tidak_wajib' => '-'];
                     } else {
                         $dailySummary = $this->summarizeTeachersForDate($tenagaPendidik, $currentDate);
-                        if ($dailySummary['obligated'] === 0) {
-                            $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
-                        } else {
-                            $presensiMingguan[] = [
-                                'hadir' => $dailySummary['hadir'],
-                                'izin' => $dailySummary['izin'],
-                                'alpha' => $dailySummary['alpha'],
-                            ];
+                        $presensiMingguan[] = [
+                            'hadir' => $dailySummary['hadir'],
+                            'izin' => $dailySummary['izin'],
+                            'alpha' => $dailySummary['alpha'],
+                            'tidak_wajib' => $dailySummary['not_required'],
+                        ];
+
+                        if ($dailySummary['obligated'] > 0) {
                             $totalHadir += $dailySummary['hadir'];
                             $totalIzin += $dailySummary['izin'];
                             $totalPresensi += ($dailySummary['hadir'] + $dailySummary['izin'] + $dailySummary['alpha']);
@@ -1235,7 +1237,7 @@ class PresensiAdminController extends Controller
                 }
 
                 if ($madrasah->hari_kbm == 5) {
-                    $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
+                    $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-', 'tidak_wajib' => '-'];
                 }
 
                 $persentase = $totalPresensi > 0
@@ -1522,9 +1524,11 @@ class PresensiAdminController extends Controller
         $izin = 0;
         $alpha = 0;
         $obligated = 0;
+        $notRequired = 0;
 
         foreach ($teachers as $teacher) {
             if (!$this->attendanceObligationService->hasAttendanceObligation($teacher, $date)) {
+                $notRequired++;
                 continue;
             }
 
@@ -1542,7 +1546,13 @@ class PresensiAdminController extends Controller
             }
         }
 
-        return compact('hadir', 'izin', 'alpha', 'obligated');
+        return [
+            'hadir' => $hadir,
+            'izin' => $izin,
+            'alpha' => $alpha,
+            'obligated' => $obligated,
+            'not_required' => $notRequired,
+        ];
     }
 
     private function getThreeMonthAbsenceData(Carbon $selectedDate, $user): array
