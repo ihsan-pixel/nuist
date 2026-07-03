@@ -444,8 +444,9 @@ class SkYayasanController extends Controller
         ]);
 
         $report = $this->inspectEditableImportRows($validated['rows'], (int) $batch->madrasah_id);
+        $deletedRequestCount = 0;
 
-        DB::transaction(function () use ($batch, $report, $user) {
+        DB::transaction(function () use ($batch, $report, $user, &$deletedRequestCount) {
             $batch->update([
                 'status' => 'pending_review',
                 'uploaded_by' => $user->id,
@@ -466,6 +467,8 @@ class SkYayasanController extends Controller
 
             $batch->rows()->delete();
             $batch->rows()->createMany($this->buildImportBatchRowsPayload($report['rows']));
+            $syncSummary = $this->synchronizeBatchRequestsFromRows($batch);
+            $deletedRequestCount = (int) ($syncSummary['deleted'] ?? 0);
 
             $batch->requests()->update([
                 'current_status' => 'submitted',
@@ -477,7 +480,13 @@ class SkYayasanController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Data import berhasil diperbarui dan dikirim ulang untuk direview.');
+        $message = 'Data import berhasil diperbarui dan dikirim ulang untuk direview.';
+
+        if ($deletedRequestCount > 0) {
+            $message .= ' ' . $deletedRequestCount . ' pengajuan yang barisnya dihapus juga dikeluarkan dari batch.';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function downloadImportBatchAttachment(SkYayasanImportBatch $batch, string $type)
@@ -636,6 +645,7 @@ class SkYayasanController extends Controller
         $report = $this->inspectEditableImportRows($validated['rows'], (int) $batch->madrasah_id);
         $wasRejected = $batch->status === 'rejected';
         $shouldSync = ($validated['action'] ?? 'save') === 'sync';
+        $deletedRequestCount = 0;
 
         if ($shouldSync && $report['invalid_count'] > 0) {
             return back()->with('error', 'Data masih memiliki baris yang belum valid. Perbaiki semua baris sebelum sinkronisasi ulang.');
@@ -643,7 +653,7 @@ class SkYayasanController extends Controller
 
         $message = 'Data review import berhasil diperbarui. Batch kembali ke status pending review.';
 
-        DB::transaction(function () use ($batch, $report, $wasRejected, $shouldSync, $validated, &$message) {
+        DB::transaction(function () use ($batch, $report, $wasRejected, $shouldSync, $validated, &$message, &$deletedRequestCount) {
             $batch->update([
                 'status' => $shouldSync ? 'synced' : 'pending_review',
                 'reviewed_by' => $shouldSync ? auth()->id() : null,
@@ -662,6 +672,8 @@ class SkYayasanController extends Controller
 
             $batch->rows()->delete();
             $batch->rows()->createMany($this->buildImportBatchRowsPayload($report['rows']));
+            $syncSummary = $this->synchronizeBatchRequestsFromRows($batch);
+            $deletedRequestCount = (int) ($syncSummary['deleted'] ?? 0);
 
             if ($shouldSync) {
                 $batch->load('rows');
@@ -714,6 +726,10 @@ class SkYayasanController extends Controller
                 ]);
             }
         });
+
+        if ($deletedRequestCount > 0) {
+            $message .= ' ' . $deletedRequestCount . ' pengajuan yang barisnya dihapus juga dikeluarkan dari batch.';
+        }
 
         return back()->with('success', $message);
     }
@@ -2058,26 +2074,44 @@ class SkYayasanController extends Controller
 
     private function synchronizeBatchRequestsFromRows(SkYayasanImportBatch $batch): array
     {
-        $batch->loadMissing(['rows', 'requests']);
+        $batch->load(['rows', 'requests']);
 
         $validRows = $batch->rows
             ->filter(fn (SkYayasanImportRow $row) => $row->is_valid && $row->matched_user_id)
             ->unique(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id)
             ->values();
 
+        $employeeIds = $validRows->pluck('matched_user_id')
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values();
+
+        $referenceRequest = $batch->requests->sortBy('id')->first();
+
+        $requestsToDelete = $batch->requests
+            ->filter(fn (SkYayasanRequest $request) => !$employeeIds->contains((int) $request->employee_id))
+            ->values();
+
+        $deleted = 0;
+
+        if ($requestsToDelete->isNotEmpty()) {
+            $requestIds = $requestsToDelete->pluck('id')->values();
+
+            SkYayasanDocument::query()->whereIn('request_id', $requestIds)->delete();
+            SkYayasanRequest::query()->whereIn('id', $requestIds)->delete();
+
+            $deleted = $requestIds->count();
+        }
+
         if ($validRows->isEmpty()) {
             return [
                 'created' => 0,
                 'linked' => 0,
                 'updated' => 0,
+                'deleted' => $deleted,
                 'total' => 0,
             ];
         }
-
-        $employeeIds = $validRows->pluck('matched_user_id')
-            ->map(fn ($id) => (int) $id)
-            ->filter()
-            ->values();
 
         $employees = User::query()
             ->with('statusKepegawaian')
@@ -2085,7 +2119,9 @@ class SkYayasanController extends Controller
             ->get()
             ->keyBy('id');
 
-        $existingRequests = $batch->requests
+        $existingRequests = SkYayasanRequest::query()
+            ->where('import_batch_id', $batch->id)
+            ->get()
             ->keyBy(fn (SkYayasanRequest $request) => (int) $request->employee_id);
 
         $orphanRequests = SkYayasanRequest::query()
@@ -2098,7 +2134,6 @@ class SkYayasanController extends Controller
             ->get()
             ->groupBy(fn (SkYayasanRequest $request) => (int) $request->employee_id);
 
-        $referenceRequest = $batch->requests->sortBy('id')->first();
         $created = 0;
         $linked = 0;
         $updated = 0;
@@ -2178,6 +2213,7 @@ class SkYayasanController extends Controller
             'created' => $created,
             'linked' => $linked,
             'updated' => $updated,
+            'deleted' => $deleted,
             'total' => $validRows->count(),
         ];
     }

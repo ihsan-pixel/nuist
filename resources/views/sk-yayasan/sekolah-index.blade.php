@@ -117,6 +117,21 @@
         min-width: 130px;
         padding: .45rem .1rem;
     }
+
+    .sky-row-select-col {
+        min-width: 42px;
+        text-align: center;
+        width: 42px;
+    }
+
+    .sky-table-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        justify-content: space-between;
+        margin-bottom: .75rem;
+    }
 </style>
 @endsection
 
@@ -641,10 +656,22 @@
                             </div>
                         </div>
 
+                        <div class="sky-table-actions">
+                            <div class="text-muted small">
+                                Pilih satu atau beberapa baris untuk dihapus dari batch ini sebelum disimpan.
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-delete-selected-rows>
+                                Hapus Baris Terpilih
+                            </button>
+                        </div>
+
                         <div class="sky-modal-table-wrap">
                             <table class="table table-sm align-middle sky-compact-table mb-0">
                                 <thead>
                                     <tr>
+                                        <th class="sky-row-select-col">
+                                            <input type="checkbox" class="form-check-input" data-select-all-rows>
+                                        </th>
                                         @foreach($importPreviewColumns as $column)
                                             <th>{{ $column }}</th>
                                         @endforeach
@@ -659,6 +686,9 @@
                                             $rowErrorFields = $resolveImportErrorFields($row);
                                         @endphp
                                         <tr>
+                                            <td class="sky-row-select-col">
+                                                <input type="checkbox" class="form-check-input" data-row-select>
+                                            </td>
                                             @foreach($importPreviewColumns as $column)
                                                 @php
                                                     $field = $importPreviewFieldMap[$column] ?? null;
@@ -845,6 +875,59 @@
         $(document).on('click', '.sky-admin-import-modal', function (event) {
             if (event.target === this) {
                 window.skyCloseModal(this);
+            }
+        });
+
+        $(document).on('change', '[data-select-all-rows]', function () {
+            const $table = $(this).closest('table');
+            const isChecked = $(this).is(':checked');
+
+            $table.find('[data-row-select]').prop('checked', isChecked);
+        });
+
+        $(document).on('change', '[data-row-select]', function () {
+            const $table = $(this).closest('table');
+            const totalRows = $table.find('[data-row-select]').length;
+            const checkedRows = $table.find('[data-row-select]:checked').length;
+            const selectAll = $table.find('[data-select-all-rows]').get(0);
+
+            if (!selectAll) {
+                return;
+            }
+
+            selectAll.checked = totalRows > 0 && checkedRows === totalRows;
+            selectAll.indeterminate = checkedRows > 0 && checkedRows < totalRows;
+        });
+
+        $(document).on('click', '[data-delete-selected-rows]', function () {
+            const $modal = $(this).closest('.modal-content');
+            const $table = $modal.find('table').first();
+            const $selectedRows = $table.find('[data-row-select]:checked');
+            const totalRows = $table.find('[data-row-select]').length;
+
+            if ($selectedRows.length === 0) {
+                alert('Pilih minimal satu baris yang ingin dihapus.');
+                return;
+            }
+
+            if ($selectedRows.length === totalRows) {
+                alert('Minimal satu baris harus tetap tersisa di dalam batch.');
+                return;
+            }
+
+            if (!confirm('Hapus semua baris yang dipilih dari batch ini?')) {
+                return;
+            }
+
+            $selectedRows.each(function () {
+                $(this).closest('tr').remove();
+            });
+
+            const selectAll = $table.find('[data-select-all-rows]').get(0);
+
+            if (selectAll) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
             }
         });
 

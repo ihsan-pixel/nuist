@@ -441,6 +441,21 @@
         margin-top: .2rem;
     }
 
+    .sky-row-select-col {
+        min-width: 42px;
+        text-align: center;
+        width: 42px;
+    }
+
+    .sky-table-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        justify-content: space-between;
+        margin-bottom: .75rem;
+    }
+
     .sky-section-divider {
         border-top: 1px solid var(--sky-line);
         margin: 1.5rem 0;
@@ -1178,10 +1193,21 @@
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="action" value="save" data-sync-action>
+                            <div class="sky-table-actions">
+                                <div class="text-muted small">
+                                    Pilih satu atau beberapa baris untuk dihapus dari batch ini sebelum disimpan.
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-delete-selected-rows>
+                                    Hapus Baris Terpilih
+                                </button>
+                            </div>
                             <div class="sky-modal-table-wrap">
                                 <table class="table table-sm align-middle sky-compact-table mb-0">
                                     <thead>
                                         <tr>
+                                            <th class="sky-row-select-col">
+                                                <input type="checkbox" class="form-check-input" data-select-all-rows>
+                                            </th>
                                             @foreach($importPreviewColumns as $column)
                                                 <th>{{ $column }}</th>
                                             @endforeach
@@ -1196,6 +1222,9 @@
                                                 $rowErrorFields = $resolveImportErrorFields($row);
                                             @endphp
                                             <tr>
+                                                <td class="sky-row-select-col">
+                                                    <input type="checkbox" class="form-check-input" data-row-select>
+                                                </td>
                                                 <input type="hidden" name="rows[{{ $loop->index }}][row_number]" value="{{ $row->row_number }}">
                                                 @foreach($importPreviewColumns as $column)
                                                     @php
@@ -1344,4 +1373,90 @@
         </div>
     @endforeach
 </div>
+@endsection
+
+@section('script')
+<script>
+    document.addEventListener('change', function (event) {
+        if (event.target.matches('[data-select-all-rows]')) {
+            const table = event.target.closest('table');
+
+            if (!table) {
+                return;
+            }
+
+            table.querySelectorAll('[data-row-select]').forEach(function (checkbox) {
+                checkbox.checked = event.target.checked;
+            });
+        }
+
+        if (event.target.matches('[data-row-select]')) {
+            const table = event.target.closest('table');
+
+            if (!table) {
+                return;
+            }
+
+            const rowCheckboxes = Array.from(table.querySelectorAll('[data-row-select]'));
+            const checkedCount = rowCheckboxes.filter(function (checkbox) {
+                return checkbox.checked;
+            }).length;
+            const selectAllCheckbox = table.querySelector('[data-select-all-rows]');
+
+            if (!selectAllCheckbox) {
+                return;
+            }
+
+            selectAllCheckbox.checked = rowCheckboxes.length > 0 && checkedCount === rowCheckboxes.length;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        const deleteButton = event.target.closest('[data-delete-selected-rows]');
+
+        if (!deleteButton) {
+            return;
+        }
+
+        const modalContent = deleteButton.closest('.modal-content');
+        const table = modalContent ? modalContent.querySelector('table') : null;
+
+        if (!table) {
+            return;
+        }
+
+        const selectedRows = Array.from(table.querySelectorAll('[data-row-select]:checked'));
+        const totalRows = table.querySelectorAll('[data-row-select]').length;
+
+        if (selectedRows.length === 0) {
+            alert('Pilih minimal satu baris yang ingin dihapus.');
+            return;
+        }
+
+        if (selectedRows.length === totalRows) {
+            alert('Minimal satu baris harus tetap tersisa di dalam batch.');
+            return;
+        }
+
+        if (!window.confirm('Hapus semua baris yang dipilih dari batch ini?')) {
+            return;
+        }
+
+        selectedRows.forEach(function (checkbox) {
+            const row = checkbox.closest('tr');
+
+            if (row) {
+                row.remove();
+            }
+        });
+
+        const selectAllCheckbox = table.querySelector('[data-select-all-rows]');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
+    });
+</script>
 @endsection
