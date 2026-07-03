@@ -250,9 +250,24 @@ class PresensiAdminController extends Controller
                     ];
                 }
 
+                $presensiCollection = collect($presensiData);
+                $obligatedCount = $presensiCollection->reject(function ($item) {
+                    return $item['status'] === 'tidak_wajib_presensi';
+                })->count();
+                $presentCount = $presensiCollection->filter(function ($item) {
+                    return in_array($item['status'], ['hadir', 'terlambat'], true);
+                })->count();
+                $notRequiredCount = $presensiCollection->where('status', 'tidak_wajib_presensi')->count();
+
                 $madrasahData[] = [
                     'madrasah' => $madrasah,
                     'presensi' => $presensiData,
+                    'obligated_count' => $obligatedCount,
+                    'present_count' => $presentCount,
+                    'not_required_count' => $notRequiredCount,
+                    'attendance_percentage' => $obligatedCount > 0
+                        ? round(($presentCount / $obligatedCount) * 100)
+                        : 0,
                 ];
             }
             }
@@ -346,9 +361,24 @@ class PresensiAdminController extends Controller
                     ];
                 }
 
+                $presensiCollection = collect($presensiData);
+                $obligatedCount = $presensiCollection->reject(function ($item) {
+                    return $item['status'] === 'tidak_wajib_presensi';
+                })->count();
+                $presentCount = $presensiCollection->filter(function ($item) {
+                    return in_array($item['status'], ['hadir', 'terlambat'], true);
+                })->count();
+                $notRequiredCount = $presensiCollection->where('status', 'tidak_wajib_presensi')->count();
+
                 $madrasahData[] = [
                     'madrasah' => $madrasah,
                     'presensi' => $presensiData,
+                    'obligated_count' => $obligatedCount,
+                    'present_count' => $presentCount,
+                    'not_required_count' => $notRequiredCount,
+                    'attendance_percentage' => $obligatedCount > 0
+                        ? round(($presentCount / $obligatedCount) * 100)
+                        : 0,
                 ];
             }
             }

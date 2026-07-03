@@ -1379,17 +1379,26 @@
                                     </td>
                                     <td>
                                         <span class="count-pill">{{ count($data['presensi']) }} orang</span>
+                                        @if(($data['not_required_count'] ?? 0) > 0)
+                                            <div class="kabupaten-info mt-1">{{ $data['not_required_count'] }} tidak bertugas</div>
+                                        @endif
                                     </td>
                                     <td>
                                         @php
-                                            $hadir = collect($data['presensi'])->where('status', 'hadir')->count();
-                                            $total = count($data['presensi']);
-                                            $persentase = $total > 0 ? round(($hadir / $total) * 100) : 0;
+                                            $hadir = $data['present_count'] ?? 0;
+                                            $total = $data['obligated_count'] ?? 0;
+                                            $persentase = $data['attendance_percentage'] ?? 0;
                                             $attendanceClass = $persentase >= 80 ? 'attendance-pill-good' : ($persentase >= 50 ? 'attendance-pill-medium' : 'attendance-pill-low');
                                         @endphp
-                                        <span class="attendance-pill {{ $attendanceClass }}">
-                                            {{ $hadir }}/{{ $total }} hadir ({{ $persentase }}%)
-                                        </span>
+                                        @if($total > 0)
+                                            <span class="attendance-pill {{ $attendanceClass }}">
+                                                {{ $hadir }}/{{ $total }} presensi ({{ $persentase }}%)
+                                            </span>
+                                        @else
+                                            <span class="attendance-pill attendance-pill-medium">
+                                                Tidak ada guru bertugas
+                                            </span>
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2 flex-wrap action-cluster">
