@@ -12,6 +12,7 @@ use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\User;
+use App\Services\AttendanceObligationService;
 use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -20,6 +21,10 @@ use Illuminate\Support\Facades\DB;
 
 class DpsController extends Controller
 {
+    public function __construct(private AttendanceObligationService $attendanceObligationService)
+    {
+    }
+
     private function ensureRole(): User
     {
         $user = Auth::user();
@@ -236,6 +241,10 @@ class DpsController extends Controller
             $alpha = 0;
 
             foreach ($workingDates as $dateStr) {
+                if (!$this->attendanceObligationService->hasAttendanceObligation($t, $dateStr)) {
+                    continue;
+                }
+
                 $r = $byDate->get($dateStr);
                 if (!$r) {
                     if (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($t, Carbon::parse($dateStr))) {
@@ -269,6 +278,16 @@ class DpsController extends Controller
                 'persentase_hadir' => $persentase,
             ];
         }
+
+        $totalWorkingDays = collect($workingDates)->filter(function ($dateStr) use ($teachers) {
+            foreach ($teachers as $teacher) {
+                if ($this->attendanceObligationService->hasAttendanceObligation($teacher, $dateStr)) {
+                    return true;
+                }
+            }
+
+            return false;
+        })->count();
 
         $totalHadir = array_sum(array_column($teacherRows, 'hadir'));
         $totalIzin = array_sum(array_column($teacherRows, 'izin'));

@@ -14,6 +14,7 @@ use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
 use App\Models\User;
 use App\Services\AcademicCalendarEventService;
+use App\Services\AttendanceObligationService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\FcmPushService;
 use App\Services\ExternalTeachingPermissionService;
@@ -41,6 +42,7 @@ class TeacherAppController extends Controller
     public function __construct(
         private AcademicCalendarEventService $academicCalendarEventService,
         private PicketScheduleApprovalService $picketScheduleApprovalService,
+        private AttendanceObligationService $attendanceObligationService,
     )
     {
     }
@@ -1975,7 +1977,6 @@ class TeacherAppController extends Controller
         $monthStart = $today->copy()->startOfMonth();
         $monthEnd = $today->copy()->endOfMonth();
         $effectiveEnd = $today->copy()->min($monthEnd);
-        $hariKbm = (string) ($user->madrasah?->hari_kbm ?? '6');
         $recordsByDate = collect($items)->groupBy(fn ($item) => $item->tanggal->toDateString());
         $workingDays = 0;
         $presentCount = 0;
@@ -1983,7 +1984,7 @@ class TeacherAppController extends Controller
         $alphaCount = 0;
 
         foreach (CarbonPeriod::create($monthStart, $effectiveEnd) as $date) {
-            if (!$this->isReportWorkingDay($date, $hariKbm)) {
+            if (!$this->attendanceObligationService->hasAttendanceObligation($user, $date)) {
                 continue;
             }
 
@@ -2009,10 +2010,10 @@ class TeacherAppController extends Controller
             'izin_count' => $izinCount,
             'alpha_count' => $alphaCount,
             'working_days' => $workingDays,
-            'hari_kbm' => (int) $hariKbm,
+            'hari_kbm' => (int) ($user->madrasah?->hari_kbm ?? '6'),
             'attendance_basis_label' => $workingDays > 0
-                ? 'Dihitung dari ' . $workingDays . ' hari kerja bulan ini • KBM ' . $hariKbm . ' hari'
-                : 'Belum ada hari kerja bulan ini • KBM ' . $hariKbm . ' hari',
+                ? 'Dihitung dari ' . $workingDays . ' hari kerja bulan ini • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari'
+                : 'Belum ada hari kerja bulan ini • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari',
         ];
     }
 
@@ -3254,7 +3255,7 @@ class TeacherAppController extends Controller
         $totalIzinApproved = 0;
 
         foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
-            if (!$this->isReportWorkingDay($date, $teacher->madrasah?->hari_kbm)) {
+            if (!$this->attendanceObligationService->hasAttendanceObligation($teacher, $date)) {
                 continue;
             }
 

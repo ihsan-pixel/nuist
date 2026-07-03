@@ -11,11 +11,16 @@ use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
 use App\Models\AppSetting;
 use App\Models\Holiday;
+use App\Services\AttendanceObligationService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class DashboardController extends \App\Http\Controllers\Controller
 {
+    public function __construct(private AttendanceObligationService $attendanceObligationService)
+    {
+    }
+
     private function calculateMonthlyAttendanceStats(User $user, int $currentYear, int $currentMonth): array
     {
         ApprovedIzinSyncService::syncApprovedIzinPresensiInRange(
@@ -23,16 +28,6 @@ class DashboardController extends \App\Http\Controllers\Controller
             Carbon::create($currentYear, $currentMonth, 1)->startOfMonth(),
             Carbon::create($currentYear, $currentMonth, 1)->endOfMonth()
         );
-
-        $hariKbm = $user->madrasah->hari_kbm ?? 6;
-        $monthlyHolidays = Holiday::whereYear('date', $currentYear)
-            ->whereMonth('date', $currentMonth)
-            ->where('is_active', true)
-            ->pluck('date')
-            ->map(function ($date) {
-                return $date->toDateString();
-            })
-            ->toArray();
 
         $monthlyPresensi = Presensi::where('user_id', $user->id)
             ->whereYear('tanggal', $currentYear)
@@ -53,30 +48,22 @@ class DashboardController extends \App\Http\Controllers\Controller
         for ($day = 1; $day <= $lastDayToCount; $day++) {
             $date = Carbon::create($currentYear, $currentMonth, $day);
             $dateKey = $date->toDateString();
-            $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
-            $isWorkingDay = true;
-
-            if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
-                $isWorkingDay = false;
-            } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
-                $isWorkingDay = false;
-            }
-
-            $isHoliday = in_array($dateKey, $monthlyHolidays);
             $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
 
-            if ($isWorkingDay && !$isHoliday) {
-                $workingDays++;
+            if (!$this->attendanceObligationService->hasAttendanceObligation($user, $date)) {
+                continue;
+            }
 
-                if ($presensiStatus === 'hadir') {
-                    $hadir++;
-                } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
-                    $izin++;
-                } elseif (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $date)) {
-                    $izin++;
-                } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today))) {
-                    $alpha++;
-                }
+            $workingDays++;
+
+            if ($presensiStatus === 'hadir') {
+                $hadir++;
+            } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
+                $izin++;
+            } elseif (ExternalTeachingPermissionService::hasApprovedNoPresenceDay($user, $date)) {
+                $izin++;
+            } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today))) {
+                $alpha++;
             }
         }
 

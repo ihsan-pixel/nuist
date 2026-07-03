@@ -2,16 +2,21 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Holiday;
 use App\Models\Presensi;
 use App\Models\PresensiSettings;
 use App\Models\User;
+use App\Services\AttendanceObligationService;
 use App\Services\ExternalTeachingPermissionService;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
 class AutoInsertAbsence extends Command
 {
+    public function __construct(private AttendanceObligationService $attendanceObligationService)
+    {
+        parent::__construct();
+    }
+
     /**
      * The name and signature of the console command.
      *
@@ -35,19 +40,6 @@ class AutoInsertAbsence extends Command
 
         $this->info("Processing absences for date: {$date}");
 
-        // Skip if it's a holiday
-        if (Holiday::isHoliday($date)) {
-            $holiday = Holiday::getHoliday($date);
-            $this->info("Skipping holiday: {$holiday->name}");
-            return;
-        }
-
-        // Skip if it's Sunday (day 0 in Carbon)
-        if (Carbon::parse($date)->dayOfWeek === Carbon::SUNDAY) {
-            $this->info("Skipping Sunday");
-            return;
-        }
-
         // Get presensi settings
         $settings = PresensiSettings::first();
         $waktuAkhirPulang = $settings ? Carbon::parse($settings->waktu_akhir_presensi_pulang) : Carbon::parse('15:00');
@@ -66,22 +58,12 @@ class AutoInsertAbsence extends Command
         $externalTeachingCount = 0;
 
         foreach ($tenagaPendidikUsers as $user) {
-            // Determine if this date is a working day based on madrasah hari_kbm
-            $hariKbm = $user->madrasah ? $user->madrasah->hari_kbm : '5'; // Default to 5 if not set
-            $dayOfWeek = Carbon::parse($date)->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
-
-            $isWorkingDay = false;
-            if ($hariKbm == '5') {
-                // 5 hari KBM: Monday to Friday (1-5)
-                $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5]);
-            } elseif ($hariKbm == '6') {
-                // 6 hari KBM: Monday to Saturday (1-6)
-                $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5, 6]);
-            }
-
-            // Skip if not a working day for this user's madrasah
-            if (!$isWorkingDay) {
-                $this->line("Skipping non-working day for: {$user->name} (hari_kbm: {$hariKbm})");
+            $obligationStatus = $this->attendanceObligationService->statusForDate($user, $date);
+            if (!$this->attendanceObligationService->hasAttendanceObligation($user, $date)) {
+                $reason = $obligationStatus === AttendanceObligationService::STATUS_NOT_REQUIRED_PICKET_PERIOD
+                    ? 'di luar jadwal piket'
+                    : 'bukan hari wajib presensi';
+                $this->line("Skipping {$reason} for: {$user->name}");
                 continue;
             }
 

@@ -15,10 +15,15 @@ use App\Models\Presensi;
 use App\Models\Holiday;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingSchedule;
+use App\Services\AttendanceObligationService;
 use App\Services\ExternalTeachingPermissionService;
 
 class SekolahController extends \App\Http\Controllers\Controller
 {
+    public function __construct(private AttendanceObligationService $attendanceObligationService)
+    {
+    }
+
     /**
      * Get jumlah siswa from data_sekolah based on latest year
      */
@@ -363,32 +368,26 @@ class SekolahController extends \App\Http\Controllers\Controller
         $currentDate = $startOfMonth->copy();
 
         while ($currentDate <= $endOfMonth) {
-            $dayOfWeek = $currentDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
             $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
 
-            // Check if it's a working day based on hari_kbm
-            $isWorkingDay = false;
-            if ($hariKbm == 5) {
-                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5); // Monday to Friday
-            } elseif ($hariKbm == 6) {
-                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6); // Monday to Saturday
-            }
-
             $dayName = $currentDate->locale('id')->isoFormat('dddd');
+            $teachersWithObligation = $tenagaPendidik->filter(
+                fn (User $guru) => $this->attendanceObligationService->hasAttendanceObligation($guru, $currentDate)
+            );
 
             $dayData = [
                 'date' => $currentDate->toDateString(),
                 'day_name' => $dayName,
                 'is_holiday' => $isHoliday,
-                'is_working_day' => $isWorkingDay && !$isHoliday,
+                'is_working_day' => $teachersWithObligation->isNotEmpty(),
                 'hadir' => 0,
                 'izin' => 0,
                 'alpha' => 0
             ];
 
-            if ($isWorkingDay && !$isHoliday) {
+            if ($teachersWithObligation->isNotEmpty()) {
                 $totalWorkingDays++;
-                foreach ($tenagaPendidik as $guru) {
+                foreach ($teachersWithObligation as $guru) {
                     $presensi = Presensi::where('user_id', $guru->id)
                         ->whereDate('tanggal', $currentDate)
                         ->first();

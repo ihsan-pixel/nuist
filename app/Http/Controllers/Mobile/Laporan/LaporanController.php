@@ -13,13 +13,17 @@ use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\User;
 use App\Services\AcademicCalendarEventService;
+use App\Services\AttendanceObligationService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends \App\Http\Controllers\Controller
 {
-    public function __construct(private AcademicCalendarEventService $academicCalendarEventService)
+    public function __construct(
+        private AcademicCalendarEventService $academicCalendarEventService,
+        private AttendanceObligationService $attendanceObligationService,
+    )
     {
     }
 
@@ -363,7 +367,13 @@ class LaporanController extends \App\Http\Controllers\Controller
         ];
 
         foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
-            if (!$this->isWorkingDay($date, $hariKbm)) {
+            $obligationStatus = $summaryUser
+                ? $this->attendanceObligationService->statusForDate($summaryUser, $date)
+                : ($this->isWorkingDay($date, $hariKbm)
+                    ? AttendanceObligationService::STATUS_REQUIRED
+                    : AttendanceObligationService::STATUS_OFF);
+
+            if ($obligationStatus === AttendanceObligationService::STATUS_OFF) {
                 continue;
             }
 
@@ -387,12 +397,27 @@ class LaporanController extends \App\Http\Controllers\Controller
                 ? ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI
                 : $records->pluck('keterangan')->filter()->implode(' | ');
 
+            if ($obligationStatus === AttendanceObligationService::STATUS_NOT_REQUIRED_PICKET_PERIOD) {
+                $details->push([
+                    'tanggal' => $date->copy(),
+                    'hari' => $date->locale('id')->dayName,
+                    'status' => 'Di luar jadwal piket',
+                    'is_hadir' => false,
+                    'is_izin' => false,
+                    'is_excluded' => true,
+                    'keterangan' => AttendanceObligationService::NOTE_NOT_REQUIRED_PICKET_PERIOD,
+                ]);
+
+                continue;
+            }
+
             $details->push([
                 'tanggal' => $date->copy(),
                 'hari' => $date->locale('id')->dayName,
                 'status' => $statusLabel,
                 'is_hadir' => $isHadir,
                 'is_izin' => $isIzinApproved || (bool) $externalTeachingIzin,
+                'is_excluded' => false,
                 'keterangan' => $keterangan,
             ]);
 

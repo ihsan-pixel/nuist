@@ -14,13 +14,17 @@ use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
 use App\Services\ApprovedIzinSyncService;
+use App\Services\AttendanceObligationService;
 use App\Services\ExternalTeachingPermissionService;
 use App\Services\PicketScheduleApprovalService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PresensiController extends \App\Http\Controllers\Controller
 {
-    public function __construct(private PicketScheduleApprovalService $picketScheduleApprovalService)
+    public function __construct(
+        private PicketScheduleApprovalService $picketScheduleApprovalService,
+        private AttendanceObligationService $attendanceObligationService,
+    )
     {
         $this->middleware(['web', 'auth']);
     }
@@ -68,7 +72,10 @@ class PresensiController extends \App\Http\Controllers\Controller
                     $q->whereDate('tanggal', $selectedDate);
                 })
                 ->get()
-                ->reject(fn ($teacher) => ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate))
+                ->reject(function ($teacher) use ($selectedDate) {
+                    return ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate)
+                        || !$this->attendanceObligationService->hasAttendanceObligation($teacher, $selectedDate);
+                })
                 ->values();
 
             // Prepare map data
@@ -801,7 +808,9 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereYear('tanggal', $selectedMonth->year)
             ->whereMonth('tanggal', $selectedMonth->month)
             ->orderBy('tanggal', 'desc')
-            ->get();
+            ->get()
+            ->reject(fn (Presensi $presensi) => $this->attendanceObligationService->isExcludedByApprovedPicketPeriod($user, $presensi->tanggal))
+            ->values();
 
         return view('mobile.riwayat-presensi-alpha', compact('presensiHistory'));
     }
@@ -1369,7 +1378,13 @@ class PresensiController extends \App\Http\Controllers\Controller
         $totalIzinApproved = 0;
 
         foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
-            if (!$this->isWorkingDay($date, $hariKbm)) {
+            $obligationStatus = $summaryUser
+                ? $this->attendanceObligationService->statusForDate($summaryUser, $date)
+                : ($this->isWorkingDay($date, $hariKbm)
+                    ? AttendanceObligationService::STATUS_REQUIRED
+                    : AttendanceObligationService::STATUS_OFF);
+
+            if ($obligationStatus === AttendanceObligationService::STATUS_OFF) {
                 continue;
             }
 
@@ -1390,6 +1405,18 @@ class PresensiController extends \App\Http\Controllers\Controller
                     ? 'Izin Disetujui'
                     : ($izinRecords->isNotEmpty() ? 'Izin Belum Disetujui' : ($alphaRecords->isNotEmpty() ? 'Alpha' : 'Belum Presensi')));
 
+            if ($obligationStatus === AttendanceObligationService::STATUS_NOT_REQUIRED_PICKET_PERIOD) {
+                $details->push([
+                    'tanggal' => $date->copy(),
+                    'hari' => ucfirst($date->locale('id')->dayName),
+                    'status' => 'Di luar jadwal piket',
+                    'keterangan' => AttendanceObligationService::NOTE_NOT_REQUIRED_PICKET_PERIOD,
+                    'is_excluded' => true,
+                ]);
+
+                continue;
+            }
+
             $details->push([
                 'tanggal' => $date->copy(),
                 'hari' => ucfirst($date->locale('id')->dayName),
@@ -1397,6 +1424,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'keterangan' => $externalTeachingIzin
                     ? ExternalTeachingPermissionService::KETERANGAN_TIDAK_PRESENSI
                     : $records->pluck('keterangan')->filter()->implode(' | '),
+                'is_excluded' => false,
             ]);
 
             $totalHariKerja++;

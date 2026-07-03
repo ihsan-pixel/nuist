@@ -9,12 +9,16 @@ use App\Models\Presensi;
 use App\Models\User;
 use App\Models\TeachingSchedule;
 use App\Services\AcademicCalendarEventService;
+use App\Services\AttendanceObligationService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class MonitoringController extends \App\Http\Controllers\Controller
 {
-    public function __construct(private AcademicCalendarEventService $academicCalendarEventService)
+    public function __construct(
+        private AcademicCalendarEventService $academicCalendarEventService,
+        private AttendanceObligationService $attendanceObligationService,
+    )
     {
     }
 
@@ -41,11 +45,16 @@ class MonitoringController extends \App\Http\Controllers\Controller
             ->paginate(15, ['*'], 'presensi_page')
             ->withQueryString();
 
-        $belumPresensi = User::where('role', 'tenaga_pendidik')
+        $belumPresensiIds = User::where('role', 'tenaga_pendidik')
             ->where('madrasah_id', $user->madrasah_id)
             ->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
                 $q->whereDate('tanggal', $selectedDate);
             })
+            ->get()
+            ->filter(fn (User $teacher) => $this->attendanceObligationService->hasAttendanceObligation($teacher, $selectedDate))
+            ->pluck('id');
+
+        $belumPresensi = User::whereIn('id', $belumPresensiIds)
             ->paginate(15, ['*'], 'belum_page')
             ->withQueryString();
 
@@ -127,7 +136,9 @@ class MonitoringController extends \App\Http\Controllers\Controller
             ->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
                 $q->whereDate('tanggal', $selectedDate);
             })
-            ->get();
+            ->get()
+            ->filter(fn (User $teacher) => $this->attendanceObligationService->hasAttendanceObligation($teacher, $selectedDate))
+            ->values();
 
         // Prepare map data
         $madrasahLat = $user->madrasah->latitude ?? -6.2088; // Default Jakarta coordinates

@@ -256,6 +256,11 @@
             color: #9a6700;
         }
 
+        .status-excluded {
+            background: rgba(108, 117, 125, 0.14);
+            color: #495057;
+        }
+
         .empty-state {
             text-align: center;
             color: #6c757d;
@@ -512,7 +517,7 @@
                                     <div class="text-muted mt-1" style="font-size: 11px;">{{ $item['keterangan'] }}</div>
                                 @endif
                             </div>
-                            <span class="status-chip {{ $item['is_hadir'] ? 'status-hadir' : ($item['is_izin'] ? 'status-izin' : 'status-nonhadir') }}">
+                            <span class="status-chip {{ ($item['is_excluded'] ?? false) ? 'status-excluded' : ($item['is_hadir'] ? 'status-hadir' : ($item['is_izin'] ? 'status-izin' : 'status-nonhadir')) }}">
                                 {{ $item['status'] }}
                             </span>
                         </div>
