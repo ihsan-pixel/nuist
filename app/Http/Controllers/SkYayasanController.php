@@ -1722,6 +1722,18 @@ class SkYayasanController extends Controller
                 ->groupBy('batch_id')
                 ->pluck('total', 'batch_id');
 
+        $rejectedRequestCountsBySchool = SkYayasanRequest::query()
+            ->where('current_status', 'rejected')
+            ->selectRaw('madrasah_id, COUNT(*) as total')
+            ->groupBy('madrasah_id')
+            ->pluck('total', 'madrasah_id');
+
+        $rejectedBatchCountsBySchool = SkYayasanImportBatch::query()
+            ->where('status', 'rejected')
+            ->selectRaw('madrasah_id, COUNT(*) as total')
+            ->groupBy('madrasah_id')
+            ->pluck('total', 'madrasah_id');
+
         $schoolSummaries = $schools->mapWithKeys(function (Madrasah $school) use ($keteranganOptions) {
             $keteranganCounts = [];
 
@@ -1740,6 +1752,8 @@ class SkYayasanController extends Controller
                     'latest_batch_status' => null,
                     'latest_batch_uploaded_at' => null,
                     'latest_batch_unmatched_count' => 0,
+                    'rejected_requests_count' => 0,
+                    'rejected_batch_count' => 0,
                     'keterangan_counts' => $keteranganCounts,
                 ],
             ];
@@ -1784,9 +1798,16 @@ class SkYayasanController extends Controller
             $summary['latest_batch_status'] = $latestBatch?->status;
             $summary['latest_batch_uploaded_at'] = $latestBatch?->uploaded_at;
             $summary['latest_batch_unmatched_count'] = (int) ($latestBatch ? ($latestBatchUnmatchedCounts->get($latestBatch->id) ?? 0) : 0);
-            $summary['submission_status_label'] = ($summary['total_requests'] > 0 || $summary['active_batch_count'] > 0)
-                ? 'Sudah Mengajukan'
-                : 'Belum Mengajukan';
+            $summary['rejected_requests_count'] = (int) ($rejectedRequestCountsBySchool->get((int) $schoolId) ?? 0);
+            $summary['rejected_batch_count'] = (int) ($rejectedBatchCountsBySchool->get((int) $schoolId) ?? 0);
+
+            if ($summary['total_requests'] > 0 || $summary['active_batch_count'] > 0) {
+                $summary['submission_status_label'] = 'Sudah Mengajukan';
+            } elseif ($summary['rejected_requests_count'] > 0 || $summary['rejected_batch_count'] > 0) {
+                $summary['submission_status_label'] = 'Ditolak';
+            } else {
+                $summary['submission_status_label'] = 'Belum Mengajukan';
+            }
 
             $schoolSummaries[$schoolId] = $summary;
         }
@@ -1807,6 +1828,8 @@ class SkYayasanController extends Controller
             'Status Batch Terakhir',
             'Upload Batch Terakhir',
             'Jumlah Pengajuan Belum Memiliki Akun NUist',
+            'Jumlah Pengajuan Ditolak',
+            'Jumlah Batch Ditolak',
         ], $this->summaryKeteranganHeadings($overallKeteranganCounts));
 
         $exportRows = $rows->values()->map(function (array $row, int $index) use ($overallKeteranganCounts) {
@@ -1821,6 +1844,8 @@ class SkYayasanController extends Controller
                 $this->formatImportBatchStatusLabel($row['latest_batch_status']),
                 optional($row['latest_batch_uploaded_at'])->format('d/m/Y H:i') ?: '-',
                 $row['latest_batch_unmatched_count'],
+                $row['rejected_requests_count'],
+                $row['rejected_batch_count'],
             ];
 
             $keteranganColumns = collect(array_keys($overallKeteranganCounts))

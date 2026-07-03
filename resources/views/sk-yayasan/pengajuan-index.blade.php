@@ -931,16 +931,20 @@
                             <th>Pengajuan</th>
                             <th>Batch Aktif</th>
                             <th>Batch Terakhir</th>
+                            <th>Ditolak</th>
                             <th>Belum Match</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($schoolSubmissionSummaryRows as $row)
                             @php
-                                $schoolStatusBadge = $row['submission_status_label'] === 'Sudah Mengajukan'
-                                    ? ['color' => 'success', 'label' => 'Sudah Mengajukan']
-                                    : ['color' => 'secondary', 'label' => 'Belum Mengajukan'];
+                                $schoolStatusBadge = match ($row['submission_status_label']) {
+                                    'Sudah Mengajukan' => ['color' => 'success', 'label' => 'Sudah Mengajukan'],
+                                    'Ditolak' => ['color' => 'danger', 'label' => 'Ditolak'],
+                                    default => ['color' => 'secondary', 'label' => 'Belum Mengajukan'],
+                                };
                                 $latestBatchBadge = $batchStatusBadgeMap[$row['latest_batch_status'] ?? ''] ?? ['color' => 'secondary', 'label' => 'Belum ada batch'];
+                                $hasRejectedHistory = ($row['rejected_requests_count'] ?? 0) > 0 || ($row['rejected_batch_count'] ?? 0) > 0;
                             @endphp
                             <tr>
                                 <td>{{ $row['scod'] ?: '-' }}</td>
@@ -950,6 +954,9 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-{{ $schoolStatusBadge['color'] }}-subtle text-{{ $schoolStatusBadge['color'] }}">{{ $schoolStatusBadge['label'] }}</span>
+                                    @if($hasRejectedHistory && $row['submission_status_label'] !== 'Ditolak')
+                                        <span class="badge bg-danger-subtle text-danger mt-1">Ada Riwayat Ditolak</span>
+                                    @endif
                                 </td>
                                 <td>{{ number_format($row['total_requests']) }}</td>
                                 <td>{{ number_format($row['active_batch_count']) }}</td>
@@ -957,11 +964,15 @@
                                     <span class="badge bg-{{ $latestBatchBadge['color'] }}-subtle text-{{ $latestBatchBadge['color'] }}">{{ $latestBatchBadge['label'] }}</span>
                                     <span class="sky-data-secondary">{{ optional($row['latest_batch_uploaded_at'])->format('d/m/Y H:i') ?: 'Belum ada upload' }}</span>
                                 </td>
+                                <td>
+                                    <span class="sky-data-primary">{{ number_format($row['rejected_requests_count'] ?? 0) }} pengajuan</span>
+                                    <span class="sky-data-secondary">{{ number_format($row['rejected_batch_count'] ?? 0) }} batch ditolak</span>
+                                </td>
                                 <td>{{ number_format($row['latest_batch_unmatched_count']) }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="sky-empty-state py-4">
                                         <i class="bx bx-buildings"></i>
                                         <strong>Belum ada data sekolah</strong>
