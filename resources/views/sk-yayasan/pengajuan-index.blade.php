@@ -282,6 +282,11 @@
         padding: .8rem .85rem;
     }
 
+    .sky-keterangan-card .sky-summary-label {
+        font-size: .68rem;
+        letter-spacing: .03em;
+    }
+
     .sky-keterangan-value {
         color: var(--sky-brand-dark);
         font-size: 1.1rem;
