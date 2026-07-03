@@ -1000,6 +1000,7 @@ class SkYayasanController extends Controller
     public function generateIndex(Request $request): View
     {
         $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests();
 
         $globalSkSettings = $this->getGlobalSkSettings();
 
@@ -1071,6 +1072,7 @@ class SkYayasanController extends Controller
     public function generateSchoolIndex(Madrasah $madrasah): View
     {
         $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests((int) $madrasah->id);
 
         $syncedQueueRequests = $this->syncedGenerateQueueRequestsConstraint();
         $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
@@ -2153,6 +2155,33 @@ class SkYayasanController extends Controller
             'updated' => $updated,
             'total' => $validRows->count(),
         ];
+    }
+
+    private function repairSyncedBatchesRequests(?int $madrasahId = null): void
+    {
+        $batches = SkYayasanImportBatch::query()
+            ->with(['rows', 'requests'])
+            ->where('status', 'synced')
+            ->when($madrasahId !== null, fn (Builder $query) => $query->where('madrasah_id', $madrasahId))
+            ->orderByDesc('synced_at')
+            ->get();
+
+        foreach ($batches as $batch) {
+            $expectedRequestCount = $batch->rows
+                ->filter(fn (SkYayasanImportRow $row) => $row->is_valid && $row->matched_user_id)
+                ->unique(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id)
+                ->count();
+
+            if ($expectedRequestCount === 0) {
+                continue;
+            }
+
+            if ($batch->requests->count() >= $expectedRequestCount) {
+                continue;
+            }
+
+            $this->synchronizeBatchRequestsFromRows($batch);
+        }
     }
 
     private function generateRequestNumber(): string
