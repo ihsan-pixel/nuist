@@ -383,6 +383,15 @@
                                 </thead>
                                 <tbody>
                                     @foreach($syncedImportBatches as $batch)
+                                        @php
+                                            $matchedValidRowsCount = $batch->rows
+                                                ->filter(fn ($row) => $row->is_valid && $row->matched_user_id)
+                                                ->unique('matched_user_id')
+                                                ->count();
+                                            $displaySubmissionCount = $batch->requests_count > 0
+                                                ? $batch->requests_count
+                                                : $matchedValidRowsCount;
+                                        @endphp
                                         <tr>
                                             <td><div class="fw-semibold">{{ $batch->original_filename }}</div></td>
                                             <td>{{ $batch->madrasah?->name ?? '-' }}</td>
@@ -391,7 +400,7 @@
                                                 <small class="text-muted">{{ optional($batch->synced_at)->format('d/m/Y H:i') ?? '-' }}</small>
                                             </td>
                                             <td>
-                                                <div class="small fw-semibold">{{ number_format($batch->requests_count) }} pengajuan</div>
+                                                <div class="small fw-semibold">{{ number_format($displaySubmissionCount) }} pengajuan</div>
                                                 <small class="text-muted">{{ number_format($batch->valid_rows) }} dari {{ number_format($batch->total_rows) }} baris valid</small>
                                             </td>
                                             <td>

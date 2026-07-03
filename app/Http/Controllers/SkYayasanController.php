@@ -587,6 +587,8 @@ class SkYayasanController extends Controller
                 $unchanged++;
             });
 
+            $this->synchronizeBatchRequestsFromRows($batch);
+
             $batch->update([
                 'status' => 'synced',
                 'reviewed_by' => auth()->id(),
@@ -689,6 +691,8 @@ class SkYayasanController extends Controller
 
                     $unchanged++;
                 });
+
+                $this->synchronizeBatchRequestsFromRows($batch);
 
                 $batch->requests()->update([
                     'current_status' => 'submitted',
@@ -2023,6 +2027,132 @@ class SkYayasanController extends Controller
                 'sk_payload' => $row['sk_payload'] ?? [],
             ];
         })->all();
+    }
+
+    private function synchronizeBatchRequestsFromRows(SkYayasanImportBatch $batch): array
+    {
+        $batch->loadMissing(['rows', 'requests']);
+
+        $validRows = $batch->rows
+            ->filter(fn (SkYayasanImportRow $row) => $row->is_valid && $row->matched_user_id)
+            ->unique(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id)
+            ->values();
+
+        if ($validRows->isEmpty()) {
+            return [
+                'created' => 0,
+                'linked' => 0,
+                'updated' => 0,
+                'total' => 0,
+            ];
+        }
+
+        $employeeIds = $validRows->pluck('matched_user_id')
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values();
+
+        $employees = User::query()
+            ->with('statusKepegawaian')
+            ->whereIn('id', $employeeIds)
+            ->get()
+            ->keyBy('id');
+
+        $existingRequests = $batch->requests
+            ->keyBy(fn (SkYayasanRequest $request) => (int) $request->employee_id);
+
+        $orphanRequests = SkYayasanRequest::query()
+            ->where('madrasah_id', (int) $batch->madrasah_id)
+            ->whereNull('import_batch_id')
+            ->whereIn('employee_id', $employeeIds)
+            ->where('current_status', '!=', 'rejected')
+            ->orderBy('submitted_at')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn (SkYayasanRequest $request) => (int) $request->employee_id);
+
+        $referenceRequest = $batch->requests->sortBy('id')->first();
+        $created = 0;
+        $linked = 0;
+        $updated = 0;
+
+        foreach ($validRows as $row) {
+            $employeeId = (int) $row->matched_user_id;
+            $employee = $employees->get($employeeId);
+
+            if (!$employee) {
+                continue;
+            }
+
+            $request = $existingRequests->get($employeeId);
+
+            if (!$request) {
+                $candidateRequests = $orphanRequests->get($employeeId);
+                $orphanRequest = $candidateRequests instanceof Collection ? $candidateRequests->shift() : null;
+
+                if ($orphanRequest) {
+                    $orphanRequest->update([
+                        'import_batch_id' => $batch->id,
+                    ]);
+
+                    $request = $orphanRequest->fresh();
+                    $linked++;
+                } else {
+                    $request = SkYayasanRequest::query()->create([
+                        'madrasah_id' => (int) $batch->madrasah_id,
+                        'import_batch_id' => $batch->id,
+                        'employee_id' => $employeeId,
+                        'submitted_by' => (int) ($batch->uploaded_by ?: auth()->id()),
+                        'request_number' => $this->generateRequestNumber(),
+                        'submission_letter_number' => $referenceRequest?->submission_letter_number,
+                        'submission_letter_date' => $referenceRequest?->submission_letter_date,
+                        'request_type' => 'perpanjangan',
+                        'employment_category' => $employee->statusKepegawaian?->name ?? $employee->ketugasan,
+                        'current_status' => 'submitted',
+                        'submitted_at' => $batch->uploaded_at ?: now(),
+                    ]);
+
+                    $created++;
+                }
+
+                $existingRequests->put($employeeId, $request);
+            }
+
+            $requestUpdate = [];
+            $employmentCategory = $employee->statusKepegawaian?->name ?? $employee->ketugasan;
+
+            if ((int) $request->import_batch_id !== (int) $batch->id) {
+                $requestUpdate['import_batch_id'] = $batch->id;
+            }
+
+            if ((int) $request->madrasah_id !== (int) $batch->madrasah_id) {
+                $requestUpdate['madrasah_id'] = (int) $batch->madrasah_id;
+            }
+
+            if ($employmentCategory && $request->employment_category !== $employmentCategory) {
+                $requestUpdate['employment_category'] = $employmentCategory;
+            }
+
+            if (empty($request->submitted_by) && !empty($batch->uploaded_by)) {
+                $requestUpdate['submitted_by'] = (int) $batch->uploaded_by;
+            }
+
+            if (empty($request->submitted_at) && $batch->uploaded_at) {
+                $requestUpdate['submitted_at'] = $batch->uploaded_at;
+            }
+
+            if (!empty($requestUpdate)) {
+                $request->update($requestUpdate);
+                $updated++;
+            }
+        }
+
+        return [
+            'created' => $created,
+            'linked' => $linked,
+            'updated' => $updated,
+            'total' => $validRows->count(),
+        ];
     }
 
     private function generateRequestNumber(): string
