@@ -2352,7 +2352,7 @@ $(document).ready(function () {
                 break;
             case 'tidak_wajib_presensi':
                 badgeClass = 'bg-secondary';
-                statusText = 'Tidak Wajib Presensi';
+                statusText = 'Tidak Bertugas';
                 iconClass = 'mdi-account-off';
                 break;
         }

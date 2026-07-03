@@ -9,7 +9,7 @@
             <div class="alert alert-info mb-0">
                 <strong>Keterangan rekap:</strong>
                 Perhitungan hadir, izin, dan alpha hanya menggunakan tenaga pendidik yang memang wajib presensi pada tanggal tersebut.
-                Kolom <strong>Tidak Wajib</strong> menunjukkan jumlah tenaga pendidik yang pada tanggal tersebut tidak memiliki kewajiban presensi, termasuk saat berada di luar jadwal piket yang disetujui.
+                Kolom <strong>Tidak Bertugas</strong> menunjukkan jumlah tenaga pendidik yang pada tanggal tersebut memang tidak bertugas presensi, termasuk saat berada di luar jadwal piket yang disetujui.
                 Tanda <strong>-</strong> berarti hari libur atau hari di luar KBM madrasah.
             </div>
         </div>
@@ -104,7 +104,7 @@
                                 <th class="text-center">Hadir</th>
                                 <th class="text-center">Izin</th>
                                 <th class="text-center">Alpha</th>
-                                <th class="text-center">Tidak Wajib</th>
+                                <th class="text-center">Tidak Bertugas</th>
                                 @endfor
                             </tr>
                         </thead>

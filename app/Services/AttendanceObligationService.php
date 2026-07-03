@@ -14,7 +14,7 @@ class AttendanceObligationService
     public const STATUS_REQUIRED_PICKET = 'required_picket';
     public const STATUS_NOT_REQUIRED_PICKET_PERIOD = 'not_required_picket_period';
 
-    public const NOTE_NOT_REQUIRED_PICKET_PERIOD = 'Di luar jadwal piket (tidak wajib presensi)';
+    public const NOTE_NOT_REQUIRED_PICKET_PERIOD = 'Di luar jadwal piket (tidak bertugas)';
 
     private array $statusCache = [];
     private array $approvedPeriodCache = [];

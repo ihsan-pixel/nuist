@@ -1129,7 +1129,7 @@ class PresensiAdminController extends Controller
             $headers[] = $day . ' - Hadir';
             $headers[] = $day . ' - Izin';
             $headers[] = $day . ' - Alpha';
-            $headers[] = $day . ' - Tidak Wajib';
+            $headers[] = $day . ' - Tidak Bertugas';
         }
         $headers[] = 'Persentase Kehadiran (%)';
         $headers[] = 'Rank';
