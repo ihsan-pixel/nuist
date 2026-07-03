@@ -405,14 +405,12 @@
 
                                     @if(in_array($batch->status, ['pending_review', 'rejected']))
                                         <div class="d-flex flex-wrap gap-2 mb-2 sky-upload-actions">
-                                            @if($batch->invalid_rows > 0)
-                                                <button type="button"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        onclick="return window.skyOpenModal('#editImportBatchRowsModal{{ $batch->id }}')"
-                                                        data-sky-open-modal="#editImportBatchRowsModal{{ $batch->id }}">
-                                                    Edit Data Import
-                                                </button>
-                                            @endif
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="return window.skyOpenModal('#editImportBatchRowsModal{{ $batch->id }}')"
+                                                    data-sky-open-modal="#editImportBatchRowsModal{{ $batch->id }}">
+                                                Edit Data Import
+                                            </button>
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-danger"
                                                     onclick="return window.skyOpenModal('#updateRejectedBatchModal{{ $batch->id }}')"
@@ -421,9 +419,9 @@
                                             </button>
                                             <small class="text-muted align-self-center">
                                                 @if($batch->invalid_rows > 0)
-                                                    Admin sekolah hanya dapat mengedit kolom yang bermasalah. Kolom yang sudah benar akan dikunci.
+                                                    Admin sekolah dapat memperbaiki data import sebelum direview ulang Yayasan.
                                                 @else
-                                                    Semua data import sudah valid. Jika perlu, admin sekolah hanya bisa memperbarui berkas/lampiran.
+                                                    Semua data import sudah valid, tetapi masih bisa diedit jika ada revisi sebelum diproses Yayasan.
                                                 @endif
                                             </small>
                                         </div>
@@ -587,132 +585,133 @@
     @endphp
 
     @if(in_array($batch->status, ['pending_review', 'rejected']))
-        @if($batch->invalid_rows > 0)
-            <div class="modal fade sky-admin-import-modal" id="editImportBatchRowsModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
-                    <form action="{{ route('sk-yayasan.sekolah.import-batches.rows.update', $batch) }}" method="POST" class="modal-content">
-                        @csrf
-                        @method('PATCH')
-                        <div class="modal-header">
-                            <div>
-                                <h5 class="modal-title mb-1">Edit Data Import</h5>
-                                <div class="sky-file-meta">{{ $batch->original_filename }} - upload {{ optional($batch->uploaded_at)->format('d/m/Y H:i') ?? '-' }}</div>
-                            </div>
-                            <button type="button" class="btn-close" data-sky-close-modal></button>
+        <div class="modal fade sky-admin-import-modal" id="editImportBatchRowsModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
+                <form action="{{ route('sk-yayasan.sekolah.import-batches.rows.update', $batch) }}" method="POST" class="modal-content">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title mb-1">Edit Data Import</h5>
+                            <div class="sky-file-meta">{{ $batch->original_filename }} - upload {{ optional($batch->uploaded_at)->format('d/m/Y H:i') ?? '-' }}</div>
                         </div>
-                        <div class="modal-body">
-                            <div class="sky-inline-note sky-inline-note-warning mb-3">
-                                Admin sekolah hanya dapat mengedit kolom yang masih bermasalah. Kolom yang sudah benar dikunci.
-                            </div>
-
+                        <button type="button" class="btn-close" data-sky-close-modal></button>
+                    </div>
+                    <div class="modal-body">
+                        @if($batch->invalid_rows > 0)
                             <div class="sky-inline-note sky-inline-note-danger mb-3">
                                 Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
                             </div>
+                        @else
+                            <div class="sky-inline-note sky-inline-note-secondary mb-3">
+                                Semua data saat ini valid. Anda tetap dapat mengedit data import jika ada revisi sebelum diproses Yayasan.
+                            </div>
+                        @endif
 
-                            @if($batch->review_notes)
-                                <div class="sky-inline-note sky-inline-note-secondary mb-3">
-                                    <strong>Catatan review terakhir:</strong> {{ $batch->review_notes }}
-                                </div>
-                            @endif
+                        @if($batch->review_notes)
+                            <div class="sky-inline-note sky-inline-note-secondary mb-3">
+                                <strong>Catatan review terakhir:</strong> {{ $batch->review_notes }}
+                            </div>
+                        @endif
 
-                            <div class="row g-2 mb-3">
-                                <div class="col-md-3 col-6">
-                                    <div class="sky-mini-stat">
-                                        <div class="label">Status</div>
-                                        <div class="value text-capitalize">{{ str_replace('_', ' ', $batch->status) }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 col-6">
-                                    <div class="sky-mini-stat">
-                                        <div class="label">Valid</div>
-                                        <div class="value">{{ $batch->valid_rows }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 col-6">
-                                    <div class="sky-mini-stat">
-                                        <div class="label">Perlu Cek</div>
-                                        <div class="value">{{ $batch->invalid_rows }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 col-6">
-                                    <div class="sky-mini-stat">
-                                        <div class="label">Data Pegawai</div>
-                                        <div class="value">{{ $batch->requests->count() }}</div>
-                                    </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Status</div>
+                                    <div class="value text-capitalize">{{ str_replace('_', ' ', $batch->status) }}</div>
                                 </div>
                             </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Valid</div>
+                                    <div class="value">{{ $batch->valid_rows }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Perlu Cek</div>
+                                    <div class="value">{{ $batch->invalid_rows }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="sky-mini-stat">
+                                    <div class="label">Data Pegawai</div>
+                                    <div class="value">{{ $batch->requests->count() }}</div>
+                                </div>
+                            </div>
+                        </div>
 
-                            <div class="sky-modal-table-wrap">
-                                <table class="table table-sm align-middle sky-compact-table mb-0">
-                                    <thead>
+                        <div class="sky-modal-table-wrap">
+                            <table class="table table-sm align-middle sky-compact-table mb-0">
+                                <thead>
+                                    <tr>
+                                        @foreach($importPreviewColumns as $column)
+                                            <th>{{ $column }}</th>
+                                        @endforeach
+                                        <th>Match User</th>
+                                        <th>Status</th>
+                                        <th class="wrap">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($batch->rows as $row)
+                                        @php
+                                            $rowErrorFields = $resolveImportErrorFields($row);
+                                        @endphp
                                         <tr>
                                             @foreach($importPreviewColumns as $column)
-                                                <th>{{ $column }}</th>
-                                            @endforeach
-                                            <th>Match User</th>
-                                            <th>Status</th>
-                                            <th class="wrap">Keterangan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($batch->rows as $row)
-                                            @php
-                                                $rowErrorFields = $resolveImportErrorFields($row);
-                                            @endphp
-                                            <tr>
-                                                @foreach($importPreviewColumns as $column)
-                                                    @php
-                                                        $field = $importPreviewFieldMap[$column] ?? null;
-                                                        $value = $field ? data_get($row, $field, '') : '';
-                                                        $value = $value === '-' ? '' : $value;
-                                                        $hasFieldError = $field && in_array($field, $rowErrorFields, true);
-                                                    @endphp
-                                                    <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ $hasFieldError ? 'sky-cell-error' : 'sky-cell-locked' }}">
-                                                        @if($loop->first)
-                                                            <input type="hidden" name="rows[{{ $loop->parent->index }}][row_number]" value="{{ $row->row_number }}">
-                                                        @endif
-                                                        @if($column === 'Keterangan')
-                                                            @if($hasFieldError)
-                                                                <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
-                                                                    <option value="">Pilih</option>
-                                                                    @foreach($keteranganOptions as $option)
-                                                                        <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                            @else
-                                                                <input type="hidden" name="rows[{{ $loop->parent->index }}][{{ $field }}]" value="{{ $value }}">
-                                                                <span class="sky-cell-locked-value">{{ $value !== '' ? $value : '-' }}</span>
-                                                            @endif
+                                                @php
+                                                    $field = $importPreviewFieldMap[$column] ?? null;
+                                                    $value = $field ? data_get($row, $field, '') : '';
+                                                    $value = $value === '-' ? '' : $value;
+                                                    $hasFieldError = $field && in_array($field, $rowErrorFields, true);
+                                                    $canEditField = $batch->invalid_rows === 0 || $hasFieldError;
+                                                @endphp
+                                                <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ $hasFieldError ? 'sky-cell-error' : ($canEditField ? '' : 'sky-cell-locked') }}">
+                                                    @if($loop->first)
+                                                        <input type="hidden" name="rows[{{ $loop->parent->index }}][row_number]" value="{{ $row->row_number }}">
+                                                    @endif
+                                                    @if($column === 'Keterangan')
+                                                        @if($canEditField)
+                                                            <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
+                                                                <option value="">Pilih</option>
+                                                                @foreach($keteranganOptions as $option)
+                                                                    <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
+                                                                @endforeach
+                                                            </select>
                                                         @else
-                                                            <input type="text"
-                                                                   name="rows[{{ $loop->parent->index }}][{{ $field }}]"
-                                                                   value="{{ $value }}"
-                                                                   class="form-control form-control-sm"
-                                                                   @readonly(!$hasFieldError)>
+                                                            <input type="hidden" name="rows[{{ $loop->parent->index }}][{{ $field }}]" value="{{ $value }}">
+                                                            <span class="sky-cell-locked-value">{{ $value !== '' ? $value : '-' }}</span>
                                                         @endif
-                                                    </td>
-                                                @endforeach
-                                                <td class="{{ in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : '' }}">{{ $row->matched_name ?? '-' }}</td>
-                                                <td>
-                                                    <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
-                                                        {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
-                                                    </span>
+                                                    @else
+                                                        <input type="text"
+                                                               name="rows[{{ $loop->parent->index }}][{{ $field }}]"
+                                                               value="{{ $value }}"
+                                                               class="form-control form-control-sm"
+                                                               @readonly(!$canEditField)>
+                                                    @endif
                                                 </td>
-                                                <td class="wrap">{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap direview.' }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                            @endforeach
+                                            <td class="{{ in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : '' }}">{{ $row->matched_name ?? '-' }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
+                                                    {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
+                                                </span>
+                                            </td>
+                                            <td class="wrap">{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap direview.' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-sky-close-modal>Batal</button>
-                            <button type="submit" class="btn btn-primary">Simpan Data Import</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-sky-close-modal>Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Data Import</button>
+                    </div>
+                </form>
             </div>
-        @endif
+        </div>
 
         <div class="modal fade sky-admin-import-modal" id="updateRejectedBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
