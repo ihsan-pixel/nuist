@@ -600,7 +600,7 @@
                     <div class="modal-body">
                         @if($batch->invalid_rows > 0)
                             <div class="sky-inline-note sky-inline-note-danger mb-3">
-                                Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
+                                Kolom dengan warna merah menandakan data itu masih perlu diperbaiki. Semua kolom tetap bisa diedit oleh admin sebelum dikirim ulang ke Yayasan.
                             </div>
                         @else
                             <div class="sky-inline-note sky-inline-note-secondary mb-3">
@@ -665,30 +665,23 @@
                                                     $value = $field ? data_get($row, $field, '') : '';
                                                     $value = $value === '-' ? '' : $value;
                                                     $hasFieldError = $field && in_array($field, $rowErrorFields, true);
-                                                    $canEditField = $batch->invalid_rows === 0 || $hasFieldError;
                                                 @endphp
-                                                <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ $hasFieldError ? 'sky-cell-error' : ($canEditField ? '' : 'sky-cell-locked') }}">
+                                                <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ $hasFieldError ? 'sky-cell-error' : '' }}">
                                                     @if($loop->first)
                                                         <input type="hidden" name="rows[{{ $loop->parent->index }}][row_number]" value="{{ $row->row_number }}">
                                                     @endif
                                                     @if($column === 'Keterangan')
-                                                        @if($canEditField)
-                                                            <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
-                                                                <option value="">Pilih</option>
-                                                                @foreach($keteranganOptions as $option)
-                                                                    <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        @else
-                                                            <input type="hidden" name="rows[{{ $loop->parent->index }}][{{ $field }}]" value="{{ $value }}">
-                                                            <span class="sky-cell-locked-value">{{ $value !== '' ? $value : '-' }}</span>
-                                                        @endif
+                                                        <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
+                                                            <option value="">Pilih</option>
+                                                            @foreach($keteranganOptions as $option)
+                                                                <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
+                                                            @endforeach
+                                                        </select>
                                                     @else
                                                         <input type="text"
                                                                name="rows[{{ $loop->parent->index }}][{{ $field }}]"
                                                                value="{{ $value }}"
-                                                               class="form-control form-control-sm"
-                                                               @readonly(!$canEditField)>
+                                                               class="form-control form-control-sm">
                                                     @endif
                                                 </td>
                                             @endforeach
