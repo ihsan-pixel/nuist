@@ -755,7 +755,7 @@ class SkYayasanController extends Controller
 
         $summaryData = $this->buildSuperAdminPengajuanSummary();
 
-        $submissions = $this->activeSuperAdminSubmissionQuery()
+        $submissions = SkYayasanRequest::query()
             ->with(['madrasah', 'employee.statusKepegawaian', 'submitter', 'reviewer', 'template', 'document', 'importBatch'])
             ->when($request->filled('status'), fn ($query) => $query->where('current_status', $request->string('status')->toString()))
             ->when($request->filled('madrasah_id'), fn ($query) => $query->where('madrasah_id', (int) $request->madrasah_id))

@@ -481,6 +481,7 @@
         'submitted' => 'Diajukan',
         'reviewed' => 'Direview',
         'approved' => 'Disetujui',
+        'rejected' => 'Ditolak',
         'published' => 'Terbit',
     ];
 
@@ -615,8 +616,8 @@
         <div class="card-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                 <div>
-                    <div class="sky-panel-label mb-1">Pengajuan Aktif</div>
-                    <h6 class="mb-0">Daftar pengajuan yang masih berjalan di yayasan</h6>
+                    <div class="sky-panel-label mb-1">Daftar Pengajuan</div>
+                    <h6 class="mb-0">Semua pengajuan yang masuk ke yayasan, termasuk yang ditolak</h6>
                 </div>
                 <span class="sky-chip">{{ number_format($submissions->total()) }} pengajuan</span>
             </div>
@@ -734,7 +735,7 @@
                 <div class="sky-empty-state py-5">
                     <i class="bx bx-search-alt"></i>
                     <strong>Tidak ada pengajuan yang sesuai filter</strong>
-                    <small>Coba ubah kata kunci, sekolah, atau status untuk melihat data lain.</small>
+                    <small>Coba ubah kata kunci, sekolah, atau status termasuk filter ditolak untuk melihat data lain.</small>
                 </div>
             @endif
         </div>
