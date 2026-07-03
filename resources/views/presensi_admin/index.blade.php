@@ -2179,7 +2179,9 @@ $(document).ready(function () {
 
         tenagaPendidik.forEach(staff => {
             let status = staff.status || 'tidak_hadir';
-            if (groupedStaff[status]) {
+            if (status === 'tidak_wajib_presensi') {
+                groupedStaff.izin.push(staff);
+            } else if (groupedStaff[status]) {
                 groupedStaff[status].push(staff);
             } else {
                 groupedStaff.tidak_hadir.push(staff);
@@ -2210,6 +2212,7 @@ $(document).ready(function () {
                 staffHtml = '<div class="row g-3">';
                 staffList.forEach(staff => {
                     let statusBadge = getStatusBadge(staff.status);
+                    let statusClass = (staff.status || status).replace(/_/g, '-');
                     let timeInfo = staff.created_at ? new Date(staff.created_at).toLocaleString('id-ID', {
                         year: 'numeric',
                         month: 'short',
@@ -2220,7 +2223,7 @@ $(document).ready(function () {
 
                 staffHtml += `
                         <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 border-0 shadow-sm staff-card ${status}">
+                            <div class="card h-100 border-0 shadow-sm staff-card ${statusClass}">
                                 <div class="card-body p-3">
                                     <div class="d-flex align-items-center mb-3">
                                         <div class="avatar-sm me-3">
@@ -2346,6 +2349,11 @@ $(document).ready(function () {
                 badgeClass = 'bg-info';
                 statusText = 'Izin';
                 iconClass = 'mdi-account-edit';
+                break;
+            case 'tidak_wajib_presensi':
+                badgeClass = 'bg-secondary';
+                statusText = 'Tidak Wajib Presensi';
+                iconClass = 'mdi-account-off';
                 break;
         }
 

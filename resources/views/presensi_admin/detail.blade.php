@@ -1191,6 +1191,8 @@
                                                         <span class="badge bg-info text-white">Sakit</span>
                                                     @elseif($tp['status'] == 'terlambat')
                                                         <span class="badge bg-warning text-dark">Terlambat</span>
+                                                    @elseif($tp['status'] == 'tidak_wajib_presensi')
+                                                        <span class="badge bg-secondary">Tidak Wajib Presensi</span>
                                                     @else
                                                         <span class="badge bg-danger">Tidak Hadir</span>
                                                     @endif

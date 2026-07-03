@@ -15,12 +15,13 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PresensiPerBulanExport;
 use App\Exports\PresensiSemuaExport;
+use App\Services\AttendanceObligationService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
 
 class PresensiAdminController extends Controller
 {
-    public function __construct()
+    public function __construct(private AttendanceObligationService $attendanceObligationService)
     {
         // Middleware to restrict access to super_admin, admin, pengurus, and tenaga_pendidik with ketugasan kepala
         $this->middleware(function ($request, $next) {
@@ -291,7 +292,10 @@ class PresensiAdminController extends Controller
             $belumPresensi = $belumPresensiQuery->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
                 $q->whereDate('tanggal', $selectedDate);
             })->with('madrasah')->get()
-                ->reject(fn ($teacher) => $this->isTeacherIzinForDate($teacher, $selectedDate))
+                ->reject(function ($teacher) use ($selectedDate) {
+                    return $this->isTeacherIzinForDate($teacher, $selectedDate)
+                        || !$this->attendanceObligationService->hasAttendanceObligation($teacher, $selectedDate);
+                })
                 ->values();
 
             return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate', 'summary', 'threeMonthAbsenceData', 'teacherAbsenceRecapData'));
@@ -945,6 +949,7 @@ class PresensiAdminController extends Controller
         foreach ($allMadrasahs as $madrasah) {
             $teachers = User::where('madrasah_id', $madrasah->id)
                 ->where('role', 'tenaga_pendidik')
+                ->with('madrasah')
                 ->get();
 
             $totalTeachers = $teachers->count();
@@ -964,35 +969,14 @@ class PresensiAdminController extends Controller
             $currentDate = $startOfMonth->copy();
 
             while ($currentDate <= $effectiveEndOfMonth) {
-                $dayOfWeek = $currentDate->dayOfWeek;
-                $isWorkingDay = $madrasah->hari_kbm == 5
-                    ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
-                    : ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY);
-                $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
-
-                if ($isWorkingDay && !$isHoliday) {
-                    $hadir = 0;
-                    $izin = 0;
-                    $alpha = 0;
-
-                    foreach ($teachers as $guru) {
-                        $presensi = Presensi::where('user_id', $guru->id)
-                            ->whereDate('tanggal', $currentDate)
-                            ->first();
-
-                        if ($presensi && $presensi->status === 'hadir') {
-                            $hadir++;
-                        } elseif ($this->isTeacherIzinForDate($guru, $currentDate, $presensi)) {
-                            $izin++;
-                        } else {
-                            $alpha++;
-                        }
+                if (!Holiday::where('date', $currentDate->toDateString())->exists()) {
+                    $dailySummary = $this->summarizeTeachersForDate($teachers, $currentDate);
+                    if ($dailySummary['obligated'] > 0) {
+                        $totalHadir += $dailySummary['hadir'];
+                        $totalIzin += $dailySummary['izin'];
+                        $totalAlpha += $dailySummary['alpha'];
+                        $totalPresensi += ($dailySummary['hadir'] + $dailySummary['izin'] + $dailySummary['alpha']);
                     }
-
-                    $totalHadir += $hadir;
-                    $totalIzin += $izin;
-                    $totalAlpha += $alpha;
-                    $totalPresensi += ($hadir + $izin + $alpha);
                 }
 
                 $currentDate->addDay();
@@ -1061,6 +1045,7 @@ class PresensiAdminController extends Controller
             foreach ($madrasahs as $madrasah) {
                 $tenagaPendidik = User::where('role', 'tenaga_pendidik')
                     ->where('madrasah_id', $madrasah->id)
+                    ->with('madrasah')
                     ->get();
 
                 $totalHadirBulanan = 0;
@@ -1070,36 +1055,14 @@ class PresensiAdminController extends Controller
                 $currentDate = $startOfMonth->copy();
 
                 while ($currentDate <= $effectiveEndOfMonth) {
-                    $dayOfWeek = $currentDate->dayOfWeek;
-                    $isWorkingDay = $madrasah->hari_kbm == 5
-                        ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
-                        : ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY);
-
-                    $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
-
-                    if ($isWorkingDay && !$isHoliday) {
-                        $hadir = 0;
-                        $izin = 0;
-                        $alpha = 0;
-
-                        foreach ($tenagaPendidik as $guru) {
-                            $presensi = Presensi::where('user_id', $guru->id)
-                                ->whereDate('tanggal', $currentDate)
-                                ->first();
-
-                            if ($presensi && $presensi->status === 'hadir') {
-                                $hadir++;
-                            } elseif ($this->isTeacherIzinForDate($guru, $currentDate, $presensi)) {
-                                $izin++;
-                            } else {
-                                $alpha++;
-                            }
+                    if (!Holiday::where('date', $currentDate->toDateString())->exists()) {
+                        $dailySummary = $this->summarizeTeachersForDate($tenagaPendidik, $currentDate);
+                        if ($dailySummary['obligated'] > 0) {
+                            $totalHadirBulanan += $dailySummary['hadir'];
+                            $totalIzinBulanan += $dailySummary['izin'];
+                            $totalAlphaBulanan += $dailySummary['alpha'];
+                            $totalPresensiBulanan += ($dailySummary['hadir'] + $dailySummary['izin'] + $dailySummary['alpha']);
                         }
-
-                        $totalHadirBulanan += $hadir;
-                        $totalIzinBulanan += $izin;
-                        $totalAlphaBulanan += $alpha;
-                        $totalPresensiBulanan += ($hadir + $izin + $alpha);
                     }
 
                     $currentDate->addDay();
@@ -1237,6 +1200,7 @@ class PresensiAdminController extends Controller
             foreach ($madrasahs as $madrasah) {
                 $tenagaPendidik = User::where('role', 'tenaga_pendidik')
                     ->where('madrasah_id', $madrasah->id)
+                    ->with('madrasah')
                     ->get();
 
                 $presensiMingguan = [];
@@ -1252,28 +1216,19 @@ class PresensiAdminController extends Controller
                     if ($isHoliday) {
                         $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
                     } else {
-                        $hadir = 0;
-                        $izin = 0;
-                        $alpha = 0;
-
-                        foreach ($tenagaPendidik as $guru) {
-                            $presensi = Presensi::where('user_id', $guru->id)
-                                ->whereDate('tanggal', $currentDate)
-                                ->first();
-
-                            if ($presensi && $presensi->status === 'hadir') {
-                                $hadir++;
-                            } elseif ($this->isTeacherIzinForDate($guru, $currentDate, $presensi)) {
-                                $izin++;
-                            } else {
-                                $alpha++;
-                            }
+                        $dailySummary = $this->summarizeTeachersForDate($tenagaPendidik, $currentDate);
+                        if ($dailySummary['obligated'] === 0) {
+                            $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
+                        } else {
+                            $presensiMingguan[] = [
+                                'hadir' => $dailySummary['hadir'],
+                                'izin' => $dailySummary['izin'],
+                                'alpha' => $dailySummary['alpha'],
+                            ];
+                            $totalHadir += $dailySummary['hadir'];
+                            $totalIzin += $dailySummary['izin'];
+                            $totalPresensi += ($dailySummary['hadir'] + $dailySummary['izin'] + $dailySummary['alpha']);
                         }
-
-                        $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
-                        $totalHadir += $hadir;
-                        $totalIzin += $izin;
-                        $totalPresensi += ($hadir + $izin + $alpha);
                     }
 
                     $currentDate->addDay();
@@ -1366,7 +1321,7 @@ class PresensiAdminController extends Controller
                 ->first();
         }
 
-        if ($presensi) {
+        if ($presensi && in_array($presensi->status, ['hadir', 'terlambat', 'izin'], true)) {
             return [
                 'status' => $presensi->status,
                 'waktu_masuk' => $presensi->waktu_masuk,
@@ -1386,6 +1341,7 @@ class PresensiAdminController extends Controller
             ];
         }
 
+        $hasAttendanceObligation = $this->attendanceObligationService->hasAttendanceObligation($teacher, $selectedDate);
         $approvedIzin = ApprovedIzinSyncService::approvedRequestForDate($teacher, $selectedDate);
         if ($approvedIzin) {
             return [
@@ -1424,6 +1380,46 @@ class PresensiAdminController extends Controller
                 'liveness_score' => null,
                 'selfie_masuk_path' => null,
                 'selfie_keluar_path' => null,
+            ];
+        }
+
+        if (!$hasAttendanceObligation) {
+            return [
+                'status' => 'tidak_wajib_presensi',
+                'waktu_masuk' => null,
+                'waktu_keluar' => null,
+                'latitude' => null,
+                'longitude' => null,
+                'lokasi' => null,
+                'keterangan' => AttendanceObligationService::NOTE_NOT_REQUIRED_PICKET_PERIOD,
+                'is_fake_location' => false,
+                'accuracy' => null,
+                'created_at' => null,
+                'face_verified' => false,
+                'face_similarity_score' => null,
+                'liveness_score' => null,
+                'selfie_masuk_path' => null,
+                'selfie_keluar_path' => null,
+            ];
+        }
+
+        if ($presensi) {
+            return [
+                'status' => $presensi->status,
+                'waktu_masuk' => $presensi->waktu_masuk,
+                'waktu_keluar' => $presensi->waktu_keluar,
+                'latitude' => $presensi->latitude,
+                'longitude' => $presensi->longitude,
+                'lokasi' => $presensi->lokasi,
+                'keterangan' => $presensi->keterangan,
+                'is_fake_location' => $presensi->is_fake_location,
+                'accuracy' => $presensi->accuracy,
+                'created_at' => $presensi->created_at,
+                'face_verified' => $presensi->face_verified,
+                'face_similarity_score' => $presensi->face_similarity_score,
+                'liveness_score' => $presensi->liveness_score,
+                'selfie_masuk_path' => $presensi->selfie_masuk_path,
+                'selfie_keluar_path' => $presensi->selfie_keluar_path,
             ];
         }
 
@@ -1486,129 +1482,67 @@ class PresensiAdminController extends Controller
             'guru_tidak_presensi' => 0,
         ];
 
-        if (in_array($user->role, ['super_admin', 'pengurus'])) {
-            // For super_admin and pengurus: all data
-            $hadirUserIds = Presensi::whereDate('tanggal', $selectedDate)
-                ->where('status', 'hadir')
-                ->distinct()
-                ->pluck('user_id');
-            $summary['users_presensi'] = $hadirUserIds->count();
+        $teachersQuery = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->with('madrasah');
 
-            $izinUserIds = Presensi::whereDate('tanggal', $selectedDate)
-                ->where('status', 'izin')
-                ->distinct()
-                ->pluck('user_id');
+        if (!in_array($user->role, ['super_admin', 'pengurus']) && $user->madrasah_id) {
+            $teachersQuery->where('madrasah_id', $user->madrasah_id);
+        }
 
-            $approvedIzinUserIds = User::with('madrasah')
-                ->where('role', 'tenaga_pendidik')
-                ->get()
-                ->filter(fn ($teacher) => ApprovedIzinSyncService::approvedRequestForDate($teacher, $selectedDate))
-                ->pluck('id');
+        $teachers = $teachersQuery->get();
+        $schoolsWithPresence = collect();
 
-            $externalTeachingIzinUserIds = User::with('madrasah')
-                ->where('role', 'tenaga_pendidik')
-                ->get()
-                ->filter(fn ($teacher) => ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate))
-                ->pluck('id');
+        foreach ($teachers as $teacher) {
+            if (!$this->attendanceObligationService->hasAttendanceObligation($teacher, $selectedDate)) {
+                continue;
+            }
 
-            $izinUserIds = $izinUserIds
-                ->merge($approvedIzinUserIds)
-                ->merge($externalTeachingIzinUserIds)
-                ->diff($hadirUserIds)
-                ->unique()
-                ->values();
-            $summary['users_izin'] = $izinUserIds->count();
-
-            $sekolahPresensi = Presensi::whereDate('tanggal', $selectedDate)
-                ->join('users', 'presensis.user_id', '=', 'users.id')
-                ->join('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
-                ->distinct('madrasahs.id')
-                ->count('madrasahs.id');
-            $summary['sekolah_presensi'] = $sekolahPresensi;
-
-            $totalGuru = User::where('role', 'tenaga_pendidik')->count();
-            $summary['guru_tidak_presensi'] = $totalGuru - $hadirUserIds->merge($izinUserIds)->unique()->count();
-        } else {
-            // For admin and tenaga_pendidik kepala: filter by madrasah
-            if ($user->madrasah_id) {
-                $hadirUserIds = Presensi::whereDate('tanggal', $selectedDate)
-                    ->where('status', 'hadir')
-                    ->where(function ($q) use ($user) {
-                        // Jika presensi.madrasah_id bernilai null, tampilkan data presensi di mana user.madrasah_id == admin.madrasah_id
-                        $q->where(function ($subQ) use ($user) {
-                            $subQ->whereNull('madrasah_id')
-                                 ->whereHas('user', function ($userQ) use ($user) {
-                                     $userQ->where('madrasah_id', $user->madrasah_id);
-                                 });
-                        })
-                        // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
-                        ->orWhere('madrasah_id', $user->madrasah_id);
-                    })
-                    ->distinct()
-                    ->pluck('user_id');
-                $summary['users_presensi'] = $hadirUserIds->count();
-
-                $izinUserIds = Presensi::whereDate('tanggal', $selectedDate)
-                    ->where('status', 'izin')
-                    ->where(function ($q) use ($user) {
-                        // Jika presensi.madrasah_id bernilai null, tampilkan data presensi di mana user.madrasah_id == admin.madrasah_id
-                        $q->where(function ($subQ) use ($user) {
-                            $subQ->whereNull('madrasah_id')
-                                 ->whereHas('user', function ($userQ) use ($user) {
-                                     $userQ->where('madrasah_id', $user->madrasah_id);
-                                 });
-                        })
-                        // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
-                        ->orWhere('madrasah_id', $user->madrasah_id);
-                    })
-                    ->distinct()
-                    ->pluck('user_id');
-
-                $approvedIzinUserIds = User::with('madrasah')
-                    ->where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $user->madrasah_id)
-                    ->get()
-                    ->filter(fn ($teacher) => ApprovedIzinSyncService::approvedRequestForDate($teacher, $selectedDate))
-                    ->pluck('id');
-
-                $externalTeachingIzinUserIds = User::with('madrasah')
-                    ->where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $user->madrasah_id)
-                    ->get()
-                    ->filter(fn ($teacher) => ExternalTeachingPermissionService::hasApprovedNoPresenceDay($teacher, $selectedDate))
-                    ->pluck('id');
-
-                $izinUserIds = $izinUserIds
-                    ->merge($approvedIzinUserIds)
-                    ->merge($externalTeachingIzinUserIds)
-                    ->diff($hadirUserIds)
-                    ->unique()
-                    ->values();
-                $summary['users_izin'] = $izinUserIds->count();
-
-                $hasPresensi = Presensi::whereDate('tanggal', $selectedDate)
-                    ->where(function ($q) use ($user) {
-                        // Jika presensi.madrasah_id bernilai null, tampilkan data presensi di mana user.madrasah_id == admin.madrasah_id
-                        $q->where(function ($subQ) use ($user) {
-                            $subQ->whereNull('madrasah_id')
-                                 ->whereHas('user', function ($userQ) use ($user) {
-                                     $userQ->where('madrasah_id', $user->madrasah_id);
-                                 });
-                        })
-                        // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
-                        ->orWhere('madrasah_id', $user->madrasah_id);
-                    })
-                    ->exists();
-                $summary['sekolah_presensi'] = $hasPresensi ? 1 : 0;
-
-                $totalGuru = User::where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $user->madrasah_id)
-                    ->count();
-                $summary['guru_tidak_presensi'] = $totalGuru - $hadirUserIds->merge($izinUserIds)->unique()->count();
+            $dailyPresensi = $this->resolveDailyPresensiData($teacher, $selectedDate);
+            if (in_array($dailyPresensi['status'], ['hadir', 'terlambat'], true)) {
+                $summary['users_presensi']++;
+                if ($teacher->madrasah_id) {
+                    $schoolsWithPresence->push($teacher->madrasah_id);
+                }
+            } elseif ($dailyPresensi['status'] === 'izin') {
+                $summary['users_izin']++;
+            } elseif ($dailyPresensi['status'] === 'tidak_hadir') {
+                $summary['guru_tidak_presensi']++;
             }
         }
 
+        $summary['sekolah_presensi'] = $schoolsWithPresence->filter()->unique()->count();
+
         return $summary;
+    }
+
+    private function summarizeTeachersForDate($teachers, Carbon $date): array
+    {
+        $hadir = 0;
+        $izin = 0;
+        $alpha = 0;
+        $obligated = 0;
+
+        foreach ($teachers as $teacher) {
+            if (!$this->attendanceObligationService->hasAttendanceObligation($teacher, $date)) {
+                continue;
+            }
+
+            $obligated++;
+            $presensi = Presensi::where('user_id', $teacher->id)
+                ->whereDate('tanggal', $date)
+                ->first();
+
+            if ($presensi && in_array($presensi->status, ['hadir', 'terlambat'], true)) {
+                $hadir++;
+            } elseif ($this->isTeacherIzinForDate($teacher, $date, $presensi)) {
+                $izin++;
+            } else {
+                $alpha++;
+            }
+        }
+
+        return compact('hadir', 'izin', 'alpha', 'obligated');
     }
 
     private function getThreeMonthAbsenceData(Carbon $selectedDate, $user): array
@@ -1628,24 +1562,54 @@ class PresensiAdminController extends Controller
             $usersQuery->where('madrasah_id', $user->madrasah_id);
         }
 
-        foreach ($monthStarts as $monthStart) {
-            $monthEnd = $monthStart->copy()->endOfMonth();
-
-            $usersQuery->whereDoesntHave('presensis', function ($query) use ($monthStart, $monthEnd) {
-                $query->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
-                    ->where(function ($subQuery) {
-                        $subQuery->whereIn('status', ['hadir', 'terlambat'])
-                            ->orWhereNotNull('waktu_masuk');
-                    });
-            });
-        }
-
         $users = $usersQuery
             ->join('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
             ->orderByRaw("CAST(madrasahs.scod AS UNSIGNED) ASC")
             ->orderBy('users.name')
             ->select('users.*')
             ->get()
+            ->load('madrasah');
+
+        $periodStart = $monthStarts->first()->copy()->startOfMonth();
+        $periodEnd = $monthStarts->last()->copy()->endOfMonth();
+        $presensiByUser = Presensi::query()
+            ->whereIn('user_id', $users->pluck('id'))
+            ->whereBetween('tanggal', [$periodStart->toDateString(), $periodEnd->toDateString()])
+            ->get(['user_id', 'tanggal', 'status', 'waktu_masuk'])
+            ->groupBy('user_id');
+
+        $users = $users
+            ->filter(function (User $teacher) use ($monthStarts, $presensiByUser) {
+                $recordsByDate = collect($presensiByUser->get($teacher->id, collect()))
+                    ->groupBy(fn ($item) => Carbon::parse($item->tanggal)->toDateString());
+
+                foreach ($monthStarts as $monthStart) {
+                    $monthEnd = $monthStart->copy()->endOfMonth();
+                    $hasAttendanceObligation = false;
+                    $hasPresentRecord = false;
+
+                    foreach (CarbonPeriod::create($monthStart, $monthEnd) as $date) {
+                        if (!$this->attendanceObligationService->hasAttendanceObligation($teacher, $date)) {
+                            continue;
+                        }
+
+                        $hasAttendanceObligation = true;
+                        $dayRecords = collect($recordsByDate->get($date->toDateString(), collect()));
+                        if ($dayRecords->contains(function ($record) {
+                            return in_array($record->status, ['hadir', 'terlambat'], true) || $record->waktu_masuk !== null;
+                        })) {
+                            $hasPresentRecord = true;
+                            break;
+                        }
+                    }
+
+                    if (!$hasAttendanceObligation || $hasPresentRecord) {
+                        return false;
+                    }
+                }
+
+                return true;
+            })
             ->map(function ($teacher) use ($monthStarts) {
                 return [
                     'scod' => $teacher->madrasah->scod ?? '-',
@@ -1810,7 +1774,14 @@ class PresensiAdminController extends Controller
         $totalIzinApproved = 0;
 
         foreach (CarbonPeriod::create($startDate, $effectiveEndDate) as $date) {
-            if (!$this->isAttendanceWorkingDay($date, $hariKbm)) {
+            $obligationStatus = $summaryUser
+                ? $this->attendanceObligationService->statusForDate($summaryUser, $date)
+                : ($this->isAttendanceWorkingDay($date, $hariKbm)
+                    ? AttendanceObligationService::STATUS_REQUIRED
+                    : AttendanceObligationService::STATUS_OFF);
+
+            if ($obligationStatus === AttendanceObligationService::STATUS_OFF
+                || $obligationStatus === AttendanceObligationService::STATUS_NOT_REQUIRED_PICKET_PERIOD) {
                 continue;
             }
 
