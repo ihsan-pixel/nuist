@@ -6,6 +6,15 @@
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col-12">
+            <div class="alert alert-info mb-0">
+                <strong>Keterangan rekap:</strong>
+                Perhitungan hadir, izin, dan alpha hanya menggunakan tenaga pendidik yang memang wajib presensi pada tanggal tersebut.
+                Tanda <strong>-</strong> berarti hari libur atau tidak ada tenaga pendidik yang memiliki kewajiban presensi pada hari itu, termasuk saat berada di luar jadwal piket yang disetujui.
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">10 Madrasah Terbaik Presensi Bulanan</h3>
