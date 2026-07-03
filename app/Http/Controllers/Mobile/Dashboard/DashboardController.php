@@ -79,6 +79,42 @@ class DashboardController extends \App\Http\Controllers\Controller
         ];
     }
 
+    private function buildCalendarStatuses(User $user, int $currentYear, int $currentMonth, array $monthlyPresensi): array
+    {
+        $daysInMonth = Carbon::create($currentYear, $currentMonth, 1)->daysInMonth;
+        $today = Carbon::today('Asia/Jakarta');
+        $statuses = [];
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($currentYear, $currentMonth, $day, 0, 0, 0, 'Asia/Jakarta');
+            $dateKey = $date->toDateString();
+            $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
+
+            if ($presensiStatus === 'sakit') {
+                $presensiStatus = 'izin';
+            }
+
+            if (in_array($presensiStatus, ['hadir', 'izin'], true)) {
+                $statuses[$dateKey] = $presensiStatus;
+                continue;
+            }
+
+            if (!$this->attendanceObligationService->hasAttendanceObligation($user, $date)) {
+                $statuses[$dateKey] = null;
+                continue;
+            }
+
+            if ($presensiStatus === 'alpha') {
+                $statuses[$dateKey] = 'alpha';
+                continue;
+            }
+
+            $statuses[$dateKey] = $date->isBefore($today) ? 'alpha' : null;
+        }
+
+        return $statuses;
+    }
+
     // Mobile dashboard for tenaga_pendidik and pengurus
     public function dashboard(Request $request)
     {
@@ -222,6 +258,7 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->whereMonth('tanggal', $currentMonth)
             ->pluck('status', 'tanggal')
             ->toArray();
+        $calendarStatuses = $this->buildCalendarStatuses($user, $currentYear, $currentMonth, $monthlyPresensi);
 
         // Get hari KBM setting from user's madrasah
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
@@ -250,7 +287,7 @@ class DashboardController extends \App\Http\Controllers\Controller
 
         return view('mobile.dashboard', compact(
             'kehadiranPercent', 'hadir', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance',
-            'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear',
+            'bannerImage', 'showBanner', 'monthlyPresensi', 'calendarStatuses', 'currentMonth', 'currentYear',
             'hariKbm', 'monthlyHolidays', 'prevMonth', 'prevYear', 'nextMonth', 'nextYear',
             'presensiMasukStatus', 'presensiKeluarStatus', 'kinerjaPercent', 'teachingSteps'
         ));
@@ -281,6 +318,7 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->whereMonth('tanggal', $currentMonth)
             ->pluck('status', 'tanggal')
             ->toArray();
+        $calendarStatuses = $this->buildCalendarStatuses($user, $currentYear, $currentMonth, $monthlyPresensi);
 
         // Get hari KBM setting from user's madrasah
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
@@ -309,6 +347,7 @@ class DashboardController extends \App\Http\Controllers\Controller
 
         return response()->json([
             'monthlyPresensi' => $monthlyPresensi,
+            'calendarStatuses' => $calendarStatuses,
             'currentMonth' => $currentMonth,
             'currentYear' => $currentYear,
             'hariKbm' => $hariKbm,
