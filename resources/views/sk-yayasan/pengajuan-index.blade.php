@@ -269,15 +269,19 @@
     }
 
     .sky-keterangan-grid {
-        display: grid;
+        display: flex;
+        flex-wrap: nowrap;
         gap: .85rem;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        overflow-x: auto;
+        padding-bottom: .25rem;
+        scrollbar-width: thin;
     }
 
     .sky-keterangan-card {
         background: var(--sky-soft);
         border: 1px solid var(--sky-line);
         border-radius: 16px;
+        flex: 0 0 220px;
         padding: .95rem 1rem;
     }
 
