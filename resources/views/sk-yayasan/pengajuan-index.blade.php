@@ -669,7 +669,7 @@
         <div class="col-xl-6">
             <div class="card h-100">
                 <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#pendingBatchPanel" aria-expanded="true" aria-controls="pendingBatchPanel">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 grow me-3">
                         <div>
                             <div class="sky-panel-label mb-1">Batch Pending</div>
                             <h6 class="mb-0">Import yang masih menunggu review</h6>
@@ -752,7 +752,7 @@
         <div class="col-xl-6">
             <div class="card h-100">
                 <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#syncedBatchPanel" aria-expanded="true" aria-controls="syncedBatchPanel">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 grow me-3">
                         <div>
                             <div class="sky-panel-label mb-1">Batch Tersinkron</div>
                             <h6 class="mb-0">Import yang sudah masuk ke aplikasi</h6>
@@ -831,7 +831,7 @@
 
     <div class="card mb-4">
         <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#submissionListPanel" aria-expanded="false" aria-controls="submissionListPanel">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 grow me-3">
                 <div>
                     <div class="sky-panel-label mb-1">Daftar Pengajuan</div>
                     <h6 class="mb-0">Semua pengajuan yang masuk ke yayasan, termasuk yang ditolak</h6>
@@ -973,7 +973,7 @@
 
     <div class="card mt-4">
         <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#schoolMonitoringPanel" aria-expanded="false" aria-controls="schoolMonitoringPanel">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 grow me-3">
                 <div>
                     <div class="sky-panel-label mb-1">Monitoring Sekolah</div>
                     <h6 class="mb-0">Status ringkas pengajuan per sekolah</h6>
