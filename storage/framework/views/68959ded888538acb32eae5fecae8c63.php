@@ -103,6 +103,16 @@
                             <span class="sky-chip"><?php echo e($requests->total()); ?> data</span>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($requests->count() > 0): ?>
                                 <form method="POST"
+                                      action="<?php echo e(route('sk-yayasan.generate.school.lock-number', $madrasah)); ?>">
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('PATCH'); ?>
+                                    <button type="submit"
+                                            class="btn btn-outline-dark"
+                                            onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci tidak akan diubah saat generate ulang.')">
+                                        <i class="bx bx-lock-alt me-1"></i>Kunci Nomor SK Sekolah Ini
+                                    </button>
+                                </form>
+                                <form method="POST"
                                       action="<?php echo e(route('sk-yayasan.generate.school.pdf', $madrasah)); ?>"
                                       target="_blank">
                                     <?php echo csrf_field(); ?>
@@ -181,7 +191,12 @@
 
                                                 </span>
                                             </td>
-                                            <td><?php echo e($submission->document?->document_number ?? '-'); ?></td>
+                                            <td>
+                                                <div><?php echo e($submission->document?->document_number ?? '-'); ?></div>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->document?->number_locked_at): ?>
+                                                    <small class="text-success fw-semibold">Terkunci</small>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     <form method="POST" action="<?php echo e(route('sk-yayasan.generate.store')); ?>" target="_blank">

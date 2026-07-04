@@ -14,6 +14,7 @@ class SkYayasanDocument extends Model
         'template_id',
         'generated_by',
         'published_by',
+        'number_locked_by',
         'document_number',
         'issued_date',
         'signer_name',
@@ -24,6 +25,7 @@ class SkYayasanDocument extends Model
         'status',
         'generated_at',
         'published_at',
+        'number_locked_at',
     ];
 
     protected $casts = [
@@ -31,6 +33,7 @@ class SkYayasanDocument extends Model
         'meta_payload' => 'array',
         'generated_at' => 'datetime',
         'published_at' => 'datetime',
+        'number_locked_at' => 'datetime',
     ];
 
     public function request()
@@ -51,5 +54,10 @@ class SkYayasanDocument extends Model
     public function publisher()
     {
         return $this->belongsTo(User::class, 'published_by');
+    }
+
+    public function numberLocker()
+    {
+        return $this->belongsTo(User::class, 'number_locked_by');
     }
 }

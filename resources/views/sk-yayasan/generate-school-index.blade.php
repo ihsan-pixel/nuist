@@ -105,6 +105,16 @@
                             <span class="sky-chip">{{ $requests->total() }} data</span>
                             @if($requests->count() > 0)
                                 <form method="POST"
+                                      action="{{ route('sk-yayasan.generate.school.lock-number', $madrasah) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit"
+                                            class="btn btn-outline-dark"
+                                            onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci tidak akan diubah saat generate ulang.')">
+                                        <i class="bx bx-lock-alt me-1"></i>Kunci Nomor SK Sekolah Ini
+                                    </button>
+                                </form>
+                                <form method="POST"
                                       action="{{ route('sk-yayasan.generate.school.pdf', $madrasah) }}"
                                       target="_blank">
                                     @csrf
@@ -181,7 +191,12 @@
                                                     {{ $badgeConfig['label'] }}
                                                 </span>
                                             </td>
-                                            <td>{{ $submission->document?->document_number ?? '-' }}</td>
+                                            <td>
+                                                <div>{{ $submission->document?->document_number ?? '-' }}</div>
+                                                @if($submission->document?->number_locked_at)
+                                                    <small class="text-success fw-semibold">Terkunci</small>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     <form method="POST" action="{{ route('sk-yayasan.generate.store') }}" target="_blank">

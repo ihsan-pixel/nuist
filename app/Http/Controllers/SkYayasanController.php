@@ -1029,6 +1029,10 @@ class SkYayasanController extends Controller
                 'skYayasanImportBatches as synced_batches_count' => fn (Builder $query) => $query->where('status', 'synced'),
                 'skYayasanRequests as generate_requests_count' => fn (Builder $query) => $query
                     ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced')),
+                'skYayasanRequests as generated_documents_count' => fn (Builder $query) => $query
+                    ->whereHas('document'),
+                'skYayasanRequests as locked_documents_count' => fn (Builder $query) => $query
+                    ->whereHas('document', fn (Builder $documentQuery) => $documentQuery->whereNotNull('number_locked_at')),
             ])
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
@@ -1051,12 +1055,6 @@ class SkYayasanController extends Controller
                 ->count(),
             'syncedBatchCount' => SkYayasanImportBatch::query()->where('status', 'synced')->count(),
             'globalSkSettings' => $globalSkSettings,
-            'publishedDocuments' => SkYayasanDocument::query()
-                ->with(['request.employee', 'request.madrasah'])
-                ->where('status', 'published')
-                ->latest('published_at')
-                ->take(10)
-                ->get(),
         ]);
     }
 
@@ -1285,6 +1283,37 @@ class SkYayasanController extends Controller
         return $this->downloadSchoolDocumentsPdf($madrasah, $documents);
     }
 
+    public function lockSchoolDocumentNumbers(Madrasah $madrasah): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        $generatedCount = $this->schoolDocumentsQuery($madrasah)->count();
+
+        if ($generatedCount === 0) {
+            return back()->with('error', 'Belum ada draft SK pada sekolah ini yang bisa dikunci nomornya.');
+        }
+
+        $lockedCount = $this->schoolDocumentsQuery($madrasah)
+            ->whereNotNull('number_locked_at')
+            ->count();
+
+        if ($lockedCount >= $generatedCount) {
+            return back()->with('success', 'Semua nomor SK untuk sekolah ini sudah terkunci.');
+        }
+
+        $updatedCount = DB::transaction(function () use ($madrasah) {
+            return $this->schoolDocumentsQuery($madrasah)
+                ->whereNull('number_locked_at')
+                ->update([
+                    'number_locked_at' => now(),
+                    'number_locked_by' => auth()->id(),
+                    'updated_at' => now(),
+                ]);
+        });
+
+        return back()->with('success', $updatedCount . ' nomor SK berhasil dikunci. Generate berikutnya akan melanjutkan nomor baru tanpa mengubah SK yang sudah dikunci.');
+    }
+
     public function publishDocument(SkYayasanDocument $document): RedirectResponse
     {
         $this->ensureSuperAdmin();
@@ -1295,6 +1324,8 @@ class SkYayasanController extends Controller
             'status' => 'published',
             'published_by' => auth()->id(),
             'published_at' => now(),
+            'number_locked_by' => $document->number_locked_by ?: auth()->id(),
+            'number_locked_at' => $document->number_locked_at ?: now(),
         ]);
 
         $document->request->update([
@@ -1350,23 +1381,29 @@ class SkYayasanController extends Controller
         $requestedNumberFormatSuffix = trim((string) ($data['number_format_suffix'] ?? ''));
         $existingDocumentNumber = $existingDocument?->document_number;
         $existingSequence = $this->extractDocumentNumberSequence($existingDocumentNumber);
+        $isExistingNumberLocked = $existingDocument?->number_locked_at !== null;
         $canReuseExistingNumber = $existingDocumentNumber
             && (
+                $isExistingNumberLocked
+                || (
                 $requestedStartNumber === null
                 || ($existingSequence !== null && $existingSequence >= $requestedStartNumber)
+                )
             );
 
-        $documentNumber = !empty($data['document_number'])
-            ? $data['document_number']
-            : ($canReuseExistingNumber
-                ? $existingDocumentNumber
-                : $this->generateDocumentNumber(
-                    $template,
-                    $submission,
-                    $issuedDate,
-                    $requestedStartNumber,
-                    $requestedNumberFormatSuffix !== '' ? $requestedNumberFormatSuffix : null
-                ));
+        $documentNumber = $isExistingNumberLocked
+            ? $existingDocumentNumber
+            : (!empty($data['document_number'])
+                ? $data['document_number']
+                : ($canReuseExistingNumber
+                    ? $existingDocumentNumber
+                    : $this->generateDocumentNumber(
+                        $template,
+                        $submission,
+                        $issuedDate,
+                        $requestedStartNumber,
+                        $requestedNumberFormatSuffix !== '' ? $requestedNumberFormatSuffix : null
+                    )));
 
         $placeholders = $this->buildTemplatePlaceholders($submission, [
             'nomor_sk' => $documentNumber,
@@ -1482,6 +1519,12 @@ class SkYayasanController extends Controller
             ->latest('generated_at')
             ->latest('published_at')
             ->first();
+    }
+
+    private function schoolDocumentsQuery(Madrasah $madrasah): Builder
+    {
+        return SkYayasanDocument::query()
+            ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasah->id));
     }
 
     private function resolveSchoolCopyRecipients(Madrasah $madrasah): array

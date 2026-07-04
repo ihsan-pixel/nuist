@@ -85,7 +85,7 @@
     </div>
 
     <div class="row g-3">
-        <div class="col-xl-8">
+        <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
@@ -104,6 +104,7 @@
                                         <th>Nama Sekolah</th>
                                         <th>SCOD</th>
                                         <th>Antrean</th>
+                                        <th>Status Nomor SK</th>
                                         <th>Tembusan Otomatis</th>
                                         <th>Aksi</th>
                                     </tr>
@@ -111,6 +112,9 @@
                                 <tbody>
                                     @foreach($schools as $school)
                                         @php($coreData = $school->core_data ?? [])
+                                        @php($generatedDocumentsCount = (int) ($school->generated_documents_count ?? 0))
+                                        @php($lockedDocumentsCount = (int) ($school->locked_documents_count ?? 0))
+                                        @php($allGeneratedLocked = $generatedDocumentsCount > 0 && $generatedDocumentsCount === $lockedDocumentsCount)
                                         <tr>
                                             <td>
                                                 <div class="fw-semibold">
@@ -127,13 +131,35 @@
                                                 </span>
                                             </td>
                                             <td class="small">
+                                                @if($generatedDocumentsCount > 0)
+                                                    <div class="fw-semibold text-dark">{{ $lockedDocumentsCount }}/{{ $generatedDocumentsCount }} nomor terkunci</div>
+                                                    <div class="text-muted mt-1">
+                                                        {{ $allGeneratedLocked ? 'Semua draft/generate sekolah ini sudah final.' : 'Nomor yang sudah dikunci tidak akan berubah saat generate ulang.' }}
+                                                    </div>
+                                                @else
+                                                    <div class="text-muted">Belum ada dokumen yang digenerate</div>
+                                                @endif
+                                            </td>
+                                            <td class="small">
                                                 <div>{{ $coreData['copy_recipient_1'] ?? '-' }}</div>
                                                 <div class="text-muted mt-1">{{ $coreData['copy_recipient_2'] ?? '-' }}</div>
                                             </td>
                                             <td>
-                                                <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-primary">
-                                                    Lihat Pengajuan
-                                                </a>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-primary">
+                                                        Lihat Pengajuan
+                                                    </a>
+                                                    <form method="POST" action="{{ route('sk-yayasan.generate.school.lock-number', $school) }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-outline-dark"
+                                                                @disabled($generatedDocumentsCount === 0 || $allGeneratedLocked)
+                                                                onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci akan tetap dipakai dan tidak akan diubah saat generate ulang.')">
+                                                            Kunci Nomor SK
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -149,30 +175,6 @@
                     @endif
                 </div>
 
-            </div>
-        </div>
-
-        <div class="col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="sky-panel-label mb-1">Dokumen Terbit</div>
-                    <h6 class="mb-3">Publikasi terbaru</h6>
-
-                    @forelse($publishedDocuments as $document)
-                        <div class="sky-document-card mb-3">
-                            <div class="fw-semibold">{{ $document->document_number }}</div>
-                            <div class="sky-document-meta">{{ $document->request?->employee?->name ?? '-' }} - {{ $document->request?->madrasah?->name ?? '-' }}</div>
-                            <div class="small mb-3 mt-2">Terbit {{ optional($document->published_at)->format('d/m/Y H:i') }}</div>
-                            <a href="{{ route('sk-yayasan.documents.download', $document) }}" class="btn btn-sm btn-outline-primary" target="_blank">Lihat PDF</a>
-                        </div>
-                    @empty
-                        <div class="sky-empty-state">
-                            <i class="bx bx-printer"></i>
-                            <strong>Belum ada dokumen terbit</strong>
-                            <small>Dokumen yang berhasil dipublish akan tampil di panel ini.</small>
-                        </div>
-                    @endforelse
-                </div>
             </div>
         </div>
     </div>
