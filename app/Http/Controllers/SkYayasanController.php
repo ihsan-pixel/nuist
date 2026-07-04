@@ -1422,6 +1422,48 @@ class SkYayasanController extends Controller
         return back()->with('success', 'Generate ulang semua sekolah selesai. ' . $renumberedCount . ' nomor SK disusun ulang mengikuti urutan SCOD sekolah.');
     }
 
+    public function lockAllDocumentNumbers(): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        if (!$this->skYayasanDocumentNumberLockSupported()) {
+            return back()->with('error', 'Fitur kunci nomor SK belum aktif karena kolom database belum dimigrasikan.');
+        }
+
+        $schoolIds = $this->generateQueueSchoolsQuery()->pluck('id');
+
+        if ($schoolIds->isEmpty()) {
+            return back()->with('error', 'Belum ada sekolah tersinkron yang bisa dikunci nomornya.');
+        }
+
+        $documentsQuery = SkYayasanDocument::query()
+            ->whereNotNull('document_number')
+            ->whereHas('request', fn (Builder $query) => $query->whereIn('madrasah_id', $schoolIds->all()));
+
+        $generatedCount = (clone $documentsQuery)->count();
+
+        if ($generatedCount === 0) {
+            return back()->with('error', 'Belum ada draft SK yang bisa dikunci.');
+        }
+
+        $lockableQuery = (clone $documentsQuery)->whereNull('number_locked_at');
+        $lockableCount = $lockableQuery->count();
+
+        if ($lockableCount === 0) {
+            return back()->with('success', 'Semua nomor SK pada antrean sekolah sudah terkunci.');
+        }
+
+        $updatedCount = DB::transaction(function () use ($lockableQuery) {
+            return $lockableQuery->update([
+                'number_locked_at' => now(),
+                'number_locked_by' => auth()->id(),
+                'updated_at' => now(),
+            ]);
+        });
+
+        return back()->with('success', $updatedCount . ' nomor SK berhasil dikunci untuk seluruh antrean sekolah.');
+    }
+
     public function lockSchoolDocumentNumbers(Madrasah $madrasah): RedirectResponse
     {
         $this->ensureSuperAdmin();

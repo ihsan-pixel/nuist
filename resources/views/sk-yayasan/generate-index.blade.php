@@ -81,7 +81,17 @@
                     <button type="submit" class="btn btn-primary">Simpan Data Pokok SK Global</button>
                 </div>
             </form>
-            <div class="d-flex justify-content-end mt-2">
+            <div class="d-flex justify-content-end flex-wrap gap-2 mt-2">
+                <form method="POST" action="{{ route('sk-yayasan.generate.lock-all') }}">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit"
+                            class="btn btn-outline-dark"
+                            @disabled(!$numberLockSupported || $schools->isEmpty())
+                            onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate pada seluruh antrean sekolah? Nomor yang sudah dikunci tidak akan bisa berubah saat generate ulang.')">
+                        Kunci All
+                    </button>
+                </form>
                 <form method="POST" action="{{ route('sk-yayasan.generate.regenerate-all') }}">
                     @csrf
                     <button type="submit"
