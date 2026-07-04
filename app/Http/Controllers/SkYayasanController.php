@@ -2471,6 +2471,7 @@ class SkYayasanController extends Controller
             return '-';
         }
 
+        $string = $this->normalizeMissingValueMarkers($string);
         $normalizedLower = Str::lower($string);
 
         if (in_array($normalizedLower, ['-', '?', 'null', '(null)', 'n/a', 'na'], true)) {
@@ -2484,6 +2485,15 @@ class SkYayasanController extends Controller
         $string = trim($string);
 
         return $string === '' ? '-' : $string;
+    }
+
+    private function normalizeMissingValueMarkers(string $value): string
+    {
+        $normalized = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $normalized = preg_replace('/[?？﹖¿\x{061F}]/u', '-', $normalized) ?? $normalized;
+        $normalized = preg_replace('/\b(?:null|\(null\)|n\/a|na|none|undefined)\b/ui', '-', $normalized) ?? $normalized;
+
+        return trim($normalized);
     }
 
     private function formatNameWithDegree(
@@ -2749,8 +2759,7 @@ class SkYayasanController extends Controller
 
     private function normalizePersonRowValueText(string $valueText): string
     {
-        $normalized = preg_replace('/\s*,\s*/u', ', ', trim($valueText)) ?? trim($valueText);
-        $normalized = str_replace('?', '-', $normalized);
+        $normalized = preg_replace('/\s*,\s*/u', ', ', trim($this->normalizeMissingValueMarkers($valueText))) ?? trim($valueText);
         $normalized = preg_replace('/^-\s*,\s*(.+)$/u', '$1', $normalized) ?? $normalized;
         $normalized = preg_replace('/^(.+?)\s*,\s*-$/u', '$1', $normalized) ?? $normalized;
         $normalized = preg_replace('/(?:^|,\s*)-(?:\s*,\s*-)+$/u', '-', $normalized) ?? $normalized;
@@ -2762,7 +2771,7 @@ class SkYayasanController extends Controller
 
     private function normalizeRenderedQuestionMarks(string $html): string
     {
-        return str_replace(['?', '&#63;'], '-', $html);
+        return $this->normalizeMissingValueMarkers($html);
     }
 
     private function templatePreviewPlaceholders(string $documentTitle, Carbon $issuedDate): array
