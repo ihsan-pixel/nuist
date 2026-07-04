@@ -25,9 +25,7 @@
     font-family: Cambria;
     font-size: 13.5pt;
     line-height: 1.15;
-    min-height: 279mm;
-    padding: 0 2mm 112px 2mm;
-    position: relative;
+    padding: 0 2mm;
 }
 .sk-letterhead {
     border-collapse: collapse;
@@ -175,11 +173,7 @@
 }
 .sk-footer-table {
     border-collapse: collapse;
-    bottom: 0;
-    left: 0;
-    margin-top: 0;
-    position: absolute;
-    right: 0;
+    margin-top: 20px;
     width: 100%;
 }
 .sk-footer-table td {
@@ -1070,6 +1064,8 @@ HTML;
                                         <div class="d-inline-flex flex-wrap justify-content-end gap-2">
                                             <form action="<?php echo e(route('sk-yayasan.template.preview-pdf')); ?>" method="POST" target="_blank" class="d-inline">
                                                 <?php echo csrf_field(); ?>
+                                                <input type="hidden" name="name" value="<?php echo e($template->name); ?>">
+                                                <input type="hidden" name="category" value="<?php echo e($template->category); ?>">
                                                 <input type="hidden" name="document_title" value="<?php echo e($template->document_title); ?>">
                                                 <input type="hidden" name="body" value="<?php echo e($template->body); ?>">
                                                 <button type="submit" class="btn btn-sm btn-outline-primary">View PDF</button>
