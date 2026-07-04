@@ -2380,13 +2380,9 @@ class SkYayasanController extends Controller
 
         $pick = function (...$values) {
             foreach ($values as $value) {
-                if ($value === null) {
-                    continue;
-                }
+                $string = $this->sanitizeTemplatePlaceholderValue($value, false);
 
-                $string = trim((string) $value);
-
-                if ($string !== '' && $string !== '-' && $string !== '?') {
+                if ($string !== '-') {
                     return $string;
                 }
             }
@@ -2430,7 +2426,7 @@ class SkYayasanController extends Controller
             '{{tanggal_penetapan}}' => $overrides['tanggal_penetapan'] ?? ($overrides['tanggal_terbit'] ?? $this->formatIndonesianDate(now())),
             '{{tembusan_1}}' => $overrides['tembusan_1'] ?? '-',
             '{{tembusan_2}}' => $overrides['tembusan_2'] ?? '-',
-            '{{catatan_pengajuan}}' => '',
+            '{{catatan_pengajuan}}' => '-',
             '{{nomor_surat_pengajuan}}' => $pick($submission->submission_letter_number),
             '{{tanggal_surat_pengajuan}}' => $this->formatIndonesianDate($submission->submission_letter_date),
             '{{catatan_penerbitan}}' => $overrides['catatan_penerbitan'] ?? '-',
@@ -2456,7 +2452,38 @@ class SkYayasanController extends Controller
             $base['{{' . $key . '}}'] = $value;
         }
 
-        return $base;
+        return collect($base)
+            ->map(fn ($value) => $this->sanitizeTemplatePlaceholderValue($value))
+            ->all();
+    }
+
+    private function sanitizeTemplatePlaceholderValue(mixed $value, bool $preserveLineBreaks = true): string
+    {
+        if ($value === null) {
+            return '-';
+        }
+
+        $string = $preserveLineBreaks
+            ? trim((string) $value)
+            : trim(preg_replace('/\s+/u', ' ', (string) $value) ?? (string) $value);
+
+        if ($string === '') {
+            return '-';
+        }
+
+        $normalizedLower = Str::lower($string);
+
+        if (in_array($normalizedLower, ['-', '?', 'null', '(null)', 'n/a', 'na'], true)) {
+            return '-';
+        }
+
+        $string = str_replace(['&#63;', '?'], '-', $string);
+        $string = preg_replace('/(?:^|,\s*)-(?:\s*,\s*-)+$/u', '-', $string) ?? $string;
+        $string = preg_replace('/^-\s*,\s*(.+)$/u', '$1', $string) ?? $string;
+        $string = preg_replace('/^(.+?)\s*,\s*-$/u', '$1', $string) ?? $string;
+        $string = trim($string);
+
+        return $string === '' ? '-' : $string;
     }
 
     private function formatNameWithDegree(
