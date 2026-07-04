@@ -163,6 +163,7 @@
     width: 5px;
 }
 .sk-signature {
+    line-height: 1.02;
     margin-left: auto;
     margin-top: 20px;
     width: 290px;
@@ -1551,7 +1552,7 @@ HTML;
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
-.sk-signature { margin-left: auto; margin-top: 20px; width: 290px; }
+.sk-signature { line-height: 1.02; margin-left: auto; margin-top: 20px; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 54px; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 12px; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
 .sk-copy-title { text-decoration: underline; }

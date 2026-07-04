@@ -2606,9 +2606,24 @@ class SkYayasanController extends Controller
             return $body;
         }
 
-        return preg_replace(
+        $body = preg_replace(
             '/\.sk-label\s*\{\s*width\s*:\s*\d+px\s*;\s*\}/u',
             '.sk-label { width: 164px; }',
+            $body
+        ) ?? $body;
+
+        return preg_replace_callback(
+            '/\.sk-signature\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-signature { ' . trim($styles . ' line-height: 1.02;') . ' }';
+            },
             $body
         ) ?? $body;
     }
