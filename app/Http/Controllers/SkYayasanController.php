@@ -2567,6 +2567,7 @@ class SkYayasanController extends Controller
     private function renderTemplate(string $body, array $placeholders): string
     {
         $body = $this->normalizeStructuredTemplatePlaceholders($body);
+        $body = $this->normalizeStructuredTemplateStyles($body);
         $normalizedPlaceholders = $placeholders;
 
         foreach ($placeholders as $key => $value) {
@@ -2596,6 +2597,19 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         return $body;
+    }
+
+    private function normalizeStructuredTemplateStyles(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"')) {
+            return $body;
+        }
+
+        return preg_replace(
+            '/\.sk-label\s*\{\s*width\s*:\s*\d+px\s*;\s*\}/u',
+            '.sk-label { width: 148px; }',
+            $body
+        ) ?? $body;
     }
 
     private function normalizePersonRows(string $html): string
