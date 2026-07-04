@@ -2492,6 +2492,11 @@ class SkYayasanController extends Controller
         $string = preg_replace('/^-\s*,\s*(.+)$/u', '$1', $string) ?? $string;
         $string = preg_replace('/^(.+?)\s*,\s*-$/u', '$1', $string) ?? $string;
         $string = trim($string);
+        $meaningful = preg_replace('/[^\pL\pN]+/u', '', $string) ?? $string;
+
+        if ($meaningful === '') {
+            return '-';
+        }
 
         return $string === '' ? '-' : $string;
     }
@@ -2774,7 +2779,7 @@ class SkYayasanController extends Controller
         $normalized = preg_replace('/(?:^|,\s*)-(?:\s*,\s*-)+$/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/^-\s*,\s*$/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/^-\s*,\s*-\s*$/u', '-', $normalized) ?? $normalized;
-        $meaningful = preg_replace('/[-,\.\s\/]+/u', '', $normalized) ?? $normalized;
+        $meaningful = preg_replace('/[^\pL\pN]+/u', '', $normalized) ?? $normalized;
 
         if ($meaningful === '') {
             return '-';
