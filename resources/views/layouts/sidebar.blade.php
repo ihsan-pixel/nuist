@@ -127,7 +127,7 @@
                     </a>
                     <ul class="sub-menu collapse" id="skYayasanSubmenu">
                         <li><a href="{{ route('sk-yayasan.dashboard') }}">Dashboard SK Yayasan</a></li>
-                        <li><a href="{{ route('sk-yayasan.pengajuan.index') }}">Pengajuan Perpanjangan SK</a></li>
+                        <li><a href="{{ route('sk-yayasan.pengajuan.index') }}">Pengajuan SK</a></li>
                         <li><a href="{{ route('sk-yayasan.template.index') }}">Template SK Yayasan</a></li>
                         <li><a href="{{ route('sk-yayasan.generate.index') }}">Generate SK Yayasan</a></li>
                     </ul>
