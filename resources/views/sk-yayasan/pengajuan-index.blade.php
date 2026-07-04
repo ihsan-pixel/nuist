@@ -461,6 +461,38 @@
         margin: 1.5rem 0;
     }
 
+    .sky-collapse-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 18px;
+        color: inherit;
+        display: flex;
+        justify-content: space-between;
+        padding: 1.2rem 1.25rem;
+        text-align: left;
+        width: 100%;
+    }
+
+    .sky-collapse-trigger:focus {
+        box-shadow: none;
+        outline: none;
+    }
+
+    .sky-collapse-trigger .sky-collapse-icon {
+        color: var(--sky-muted);
+        font-size: 1.2rem;
+        transition: transform .2s ease;
+    }
+
+    .sky-collapse-trigger[aria-expanded="true"] .sky-collapse-icon {
+        transform: rotate(180deg);
+    }
+
+    .sky-collapse-shell {
+        border-top: 1px solid var(--sky-line);
+    }
+
     @media (max-width: 768px) {
         .sky-header {
             padding: 1.1rem;
@@ -633,377 +665,389 @@
         </div>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-                <div>
-                    <div class="sky-panel-label mb-1">Daftar Pengajuan</div>
-                    <h6 class="mb-0">Semua pengajuan yang masuk ke yayasan, termasuk yang ditolak</h6>
-                </div>
-                <span class="sky-chip">{{ number_format($submissions->total()) }} pengajuan</span>
-            </div>
-
-            <form method="GET" class="sky-filter-shell mb-3">
-                <div class="row g-2 align-items-end">
-                    <div class="col-lg-5">
-                        <label class="form-label mb-1">Cari sekolah, pegawai, atau nomor surat</label>
-                        <input
-                            type="text"
-                            name="q"
-                            value="{{ request('q') }}"
-                            class="form-control"
-                            placeholder="Contoh: SMA Ma'arif, Ahmad, atau nomor surat">
-                    </div>
-                    <div class="col-lg-3">
-                        <label class="form-label mb-1">Sekolah</label>
-                        <select name="madrasah_id" class="form-select">
-                            <option value="">Semua sekolah</option>
-                            @foreach($madrasahs as $madrasah)
-                                <option value="{{ $madrasah->id }}" @selected((string) request('madrasah_id') === (string) $madrasah->id)>{{ $madrasah->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-lg-2">
-                        <label class="form-label mb-1">Status</label>
-                        <select name="status" class="form-select">
-                            <option value="">Semua status</option>
-                            @foreach($statusOptions as $value => $label)
-                                <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-lg-2">
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Terapkan</button>
-                            <a href="{{ route('sk-yayasan.pengajuan.index') }}" class="btn btn-light">Reset</a>
-                        </div>
-                    </div>
-                </div>
-            </form>
-
-            @if($submissions->count() > 0)
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Pengajuan</th>
-                                <th>Pegawai</th>
-                                <th>Sekolah</th>
-                                <th>Surat Pengajuan</th>
-                                <th>Status</th>
-                                <th>Template</th>
-                                <th>Catatan Review</th>
-                                <th class="text-end">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($submissions as $submission)
-                                @php
-                                    $submissionBadge = $statusBadgeMap[$submission->current_status] ?? ['color' => 'secondary', 'label' => ucfirst(str_replace('_', ' ', (string) $submission->current_status))];
-                                @endphp
-                                <tr>
-                                    <td>
-                                        <span class="sky-data-primary">{{ $submission->request_number }}</span>
-                                        <span class="sky-data-secondary">Masuk {{ optional($submission->submitted_at)->format('d/m/Y H:i') ?? '-' }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="sky-data-primary">{{ $submission->employee?->name ?? '-' }}</span>
-                                        <span class="sky-data-secondary">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? 'Status belum tersedia') }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="sky-data-primary">{{ $submission->madrasah?->name ?? '-' }}</span>
-                                        <span class="sky-data-secondary">Dikirim oleh {{ $submission->submitter?->name ?? '-' }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="sky-data-primary">{{ $submission->submission_letter_number ?? '-' }}</span>
-                                        <span class="sky-data-secondary">{{ optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? 'Tanggal belum diisi' }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ $submissionBadge['color'] }}-subtle text-{{ $submissionBadge['color'] }}">{{ $submissionBadge['label'] }}</span>
-                                        <span class="sky-data-secondary">
-                                            @if($submission->reviewer)
-                                                Review oleh {{ $submission->reviewer->name }}{{ $submission->reviewed_at ? ' • ' . $submission->reviewed_at->format('d/m/Y H:i') : '' }}
-                                            @else
-                                                Menunggu review yayasan
-                                            @endif
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="sky-data-primary">{{ $submission->template?->name ?? 'Belum dipilih' }}</span>
-                                        <span class="sky-data-secondary">{{ $submission->document ? 'Draft/PDF tersedia' : 'Belum ada dokumen' }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="sky-data-secondary mt-0">{{ \Illuminate\Support\Str::limit($submission->review_notes ?: 'Belum ada catatan review.', 110) }}</span>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="d-inline-flex flex-wrap justify-content-end gap-2">
-                                            @if($submission->document)
-                                                <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
-                                                    PDF
-                                                </a>
-                                            @endif
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $submission->id }}">
-                                                Review
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="sky-empty-state py-5">
-                    <i class="bx bx-search-alt"></i>
-                    <strong>Tidak ada pengajuan yang sesuai filter</strong>
-                    <small>Coba ubah kata kunci, sekolah, atau status termasuk filter ditolak untuk melihat data lain.</small>
-                </div>
-            @endif
-        </div>
-
-        @if($submissions->hasPages())
-            <div class="card-footer">
-                <div class="sky-pagination-wrap">
-                    {{ $submissions->links('pagination::bootstrap-5') }}
-                </div>
-            </div>
-        @endif
-    </div>
-
-    <div class="row g-3">
+    <div class="row g-3 mb-4">
         <div class="col-xl-6">
             <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#pendingBatchPanel" aria-expanded="true" aria-controls="pendingBatchPanel">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
                         <div>
                             <div class="sky-panel-label mb-1">Batch Pending</div>
                             <h6 class="mb-0">Import yang masih menunggu review</h6>
                         </div>
                         <span class="sky-chip">{{ $pendingImportBatches->total() }} batch</span>
                     </div>
+                    <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
+                </button>
 
-                    @if($pendingImportBatches->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr>
-                                        {{-- <th>File Import</th> --}}
-                                        <th>Sekolah</th>
-                                        <th>Upload</th>
-                                        <th>Validasi</th>
-                                        <th class="text-end">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($pendingImportBatches as $batch)
+                <div id="pendingBatchPanel" class="collapse show sky-collapse-shell">
+                    <div class="card-body">
+                        @if($pendingImportBatches->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
                                         <tr>
-                                            {{-- <td>
-                                                <span class="sky-data-primary">{{ $batch->original_filename }}</span>
-                                            </td> --}}
-                                            <td>
-                                                <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="sky-data-primary">{{ $batch->uploader?->name ?? '-' }}</span>
-                                                <span class="sky-data-secondary">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="sky-data-primary">{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</span>
-                                                <span class="sky-data-secondary">{{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}</span>
-                                            </td>
-                                            <td class="text-end">
-                                                <div class="d-inline-flex flex-wrap justify-content-end gap-2">
-                                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
-                                                        Review
-                                                    </button>
-                                                    <form method="POST"
-                                                          action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
-                                                          data-sk-swal-confirm
-                                                          data-sk-swal-title="Hapus pengajuan ini?"
-                                                          data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
-                                                          data-sk-swal-confirm-text="Ya, hapus"
-                                                          data-sk-swal-icon="warning">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
-                                                    </form>
-                                                </div>
-                                            </td>
+                                            <th>Sekolah</th>
+                                            <th>Upload</th>
+                                            <th>Validasi</th>
+                                            <th class="text-end">Aksi</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="sky-empty-state py-5">
-                            <i class="bx bx-spreadsheet"></i>
-                            <strong>Tidak ada batch pending review</strong>
-                            <small>Batch baru dari sekolah akan muncul di sini sebelum disinkronkan.</small>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($pendingImportBatches as $batch)
+                                            <tr>
+                                                <td>
+                                                    <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="sky-data-primary">{{ $batch->uploader?->name ?? '-' }}</span>
+                                                    <span class="sky-data-secondary">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="sky-data-primary">{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</span>
+                                                    <span class="sky-data-secondary">{{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}</span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                                            Review
+                                                        </button>
+                                                        <form method="POST"
+                                                              action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                                              data-sk-swal-confirm
+                                                              data-sk-swal-title="Hapus pengajuan ini?"
+                                                              data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
+                                                              data-sk-swal-confirm-text="Ya, hapus"
+                                                              data-sk-swal-icon="warning">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="sky-empty-state py-5">
+                                <i class="bx bx-spreadsheet"></i>
+                                <strong>Tidak ada batch pending review</strong>
+                                <small>Batch baru dari sekolah akan muncul di sini sebelum disinkronkan.</small>
+                            </div>
+                        @endif
+                    </div>
+
+                    @if($pendingImportBatches->hasPages())
+                        <div class="card-footer">
+                            <div class="sky-pagination-wrap">
+                                {{ $pendingImportBatches->links('pagination::bootstrap-5') }}
+                            </div>
                         </div>
                     @endif
                 </div>
-
-                @if($pendingImportBatches->hasPages())
-                    <div class="card-footer">
-                        <div class="sky-pagination-wrap">
-                            {{ $pendingImportBatches->links('pagination::bootstrap-5') }}
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
 
         <div class="col-xl-6">
             <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#syncedBatchPanel" aria-expanded="true" aria-controls="syncedBatchPanel">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
                         <div>
                             <div class="sky-panel-label mb-1">Batch Tersinkron</div>
                             <h6 class="mb-0">Import yang sudah masuk ke aplikasi</h6>
                         </div>
                         <span class="sky-chip">{{ $syncedImportBatches->total() }} batch • {{ $syncedImportBatchSchoolCount }} sekolah</span>
                     </div>
+                    <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
+                </button>
 
-                    @if($syncedImportBatches->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr>
-                                        {{-- <th>File Import</th> --}}
-                                        <th>Sekolah</th>
-                                        <th>Tersinkron</th>
-                                        <th>Data Sinkron</th>
-                                        <th class="text-end">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($syncedImportBatches as $batch)
-                                        @php
-                                            $matchedValidRowsCount = $batch->rows
-                                                ->filter(fn ($row) => $row->is_valid && $row->matched_user_id)
-                                                ->unique('matched_user_id')
-                                                ->count();
-                                            $displaySubmissionCount = $batch->requests_count > 0
-                                                ? $batch->requests_count
-                                                : $matchedValidRowsCount;
-                                        @endphp
+                <div id="syncedBatchPanel" class="collapse show sky-collapse-shell">
+                    <div class="card-body">
+                        @if($syncedImportBatches->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
                                         <tr>
-                                            {{-- <td>
-                                                <span class="sky-data-primary">{{ $batch->original_filename }}</span>
-                                            </td> --}}
-                                            <td>
-                                                <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="sky-data-primary">{{ $batch->reviewer?->name ?? '-' }}</span>
-                                                <span class="sky-data-secondary">{{ optional($batch->synced_at)->format('d/m/Y H:i') ?? '-' }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="sky-data-primary">{{ number_format($displaySubmissionCount) }} pengajuan</span>
-                                                <span class="sky-data-secondary">{{ number_format($batch->valid_rows) }} dari {{ number_format($batch->total_rows) }} baris valid</span>
-                                            </td>
-                                            <td class="text-end">
-                                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
-                                                    Detail
-                                                </button>
-                                            </td>
+                                            <th>Sekolah</th>
+                                            <th>Tersinkron</th>
+                                            <th>Data Sinkron</th>
+                                            <th class="text-end">Aksi</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="sky-empty-state py-5">
-                            <i class="bx bx-check-shield"></i>
-                            <strong>Belum ada batch tersinkron</strong>
-                            <small>Batch yang sudah berhasil disinkronkan ke aplikasi akan tampil di sini.</small>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($syncedImportBatches as $batch)
+                                            @php
+                                                $matchedValidRowsCount = $batch->rows
+                                                    ->filter(fn ($row) => $row->is_valid && $row->matched_user_id)
+                                                    ->unique('matched_user_id')
+                                                    ->count();
+                                                $displaySubmissionCount = $batch->requests_count > 0
+                                                    ? $batch->requests_count
+                                                    : $matchedValidRowsCount;
+                                            @endphp
+                                            <tr>
+                                                <td>
+                                                    <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="sky-data-primary">{{ $batch->reviewer?->name ?? '-' }}</span>
+                                                    <span class="sky-data-secondary">{{ optional($batch->synced_at)->format('d/m/Y H:i') ?? '-' }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="sky-data-primary">{{ number_format($displaySubmissionCount) }} pengajuan</span>
+                                                    <span class="sky-data-secondary">{{ number_format($batch->valid_rows) }} dari {{ number_format($batch->total_rows) }} baris valid</span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="sky-empty-state py-5">
+                                <i class="bx bx-check-shield"></i>
+                                <strong>Belum ada batch tersinkron</strong>
+                                <small>Batch yang sudah berhasil disinkronkan ke aplikasi akan tampil di sini.</small>
+                            </div>
+                        @endif
+                    </div>
+
+                    @if($syncedImportBatches->hasPages())
+                        <div class="card-footer">
+                            <div class="sky-pagination-wrap">
+                                {{ $syncedImportBatches->links('pagination::bootstrap-5') }}
+                            </div>
                         </div>
                     @endif
                 </div>
-
-                @if($syncedImportBatches->hasPages())
-                    <div class="card-footer">
-                        <div class="sky-pagination-wrap">
-                            {{ $syncedImportBatches->links('pagination::bootstrap-5') }}
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
     </div>
 
+    <div class="card mb-4">
+        <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#submissionListPanel" aria-expanded="false" aria-controls="submissionListPanel">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Daftar Pengajuan</div>
+                    <h6 class="mb-0">Semua pengajuan yang masuk ke yayasan, termasuk yang ditolak</h6>
+                </div>
+                <span class="sky-chip">{{ number_format($submissions->total()) }} pengajuan</span>
+            </div>
+            <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
+        </button>
+
+        <div id="submissionListPanel" class="collapse sky-collapse-shell">
+            <div class="card-body">
+                <form method="GET" class="sky-filter-shell mb-3">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-lg-5">
+                            <label class="form-label mb-1">Cari sekolah, pegawai, atau nomor surat</label>
+                            <input
+                                type="text"
+                                name="q"
+                                value="{{ request('q') }}"
+                                class="form-control"
+                                placeholder="Contoh: SMA Ma'arif, Ahmad, atau nomor surat">
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="form-label mb-1">Sekolah</label>
+                            <select name="madrasah_id" class="form-select">
+                                <option value="">Semua sekolah</option>
+                                @foreach($madrasahs as $madrasah)
+                                    <option value="{{ $madrasah->id }}" @selected((string) request('madrasah_id') === (string) $madrasah->id)>{{ $madrasah->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label class="form-label mb-1">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">Semua status</option>
+                                @foreach($statusOptions as $value => $label)
+                                    <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Terapkan</button>
+                                <a href="{{ route('sk-yayasan.pengajuan.index') }}" class="btn btn-light">Reset</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                @if($submissions->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Pengajuan</th>
+                                    <th>Pegawai</th>
+                                    <th>Sekolah</th>
+                                    <th>Surat Pengajuan</th>
+                                    <th>Status</th>
+                                    <th>Template</th>
+                                    <th>Catatan Review</th>
+                                    <th class="text-end">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($submissions as $submission)
+                                    @php
+                                        $submissionBadge = $statusBadgeMap[$submission->current_status] ?? ['color' => 'secondary', 'label' => ucfirst(str_replace('_', ' ', (string) $submission->current_status))];
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            <span class="sky-data-primary">{{ $submission->request_number }}</span>
+                                            <span class="sky-data-secondary">Masuk {{ optional($submission->submitted_at)->format('d/m/Y H:i') ?? '-' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-primary">{{ $submission->employee?->name ?? '-' }}</span>
+                                            <span class="sky-data-secondary">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? 'Status belum tersedia') }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-primary">{{ $submission->madrasah?->name ?? '-' }}</span>
+                                            <span class="sky-data-secondary">Dikirim oleh {{ $submission->submitter?->name ?? '-' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-primary">{{ $submission->submission_letter_number ?? '-' }}</span>
+                                            <span class="sky-data-secondary">{{ optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? 'Tanggal belum diisi' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ $submissionBadge['color'] }}-subtle text-{{ $submissionBadge['color'] }}">{{ $submissionBadge['label'] }}</span>
+                                            <span class="sky-data-secondary">
+                                                @if($submission->reviewer)
+                                                    Review oleh {{ $submission->reviewer->name }}{{ $submission->reviewed_at ? ' • ' . $submission->reviewed_at->format('d/m/Y H:i') : '' }}
+                                                @else
+                                                    Menunggu review yayasan
+                                                @endif
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-primary">{{ $submission->template?->name ?? 'Belum dipilih' }}</span>
+                                            <span class="sky-data-secondary">{{ $submission->document ? 'Draft/PDF tersedia' : 'Belum ada dokumen' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-secondary mt-0">{{ \Illuminate\Support\Str::limit($submission->review_notes ?: 'Belum ada catatan review.', 110) }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                                @if($submission->document)
+                                                    <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                                        PDF
+                                                    </a>
+                                                @endif
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $submission->id }}">
+                                                    Review
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="sky-empty-state py-5">
+                        <i class="bx bx-search-alt"></i>
+                        <strong>Tidak ada pengajuan yang sesuai filter</strong>
+                        <small>Coba ubah kata kunci, sekolah, atau status termasuk filter ditolak untuk melihat data lain.</small>
+                    </div>
+                @endif
+            </div>
+
+            @if($submissions->hasPages())
+                <div class="card-footer">
+                    <div class="sky-pagination-wrap">
+                        {{ $submissions->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <div class="card mt-4">
-        <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+        <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#schoolMonitoringPanel" aria-expanded="false" aria-controls="schoolMonitoringPanel">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
                 <div>
                     <div class="sky-panel-label mb-1">Monitoring Sekolah</div>
                     <h6 class="mb-0">Status ringkas pengajuan per sekolah</h6>
                 </div>
                 <span class="sky-chip">{{ count($schoolSubmissionSummaryRows) }} sekolah</span>
             </div>
+            <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
+        </button>
 
-            <div class="table-responsive">
-                <table class="table align-middle sky-compact-table">
-                    <thead>
-                        <tr>
-                            <th>SCOD</th>
-                            <th>Sekolah</th>
-                            <th>Status</th>
-                            <th>Pengajuan</th>
-                            <th>Batch Aktif</th>
-                            <th>Batch Terakhir</th>
-                            <th>Ditolak</th>
-                            <th>Belum Match</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($schoolSubmissionSummaryRows as $row)
-                            @php
-                                $schoolStatusBadge = match ($row['submission_status_label']) {
-                                    'Sudah Mengajukan' => ['color' => 'success', 'label' => 'Sudah Mengajukan'],
-                                    'Ditolak' => ['color' => 'danger', 'label' => 'Ditolak'],
-                                    default => ['color' => 'secondary', 'label' => 'Belum Mengajukan'],
-                                };
-                                $latestBatchBadge = $batchStatusBadgeMap[$row['latest_batch_status'] ?? ''] ?? ['color' => 'secondary', 'label' => 'Belum ada batch'];
-                                $hasRejectedHistory = ($row['rejected_requests_count'] ?? 0) > 0 || ($row['rejected_batch_count'] ?? 0) > 0;
-                            @endphp
+        <div id="schoolMonitoringPanel" class="collapse sky-collapse-shell">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle sky-compact-table">
+                        <thead>
                             <tr>
-                                <td>{{ $row['scod'] ?: '-' }}</td>
-                                <td>
-                                    <span class="sky-data-primary">{{ $row['school_name'] ?: '-' }}</span>
-                                    <span class="sky-data-secondary">{{ $row['kabupaten'] ?: '-' }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ $schoolStatusBadge['color'] }}-subtle text-{{ $schoolStatusBadge['color'] }}">{{ $schoolStatusBadge['label'] }}</span>
-                                    @if($hasRejectedHistory && $row['submission_status_label'] !== 'Ditolak')
-                                        <span class="badge bg-danger-subtle text-danger mt-1">Ada Riwayat Ditolak</span>
-                                    @endif
-                                </td>
-                                <td>{{ number_format($row['total_requests']) }}</td>
-                                <td>{{ number_format($row['active_batch_count']) }}</td>
-                                <td>
-                                    <span class="badge bg-{{ $latestBatchBadge['color'] }}-subtle text-{{ $latestBatchBadge['color'] }}">{{ $latestBatchBadge['label'] }}</span>
-                                    <span class="sky-data-secondary">{{ optional($row['latest_batch_uploaded_at'])->format('d/m/Y H:i') ?: 'Belum ada upload' }}</span>
-                                </td>
-                                <td>
-                                    <span class="sky-data-primary">{{ number_format($row['rejected_requests_count'] ?? 0) }} pengajuan</span>
-                                    <span class="sky-data-secondary">{{ number_format($row['rejected_batch_count'] ?? 0) }} batch ditolak</span>
-                                </td>
-                                <td>{{ number_format($row['latest_batch_unmatched_count']) }}</td>
+                                <th>SCOD</th>
+                                <th>Sekolah</th>
+                                <th>Status</th>
+                                <th>Pengajuan</th>
+                                <th>Batch Aktif</th>
+                                <th>Batch Terakhir</th>
+                                <th>Ditolak</th>
+                                <th>Belum Match</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8">
-                                    <div class="sky-empty-state py-4">
-                                        <i class="bx bx-buildings"></i>
-                                        <strong>Belum ada data sekolah</strong>
-                                        <small>Ringkasan sekolah akan tampil otomatis saat data pengajuan tersedia.</small>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse($schoolSubmissionSummaryRows as $row)
+                                @php
+                                    $schoolStatusBadge = match ($row['submission_status_label']) {
+                                        'Sudah Mengajukan' => ['color' => 'success', 'label' => 'Sudah Mengajukan'],
+                                        'Ditolak' => ['color' => 'danger', 'label' => 'Ditolak'],
+                                        default => ['color' => 'secondary', 'label' => 'Belum Mengajukan'],
+                                    };
+                                    $latestBatchBadge = $batchStatusBadgeMap[$row['latest_batch_status'] ?? ''] ?? ['color' => 'secondary', 'label' => 'Belum ada batch'];
+                                    $hasRejectedHistory = ($row['rejected_requests_count'] ?? 0) > 0 || ($row['rejected_batch_count'] ?? 0) > 0;
+                                @endphp
+                                <tr>
+                                    <td>{{ $row['scod'] ?: '-' }}</td>
+                                    <td>
+                                        <span class="sky-data-primary">{{ $row['school_name'] ?: '-' }}</span>
+                                        <span class="sky-data-secondary">{{ $row['kabupaten'] ?: '-' }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $schoolStatusBadge['color'] }}-subtle text-{{ $schoolStatusBadge['color'] }}">{{ $schoolStatusBadge['label'] }}</span>
+                                        @if($hasRejectedHistory && $row['submission_status_label'] !== 'Ditolak')
+                                            <span class="badge bg-danger-subtle text-danger mt-1">Ada Riwayat Ditolak</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ number_format($row['total_requests']) }}</td>
+                                    <td>{{ number_format($row['active_batch_count']) }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $latestBatchBadge['color'] }}-subtle text-{{ $latestBatchBadge['color'] }}">{{ $latestBatchBadge['label'] }}</span>
+                                        <span class="sky-data-secondary">{{ optional($row['latest_batch_uploaded_at'])->format('d/m/Y H:i') ?: 'Belum ada upload' }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="sky-data-primary">{{ number_format($row['rejected_requests_count'] ?? 0) }} pengajuan</span>
+                                        <span class="sky-data-secondary">{{ number_format($row['rejected_batch_count'] ?? 0) }} batch ditolak</span>
+                                    </td>
+                                    <td>{{ number_format($row['latest_batch_unmatched_count']) }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8">
+                                        <div class="sky-empty-state py-4">
+                                            <i class="bx bx-buildings"></i>
+                                            <strong>Belum ada data sekolah</strong>
+                                            <small>Ringkasan sekolah akan tampil otomatis saat data pengajuan tersedia.</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

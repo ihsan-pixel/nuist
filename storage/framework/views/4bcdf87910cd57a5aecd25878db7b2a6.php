@@ -1377,17 +1377,26 @@
                                     </td>
                                     <td>
                                         <span class="count-pill"><?php echo e(count($data['presensi'])); ?> orang</span>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($data['not_required_count'] ?? 0) > 0): ?>
+                                            <div class="kabupaten-info mt-1"><?php echo e($data['not_required_count']); ?> tidak bertugas</div>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </td>
                                     <td>
                                         <?php
-                                            $hadir = collect($data['presensi'])->where('status', 'hadir')->count();
-                                            $total = count($data['presensi']);
-                                            $persentase = $total > 0 ? round(($hadir / $total) * 100) : 0;
+                                            $hadir = $data['present_count'] ?? 0;
+                                            $total = $data['obligated_count'] ?? 0;
+                                            $persentase = $data['attendance_percentage'] ?? 0;
                                             $attendanceClass = $persentase >= 80 ? 'attendance-pill-good' : ($persentase >= 50 ? 'attendance-pill-medium' : 'attendance-pill-low');
                                         ?>
-                                        <span class="attendance-pill <?php echo e($attendanceClass); ?>">
-                                            <?php echo e($hadir); ?>/<?php echo e($total); ?> hadir (<?php echo e($persentase); ?>%)
-                                        </span>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($total > 0): ?>
+                                            <span class="attendance-pill <?php echo e($attendanceClass); ?>">
+                                                <?php echo e($hadir); ?>/<?php echo e($total); ?> presensi (<?php echo e($persentase); ?>%)
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="attendance-pill attendance-pill-medium">
+                                                Tidak ada guru bertugas
+                                            </span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2 flex-wrap action-cluster">
@@ -2173,7 +2182,9 @@ $(document).ready(function () {
 
         tenagaPendidik.forEach(staff => {
             let status = staff.status || 'tidak_hadir';
-            if (groupedStaff[status]) {
+            if (status === 'tidak_wajib_presensi') {
+                groupedStaff.izin.push(staff);
+            } else if (groupedStaff[status]) {
                 groupedStaff[status].push(staff);
             } else {
                 groupedStaff.tidak_hadir.push(staff);
@@ -2204,6 +2215,7 @@ $(document).ready(function () {
                 staffHtml = '<div class="row g-3">';
                 staffList.forEach(staff => {
                     let statusBadge = getStatusBadge(staff.status);
+                    let statusClass = (staff.status || status).replace(/_/g, '-');
                     let timeInfo = staff.created_at ? new Date(staff.created_at).toLocaleString('id-ID', {
                         year: 'numeric',
                         month: 'short',
@@ -2214,7 +2226,7 @@ $(document).ready(function () {
 
                 staffHtml += `
                         <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 border-0 shadow-sm staff-card ${status}">
+                            <div class="card h-100 border-0 shadow-sm staff-card ${statusClass}">
                                 <div class="card-body p-3">
                                     <div class="d-flex align-items-center mb-3">
                                         <div class="avatar-sm me-3">
@@ -2340,6 +2352,11 @@ $(document).ready(function () {
                 badgeClass = 'bg-info';
                 statusText = 'Izin';
                 iconClass = 'mdi-account-edit';
+                break;
+            case 'tidak_wajib_presensi':
+                badgeClass = 'bg-secondary';
+                statusText = 'Tidak Bertugas';
+                iconClass = 'mdi-account-off';
                 break;
         }
 

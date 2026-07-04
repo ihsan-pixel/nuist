@@ -4,6 +4,16 @@
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col-12">
+            <div class="alert alert-info mb-0">
+                <strong>Keterangan rekap:</strong>
+                Perhitungan hadir, izin, dan alpha hanya menggunakan tenaga pendidik yang memang wajib presensi pada tanggal tersebut.
+                Kolom <strong>Tidak Bertugas</strong> menunjukkan jumlah tenaga pendidik yang pada tanggal tersebut memang tidak bertugas presensi, termasuk saat berada di luar jadwal piket yang disetujui.
+                Tanda <strong>-</strong> berarti hari libur atau hari di luar KBM madrasah.
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">10 Madrasah Terbaik Presensi Bulanan</h3>
@@ -78,12 +88,12 @@
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
                                 <th rowspan="2" class="text-center align-middle">Hari KBM</th>
                                 <th rowspan="2" class="text-center align-middle">Total Tenaga Pendidik</th>
-                                <th colspan="3" class="text-center">Senin</th>
-                                <th colspan="3" class="text-center">Selasa</th>
-                                <th colspan="3" class="text-center">Rabu</th>
-                                <th colspan="3" class="text-center">Kamis</th>
-                                <th colspan="3" class="text-center">Jumat</th>
-                                <th colspan="3" class="text-center">Sabtu</th>
+                                <th colspan="4" class="text-center">Senin</th>
+                                <th colspan="4" class="text-center">Selasa</th>
+                                <th colspan="4" class="text-center">Rabu</th>
+                                <th colspan="4" class="text-center">Kamis</th>
+                                <th colspan="4" class="text-center">Jumat</th>
+                                <th colspan="4" class="text-center">Sabtu</th>
                                 <th rowspan="2" class="text-center align-middle">Persentase Kehadiran (%)</th>
                                 <th rowspan="2" class="text-center align-middle">Rank</th>
                             </tr>
@@ -92,13 +102,14 @@
                                 <th class="text-center">Hadir</th>
                                 <th class="text-center">Izin</th>
                                 <th class="text-center">Alpha</th>
+                                <th class="text-center">Tidak Bertugas</th>
                                 <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $laporanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr class="bg-info">
-                                <td colspan="24" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
+                                <td colspan="30" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
                             </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr>
@@ -110,6 +121,7 @@
                                 <td class="text-center"><?php echo e($presensi['hadir']); ?></td>
                                 <td class="text-center"><?php echo e($presensi['izin']); ?></td>
                                 <td class="text-center"><?php echo e($presensi['alpha']); ?></td>
+                                <td class="text-center"><?php echo e($presensi['tidak_wajib']); ?></td>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 <td class="text-center font-weight-bold"><?php echo e(number_format($madrasah['persentase_kehadiran'], 2, ',', '.')); ?>%</td>
                                 <td class="text-center font-weight-bold"><?php echo e($madrasah['rank']); ?></td>

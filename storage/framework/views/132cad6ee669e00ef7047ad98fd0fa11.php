@@ -87,55 +87,419 @@
         color: #842029 !important;
     }
 
+    .sky-page {
+        --sky-ink: #182a25;
+        --sky-muted: #6a7b74;
+        --sky-line: #dfe8e3;
+        --sky-soft: #f5f8f6;
+        --sky-soft-strong: #eef4f0;
+        --sky-brand: #0f6b4f;
+        --sky-brand-dark: #0a4d3f;
+        --sky-warn: #9a6a00;
+    }
+
+    .sky-page .card,
+    .sky-page .accordion-item,
+    .sky-page .modal-content {
+        background: #fff;
+        border: 1px solid var(--sky-line) !important;
+        border-radius: 18px !important;
+        box-shadow: 0 10px 24px rgba(18, 40, 33, 0.04) !important;
+    }
+
+    .sky-page .modal-header,
+    .sky-page .card-header,
+    .sky-page .card-footer {
+        background: #fff;
+        border-color: var(--sky-line);
+    }
+
+    .sky-page .card-header:first-child {
+        border-radius: 18px 18px 0 0 !important;
+    }
+
+    .sky-page h4,
+    .sky-page h5,
+    .sky-page h6,
+    .sky-page .card-title,
+    .sky-page .modal-title {
+        color: var(--sky-ink);
+    }
+
+    .sky-page .btn {
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .sky-page .btn-primary,
+    .sky-page .btn-success {
+        background: var(--sky-brand-dark);
+        border-color: var(--sky-brand-dark);
+    }
+
+    .sky-page .btn-primary:hover,
+    .sky-page .btn-success:hover {
+        background: var(--sky-brand);
+        border-color: var(--sky-brand);
+    }
+
+    .sky-page .btn-light {
+        background: #fff;
+        border: 1px solid var(--sky-line);
+        color: var(--sky-ink);
+    }
+
+    .sky-page .btn-outline-primary {
+        border-color: rgba(15, 107, 79, .24);
+        color: var(--sky-brand);
+    }
+
+    .sky-page .btn-outline-primary:hover {
+        background: var(--sky-brand);
+        border-color: var(--sky-brand);
+        color: #fff;
+    }
+
+    .sky-page .form-control,
+    .sky-page .form-select {
+        border-color: #d7e2dc;
+        border-radius: 12px;
+        min-height: 44px;
+    }
+
+    .sky-page textarea.form-control {
+        min-height: auto;
+    }
+
+    .sky-page .table {
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .sky-page .table thead th {
+        background: #f7faf8 !important;
+        border-bottom: 1px solid var(--sky-line) !important;
+        color: var(--sky-ink);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        vertical-align: middle;
+    }
+
+    .sky-page .table tbody td {
+        border-bottom: 1px solid #edf3ef;
+        color: #2f463e;
+        vertical-align: middle;
+    }
+
+    .sky-page .badge {
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        padding: 7px 10px;
+    }
+
+    .sky-header {
+        background: linear-gradient(180deg, #ffffff 0%, #fbfcfb 100%);
+        border: 1px solid var(--sky-line);
+        border-radius: 22px;
+        padding: 1.5rem;
+    }
+
+    .sky-section-kicker {
+        color: var(--sky-brand);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .sky-page-title {
+        color: var(--sky-ink);
+        font-size: 1.65rem;
+        font-weight: 700;
+        margin-bottom: .35rem;
+    }
+
+    .sky-page-subtitle {
+        color: var(--sky-muted);
+        margin-bottom: 0;
+        max-width: 760px;
+    }
+
     .sky-summary-grid {
         display: grid;
         gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
     }
 
     .sky-summary-card {
-        border: 1px solid #e4efe9;
+        background: #fff;
+        border: 1px solid var(--sky-line);
         border-radius: 18px;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fcfa 100%);
-        box-shadow: 0 10px 24px rgba(8, 40, 28, 0.05);
         padding: 1rem 1.1rem;
     }
 
     .sky-summary-value {
-        color: #0d5d42;
-        font-size: 1.8rem;
+        color: var(--sky-ink);
+        font-size: 1.75rem;
         font-weight: 800;
         line-height: 1;
     }
 
     .sky-summary-label {
-        color: #6b7c75;
+        color: var(--sky-muted);
         font-size: .8rem;
         font-weight: 700;
         letter-spacing: .04em;
         text-transform: uppercase;
     }
 
+    .sky-summary-note {
+        color: var(--sky-muted);
+        display: block;
+        font-size: 12px;
+        line-height: 1.5;
+        margin-top: .65rem;
+    }
+
     .sky-keterangan-grid {
         display: grid;
         gap: .85rem;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }
 
     .sky-keterangan-card {
-        border: 1px solid #e6efea;
+        background: var(--sky-soft);
+        border: 1px solid var(--sky-line);
         border-radius: 16px;
-        background: #fff;
-        padding: .95rem 1rem;
+        min-width: 0;
+        padding: .8rem .85rem;
+    }
+
+    .sky-keterangan-card .sky-summary-label {
+        font-size: .68rem;
+        letter-spacing: .03em;
     }
 
     .sky-keterangan-value {
-        color: #0e8549;
-        font-size: 1.45rem;
+        color: var(--sky-brand-dark);
+        font-size: 1.1rem;
         font-weight: 800;
         line-height: 1;
     }
 
+    .sky-panel-label {
+        color: var(--sky-muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .sky-chip {
+        background: var(--sky-soft);
+        border: 1px solid var(--sky-line);
+        border-radius: 999px;
+        color: var(--sky-brand-dark);
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 10px;
+    }
+
+    .sky-filter-shell {
+        background: var(--sky-soft);
+        border: 1px solid var(--sky-line);
+        border-radius: 16px;
+        padding: 1rem;
+    }
+
+    .sky-filter-shell .form-control,
+    .sky-filter-shell .form-select {
+        background: #fff;
+    }
+
+    .sky-empty-state {
+        align-items: center;
+        color: var(--sky-muted);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 32px 12px;
+        text-align: center;
+    }
+
+    .sky-empty-state i {
+        color: rgba(15, 107, 79, .35);
+        font-size: 42px;
+    }
+
+    .sky-soft-card {
+        background: linear-gradient(180deg, #ffffff 0%, #fafcfb 100%);
+        border: 1px solid var(--sky-line);
+        border-radius: 18px;
+    }
+
+    .sky-inline-note {
+        border: 1px solid var(--sky-line);
+        border-radius: 14px;
+        padding: 12px 14px;
+    }
+
+    .sky-inline-note-info {
+        background: #eef7ff;
+        border-color: #cfe6ff;
+        color: #174a7c;
+    }
+
+    .sky-inline-note-success {
+        background: #edf9f2;
+        border-color: #cdeed9;
+        color: #18633e;
+    }
+
+    .sky-inline-note-danger {
+        background: #fff2f2;
+        border-color: #f3c9c9;
+        color: #8a1f1f;
+    }
+
+    .sky-inline-note-secondary {
+        background: #f6f7f9;
+        border-color: #e2e6ea;
+        color: #475569;
+    }
+
+    .sky-inline-note-warning {
+        background: #fff8e8;
+        border-color: #f5dfac;
+        color: #815e00;
+    }
+
+    .sky-compact-table thead th,
+    .sky-compact-table tbody td {
+        font-size: 12px;
+        padding: 10px 12px;
+        white-space: nowrap;
+    }
+
+    .sky-compact-table tbody td.wrap {
+        white-space: normal;
+    }
+
+    .sky-modal-table-wrap {
+        border: 1px solid var(--sky-line);
+        border-radius: 16px;
+        max-height: 420px;
+        overflow: auto;
+    }
+
+    .sky-mini-stat {
+        background: var(--sky-soft);
+        border: 1px solid var(--sky-line);
+        border-radius: 14px;
+        padding: 12px 14px;
+    }
+
+    .sky-mini-stat .value {
+        color: var(--sky-ink);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .sky-mini-stat .label {
+        color: var(--sky-muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+    }
+
+    .sky-file-meta {
+        color: var(--sky-muted);
+        font-size: 12px;
+    }
+
+    .sky-data-primary {
+        color: var(--sky-ink);
+        font-weight: 600;
+    }
+
+    .sky-data-secondary {
+        color: var(--sky-muted);
+        display: block;
+        font-size: 12px;
+        line-height: 1.5;
+        margin-top: .2rem;
+    }
+
+    .sky-row-select-col {
+        min-width: 42px;
+        text-align: center;
+        width: 42px;
+    }
+
+    .sky-table-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        justify-content: space-between;
+        margin-bottom: .75rem;
+    }
+
+    .sky-section-divider {
+        border-top: 1px solid var(--sky-line);
+        margin: 1.5rem 0;
+    }
+
+    .sky-collapse-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 18px;
+        color: inherit;
+        display: flex;
+        justify-content: space-between;
+        padding: 1.2rem 1.25rem;
+        text-align: left;
+        width: 100%;
+    }
+
+    .sky-collapse-trigger:focus {
+        box-shadow: none;
+        outline: none;
+    }
+
+    .sky-collapse-trigger .sky-collapse-icon {
+        color: var(--sky-muted);
+        font-size: 1.2rem;
+        transition: transform .2s ease;
+    }
+
+    .sky-collapse-trigger[aria-expanded="true"] .sky-collapse-icon {
+        transform: rotate(180deg);
+    }
+
+    .sky-collapse-shell {
+        border-top: 1px solid var(--sky-line);
+    }
+
+    @media (max-width: 768px) {
+        .sky-header {
+            padding: 1.1rem;
+        }
+
+        .sky-page-title {
+            font-size: 1.35rem;
+        }
+    }
 </style>
 
 <?php
@@ -163,6 +527,28 @@
     $importBatchModalItems = $pendingImportBatches->getCollection()
         ->merge($syncedImportBatches->getCollection())
         ->unique('id');
+
+    $statusOptions = [
+        'submitted' => 'Diajukan',
+        'reviewed' => 'Direview',
+        'approved' => 'Disetujui',
+        'rejected' => 'Ditolak',
+        'published' => 'Terbit',
+    ];
+
+    $statusBadgeMap = [
+        'submitted' => ['color' => 'warning', 'label' => 'Diajukan'],
+        'reviewed' => ['color' => 'info', 'label' => 'Direview'],
+        'approved' => ['color' => 'primary', 'label' => 'Disetujui'],
+        'published' => ['color' => 'success', 'label' => 'Terbit'],
+        'rejected' => ['color' => 'danger', 'label' => 'Ditolak'],
+    ];
+
+    $batchStatusBadgeMap = [
+        'pending_review' => ['color' => 'warning', 'label' => 'Pending Review'],
+        'synced' => ['color' => 'success', 'label' => 'Tersinkron'],
+        'rejected' => ['color' => 'danger', 'label' => 'Ditolak'],
+    ];
 
     $resolveImportErrorFields = function ($row) {
         $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
@@ -202,24 +588,24 @@
 ?>
 
 <div class="sky-page">
-    <div class="sky-hero-strip mb-4">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <div class="sky-header mb-4">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
             <div>
-                <div class="sky-kicker mb-2">Verifikasi Yayasan</div>
-                <h4 class="mb-1">Review pengajuan perpanjangan dari sekolah</h4>
-                <p class="mb-0 text-white-50">
-                    Telaah pengajuan, beri catatan review, pilih template, lalu lanjutkan ke proses generate SK Yayasan.
+                <div class="sky-section-kicker mb-2">SK Yayasan</div>
+                <h4 class="sky-page-title">Pengajuan perpanjangan SK</h4>
+                <p class="sky-page-subtitle">
+                    Halaman ini merangkum pengajuan aktif, hasil sinkronisasi batch, serta kondisi tiap sekolah agar proses review yayasan lebih rapi dan cepat ditindaklanjuti.
                 </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a href="<?php echo e(route('sk-yayasan.template.index')); ?>" class="btn btn-light">
-                    <i class="mdi mdi-text-box-edit-outline me-1"></i> Template
+                    <i class="mdi mdi-text-box-edit-outline me-1"></i>Template
                 </a>
                 <a href="<?php echo e(route('sk-yayasan.generate.index')); ?>" class="btn btn-light">
-                    <i class="mdi mdi-file-document-multiple-outline me-1"></i> Generate
+                    <i class="mdi mdi-file-document-multiple-outline me-1"></i>Generate
                 </a>
-                <a href="<?php echo e(route('sk-yayasan.pengajuan.export-school-summary')); ?>" class="btn btn-light">
-                    <i class="mdi mdi-microsoft-excel me-1"></i> Update Excel Sekolah
+                <a href="<?php echo e(route('sk-yayasan.pengajuan.export-school-summary')); ?>" class="btn btn-primary">
+                    <i class="mdi mdi-microsoft-excel me-1"></i>Rekap Sekolah
                 </a>
             </div>
         </div>
@@ -227,24 +613,24 @@
 
     <div class="sky-summary-grid mb-4">
         <div class="sky-summary-card">
-            <div class="sky-summary-label mb-2">Sekolah Sudah Mengajukan</div>
-            <div class="sky-summary-value"><?php echo e(number_format($schoolSubmissionSummaryCards['submitted_schools'] ?? 0)); ?></div>
-            <small class="text-muted d-block mt-2">Sekolah yang sudah punya pengajuan atau batch aktif.</small>
+            <div class="sky-summary-label">Sekolah Sudah Mengajukan</div>
+            <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['submitted_schools'] ?? 0)); ?></div>
+            <span class="sky-summary-note">Sekolah yang sudah memiliki pengajuan atau batch aktif.</span>
         </div>
         <div class="sky-summary-card">
-            <div class="sky-summary-label mb-2">Sekolah Belum Mengajukan</div>
-            <div class="sky-summary-value"><?php echo e(number_format($schoolSubmissionSummaryCards['not_submitted_schools'] ?? 0)); ?></div>
-            <small class="text-muted d-block mt-2">Sekolah yang belum mengirim pengajuan aktif.</small>
+            <div class="sky-summary-label">Sekolah Belum Mengajukan</div>
+            <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['not_submitted_schools'] ?? 0)); ?></div>
+            <span class="sky-summary-note">Sekolah yang belum mengirim batch aktif ke yayasan.</span>
         </div>
         <div class="sky-summary-card">
-            <div class="sky-summary-label mb-2">Total Pengajuan SK</div>
-            <div class="sky-summary-value"><?php echo e(number_format($schoolSubmissionSummaryCards['total_requests'] ?? 0)); ?></div>
-            <small class="text-muted d-block mt-2">Jumlah pengajuan aktif yang sedang diproses di yayasan.</small>
+            <div class="sky-summary-label">Total Pengajuan Aktif</div>
+            <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['total_requests'] ?? 0)); ?></div>
+            <span class="sky-summary-note">Seluruh pengajuan yang sedang diproses pada tahap review atau penerbitan.</span>
         </div>
         <div class="sky-summary-card">
-            <div class="sky-summary-label mb-2">Belum Memiliki Akun NUist</div>
-            <div class="sky-summary-value"><?php echo e(number_format($schoolSubmissionSummaryCards['requests_without_nuist_account'] ?? 0)); ?></div>
-            <small class="text-muted d-block mt-2">Baris pada batch terakhir sekolah yang belum match akun NUist.</small>
+            <div class="sky-summary-label">Belum Match Akun NUist</div>
+            <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['requests_without_nuist_account'] ?? 0)); ?></div>
+            <span class="sky-summary-note">Jumlah baris pada batch terakhir yang masih perlu dicocokkan dengan akun.</span>
         </div>
     </div>
 
@@ -252,10 +638,10 @@
         <div class="card-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                 <div>
-                    <div class="sky-panel-label mb-1">Ringkasan Keterangan Pengajuan</div>
-                    <h6 class="mb-0">Hitungan pengajuan berdasarkan jenis keterangan SK Yayasan</h6>
+                    <div class="sky-panel-label mb-1">Komposisi Keterangan</div>
+                    <h6 class="mb-0">Jenis pengajuan yang sedang berjalan</h6>
                 </div>
-                <span class="sky-chip"><?php echo e(number_format(collect($keteranganSummaryCounts)->sum())); ?> total terpetakan</span>
+                <span class="sky-chip"><?php echo e(number_format(collect($keteranganSummaryCounts)->sum())); ?> data terpetakan</span>
             </div>
 
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($keteranganSummaryCounts)): ?>
@@ -271,157 +657,399 @@
                 <div class="sky-empty-state py-4">
                     <i class="bx bx-receipt"></i>
                     <strong>Belum ada kategori pengajuan yang terpetakan</strong>
-                    <small>Hitungan keterangan akan muncul setelah sekolah mengupload batch pengajuan yang aktif.</small>
+                    <small>Ringkasan akan muncul setelah batch aktif berhasil dibaca sistem.</small>
                 </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 
-    <div class="row g-3">
+    <div class="row g-3 mb-4">
         <div class="col-xl-6">
             <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#pendingBatchPanel" aria-expanded="true" aria-controls="pendingBatchPanel">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
                         <div>
-                            <div class="sky-panel-label mb-1">Review Import Data</div>
-                            <h6 class="mb-0">Batch dengan status pending review</h6>
+                            <div class="sky-panel-label mb-1">Batch Pending</div>
+                            <h6 class="mb-0">Import yang masih menunggu review</h6>
                         </div>
-                        <span class="sky-chip"><?php echo e($pendingImportBatches->total()); ?> pending review</span>
+                        <span class="sky-chip"><?php echo e($pendingImportBatches->total()); ?> batch</span>
+                    </div>
+                    <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
+                </button>
+
+                <div id="pendingBatchPanel" class="collapse show sky-collapse-shell">
+                    <div class="card-body">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendingImportBatches->count() > 0): ?>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Sekolah</th>
+                                            <th>Upload</th>
+                                            <th>Validasi</th>
+                                            <th class="text-end">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $pendingImportBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                            <tr>
+                                                <td>
+                                                    <span class="sky-data-primary"><?php echo e($batch->madrasah?->name ?? '-'); ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="sky-data-primary"><?php echo e($batch->uploader?->name ?? '-'); ?></span>
+                                                    <span class="sky-data-secondary"><?php echo e(optional($batch->uploaded_at)->format('d/m/Y H:i')); ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="sky-data-primary"><?php echo e($batch->valid_rows); ?> valid / <?php echo e($batch->invalid_rows); ?> salah</span>
+                                                    <span class="sky-data-secondary"><?php echo e($batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template'); ?></span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
+                                                            Review
+                                                        </button>
+                                                        <form method="POST"
+                                                              action="<?php echo e(route('sk-yayasan.import-batches.destroy', $batch)); ?>"
+                                                              data-sk-swal-confirm
+                                                              data-sk-swal-title="Hapus pengajuan ini?"
+                                                              data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
+                                                              data-sk-swal-confirm-text="Ya, hapus"
+                                                              data-sk-swal-icon="warning">
+                                                            <?php echo csrf_field(); ?>
+                                                            <?php echo method_field('DELETE'); ?>
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <div class="sky-empty-state py-5">
+                                <i class="bx bx-spreadsheet"></i>
+                                <strong>Tidak ada batch pending review</strong>
+                                <small>Batch baru dari sekolah akan muncul di sini sebelum disinkronkan.</small>
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendingImportBatches->count() > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>File Import</th>
-                                        <th>Sekolah</th>
-                                        <th>Upload</th>
-                                        <th>Validasi</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $pendingImportBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                        <tr>
-                                            <td><div class="fw-semibold"><?php echo e($batch->original_filename); ?></div></td>
-                                            <td><?php echo e($batch->madrasah?->name ?? '-'); ?></td>
-                                            <td>
-                                                <div><?php echo e($batch->uploader?->name ?? '-'); ?></div>
-                                                <small class="text-muted"><?php echo e(optional($batch->uploaded_at)->format('d/m/Y H:i')); ?></small>
-                                            </td>
-                                            <td>
-                                                <div class="fw-semibold"><?php echo e($batch->valid_rows); ?> valid / <?php echo e($batch->invalid_rows); ?> salah</div>
-                                                <small class="text-muted"><?php echo e($batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template'); ?></small>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex flex-wrap gap-2">
-                                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
-                                                        Lihat Review
-                                                    </button>
-                                                    <form method="POST"
-                                                          action="<?php echo e(route('sk-yayasan.import-batches.destroy', $batch)); ?>"
-                                                          data-sk-swal-confirm
-                                                          data-sk-swal-title="Hapus pengajuan ini?"
-                                                          data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
-                                                          data-sk-swal-confirm-text="Ya, hapus"
-                                                          data-sk-swal-icon="warning">
-                                                        <?php echo csrf_field(); ?>
-                                                        <?php echo method_field('DELETE'); ?>
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <div class="sky-empty-state py-5">
-                            <i class="bx bx-spreadsheet"></i>
-                            <strong>Tidak ada batch pending review</strong>
-                            <small>Batch baru dari sekolah akan muncul di sini sebelum disinkronkan.</small>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendingImportBatches->hasPages()): ?>
+                        <div class="card-footer">
+                            <div class="sky-pagination-wrap">
+                                <?php echo e($pendingImportBatches->links('pagination::bootstrap-5')); ?>
+
+                            </div>
                         </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendingImportBatches->hasPages()): ?>
-                    <div class="card-footer bg-white">
-                        <div class="sky-pagination-wrap">
-                            <?php echo e($pendingImportBatches->links('pagination::bootstrap-5')); ?>
-
-                        </div>
-                    </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
 
         <div class="col-xl-6">
             <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#syncedBatchPanel" aria-expanded="true" aria-controls="syncedBatchPanel">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
                         <div>
-                            <div class="sky-panel-label mb-1">Pengajuan Tersinkron</div>
-                            <h6 class="mb-0">Pengajuan yang sudah tersingkronisasikan di aplikasi</h6>
+                            <div class="sky-panel-label mb-1">Batch Tersinkron</div>
+                            <h6 class="mb-0">Import yang sudah masuk ke aplikasi</h6>
                         </div>
-                        <span class="sky-chip"><?php echo e($syncedImportBatches->total()); ?> batch tersinkron • <?php echo e($syncedImportBatchSchoolCount); ?> sekolah</span>
+                        <span class="sky-chip"><?php echo e($syncedImportBatches->total()); ?> batch • <?php echo e($syncedImportBatchSchoolCount); ?> sekolah</span>
+                    </div>
+                    <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
+                </button>
+
+                <div id="syncedBatchPanel" class="collapse show sky-collapse-shell">
+                    <div class="card-body">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($syncedImportBatches->count() > 0): ?>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Sekolah</th>
+                                            <th>Tersinkron</th>
+                                            <th>Data Sinkron</th>
+                                            <th class="text-end">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $syncedImportBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                            <?php
+                                                $matchedValidRowsCount = $batch->rows
+                                                    ->filter(fn ($row) => $row->is_valid && $row->matched_user_id)
+                                                    ->unique('matched_user_id')
+                                                    ->count();
+                                                $displaySubmissionCount = $batch->requests_count > 0
+                                                    ? $batch->requests_count
+                                                    : $matchedValidRowsCount;
+                                            ?>
+                                            <tr>
+                                                <td>
+                                                    <span class="sky-data-primary"><?php echo e($batch->madrasah?->name ?? '-'); ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="sky-data-primary"><?php echo e($batch->reviewer?->name ?? '-'); ?></span>
+                                                    <span class="sky-data-secondary"><?php echo e(optional($batch->synced_at)->format('d/m/Y H:i') ?? '-'); ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="sky-data-primary"><?php echo e(number_format($displaySubmissionCount)); ?> pengajuan</span>
+                                                    <span class="sky-data-secondary"><?php echo e(number_format($batch->valid_rows)); ?> dari <?php echo e(number_format($batch->total_rows)); ?> baris valid</span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <div class="sky-empty-state py-5">
+                                <i class="bx bx-check-shield"></i>
+                                <strong>Belum ada batch tersinkron</strong>
+                                <small>Batch yang sudah berhasil disinkronkan ke aplikasi akan tampil di sini.</small>
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($syncedImportBatches->count() > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>File Import</th>
-                                        <th>Sekolah</th>
-                                        <th>Tersinkron</th>
-                                        <th>Data Sinkron</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $syncedImportBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                        <tr>
-                                            <td><div class="fw-semibold"><?php echo e($batch->original_filename); ?></div></td>
-                                            <td><?php echo e($batch->madrasah?->name ?? '-'); ?></td>
-                                            <td>
-                                                <div><?php echo e($batch->reviewer?->name ?? '-'); ?></div>
-                                                <small class="text-muted"><?php echo e(optional($batch->synced_at)->format('d/m/Y H:i') ?? '-'); ?></small>
-                                            </td>
-                                            <td>
-                                                <div class="small fw-semibold"><?php echo e(number_format($batch->requests_count)); ?> pengajuan</div>
-                                                <small class="text-muted"><?php echo e(number_format($batch->valid_rows)); ?> dari <?php echo e(number_format($batch->total_rows)); ?> baris valid</small>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex flex-wrap gap-2">
-                                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
-                                                        Lihat Detail
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <div class="sky-empty-state py-5">
-                            <i class="bx bx-check-shield"></i>
-                            <strong>Belum ada batch tersinkron</strong>
-                            <small>Batch yang sudah berhasil disinkronkan ke aplikasi akan tampil di sini.</small>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($syncedImportBatches->hasPages()): ?>
+                        <div class="card-footer">
+                            <div class="sky-pagination-wrap">
+                                <?php echo e($syncedImportBatches->links('pagination::bootstrap-5')); ?>
+
+                            </div>
                         </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($syncedImportBatches->hasPages()): ?>
-                    <div class="card-footer bg-white">
-                        <div class="sky-pagination-wrap">
-                            <?php echo e($syncedImportBatches->links('pagination::bootstrap-5')); ?>
+    <div class="card mb-4">
+        <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#submissionListPanel" aria-expanded="false" aria-controls="submissionListPanel">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Daftar Pengajuan</div>
+                    <h6 class="mb-0">Semua pengajuan yang masuk ke yayasan, termasuk yang ditolak</h6>
+                </div>
+                <span class="sky-chip"><?php echo e(number_format($submissions->total())); ?> pengajuan</span>
+            </div>
+            <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
+        </button>
 
+        <div id="submissionListPanel" class="collapse sky-collapse-shell">
+            <div class="card-body">
+                <form method="GET" class="sky-filter-shell mb-3">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-lg-5">
+                            <label class="form-label mb-1">Cari sekolah, pegawai, atau nomor surat</label>
+                            <input
+                                type="text"
+                                name="q"
+                                value="<?php echo e(request('q')); ?>"
+                                class="form-control"
+                                placeholder="Contoh: SMA Ma'arif, Ahmad, atau nomor surat">
+                        </div>
+                        <div class="col-lg-3">
+                            <label class="form-label mb-1">Sekolah</label>
+                            <select name="madrasah_id" class="form-select">
+                                <option value="">Semua sekolah</option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <option value="<?php echo e($madrasah->id); ?>" <?php if((string) request('madrasah_id') === (string) $madrasah->id): echo 'selected'; endif; ?>><?php echo e($madrasah->name); ?></option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label class="form-label mb-1">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">Semua status</option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $statusOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <option value="<?php echo e($value); ?>" <?php if(request('status') === $value): echo 'selected'; endif; ?>><?php echo e($label); ?></option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Terapkan</button>
+                                <a href="<?php echo e(route('sk-yayasan.pengajuan.index')); ?>" class="btn btn-light">Reset</a>
+                            </div>
                         </div>
                     </div>
+                </form>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissions->count() > 0): ?>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Pengajuan</th>
+                                    <th>Pegawai</th>
+                                    <th>Sekolah</th>
+                                    <th>Surat Pengajuan</th>
+                                    <th>Status</th>
+                                    <th>Template</th>
+                                    <th>Catatan Review</th>
+                                    <th class="text-end">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $submissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $submission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <?php
+                                        $submissionBadge = $statusBadgeMap[$submission->current_status] ?? ['color' => 'secondary', 'label' => ucfirst(str_replace('_', ' ', (string) $submission->current_status))];
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <span class="sky-data-primary"><?php echo e($submission->request_number); ?></span>
+                                            <span class="sky-data-secondary">Masuk <?php echo e(optional($submission->submitted_at)->format('d/m/Y H:i') ?? '-'); ?></span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-primary"><?php echo e($submission->employee?->name ?? '-'); ?></span>
+                                            <span class="sky-data-secondary"><?php echo e($submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? 'Status belum tersedia')); ?></span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-primary"><?php echo e($submission->madrasah?->name ?? '-'); ?></span>
+                                            <span class="sky-data-secondary">Dikirim oleh <?php echo e($submission->submitter?->name ?? '-'); ?></span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-primary"><?php echo e($submission->submission_letter_number ?? '-'); ?></span>
+                                            <span class="sky-data-secondary"><?php echo e(optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? 'Tanggal belum diisi'); ?></span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-<?php echo e($submissionBadge['color']); ?>-subtle text-<?php echo e($submissionBadge['color']); ?>"><?php echo e($submissionBadge['label']); ?></span>
+                                            <span class="sky-data-secondary">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->reviewer): ?>
+                                                    Review oleh <?php echo e($submission->reviewer->name); ?><?php echo e($submission->reviewed_at ? ' • ' . $submission->reviewed_at->format('d/m/Y H:i') : ''); ?>
+
+                                                <?php else: ?>
+                                                    Menunggu review yayasan
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-primary"><?php echo e($submission->template?->name ?? 'Belum dipilih'); ?></span>
+                                            <span class="sky-data-secondary"><?php echo e($submission->document ? 'Draft/PDF tersedia' : 'Belum ada dokumen'); ?></span>
+                                        </td>
+                                        <td>
+                                            <span class="sky-data-secondary mt-0"><?php echo e(\Illuminate\Support\Str::limit($submission->review_notes ?: 'Belum ada catatan review.', 110)); ?></span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->document): ?>
+                                                    <a href="<?php echo e(route('sk-yayasan.documents.download', $submission->document)); ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                                        PDF
+                                                    </a>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal<?php echo e($submission->id); ?>">
+                                                    Review
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="sky-empty-state py-5">
+                        <i class="bx bx-search-alt"></i>
+                        <strong>Tidak ada pengajuan yang sesuai filter</strong>
+                        <small>Coba ubah kata kunci, sekolah, atau status termasuk filter ditolak untuk melihat data lain.</small>
+                    </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissions->hasPages()): ?>
+                <div class="card-footer">
+                    <div class="sky-pagination-wrap">
+                        <?php echo e($submissions->links('pagination::bootstrap-5')); ?>
+
+                    </div>
+                </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#schoolMonitoringPanel" aria-expanded="false" aria-controls="schoolMonitoringPanel">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Monitoring Sekolah</div>
+                    <h6 class="mb-0">Status ringkas pengajuan per sekolah</h6>
+                </div>
+                <span class="sky-chip"><?php echo e(count($schoolSubmissionSummaryRows)); ?> sekolah</span>
+            </div>
+            <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
+        </button>
+
+        <div id="schoolMonitoringPanel" class="collapse sky-collapse-shell">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle sky-compact-table">
+                        <thead>
+                            <tr>
+                                <th>SCOD</th>
+                                <th>Sekolah</th>
+                                <th>Status</th>
+                                <th>Pengajuan</th>
+                                <th>Batch Aktif</th>
+                                <th>Batch Terakhir</th>
+                                <th>Ditolak</th>
+                                <th>Belum Match</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $schoolSubmissionSummaryRows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <?php
+                                    $schoolStatusBadge = match ($row['submission_status_label']) {
+                                        'Sudah Mengajukan' => ['color' => 'success', 'label' => 'Sudah Mengajukan'],
+                                        'Ditolak' => ['color' => 'danger', 'label' => 'Ditolak'],
+                                        default => ['color' => 'secondary', 'label' => 'Belum Mengajukan'],
+                                    };
+                                    $latestBatchBadge = $batchStatusBadgeMap[$row['latest_batch_status'] ?? ''] ?? ['color' => 'secondary', 'label' => 'Belum ada batch'];
+                                    $hasRejectedHistory = ($row['rejected_requests_count'] ?? 0) > 0 || ($row['rejected_batch_count'] ?? 0) > 0;
+                                ?>
+                                <tr>
+                                    <td><?php echo e($row['scod'] ?: '-'); ?></td>
+                                    <td>
+                                        <span class="sky-data-primary"><?php echo e($row['school_name'] ?: '-'); ?></span>
+                                        <span class="sky-data-secondary"><?php echo e($row['kabupaten'] ?: '-'); ?></span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<?php echo e($schoolStatusBadge['color']); ?>-subtle text-<?php echo e($schoolStatusBadge['color']); ?>"><?php echo e($schoolStatusBadge['label']); ?></span>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasRejectedHistory && $row['submission_status_label'] !== 'Ditolak'): ?>
+                                            <span class="badge bg-danger-subtle text-danger mt-1">Ada Riwayat Ditolak</span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </td>
+                                    <td><?php echo e(number_format($row['total_requests'])); ?></td>
+                                    <td><?php echo e(number_format($row['active_batch_count'])); ?></td>
+                                    <td>
+                                        <span class="badge bg-<?php echo e($latestBatchBadge['color']); ?>-subtle text-<?php echo e($latestBatchBadge['color']); ?>"><?php echo e($latestBatchBadge['label']); ?></span>
+                                        <span class="sky-data-secondary"><?php echo e(optional($row['latest_batch_uploaded_at'])->format('d/m/Y H:i') ?: 'Belum ada upload'); ?></span>
+                                    </td>
+                                    <td>
+                                        <span class="sky-data-primary"><?php echo e(number_format($row['rejected_requests_count'] ?? 0)); ?> pengajuan</span>
+                                        <span class="sky-data-secondary"><?php echo e(number_format($row['rejected_batch_count'] ?? 0)); ?> batch ditolak</span>
+                                    </td>
+                                    <td><?php echo e(number_format($row['latest_batch_unmatched_count'])); ?></td>
+                                </tr>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                <tr>
+                                    <td colspan="8">
+                                        <div class="sky-empty-state py-4">
+                                            <i class="bx bx-buildings"></i>
+                                            <strong>Belum ada data sekolah</strong>
+                                            <small>Ringkasan sekolah akan tampil otomatis saat data pengajuan tersedia.</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -612,10 +1240,21 @@
                             <?php echo csrf_field(); ?>
                             <?php echo method_field('PATCH'); ?>
                             <input type="hidden" name="action" value="save" data-sync-action>
+                            <div class="sky-table-actions">
+                                <div class="text-muted small">
+                                    Pilih satu atau beberapa baris untuk dihapus dari batch ini sebelum disimpan.
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-delete-selected-rows>
+                                    Hapus Baris Terpilih
+                                </button>
+                            </div>
                             <div class="sky-modal-table-wrap">
                                 <table class="table table-sm align-middle sky-compact-table mb-0">
                                     <thead>
                                         <tr>
+                                            <th class="sky-row-select-col">
+                                                <input type="checkbox" class="form-check-input" data-select-all-rows>
+                                            </th>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                                 <th><?php echo e($column); ?></th>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
@@ -630,6 +1269,9 @@
                                                 $rowErrorFields = $resolveImportErrorFields($row);
                                             ?>
                                             <tr>
+                                                <td class="sky-row-select-col">
+                                                    <input type="checkbox" class="form-check-input" data-row-select>
+                                                </td>
                                                 <input type="hidden" name="rows[<?php echo e($loop->index); ?>][row_number]" value="<?php echo e($row->row_number); ?>">
                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                                     <?php
@@ -779,6 +1421,92 @@
         </div>
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
 </div>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('script'); ?>
+<script>
+    document.addEventListener('change', function (event) {
+        if (event.target.matches('[data-select-all-rows]')) {
+            const table = event.target.closest('table');
+
+            if (!table) {
+                return;
+            }
+
+            table.querySelectorAll('[data-row-select]').forEach(function (checkbox) {
+                checkbox.checked = event.target.checked;
+            });
+        }
+
+        if (event.target.matches('[data-row-select]')) {
+            const table = event.target.closest('table');
+
+            if (!table) {
+                return;
+            }
+
+            const rowCheckboxes = Array.from(table.querySelectorAll('[data-row-select]'));
+            const checkedCount = rowCheckboxes.filter(function (checkbox) {
+                return checkbox.checked;
+            }).length;
+            const selectAllCheckbox = table.querySelector('[data-select-all-rows]');
+
+            if (!selectAllCheckbox) {
+                return;
+            }
+
+            selectAllCheckbox.checked = rowCheckboxes.length > 0 && checkedCount === rowCheckboxes.length;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+        }
+    });
+
+    document.addEventListener('click', function (event) {
+        const deleteButton = event.target.closest('[data-delete-selected-rows]');
+
+        if (!deleteButton) {
+            return;
+        }
+
+        const modalContent = deleteButton.closest('.modal-content');
+        const table = modalContent ? modalContent.querySelector('table') : null;
+
+        if (!table) {
+            return;
+        }
+
+        const selectedRows = Array.from(table.querySelectorAll('[data-row-select]:checked'));
+        const totalRows = table.querySelectorAll('[data-row-select]').length;
+
+        if (selectedRows.length === 0) {
+            alert('Pilih minimal satu baris yang ingin dihapus.');
+            return;
+        }
+
+        if (selectedRows.length === totalRows) {
+            alert('Minimal satu baris harus tetap tersisa di dalam batch.');
+            return;
+        }
+
+        if (!window.confirm('Hapus semua baris yang dipilih dari batch ini?')) {
+            return;
+        }
+
+        selectedRows.forEach(function (checkbox) {
+            const row = checkbox.closest('tr');
+
+            if (row) {
+                row.remove();
+            }
+        });
+
+        const selectAllCheckbox = table.querySelector('[data-select-all-rows]');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
+    });
+</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/sk-yayasan/pengajuan-index.blade.php ENDPATH**/ ?>

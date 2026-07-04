@@ -1198,6 +1198,8 @@
                                                         <span class="badge bg-info text-white">Sakit</span>
                                                     <?php elseif($tp['status'] == 'terlambat'): ?>
                                                         <span class="badge bg-warning text-dark">Terlambat</span>
+                                                    <?php elseif($tp['status'] == 'tidak_wajib_presensi'): ?>
+                                                        <span class="badge bg-secondary">Tidak Bertugas</span>
                                                     <?php else: ?>
                                                         <span class="badge bg-danger">Tidak Hadir</span>
                                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

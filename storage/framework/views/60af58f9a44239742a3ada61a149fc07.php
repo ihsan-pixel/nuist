@@ -1396,40 +1396,15 @@ $progressColor = "rgb($red, $green, 0)";
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($day = 1; $day <= $daysInMonth; $day++): ?>
                     <?php
                         $dateKey = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->toDateString();
-                        $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
+                        $presensiStatus = $calendarStatuses[$dateKey] ?? null;
                         $isToday = ($currentMonth == $currentMonthCheck && $currentYear == $currentYearCheck && $day == $today);
-                        $isPastDay = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->isBefore(\Carbon\Carbon::now()->startOfDay());
                         $dayName = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->locale('id')->dayName;
                         $shortDayName = substr($dayName, 0, 3);
-                        $dayOfWeek = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->dayOfWeek; // 0 = Sunday, 6 = Saturday
                         $isHoliday = isset($monthlyHolidays[$dateKey]);
-
-                        // Cek apakah hari ini adalah hari kerja berdasarkan hari KBM madrasah
-                        $isWorkingDay = true;
-                        if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) { // Jika KBM 5 hari, exclude Sabtu (6) dan Minggu (0)
-                            $isWorkingDay = false;
-                        } elseif ($hariKbm == 6 && $dayOfWeek == 0) { // Jika KBM 6 hari, exclude hanya Minggu (0)
-                            $isWorkingDay = false;
-                        }
-
-                        // Jika presensi status adalah 'alpha' tapi bukan hari kerja, jangan tampilkan sebagai alpha
-                        if ($presensiStatus === 'alpha' && !$isWorkingDay) {
-                            $presensiStatus = null;
-                        }
-
-                        // Jika hari sebelum hari ini, hari kerja, dan bukan hari libur tapi tidak ada presensi, tandai sebagai alpha
-                        if ($isPastDay && $isWorkingDay && !$isHoliday && !$presensiStatus) {
-                            $presensiStatus = 'alpha';
-                        }
 
                         // Jika hari libur, jangan tampilkan status presensi
                         if ($isHoliday) {
                             $presensiStatus = null;
-                        }
-
-                        // Treat 'sakit' as 'izin' for display consistency
-                        if ($presensiStatus === 'sakit') {
-                            $presensiStatus = 'izin';
                         }
                     ?>
 
@@ -1663,29 +1638,9 @@ function renderCalendar(data) {
     // Calendar days
     for (let day = 1; day <= daysInMonth; day++) {
         const dateKey = `${data.currentYear}-${String(data.currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        let presensiStatus = data.monthlyPresensi[dateKey] || null;
+        let presensiStatus = data.calendarStatuses[dateKey] || null;
         const isHoliday = data.monthlyHolidays[dateKey] !== undefined;
         const isToday = isCurrentMonth && day === currentDay;
-
-        // Check if it's a working day
-        const dayOfWeek = new Date(data.currentYear, data.currentMonth - 1, day).getDay();
-        const isSunday = dayOfWeek === 0;
-        const isSaturday = dayOfWeek === 6;
-        const isWorkingDay = !isSunday && !(isSaturday && data.hariKbm == 5);
-
-        // If presensi status is 'alpha' but not a working day, don't display as alpha
-        if (presensiStatus === 'alpha' && !isWorkingDay) {
-            presensiStatus = null;
-        }
-
-        // If no presensi data and it's a past working day and not holiday, mark as alpha
-        if (!presensiStatus && !isHoliday && isWorkingDay) {
-            const currentDate = new Date();
-            const checkDate = new Date(data.currentYear, data.currentMonth - 1, day);
-            if (checkDate < currentDate) {
-                presensiStatus = 'alpha';
-            }
-        }
 
         let statusClass = '';
         if (presensiStatus) {
