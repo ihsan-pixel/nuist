@@ -2607,7 +2607,7 @@ class SkYayasanController extends Controller
 
         return preg_replace(
             '/\.sk-label\s*\{\s*width\s*:\s*\d+px\s*;\s*\}/u',
-            '.sk-label { width: 148px; }',
+            '.sk-label { width: 164px; }',
             $body
         ) ?? $body;
     }
