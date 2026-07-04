@@ -1046,7 +1046,7 @@ class SkYayasanController extends Controller
             ->get();
 
         $readyLockRanges = $numberLockSupported
-            ? $this->buildSchoolReadyLockRanges($schools->pluck('id'))
+            ? $this->buildSchoolReadyLockRanges($schools)
             : [];
 
         $schools->transform(function (Madrasah $school) use ($numberLockSupported, $readyLockRanges) {
@@ -1554,9 +1554,10 @@ class SkYayasanController extends Controller
             ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasah->id));
     }
 
-    private function buildSchoolReadyLockRanges(Collection $schoolIds): array
+    private function buildSchoolReadyLockRanges(Collection $schools): array
     {
-        $schoolIds = $schoolIds
+        $schoolIds = $schools
+            ->pluck('id')
             ->filter(fn ($id) => !is_null($id))
             ->map(fn ($id) => (int) $id)
             ->values();
@@ -1565,36 +1566,70 @@ class SkYayasanController extends Controller
             return [];
         }
 
-        $rows = DB::table('sk_yayasan_documents')
+        $readyCounts = DB::table('sk_yayasan_documents')
             ->join('sk_yayasan_requests', 'sk_yayasan_requests.id', '=', 'sk_yayasan_documents.request_id')
             ->whereIn('sk_yayasan_requests.madrasah_id', $schoolIds->all())
             ->whereNotNull('sk_yayasan_documents.document_number')
             ->whereNull('sk_yayasan_documents.number_locked_at')
-            ->get([
-                'sk_yayasan_requests.madrasah_id',
-                'sk_yayasan_documents.document_number',
-            ]);
+            ->selectRaw('sk_yayasan_requests.madrasah_id, COUNT(*) as total')
+            ->groupBy('sk_yayasan_requests.madrasah_id')
+            ->pluck('total', 'sk_yayasan_requests.madrasah_id');
 
-        return $rows
-            ->groupBy('madrasah_id')
-            ->map(function (Collection $documents) {
-                $sortedNumbers = $documents
-                    ->pluck('document_number')
-                    ->filter()
-                    ->sortBy(fn (string $documentNumber) => $this->extractDocumentNumberSequence($documentNumber) ?? PHP_INT_MAX)
-                    ->values();
+        $lockedDocumentNumbers = DB::table('sk_yayasan_documents')
+            ->whereNotNull('document_number')
+            ->whereNotNull('number_locked_at')
+            ->pluck('document_number');
 
-                $firstNumber = $sortedNumbers->first();
-                $lastNumber = $sortedNumbers->last();
+        $highestLockedSequence = $lockedDocumentNumbers
+            ->map(fn ($documentNumber) => $this->extractDocumentNumberSequence($documentNumber))
+            ->filter(fn ($sequence) => $sequence !== null)
+            ->max();
 
-                return [
-                    'count' => $sortedNumbers->count(),
-                    'range' => $firstNumber
-                        ? ($firstNumber === $lastNumber ? $firstNumber : $firstNumber . ' - ' . $lastNumber)
-                        : null,
+        $unlockedDocumentNumbers = DB::table('sk_yayasan_documents')
+            ->join('sk_yayasan_requests', 'sk_yayasan_requests.id', '=', 'sk_yayasan_documents.request_id')
+            ->whereIn('sk_yayasan_requests.madrasah_id', $schoolIds->all())
+            ->whereNotNull('sk_yayasan_documents.document_number')
+            ->whereNull('sk_yayasan_documents.number_locked_at')
+            ->pluck('sk_yayasan_documents.document_number');
+
+        $lowestUnlockedSequence = $unlockedDocumentNumbers
+            ->map(fn ($documentNumber) => $this->extractDocumentNumberSequence($documentNumber))
+            ->filter(fn ($sequence) => $sequence !== null)
+            ->min();
+
+        $globalStartNumber = (int) $this->getGlobalSkSettings()['number_start'];
+        $nextSequence = $highestLockedSequence !== null
+            ? ((int) $highestLockedSequence + 1)
+            : ((int) ($lowestUnlockedSequence ?? $globalStartNumber));
+
+        $ranges = [];
+
+        foreach ($schools as $school) {
+            $count = (int) ($readyCounts[$school->id] ?? 0);
+
+            if ($count <= 0) {
+                $ranges[$school->id] = [
+                    'count' => 0,
+                    'range' => null,
                 ];
-            })
-            ->all();
+
+                continue;
+            }
+
+            $startSequence = $nextSequence;
+            $endSequence = $nextSequence + $count - 1;
+
+            $ranges[$school->id] = [
+                'count' => $count,
+                'range' => $startSequence === $endSequence
+                    ? (string) $startSequence
+                    : ($startSequence . ' - ' . $endSequence),
+            ];
+
+            $nextSequence = $endSequence + 1;
+        }
+
+        return $ranges;
     }
 
     private function skYayasanDocumentNumberLockSupported(): bool

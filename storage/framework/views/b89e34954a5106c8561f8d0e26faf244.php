@@ -142,7 +142,7 @@
                                                     </div>
                                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($readyLockCount > 0 && $readyLockRange): ?>
                                                         <div class="mt-1">
-                                                            <span class="fw-semibold text-dark">Rentang siap dikunci:</span>
+                                                            <span class="fw-semibold text-dark">Rentang siap dikunci (urut SCOD):</span>
                                                             <span class="text-muted"><?php echo e($readyLockRange); ?></span>
                                                         </div>
                                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
