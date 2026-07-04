@@ -27,9 +27,7 @@
     font-family: Cambria;
     font-size: 13.5pt;
     line-height: 1.15;
-    min-height: 279mm;
-    padding: 0 2mm 112px 2mm;
-    position: relative;
+    padding: 0 2mm;
 }
 .sk-letterhead {
     border-collapse: collapse;
@@ -177,11 +175,7 @@
 }
 .sk-footer-table {
     border-collapse: collapse;
-    bottom: 0;
-    left: 0;
-    margin-top: 0;
-    position: absolute;
-    right: 0;
+    margin-top: 20px;
     width: 100%;
 }
 .sk-footer-table td {

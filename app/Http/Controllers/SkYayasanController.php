@@ -3084,23 +3084,6 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         $body = preg_replace_callback(
-            '/\.sk-full-document\s*\{([^}]*)\}/u',
-            static function (array $matches): string {
-                $styles = preg_replace('/min-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
-                $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
-                $styles = preg_replace('/position\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
-                $styles = trim($styles);
-
-                if ($styles !== '' && !str_ends_with($styles, ';')) {
-                    $styles .= ';';
-                }
-
-                return '.sk-full-document { ' . trim($styles . ' min-height: 279mm; padding: 0 2mm 112px 2mm; position: relative;') . ' }';
-            },
-            $body
-        ) ?? $body;
-
-        $body = preg_replace_callback(
             '/\.sk-signature\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
@@ -3133,27 +3116,8 @@ class SkYayasanController extends Controller
             $body = preg_replace_callback($pattern, $callback, $body) ?? $body;
         }
 
-        $body = preg_replace_callback(
-            '/\.sk-footer-table\s*\{([^}]*)\}/u',
-            static function (array $matches): string {
-                $styles = preg_replace('/margin-top\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
-                $styles = preg_replace('/position\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
-                $styles = preg_replace('/bottom\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
-                $styles = preg_replace('/left\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
-                $styles = preg_replace('/right\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
-                $styles = trim($styles);
-
-                if ($styles !== '' && !str_ends_with($styles, ';')) {
-                    $styles .= ';';
-                }
-
-                return '.sk-footer-table { ' . trim($styles . ' bottom: 0; left: 0; margin-top: 0; position: absolute; right: 0; width: 100%;') . ' }';
-            },
-            $body
-        ) ?? $body;
-
         foreach ([
-            '.sk-footer-table { border-collapse: collapse; bottom: 0; left: 0; margin-top: 0; position: absolute; right: 0; width: 100%; }',
+            '.sk-footer-table { border-collapse: collapse; margin-top: 20px; width: 100%; }',
             '.sk-footer-table td { vertical-align: bottom; }',
             '.sk-footer-copy-cell { padding: 0 14px 0 0; }',
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
