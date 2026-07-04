@@ -1125,12 +1125,31 @@ class SkYayasanController extends Controller
 
         $requests = $requests->map(function (SkYayasanRequest $submission) use ($templates) {
             return $this->decorateGenerateSubmission($submission, $templates);
-        })->sortBy([
-            fn (SkYayasanRequest $submission) => $submission->document?->document_number ? 0 : 1,
-            fn (SkYayasanRequest $submission) => $this->extractDocumentNumberSequence($submission->document?->document_number) ?? PHP_INT_MAX,
-            fn (SkYayasanRequest $submission) => mb_strtolower((string) ($submission->employee?->name ?? '')),
-            fn (SkYayasanRequest $submission) => (int) $submission->id,
-        ])->values();
+        })->sort(function (SkYayasanRequest $left, SkYayasanRequest $right) {
+            $leftSequence = $this->extractDocumentNumberSequence($left->document?->document_number);
+            $rightSequence = $this->extractDocumentNumberSequence($right->document?->document_number);
+
+            if ($leftSequence === null && $rightSequence !== null) {
+                return 1;
+            }
+
+            if ($leftSequence !== null && $rightSequence === null) {
+                return -1;
+            }
+
+            if ($leftSequence !== null && $rightSequence !== null && $leftSequence !== $rightSequence) {
+                return $leftSequence <=> $rightSequence;
+            }
+
+            $leftName = mb_strtolower((string) ($left->employee?->name ?? ''));
+            $rightName = mb_strtolower((string) ($right->employee?->name ?? ''));
+
+            if ($leftName !== $rightName) {
+                return $leftName <=> $rightName;
+            }
+
+            return (int) $left->id <=> (int) $right->id;
+        })->values();
 
         return view('sk-yayasan.generate-school-index', [
             'madrasah' => $madrasah,
