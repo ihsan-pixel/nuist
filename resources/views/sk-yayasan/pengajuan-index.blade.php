@@ -787,7 +787,7 @@
                             <table class="table align-middle">
                                 <thead>
                                     <tr>
-                                        <th>File Import</th>
+                                        {{-- <th>File Import</th> --}}
                                         <th>Sekolah</th>
                                         <th>Upload</th>
                                         <th>Validasi</th>
@@ -797,9 +797,9 @@
                                 <tbody>
                                     @foreach($pendingImportBatches as $batch)
                                         <tr>
-                                            <td>
+                                            {{-- <td>
                                                 <span class="sky-data-primary">{{ $batch->original_filename }}</span>
-                                            </td>
+                                            </td> --}}
                                             <td>
                                                 <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
                                             </td>
@@ -869,7 +869,7 @@
                             <table class="table align-middle">
                                 <thead>
                                     <tr>
-                                        <th>File Import</th>
+                                        {{-- <th>File Import</th> --}}
                                         <th>Sekolah</th>
                                         <th>Tersinkron</th>
                                         <th>Data Sinkron</th>
@@ -888,9 +888,9 @@
                                                 : $matchedValidRowsCount;
                                         @endphp
                                         <tr>
-                                            <td>
+                                            {{-- <td>
                                                 <span class="sky-data-primary">{{ $batch->original_filename }}</span>
-                                            </td>
+                                            </td> --}}
                                             <td>
                                                 <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
                                             </td>
