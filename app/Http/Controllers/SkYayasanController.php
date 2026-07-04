@@ -1300,6 +1300,128 @@ class SkYayasanController extends Controller
         return $this->downloadSchoolDocumentsPdf($madrasah, $documents);
     }
 
+    public function regenerateAllDocuments(): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests();
+
+        $schools = $this->generateQueueSchoolsQuery()->get();
+
+        if ($schools->isEmpty()) {
+            return back()->with('error', 'Belum ada sekolah tersinkron yang bisa digenerate ulang.');
+        }
+
+        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+        $payloads = collect();
+        $missingTemplates = [];
+
+        foreach ($schools as $school) {
+            $coreData = $this->buildSchoolSkCoreData($school);
+            $schoolIssuedDate = Carbon::parse($coreData['issued_date']);
+            $requests = SkYayasanRequest::query()
+                ->with([
+                    'madrasah.yayasan',
+                    'employee.statusKepegawaian',
+                    'employee.skYayasanEmployeeData',
+                    'template',
+                    'document.template',
+                    'importBatch.rows',
+                ])
+                ->where('madrasah_id', $school->id)
+                ->where($this->generateEligibleRequestsConstraint())
+                ->get()
+                ->sortBy(fn (SkYayasanRequest $submission) => mb_strtolower((string) ($submission->employee?->name ?? '')))
+                ->values();
+
+            foreach ($requests as $submission) {
+                $template = $this->resolveTemplateForSubmission($submission, $templates);
+
+                if (!$template) {
+                    $missingTemplates[] = ($school->name ?? 'Sekolah') . ' - ' . ($submission->employee?->name ?? ('Request #' . $submission->id));
+                    continue;
+                }
+
+                $payloads->push([
+                    'submission' => $submission,
+                    'template' => $template,
+                    'issued_date' => $schoolIssuedDate->copy(),
+                    'data' => [
+                        'school_year' => $coreData['school_year'],
+                        'document_number_start' => $coreData['document_number_start'],
+                        'number_format_suffix' => $coreData['number_format_suffix'],
+                        'signer_name' => $coreData['signer_name'],
+                        'signer_position' => $coreData['signer_position'],
+                        'established_at' => $coreData['established_at'],
+                        'copy_recipient_1' => $coreData['copy_recipient_1'],
+                        'copy_recipient_2' => $coreData['copy_recipient_2'],
+                        'publication_notes' => $submission->document?->publication_notes,
+                    ],
+                ]);
+            }
+        }
+
+        if (!empty($missingTemplates)) {
+            return back()->with('error', 'Template belum tersedia untuk: ' . implode(', ', array_slice($missingTemplates, 0, 10)) . (count($missingTemplates) > 10 ? ' dan lainnya.' : ''));
+        }
+
+        if ($payloads->isEmpty()) {
+            return back()->with('error', 'Belum ada pengajuan yang memenuhi syarat untuk generate ulang.');
+        }
+
+        $numberLockSupported = $this->skYayasanDocumentNumberLockSupported();
+        $issuedDate = $payloads->first()['issued_date'];
+        $preferredStartNumber = max(1, (int) ($payloads->first()['data']['document_number_start'] ?? 1));
+        $preferredNumberFormatSuffix = $payloads->first()['data']['number_format_suffix'] ?? null;
+
+        DB::transaction(function () use ($payloads, $numberLockSupported, $issuedDate, $preferredStartNumber, $preferredNumberFormatSuffix) {
+            $renumberablePayloads = $payloads->filter(function (array $payload) use ($numberLockSupported) {
+                $document = $payload['submission']->document;
+
+                if (!$document) {
+                    return true;
+                }
+
+                return !$numberLockSupported || $document->number_locked_at === null;
+            })->values();
+
+            $this->assignTemporaryDocumentNumbers(
+                $renumberablePayloads
+                    ->pluck('submission.document')
+                    ->filter()
+                    ->values()
+            );
+
+            $assignedNumbers = $this->buildAssignedDocumentNumbers(
+                $renumberablePayloads,
+                $issuedDate,
+                $preferredStartNumber,
+                $preferredNumberFormatSuffix
+            );
+
+            foreach ($payloads as $payload) {
+                /** @var \App\Models\SkYayasanRequest $submission */
+                $submission = $payload['submission'];
+
+                $this->persistGeneratedDocument(
+                    $submission,
+                    $payload['template'],
+                    $payload['issued_date'],
+                    array_merge($payload['data'], [
+                        'document_number' => $assignedNumbers[$submission->id] ?? null,
+                    ])
+                );
+            }
+        });
+
+        $renumberedCount = $payloads->filter(function (array $payload) use ($numberLockSupported) {
+            $document = $payload['submission']->document;
+
+            return !$document || !$numberLockSupported || $document->number_locked_at === null;
+        })->count();
+
+        return back()->with('success', 'Generate ulang semua sekolah selesai. ' . $renumberedCount . ' nomor SK disusun ulang mengikuti urutan SCOD sekolah.');
+    }
+
     public function lockSchoolDocumentNumbers(Madrasah $madrasah): RedirectResponse
     {
         $this->ensureSuperAdmin();
@@ -1552,6 +1674,76 @@ class SkYayasanController extends Controller
     {
         return SkYayasanDocument::query()
             ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasah->id));
+    }
+
+    private function generateQueueSchoolsQuery(): Builder
+    {
+        return Madrasah::query()
+            ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'))
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
+            ->orderBy('name');
+    }
+
+    private function assignTemporaryDocumentNumbers(Collection $documents): void
+    {
+        foreach ($documents as $document) {
+            if (!$document instanceof SkYayasanDocument) {
+                continue;
+            }
+
+            SkYayasanDocument::query()
+                ->whereKey($document->id)
+                ->update([
+                    'document_number' => 'TMP-SKY-' . $document->id . '-' . Str::upper(Str::random(10)),
+                    'updated_at' => now(),
+                ]);
+        }
+    }
+
+    private function buildAssignedDocumentNumbers(
+        Collection $payloads,
+        Carbon $issuedDate,
+        int $startNumber,
+        ?string $preferredNumberFormatSuffix = null
+    ): array {
+        if ($payloads->isEmpty()) {
+            return [];
+        }
+
+        $renumberableRequestIds = $payloads
+            ->pluck('submission.document.id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        $reservedSequences = SkYayasanDocument::query()
+            ->when($renumberableRequestIds->isNotEmpty(), fn (Builder $query) => $query->whereNotIn('id', $renumberableRequestIds->all()))
+            ->pluck('document_number')
+            ->map(fn (?string $documentNumber) => $this->extractDocumentNumberSequence($documentNumber))
+            ->filter(fn (?int $sequence) => $sequence !== null)
+            ->flip();
+
+        $nextSequence = $startNumber;
+        $assignedNumbers = [];
+
+        foreach ($payloads as $payload) {
+            while ($reservedSequences->has($nextSequence)) {
+                $nextSequence++;
+            }
+
+            /** @var \App\Models\SkYayasanRequest $submission */
+            $submission = $payload['submission'];
+            $assignedNumbers[$submission->id] = $this->formatDocumentNumberFromSequence(
+                $nextSequence,
+                $issuedDate,
+                $preferredNumberFormatSuffix
+            );
+            $reservedSequences->put($nextSequence, true);
+            $nextSequence++;
+        }
+
+        return $assignedNumbers;
     }
 
     private function buildSchoolReadyLockRanges(Collection $schools): array
@@ -2487,12 +2679,22 @@ class SkYayasanController extends Controller
             ? max($startNumber, ((int) $lastUsedSequence) + 1)
             : $startNumber;
 
-        $sequence = (string) $nextSequence;
-        $numberFormatSuffix = $preferredNumberFormatSuffix ?: $globalSettings['number_format_suffix'];
-        $format = '{seq}/' . ($numberFormatSuffix ?: 'SK.02/LPM.DIY/{month_roman}/{year}');
+        return $this->formatDocumentNumberFromSequence(
+            $nextSequence,
+            $issuedDate,
+            $preferredNumberFormatSuffix ?: $globalSettings['number_format_suffix']
+        );
+    }
+
+    private function formatDocumentNumberFromSequence(
+        int $sequence,
+        Carbon $issuedDate,
+        ?string $preferredNumberFormatSuffix = null
+    ): string {
+        $format = '{seq}/' . ($preferredNumberFormatSuffix ?: 'SK.02/LPM.DIY/{month_roman}/{year}');
 
         return strtr($format, [
-            '{seq}' => $sequence,
+            '{seq}' => (string) $sequence,
             '{month}' => $issuedDate->format('m'),
             '{month_roman}' => $this->romanMonth((int) $issuedDate->format('n')),
             '{year}' => $issuedDate->format('Y'),

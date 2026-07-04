@@ -79,6 +79,17 @@
                     <button type="submit" class="btn btn-primary">Simpan Data Pokok SK Global</button>
                 </div>
             </form>
+            <div class="d-flex justify-content-end mt-2">
+                <form method="POST" action="<?php echo e(route('sk-yayasan.generate.regenerate-all')); ?>">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit"
+                            class="btn btn-outline-primary"
+                            <?php if($schools->isEmpty()): echo 'disabled'; endif; ?>
+                            onclick="return confirm('Generate ulang semua sekolah akan menyusun ulang nomor SK sesuai urutan SCOD. Nomor yang sudah dikunci tidak akan diubah. Lanjutkan?')">
+                        Generate Ulang All
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

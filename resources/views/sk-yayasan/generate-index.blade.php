@@ -81,6 +81,17 @@
                     <button type="submit" class="btn btn-primary">Simpan Data Pokok SK Global</button>
                 </div>
             </form>
+            <div class="d-flex justify-content-end mt-2">
+                <form method="POST" action="{{ route('sk-yayasan.generate.regenerate-all') }}">
+                    @csrf
+                    <button type="submit"
+                            class="btn btn-outline-primary"
+                            @disabled($schools->isEmpty())
+                            onclick="return confirm('Generate ulang semua sekolah akan menyusun ulang nomor SK sesuai urutan SCOD. Nomor yang sudah dikunci tidak akan diubah. Lanjutkan?')">
+                        Generate Ulang All
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
