@@ -1030,10 +1030,9 @@ class SkYayasanController extends Controller
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
             ->orderBy('name')
-            ->paginate(12)
-            ->withQueryString();
+            ->get();
 
-        $schools->getCollection()->transform(function (Madrasah $school) {
+        $schools->transform(function (Madrasah $school) {
             $school->core_data = $this->buildSchoolSkCoreData(
                 $school,
                 null

@@ -20,7 +20,7 @@
                     </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($schools->total()); ?> sekolah</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($schools->count()); ?> sekolah</span>
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($syncedBatchCount); ?> batch tersinkron</span>
                 <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($totalRequestsCount); ?> pengajuan</span>
             </div>
@@ -91,7 +91,7 @@
                             <div class="sky-panel-label mb-1">Antrean Sekolah</div>
                             <h6 class="mb-0">Klik sekolah untuk membuka daftar pengajuan tersinkronisasi</h6>
                         </div>
-                        <span class="sky-chip"><?php echo e($schools->total()); ?> sekolah dari <?php echo e($syncedBatchCount); ?> batch tersinkron</span>
+                        <span class="sky-chip"><?php echo e($schools->count()); ?> sekolah dari <?php echo e($syncedBatchCount); ?> batch tersinkron</span>
                     </div>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schools->count() > 0): ?>
@@ -148,12 +148,6 @@
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schools->hasPages()): ?>
-                    <div class="card-footer bg-white">
-                        <?php echo e($schools->links()); ?>
-
-                    </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
 

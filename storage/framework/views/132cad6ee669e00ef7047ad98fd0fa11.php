@@ -593,9 +593,7 @@
             <div>
                 <div class="sky-section-kicker mb-2">SK Yayasan</div>
                 <h4 class="sky-page-title">Pengajuan perpanjangan SK</h4>
-                <p class="sky-page-subtitle">
-                    Halaman ini merangkum pengajuan aktif, hasil sinkronisasi batch, serta kondisi tiap sekolah agar proses review yayasan lebih rapi dan cepat ditindaklanjuti.
-                </p>
+                
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a href="<?php echo e(route('sk-yayasan.template.index')); ?>" class="btn btn-light">
@@ -615,22 +613,22 @@
         <div class="sky-summary-card">
             <div class="sky-summary-label">Sekolah Sudah Mengajukan</div>
             <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['submitted_schools'] ?? 0)); ?></div>
-            <span class="sky-summary-note">Sekolah yang sudah memiliki pengajuan atau batch aktif.</span>
+            
         </div>
         <div class="sky-summary-card">
             <div class="sky-summary-label">Sekolah Belum Mengajukan</div>
             <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['not_submitted_schools'] ?? 0)); ?></div>
-            <span class="sky-summary-note">Sekolah yang belum mengirim batch aktif ke yayasan.</span>
+            
         </div>
         <div class="sky-summary-card">
             <div class="sky-summary-label">Total Pengajuan Aktif</div>
             <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['total_requests'] ?? 0)); ?></div>
-            <span class="sky-summary-note">Seluruh pengajuan yang sedang diproses pada tahap review atau penerbitan.</span>
+            
         </div>
         <div class="sky-summary-card">
             <div class="sky-summary-label">Belum Match Akun NUist</div>
             <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['requests_without_nuist_account'] ?? 0)); ?></div>
-            <span class="sky-summary-note">Jumlah baris pada batch terakhir yang masih perlu dicocokkan dengan akun.</span>
+            
         </div>
     </div>
 
@@ -641,7 +639,7 @@
                     <div class="sky-panel-label mb-1">Komposisi Keterangan</div>
                     <h6 class="mb-0">Jenis pengajuan yang sedang berjalan</h6>
                 </div>
-                <span class="sky-chip"><?php echo e(number_format(collect($keteranganSummaryCounts)->sum())); ?> data terpetakan</span>
+                
             </div>
 
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($keteranganSummaryCounts)): ?>
@@ -657,7 +655,7 @@
                 <div class="sky-empty-state py-4">
                     <i class="bx bx-receipt"></i>
                     <strong>Belum ada kategori pengajuan yang terpetakan</strong>
-                    <small>Ringkasan akan muncul setelah batch aktif berhasil dibaca sistem.</small>
+                    
                 </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
@@ -667,7 +665,7 @@
         <div class="col-xl-6">
             <div class="card h-100">
                 <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#pendingBatchPanel" aria-expanded="true" aria-controls="pendingBatchPanel">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 grow me-3">
                         <div>
                             <div class="sky-panel-label mb-1">Batch Pending</div>
                             <h6 class="mb-0">Import yang masih menunggu review</h6>
@@ -731,7 +729,7 @@
                             <div class="sky-empty-state py-5">
                                 <i class="bx bx-spreadsheet"></i>
                                 <strong>Tidak ada batch pending review</strong>
-                                <small>Batch baru dari sekolah akan muncul di sini sebelum disinkronkan.</small>
+                                
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
@@ -751,7 +749,7 @@
         <div class="col-xl-6">
             <div class="card h-100">
                 <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#syncedBatchPanel" aria-expanded="true" aria-controls="syncedBatchPanel">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 grow me-3">
                         <div>
                             <div class="sky-panel-label mb-1">Batch Tersinkron</div>
                             <h6 class="mb-0">Import yang sudah masuk ke aplikasi</h6>
@@ -831,7 +829,7 @@
 
     <div class="card mb-4">
         <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#submissionListPanel" aria-expanded="false" aria-controls="submissionListPanel">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 grow me-3">
                 <div>
                     <div class="sky-panel-label mb-1">Daftar Pengajuan</div>
                     <h6 class="mb-0">Semua pengajuan yang masuk ke yayasan, termasuk yang ditolak</h6>
@@ -975,7 +973,7 @@
 
     <div class="card mt-4">
         <button class="sky-collapse-trigger" type="button" data-bs-toggle="collapse" data-bs-target="#schoolMonitoringPanel" aria-expanded="false" aria-controls="schoolMonitoringPanel">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 flex-grow-1 me-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 grow me-3">
                 <div>
                     <div class="sky-panel-label mb-1">Monitoring Sekolah</div>
                     <h6 class="mb-0">Status ringkas pengajuan per sekolah</h6>
