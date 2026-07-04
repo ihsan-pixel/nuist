@@ -130,7 +130,9 @@
                                                 </span>
                                             </td>
                                             <td class="small">
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($generatedDocumentsCount > 0): ?>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$numberLockSupported): ?>
+                                                    <div class="text-muted">Fitur lock menunggu migration database</div>
+                                                <?php elseif($generatedDocumentsCount > 0): ?>
                                                     <div class="fw-semibold text-dark"><?php echo e($lockedDocumentsCount); ?>/<?php echo e($generatedDocumentsCount); ?> nomor terkunci</div>
                                                     <div class="text-muted mt-1">
                                                         <?php echo e($allGeneratedLocked ? 'Semua draft/generate sekolah ini sudah final.' : 'Nomor yang sudah dikunci tidak akan berubah saat generate ulang.'); ?>
@@ -154,7 +156,7 @@
                                                         <?php echo method_field('PATCH'); ?>
                                                         <button type="submit"
                                                                 class="btn btn-sm btn-outline-dark"
-                                                                <?php if($generatedDocumentsCount === 0 || $allGeneratedLocked): echo 'disabled'; endif; ?>
+                                                                <?php if(!$numberLockSupported || $generatedDocumentsCount === 0 || $allGeneratedLocked): echo 'disabled'; endif; ?>
                                                                 onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci akan tetap dipakai dan tidak akan diubah saat generate ulang.')">
                                                             Kunci Nomor SK
                                                         </button>

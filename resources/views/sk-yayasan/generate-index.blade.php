@@ -131,7 +131,9 @@
                                                 </span>
                                             </td>
                                             <td class="small">
-                                                @if($generatedDocumentsCount > 0)
+                                                @if(!$numberLockSupported)
+                                                    <div class="text-muted">Fitur lock menunggu migration database</div>
+                                                @elseif($generatedDocumentsCount > 0)
                                                     <div class="fw-semibold text-dark">{{ $lockedDocumentsCount }}/{{ $generatedDocumentsCount }} nomor terkunci</div>
                                                     <div class="text-muted mt-1">
                                                         {{ $allGeneratedLocked ? 'Semua draft/generate sekolah ini sudah final.' : 'Nomor yang sudah dikunci tidak akan berubah saat generate ulang.' }}
@@ -154,7 +156,7 @@
                                                         @method('PATCH')
                                                         <button type="submit"
                                                                 class="btn btn-sm btn-outline-dark"
-                                                                @disabled($generatedDocumentsCount === 0 || $allGeneratedLocked)
+                                                                @disabled(!$numberLockSupported || $generatedDocumentsCount === 0 || $allGeneratedLocked)
                                                                 onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci akan tetap dipakai dan tidak akan diubah saat generate ulang.')">
                                                             Kunci Nomor SK
                                                         </button>

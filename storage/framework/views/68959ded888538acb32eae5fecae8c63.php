@@ -108,6 +108,7 @@
                                     <?php echo method_field('PATCH'); ?>
                                     <button type="submit"
                                             class="btn btn-outline-dark"
+                                            <?php if(!$numberLockSupported): echo 'disabled'; endif; ?>
                                             onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci tidak akan diubah saat generate ulang.')">
                                         <i class="bx bx-lock-alt me-1"></i>Kunci Nomor SK Sekolah Ini
                                     </button>

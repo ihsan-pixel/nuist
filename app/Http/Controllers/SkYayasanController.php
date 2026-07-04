@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -1022,28 +1023,36 @@ class SkYayasanController extends Controller
         $this->repairSyncedBatchesRequests();
 
         $globalSkSettings = $this->getGlobalSkSettings();
+        $numberLockSupported = $this->skYayasanDocumentNumberLockSupported();
+        $schoolCounts = [
+            'skYayasanImportBatches as synced_batches_count' => fn (Builder $query) => $query->where('status', 'synced'),
+            'skYayasanRequests as generate_requests_count' => fn (Builder $query) => $query
+                ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced')),
+            'skYayasanRequests as generated_documents_count' => fn (Builder $query) => $query
+                ->whereHas('document'),
+        ];
+
+        if ($numberLockSupported) {
+            $schoolCounts['skYayasanRequests as locked_documents_count'] = fn (Builder $query) => $query
+                ->whereHas('document', fn (Builder $documentQuery) => $documentQuery->whereNotNull('number_locked_at'));
+        }
 
         $schools = Madrasah::query()
             ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'))
-            ->withCount([
-                'skYayasanImportBatches as synced_batches_count' => fn (Builder $query) => $query->where('status', 'synced'),
-                'skYayasanRequests as generate_requests_count' => fn (Builder $query) => $query
-                    ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced')),
-                'skYayasanRequests as generated_documents_count' => fn (Builder $query) => $query
-                    ->whereHas('document'),
-                'skYayasanRequests as locked_documents_count' => fn (Builder $query) => $query
-                    ->whereHas('document', fn (Builder $documentQuery) => $documentQuery->whereNotNull('number_locked_at')),
-            ])
+            ->withCount($schoolCounts)
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
             ->orderBy('name')
             ->get();
 
-        $schools->transform(function (Madrasah $school) {
+        $schools->transform(function (Madrasah $school) use ($numberLockSupported) {
             $school->core_data = $this->buildSchoolSkCoreData(
                 $school,
                 null
             );
+            $school->locked_documents_count = $numberLockSupported
+                ? (int) ($school->locked_documents_count ?? 0)
+                : 0;
 
             return $school;
         });
@@ -1055,6 +1064,7 @@ class SkYayasanController extends Controller
                 ->count(),
             'syncedBatchCount' => SkYayasanImportBatch::query()->where('status', 'synced')->count(),
             'globalSkSettings' => $globalSkSettings,
+            'numberLockSupported' => $numberLockSupported,
         ]);
     }
 
@@ -1129,6 +1139,7 @@ class SkYayasanController extends Controller
             'templates' => $templates,
             'coreData' => $this->buildSchoolSkCoreData($madrasah),
             'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
+            'numberLockSupported' => $this->skYayasanDocumentNumberLockSupported(),
             'publishedDocuments' => SkYayasanDocument::query()
                 ->with(['request.employee', 'request.madrasah'])
                 ->where('status', 'published')
@@ -1287,6 +1298,10 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
+        if (!$this->skYayasanDocumentNumberLockSupported()) {
+            return back()->with('error', 'Fitur kunci nomor SK belum aktif karena kolom database belum dimigrasikan.');
+        }
+
         $generatedCount = $this->schoolDocumentsQuery($madrasah)->count();
 
         if ($generatedCount === 0) {
@@ -1320,13 +1335,18 @@ class SkYayasanController extends Controller
 
         $document->load('request');
 
-        $document->update([
+        $payload = [
             'status' => 'published',
             'published_by' => auth()->id(),
             'published_at' => now(),
-            'number_locked_by' => $document->number_locked_by ?: auth()->id(),
-            'number_locked_at' => $document->number_locked_at ?: now(),
-        ]);
+        ];
+
+        if ($this->skYayasanDocumentNumberLockSupported()) {
+            $payload['number_locked_by'] = $document->number_locked_by ?: auth()->id();
+            $payload['number_locked_at'] = $document->number_locked_at ?: now();
+        }
+
+        $document->update($payload);
 
         $document->request->update([
             'current_status' => 'published',
@@ -1381,7 +1401,8 @@ class SkYayasanController extends Controller
         $requestedNumberFormatSuffix = trim((string) ($data['number_format_suffix'] ?? ''));
         $existingDocumentNumber = $existingDocument?->document_number;
         $existingSequence = $this->extractDocumentNumberSequence($existingDocumentNumber);
-        $isExistingNumberLocked = $existingDocument?->number_locked_at !== null;
+        $isExistingNumberLocked = $this->skYayasanDocumentNumberLockSupported()
+            && $existingDocument?->number_locked_at !== null;
         $canReuseExistingNumber = $existingDocumentNumber
             && (
                 $isExistingNumberLocked
@@ -1525,6 +1546,20 @@ class SkYayasanController extends Controller
     {
         return SkYayasanDocument::query()
             ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasah->id));
+    }
+
+    private function skYayasanDocumentNumberLockSupported(): bool
+    {
+        static $supported = null;
+
+        if ($supported === null) {
+            $supported = Schema::hasColumns('sk_yayasan_documents', [
+                'number_locked_at',
+                'number_locked_by',
+            ]);
+        }
+
+        return $supported;
     }
 
     private function resolveSchoolCopyRecipients(Madrasah $madrasah): array
