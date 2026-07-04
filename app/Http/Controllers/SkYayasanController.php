@@ -972,7 +972,10 @@ class SkYayasanController extends Controller
 
         return response($pdf->output(), 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="' . $documentNumber . '.pdf"');
+            ->header('Content-Disposition', 'inline; filename="' . $documentNumber . '.pdf"')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function destroyTemplate(SkYayasanTemplate $template): RedirectResponse
@@ -1313,7 +1316,10 @@ class SkYayasanController extends Controller
 
         return response($pdf->output(), 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="' . $document->document_number . '.pdf"');
+            ->header('Content-Disposition', 'inline; filename="' . $document->document_number . '.pdf"')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     private function downloadSchoolDocumentsPdf(Madrasah $madrasah, Collection $documents)
@@ -1325,7 +1331,10 @@ class SkYayasanController extends Controller
 
         return response($pdf->output(), 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="sk-yayasan-' . Str::slug($madrasah->name ?: 'sekolah') . '.pdf"');
+            ->header('Content-Disposition', 'inline; filename="sk-yayasan-' . Str::slug($madrasah->name ?: 'sekolah') . '.pdf"')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     private function persistGeneratedDocument(
@@ -2765,6 +2774,11 @@ class SkYayasanController extends Controller
         $normalized = preg_replace('/(?:^|,\s*)-(?:\s*,\s*-)+$/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/^-\s*,\s*$/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/^-\s*,\s*-\s*$/u', '-', $normalized) ?? $normalized;
+        $meaningful = preg_replace('/[-,\.\s\/]+/u', '', $normalized) ?? $normalized;
+
+        if ($meaningful === '') {
+            return '-';
+        }
 
         return $normalized;
     }
