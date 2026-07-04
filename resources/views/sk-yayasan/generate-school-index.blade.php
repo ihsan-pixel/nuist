@@ -34,7 +34,7 @@
         'Keterangan' => 'source_keterangan',
     ];
 
-    $importBatchModalItems = $requests->getCollection()
+    $importBatchModalItems = $requests
         ->pluck('importBatch')
         ->filter()
         ->unique('id')
@@ -87,7 +87,7 @@
                 <a href="{{ route('sk-yayasan.generate.index') }}" class="btn btn-light">
                     <i class="bx bx-arrow-back me-1"></i>Kembali ke Antrean
                 </a>
-                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $requests->total() }} pengajuan</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $requests->count() }} pengajuan</span>
             </div>
         </div>
     </div>
@@ -102,7 +102,7 @@
                             <h6 class="mb-0">Generate otomatis satu sekolah atau tetap per guru</h6>
                         </div>
                         <div class="d-flex flex-wrap align-items-center gap-2">
-                            <span class="sky-chip">{{ $requests->total() }} data</span>
+                            <span class="sky-chip">{{ $requests->count() }} data</span>
                             @if($requests->count() > 0)
                                 <form method="POST"
                                       action="{{ route('sk-yayasan.generate.school.lock-number', $madrasah) }}">
@@ -241,12 +241,6 @@
                         </div>
                     @endif
                 </div>
-
-                @if($requests->hasPages())
-                    <div class="card-footer bg-white">
-                        {{ $requests->links() }}
-                    </div>
-                @endif
             </div>
         </div>
     </div>

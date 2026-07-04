@@ -1121,23 +1121,16 @@ class SkYayasanController extends Controller
             ])
             ->where('madrasah_id', $madrasah->id)
             ->where($syncedQueueRequests)
-            ->orderByRaw("
-                CASE
-                    WHEN current_status = 'published' THEN 2
-                    WHEN current_status = 'approved' THEN 1
-                    WHEN current_status = 'reviewed' THEN 0
-                    WHEN current_status = 'submitted' THEN 0
-                    ELSE 3
-                END
-            ")
-            ->orderByDesc('reviewed_at')
-            ->orderByDesc('submitted_at')
-            ->paginate(12)
-            ->withQueryString();
+            ->get();
 
-        $requests->getCollection()->transform(function (SkYayasanRequest $submission) use ($templates) {
+        $requests = $requests->map(function (SkYayasanRequest $submission) use ($templates) {
             return $this->decorateGenerateSubmission($submission, $templates);
-        });
+        })->sortBy([
+            fn (SkYayasanRequest $submission) => $submission->document?->document_number ? 0 : 1,
+            fn (SkYayasanRequest $submission) => $this->extractDocumentNumberSequence($submission->document?->document_number) ?? PHP_INT_MAX,
+            fn (SkYayasanRequest $submission) => mb_strtolower((string) ($submission->employee?->name ?? '')),
+            fn (SkYayasanRequest $submission) => (int) $submission->id,
+        ])->values();
 
         return view('sk-yayasan.generate-school-index', [
             'madrasah' => $madrasah,

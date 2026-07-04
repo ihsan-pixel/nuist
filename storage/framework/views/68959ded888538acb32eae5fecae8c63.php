@@ -32,7 +32,7 @@
         'Keterangan' => 'source_keterangan',
     ];
 
-    $importBatchModalItems = $requests->getCollection()
+    $importBatchModalItems = $requests
         ->pluck('importBatch')
         ->filter()
         ->unique('id')
@@ -85,7 +85,7 @@
                 <a href="<?php echo e(route('sk-yayasan.generate.index')); ?>" class="btn btn-light">
                     <i class="bx bx-arrow-back me-1"></i>Kembali ke Antrean
                 </a>
-                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($requests->total()); ?> pengajuan</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($requests->count()); ?> pengajuan</span>
             </div>
         </div>
     </div>
@@ -100,7 +100,7 @@
                             <h6 class="mb-0">Generate otomatis satu sekolah atau tetap per guru</h6>
                         </div>
                         <div class="d-flex flex-wrap align-items-center gap-2">
-                            <span class="sky-chip"><?php echo e($requests->total()); ?> data</span>
+                            <span class="sky-chip"><?php echo e($requests->count()); ?> data</span>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($requests->count() > 0): ?>
                                 <form method="POST"
                                       action="<?php echo e(route('sk-yayasan.generate.school.lock-number', $madrasah)); ?>">
@@ -241,13 +241,6 @@
                         </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($requests->hasPages()): ?>
-                    <div class="card-footer bg-white">
-                        <?php echo e($requests->links()); ?>
-
-                    </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
