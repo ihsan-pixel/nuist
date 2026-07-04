@@ -3038,6 +3038,7 @@ class SkYayasanController extends Controller
     {
         $body = $this->normalizeStructuredTemplatePlaceholders($body);
         $body = $this->normalizeStructuredTemplateStyles($body);
+        $body = $this->normalizeStructuredTemplateFooterLayout($body);
         $body = $this->normalizeStructuredTemplateSignatureSpacing($body);
         $normalizedPlaceholders = $placeholders;
 
@@ -3082,20 +3083,101 @@ class SkYayasanController extends Controller
             $body
         ) ?? $body;
 
-        return preg_replace_callback(
+        $body = preg_replace_callback(
             '/\.sk-signature\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/margin-top\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = trim($styles);
 
                 if ($styles !== '' && !str_ends_with($styles, ';')) {
                     $styles .= ';';
                 }
 
-                return '.sk-signature { ' . trim($styles . ' line-height: 1.02;') . ' }';
+                return '.sk-signature { ' . trim($styles . ' line-height: 1.02; margin-top: 0;') . ' }';
             },
             $body
         ) ?? $body;
+
+        $replacements = [
+            '/\.sk-copy\s*\{([^}]*)\}/u' => static function (array $matches): string {
+                $styles = preg_replace('/margin(?:-[a-z]+)?\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-copy { ' . trim($styles . ' margin: 0;') . ' }';
+            },
+        ];
+
+        foreach ($replacements as $pattern => $callback) {
+            $body = preg_replace_callback($pattern, $callback, $body) ?? $body;
+        }
+
+        foreach ([
+            '.sk-footer-table { border-collapse: collapse; margin-top: 20px; width: 100%; }',
+            '.sk-footer-table td { vertical-align: bottom; }',
+            '.sk-footer-copy-cell { padding: 0 14px 0 0; }',
+            '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
+        ] as $requiredStyle) {
+            if (!str_contains($body, $requiredStyle)) {
+                $body = str_replace('</style>', $requiredStyle . "\n</style>", $body);
+            }
+        }
+
+        return $body;
+    }
+
+    private function normalizeStructuredTemplateFooterLayout(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-footer-table')) {
+            return $body;
+        }
+
+        $oldFooter = <<<'HTML'
+    <div class="sk-signature">
+        Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
+        Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
+        @{{jabatan_penandatangan}}<br>
+        Ketua,
+        <div class="sk-signature-name">@{{nama_penandatangan}}</div>
+    </div>
+
+    <div class="sk-copy">
+        <div class="sk-copy-title">Tembusan Yth:</div>
+        1. Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY<br>
+        2. Kepala Balai Pendidikan Menengah Kabupaten Bantul<br>
+        3. Arsip
+    </div>
+HTML;
+
+        $newFooter = <<<'HTML'
+    <table class="sk-footer-table">
+        <tr>
+            <td class="sk-footer-copy-cell">
+                <div class="sk-copy">
+                    <div class="sk-copy-title">Tembusan Yth:</div>
+                    1. Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY<br>
+                    2. Kepala Balai Pendidikan Menengah Kabupaten Bantul<br>
+                    3. Arsip
+                </div>
+            </td>
+            <td class="sk-footer-signature-cell">
+                <div class="sk-signature">
+                    Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
+                    Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
+                    @{{jabatan_penandatangan}}<br>
+                    Ketua,
+                    <div class="sk-signature-name">@{{nama_penandatangan}}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+HTML;
+
+        return str_replace($oldFooter, $newFooter, $body);
     }
 
     private function normalizeStructuredTemplateSignatureSpacing(string $body): string

@@ -163,7 +163,7 @@
 .sk-signature {
     line-height: 1.02;
     margin-left: auto;
-    margin-top: 20px;
+    margin-top: 0;
     width: 290px;
 }
 .sk-signature-name {
@@ -171,10 +171,23 @@
     margin-top: 54px;
     text-decoration: underline;
 }
+.sk-footer-table {
+    border-collapse: collapse;
+    margin-top: 20px;
+    width: 100%;
+}
+.sk-footer-table td {
+    vertical-align: bottom;
+}
+.sk-footer-copy-cell {
+    padding: 0 14px 0 0;
+}
+.sk-footer-signature-cell {
+    vertical-align: top;
+    width: 290px;
+}
 .sk-copy {
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 12px;
+    margin: 0;
     padding-left: 0;
     text-align: left;
     width: 100%;
@@ -282,20 +295,27 @@
         </tr>
     </table>
 
-    <div class="sk-signature">
-        Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
-        Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
-        @{{jabatan_penandatangan}}<br>
-        Ketua,
-        <div class="sk-signature-name">@{{nama_penandatangan}}</div>
-    </div>
-
-    <div class="sk-copy">
-        <div class="sk-copy-title">Tembusan Yth:</div>
-        1. Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY<br>
-        2. Kepala Balai Pendidikan Menengah Kabupaten Bantul<br>
-        3. Arsip
-    </div>
+    <table class="sk-footer-table">
+        <tr>
+            <td class="sk-footer-copy-cell">
+                <div class="sk-copy">
+                    <div class="sk-copy-title">Tembusan Yth:</div>
+                    1. Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY<br>
+                    2. Kepala Balai Pendidikan Menengah Kabupaten Bantul<br>
+                    3. Arsip
+                </div>
+            </td>
+            <td class="sk-footer-signature-cell">
+                <div class="sk-signature">
+                    Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
+                    Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
+                    @{{jabatan_penandatangan}}<br>
+                    Ketua,
+                    <div class="sk-signature-name">@{{nama_penandatangan}}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
 </div>
 HTML;
 
