@@ -2485,7 +2485,7 @@ class SkYayasanController extends Controller
     {
         $string = trim((string) $value);
 
-        if ($string === '') {
+        if ($string === '' || $string === '-' || $string === '?') {
             return '-';
         }
 
@@ -2496,7 +2496,7 @@ class SkYayasanController extends Controller
     {
         $string = trim((string) $value);
 
-        return $string === '' ? null : $string;
+        return $string === '' || $string === '-' || $string === '?' ? null : $string;
     }
 
     private function formatIndonesianDate(mixed ...$values): string
@@ -2724,6 +2724,8 @@ class SkYayasanController extends Controller
     {
         $normalized = preg_replace('/\s*,\s*/u', ', ', trim($valueText)) ?? trim($valueText);
         $normalized = str_replace('?', '-', $normalized);
+        $normalized = preg_replace('/^-\s*,\s*(.+)$/u', '$1', $normalized) ?? $normalized;
+        $normalized = preg_replace('/^(.+?)\s*,\s*-$/u', '$1', $normalized) ?? $normalized;
         $normalized = preg_replace('/(?:^|,\s*)-(?:\s*,\s*-)+$/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/^-\s*,\s*$/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/^-\s*,\s*-\s*$/u', '-', $normalized) ?? $normalized;
