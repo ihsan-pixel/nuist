@@ -2504,6 +2504,7 @@ class SkYayasanController extends Controller
     private function normalizeMissingValueMarkers(string $value): string
     {
         $normalized = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $normalized = preg_replace('/[\x{2010}\x{2011}\x{2012}\x{2013}\x{2014}\x{2015}\x{2212}\x{FE58}\x{FE63}\x{FF0D}]/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/[?？﹖¿\x{061F}]/u', '-', $normalized) ?? $normalized;
         $normalized = preg_replace('/\b(?:null|\(null\)|n\/a|na|none|undefined)\b/ui', '-', $normalized) ?? $normalized;
 
