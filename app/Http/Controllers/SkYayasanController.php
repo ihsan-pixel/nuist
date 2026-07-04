@@ -1045,7 +1045,11 @@ class SkYayasanController extends Controller
             ->orderBy('name')
             ->get();
 
-        $schools->transform(function (Madrasah $school) use ($numberLockSupported) {
+        $readyLockRanges = $numberLockSupported
+            ? $this->buildSchoolReadyLockRanges($schools->pluck('id'))
+            : [];
+
+        $schools->transform(function (Madrasah $school) use ($numberLockSupported, $readyLockRanges) {
             $school->core_data = $this->buildSchoolSkCoreData(
                 $school,
                 null
@@ -1053,6 +1057,8 @@ class SkYayasanController extends Controller
             $school->locked_documents_count = $numberLockSupported
                 ? (int) ($school->locked_documents_count ?? 0)
                 : 0;
+            $school->ready_lock_range = $readyLockRanges[$school->id]['range'] ?? null;
+            $school->ready_lock_count = (int) ($readyLockRanges[$school->id]['count'] ?? 0);
 
             return $school;
         });
@@ -1546,6 +1552,49 @@ class SkYayasanController extends Controller
     {
         return SkYayasanDocument::query()
             ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasah->id));
+    }
+
+    private function buildSchoolReadyLockRanges(Collection $schoolIds): array
+    {
+        $schoolIds = $schoolIds
+            ->filter(fn ($id) => !is_null($id))
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        if ($schoolIds->isEmpty()) {
+            return [];
+        }
+
+        $rows = DB::table('sk_yayasan_documents')
+            ->join('sk_yayasan_requests', 'sk_yayasan_requests.id', '=', 'sk_yayasan_documents.request_id')
+            ->whereIn('sk_yayasan_requests.madrasah_id', $schoolIds->all())
+            ->whereNotNull('sk_yayasan_documents.document_number')
+            ->whereNull('sk_yayasan_documents.number_locked_at')
+            ->get([
+                'sk_yayasan_requests.madrasah_id',
+                'sk_yayasan_documents.document_number',
+            ]);
+
+        return $rows
+            ->groupBy('madrasah_id')
+            ->map(function (Collection $documents) {
+                $sortedNumbers = $documents
+                    ->pluck('document_number')
+                    ->filter()
+                    ->sortBy(fn (string $documentNumber) => $this->extractDocumentNumberSequence($documentNumber) ?? PHP_INT_MAX)
+                    ->values();
+
+                $firstNumber = $sortedNumbers->first();
+                $lastNumber = $sortedNumbers->last();
+
+                return [
+                    'count' => $sortedNumbers->count(),
+                    'range' => $firstNumber
+                        ? ($firstNumber === $lastNumber ? $firstNumber : $firstNumber . ' - ' . $lastNumber)
+                        : null,
+                ];
+            })
+            ->all();
     }
 
     private function skYayasanDocumentNumberLockSupported(): bool

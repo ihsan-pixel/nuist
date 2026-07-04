@@ -114,6 +114,8 @@
                                         @php($coreData = $school->core_data ?? [])
                                         @php($generatedDocumentsCount = (int) ($school->generated_documents_count ?? 0))
                                         @php($lockedDocumentsCount = (int) ($school->locked_documents_count ?? 0))
+                                        @php($readyLockCount = (int) ($school->ready_lock_count ?? 0))
+                                        @php($readyLockRange = $school->ready_lock_range)
                                         @php($allGeneratedLocked = $generatedDocumentsCount > 0 && $generatedDocumentsCount === $lockedDocumentsCount)
                                         <tr>
                                             <td>
@@ -138,6 +140,12 @@
                                                     <div class="text-muted mt-1">
                                                         {{ $allGeneratedLocked ? 'Semua draft/generate sekolah ini sudah final.' : 'Nomor yang sudah dikunci tidak akan berubah saat generate ulang.' }}
                                                     </div>
+                                                    @if($readyLockCount > 0 && $readyLockRange)
+                                                        <div class="mt-1">
+                                                            <span class="fw-semibold text-dark">Rentang siap dikunci:</span>
+                                                            <span class="text-muted">{{ $readyLockRange }}</span>
+                                                        </div>
+                                                    @endif
                                                 @else
                                                     <div class="text-muted">Belum ada dokumen yang digenerate</div>
                                                 @endif

@@ -112,6 +112,8 @@
                                         <?php ($coreData = $school->core_data ?? []); ?>
                                         <?php ($generatedDocumentsCount = (int) ($school->generated_documents_count ?? 0)); ?>
                                         <?php ($lockedDocumentsCount = (int) ($school->locked_documents_count ?? 0)); ?>
+                                        <?php ($readyLockCount = (int) ($school->ready_lock_count ?? 0)); ?>
+                                        <?php ($readyLockRange = $school->ready_lock_range); ?>
                                         <?php ($allGeneratedLocked = $generatedDocumentsCount > 0 && $generatedDocumentsCount === $lockedDocumentsCount); ?>
                                         <tr>
                                             <td>
@@ -138,6 +140,12 @@
                                                         <?php echo e($allGeneratedLocked ? 'Semua draft/generate sekolah ini sudah final.' : 'Nomor yang sudah dikunci tidak akan berubah saat generate ulang.'); ?>
 
                                                     </div>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($readyLockCount > 0 && $readyLockRange): ?>
+                                                        <div class="mt-1">
+                                                            <span class="fw-semibold text-dark">Rentang siap dikunci:</span>
+                                                            <span class="text-muted"><?php echo e($readyLockRange); ?></span>
+                                                        </div>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <?php else: ?>
                                                     <div class="text-muted">Belum ada dokumen yang digenerate</div>
                                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
