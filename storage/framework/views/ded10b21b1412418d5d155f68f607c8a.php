@@ -283,7 +283,7 @@
 
     <div class="sk-signature">
         Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
-        Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br><br>
+        Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
         @{{jabatan_penandatangan}}<br>
         Ketua,
         <div class="sk-signature-name">@{{nama_penandatangan}}</div>
@@ -1632,7 +1632,7 @@ HTML;
 
     <div class="sk-signature" style="font-size:${safeFontSize(config.signatureFontSize)}pt;">
         ${escapeHtml(config.signatureLocationLabelText)}&nbsp;&nbsp;: ${nl2br(config.signatureLocationValueText)}<br>
-        ${escapeHtml(config.signatureDateLabelText)}&nbsp;&nbsp;: {{tanggal_terbit}}<br><br>
+        ${escapeHtml(config.signatureDateLabelText)}&nbsp;&nbsp;: {{tanggal_terbit}}<br>
         ${nl2br(config.signatureRoleText)}<br>
         ${nl2br(config.signaturePrefixText)}
         <div class="sk-signature-name" style="font-size:${safeFontSize(config.signatureNameFontSize)}pt;">${nl2br(config.signatureNameText)}</div>

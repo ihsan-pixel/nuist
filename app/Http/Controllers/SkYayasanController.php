@@ -2568,6 +2568,7 @@ class SkYayasanController extends Controller
     {
         $body = $this->normalizeStructuredTemplatePlaceholders($body);
         $body = $this->normalizeStructuredTemplateStyles($body);
+        $body = $this->normalizeStructuredTemplateSignatureSpacing($body);
         $normalizedPlaceholders = $placeholders;
 
         foreach ($placeholders as $key => $value) {
@@ -2610,6 +2611,15 @@ class SkYayasanController extends Controller
             '.sk-label { width: 164px; }',
             $body
         ) ?? $body;
+    }
+
+    private function normalizeStructuredTemplateSignatureSpacing(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"')) {
+            return $body;
+        }
+
+        return str_replace('@{{tanggal_terbit}}<br><br>', '@{{tanggal_terbit}}<br>', $body);
     }
 
     private function normalizePersonRows(string $html): string
