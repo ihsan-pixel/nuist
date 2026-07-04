@@ -1065,6 +1065,8 @@ HTML;
                                         <div class="d-inline-flex flex-wrap justify-content-end gap-2">
                                             <form action="{{ route('sk-yayasan.template.preview-pdf') }}" method="POST" target="_blank" class="d-inline">
                                                 @csrf
+                                                <input type="hidden" name="name" value="{{ $template->name }}">
+                                                <input type="hidden" name="category" value="{{ $template->category }}">
                                                 <input type="hidden" name="document_title" value="{{ $template->document_title }}">
                                                 <input type="hidden" name="body" value="{{ $template->body }}">
                                                 <button type="submit" class="btn btn-sm btn-outline-primary">View PDF</button>

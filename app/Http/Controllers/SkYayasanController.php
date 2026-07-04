@@ -930,6 +930,8 @@ class SkYayasanController extends Controller
         $this->ensureSuperAdmin();
 
         $validated = $request->validate([
+            'name' => ['nullable', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:100'],
             'document_title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string'],
         ]);
@@ -940,7 +942,11 @@ class SkYayasanController extends Controller
             $issuedDate
         );
 
-        $renderedContent = $this->renderTemplate($validated['body'], $placeholders);
+        $renderedContent = $this->renderTemplate($validated['body'], $placeholders, [
+            'name' => $validated['name'] ?? null,
+            'category' => $validated['category'] ?? null,
+            'document_title' => $validated['document_title'],
+        ]);
         $documentNumber = $placeholders['{{nomor_sk}}'];
 
         $document = (object) [
@@ -1627,7 +1633,11 @@ class SkYayasanController extends Controller
             'catatan_penerbitan' => $data['publication_notes'] ?? '-',
         ]);
 
-        $renderedContent = $this->renderTemplate($template->body, $placeholders);
+        $renderedContent = $this->renderTemplate($template->body, $placeholders, [
+            'name' => $template->name,
+            'category' => $template->category,
+            'document_title' => $template->document_title,
+        ]);
 
         $document = SkYayasanDocument::query()->updateOrCreate(
             ['request_id' => $submission->id],
@@ -3034,10 +3044,10 @@ class SkYayasanController extends Controller
         return sprintf('%d tahun %d bulan', $diff->y, $diff->m);
     }
 
-    private function renderTemplate(string $body, array $placeholders): string
+    private function renderTemplate(string $body, array $placeholders, array $templateContext = []): string
     {
         $body = $this->normalizeStructuredTemplatePlaceholders($body);
-        $body = $this->normalizeStructuredTemplateStyles($body);
+        $body = $this->normalizeStructuredTemplateStyles($body, $templateContext);
         $body = $this->normalizeStructuredTemplateFooterLayout($body);
         $body = $this->normalizeStructuredTemplateSignatureSpacing($body);
         $normalizedPlaceholders = $placeholders;
@@ -3071,11 +3081,15 @@ class SkYayasanController extends Controller
         return $body;
     }
 
-    private function normalizeStructuredTemplateStyles(string $body): string
+    private function normalizeStructuredTemplateStyles(string $body, array $templateContext = []): string
     {
         if (!str_contains($body, 'data-sk-full-document="1"')) {
             return $body;
         }
+
+        $copyCellPadding = $this->templateNeedsWideCopyGap($templateContext)
+            ? '54px 14px 0 0'
+            : '0 14px 0 0';
 
         $body = preg_replace(
             '/\.sk-label\s*\{\s*width\s*:\s*\d+px\s*;\s*\}/u',
@@ -3116,10 +3130,16 @@ class SkYayasanController extends Controller
             $body = preg_replace_callback($pattern, $callback, $body) ?? $body;
         }
 
+        $body = preg_replace(
+            '/\.sk-footer-copy-cell\s*\{[^}]*\}/u',
+            '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
+            $body
+        ) ?? $body;
+
         foreach ([
             '.sk-footer-table { border-collapse: collapse; margin-top: 20px; width: 100%; }',
             '.sk-footer-table td { vertical-align: bottom; }',
-            '.sk-footer-copy-cell { padding: 0 14px 0 0; }',
+            '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
@@ -3178,6 +3198,18 @@ HTML;
 HTML;
 
         return str_replace($oldFooter, $newFooter, $body);
+    }
+
+    private function templateNeedsWideCopyGap(array $templateContext = []): bool
+    {
+        $haystack = $this->normalizeTemplateText(implode(' ', array_filter([
+            $templateContext['name'] ?? null,
+            $templateContext['category'] ?? null,
+            $templateContext['document_title'] ?? null,
+        ])));
+
+        return $this->containsTemplateWord($haystack, 'gtt')
+            || $this->containsTemplateWord($haystack, 'ptt');
     }
 
     private function normalizeStructuredTemplateSignatureSpacing(string $body): string
