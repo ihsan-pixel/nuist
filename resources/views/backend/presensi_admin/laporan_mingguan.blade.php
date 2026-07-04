@@ -158,6 +158,7 @@
                                 <th class="text-center align-middle">Total Hadir</th>
                                 <th class="text-center align-middle">Total Izin</th>
                                 <th class="text-center align-middle">Total Alpha</th>
+                                <th class="text-center align-middle">Total Tidak Bertugas</th>
                                 <th class="text-center align-middle">Persentase Kehadiran (%)</th>
                                 <th class="text-center align-middle">Rank</th>
                             </tr>
@@ -165,7 +166,7 @@
                         <tbody>
                             @foreach($laporanBulananData as $kabupaten)
                             <tr class="bg-info">
-                                <td colspan="9" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
+                                <td colspan="10" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
                             </tr>
                             @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
                             <tr>
@@ -176,6 +177,7 @@
                                 <td class="text-center">{{ $madrasah['total_hadir'] }}</td>
                                 <td class="text-center">{{ $madrasah['total_izin'] }}</td>
                                 <td class="text-center">{{ $madrasah['total_alpha'] }}</td>
+                                <td class="text-center">{{ $madrasah['total_tidak_bertugas'] }}</td>
                                 <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2, ',', '.') }}%</td>
                                 <td class="text-center font-weight-bold">{{ $madrasah['rank'] }}</td>
                             </tr>

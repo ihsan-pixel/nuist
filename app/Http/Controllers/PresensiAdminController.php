@@ -1068,6 +1068,7 @@ class PresensiAdminController extends Controller
                 'total_hadir' => 0,
                 'total_izin' => 0,
                 'total_alpha' => 0,
+                'total_tidak_bertugas' => 0,
                 'total_presensi' => 0,
                 'persentase_kehadiran' => 0
             ];
@@ -1081,12 +1082,19 @@ class PresensiAdminController extends Controller
                 $totalHadirBulanan = 0;
                 $totalIzinBulanan = 0;
                 $totalAlphaBulanan = 0;
+                $totalTidakBertugasBulanan = 0;
                 $totalPresensiBulanan = 0;
                 $currentDate = $startOfMonth->copy();
 
                 while ($currentDate <= $effectiveEndOfMonth) {
-                    if (!Holiday::where('date', $currentDate->toDateString())->exists()) {
+                    $isBaseWorkingDay = !$currentDate->isSunday()
+                        && !Holiday::where('date', $currentDate->toDateString())->exists()
+                        && !((string) $madrasah->hari_kbm === '5' && $currentDate->isSaturday());
+
+                    if ($isBaseWorkingDay) {
                         $dailySummary = $this->summarizeTeachersForDate($tenagaPendidik, $currentDate);
+                        $totalTidakBertugasBulanan += $dailySummary['not_required'];
+
                         if ($dailySummary['obligated'] > 0) {
                             $totalHadirBulanan += $dailySummary['hadir'];
                             $totalIzinBulanan += $dailySummary['izin'];
@@ -1111,12 +1119,14 @@ class PresensiAdminController extends Controller
                     'total_hadir' => $totalHadirBulanan,
                     'total_izin' => $totalIzinBulanan,
                     'total_alpha' => $totalAlphaBulanan,
+                    'total_tidak_bertugas' => $totalTidakBertugasBulanan,
                     'persentase_kehadiran' => $persentaseBulanan
                 ];
 
                 $kabupatenBulananData['total_hadir'] += $totalHadirBulanan;
                 $kabupatenBulananData['total_izin'] += $totalIzinBulanan;
                 $kabupatenBulananData['total_alpha'] += $totalAlphaBulanan;
+                $kabupatenBulananData['total_tidak_bertugas'] += $totalTidakBertugasBulanan;
                 $kabupatenBulananData['total_presensi'] += $totalPresensiBulanan;
             }
 
