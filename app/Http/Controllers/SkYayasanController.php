@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Yayasan;
 use App\Support\SkYayasanImportSynchronizer;
 use Closure;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -261,12 +262,11 @@ class SkYayasanController extends Controller
         });
         DB::transaction(function () use ($availableEmployees, $madrasahId, $user, $batch, $request) {
             foreach ($availableEmployees as $employee) {
-                SkYayasanRequest::create([
+                $this->createRequestWithGeneratedNumber([
                     'madrasah_id' => $madrasahId,
                     'import_batch_id' => $batch->id,
                     'employee_id' => $employee->id,
                     'submitted_by' => $user->id,
-                    'request_number' => $this->generateRequestNumber(),
                     'submission_letter_number' => $request->string('submission_letter_number')->trim()->toString(),
                     'submission_letter_date' => $request->date('submission_letter_date'),
                     'request_type' => 'perpanjangan',
@@ -2160,12 +2160,11 @@ class SkYayasanController extends Controller
                     $request = $orphanRequest->fresh();
                     $linked++;
                 } else {
-                    $request = SkYayasanRequest::query()->create([
+                    $request = $this->createRequestWithGeneratedNumber([
                         'madrasah_id' => (int) $batch->madrasah_id,
                         'import_batch_id' => $batch->id,
                         'employee_id' => $employeeId,
                         'submitted_by' => (int) ($batch->uploaded_by ?: auth()->id()),
-                        'request_number' => $this->generateRequestNumber(),
                         'submission_letter_number' => $referenceRequest?->submission_letter_number,
                         'submission_letter_date' => $referenceRequest?->submission_letter_date,
                         'request_type' => 'perpanjangan',
@@ -2245,11 +2244,55 @@ class SkYayasanController extends Controller
         }
     }
 
+    private function createRequestWithGeneratedNumber(array $attributes): SkYayasanRequest
+    {
+        $maxAttempts = 5;
+
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                $attributes['request_number'] = $this->generateRequestNumber();
+
+                return SkYayasanRequest::query()->create($attributes);
+            } catch (UniqueConstraintViolationException $exception) {
+                if (!$this->isDuplicateRequestNumberException($exception) || $attempt === $maxAttempts) {
+                    throw $exception;
+                }
+            }
+        }
+
+        throw new \RuntimeException('Gagal membuat nomor pengajuan SK Yayasan yang unik.');
+    }
+
     private function generateRequestNumber(): string
     {
-        $sequence = str_pad((string) (SkYayasanRequest::query()->count() + 1), 4, '0', STR_PAD_LEFT);
+        $prefix = 'REQ-SKY/' . now()->format('Ym');
+        $lastSequence = SkYayasanRequest::query()
+            ->where('request_number', 'like', $prefix . '/%')
+            ->lockForUpdate()
+            ->pluck('request_number')
+            ->map(fn (?string $requestNumber) => $this->extractRequestNumberSequence($requestNumber, $prefix))
+            ->filter(fn (?int $sequence) => $sequence !== null)
+            ->max();
 
-        return 'REQ-SKY/' . now()->format('Ym') . '/' . $sequence;
+        $sequence = str_pad((string) (($lastSequence ?? 0) + 1), 4, '0', STR_PAD_LEFT);
+
+        return $prefix . '/' . $sequence;
+    }
+
+    private function extractRequestNumberSequence(?string $requestNumber, string $prefix): ?int
+    {
+        if (!$requestNumber || !Str::startsWith($requestNumber, $prefix . '/')) {
+            return null;
+        }
+
+        $sequence = Str::afterLast($requestNumber, '/');
+
+        return ctype_digit($sequence) ? (int) $sequence : null;
+    }
+
+    private function isDuplicateRequestNumberException(UniqueConstraintViolationException $exception): bool
+    {
+        return str_contains($exception->getMessage(), 'sk_yayasan_requests_request_number_unique');
     }
 
     private function generateDocumentNumber(
