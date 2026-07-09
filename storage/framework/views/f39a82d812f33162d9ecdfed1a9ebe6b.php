@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>SK Yayasan - <?php echo e($madrasah->name); ?></title>
     <style>
+        <?php echo $__env->make('pdf.partials.sk-yayasan-cambria-fonts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
         body {
-            font-family: DejaVu Sans, sans-serif;
+            font-family: 'Cambria', serif;
             color: #111827;
             margin: 0;
             padding: 0;

@@ -197,7 +197,14 @@
             <div class="izin-header">
                 <div>
                     <div class="izin-user"><?php echo e($izin->user->name); ?></div>
-                    <div class="izin-date"><?php echo e($izin->tanggal->format('d M Y')); ?></div>
+                    <div class="izin-date">
+                        <?php echo e($izin->tanggal->format('d M Y')); ?>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($izin->tanggal_selesai): ?>
+                            - <?php echo e($izin->tanggal_selesai->format('d M Y')); ?>
+
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
                     <?php
                         $jenisIzin = 'Izin';
                         if ($izin->type === 'sakit') {
@@ -226,6 +233,7 @@
 
             <div class="izin-description">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($izin->type === 'tugas_luar'): ?>
+                    <strong>Periode:</strong> <?php echo e($izin->tanggal->format('d M Y')); ?> - <?php echo e(optional($izin->tanggal_selesai ?? $izin->tanggal)->format('d M Y')); ?><br>
                     <strong>Deskripsi:</strong> <?php echo e($izin->deskripsi_tugas); ?><br>
                     <strong>Lokasi:</strong> <?php echo e($izin->lokasi_tugas); ?><br>
                     <strong>Waktu:</strong> <?php echo e($izin->waktu_masuk); ?> - <?php echo e($izin->waktu_keluar); ?>

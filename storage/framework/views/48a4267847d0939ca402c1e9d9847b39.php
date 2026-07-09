@@ -394,6 +394,12 @@
                                             Status pengajuan <?php echo e(ucfirst(str_replace('_', ' ', $presensi->status))); ?>
 
                                         </div>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->tanggal_selesai): ?>
+                                            <div class="history-item-meta">
+                                                Periode <?php echo e(optional($presensi->tanggal)->format('d M Y')); ?> - <?php echo e(optional($presensi->tanggal_selesai)->format('d M Y')); ?>
+
+                                            </div>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->deskripsi_tugas || $presensi->alasan): ?>
                                             <div class="history-item-note"><?php echo e($presensi->deskripsi_tugas ?: $presensi->alasan); ?></div>
                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

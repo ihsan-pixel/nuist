@@ -157,6 +157,7 @@
                                 <th class="text-center align-middle">Total Hadir</th>
                                 <th class="text-center align-middle">Total Izin</th>
                                 <th class="text-center align-middle">Total Alpha</th>
+                                <th class="text-center align-middle">Total Tidak Bertugas</th>
                                 <th class="text-center align-middle">Persentase Kehadiran (%)</th>
                                 <th class="text-center align-middle">Rank</th>
                             </tr>
@@ -164,7 +165,7 @@
                         <tbody>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $laporanBulananData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr class="bg-info">
-                                <td colspan="9" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
+                                <td colspan="10" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
                             </tr>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <tr>
@@ -175,6 +176,7 @@
                                 <td class="text-center"><?php echo e($madrasah['total_hadir']); ?></td>
                                 <td class="text-center"><?php echo e($madrasah['total_izin']); ?></td>
                                 <td class="text-center"><?php echo e($madrasah['total_alpha']); ?></td>
+                                <td class="text-center"><?php echo e($madrasah['total_tidak_bertugas']); ?></td>
                                 <td class="text-center font-weight-bold"><?php echo e(number_format($madrasah['persentase_kehadiran'], 2, ',', '.')); ?>%</td>
                                 <td class="text-center font-weight-bold"><?php echo e($madrasah['rank']); ?></td>
                             </tr>

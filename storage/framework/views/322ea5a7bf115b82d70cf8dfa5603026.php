@@ -7,14 +7,17 @@
         $isFullDocumentTemplate = str_contains($document->rendered_content ?? '', 'data-sk-full-document="1"');
     ?>
     <style>
+        <?php echo $__env->make('pdf.partials.sk-yayasan-cambria-fonts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
         <?php if($isFullDocumentTemplate): ?>
         body {
+            font-family: 'Cambria', serif;
             margin: 0;
             padding: 0;
         }
         <?php else: ?>
         body {
-            font-family: DejaVu Sans, sans-serif;
+            font-family: 'Cambria', serif;
             font-size: 12px;
             line-height: 1.6;
             color: #111827;

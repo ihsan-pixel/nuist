@@ -65,8 +65,14 @@
         <input type="hidden" name="type" value="tugas_luar">
 
         <div class="form-group">
-            <label for="tanggal" class="form-label">Tanggal Tugas</label>
-            <input type="date" class="form-control" id="tanggal" name="tanggal" required>
+            <label for="tanggal_mulai" class="form-label">Tanggal Mulai Tugas</label>
+            <input type="date" class="form-control" id="tanggal_mulai" name="tanggal_mulai" required>
+        </div>
+
+        <div class="form-group">
+            <label for="tanggal_selesai" class="form-label">Tanggal Selesai Tugas</label>
+            <input type="date" class="form-control" id="tanggal_selesai" name="tanggal_selesai" required>
+            <small style="display: block; color: #6c757d; margin-top: 6px;">Bisa diajukan untuk beberapa hari sekaligus, misalnya 1 sampai 3.</small>
         </div>
 
         <div class="form-group">
@@ -104,6 +110,15 @@
 <script>
     var isSubmitting = false;
 
+    $('#tanggal_mulai').on('change', function () {
+        var startDate = $(this).val();
+        $('#tanggal_selesai').attr('min', startDate || null);
+
+        if ($('#tanggal_selesai').val() && startDate && $('#tanggal_selesai').val() < startDate) {
+            $('#tanggal_selesai').val(startDate);
+        }
+    });
+
     $('#form-izin-tugas-luar').on('submit', function(e){
         e.preventDefault();
 
@@ -136,6 +151,12 @@
             error: function(xhr){
                 var msg = 'Surat gagal terkirim.';
                 if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    var firstError = Object.values(xhr.responseJSON.errors)[0];
+                    if (Array.isArray(firstError) && firstError.length) {
+                        msg = firstError[0];
+                    }
+                }
                 Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
                 submitBtn.prop('disabled', false);
                 isSubmitting = false;
