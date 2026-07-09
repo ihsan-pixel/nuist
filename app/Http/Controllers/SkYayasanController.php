@@ -3230,6 +3230,7 @@ class SkYayasanController extends Controller
         $body = $this->normalizeStructuredTemplatePlaceholders($body);
         $body = $this->normalizeStructuredTemplateStyles($body, $templateContext);
         $body = $this->normalizeStructuredTemplateMengingatLayout($body);
+        $body = $this->normalizeStructuredTemplateDecisionContentLayout($body);
         $body = $this->normalizeStructuredTemplateFooterLayout($body);
         $body = $this->normalizeStructuredTemplateSignatureSpacing($body);
         $normalizedPlaceholders = $placeholders;
@@ -3372,6 +3373,7 @@ class SkYayasanController extends Controller
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
+            '.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }',
             '.sk-person-value { padding-left: 8px; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
@@ -3595,6 +3597,81 @@ HTML;
 HTML;
 
         return str_replace($oldFooter, $newFooter, $body);
+    }
+
+    private function normalizeStructuredTemplateDecisionContentLayout(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"')) {
+            return $body;
+        }
+
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $body . '</div>';
+
+        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        $xpath = new \DOMXPath($document);
+        $rows = $xpath->query('//tr[td[contains(concat(" ", normalize-space(@class), " "), " sk-label ")]]');
+
+        if ($rows === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        foreach ($rows as $row) {
+            $cells = [];
+
+            foreach ($row->childNodes as $childNode) {
+                if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'td') {
+                    $cells[] = $childNode;
+                }
+            }
+
+            if (count($cells) < 3) {
+                continue;
+            }
+
+            $labelText = trim(preg_replace('/\s+/u', ' ', $cells[0]->textContent ?? ''));
+            $contentCell = $cells[count($cells) - 1];
+            $existingClass = trim((string) $contentCell->getAttribute('class'));
+            $classNames = preg_split('/\s+/u', $existingClass, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+            if ($labelText === 'Kedua' && !in_array('sk-kedua-content', $classNames, true)) {
+                $classNames[] = 'sk-kedua-content';
+            }
+
+            if ($labelText === 'Ketiga' && !in_array('sk-ketiga-content', $classNames, true)) {
+                $classNames[] = 'sk-ketiga-content';
+            }
+
+            if (!empty($classNames)) {
+                $contentCell->setAttribute('class', implode(' ', array_values(array_unique($classNames))));
+            }
+        }
+
+        $root = $document->getElementById('sk-root');
+        $output = '';
+
+        if ($root) {
+            foreach ($root->childNodes as $childNode) {
+                $output .= $document->saveHTML($childNode);
+            }
+        } else {
+            $output = $body;
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        return $output;
     }
 
     private function templateNeedsWideCopyGap(array $templateContext = []): bool

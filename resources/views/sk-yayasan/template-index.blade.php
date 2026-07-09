@@ -173,6 +173,10 @@
     margin: 0;
     padding-left: 0;
 }
+.sk-kedua-content,
+.sk-ketiga-content {
+    line-height: 1.32;
+}
 .sk-signature {
     line-height: 1.02;
     margin-left: auto;
@@ -301,12 +305,12 @@
         <tr>
             <td class="sk-label">Kedua</td>
             <td class="sk-colon">:</td>
-            <td class="sk-content-cell">Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
+            <td class="sk-content-cell sk-kedua-content">Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
         </tr>
         <tr>
             <td class="sk-label">Ketiga</td>
             <td class="sk-colon">:</td>
-            <td class="sk-content-cell">Asli Surat Keputusan ini diberikan kepada yang bersangkutan.</td>
+            <td class="sk-content-cell sk-ketiga-content">Asli Surat Keputusan ini diberikan kepada yang bersangkutan.</td>
         </tr>
     </table>
 
@@ -1621,6 +1625,7 @@ HTML;
 .sk-person-value { padding-left: 8px; }
 .sk-mengingat-list { margin: 0; padding-left: 22px; }
 .sk-mengingat-list li { margin: 0; padding-left: 0; }
+.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
@@ -1692,12 +1697,12 @@ HTML;
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.keduaLabelFontSize)}pt;">${escapeHtml(config.keduaLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.keduaLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.keduaContentFontSize)}pt;">${nl2br(config.keduaContentText)}</td>
+            <td class="sk-content-cell sk-kedua-content" style="font-size:${safeFontSize(config.keduaContentFontSize)}pt;">${nl2br(config.keduaContentText)}</td>
         </tr>
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.ketigaLabelFontSize)}pt;">${escapeHtml(config.ketigaLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.ketigaLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.ketigaContentFontSize)}pt;">${nl2br(config.ketigaContentText)}</td>
+            <td class="sk-content-cell sk-ketiga-content" style="font-size:${safeFontSize(config.ketigaContentFontSize)}pt;">${nl2br(config.ketigaContentText)}</td>
         </tr>
     </table>
 
