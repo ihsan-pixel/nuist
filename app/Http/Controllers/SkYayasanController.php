@@ -3115,6 +3115,7 @@ class SkYayasanController extends Controller
     {
         $body = $this->normalizeStructuredTemplatePlaceholders($body);
         $body = $this->normalizeStructuredTemplateStyles($body, $templateContext);
+        $body = $this->normalizeStructuredTemplateMengingatLayout($body);
         $body = $this->normalizeStructuredTemplateFooterLayout($body);
         $body = $this->normalizeStructuredTemplateSignatureSpacing($body);
         $normalizedPlaceholders = $placeholders;
@@ -3208,6 +3209,7 @@ class SkYayasanController extends Controller
             '.sk-footer-table td { vertical-align: bottom; }',
             '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
+            '.sk-mengingat-item { padding-left: 24px; text-indent: -24px; }',
             '.sk-person-value { padding-left: 8px; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
@@ -3216,6 +3218,113 @@ class SkYayasanController extends Controller
         }
 
         return $body;
+    }
+
+    private function normalizeStructuredTemplateMengingatLayout(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-mengingat-item')) {
+            return $body;
+        }
+
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $body . '</div>';
+
+        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        $xpath = new \DOMXPath($document);
+        $rows = $xpath->query('//tr[td[contains(concat(" ", normalize-space(@class), " "), " sk-label ")]]');
+
+        if ($rows === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        foreach ($rows as $row) {
+            $cells = [];
+
+            foreach ($row->childNodes as $childNode) {
+                if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'td') {
+                    $cells[] = $childNode;
+                }
+            }
+
+            if (count($cells) < 3) {
+                continue;
+            }
+
+            $labelText = trim(preg_replace('/\s+/u', ' ', $cells[0]->textContent ?? ''));
+
+            if ($labelText !== 'Mengingat') {
+                continue;
+            }
+
+            $contentCell = $cells[count($cells) - 1];
+            $groupedNodes = [];
+            $currentGroup = [];
+
+            foreach (iterator_to_array($contentCell->childNodes) as $childNode) {
+                if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'br') {
+                    $groupedNodes[] = $currentGroup;
+                    $currentGroup = [];
+                    continue;
+                }
+
+                $currentGroup[] = $childNode->cloneNode(true);
+            }
+
+            if (!empty($currentGroup)) {
+                $groupedNodes[] = $currentGroup;
+            }
+
+            while ($contentCell->firstChild) {
+                $contentCell->removeChild($contentCell->firstChild);
+            }
+
+            foreach ($groupedNodes as $group) {
+                $groupText = '';
+
+                foreach ($group as $node) {
+                    $groupText .= trim($document->saveHTML($node));
+                }
+
+                if (trim(strip_tags($groupText)) === '') {
+                    continue;
+                }
+
+                $wrapper = $document->createElement('div');
+                $wrapper->setAttribute('class', 'sk-mengingat-item');
+
+                foreach ($group as $node) {
+                    $wrapper->appendChild($node);
+                }
+
+                $contentCell->appendChild($wrapper);
+            }
+        }
+
+        $root = $document->getElementById('sk-root');
+        $output = '';
+
+        if ($root) {
+            foreach ($root->childNodes as $childNode) {
+                $output .= $document->saveHTML($childNode);
+            }
+        } else {
+            $output = $body;
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        return $output;
     }
 
     private function normalizeStructuredTemplateFooterLayout(string $body): string
