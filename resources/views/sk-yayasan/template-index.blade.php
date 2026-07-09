@@ -370,7 +370,7 @@ HTML;
         '@{{tahun_lulus}}' => '2015',
         '@{{program_studi}}' => 'Pendidikan Teknik Informatika',
         '@{{mapel_tugas_yang_diampu}}' => 'XXX',
-        '@{{penilaian_kinerja}}' => 'Baik',
+        '@{{penilaian_kinerja}}' => '60,00',
         '@{{keterangan_sk_yayasan}}' => 'Perpanjangan SK',
         '@{{jabatan}}' => 'Guru',
         '@{{status_kepegawaian}}' => 'Guru Tetap Yayasan',
@@ -399,7 +399,7 @@ HTML;
         '@{{source_tahun_lulus}}' => '2015',
         '@{{source_program_studi}}' => 'Pendidikan Teknik Informatika',
         '@{{source_mapel_tugas}}' => 'XXX',
-        '@{{source_penilaian_kinerja}}' => 'Baik',
+        '@{{source_penilaian_kinerja}}' => '60,00',
         '@{{source_keterangan}}' => 'Perpanjangan SK',
     ];
 

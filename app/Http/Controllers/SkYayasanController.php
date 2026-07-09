@@ -3037,10 +3037,34 @@ class SkYayasanController extends Controller
     private function resolveGeneratedSkPerformanceScore(?User $employee, mixed $submittedValue, mixed $fallbackValue = null): string
     {
         if ($this->employeeParticipatesInMgmpAcademica($employee)) {
-            return $this->sanitizeTemplatePlaceholderValue($submittedValue ?? $fallbackValue, false);
+            return $this->formatGeneratedSkPerformanceScore($submittedValue ?? $fallbackValue);
         }
 
-        return '60';
+        return $this->formatGeneratedSkPerformanceScore(60);
+    }
+
+    private function formatGeneratedSkPerformanceScore(mixed $value): string
+    {
+        $sanitized = $this->sanitizeTemplatePlaceholderValue($value, false);
+
+        if ($sanitized === '-') {
+            return '-';
+        }
+
+        $normalized = $sanitized;
+
+        if (str_contains($normalized, ',') && str_contains($normalized, '.')) {
+            $normalized = str_replace('.', '', $normalized);
+            $normalized = str_replace(',', '.', $normalized);
+        } elseif (str_contains($normalized, ',')) {
+            $normalized = str_replace(',', '.', $normalized);
+        }
+
+        if (!is_numeric($normalized)) {
+            return $sanitized;
+        }
+
+        return number_format((float) $normalized, 2, ',', '');
     }
 
     private function employeeParticipatesInMgmpAcademica(?User $employee): bool
@@ -3990,7 +4014,7 @@ HTML;
             '{{tahun_lulus}}' => '2015',
             '{{program_studi}}' => 'Pendidikan Teknik Informatika',
             '{{mapel_tugas_yang_diampu}}' => 'XXX',
-            '{{penilaian_kinerja}}' => 'Baik',
+            '{{penilaian_kinerja}}' => '60,00',
             '{{keterangan_sk_yayasan}}' => 'Perpanjangan SK',
             '{{jabatan}}' => 'Guru',
             '{{status_kepegawaian}}' => 'Guru Tetap Yayasan',
