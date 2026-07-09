@@ -516,6 +516,7 @@ HTML;
         'signaturePrefixText' => 'Ketua,',
         'signatureNameText' => '@{{nama_penandatangan}}',
         'signatureNameFontSize' => 13.5,
+        'signatureNameSpacing' => 54,
         'signatureToCopySpacing' => 12,
         'copyTitleText' => 'Tembusan Yth:',
         'copyFontSize' => 13.5,
@@ -604,6 +605,7 @@ HTML;
                 ['key' => 'signatureDateLabelText', 'label' => 'Label Tanggal', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
                 ['key' => 'signatureRoleText', 'label' => 'Jabatan Penandatangan', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
                 ['key' => 'signaturePrefixText', 'label' => 'Sapaan Penandatangan', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
+                ['key' => 'signatureNameSpacing', 'label' => 'Jarak Teks ke Tanda Tangan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak antara teks di atas tanda tangan dengan nama/tanda tangan.'],
                 ['key' => 'signatureNameText', 'label' => 'Nama Penandatangan', 'type' => 'text', 'fontKey' => 'signatureNameFontSize'],
                 ['key' => 'signatureToCopySpacing', 'label' => 'Jarak Tanda Tangan ke Tembusan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak vertikal antara blok tanda tangan dan bagian tembusan.'],
                 ['key' => 'copyTitleText', 'label' => 'Judul Tembusan', 'type' => 'text', 'fontKey' => 'copyFontSize'],
@@ -1582,7 +1584,7 @@ HTML;
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 20px; width: 290px; }
-.sk-signature-name { font-weight: 700; margin-top: 54px; text-decoration: underline; }
+.sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
 .sk-copy-title { text-decoration: underline; }
 </style>
@@ -1666,7 +1668,7 @@ HTML;
         ${escapeHtml(config.signatureDateLabelText)}&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
         ${nl2br(config.signatureRoleText)}<br>
         ${nl2br(config.signaturePrefixText)}
-        <div class="sk-signature-name" style="font-size:${safeFontSize(config.signatureNameFontSize)}pt;">${nl2br(config.signatureNameText)}</div>
+        <div class="sk-signature-name" style="font-size:${safeFontSize(config.signatureNameFontSize)}pt; margin-top:${safeNumber(config.signatureNameSpacing, defaultTemplateConfig.signatureNameSpacing, 0)}px;">${nl2br(config.signatureNameText)}</div>
     </div>
 
     <div class="sk-copy" style="font-size:${safeFontSize(config.copyFontSize)}pt; margin-top:${safeNumber(config.signatureToCopySpacing, defaultTemplateConfig.signatureToCopySpacing, 0)}px;">
