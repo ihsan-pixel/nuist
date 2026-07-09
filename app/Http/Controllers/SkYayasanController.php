@@ -3306,7 +3306,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-org-title { ' . trim($styles . ' line-height: 1.04; padding: 2px 8px 0 8px;') . ' }';
+                return '.sk-org-title { ' . trim($styles . ' line-height: 0.96; padding: 0 8px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3322,7 +3322,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-org-subtitle { ' . trim($styles . ' line-height: 1.03; padding: 1px 8px 0 8px;') . ' }';
+                return '.sk-org-subtitle { ' . trim($styles . ' line-height: 0.95; padding: 0 8px;') . ' }';
             },
             $body
         ) ?? $body;
