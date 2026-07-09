@@ -972,6 +972,8 @@ class SkYayasanController extends Controller
             ],
         ];
 
+        $this->resetBrokenSkYayasanFontCache();
+
         $pdf = PDF::loadView('pdf.sk-yayasan-template', [
             'document' => $document,
             'submission' => $submission,
@@ -1548,6 +1550,8 @@ class SkYayasanController extends Controller
         $document->load(['request.madrasah.yayasan', 'request.employee.statusKepegawaian', 'template']);
         $this->authorizeDocumentAccess($document);
 
+        $this->resetBrokenSkYayasanFontCache();
+
         $pdf = PDF::loadView('pdf.sk-yayasan-template', [
             'document' => $document,
             'submission' => $document->request,
@@ -1563,6 +1567,8 @@ class SkYayasanController extends Controller
 
     private function downloadSchoolDocumentsPdf(Madrasah $madrasah, Collection $documents)
     {
+        $this->resetBrokenSkYayasanFontCache();
+
         $pdf = PDF::loadView('pdf.sk-yayasan-school-bundle', [
             'madrasah' => $madrasah,
             'documents' => $documents,
@@ -1574,6 +1580,67 @@ class SkYayasanController extends Controller
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
+    }
+
+    private function resetBrokenSkYayasanFontCache(): void
+    {
+        $fontDir = storage_path('fonts');
+
+        if (!is_dir($fontDir)) {
+            @mkdir($fontDir, 0755, true);
+        }
+
+        if (!is_dir($fontDir) || !is_writable($fontDir)) {
+            return;
+        }
+
+        $fontsFile = $fontDir . DIRECTORY_SEPARATOR . 'installed-fonts.json';
+
+        if (!is_readable($fontsFile)) {
+            return;
+        }
+
+        $installedFonts = json_decode((string) file_get_contents($fontsFile), true);
+
+        if (!is_array($installedFonts) || !isset($installedFonts['cambria']) || !is_array($installedFonts['cambria'])) {
+            return;
+        }
+
+        foreach ($installedFonts['cambria'] as $variantPath) {
+            if (!is_string($variantPath) || $variantPath === '') {
+                $this->flushSkYayasanCambriaFontCache($installedFonts, $fontsFile, $fontDir);
+
+                return;
+            }
+
+            $fontBasePath = basename($variantPath) === $variantPath
+                ? $fontDir . DIRECTORY_SEPARATOR . $variantPath
+                : $variantPath;
+
+            if (!is_file($fontBasePath . '.ufm')) {
+                $this->flushSkYayasanCambriaFontCache($installedFonts, $fontsFile, $fontDir);
+
+                return;
+            }
+        }
+    }
+
+    private function flushSkYayasanCambriaFontCache(array $installedFonts, string $fontsFile, string $fontDir): void
+    {
+        unset($installedFonts['cambria']);
+
+        file_put_contents(
+            $fontsFile,
+            json_encode($installedFonts, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+
+        $fontCacheFiles = glob($fontDir . DIRECTORY_SEPARATOR . 'cambria_*') ?: [];
+
+        foreach ($fontCacheFiles as $fontCacheFile) {
+            if (is_file($fontCacheFile)) {
+                @unlink($fontCacheFile);
+            }
+        }
     }
 
     private function persistGeneratedDocument(
