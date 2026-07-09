@@ -3332,15 +3332,13 @@ class SkYayasanController extends Controller
                     continue;
                 }
 
-                preg_match('/^\s*(\d+[\.\)])\s*(.*)$/su', $plainText, $matches);
-                $numberText = $matches[1] ?? '';
-                $contentText = $matches[2] ?? $plainText;
+                $contentText = preg_replace('/^\s*\d+[\.\)]\s*/u', '', $plainText) ?: $plainText;
 
                 $rowElement = $document->createElement('tr');
 
                 $numberCell = $document->createElement('td');
                 $numberCell->setAttribute('class', 'sk-mengingat-no');
-                $numberCell->appendChild($document->createTextNode($numberText));
+                $numberCell->appendChild($document->createTextNode((string) ($mengingatTable->childNodes->length + 1) . '.'));
 
                 $textCell = $document->createElement('td');
                 $textCell->setAttribute('class', 'sk-mengingat-text');

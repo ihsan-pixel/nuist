@@ -481,10 +481,10 @@ HTML;
         'menimbangContentFontSize' => 13.5,
         'mengingatLabelText' => 'Mengingat',
         'mengingatLabelFontSize' => 13.5,
-        'mengingat1Text' => '1. Permendiknas Nomor 16 tahun 2007;',
-        'mengingat2Text' => '2. Permendikbud Nomor 25 Tahun 2024;',
-        'mengingat3Text' => "3. Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;",
-        'mengingat4Text' => "4. Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.",
+        'mengingat1Text' => 'Permendiknas Nomor 16 tahun 2007;',
+        'mengingat2Text' => 'Permendikbud Nomor 25 Tahun 2024;',
+        'mengingat3Text' => "Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;",
+        'mengingat4Text' => "Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.",
         'mengingatContentFontSize' => 13.5,
         'memperhatikanLabelText' => 'Memperhatikan',
         'memperhatikanLabelFontSize' => 13.5,
@@ -572,10 +572,10 @@ HTML;
                 ['key' => 'menimbangContentText', 'label' => 'Isi Menimbang', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'menimbangContentFontSize'],
                 ['key' => 'menimbangContent2Text', 'label' => 'Isi Menimbang 2', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'menimbangContentFontSize'],
                 ['key' => 'mengingatLabelText', 'label' => 'Label Mengingat', 'type' => 'text', 'fontKey' => 'mengingatLabelFontSize'],
-                ['key' => 'mengingat1Text', 'label' => 'Mengingat 1', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
-                ['key' => 'mengingat2Text', 'label' => 'Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
-                ['key' => 'mengingat3Text', 'label' => 'Mengingat 3', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
-                ['key' => 'mengingat4Text', 'label' => 'Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
+                ['key' => 'mengingat1Text', 'label' => 'Isi Mengingat 1', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'help' => 'Nomor dibuat otomatis oleh template. Isi tanpa awalan 1.'],
+                ['key' => 'mengingat2Text', 'label' => 'Isi Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'help' => 'Nomor dibuat otomatis oleh template. Isi tanpa awalan 2.'],
+                ['key' => 'mengingat3Text', 'label' => 'Isi Mengingat 3', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'help' => 'Nomor dibuat otomatis oleh template. Isi tanpa awalan 3.'],
+                ['key' => 'mengingat4Text', 'label' => 'Isi Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'help' => 'Nomor dibuat otomatis oleh template. Isi tanpa awalan 4.'],
                 ['key' => 'memperhatikanLabelText', 'label' => 'Label Memperhatikan', 'type' => 'text', 'fontKey' => 'memperhatikanLabelFontSize'],
                 ['key' => 'memperhatikanContentText', 'label' => 'Isi Memperhatikan', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'memperhatikanContentFontSize'],
             ],
@@ -1431,6 +1431,10 @@ HTML;
             return Number.isFinite(parsed) && parsed >= min ? parsed : fallback;
         }
 
+        function stripLeadingListMarker(value) {
+            return String(value ?? '').replace(/^\s*\d+[\.\)]\s*/u, '').trim();
+        }
+
         function encodeMeta(config) {
             return btoa(unescape(encodeURIComponent(JSON.stringify(config))));
         }
@@ -1497,16 +1501,10 @@ HTML;
                 `).join('');
 
             const mengingatItems = [1, 2, 3, 4]
-                .map((index) => config[`mengingat${index}Text`])
+                .map((index) => stripLeadingListMarker(config[`mengingat${index}Text`]))
                 .filter(Boolean)
-                .map((item) => {
-                    const match = String(item).match(/^\s*(\d+[\.\)])\s*(.*)$/s);
-
-                    if (match) {
-                        return `<tr><td class="sk-mengingat-no">${escapeHtml(match[1])}</td><td class="sk-mengingat-text">${nl2br(match[2])}</td></tr>`;
-                    }
-
-                    return `<tr><td class="sk-mengingat-no"></td><td class="sk-mengingat-text">${nl2br(item)}</td></tr>`;
+                .map((item, index) => {
+                    return `<tr><td class="sk-mengingat-no">${index + 1}.</td><td class="sk-mengingat-text">${nl2br(item)}</td></tr>`;
                 })
                 .join('');
 
