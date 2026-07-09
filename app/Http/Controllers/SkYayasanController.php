@@ -2022,20 +2022,38 @@ class SkYayasanController extends Controller
     private function resolveSchoolCopyRecipients(Madrasah $madrasah): array
     {
         $specialMadrasahIds = [6, 7, 43, 45];
-        $kabupaten = trim((string) ($madrasah->kabupaten ?? 'setempat'));
-        $kabupaten = $kabupaten !== '' ? $kabupaten : 'setempat';
+        $regionLabel = $this->resolveMadrasahRegionLabel($madrasah);
 
         if (in_array((int) $madrasah->id, $specialMadrasahIds, true)) {
             return [
                 'copy_recipient_1' => 'Kepala Kantor Wilayah Kementerian Agama DIY',
-                'copy_recipient_2' => 'Kepala Kantor Kementerian Agama Kabupaten ' . $kabupaten,
+                'copy_recipient_2' => $regionLabel === 'setempat'
+                    ? 'Kepala Kantor Kementerian Agama setempat'
+                    : 'Kepala Kantor Kementerian Agama ' . $regionLabel,
             ];
         }
 
         return [
             'copy_recipient_1' => 'Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY',
-            'copy_recipient_2' => 'Kepala Balai Pendidikan Menengah Kabupaten ' . $kabupaten,
+            'copy_recipient_2' => $regionLabel === 'setempat'
+                ? 'Kepala Balai Pendidikan Menengah setempat'
+                : 'Kepala Balai Pendidikan Menengah ' . $regionLabel,
         ];
+    }
+
+    private function resolveMadrasahRegionLabel(Madrasah $madrasah): string
+    {
+        $kabupaten = trim((string) ($madrasah->kabupaten ?? ''));
+
+        if ($kabupaten === '') {
+            return 'setempat';
+        }
+
+        if (preg_match('/^(kabupaten|kota)\s+/iu', $kabupaten) === 1) {
+            return preg_replace('/\s+/u', ' ', $kabupaten) ?? $kabupaten;
+        }
+
+        return 'Kabupaten ' . preg_replace('/\s+/u', ' ', $kabupaten);
     }
 
     private function getGlobalSkSettings(): array
