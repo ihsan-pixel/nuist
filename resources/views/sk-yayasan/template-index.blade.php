@@ -165,6 +165,10 @@
 .sk-person-value {
     padding-left: 8px;
 }
+.sk-mengingat-item {
+    padding-left: 24px;
+    text-indent: -24px;
+}
 .sk-signature {
     line-height: 1.02;
     margin-left: auto;
@@ -247,10 +251,10 @@
             <td class="sk-label">Mengingat</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
-                1. Permendiknas Nomor 16 tahun 2007;<br>
-                2. Permendikbud Nomor 25 Tahun 2024;<br>
-                3. Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;<br>
-                4. Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.
+                <div class="sk-mengingat-item">1. Permendiknas Nomor 16 tahun 2007;</div>
+                <div class="sk-mengingat-item">2. Permendikbud Nomor 25 Tahun 2024;</div>
+                <div class="sk-mengingat-item">3. Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;</div>
+                <div class="sk-mengingat-item">4. Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.</div>
             </td>
         </tr>
         <tr>
@@ -1481,8 +1485,8 @@ HTML;
             const mengingatItems = [1, 2, 3, 4]
                 .map((index) => config[`mengingat${index}Text`])
                 .filter(Boolean)
-                .map((item) => nl2br(item))
-                .join('<br>');
+                .map((item) => `<div class="sk-mengingat-item">${nl2br(item)}</div>`)
+                .join('');
 
             const copyItems = [1, 2, 3]
                 .map((index) => config[`copy${index}Text`])
@@ -1589,6 +1593,7 @@ HTML;
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
 .sk-person-value { padding-left: 8px; }
+.sk-mengingat-item { padding-left: 24px; text-indent: -24px; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
