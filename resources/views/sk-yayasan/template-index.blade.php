@@ -516,6 +516,7 @@ HTML;
         'signaturePrefixText' => 'Ketua,',
         'signatureNameText' => '@{{nama_penandatangan}}',
         'signatureNameFontSize' => 13.5,
+        'signatureToCopySpacing' => 12,
         'copyTitleText' => 'Tembusan Yth:',
         'copyFontSize' => 13.5,
         'copy1Text' => '1. Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY',
@@ -604,6 +605,7 @@ HTML;
                 ['key' => 'signatureRoleText', 'label' => 'Jabatan Penandatangan', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
                 ['key' => 'signaturePrefixText', 'label' => 'Sapaan Penandatangan', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
                 ['key' => 'signatureNameText', 'label' => 'Nama Penandatangan', 'type' => 'text', 'fontKey' => 'signatureNameFontSize'],
+                ['key' => 'signatureToCopySpacing', 'label' => 'Jarak Tanda Tangan ke Tembusan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak vertikal antara blok tanda tangan dan bagian tembusan.'],
                 ['key' => 'copyTitleText', 'label' => 'Judul Tembusan', 'type' => 'text', 'fontKey' => 'copyFontSize'],
                 ['key' => 'copy1Text', 'label' => 'Tembusan 1', 'type' => 'text', 'fontKey' => 'copyFontSize'],
                 ['key' => 'copy2Text', 'label' => 'Tembusan 2', 'type' => 'text', 'fontKey' => 'copyFontSize'],
@@ -1399,6 +1401,11 @@ HTML;
             return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
         }
 
+        function safeNumber(value, fallback = 0, min = 0) {
+            const parsed = Number.parseFloat(value);
+            return Number.isFinite(parsed) && parsed >= min ? parsed : fallback;
+        }
+
         function encodeMeta(config) {
             return btoa(unescape(encodeURIComponent(JSON.stringify(config))));
         }
@@ -1576,7 +1583,7 @@ HTML;
 .sk-person-table .sk-colon { width: 5px; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 20px; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 54px; text-decoration: underline; }
-.sk-copy { margin-left: 0; margin-right: 0; margin-top: 12px; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
+.sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
 .sk-copy-title { text-decoration: underline; }
 </style>
 <div class="sk-full-document" data-sk-full-document="1">
@@ -1662,7 +1669,7 @@ HTML;
         <div class="sk-signature-name" style="font-size:${safeFontSize(config.signatureNameFontSize)}pt;">${nl2br(config.signatureNameText)}</div>
     </div>
 
-    <div class="sk-copy" style="font-size:${safeFontSize(config.copyFontSize)}pt;">
+    <div class="sk-copy" style="font-size:${safeFontSize(config.copyFontSize)}pt; margin-top:${safeNumber(config.signatureToCopySpacing, defaultTemplateConfig.signatureToCopySpacing, 0)}px;">
         <div class="sk-copy-title">${nl2br(config.copyTitleText)}</div>
         ${copyItems}
     </div>
@@ -1675,8 +1682,10 @@ HTML;
             const config = { ...defaultTemplateConfig };
 
             editor.querySelectorAll('[data-sk-config-key]').forEach((input) => {
-                config[input.dataset.skConfigKey] = input.type === 'number'
-                    ? safeFontSize(input.value, defaultTemplateConfig[input.dataset.skConfigKey] ?? 13.5)
+                const key = input.dataset.skConfigKey;
+
+                config[key] = input.type === 'number'
+                    ? safeNumber(input.value, defaultTemplateConfig[key] ?? 0, Number(input.min || 0))
                     : input.value;
             });
 
@@ -1714,9 +1723,25 @@ HTML;
                 return imageFieldControl(field, value);
             }
 
-            const inputControl = field.type === 'textarea'
-                ? `<textarea class="form-control" rows="${field.rows || 2}" data-sk-config-key="${field.key}">${escapeHtml(value)}</textarea>`
-                : `<input type="text" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
+            let inputControl = '';
+
+            if (field.type === 'textarea') {
+                inputControl = `<textarea class="form-control" rows="${field.rows || 2}" data-sk-config-key="${field.key}">${escapeHtml(value)}</textarea>`;
+            } else if (field.type === 'number') {
+                inputControl = `<input type="number" step="${escapeHtml(field.step || '1')}" min="${escapeHtml(field.min ?? '0')}" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
+            } else {
+                inputControl = `<input type="text" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
+            }
+
+            if (!field.fontKey) {
+                return `
+                    <div class="sk-structured-field">
+                        <label class="form-label">${field.label}</label>
+                        ${inputControl}
+                        ${field.help ? `<small class="text-muted d-block mt-2">${field.help}</small>` : ''}
+                    </div>
+                `;
+            }
 
             return `
                 <div class="sk-structured-field">
