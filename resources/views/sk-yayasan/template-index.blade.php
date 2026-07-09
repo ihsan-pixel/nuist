@@ -38,7 +38,7 @@
     vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 0 24px 7px 36px;
+    padding: 4px 24px 7px 44px;
     width: 108px;
 }
 .sk-letterhead-text {
@@ -50,8 +50,8 @@
     font-family: Arial, sans-serif;
     font-weight: 700;
     height: auto;
-    margin-left: 0;
-    margin-top: 0;
+    margin-left: 6px;
+    margin-top: 6px;
     text-align: center;
     width: 92px;
 }
@@ -1575,7 +1575,7 @@ HTML;
     width: 100%;
 }
 .sk-letterhead td { vertical-align: top; }
-.sk-logo-cell { padding: 0 24px 7px 36px; width: 108px; }
+.sk-logo-cell { padding: 4px 24px 7px 44px; width: 108px; }
 .sk-letterhead-text { padding-left: 26px; }
 .sk-logo-box {
     align-items: center;
@@ -1586,8 +1586,8 @@ HTML;
     font-weight: 700;
     height: auto;
     justify-content: flex-start;
-    margin-left: 0;
-    margin-top: 0;
+    margin-left: 6px;
+    margin-top: 6px;
     text-align: center;
     width: 92px;
 }

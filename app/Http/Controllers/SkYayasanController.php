@@ -3292,7 +3292,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-cell { ' . trim($styles . ' padding: 0 24px 7px 36px; width: 108px;') . ' }';
+                return '.sk-logo-cell { ' . trim($styles . ' padding: 4px 24px 7px 44px; width: 108px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3311,7 +3311,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 0; margin-top: 0; width: 92px; justify-content: flex-start;') . ' }';
+                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 6px; margin-top: 6px; width: 92px; justify-content: flex-start;') . ' }';
             },
             $body
         ) ?? $body;
