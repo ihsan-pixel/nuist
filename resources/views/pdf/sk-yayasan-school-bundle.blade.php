@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>SK Yayasan - {{ $madrasah->name }}</title>
     <style>
+        @include('pdf.partials.sk-yayasan-cambria-fonts')
+
         body {
-            font-family: DejaVu Sans, sans-serif;
+            font-family: 'Cambria', serif;
             color: #111827;
             margin: 0;
             padding: 0;
