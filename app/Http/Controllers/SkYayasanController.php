@@ -3963,7 +3963,14 @@ HTML;
 
     private function normalizePersonRowValueText(string $valueText): string
     {
-        $normalized = preg_replace('/\s*,\s*/u', ', ', trim($this->normalizeMissingValueMarkers($valueText))) ?? trim($valueText);
+        $rawNormalized = trim($this->normalizeMissingValueMarkers($valueText));
+        $compactNumericValue = preg_replace('/\s+/u', '', $rawNormalized) ?? $rawNormalized;
+
+        if (preg_match('/^\d{1,3}(?:\.\d{3})*(?:,\d+)?$/u', $compactNumericValue) === 1 || preg_match('/^\d+(?:,\d+)?$/u', $compactNumericValue) === 1) {
+            return preg_replace('/\s*,\s*/u', ',', $compactNumericValue) ?? $compactNumericValue;
+        }
+
+        $normalized = preg_replace('/\s*,\s*/u', ', ', $rawNormalized) ?? trim($valueText);
         $normalized = preg_replace('/^-\s*,\s*(.+)$/u', '$1', $normalized) ?? $normalized;
         $normalized = preg_replace('/^(.+?)\s*,\s*-$/u', '$1', $normalized) ?? $normalized;
         $normalized = preg_replace('/(?:^|,\s*)-(?:\s*,\s*-)+$/u', '-', $normalized) ?? $normalized;
