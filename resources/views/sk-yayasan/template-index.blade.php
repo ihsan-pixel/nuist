@@ -165,21 +165,13 @@
 .sk-person-value {
     padding-left: 8px;
 }
-.sk-mengingat-table {
-    border-collapse: collapse;
-    width: 100%;
+.sk-mengingat-list {
+    margin: 0;
+    padding-left: 22px;
 }
-.sk-mengingat-table td {
-    padding: 0;
-    vertical-align: top;
-}
-.sk-mengingat-no {
-    padding-right: 8px;
-    white-space: nowrap;
-    width: 26px;
-}
-.sk-mengingat-text {
-    width: auto;
+.sk-mengingat-list li {
+    margin: 0;
+    padding-left: 0;
 }
 .sk-signature {
     line-height: 1.02;
@@ -263,12 +255,12 @@
             <td class="sk-label">Mengingat</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
-                <table class="sk-mengingat-table">
-                    <tr><td class="sk-mengingat-no">1.</td><td class="sk-mengingat-text">Permendiknas Nomor 16 tahun 2007;</td></tr>
-                    <tr><td class="sk-mengingat-no">2.</td><td class="sk-mengingat-text">Permendikbud Nomor 25 Tahun 2024;</td></tr>
-                    <tr><td class="sk-mengingat-no">3.</td><td class="sk-mengingat-text">Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;</td></tr>
-                    <tr><td class="sk-mengingat-no">4.</td><td class="sk-mengingat-text">Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.</td></tr>
-                </table>
+                <ol class="sk-mengingat-list">
+                    <li>Permendiknas Nomor 16 tahun 2007;</li>
+                    <li>Permendikbud Nomor 25 Tahun 2024;</li>
+                    <li>Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;</li>
+                    <li>Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.</li>
+                </ol>
             </td>
         </tr>
         <tr>
@@ -1515,13 +1507,11 @@ HTML;
             const mengingatItems = [1, 2, 3, 4]
                 .map((index) => stripLeadingListMarker(config[`mengingat${index}Text`]))
                 .filter(Boolean)
-                .map((item, index) => {
-                    return `<tr><td class="sk-mengingat-no">${index + 1}.</td><td class="sk-mengingat-text">${nl2br(item)}</td></tr>`;
-                })
+                .map((item) => `<li>${nl2br(item)}</li>`)
                 .join('');
 
             const mengingatMarkup = mengingatItems
-                ? `<table class="sk-mengingat-table">${mengingatItems}</table>`
+                ? `<ol class="sk-mengingat-list">${mengingatItems}</ol>`
                 : '';
 
             const copyItems = [1, 2, 3]
@@ -1629,10 +1619,8 @@ HTML;
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
 .sk-person-value { padding-left: 8px; }
-.sk-mengingat-table { border-collapse: collapse; width: 100%; }
-.sk-mengingat-table td { padding: 0; vertical-align: top; }
-.sk-mengingat-no { padding-right: 8px; white-space: nowrap; width: 26px; }
-.sk-mengingat-text { width: auto; }
+.sk-mengingat-list { margin: 0; padding-left: 22px; }
+.sk-mengingat-list li { margin: 0; padding-left: 0; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }

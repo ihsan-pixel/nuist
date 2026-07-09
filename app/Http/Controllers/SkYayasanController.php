@@ -3209,10 +3209,8 @@ class SkYayasanController extends Controller
             '.sk-footer-table td { vertical-align: bottom; }',
             '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
-            '.sk-mengingat-table { border-collapse: collapse; width: 100%; }',
-            '.sk-mengingat-table td { padding: 0; vertical-align: top; }',
-            '.sk-mengingat-no { padding-right: 8px; white-space: nowrap; width: 26px; }',
-            '.sk-mengingat-text { width: auto; }',
+            '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
+            '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-person-value { padding-left: 8px; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
@@ -3225,7 +3223,7 @@ class SkYayasanController extends Controller
 
     private function normalizeStructuredTemplateMengingatLayout(string $body): string
     {
-        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-mengingat-table')) {
+        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-mengingat-list')) {
             return $body;
         }
 
@@ -3272,6 +3270,7 @@ class SkYayasanController extends Controller
             $contentCell = $cells[count($cells) - 1];
             $groupedItems = [];
             $itemElements = [];
+            $tableRows = [];
 
             foreach (iterator_to_array($contentCell->childNodes) as $childNode) {
                 if (
@@ -3281,11 +3280,39 @@ class SkYayasanController extends Controller
                 ) {
                     $itemElements[] = $childNode;
                 }
+
+                if (
+                    $childNode instanceof \DOMElement
+                    && strtolower($childNode->tagName) === 'table'
+                    && str_contains(' ' . $childNode->getAttribute('class') . ' ', ' sk-mengingat-table ')
+                ) {
+                    foreach ($childNode->childNodes as $tableChild) {
+                        if ($tableChild instanceof \DOMElement && strtolower($tableChild->tagName) === 'tr') {
+                            $tableRows[] = $tableChild;
+                        }
+                    }
+                }
             }
 
-            if (!empty($itemElements)) {
+            if (!empty($tableRows)) {
+                foreach ($tableRows as $tableRow) {
+                    $cellsInRow = [];
+
+                    foreach ($tableRow->childNodes as $tableCell) {
+                        if ($tableCell instanceof \DOMElement && strtolower($tableCell->tagName) === 'td') {
+                            $cellsInRow[] = $tableCell;
+                        }
+                    }
+
+                    if (count($cellsInRow) < 2) {
+                        continue;
+                    }
+
+                    $groupedItems[] = trim($cellsInRow[count($cellsInRow) - 1]->textContent ?? '');
+                }
+            } elseif (!empty($itemElements)) {
                 foreach ($itemElements as $itemElement) {
-                    $groupedItems[] = trim($document->saveHTML($itemElement));
+                    $groupedItems[] = trim($itemElement->textContent ?? '');
                 }
             } else {
                 $groupedNodes = [];
@@ -3322,8 +3349,8 @@ class SkYayasanController extends Controller
                 $contentCell->removeChild($contentCell->firstChild);
             }
 
-            $mengingatTable = $document->createElement('table');
-            $mengingatTable->setAttribute('class', 'sk-mengingat-table');
+            $mengingatList = $document->createElement('ol');
+            $mengingatList->setAttribute('class', 'sk-mengingat-list');
 
             foreach ($groupedItems as $groupText) {
                 $plainText = trim(preg_replace('/\s+/u', ' ', strip_tags($groupText)));
@@ -3334,22 +3361,12 @@ class SkYayasanController extends Controller
 
                 $contentText = preg_replace('/^\s*\d+[\.\)]\s*/u', '', $plainText) ?: $plainText;
 
-                $rowElement = $document->createElement('tr');
-
-                $numberCell = $document->createElement('td');
-                $numberCell->setAttribute('class', 'sk-mengingat-no');
-                $numberCell->appendChild($document->createTextNode((string) ($mengingatTable->childNodes->length + 1) . '.'));
-
-                $textCell = $document->createElement('td');
-                $textCell->setAttribute('class', 'sk-mengingat-text');
-                $textCell->appendChild($document->createTextNode($contentText));
-
-                $rowElement->appendChild($numberCell);
-                $rowElement->appendChild($textCell);
-                $mengingatTable->appendChild($rowElement);
+                $listItem = $document->createElement('li');
+                $listItem->appendChild($document->createTextNode($contentText));
+                $mengingatList->appendChild($listItem);
             }
 
-            $contentCell->appendChild($mengingatTable);
+            $contentCell->appendChild($mengingatList);
         }
 
         $root = $document->getElementById('sk-root');
