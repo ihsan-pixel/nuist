@@ -38,7 +38,7 @@
     vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 8px 24px 7px 12px;
+    padding: 8px 24px 7px 24px;
     width: 92px;
 }
 .sk-letterhead-text {
@@ -1568,7 +1568,7 @@ HTML;
     width: 100%;
 }
 .sk-letterhead td { vertical-align: top; }
-.sk-logo-cell { padding: 8px 24px 7px 12px; width: 92px; }
+.sk-logo-cell { padding: 8px 24px 7px 24px; width: 92px; }
 .sk-letterhead-text { padding-left: 26px; }
 .sk-logo-box {
     align-items: center;

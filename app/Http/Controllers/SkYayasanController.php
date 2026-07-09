@@ -3282,6 +3282,21 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         $body = preg_replace_callback(
+            '/\.sk-logo-cell\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-logo-cell { ' . trim($styles . ' padding: 8px 24px 7px 24px;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
             '/\.sk-signature\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
