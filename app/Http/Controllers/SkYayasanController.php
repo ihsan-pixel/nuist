@@ -3291,7 +3291,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-cell { ' . trim($styles . ' padding: 8px 24px 7px 24px;') . ' }';
+                return '.sk-logo-cell { ' . trim($styles . ' padding: 8px 24px 7px 36px;') . ' }';
             },
             $body
         ) ?? $body;
