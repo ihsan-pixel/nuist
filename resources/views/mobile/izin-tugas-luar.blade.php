@@ -74,7 +74,7 @@
         <div class="form-group">
             <label for="tanggal_selesai" class="form-label">Tanggal Selesai Tugas</label>
             <input type="date" class="form-control" id="tanggal_selesai" name="tanggal_selesai" required>
-            <small style="display: block; color: #6c757d; margin-top: 6px;">Bisa diajukan untuk beberapa hari sekaligus, misalnya 1 sampai 3.</small>
+            {{-- <small style="display: block; color: #6c757d; margin-top: 6px;">Bisa diajukan untuk beberapa hari sekaligus, misalnya 1 sampai 3.</small> --}}
         </div>
 
         <div class="form-group">
