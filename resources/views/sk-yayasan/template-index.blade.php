@@ -572,10 +572,10 @@ HTML;
                 ['key' => 'menimbangContentText', 'label' => 'Isi Menimbang', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'menimbangContentFontSize'],
                 ['key' => 'menimbangContent2Text', 'label' => 'Isi Menimbang 2', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'menimbangContentFontSize'],
                 ['key' => 'mengingatLabelText', 'label' => 'Label Mengingat', 'type' => 'text', 'fontKey' => 'mengingatLabelFontSize'],
-                ['key' => 'mengingat1Text', 'label' => 'Isi Mengingat 1', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'help' => 'Nomor dibuat otomatis oleh template. Isi tanpa awalan 1.'],
-                ['key' => 'mengingat2Text', 'label' => 'Isi Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'help' => 'Nomor dibuat otomatis oleh template. Isi tanpa awalan 2.'],
-                ['key' => 'mengingat3Text', 'label' => 'Isi Mengingat 3', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'help' => 'Nomor dibuat otomatis oleh template. Isi tanpa awalan 3.'],
-                ['key' => 'mengingat4Text', 'label' => 'Isi Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'help' => 'Nomor dibuat otomatis oleh template. Isi tanpa awalan 4.'],
+                ['key' => 'mengingat1Text', 'label' => 'Mengingat 1', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '1.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'mengingat2Text', 'label' => 'Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '2.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'mengingat3Text', 'label' => 'Mengingat 3', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '3.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'mengingat4Text', 'label' => 'Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '4.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'memperhatikanLabelText', 'label' => 'Label Memperhatikan', 'type' => 'text', 'fontKey' => 'memperhatikanLabelFontSize'],
                 ['key' => 'memperhatikanContentText', 'label' => 'Isi Memperhatikan', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'memperhatikanContentFontSize'],
             ],
@@ -1435,6 +1435,18 @@ HTML;
             return String(value ?? '').replace(/^\s*\d+[\.\)]\s*/u, '').trim();
         }
 
+        function normalizeStructuredConfig(config) {
+            const normalized = { ...config };
+
+            ['mengingat1Text', 'mengingat2Text', 'mengingat3Text', 'mengingat4Text'].forEach((key) => {
+                if (Object.prototype.hasOwnProperty.call(normalized, key)) {
+                    normalized[key] = stripLeadingListMarker(normalized[key]);
+                }
+            });
+
+            return normalized;
+        }
+
         function encodeMeta(config) {
             return btoa(unescape(encodeURIComponent(JSON.stringify(config))));
         }
@@ -1773,6 +1785,15 @@ HTML;
                 inputControl = `<input type="text" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
             }
 
+            if (field.prefix) {
+                inputControl = `
+                    <div class="input-group">
+                        <span class="input-group-text">${escapeHtml(field.prefix)}</span>
+                        ${inputControl}
+                    </div>
+                `;
+            }
+
             if (!field.fontKey) {
                 return `
                     <div class="sk-structured-field">
@@ -1964,8 +1985,9 @@ HTML;
 
         editors.forEach((editor) => {
             const { config, isLegacy } = extractTemplateConfig(editor.querySelector('[data-sk-preview-body]')?.value || '');
-            hydrateStandaloneConfigInputs(editor, config);
-            renderStructuredFields(editor, config, isLegacy);
+            const normalizedConfig = normalizeStructuredConfig(config);
+            hydrateStandaloneConfigInputs(editor, normalizedConfig);
+            renderStructuredFields(editor, normalizedConfig, isLegacy);
             editor.querySelectorAll('[data-sk-config-key]').forEach((input) => {
                 syncDuplicateConfigInputs(editor, input);
             });
