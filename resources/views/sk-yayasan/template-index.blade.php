@@ -92,6 +92,9 @@
     line-height: 1.2;
     padding: 4px 8px 0 8px;
 }
+.sk-email-link {
+    color: #1d4ed8;
+}
 .sk-green-line {
     display: flex;
     flex-direction: column;
@@ -237,7 +240,7 @@
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 2</div>
                 <div class="sk-org-meta">
                     Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta. 55121<br>
-                    Website: https://lpmnudiy.id email: sekretariat@lpmnudiy.id
+                    Website: https://lpmnudiy.id email: <span class="sk-email-link">sekretariat@lpmnudiy.id</span>
                 </div>
             </td>
         </tr>
@@ -1397,6 +1400,13 @@ HTML;
             return escapeHtml(value).replace(/\n/g, '<br>');
         }
 
+        function formatOrgMetaText(value) {
+            return nl2br(value).replace(
+                /([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})/gi,
+                '<span class="sk-email-link">$1</span>'
+            );
+        }
+
         function formatRichText(value) {
             let formatted = escapeHtml(value).replace(/\n/g, '<br>');
 
@@ -1589,6 +1599,7 @@ HTML;
     line-height: 1.2;
     padding: 4px 8px 0 8px;
 }
+.sk-email-link { color: #1d4ed8; }
 .sk-green-line {
     margin: 0 0 20px 0;
 }
@@ -1647,7 +1658,7 @@ HTML;
                 <div class="sk-org-title" style="font-size:${safeFontSize(config.orgTitleFontSize)}pt;">${nl2br(config.orgTitleText)}</div>
                 ${orgSubtitle1Markup}
                 ${orgSubtitle2Markup}
-                <div class="sk-org-meta" style="font-size:${safeFontSize(config.orgMetaFontSize)}pt;">${nl2br(config.orgMetaText)}</div>
+                <div class="sk-org-meta" style="font-size:${safeFontSize(config.orgMetaFontSize)}pt;">${formatOrgMetaText(config.orgMetaText)}</div>
             </td>
         </tr>
     </table>

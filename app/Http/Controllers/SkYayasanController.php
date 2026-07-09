@@ -3229,6 +3229,7 @@ class SkYayasanController extends Controller
     {
         $body = $this->normalizeStructuredTemplatePlaceholders($body);
         $body = $this->normalizeStructuredTemplateStyles($body, $templateContext);
+        $body = $this->normalizeStructuredTemplateContactEmailLayout($body);
         $body = $this->normalizeStructuredTemplateMengingatLayout($body);
         $body = $this->normalizeStructuredTemplateDecisionContentLayout($body);
         $body = $this->normalizeStructuredTemplateFooterLayout($body);
@@ -3376,6 +3377,7 @@ class SkYayasanController extends Controller
             '.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }',
             '.sk-person-value { padding-left: 8px; }',
             '.sk-signature-role { display: block; padding-top: 14px; }',
+            '.sk-email-link { color: #1d4ed8; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
                 $body = str_replace('</style>', $requiredStyle . "\n</style>", $body);
@@ -3383,6 +3385,93 @@ class SkYayasanController extends Controller
         }
 
         return $body;
+    }
+
+    private function normalizeStructuredTemplateContactEmailLayout(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"')) {
+            return $body;
+        }
+
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $body . '</div>';
+
+        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        $xpath = new \DOMXPath($document);
+        $metaBlocks = $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " sk-org-meta ")]');
+
+        if ($metaBlocks === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        foreach ($metaBlocks as $metaBlock) {
+            if (!$metaBlock instanceof \DOMElement) {
+                continue;
+            }
+
+            $innerHtml = '';
+
+            foreach ($metaBlock->childNodes as $childNode) {
+                $innerHtml .= $document->saveHTML($childNode);
+            }
+
+            if ($innerHtml === '' || str_contains($innerHtml, 'sk-email-link')) {
+                continue;
+            }
+
+            $updatedHtml = preg_replace(
+                '/([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})/iu',
+                '<span class="sk-email-link">$1</span>',
+                $innerHtml
+            ) ?? $innerHtml;
+
+            if ($updatedHtml === $innerHtml) {
+                continue;
+            }
+
+            while ($metaBlock->firstChild) {
+                $metaBlock->removeChild($metaBlock->firstChild);
+            }
+
+            $fragmentDocument = new \DOMDocument('1.0', 'UTF-8');
+            $fragmentWrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-meta-fragment">' . $updatedHtml . '</div>';
+
+            if ($fragmentDocument->loadHTML($fragmentWrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+                $fragmentRoot = $fragmentDocument->getElementById('sk-meta-fragment');
+
+                if ($fragmentRoot) {
+                    foreach (iterator_to_array($fragmentRoot->childNodes) as $fragmentChild) {
+                        $metaBlock->appendChild($document->importNode($fragmentChild, true));
+                    }
+                }
+            }
+        }
+
+        $root = $document->getElementById('sk-root');
+        $output = '';
+
+        if ($root) {
+            foreach ($root->childNodes as $childNode) {
+                $output .= $document->saveHTML($childNode);
+            }
+        } else {
+            $output = $body;
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        return $output;
     }
 
     private function normalizeStructuredTemplateMengingatLayout(string $body): string
