@@ -183,6 +183,9 @@
     margin-top: 0;
     width: 290px;
 }
+.sk-signature-role {
+    margin-top: 8px;
+}
 .sk-signature-name {
     font-weight: 700;
     margin-top: 54px;
@@ -327,9 +330,8 @@
             <td class="sk-footer-signature-cell">
                 <div class="sk-signature">
                     Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
-                    Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
-                    @{{jabatan_penandatangan}}<br>
-                    Ketua,
+                    Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}
+                    <div class="sk-signature-role">@{{jabatan_penandatangan}}<br>Ketua,</div>
                     <div class="sk-signature-name">@{{nama_penandatangan}}</div>
                 </div>
             </td>
@@ -1627,6 +1629,7 @@ HTML;
 .sk-mengingat-list li { margin: 0; padding-left: 0; }
 .sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
+.sk-signature-role { margin-top: 8px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
 .sk-copy-title { text-decoration: underline; }
@@ -1708,9 +1711,8 @@ HTML;
 
     <div class="sk-signature" style="font-size:${safeFontSize(config.signatureFontSize)}pt; margin-top:${safeNumber(config.signatureBlockSpacing, defaultTemplateConfig.signatureBlockSpacing, 0)}px;">
         ${escapeHtml(config.signatureLocationLabelText)}&nbsp;&nbsp;: ${nl2br(config.signatureLocationValueText)}<br>
-        ${escapeHtml(config.signatureDateLabelText)}&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
-        ${nl2br(config.signatureRoleText)}<br>
-        ${nl2br(config.signaturePrefixText)}
+        ${escapeHtml(config.signatureDateLabelText)}&nbsp;&nbsp;: @{{tanggal_terbit}}
+        <div class="sk-signature-role">${nl2br(config.signatureRoleText)}<br>${nl2br(config.signaturePrefixText)}</div>
         <div class="sk-signature-name" style="font-size:${safeFontSize(config.signatureNameFontSize)}pt; margin-top:${safeNumber(config.signatureNameSpacing, defaultTemplateConfig.signatureNameSpacing, 0)}px;">${nl2br(config.signatureNameText)}</div>
     </div>
 

@@ -3375,6 +3375,7 @@ class SkYayasanController extends Controller
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }',
             '.sk-person-value { padding-left: 8px; }',
+            '.sk-signature-role { margin-top: 8px; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
                 $body = str_replace('</style>', $requiredStyle . "\n</style>", $body);
@@ -3586,9 +3587,8 @@ HTML;
             <td class="sk-footer-signature-cell">
                 <div class="sk-signature">
                     Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
-                    Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
-                    @{{jabatan_penandatangan}}<br>
-                    Ketua,
+                    Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}
+                    <div class="sk-signature-role">@{{jabatan_penandatangan}}<br>Ketua,</div>
                     <div class="sk-signature-name">@{{nama_penandatangan}}</div>
                 </div>
             </td>
@@ -3692,7 +3692,15 @@ HTML;
             return $body;
         }
 
-        return str_replace('@{{tanggal_terbit}}<br><br>', '@{{tanggal_terbit}}<br>', $body);
+        $body = str_replace('@{{tanggal_terbit}}<br><br>', '@{{tanggal_terbit}}<br>', $body);
+
+        $body = preg_replace(
+            '/@\\{\\{tanggal_terbit\\}\\}<br>\s*@\\{\\{jabatan_penandatangan\\}\\}<br>\s*Ketua,/u',
+            '@{{tanggal_terbit}}<div class="sk-signature-role">@{{jabatan_penandatangan}}<br>Ketua,</div>',
+            $body
+        ) ?? $body;
+
+        return $body;
     }
 
     private function bodyContainsClassMarkup(string $body, string $className): bool
