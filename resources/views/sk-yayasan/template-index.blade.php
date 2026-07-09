@@ -184,7 +184,7 @@
     width: 290px;
 }
 .sk-signature-role {
-    margin-top: 8px;
+    margin-top: 14px;
 }
 .sk-signature-name {
     font-weight: 700;
@@ -1629,7 +1629,7 @@ HTML;
 .sk-mengingat-list li { margin: 0; padding-left: 0; }
 .sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
-.sk-signature-role { margin-top: 8px; }
+.sk-signature-role { margin-top: 14px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
 .sk-copy-title { text-decoration: underline; }
