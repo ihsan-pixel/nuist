@@ -3208,6 +3208,7 @@ class SkYayasanController extends Controller
             '.sk-footer-table td { vertical-align: bottom; }',
             '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
+            '.sk-person-value { padding-left: 8px; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
                 $body = str_replace('</style>', $requiredStyle . "\n</style>", $body);
@@ -3347,6 +3348,14 @@ HTML;
                     $normalizedValueText = '-';
                 }
 
+                $existingClass = trim((string) $cells[3]->getAttribute('class'));
+                $classNames = preg_split('/\s+/u', $existingClass, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+                if (!in_array('sk-person-value', $classNames, true)) {
+                    $classNames[] = 'sk-person-value';
+                }
+
+                $cells[3]->setAttribute('class', implode(' ', $classNames));
                 $cells[3]->nodeValue = $normalizedValueText;
 
                 $cells[0]->nodeValue = $visibleIndex . '.';

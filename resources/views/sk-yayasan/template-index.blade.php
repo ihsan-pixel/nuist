@@ -162,6 +162,9 @@
 .sk-person-table .sk-colon {
     width: 5px;
 }
+.sk-person-value {
+    padding-left: 8px;
+}
 .sk-signature {
     line-height: 1.02;
     margin-left: auto;
@@ -271,16 +274,16 @@
             <td class="sk-content-cell">
                 Guru Tetap Yayasan tersebut di bawah ini:
                 <table class="sk-person-table">
-                    <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td>@{{nama_pegawai}}</td></tr>
-                    <tr><td class="sk-person-no">2.</td><td class="sk-person-label">Tempat, tanggal lahir</td><td class="sk-colon">:</td><td>@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
-                    <tr><td class="sk-person-no">3.</td><td class="sk-person-label">NUPTK</td><td class="sk-colon">:</td><td>@{{nuptk}}</td></tr>
-                    <tr><td class="sk-person-no">4.</td><td class="sk-person-label">Kartanu</td><td class="sk-colon">:</td><td>@{{nomor_kartanu}}</td></tr>
-                    <tr><td class="sk-person-no">5.</td><td class="sk-person-label">NIP Ma'arif baru</td><td class="sk-colon">:</td><td>@{{nip_maarif}}</td></tr>
-                    <tr><td class="sk-person-no">6.</td><td class="sk-person-label">TMT pertama</td><td class="sk-colon">:</td><td>@{{tmt_pertama}}</td></tr>
-                    <tr><td class="sk-person-no">7.</td><td class="sk-person-label">Pendidikan, tahun lulus</td><td class="sk-colon">:</td><td>@{{pendidikan_terakhir}}, @{{tahun_lulus}}</td></tr>
-                    <tr><td class="sk-person-no">8.</td><td class="sk-person-label">Program studi</td><td class="sk-colon">:</td><td>@{{program_studi}}</td></tr>
-                    <tr><td class="sk-person-no">9.</td><td class="sk-person-label">Masa kerja</td><td class="sk-colon">:</td><td>@{{masa_kerja}}</td></tr>
-                    <tr><td class="sk-person-no">10.</td><td class="sk-person-label">Penilaian perilaku kerja</td><td class="sk-colon">:</td><td>@{{penilaian_kinerja}}</td></tr>
+                    <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nama_pegawai}}</td></tr>
+                    <tr><td class="sk-person-no">2.</td><td class="sk-person-label">Tempat, tanggal lahir</td><td class="sk-colon">:</td><td class="sk-person-value">@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
+                    <tr><td class="sk-person-no">3.</td><td class="sk-person-label">NUPTK</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nuptk}}</td></tr>
+                    <tr><td class="sk-person-no">4.</td><td class="sk-person-label">Kartanu</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nomor_kartanu}}</td></tr>
+                    <tr><td class="sk-person-no">5.</td><td class="sk-person-label">NIP Ma'arif baru</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nip_maarif}}</td></tr>
+                    <tr><td class="sk-person-no">6.</td><td class="sk-person-label">TMT pertama</td><td class="sk-colon">:</td><td class="sk-person-value">@{{tmt_pertama}}</td></tr>
+                    <tr><td class="sk-person-no">7.</td><td class="sk-person-label">Pendidikan, tahun lulus</td><td class="sk-colon">:</td><td class="sk-person-value">@{{pendidikan_terakhir}}, @{{tahun_lulus}}</td></tr>
+                    <tr><td class="sk-person-no">8.</td><td class="sk-person-label">Program studi</td><td class="sk-colon">:</td><td class="sk-person-value">@{{program_studi}}</td></tr>
+                    <tr><td class="sk-person-no">9.</td><td class="sk-person-label">Masa kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{masa_kerja}}</td></tr>
+                    <tr><td class="sk-person-no">10.</td><td class="sk-person-label">Penilaian perilaku kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{penilaian_kinerja}}</td></tr>
                 </table>
                 diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.
             </td>
@@ -1471,7 +1474,7 @@ HTML;
                         <td class="sk-person-no">${index + 1}.</td>
                         <td class="sk-person-label">${escapeHtml(row.labelText)}</td>
                         <td class="sk-colon">:</td>
-                        <td>${nl2br(row.valueText)}</td>
+                        <td class="sk-person-value">${nl2br(row.valueText)}</td>
                     </tr>
                 `).join('');
 
@@ -1585,6 +1588,7 @@ HTML;
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
+.sk-person-value { padding-left: 8px; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
