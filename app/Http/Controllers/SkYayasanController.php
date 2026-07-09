@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Exports\SkYayasanSchoolSubmissionSummaryExport;
 use App\Exports\SkYayasanUserImportTemplateExport;
+use App\Models\AcademicaProposal;
 use App\Models\AppSetting;
 use App\Models\Madrasah;
+use App\Models\MgmpMember;
 use App\Models\SkYayasanDocument;
 use App\Models\SkYayasanImportBatch;
 use App\Models\SkYayasanImportRow;
@@ -2923,6 +2925,11 @@ class SkYayasanController extends Controller
             $importRow?->source_tmt_pertama,
             $employee?->tmt
         );
+        $generatedPerformanceScore = $this->resolveGeneratedSkPerformanceScore(
+            $employee,
+            $importRow?->source_penilaian_kinerja,
+            $employeeSkData?->penilaian_kinerja
+        );
         $formattedTenure = $this->formatTenureFromTmt(
             $importRow?->source_tmt_pertama,
             $employee?->tmt,
@@ -2961,7 +2968,7 @@ class SkYayasanController extends Controller
             '{{tahun_lulus}}' => $pick($importRow?->source_tahun_lulus, $employee->tahun_lulus),
             '{{program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
             '{{mapel_tugas_yang_diampu}}' => $pick($importRow?->source_mapel_tugas, $employee->mengajar),
-            '{{penilaian_kinerja}}' => $pick($importRow?->source_penilaian_kinerja, $employeeSkData?->penilaian_kinerja),
+            '{{penilaian_kinerja}}' => $generatedPerformanceScore,
             '{{keterangan_sk_yayasan}}' => $pick($importRow?->source_keterangan, $employeeSkData?->keterangan),
             '{{jabatan}}' => $employee->ketugasan ?? '-',
             '{{status_kepegawaian}}' => $employee->statusKepegawaian?->name ?? ($submission->employment_category ?? '-'),
@@ -2996,7 +3003,7 @@ class SkYayasanController extends Controller
             '{{source_tahun_lulus}}' => $pick($importRow?->source_tahun_lulus, $employee->tahun_lulus),
             '{{source_program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
             '{{source_mapel_tugas}}' => $pick($importRow?->source_mapel_tugas, $employee->mengajar),
-            '{{source_penilaian_kinerja}}' => $pick($importRow?->source_penilaian_kinerja, $employeeSkData?->penilaian_kinerja),
+            '{{source_penilaian_kinerja}}' => $generatedPerformanceScore,
             '{{source_keterangan}}' => $pick($importRow?->source_keterangan, $employeeSkData?->keterangan),
         ];
 
@@ -3007,6 +3014,47 @@ class SkYayasanController extends Controller
         return collect($base)
             ->map(fn ($value) => $this->sanitizeTemplatePlaceholderValue($value))
             ->all();
+    }
+
+    private function resolveGeneratedSkPerformanceScore(?User $employee, mixed $submittedValue, mixed $fallbackValue = null): string
+    {
+        if ($this->employeeParticipatesInMgmpAcademica($employee)) {
+            return $this->sanitizeTemplatePlaceholderValue($submittedValue ?? $fallbackValue, false);
+        }
+
+        return '60';
+    }
+
+    private function employeeParticipatesInMgmpAcademica(?User $employee): bool
+    {
+        static $cache = [];
+
+        $employeeId = (int) ($employee?->id ?? 0);
+
+        if ($employeeId <= 0) {
+            return false;
+        }
+
+        if (array_key_exists($employeeId, $cache)) {
+            return $cache[$employeeId];
+        }
+
+        $ownerIds = MgmpMember::query()
+            ->join('mgmp_groups', 'mgmp_groups.id', '=', 'mgmp_members.mgmp_group_id')
+            ->where('mgmp_members.user_id', $employeeId)
+            ->whereNotNull('mgmp_groups.user_id')
+            ->pluck('mgmp_groups.user_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($ownerIds->isEmpty()) {
+            return $cache[$employeeId] = false;
+        }
+
+        return $cache[$employeeId] = AcademicaProposal::query()
+            ->whereIn('user_id', $ownerIds->all())
+            ->exists();
     }
 
     private function sanitizeTemplatePlaceholderValue(mixed $value, bool $preserveLineBreaks = true): string
