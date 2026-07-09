@@ -165,9 +165,21 @@
 .sk-person-value {
     padding-left: 8px;
 }
-.sk-mengingat-item {
-    padding-left: 24px;
-    text-indent: -24px;
+.sk-mengingat-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.sk-mengingat-table td {
+    padding: 0;
+    vertical-align: top;
+}
+.sk-mengingat-no {
+    padding-right: 8px;
+    white-space: nowrap;
+    width: 26px;
+}
+.sk-mengingat-text {
+    width: auto;
 }
 .sk-signature {
     line-height: 1.02;
@@ -251,10 +263,12 @@
             <td class="sk-label">Mengingat</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
-                <div class="sk-mengingat-item">1. Permendiknas Nomor 16 tahun 2007;</div>
-                <div class="sk-mengingat-item">2. Permendikbud Nomor 25 Tahun 2024;</div>
-                <div class="sk-mengingat-item">3. Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;</div>
-                <div class="sk-mengingat-item">4. Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.</div>
+                <table class="sk-mengingat-table">
+                    <tr><td class="sk-mengingat-no">1.</td><td class="sk-mengingat-text">Permendiknas Nomor 16 tahun 2007;</td></tr>
+                    <tr><td class="sk-mengingat-no">2.</td><td class="sk-mengingat-text">Permendikbud Nomor 25 Tahun 2024;</td></tr>
+                    <tr><td class="sk-mengingat-no">3.</td><td class="sk-mengingat-text">Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;</td></tr>
+                    <tr><td class="sk-mengingat-no">4.</td><td class="sk-mengingat-text">Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.</td></tr>
+                </table>
             </td>
         </tr>
         <tr>
@@ -1485,8 +1499,20 @@ HTML;
             const mengingatItems = [1, 2, 3, 4]
                 .map((index) => config[`mengingat${index}Text`])
                 .filter(Boolean)
-                .map((item) => `<div class="sk-mengingat-item">${nl2br(item)}</div>`)
+                .map((item) => {
+                    const match = String(item).match(/^\s*(\d+[\.\)])\s*(.*)$/s);
+
+                    if (match) {
+                        return `<tr><td class="sk-mengingat-no">${escapeHtml(match[1])}</td><td class="sk-mengingat-text">${nl2br(match[2])}</td></tr>`;
+                    }
+
+                    return `<tr><td class="sk-mengingat-no"></td><td class="sk-mengingat-text">${nl2br(item)}</td></tr>`;
+                })
                 .join('');
+
+            const mengingatMarkup = mengingatItems
+                ? `<table class="sk-mengingat-table">${mengingatItems}</table>`
+                : '';
 
             const copyItems = [1, 2, 3]
                 .map((index) => config[`copy${index}Text`])
@@ -1593,7 +1619,10 @@ HTML;
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
 .sk-person-value { padding-left: 8px; }
-.sk-mengingat-item { padding-left: 24px; text-indent: -24px; }
+.sk-mengingat-table { border-collapse: collapse; width: 100%; }
+.sk-mengingat-table td { padding: 0; vertical-align: top; }
+.sk-mengingat-no { padding-right: 8px; white-space: nowrap; width: 26px; }
+.sk-mengingat-text { width: auto; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
@@ -1636,7 +1665,7 @@ HTML;
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">${escapeHtml(config.mengingatLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.mengingatContentFontSize)}pt;">${mengingatItems}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.mengingatContentFontSize)}pt;">${mengingatMarkup}</td>
         </tr>
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">${escapeHtml(config.memperhatikanLabelText)}</td>
