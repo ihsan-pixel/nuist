@@ -516,6 +516,7 @@ HTML;
         'signaturePrefixText' => 'Ketua,',
         'signatureNameText' => '@{{nama_penandatangan}}',
         'signatureNameFontSize' => 13.5,
+        'signatureBlockSpacing' => 20,
         'signatureNameSpacing' => 54,
         'signatureToCopySpacing' => 12,
         'copyTitleText' => 'Tembusan Yth:',
@@ -605,6 +606,7 @@ HTML;
                 ['key' => 'signatureDateLabelText', 'label' => 'Label Tanggal', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
                 ['key' => 'signatureRoleText', 'label' => 'Jabatan Penandatangan', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
                 ['key' => 'signaturePrefixText', 'label' => 'Sapaan Penandatangan', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
+                ['key' => 'signatureBlockSpacing', 'label' => 'Jarak Bagian Ketiga ke Tanda Tangan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak vertikal antara isi keputusan terakhir dan blok tanda tangan.'],
                 ['key' => 'signatureNameSpacing', 'label' => 'Jarak Teks ke Tanda Tangan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak antara teks di atas tanda tangan dengan nama/tanda tangan.'],
                 ['key' => 'signatureNameText', 'label' => 'Nama Penandatangan', 'type' => 'text', 'fontKey' => 'signatureNameFontSize'],
                 ['key' => 'signatureToCopySpacing', 'label' => 'Jarak Tanda Tangan ke Tembusan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak vertikal antara blok tanda tangan dan bagian tembusan.'],
@@ -1583,7 +1585,7 @@ HTML;
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
-.sk-signature { line-height: 1.02; margin-left: auto; margin-top: 20px; width: 290px; }
+.sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
 .sk-copy-title { text-decoration: underline; }
@@ -1663,7 +1665,7 @@ HTML;
         </tr>
     </table>
 
-    <div class="sk-signature" style="font-size:${safeFontSize(config.signatureFontSize)}pt;">
+    <div class="sk-signature" style="font-size:${safeFontSize(config.signatureFontSize)}pt; margin-top:${safeNumber(config.signatureBlockSpacing, defaultTemplateConfig.signatureBlockSpacing, 0)}px;">
         ${escapeHtml(config.signatureLocationLabelText)}&nbsp;&nbsp;: ${nl2br(config.signatureLocationValueText)}<br>
         ${escapeHtml(config.signatureDateLabelText)}&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
         ${nl2br(config.signatureRoleText)}<br>
