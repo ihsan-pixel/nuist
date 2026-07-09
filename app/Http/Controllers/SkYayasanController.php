@@ -3231,7 +3231,6 @@ class SkYayasanController extends Controller
         $body = $this->normalizeStructuredTemplateStyles($body, $templateContext);
         $body = $this->normalizeStructuredTemplateContactEmailLayout($body);
         $body = $this->normalizeStructuredTemplateMengingatLayout($body);
-        $body = $this->normalizeStructuredTemplateKesatuClosingLayout($body);
         $body = $this->normalizeStructuredTemplateDecisionContentLayout($body);
         $body = $this->normalizeStructuredTemplateFooterLayout($body);
         $body = $this->normalizeStructuredTemplateSignatureSpacing($body);
@@ -3390,7 +3389,6 @@ class SkYayasanController extends Controller
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
-            '.sk-kesatu-closing { display: block; line-height: 1.3; }',
             '.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }',
             '.sk-person-value { padding-left: 8px; }',
             '.sk-signature-role { display: block; padding-top: 14px; }',
@@ -3478,125 +3476,6 @@ class SkYayasanController extends Controller
                     }
                 }
             }
-        }
-
-        $root = $document->getElementById('sk-root');
-        $output = '';
-
-        if ($root) {
-            foreach ($root->childNodes as $childNode) {
-                $output .= $document->saveHTML($childNode);
-            }
-        } else {
-            $output = $body;
-        }
-
-        libxml_clear_errors();
-        libxml_use_internal_errors($previousUseInternalErrors);
-
-        return $output;
-    }
-
-    private function normalizeStructuredTemplateKesatuClosingLayout(string $body): string
-    {
-        if (!str_contains($body, 'data-sk-full-document="1"')) {
-            return $body;
-        }
-
-        $previousUseInternalErrors = libxml_use_internal_errors(true);
-        $document = new \DOMDocument('1.0', 'UTF-8');
-        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $body . '</div>';
-
-        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
-            libxml_clear_errors();
-            libxml_use_internal_errors($previousUseInternalErrors);
-
-            return $body;
-        }
-
-        $xpath = new \DOMXPath($document);
-        $rows = $xpath->query('//tr[td[contains(concat(" ", normalize-space(@class), " "), " sk-label ")]]');
-
-        if ($rows === false) {
-            libxml_clear_errors();
-            libxml_use_internal_errors($previousUseInternalErrors);
-
-            return $body;
-        }
-
-        foreach ($rows as $row) {
-            $cells = [];
-
-            foreach ($row->childNodes as $childNode) {
-                if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'td') {
-                    $cells[] = $childNode;
-                }
-            }
-
-            if (count($cells) < 3) {
-                continue;
-            }
-
-            $labelText = trim(preg_replace('/\s+/u', ' ', $cells[0]->textContent ?? ''));
-
-            if ($labelText !== 'Kesatu') {
-                continue;
-            }
-
-            $contentCell = $cells[count($cells) - 1];
-
-            if ($xpath->query('.//*[contains(concat(" ", normalize-space(@class), " "), " sk-kesatu-closing ")]', $contentCell)?->length) {
-                continue;
-            }
-
-            $personTable = $xpath->query('.//table[contains(concat(" ", normalize-space(@class), " "), " sk-person-table ")]', $contentCell)?->item(0);
-
-            if (!$personTable instanceof \DOMElement) {
-                continue;
-            }
-
-            $closingNodes = [];
-            $collect = false;
-
-            foreach (iterator_to_array($contentCell->childNodes) as $childNode) {
-                if ($collect) {
-                    $closingNodes[] = $childNode;
-                    continue;
-                }
-
-                if ($childNode === $personTable) {
-                    $collect = true;
-                }
-            }
-
-            $meaningfulNodes = [];
-
-            foreach ($closingNodes as $closingNode) {
-                $plain = trim(preg_replace('/\s+/u', ' ', strip_tags($document->saveHTML($closingNode) ?: '')));
-
-                if ($plain === '') {
-                    continue;
-                }
-
-                $meaningfulNodes[] = $closingNode;
-            }
-
-            if (empty($meaningfulNodes)) {
-                continue;
-            }
-
-            $closingWrapper = $document->createElement('div');
-            $closingWrapper->setAttribute('class', 'sk-kesatu-closing');
-
-            foreach ($meaningfulNodes as $meaningfulNode) {
-                $closingWrapper->appendChild($meaningfulNode->cloneNode(true));
-            }
-
-            foreach ($closingNodes as $closingNode) {
-                $contentCell->removeChild($closingNode);
-            }
-
-            $contentCell->appendChild($closingWrapper);
         }
 
         $root = $document->getElementById('sk-root');
