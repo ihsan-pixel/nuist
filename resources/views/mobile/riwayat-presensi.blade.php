@@ -392,6 +392,11 @@
                                         <div class="history-item-meta">
                                             Status pengajuan {{ ucfirst(str_replace('_', ' ', $presensi->status)) }}
                                         </div>
+                                        @if($presensi->tanggal_selesai)
+                                            <div class="history-item-meta">
+                                                Periode {{ optional($presensi->tanggal)->format('d M Y') }} - {{ optional($presensi->tanggal_selesai)->format('d M Y') }}
+                                            </div>
+                                        @endif
                                         @if($presensi->deskripsi_tugas || $presensi->alasan)
                                             <div class="history-item-note">{{ $presensi->deskripsi_tugas ?: $presensi->alasan }}</div>
                                         @endif

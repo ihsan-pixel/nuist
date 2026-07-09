@@ -2746,7 +2746,11 @@ class TeacherAppController extends Controller
             ->where('user_id', $userId)
             ->where('status', 'approved')
             ->where('type', 'tugas_luar')
-            ->whereDate('tanggal', $date->toDateString())
+            ->whereDate('tanggal', '<=', $date->toDateString())
+            ->where(function ($query) use ($date) {
+                $query->whereNull('tanggal_selesai')
+                    ->orWhereDate('tanggal_selesai', '>=', $date->toDateString());
+            })
             ->orderByDesc('approved_at')
             ->first();
     }
@@ -3520,6 +3524,28 @@ class TeacherAppController extends Controller
         }
     }
 
+    private function tugasLuarOverlapExists(User $user, string $tanggalMulai, string $tanggalSelesai, ?Izin $currentIzin = null): bool
+    {
+        return Izin::query()
+            ->where('user_id', $user->id)
+            ->where('type', 'tugas_luar')
+            ->whereDate('tanggal', '<=', $tanggalSelesai)
+            ->where(function ($query) use ($tanggalMulai) {
+                $query->where(function ($singleDayQuery) use ($tanggalMulai) {
+                    $singleDayQuery->whereNull('tanggal_selesai')
+                        ->whereDate('tanggal', '>=', $tanggalMulai);
+                })->orWhere(function ($rangeQuery) use ($tanggalMulai) {
+                    $rangeQuery->whereNotNull('tanggal_selesai')
+                        ->whereDate('tanggal_selesai', '>=', $tanggalMulai);
+                });
+            })
+            ->when(
+                $currentIzin,
+                fn ($query) => $query->where('id', '!=', $currentIzin->id)
+            )
+            ->exists();
+    }
+
     private function buildIzinPayload(Request $request, User $user, string $type, ?Izin $existingIzin = null): array
     {
         return match ($type) {
@@ -3602,7 +3628,8 @@ class TeacherAppController extends Controller
     private function buildTugasLuarIzinPayload(Request $request, User $user, ?Izin $existingIzin = null): array
     {
         $validated = $request->validate([
-            'tanggal' => ['required', 'date'],
+            'tanggal_mulai' => ['required', 'date'],
+            'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
             'deskripsi_tugas' => ['required', 'string'],
             'lokasi_tugas' => ['required', 'string'],
             'waktu_masuk' => ['required'],
@@ -3615,24 +3642,15 @@ class TeacherAppController extends Controller
             ],
         ]);
 
-        $existing = Izin::query()
-            ->where('user_id', $user->id)
-            ->whereDate('tanggal', $validated['tanggal'])
-            ->where('type', 'tugas_luar')
-            ->when(
-                $existingIzin,
-                fn ($query) => $query->where('id', '!=', $existingIzin->id)
-            )
-            ->first();
-
-        if ($existing) {
+        if ($this->tugasLuarOverlapExists($user, $validated['tanggal_mulai'], $validated['tanggal_selesai'], $existingIzin)) {
             throw ValidationException::withMessages([
-                'tanggal' => 'Anda sudah memiliki pengajuan izin tugas luar pada tanggal ini.',
+                'tanggal_mulai' => 'Anda sudah memiliki pengajuan izin tugas luar pada rentang tanggal tersebut.',
             ]);
         }
 
         return array_merge([
-            'tanggal' => $validated['tanggal'],
+            'tanggal' => $validated['tanggal_mulai'],
+            'tanggal_selesai' => $validated['tanggal_selesai'],
             'alasan' => trim((string) $validated['deskripsi_tugas']),
             'deskripsi_tugas' => trim((string) $validated['deskripsi_tugas']),
             'lokasi_tugas' => trim((string) $validated['lokasi_tugas']),

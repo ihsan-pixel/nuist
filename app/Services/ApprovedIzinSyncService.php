@@ -73,7 +73,7 @@ class ApprovedIzinSyncService
         }
 
         $startDate = Carbon::parse($izin->tanggal)->startOfDay();
-        $endDate = $izin->type === 'cuti' && $izin->tanggal_selesai
+        $endDate = $izin->tanggal_selesai
             ? Carbon::parse($izin->tanggal_selesai)->startOfDay()
             : $startDate->copy();
 

@@ -199,7 +199,12 @@
             <div class="izin-header">
                 <div>
                     <div class="izin-user">{{ $izin->user->name }}</div>
-                    <div class="izin-date">{{ $izin->tanggal->format('d M Y') }}</div>
+                    <div class="izin-date">
+                        {{ $izin->tanggal->format('d M Y') }}
+                        @if($izin->tanggal_selesai)
+                            - {{ $izin->tanggal_selesai->format('d M Y') }}
+                        @endif
+                    </div>
                     @php
                         $jenisIzin = 'Izin';
                         if ($izin->type === 'sakit') {
@@ -227,6 +232,7 @@
 
             <div class="izin-description">
                 @if($izin->type === 'tugas_luar')
+                    <strong>Periode:</strong> {{ $izin->tanggal->format('d M Y') }} - {{ optional($izin->tanggal_selesai ?? $izin->tanggal)->format('d M Y') }}<br>
                     <strong>Deskripsi:</strong> {{ $izin->deskripsi_tugas }}<br>
                     <strong>Lokasi:</strong> {{ $izin->lokasi_tugas }}<br>
                     <strong>Waktu:</strong> {{ $izin->waktu_masuk }} - {{ $izin->waktu_keluar }}

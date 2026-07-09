@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Mobile\Izin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use App\Models\Izin;
 use App\Models\Presensi;
 use App\Models\User;
@@ -14,6 +13,24 @@ use App\Services\ExternalTeachingPermissionService;
 
 class IzinController extends \App\Http\Controllers\Controller
 {
+    private function tugasLuarOverlapExists(int $userId, string $tanggalMulai, string $tanggalSelesai): bool
+    {
+        return Izin::query()
+            ->where('user_id', $userId)
+            ->where('type', 'tugas_luar')
+            ->whereDate('tanggal', '<=', $tanggalSelesai)
+            ->where(function ($query) use ($tanggalMulai) {
+                $query->where(function ($singleDayQuery) use ($tanggalMulai) {
+                    $singleDayQuery->whereNull('tanggal_selesai')
+                        ->whereDate('tanggal', '>=', $tanggalMulai);
+                })->orWhere(function ($rangeQuery) use ($tanggalMulai) {
+                    $rangeQuery->whereNotNull('tanggal_selesai')
+                        ->whereDate('tanggal_selesai', '>=', $tanggalMulai);
+                });
+            })
+            ->exists();
+    }
+
     private function canManageIzin(User $user, \App\Models\Izin $izin): bool
     {
         if (in_array($user->role, ['super_admin', 'pengurus'], true)) {
@@ -174,27 +191,26 @@ class IzinController extends \App\Http\Controllers\Controller
                 break;
 
             case 'tugas_luar':
-                // Check for duplicate tugas_luar on the same date
-                $existingTugasLuar = \App\Models\Izin::where('user_id', $user->id)
-                    ->where('tanggal', $tanggal)
-                    ->where('type', 'tugas_luar')
-                    ->first();
-                if ($existingTugasLuar) {
-                    $msg = 'Anda sudah memiliki pengajuan izin tugas luar pada tanggal ini.';
-                    if ($request->wantsJson() || $request->ajax()) {
-                        return response()->json(['success' => false, 'message' => $msg], 400);
-                    }
-                    return redirect()->back()->with('error', $msg);
-                }
-
                 $request->validate([
-                    'tanggal' => 'required|date',
+                    'tanggal_mulai' => 'required|date',
+                    'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                     'deskripsi_tugas' => 'required|string',
                     'lokasi_tugas' => 'required|string',
                     'waktu_masuk' => 'required',
                     'waktu_keluar' => 'required',
                     'file_tugas' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ]);
+
+                $tanggal = $request->input('tanggal_mulai');
+                $tanggalSelesai = $request->input('tanggal_selesai');
+
+                if ($this->tugasLuarOverlapExists($user->id, $tanggal, $tanggalSelesai)) {
+                    $msg = 'Anda sudah memiliki pengajuan izin tugas luar pada rentang tanggal tersebut.';
+                    if ($request->wantsJson() || $request->ajax()) {
+                        return response()->json(['success' => false, 'message' => $msg], 400);
+                    }
+                    return redirect()->back()->with('error', $msg)->withInput();
+                }
 
                 $alasan = $request->input('deskripsi_tugas');
                 $deskripsiTugas = $request->input('deskripsi_tugas');
@@ -459,7 +475,9 @@ class IzinController extends \App\Http\Controllers\Controller
             'user_id' => $izin->user_id,
             'type' => 'izin_approved',
             'title' => 'Izin Disetujui',
-            'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
+            'message' => $izin->tanggal_selesai
+                ? 'Pengajuan izin Anda untuk periode ' . $izin->tanggal->format('d F Y') . ' sampai ' . $izin->tanggal_selesai->format('d F Y') . ' telah disetujui.'
+                : 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
             'data' => [
                 'izin_id' => $izin->id,
                 'tanggal' => $izin->tanggal,
@@ -497,7 +515,9 @@ class IzinController extends \App\Http\Controllers\Controller
             'user_id' => $izin->user_id,
             'type' => 'izin_rejected',
             'title' => 'Izin Ditolak',
-            'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah ditolak.',
+            'message' => $izin->tanggal_selesai
+                ? 'Pengajuan izin Anda untuk periode ' . $izin->tanggal->format('d F Y') . ' sampai ' . $izin->tanggal_selesai->format('d F Y') . ' telah ditolak.'
+                : 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah ditolak.',
             'data' => [
                 'izin_id' => $izin->id,
                 'tanggal' => $izin->tanggal,
