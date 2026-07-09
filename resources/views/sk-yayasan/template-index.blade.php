@@ -38,8 +38,8 @@
     vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 8px 24px 7px 36px;
-    width: 92px;
+    padding: 0 24px 7px 36px;
+    width: 108px;
 }
 .sk-letterhead-text {
     padding-left: 26px;
@@ -49,25 +49,32 @@
     color: #2f6f45;
     font-family: Arial, sans-serif;
     font-weight: 700;
-    height: 60px;
-    margin-left: auto;
-    margin-top: 2px;
+    height: auto;
+    margin-left: 0;
+    margin-top: 0;
     text-align: center;
-    width: 72px;
+    width: 92px;
+}
+.sk-logo-box img {
+    display: block;
+    height: 108px !important;
+    margin-top: 0 !important;
+    max-width: 180px;
+    object-fit: contain;
 }
 .sk-logo-mark {
     background: #82c39a;
     color: #fff;
-    font-size: 15px;
-    height: 74px;
+    font-size: 16px;
+    height: 86px;
     letter-spacing: 3px;
     line-height: 1.15;
-    padding-top: 12px;
+    padding-top: 10px;
 }
 .sk-logo-name {
-    font-size: 15px;
+    font-size: 14px;
     letter-spacing: 1px;
-    padding-top: 5px;
+    padding-top: 4px;
 }
 .sk-org-title {
     color: #000;
@@ -1496,7 +1503,7 @@ HTML;
 
         function buildStructuredHtml(config, title, numberText) {
             const logoMarkup = config.logoImageData
-                ? `<img src="${escapeHtml(config.logoImageData)}" alt="Logo Yayasan" style="display:block; height:96px; margin-top:2px; max-width:170px; object-fit:contain;">`
+                ? `<img src="${escapeHtml(config.logoImageData)}" alt="Logo Yayasan" class="sk-logo-image">`
                 : `<div style="color:#94a3b8; font-family:Arial,sans-serif; font-size:12px; padding-top:38px;">Logo</div>`;
             const orgSubtitle1Markup = config.orgSubtitle1Text
                 ? `<div class="sk-org-subtitle" style="font-size:${safeFontSize(config.orgSubtitle1FontSize)}pt;">${nl2br(config.orgSubtitle1Text)}</div>`
@@ -1568,7 +1575,7 @@ HTML;
     width: 100%;
 }
 .sk-letterhead td { vertical-align: top; }
-.sk-logo-cell { padding: 8px 24px 7px 36px; width: 92px; }
+.sk-logo-cell { padding: 0 24px 7px 36px; width: 108px; }
 .sk-letterhead-text { padding-left: 26px; }
 .sk-logo-box {
     align-items: center;
@@ -1577,13 +1584,14 @@ HTML;
     display: flex;
     font-family: Arial, sans-serif;
     font-weight: 700;
-    height: 60px;
-    justify-content: center;
-    margin-left: auto;
-    margin-top: 2px;
+    height: auto;
+    justify-content: flex-start;
+    margin-left: 0;
+    margin-top: 0;
     text-align: center;
-    width: 72px;
+    width: 92px;
 }
+.sk-logo-box img, .sk-logo-image { display: block; height: 108px !important; margin-top: 0 !important; max-width: 180px; object-fit: contain; }
 .sk-org-title {
     color: #000;
     font-family: Cambria;

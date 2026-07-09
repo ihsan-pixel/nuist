@@ -3285,13 +3285,33 @@ class SkYayasanController extends Controller
             '/\.sk-logo-cell\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/width\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = trim($styles);
 
                 if ($styles !== '' && !str_ends_with($styles, ';')) {
                     $styles .= ';';
                 }
 
-                return '.sk-logo-cell { ' . trim($styles . ' padding: 8px 24px 7px 36px;') . ' }';
+                return '.sk-logo-cell { ' . trim($styles . ' padding: 0 24px 7px 36px; width: 108px;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-logo-box\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/margin-left\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = preg_replace('/margin-top\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = preg_replace('/width\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = preg_replace('/justify-content\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 0; margin-top: 0; width: 92px; justify-content: flex-start;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3393,6 +3413,7 @@ class SkYayasanController extends Controller
             '.sk-person-value { padding-left: 8px; }',
             '.sk-signature-role { display: block; padding-top: 14px; }',
             '.sk-email-link { color: #1d4ed8; }',
+            '.sk-logo-box img, .sk-logo-image { display: block; height: 108px !important; margin-top: 0 !important; max-width: 180px; object-fit: contain; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
                 $body = str_replace('</style>', $requiredStyle . "\n</style>", $body);
