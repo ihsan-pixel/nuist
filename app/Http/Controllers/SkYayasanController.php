@@ -2977,8 +2977,8 @@ class SkYayasanController extends Controller
             '{{gelar}}' => $pick($importRow?->source_gelar, $employee->gelar),
             '{{tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
             '{{tanggal_lahir}}' => $formattedBirthDate,
-            '{{nip_maarif}}' => $pick($importRow?->source_nip_maarif, $employee->nip),
-            '{{nuptk}}' => $pick($importRow?->source_nuptk, $employee->nuptk),
+            '{{nip_maarif}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nip_maarif, $employee->nip)),
+            '{{nuptk}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nuptk, $employee->nuptk)),
             '{{nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
             '{{tmt_pertama}}' => $formattedTmt,
             '{{masa_kerja}}' => $formattedTenure,
@@ -3012,8 +3012,8 @@ class SkYayasanController extends Controller
             '{{source_gelar}}' => $pick($importRow?->source_gelar, $employee->gelar),
             '{{source_tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
             '{{source_tanggal_lahir}}' => $formattedBirthDate,
-            '{{source_nip_maarif}}' => $pick($importRow?->source_nip_maarif, $employee->nip),
-            '{{source_nuptk}}' => $pick($importRow?->source_nuptk, $employee->nuptk),
+            '{{source_nip_maarif}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nip_maarif, $employee->nip)),
+            '{{source_nuptk}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nuptk, $employee->nuptk)),
             '{{source_nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
             '{{source_tmt_pertama}}' => $formattedTmt,
             '{{source_masa_kerja}}' => $formattedTenure,
@@ -3066,6 +3066,19 @@ class SkYayasanController extends Controller
         }
 
         return number_format((float) $normalized, 2, ',', '');
+    }
+
+    private function formatNumericIdentityValue(mixed $value): string
+    {
+        $sanitized = $this->sanitizeTemplatePlaceholderValue($value, false);
+
+        if ($sanitized === '-') {
+            return '-';
+        }
+
+        $digitsOnly = preg_replace('/\D+/u', '', $sanitized) ?? '';
+
+        return $digitsOnly !== '' ? $digitsOnly : '-';
     }
 
     private function employeeParticipatesInMgmpAcademica(?User $employee): bool
@@ -4013,7 +4026,7 @@ HTML;
             '{{gelar}}' => 'S.Pd.',
             '{{tempat_lahir}}' => 'Bantul',
             '{{tanggal_lahir}}' => '12 Januari 1990',
-            '{{nip_maarif}}' => 'MIF.2026.001',
+            '{{nip_maarif}}' => '2026001',
             '{{nuptk}}' => '1234567890123456',
             '{{nomor_kartanu}}' => 'NU.34.02.001',
             '{{tmt_pertama}}' => '01 Juli 2020',
