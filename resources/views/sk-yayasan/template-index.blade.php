@@ -168,6 +168,10 @@
 .sk-person-value {
     padding-left: 8px;
 }
+.sk-kesatu-closing {
+    display: block;
+    line-height: 1.3;
+}
 .sk-mengingat-list {
     margin: 0;
     padding-left: 22px;
@@ -306,7 +310,7 @@
                     <tr><td class="sk-person-no">9.</td><td class="sk-person-label">Masa kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{masa_kerja}}</td></tr>
                     <tr><td class="sk-person-no">10.</td><td class="sk-person-label">Penilaian perilaku kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{penilaian_kinerja}}</td></tr>
                 </table>
-                diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.
+                <div class="sk-kesatu-closing">diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.</div>
             </td>
         </tr>
         <tr>
@@ -1642,6 +1646,7 @@ HTML;
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
 .sk-person-value { padding-left: 8px; }
+.sk-kesatu-closing { display: block; line-height: 1.3; }
 .sk-mengingat-list { margin: 0; padding-left: 22px; }
 .sk-mengingat-list li { margin: 0; padding-left: 0; }
 .sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }
@@ -1711,7 +1716,7 @@ HTML;
             <td class="sk-content-cell" style="font-size:${safeFontSize(config.kesatuIntroFontSize)}pt;">
                 ${nl2br(config.kesatuIntroText)}
                 <table class="sk-person-table" style="font-size:${safeFontSize(config.personRowFontSize)}pt;">${personRows}</table>
-                ${formatRichText(config.kesatuClosingText)}
+                <div class="sk-kesatu-closing" style="font-size:${safeFontSize(config.kesatuClosingFontSize)}pt;">${formatRichText(config.kesatuClosingText)}</div>
             </td>
         </tr>
         <tr>
