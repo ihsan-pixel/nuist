@@ -3052,6 +3052,7 @@ class SkYayasanController extends Controller
         }
 
         $normalized = $sanitized;
+        $normalized = preg_replace('/\s+/u', '', $normalized) ?? $normalized;
 
         if (str_contains($normalized, ',') && str_contains($normalized, '.')) {
             $normalized = str_replace('.', '', $normalized);
