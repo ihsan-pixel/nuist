@@ -3296,6 +3296,38 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         $body = preg_replace_callback(
+            '/\.sk-org-title\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-org-title { ' . trim($styles . ' line-height: 1.04; padding: 2px 8px 0 8px;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-org-subtitle\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-org-subtitle { ' . trim($styles . ' line-height: 1.03; padding: 1px 8px 0 8px;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
             '/\.sk-decision\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/margin(?:-[a-z]+)?\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];

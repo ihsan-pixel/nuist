@@ -74,16 +74,16 @@
     font-family: Cambria;
     font-size: 24pt;
     font-weight: 700;
-    line-height: 1.14;
-    padding: 4px 8px 0 8px;
+    line-height: 1.04;
+    padding: 2px 8px 0 8px;
 }
 .sk-org-subtitle {
     color: #000;
     font-family: Cambria;
     font-size: 17pt;
     font-weight: 700;
-    line-height: 1.12;
-    padding: 2px 8px 0 8px;
+    line-height: 1.03;
+    padding: 1px 8px 0 8px;
 }
 .sk-org-meta {
     color: #000;
@@ -1566,15 +1566,15 @@ HTML;
     color: #000;
     font-family: Cambria;
     font-weight: 700;
-    line-height: 1.14;
-    padding: 4px 8px 0 8px;
+    line-height: 1.04;
+    padding: 2px 8px 0 8px;
 }
 .sk-org-subtitle {
     color: #000;
     font-family: Cambria;
     font-weight: 700;
-    line-height: 1.12;
-    padding: 2px 8px 0 8px;
+    line-height: 1.03;
+    padding: 1px 8px 0 8px;
 }
 .sk-org-meta {
     color: #000;
