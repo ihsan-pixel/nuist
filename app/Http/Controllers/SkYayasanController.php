@@ -3223,7 +3223,7 @@ class SkYayasanController extends Controller
 
     private function normalizeStructuredTemplateMengingatLayout(string $body): string
     {
-        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-mengingat-list')) {
+        if (!str_contains($body, 'data-sk-full-document="1"') || $this->bodyContainsClassMarkup($body, 'sk-mengingat-list')) {
             return $body;
         }
 
@@ -3388,7 +3388,7 @@ class SkYayasanController extends Controller
 
     private function normalizeStructuredTemplateFooterLayout(string $body): string
     {
-        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-footer-table')) {
+        if (!str_contains($body, 'data-sk-full-document="1"') || $this->bodyContainsClassMarkup($body, 'sk-footer-table')) {
             return $body;
         }
 
@@ -3455,6 +3455,11 @@ HTML;
         }
 
         return str_replace('@{{tanggal_terbit}}<br><br>', '@{{tanggal_terbit}}<br>', $body);
+    }
+
+    private function bodyContainsClassMarkup(string $body, string $className): bool
+    {
+        return preg_match('/class\s*=\s*["\'][^"\']*\b' . preg_quote($className, '/') . '\b[^"\']*["\']/u', $body) === 1;
     }
 
     private function normalizePersonRows(string $html): string
