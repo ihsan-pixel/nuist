@@ -96,6 +96,58 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                        <div>
+                            <div class="sky-panel-label mb-1">Surat Pengajuan SK</div>
+                            <h6 class="mb-1">Nomor dan tanggal surat pengajuan sekolah</h6>
+                            <p class="text-muted mb-0">Perubahan di form ini akan diterapkan ke semua pengajuan tersinkron yang tampil pada halaman generate sekolah ini.</p>
+                        </div>
+                        @if($submissionLetterIsMixed)
+                            <span class="badge bg-warning-subtle text-warning">Data saat ini berbeda-beda antar pengajuan</span>
+                        @endif
+                    </div>
+
+                    <form method="POST" action="{{ route('sk-yayasan.generate.school.submission-letter.update', $madrasah) }}">
+                        @csrf
+                        @method('PATCH')
+                        <div class="row g-3 align-items-end">
+                            <div class="col-lg-7">
+                                <label class="form-label fw-semibold">Nomor Surat Pengajuan</label>
+                                <input type="text"
+                                       name="submission_letter_number"
+                                       class="form-control @error('submission_letter_number') is-invalid @enderror"
+                                       value="{{ old('submission_letter_number', $submissionLetterReference?->submission_letter_number) }}"
+                                       placeholder="Contoh: 421.5/SMK-PD/VI/2026"
+                                       required>
+                                @error('submission_letter_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-lg-3">
+                                <label class="form-label fw-semibold">Tanggal Surat</label>
+                                <input type="date"
+                                       name="submission_letter_date"
+                                       class="form-control @error('submission_letter_date') is-invalid @enderror"
+                                       value="{{ old('submission_letter_date', optional($submissionLetterReference?->submission_letter_date)->format('Y-m-d')) }}"
+                                       required>
+                                @error('submission_letter_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-lg-2 d-grid">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="bx bx-save me-1"></i>Simpan
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Antrean Generate</div>

@@ -1159,11 +1159,29 @@ class SkYayasanController extends Controller
             return (int) $left->id <=> (int) $right->id;
         })->values();
 
+        $submissionLetterReference = $requests->first(function (SkYayasanRequest $submission) {
+            return filled($submission->submission_letter_number) || $submission->submission_letter_date !== null;
+        }) ?? $requests->first();
+
+        $submissionLetterNumbers = $requests
+            ->pluck('submission_letter_number')
+            ->filter(fn ($value) => filled($value))
+            ->unique()
+            ->values();
+
+        $submissionLetterDates = $requests
+            ->map(fn (SkYayasanRequest $submission) => optional($submission->submission_letter_date)->toDateString())
+            ->filter(fn ($value) => filled($value))
+            ->unique()
+            ->values();
+
         return view('sk-yayasan.generate-school-index', [
             'madrasah' => $madrasah,
             'requests' => $requests,
             'templates' => $templates,
             'coreData' => $this->buildSchoolSkCoreData($madrasah),
+            'submissionLetterReference' => $submissionLetterReference,
+            'submissionLetterIsMixed' => $submissionLetterNumbers->count() > 1 || $submissionLetterDates->count() > 1,
             'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
             'numberLockSupported' => $this->skYayasanDocumentNumberLockSupported(),
             'publishedDocuments' => SkYayasanDocument::query()
@@ -1174,6 +1192,36 @@ class SkYayasanController extends Controller
                 ->take(10)
                 ->get(),
         ]);
+    }
+
+    public function updateGenerateSchoolSubmissionLetter(Request $request, Madrasah $madrasah): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests((int) $madrasah->id);
+
+        $requestIds = SkYayasanRequest::query()
+            ->where('madrasah_id', $madrasah->id)
+            ->where($this->syncedGenerateQueueRequestsConstraint())
+            ->pluck('id');
+
+        if ($requestIds->isEmpty()) {
+            return back()->with('error', 'Tidak ada pengajuan tersinkron pada sekolah ini yang bisa diperbarui.');
+        }
+
+        $validated = $request->validate([
+            'submission_letter_number' => ['required', 'string', 'max:255'],
+            'submission_letter_date' => ['required', 'date'],
+        ]);
+
+        $updatedCount = SkYayasanRequest::query()
+            ->whereIn('id', $requestIds->all())
+            ->update([
+                'submission_letter_number' => trim((string) $validated['submission_letter_number']),
+                'submission_letter_date' => Carbon::parse($validated['submission_letter_date'])->toDateString(),
+                'updated_at' => now(),
+            ]);
+
+        return back()->with('success', 'Nomor dan tanggal surat pengajuan berhasil diperbarui untuk ' . $updatedCount . ' pengajuan pada sekolah ini.');
     }
 
     public function generateDocument(Request $request)

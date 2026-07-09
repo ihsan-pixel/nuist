@@ -662,6 +662,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::post('/generate/regenerate-all', [SkYayasanController::class, 'regenerateAllDocuments'])->name('generate.regenerate-all');
         Route::patch('/generate/lock-all', [SkYayasanController::class, 'lockAllDocumentNumbers'])->name('generate.lock-all');
         Route::get('/generate/sekolah/{madrasah}', [SkYayasanController::class, 'generateSchoolIndex'])->name('generate.school');
+        Route::patch('/generate/sekolah/{madrasah}/submission-letter', [SkYayasanController::class, 'updateGenerateSchoolSubmissionLetter'])->name('generate.school.submission-letter.update');
         Route::patch('/generate/sekolah/{madrasah}/lock-number', [SkYayasanController::class, 'lockSchoolDocumentNumbers'])->name('generate.school.lock-number');
         Route::post('/generate/sekolah/{madrasah}/pdf', [SkYayasanController::class, 'generateSchoolPdf'])->name('generate.school.pdf');
         Route::post('/generate', [SkYayasanController::class, 'generateDocument'])->name('generate.store');
