@@ -240,7 +240,7 @@
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 2</div>
                 <div class="sk-org-meta">
                     Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta. 55121<br>
-                    Website: https://lpmnudiy.id email: <span class="sk-email-link">sekretariat@lpmnudiy.id</span>
+                    Website: <span class="sk-email-link">https://lpmnudiy.id</span> email: <span class="sk-email-link">sekretariat@lpmnudiy.id</span>
                 </div>
             </td>
         </tr>
@@ -1401,10 +1401,15 @@ HTML;
         }
 
         function formatOrgMetaText(value) {
-            return nl2br(value).replace(
-                /([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})/gi,
-                '<span class="sk-email-link">$1</span>'
-            );
+            return nl2br(value)
+                .replace(
+                    /(https?:\/\/[^\s<]+)/gi,
+                    '<span class="sk-email-link">$1</span>'
+                )
+                .replace(
+                    /([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})/gi,
+                    '<span class="sk-email-link">$1</span>'
+                );
         }
 
         function formatRichText(value) {

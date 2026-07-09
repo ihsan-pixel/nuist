@@ -3430,10 +3430,16 @@ class SkYayasanController extends Controller
             }
 
             $updatedHtml = preg_replace(
-                '/([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})/iu',
+                '/(https?:\/\/[^\s<]+)/iu',
                 '<span class="sk-email-link">$1</span>',
                 $innerHtml
             ) ?? $innerHtml;
+
+            $updatedHtml = preg_replace(
+                '/([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})/iu',
+                '<span class="sk-email-link">$1</span>',
+                $updatedHtml
+            ) ?? $updatedHtml;
 
             if ($updatedHtml === $innerHtml) {
                 continue;
