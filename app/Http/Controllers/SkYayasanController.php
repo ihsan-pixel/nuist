@@ -3375,7 +3375,7 @@ class SkYayasanController extends Controller
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }',
             '.sk-person-value { padding-left: 8px; }',
-            '.sk-signature-role { margin-top: 14px; }',
+            '.sk-signature-role { display: block; padding-top: 14px; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
                 $body = str_replace('</style>', $requiredStyle . "\n</style>", $body);
@@ -3702,7 +3702,7 @@ HTML;
 
         $body = preg_replace(
             '/\.sk-signature-role\s*\{[^}]*\}/u',
-            '.sk-signature-role { margin-top: 14px; }',
+            '.sk-signature-role { display: block; padding-top: 14px; }',
             $body
         ) ?? $body;
 
