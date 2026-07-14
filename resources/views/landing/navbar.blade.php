@@ -378,9 +378,9 @@
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}" data-nav-ajax="true">Beranda</a></li>
                 <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}" data-nav-ajax="true">Sekolah</a></li>
-                <li><a href="{{ route('talenta.login') }}" class="{{ request()->routeIs('talenta.login') ? 'active' : '' }}" data-nav-ajax="true">Talenta</a></li>
-                <li><a href="{{ route('mgmp.public') }}" class="{{ request()->routeIs('mgmp.public') ? 'active' : '' }}" data-nav-ajax="true">MGMP</a></li>
-                <li class="mobile-only"><a href="{{ route('login') }}" data-nav-ajax="true">Login</a></li>
+                <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}" data-nav-ajax="true">Tentang</a></li>
+                <li><a href="{{ route('landing.kontak') }}" class="{{ request()->routeIs('landing.kontak') ? 'active' : '' }}" data-nav-ajax="true">Kontak</a></li>
+                <li class="mobile-only"><a href="{{ route('login') }}">Login</a></li>
                 {{-- <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
                     <ul class="submenu">
@@ -397,11 +397,13 @@
                 <span></span>
             </div>
         </div>
-        <a href="{{ route('login') }}" class="btn-primary desktop-login" data-nav-ajax="true">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+        <a href="{{ route('login') }}" class="btn-primary desktop-login">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
     </div>
 </nav>
 
 <script>
+const landingNavCache = new Map();
+
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -436,6 +438,86 @@ function toggleMobileMenu() {
     hamburger.classList.toggle('open');
 }
 
+function normalizeNavUrl(url) {
+    const parsedUrl = new URL(url, window.location.origin);
+    parsedUrl.hash = '';
+    return parsedUrl.toString();
+}
+
+function readCachedPage(url) {
+    const normalizedUrl = normalizeNavUrl(url);
+
+    if (landingNavCache.has(normalizedUrl)) {
+        return landingNavCache.get(normalizedUrl);
+    }
+
+    try {
+        const cached = sessionStorage.getItem(`landing-nav:${normalizedUrl}`);
+        if (!cached) {
+            return null;
+        }
+
+        const payload = JSON.parse(cached);
+        if (!payload || typeof payload.html !== 'string') {
+            return null;
+        }
+
+        landingNavCache.set(normalizedUrl, payload.html);
+        return payload.html;
+    } catch (error) {
+        return null;
+    }
+}
+
+function writeCachedPage(url, html) {
+    const normalizedUrl = normalizeNavUrl(url);
+    landingNavCache.set(normalizedUrl, html);
+
+    try {
+        sessionStorage.setItem(`landing-nav:${normalizedUrl}`, JSON.stringify({ html }));
+    } catch (error) {
+        // Ignore storage quota errors.
+    }
+}
+
+async function fetchPageHtml(url) {
+    const normalizedUrl = normalizeNavUrl(url);
+    const cachedHtml = readCachedPage(normalizedUrl);
+
+    if (cachedHtml) {
+        return cachedHtml;
+    }
+
+    const response = await fetch(normalizedUrl, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error('Navigation request failed');
+    }
+
+    const html = await response.text();
+    writeCachedPage(normalizedUrl, html);
+
+    return html;
+}
+
+function prefetchPage(url) {
+    const normalizedUrl = normalizeNavUrl(url);
+
+    if (readCachedPage(normalizedUrl)) {
+        return;
+    }
+
+    fetchPageHtml(normalizedUrl).catch(() => {
+        // Silent prefetch failure fallback.
+    });
+}
+
 function shouldHandleAjaxNavigation(link, event) {
     if (!link || link.dataset.navAjax !== 'true') {
         return false;
@@ -459,22 +541,10 @@ function shouldHandleAjaxNavigation(link, event) {
 }
 
 async function navigateWithoutReload(url, options = {}) {
-    const targetUrl = typeof url === 'string' ? url : url.toString();
+    const targetUrl = normalizeNavUrl(typeof url === 'string' ? url : url.toString());
 
     try {
-        const response = await fetch(targetUrl, {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Navigation request failed');
-        }
-
-        const html = await response.text();
+        const html = await fetchPageHtml(targetUrl);
 
         if (options.replaceState) {
             window.history.replaceState({ ajaxNav: true }, '', targetUrl);
@@ -499,6 +569,28 @@ document.addEventListener('click', function(e) {
 
     e.preventDefault();
     navigateWithoutReload(link.href);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('a[data-nav-ajax="true"]').forEach((link) => {
+        link.addEventListener('mouseenter', function() {
+            prefetchPage(link.href);
+        }, { passive: true });
+
+        link.addEventListener('touchstart', function() {
+            prefetchPage(link.href);
+        }, { passive: true, once: true });
+    });
+
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+            document.querySelectorAll('a[data-nav-ajax="true"]').forEach((link) => {
+                if (normalizeNavUrl(link.href) !== normalizeNavUrl(window.location.href)) {
+                    prefetchPage(link.href);
+                }
+            });
+        });
+    }
 });
 
 window.addEventListener('popstate', function() {
