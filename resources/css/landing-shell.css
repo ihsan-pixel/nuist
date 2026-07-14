@@ -1,8 +1,8 @@
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
 
 :root {
-    --landing-surface: rgba(255, 255, 255, 0.92);
-    --landing-surface-soft: rgba(255, 255, 255, 0.84);
+    --landing-surface: #ffffff;
+    --landing-surface-soft: #ffffff;
     --landing-border: rgba(25, 43, 38, 0.08);
     --landing-shadow-soft: 0 4px 12px rgba(25, 43, 38, 0.16);
     --landing-shadow-medium: 0 6px 16px rgba(25, 43, 38, 0.18);
