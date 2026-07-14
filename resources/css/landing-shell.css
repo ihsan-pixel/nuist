@@ -53,18 +53,23 @@
 }
 
 .landing-navbar.is-full-width {
-    top: 24px;
-    width: min(1400px, calc(100% - 48px));
-    border-radius: var(--landing-radius-pill);
+    top: 0;
+    width: 100%;
+    border-radius: 0;
     box-shadow: var(--landing-shadow-medium);
 }
 
-.landing-navbar .nav-flex,
-.landing-navbar.is-full-width .nav-flex {
+.landing-navbar .nav-flex {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 70px;
+}
+
+.landing-navbar.is-full-width .nav-flex {
+    width: min(1400px, calc(100% - 48px));
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .landing-navbar .nav-left {
