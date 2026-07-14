@@ -108,7 +108,7 @@
     gap: 4px;
     align-items: center;
     margin: 0;
-    margin-right: auto;
+    margin-left: auto;
     padding: 3px;
     border-radius: 999px;
 }
