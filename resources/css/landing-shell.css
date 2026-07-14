@@ -2,7 +2,7 @@
 
 :root {
     --landing-surface: #ffffff;
-    --landing-surface-soft: #ffffff;
+    --landing-surface-soft: rgba(255, 255, 255, 0.82);
     --landing-border: rgba(25, 43, 38, 0.08);
     --landing-shadow-soft: 0 4px 12px rgba(25, 43, 38, 0.16);
     --landing-shadow-medium: 0 6px 16px rgba(25, 43, 38, 0.18);
