@@ -1,3 +1,4 @@
+@once
 <style>
 /* NAVBAR Styles */
 .navbar {
@@ -637,3 +638,4 @@ window.addEventListener('scroll', function() {
     }
 });
 </script>
+@endonce
