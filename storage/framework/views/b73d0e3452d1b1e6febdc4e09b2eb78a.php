@@ -5,6 +5,9 @@
     $landingNavVersion = file_exists(public_path('build/manifest.json'))
         ? substr(md5_file(public_path('build/manifest.json')), 0, 12)
         : app()->version();
+    $landingShellCssPath = public_path('build/css/landing-shell.min.css');
+    $landingShellJsPath = public_path('build/js/landing-shell.js');
+    $hasLandingShellAssets = file_exists($landingShellCssPath) && file_exists($landingShellJsPath);
     $metaDescription = trim((string) $__env->yieldContent('description')) ?: "Nuist.id adalah Sistem Informasi Digital LP. Ma'arif NU PWNU DIY untuk manajemen data madrasah, tenaga pendidik, dan laporan pendidikan berbasis web.";
     $pageTitle = trim((string) $__env->yieldContent('title'))
         ? trim((string) $__env->yieldContent('title')) . ' | Nuist.id - Sistem Informasi Digital LP. Ma\'arif NU PWNU DIY'
@@ -45,8 +48,9 @@
         <?php echo $__env->yieldContent('css'); ?>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasLandingShell): ?>
-        <?php echo app('Illuminate\Foundation\Vite')('resources/js/landing-shell.js'); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasLandingShellAssets): ?>
+        <link href="<?php echo e(asset('build/css/landing-shell.min.css')); ?>" rel="stylesheet" type="text/css" />
+        <script type="module" src="<?php echo e(asset('build/js/landing-shell.js')); ?>"></script>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </head>
 
