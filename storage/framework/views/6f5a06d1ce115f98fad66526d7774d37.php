@@ -55,29 +55,6 @@
         z-index: 1;
     }
 
-    .hero h1 {
-        font-size: 48px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        color: white;
-    }
-
-    .hero-subtitle {
-        font-size: 36px;
-        font-weight: 600;
-        margin-bottom: 20px;
-        color: #eda711;
-    }
-
-    .hero p {
-        font-size: 20px;
-        opacity: 0.9;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
     .produk-content {
         padding: 80px 0;
         background: #f8fafc;
@@ -115,7 +92,7 @@
 
     .produk-group-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        grid-template-columns: 1fr;
         gap: 30px;
         max-width: 1400px;
         margin: 0 auto;
@@ -171,6 +148,14 @@
     .produk-anchor-wrap {
         display: flex;
         justify-content: center;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .produk-anchor-wrap::-webkit-scrollbar {
+        display: none;
     }
 
     .content-card,
@@ -216,11 +201,12 @@
 
     .produk-anchor-list {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 10px;
         margin: 0;
         padding: 0;
         list-style: none;
+        white-space: nowrap;
     }
 
     .produk-anchor-list a {
@@ -237,6 +223,29 @@
         font-size: 14px;
         font-weight: 600;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .hero .produk-intro {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .hero .section-title {
+        margin-bottom: 0;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero .produk-intro-copy p {
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .hero .produk-metric {
+        background: rgba(255, 255, 255, 0.96);
+    }
+
+    .hero .produk-anchor-list a {
+        background: rgba(255, 255, 255, 0.96);
     }
 
     .produk-group-grid {
@@ -275,6 +284,7 @@
 
     .produk-list {
         display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 18px;
     }
 
@@ -400,22 +410,14 @@
             min-height: auto;
         }
 
-        .hero h1 {
-            font-size: 32px;
-        }
-
-        .hero-subtitle {
-            font-size: 28px;
-        }
-
-        .hero p {
-            font-size: 16px;
-        }
-
         .produk-metrics,
         .produk-group-grid {
             grid-template-columns: 1fr;
             gap: 20px;
+        }
+
+        .produk-list {
+            grid-template-columns: 1fr;
         }
 
         .produk-intro {
@@ -442,6 +444,12 @@
             margin-bottom: 40px;
         }
     }
+
+    @media (max-width: 1200px) {
+        .produk-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -449,17 +457,9 @@
 <div class="landing-page landing-product-page" data-landing-page="produk">
     <section id="hero" class="hero">
         <div class="container">
-            <h1 class="hero-title">Produk Kami</h1>
-            <h2 class="hero-subtitle">Ekosistem Digital NUIST</h2>
-            <p>Kumpulan aplikasi dan layanan yang dirancang untuk membantu sekolah, tenaga pendidik, operator, dan pengurus bekerja lebih rapi, cepat, dan terhubung dalam satu ekosistem.</p>
-        </div>
-    </section>
-
-    <section id="produk-content" class="produk-content">
-        <div class="container">
             <div class="produk-intro">
                 <div class="produk-intro-copy animate fade-up">
-                    <h2 class="section-title">Mengenal Produk NUIST</h2>
+                    <h1 class="section-title">Mengenal Produk NUIST</h1>
                     <p>Temukan layanan digital NUIST yang dirancang untuk mendukung tata kelola, operasional sekolah, dan pengembangan ekosistem pendidikan dalam satu tampilan yang lebih ringkas.</p>
                 </div>
 
@@ -480,13 +480,17 @@
 
                 <div class="produk-anchor-wrap animate fade-up delay-2">
                     <ul class="produk-anchor-list">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $productGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                            <li><a href="#group-<?php echo e($index + 1); ?>"><?php echo e($group['title']); ?></a></li>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                        <li><a href="<?php echo e(route('landing.produk')); ?>#group-1">Platform Utama</a></li>
+                        <li><a href="<?php echo e(route('landing.produk')); ?>#group-2">Layanan Pendidikan</a></li>
+                        <li><a href="<?php echo e(route('landing.produk')); ?>#group-3">Operasional &amp; Pengembangan</a></li>
                     </ul>
                 </div>
             </div>
+        </div>
+    </section>
 
+    <section id="produk-content" class="produk-content">
+        <div class="container">
             <div class="produk-group-grid">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $productGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                     <section class="produk-group-card animate fade-up" id="group-<?php echo e($index + 1); ?>">

@@ -57,29 +57,6 @@
         z-index: 1;
     }
 
-    .hero h1 {
-        font-size: 48px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        color: white;
-    }
-
-    .hero-subtitle {
-        font-size: 36px;
-        font-weight: 600;
-        margin-bottom: 20px;
-        color: #eda711;
-    }
-
-    .hero p {
-        font-size: 20px;
-        opacity: 0.9;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
     .produk-content {
         padding: 80px 0;
         background: #f8fafc;
@@ -250,6 +227,29 @@
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     }
 
+    .hero .produk-intro {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .hero .section-title {
+        margin-bottom: 0;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero .produk-intro-copy p {
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .hero .produk-metric {
+        background: rgba(255, 255, 255, 0.96);
+    }
+
+    .hero .produk-anchor-list a {
+        background: rgba(255, 255, 255, 0.96);
+    }
+
     .produk-group-grid {
         align-items: start;
     }
@@ -412,18 +412,6 @@
             min-height: auto;
         }
 
-        .hero h1 {
-            font-size: 32px;
-        }
-
-        .hero-subtitle {
-            font-size: 28px;
-        }
-
-        .hero p {
-            font-size: 16px;
-        }
-
         .produk-metrics,
         .produk-group-grid {
             grid-template-columns: 1fr;
@@ -471,17 +459,9 @@
 <div class="landing-page landing-product-page" data-landing-page="produk">
     <section id="hero" class="hero">
         <div class="container">
-            <h1 class="hero-title">Produk Kami</h1>
-            <h2 class="hero-subtitle">Ekosistem Digital NUIST</h2>
-            <p>Kumpulan aplikasi dan layanan yang dirancang untuk membantu sekolah, tenaga pendidik, operator, dan pengurus bekerja lebih rapi, cepat, dan terhubung dalam satu ekosistem.</p>
-        </div>
-    </section>
-
-    <section id="produk-content" class="produk-content">
-        <div class="container">
             <div class="produk-intro">
                 <div class="produk-intro-copy animate fade-up">
-                    <h2 class="section-title">Mengenal Produk NUIST</h2>
+                    <h1 class="section-title">Mengenal Produk NUIST</h1>
                     <p>Temukan layanan digital NUIST yang dirancang untuk mendukung tata kelola, operasional sekolah, dan pengembangan ekosistem pendidikan dalam satu tampilan yang lebih ringkas.</p>
                 </div>
 
@@ -502,13 +482,17 @@
 
                 <div class="produk-anchor-wrap animate fade-up delay-2">
                     <ul class="produk-anchor-list">
-                        @foreach($productGroups as $index => $group)
-                            <li><a href="#group-{{ $index + 1 }}">{{ $group['title'] }}</a></li>
-                        @endforeach
+                        <li><a href="{{ route('landing.produk') }}#group-1">Platform Utama</a></li>
+                        <li><a href="{{ route('landing.produk') }}#group-2">Layanan Pendidikan</a></li>
+                        <li><a href="{{ route('landing.produk') }}#group-3">Operasional &amp; Pengembangan</a></li>
                     </ul>
                 </div>
             </div>
+        </div>
+    </section>
 
+    <section id="produk-content" class="produk-content">
+        <div class="container">
             <div class="produk-group-grid">
                 @foreach($productGroups as $index => $group)
                     <section class="produk-group-card animate fade-up" id="group-{{ $index + 1 }}">
