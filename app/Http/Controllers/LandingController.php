@@ -41,6 +41,111 @@ class LandingController extends Controller
     }
 
     /**
+     * Show the products page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function produk()
+    {
+        $yayasan = Yayasan::find(1);
+
+        $productGroups = [
+            [
+                'title' => 'Platform Utama',
+                'description' => 'Produk inti Nuist untuk operasional sekolah, tenaga pendidik, dan pimpinan secara terintegrasi.',
+                'products' => [
+                    [
+                        'name' => 'Nuist Desktop',
+                        'status' => 'LIVE',
+                        'icon' => 'bx-desktop',
+                        'description' => 'Pusat pengelolaan data sekolah, tenaga pendidik, laporan, dan administrasi operasional madrasah.',
+                        'link' => route('login'),
+                        'accent' => 'emerald',
+                    ],
+                    [
+                        'name' => 'Nuist Mobile',
+                        'status' => 'LIVE',
+                        'icon' => 'bx-mobile-alt',
+                        'description' => 'Akses mobile untuk presensi, presensi mengajar, izin, notifikasi, dan pembaruan data pribadi secara real-time.',
+                        'link' => route('mobile.login'),
+                        'accent' => 'teal',
+                    ],
+                    [
+                        'name' => 'Dashboard Pengurus',
+                        'status' => 'LIVE',
+                        'icon' => 'bx-line-chart',
+                        'description' => 'Pemantauan data madrasah, performa pengisian, dan ringkasan operasional untuk pengurus dan pengambil keputusan.',
+                        'link' => route('mobile.login'),
+                        'accent' => 'amber',
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Layanan Pendidikan',
+                'description' => 'Produk pembelajaran, pengembangan talenta, dan kolaborasi yang mendukung ekosistem pendidikan LP Ma’arif.',
+                'products' => [
+                    [
+                        'name' => 'Talenta',
+                        'status' => 'LIVE',
+                        'icon' => 'bx-brain',
+                        'description' => 'Platform pemetaan, asesmen, dan pengembangan talenta untuk mendukung pertumbuhan peserta didik dan tenaga pendidik.',
+                        'link' => route('talenta.login'),
+                        'accent' => 'sky',
+                    ],
+                    [
+                        'name' => 'MGMP',
+                        'status' => 'LIVE',
+                        'icon' => 'bx-group',
+                        'description' => 'Ruang kolaborasi guru untuk berbagi materi, program, agenda, dan penguatan komunitas belajar.',
+                        'link' => route('mgmp.public'),
+                        'accent' => 'violet',
+                    ],
+                    [
+                        'name' => 'Presensi Admin',
+                        'status' => 'LIVE',
+                        'icon' => 'bx-calendar-check',
+                        'description' => 'Panel khusus administrator untuk monitoring kehadiran, rekap, dan pengelolaan kepatuhan presensi tenaga pendidik.',
+                        'link' => route('login'),
+                        'accent' => 'rose',
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Operasional & Pengembangan',
+                'description' => 'Layanan digital tambahan untuk memperkuat dokumen, pembiayaan, dan integrasi pengembangan sistem.',
+                'products' => [
+                    [
+                        'name' => 'SK Yayasan',
+                        'status' => 'LIVE',
+                        'icon' => 'bx-file',
+                        'description' => 'Pengelolaan template dan administrasi dokumen yayasan agar lebih tertib, cepat, dan terstandar.',
+                        'link' => route('login'),
+                        'accent' => 'slate',
+                    ],
+                    [
+                        'name' => 'SPP Siswa',
+                        'status' => 'LIVE',
+                        'icon' => 'bx-wallet',
+                        'description' => 'Monitoring tagihan, pembayaran, dan operasional SPP siswa untuk mendukung ketertiban pembiayaan pendidikan.',
+                        'link' => route('spp-operator.register'),
+                        'accent' => 'orange',
+                    ],
+                    [
+                        'name' => 'Integrasi API Nuist',
+                        'status' => 'DALAM PENGEMBANGAN',
+                        'icon' => 'bx-code-alt',
+                        'description' => 'Fondasi integrasi data dan layanan agar aplikasi lain dapat terhubung ke ekosistem Nuist secara aman.',
+                        'link' => null,
+                        'accent' => 'indigo',
+                    ],
+                ],
+            ],
+        ];
+
+        return view('landing.produk', compact('yayasan', 'productGroups'));
+    }
+
+    /**
      * Show the sekolah page.
      *
      * @return \Illuminate\Contracts\Support\Renderable
