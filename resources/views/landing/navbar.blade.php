@@ -13,12 +13,12 @@
     z-index: 1000;
     border-radius: 999px;
     border: 1px solid rgba(25, 43, 38, 0.08);
-    box-shadow: 0 14px 38px rgba(25, 43, 38, 0.08), 0 2px 8px rgba(25, 43, 38, 0.05);
+    box-shadow: none;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar.transparent {
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(255, 255, 255, 0.84);
     backdrop-filter: blur(22px);
 }
 
@@ -36,7 +36,7 @@
 }
 
 .navbar.scrolled {
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 0.84);
     backdrop-filter: blur(22px);
 }
 
