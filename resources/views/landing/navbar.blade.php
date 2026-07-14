@@ -23,16 +23,58 @@
 }
 
 .navbar.full-width {
-    width: min(1400px, calc(100% - 32px));
-    top: 10px;
-    border-radius: 999px;
+    width: 100%;
+    top: 0;
+    border-radius: 0;
     position: fixed;
     left: 0;
     right: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    box-shadow: 0 1px 0 rgba(25, 43, 38, 0.08), 0 12px 30px rgba(25, 43, 38, 0.08);
 }
 
 .navbar.scrolled {
-    box-shadow: 0 18px 42px rgba(25, 43, 38, 0.12), 0 3px 10px rgba(25, 43, 38, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(22px);
+}
+
+.navbar.full-width .nav-flex {
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 92px;
+}
+
+.navbar.full-width .nav-left {
+    width: 100%;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.navbar.full-width .brand-mark {
+    padding-left: 6px;
+}
+
+.navbar.full-width .brand-mark img {
+    height: 48px;
+}
+
+.navbar.full-width .nav-menu {
+    padding: 10px 14px;
+    background: #fcfcfa;
+    border: 1px solid rgba(25, 43, 38, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.navbar.full-width .nav-menu a {
+    padding: 10px 30px;
+}
+
+.navbar.full-width .desktop-login {
+    display: none;
 }
 
 .nav-flex {
@@ -242,8 +284,20 @@
         width: 95%;
         margin: 10px auto;
         border-radius: 32px;
+        border: 1px solid rgba(25, 43, 38, 0.08);
         left: 0;
         right: 0;
+        box-shadow: 0 16px 36px rgba(25, 43, 38, 0.12);
+    }
+
+    .navbar.full-width .nav-flex {
+        padding: 0;
+        height: 60px;
+    }
+
+    .navbar.full-width .nav-left {
+        width: auto;
+        justify-content: flex-start;
     }
 
     .nav-left {
