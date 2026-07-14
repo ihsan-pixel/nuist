@@ -286,6 +286,7 @@
 
     .produk-list {
         display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 18px;
     }
 
@@ -429,6 +430,10 @@
             gap: 20px;
         }
 
+        .produk-list {
+            grid-template-columns: 1fr;
+        }
+
         .produk-intro {
             margin-bottom: 36px;
         }
@@ -451,6 +456,12 @@
         .section-title {
             font-size: 24px;
             margin-bottom: 40px;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .produk-list {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
 </style>
