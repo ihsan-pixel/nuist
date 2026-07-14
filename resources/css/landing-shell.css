@@ -20,7 +20,7 @@
 .landing-navbar {
     background: var(--landing-surface);
     position: fixed;
-    top: 8px;
+    top: 16px;
     left: 0;
     right: 0;
     z-index: 1000;
@@ -63,7 +63,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 50px;
+    height: 58px;
 }
 
 .landing-navbar.is-full-width .nav-flex {
