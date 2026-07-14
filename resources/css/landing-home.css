@@ -45,7 +45,10 @@
 
 .landing-home-page {
     color: var(--landing-home-color-ink);
-    background: var(--landing-home-color-surface);
+    background:
+        radial-gradient(circle at top left, rgba(22, 163, 74, 0.1), transparent 30%),
+        radial-gradient(circle at top right, rgba(13, 148, 136, 0.08), transparent 26%),
+        linear-gradient(180deg, #f7fbf8 0%, #ffffff 38%, #f8fafc 100%);
     line-height: 1.6;
     overflow-x: clip;
 }
@@ -172,7 +175,7 @@
 .landing-home-carousel {
     padding-block: var(--landing-home-space-20);
     margin-top: var(--landing-home-space-30);
-    background: var(--landing-home-color-surface);
+    background: transparent;
 }
 
 .landing-home-carousel__viewport {
@@ -237,7 +240,7 @@
 .landing-home-profile {
     padding-block: var(--landing-home-space-20);
     margin-top: calc(var(--landing-home-space-24) * -1);
-    background: var(--landing-home-color-surface);
+    background: transparent;
 }
 
 .landing-home-profile__intro,
@@ -304,7 +307,7 @@
 
 .landing-home-stats {
     padding-bottom: var(--landing-home-space-8);
-    background: var(--landing-home-color-surface);
+    background: transparent;
 }
 
 .landing-home-stats__grid {
