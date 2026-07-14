@@ -117,8 +117,8 @@
 .nav-menu a {
     text-decoration: none;
     color: #657381;
-    font-weight: 500;
-    font-size: 16px;
+    font-weight: 400;
+    font-size: 14px;
     padding: 8px 20px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0);
@@ -150,8 +150,8 @@
     gap: 8px;
     padding: 8px 18px;
     border-radius: 999px;
-    font-weight: 600;
-    font-size: 15px;
+    font-weight: 400;
+    font-size: 14px;
     color: #157347;
     background: #ffffff;
     border: 1px solid rgba(21, 115, 71, 0.14);
@@ -334,7 +334,6 @@
     }
 
     .nav-menu a {
-        font-size: 14px;
         width: 100%;
         padding: 12px 16px;
         border-radius: 18px;
