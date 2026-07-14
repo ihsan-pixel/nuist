@@ -372,15 +372,15 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <a href="{{ route('landing') }}" class="brand-mark" aria-label="NUIST" data-nav-ajax="true">
+            <a href="{{ route('landing') }}#home" class="brand-mark" aria-label="NUIST">
                 <img src="{{ asset('images/logo1.png') }}" alt="NUIST">
             </a>
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}" data-nav-ajax="true">Beranda</a></li>
-                <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}" data-nav-ajax="true">Sekolah</a></li>
-                <li><a href="{{ route('talenta.login') }}" class="{{ request()->routeIs('talenta.login') ? 'active' : '' }}" data-nav-ajax="true">Talenta</a></li>
-                <li><a href="{{ route('mgmp.public') }}" class="{{ request()->routeIs('mgmp.public') ? 'active' : '' }}" data-nav-ajax="true">MGMP</a></li>
-                <li class="mobile-only"><a href="{{ route('login') }}" data-nav-ajax="true">Login</a></li>
+                <li><a href="{{ route('landing') }}#home" class="active" data-section-link="home">Beranda</a></li>
+                <li><a href="{{ route('landing') }}#sekolah" data-section-link="sekolah">Sekolah</a></li>
+                <li><a href="{{ route('landing') }}#tentang" data-section-link="tentang">Tentang</a></li>
+                <li><a href="{{ route('landing') }}#kontak" data-section-link="kontak">Kontak</a></li>
+                <li class="mobile-only"><a href="{{ route('login') }}">Login</a></li>
                 {{-- <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
                     <ul class="submenu">
@@ -397,7 +397,7 @@
                 <span></span>
             </div>
         </div>
-        <a href="{{ route('login') }}" class="btn-primary desktop-login" data-nav-ajax="true">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+        <a href="{{ route('login') }}" class="btn-primary desktop-login">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
     </div>
 </nav>
 
@@ -436,73 +436,57 @@ function toggleMobileMenu() {
     hamburger.classList.toggle('open');
 }
 
-function shouldHandleAjaxNavigation(link, event) {
-    if (!link || link.dataset.navAjax !== 'true') {
-        return false;
+function closeMobileMenu() {
+    const navMenu = document.getElementById('nav-menu');
+    const hamburger = document.getElementById('hamburger');
+
+    if (navMenu && hamburger) {
+        navMenu.classList.remove('show');
+        hamburger.classList.remove('open');
     }
-
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-        return false;
-    }
-
-    if (link.target && link.target !== '_self') {
-        return false;
-    }
-
-    const url = new URL(link.href, window.location.origin);
-
-    if (url.origin !== window.location.origin || url.hash) {
-        return false;
-    }
-
-    return true;
 }
 
-async function navigateWithoutReload(url, options = {}) {
-    const targetUrl = typeof url === 'string' ? url : url.toString();
+function setActiveNavLink(sectionId) {
+    document.querySelectorAll('[data-section-link]').forEach((link) => {
+        link.classList.toggle('active', link.dataset.sectionLink === sectionId);
+    });
+}
 
-    try {
-        const response = await fetch(targetUrl, {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
+function handleSectionNavigation(link) {
+    const url = new URL(link.href, window.location.origin);
+    const sectionId = url.hash.replace('#', '');
+    const isSamePage = url.pathname === window.location.pathname;
 
-        if (!response.ok) {
-            throw new Error('Navigation request failed');
-        }
-
-        const html = await response.text();
-
-        if (options.replaceState) {
-            window.history.replaceState({ ajaxNav: true }, '', targetUrl);
-        } else {
-            window.history.pushState({ ajaxNav: true }, '', targetUrl);
-        }
-
-        document.open();
-        document.write(html);
-        document.close();
-    } catch (error) {
-        window.location.href = targetUrl;
+    if (!isSamePage || !sectionId) {
+        window.location.href = url.toString();
+        return;
     }
+
+    const targetSection = document.getElementById(sectionId);
+
+    if (!targetSection) {
+        window.location.href = url.toString();
+        return;
+    }
+
+    const offset = window.innerWidth <= 768 ? 70 : 90;
+    const targetTop = targetSection.getBoundingClientRect().top + window.scrollY - offset;
+
+    window.history.replaceState({}, '', `${window.location.pathname}#${sectionId}`);
+    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+    setActiveNavLink(sectionId);
+    closeMobileMenu();
 }
 
 document.addEventListener('click', function(e) {
-    const link = e.target.closest('a[data-nav-ajax="true"]');
+    const link = e.target.closest('a[data-section-link]');
 
-    if (!shouldHandleAjaxNavigation(link, e)) {
+    if (!link) {
         return;
     }
 
     e.preventDefault();
-    navigateWithoutReload(link.href);
-});
-
-window.addEventListener('popstate', function() {
-    navigateWithoutReload(window.location.href, { replaceState: true });
+    handleSectionNavigation(link);
 });
 
 // Close submenu when clicking outside
@@ -516,10 +500,7 @@ document.addEventListener('click', function(e) {
     if (!e.target.closest('.nav-left') && !e.target.closest('.hamburger')) {
         const navMenu = document.getElementById('nav-menu');
         const hamburger = document.getElementById('hamburger');
-        if (navMenu && hamburger) {
-            navMenu.classList.remove('show');
-            hamburger.classList.remove('open');
-        }
+        closeMobileMenu();
     }
 });
 
@@ -543,6 +524,37 @@ window.addEventListener('scroll', function() {
             ticking = false;
         });
         ticking = true;
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+
+    if (sections.length > 0) {
+        const updateActiveSection = () => {
+            const offset = window.innerWidth <= 768 ? 90 : 120;
+            let currentSection = sections[0];
+
+            sections.forEach((section) => {
+                if (window.scrollY + offset >= section.offsetTop) {
+                    currentSection = section;
+                }
+            });
+
+            if (currentSection) {
+                setActiveNavLink(currentSection.id);
+            }
+        };
+
+        updateActiveSection();
+        window.addEventListener('scroll', updateActiveSection, { passive: true });
+
+        if (window.location.hash) {
+            const initialLink = document.querySelector(`[data-section-link="${window.location.hash.replace('#', '')}"]`);
+            if (initialLink) {
+                setTimeout(() => handleSectionNavigation(initialLink), 50);
+            }
+        }
     }
 });
 </script>

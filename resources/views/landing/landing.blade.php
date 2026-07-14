@@ -43,7 +43,7 @@
 </section>
 
 <!-- PROFILE -->
-<section id="about" class="profile">
+<section id="tentang" class="profile">
     <h2 class="section-title animate fade-up" style="font-size:24px;">Profile Nuist</h2>
     <div class="container profile-flex animate fade-up delay-1" style="width: 100%;">
         <div class="profile-content" style="text-align: center;">
@@ -77,6 +77,69 @@
             <h1 id="count3" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;">{{ $countAdmin }}</h1>
             <p>Admin Operator Aktif</p>
         </div>
+    </div>
+</section>
+
+<!-- KONTAK -->
+<section id="kontak" class="contact-section">
+    <div class="container">
+        <h2 class="section-title animate fade-up" style="font-size: 24px;">Kontak Kami</h2>
+        <p class="section-description animate fade-up delay-1">Hubungi tim kami untuk informasi lebih lanjut seputar layanan, kerja sama, dan pengelolaan ekosistem Nuist.</p>
+
+        @if(session('success'))
+            <div class="contact-alert success animate fade-up">{{ session('success') }}</div>
+        @endif
+
+        @if(session('error'))
+            <div class="contact-alert error animate fade-up">{{ session('error') }}</div>
+        @endif
+
+        @if($errors->any())
+            <div class="contact-alert error animate fade-up">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <div class="contact-grid">
+            <div class="contact-card animate fade-up delay-1">
+                <h3>Alamat</h3>
+                <p>Lembaga Pengembangan Madrasah Nahdlatul Ulama PWNU DIY</p>
+                <p>Daerah Istimewa Yogyakarta</p>
+            </div>
+            <div class="contact-card animate fade-up delay-2">
+                <h3>Kontak</h3>
+                <p><a href="https://wa.me/6281125055675?text=Halo%20Admin%20Nuist%20LPMNU%20PWNU%20DIY" target="_blank" rel="noopener">WhatsApp Admin</a></p>
+                <p><a href="https://lpmnudiy.id/" target="_blank" rel="noopener">Website Resmi</a></p>
+                <p><a href="https://www.instagram.com/maarifnudiy/profilecard/?igsh=MTZzOXVzOHYyNHlibQ%3D%3D" target="_blank" rel="noopener">Instagram</a></p>
+            </div>
+            <div class="contact-card animate fade-up delay-3">
+                <h3>Dukungan</h3>
+                <p>Butuh bantuan penggunaan sistem, kerja sama implementasi, atau informasi layanan digital madrasah.</p>
+            </div>
+        </div>
+
+        <form action="{{ route('landing.kontak.submit') }}" method="POST" class="contact-form animate fade-up delay-2">
+            @csrf
+            <div class="contact-form-grid">
+                <div class="contact-field">
+                    <label for="landing-name">Nama Lengkap</label>
+                    <input type="text" id="landing-name" name="name" value="{{ old('name') }}" required>
+                </div>
+                <div class="contact-field">
+                    <label for="landing-email">Email</label>
+                    <input type="email" id="landing-email" name="email" value="{{ old('email') }}" required>
+                </div>
+            </div>
+            <div class="contact-field">
+                <label for="landing-subject">Subjek</label>
+                <input type="text" id="landing-subject" name="subject" value="{{ old('subject') }}" required>
+            </div>
+            <div class="contact-field">
+                <label for="landing-message">Pesan</label>
+                <textarea id="landing-message" name="message" rows="5" required>{{ old('message') }}</textarea>
+            </div>
+            <button type="submit" class="contact-submit">Kirim Pesan</button>
+        </form>
     </div>
 </section>
 
@@ -252,6 +315,127 @@
         margin: 0 auto 80px;
         line-height: 1.6;
         opacity: 0.9;
+    }
+
+    .contact-section {
+        padding: 100px 0 40px;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .contact-card {
+        background: #f8fafc;
+        border: 1px solid rgba(0, 75, 76, 0.08);
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.06);
+    }
+
+    .contact-card h3 {
+        font-size: 20px;
+        color: #004b4c;
+        margin-bottom: 14px;
+    }
+
+    .contact-card p,
+    .contact-card a {
+        font-size: 15px;
+        color: #5f6b76;
+        line-height: 1.7;
+        text-decoration: none;
+    }
+
+    .contact-card a:hover {
+        color: #004b4c;
+    }
+
+    .contact-alert {
+        max-width: 900px;
+        margin: 0 auto 24px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        font-size: 14px;
+    }
+
+    .contact-alert.success {
+        background: #ecfdf3;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    .contact-alert.error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+    .contact-form {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 32px;
+        border-radius: 28px;
+        background: #ffffff;
+        border: 1px solid rgba(0, 75, 76, 0.08);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+    }
+
+    .contact-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .contact-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .contact-field label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #004b4c;
+    }
+
+    .contact-field input,
+    .contact-field textarea {
+        width: 100%;
+        border: 1px solid rgba(0, 75, 76, 0.14);
+        border-radius: 16px;
+        padding: 14px 16px;
+        font-size: 14px;
+        color: #334155;
+        background: #ffffff;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .contact-field input:focus,
+    .contact-field textarea:focus {
+        border-color: #0f766e;
+        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+    }
+
+    .contact-field textarea {
+        resize: vertical;
+        min-height: 140px;
+    }
+
+    .contact-submit {
+        border: none;
+        border-radius: 999px;
+        padding: 12px 22px;
+        background: linear-gradient(135deg, #004b4c, #006666);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
     }
 
     .section-title {
@@ -602,6 +786,15 @@
             padding: 80px 0;
         }
 
+        .contact-grid,
+        .contact-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-form {
+            padding: 24px 18px;
+        }
+
         .section-title {
             font-size: 20px;
             margin-bottom: 40px;
@@ -786,4 +979,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-
