@@ -605,6 +605,19 @@ async function navigateWithoutReload(url, options = {}) {
         document.open();
         document.write(html);
         document.close();
+
+        const reinitializeNavbar = function() {
+            if (typeof window.__initLandingNavbar === 'function') {
+                window.__initLandingNavbar();
+            }
+
+            if (typeof window.__applyNavbarScrollState === 'function') {
+                window.__applyNavbarScrollState();
+            }
+        };
+
+        setTimeout(reinitializeNavbar, 0);
+        requestAnimationFrame(reinitializeNavbar);
     } catch (error) {
         window.location.href = targetUrl;
     }
@@ -660,6 +673,8 @@ if (window.__landingNavbarPageShowHandler) {
 
 window.__landingNavbarScrollHandler = handleNavbarScrollEffect;
 window.__landingNavbarPageShowHandler = applyNavbarScrollState;
+window.__applyNavbarScrollState = applyNavbarScrollState;
+window.__initLandingNavbar = initLandingNavbar;
 window.addEventListener('scroll', window.__landingNavbarScrollHandler, { passive: true });
 window.addEventListener('pageshow', window.__landingNavbarPageShowHandler);
 
