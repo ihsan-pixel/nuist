@@ -59,18 +59,21 @@
     box-shadow: var(--landing-shadow-medium);
 }
 
-.landing-navbar .nav-flex {
+.landing-navbar > .container.nav-flex {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 70px;
     width: min(1400px, calc(100% - 48px));
-    max-width: 1400px;
+    max-width: none;
     margin: 0 auto;
     padding: 0;
+    padding-left: 0;
+    padding-right: 0;
+    box-sizing: border-box;
 }
 
-.landing-navbar.is-full-width .nav-flex {
+.landing-navbar.is-full-width > .container.nav-flex {
     width: min(1400px, calc(100% - 48px));
 }
 
