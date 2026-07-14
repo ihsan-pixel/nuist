@@ -173,6 +173,14 @@
     .produk-anchor-wrap {
         display: flex;
         justify-content: center;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .produk-anchor-wrap::-webkit-scrollbar {
+        display: none;
     }
 
     .content-card,
@@ -218,11 +226,12 @@
 
     .produk-anchor-list {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 10px;
         margin: 0;
         padding: 0;
         list-style: none;
+        white-space: nowrap;
     }
 
     .produk-anchor-list a {
