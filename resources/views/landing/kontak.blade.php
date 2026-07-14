@@ -3,90 +3,7 @@
 @section('title', 'Kontak Kami - NUIST')
 @section('description', 'Hubungi LPMNU PWNU DIY untuk informasi lebih lanjut tentang pendidikan madrasah.')
 
-@section('content')
-@include('landing.navbar')
-
-<!-- HERO -->
-<section id="hero" class="hero">
-    <div class="container">
-        <h1 class="hero-title">Kontak Kami</h1>
-        <h1 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h1>
-        <p>Hubungi kami untuk informasi lebih lanjut tentang pendidikan madrasah dan layanan kami.</p>
-    </div>
-</section>
-
-<!-- KONTAK CONTENT -->
-<section id="kontak-content" class="kontak-content">
-    <div class="container">
-        <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Informasi Kontak</h2>
-
-        <div class="content-grid">
-            <div class="content-card animate fade-up">
-                <h3>Alamat</h3>
-                <p>Lembaga Pengembangan Madrasah Nahdlatul Ulama<br>
-                Pengurus Wilayah Nahdlatul Ulama Daerah Istimewa Yogyakarta<br>
-                Jl. Malioboro No. 123, Yogyakarta 55271</p>
-            </div>
-
-            <div class="content-card animate fade-up delay-1">
-                <h3>Kontak</h3>
-                <p><strong>Telepon:</strong> (0274) 123-4567<br>
-                <strong>Email:</strong> info@lpmnu-pwnu-diy.or.id<br>
-                <strong>Website:</strong> www.lpmnu-pwnu-diy.or.id</p>
-            </div>
-
-            <div class="content-card animate fade-up delay-2">
-                <h3>Jam Operasional</h3>
-                <p><strong>Senin - Kamis:</strong> 08:00 - 16:00 WIB<br>
-                <strong>Jumat:</strong> 08:00 - 15:00 WIB<br>
-                <strong>Sabtu - Minggu:</strong> Tutup</p>
-            </div>
-
-            <div class="content-card animate fade-up">
-                <h3>Media Sosial</h3>
-                <p>Ikuti kami di media sosial untuk mendapatkan informasi terbaru tentang kegiatan dan program pendidikan madrasah:</p>
-                <ul>
-                    <li>Facebook: @LPMNUPWNUDIY</li>
-                    <li>Instagram: @lpmnu_pwnu_diy</li>
-                    <li>Twitter: @LPMNU_PWNU_DIY</li>
-                    <li>YouTube: LPMNU PWNU DIY Official</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- CONTACT FORM -->
-        <div class="contact-form-section animate fade-up">
-            <h3 class="form-title">Kirim Pesan</h3>
-            <form action="{{ route('landing.kontak.submit') }}" method="POST" class="contact-form">
-                @csrf
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name">Nama Lengkap</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="subject">Subjek</label>
-                    <input type="text" id="subject" name="subject" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Pesan</label>
-                    <textarea id="message" name="message" rows="5" required></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Kirim Pesan</button>
-            </form>
-        </div>
-    </div>
-</section>
-
-@include('landing.footer')
-
-@endsection
-
+@section('css')
 <style>
     * {
         margin: 0;
@@ -107,7 +24,6 @@
         padding: 0 20px;
     }
 
-    /* HERO */
     .hero {
         padding: 100px 20px;
         color: white;
@@ -137,7 +53,7 @@
         font-size: 48px;
         font-weight: 700;
         margin-bottom: 20px;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         color: white;
     }
 
@@ -155,7 +71,6 @@
         margin-right: auto;
     }
 
-    /* KONTAK CONTENT */
     .kontak-content {
         padding: 80px 0;
         background: #f8fafc;
@@ -172,14 +87,14 @@
     .content-card {
         background: white;
         border-radius: 16px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         padding: 30px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .content-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
 
     .content-card h3 {
@@ -191,16 +106,14 @@
         border-bottom: 3px solid #eda711;
     }
 
-    .content-card p {
+    .content-card p,
+    .content-card ul {
         color: #6b7280;
         font-size: 16px;
         line-height: 1.7;
     }
 
     .content-card ul {
-        color: #6b7280;
-        font-size: 16px;
-        line-height: 1.7;
         padding-left: 20px;
     }
 
@@ -208,13 +121,12 @@
         margin-bottom: 8px;
     }
 
-    /* CONTACT FORM */
     .contact-form-section {
         max-width: 800px;
         margin: 0 auto;
         background: white;
         border-radius: 16px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         padding: 40px;
     }
 
@@ -311,7 +223,6 @@
         left: 0;
     }
 
-    /* ANIMATION */
     .animate {
         opacity: 0;
         transform: translateY(30px);
@@ -335,7 +246,6 @@
         transition-delay: 0.4s;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
         .hero {
             padding: 80px 20px;
@@ -378,107 +288,118 @@
             margin-bottom: 40px;
         }
     }
-
-    /* Custom Cursor Effect */
-    .cursor-small {
-        position: fixed;
-        width: 10px;
-        height: 10px;
-        background-color: #00ff00;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        transition: transform 0.1s ease;
-    }
-
-    .cursor-large {
-        position: fixed;
-        width: 30px;
-        height: 30px;
-        background-color: #00ff88;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9998;
-        transition: transform 0.15s ease;
-        opacity: 0.5;
-    }
 </style>
+@endsection
 
+@section('content')
+@include('landing.navbar')
+
+<section id="hero" class="hero">
+    <div class="container">
+        <h1 class="hero-title">Kontak Kami</h1>
+        <h1 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h1>
+        <p>Hubungi kami untuk informasi lebih lanjut tentang pendidikan madrasah dan layanan kami.</p>
+    </div>
+</section>
+
+<section id="kontak-content" class="kontak-content">
+    <div class="container">
+        <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Informasi Kontak</h2>
+
+        <div class="content-grid">
+            <div class="content-card animate fade-up">
+                <h3>Alamat</h3>
+                <p>Lembaga Pengembangan Madrasah Nahdlatul Ulama<br>
+                Pengurus Wilayah Nahdlatul Ulama Daerah Istimewa Yogyakarta<br>
+                Jl. Malioboro No. 123, Yogyakarta 55271</p>
+            </div>
+
+            <div class="content-card animate fade-up delay-1">
+                <h3>Kontak</h3>
+                <p><strong>Telepon:</strong> (0274) 123-4567<br>
+                <strong>Email:</strong> info@lpmnu-pwnu-diy.or.id<br>
+                <strong>Website:</strong> www.lpmnu-pwnu-diy.or.id</p>
+            </div>
+
+            <div class="content-card animate fade-up delay-2">
+                <h3>Jam Operasional</h3>
+                <p><strong>Senin - Kamis:</strong> 08:00 - 16:00 WIB<br>
+                <strong>Jumat:</strong> 08:00 - 15:00 WIB<br>
+                <strong>Sabtu - Minggu:</strong> Tutup</p>
+            </div>
+
+            <div class="content-card animate fade-up">
+                <h3>Media Sosial</h3>
+                <p>Ikuti kami di media sosial untuk mendapatkan informasi terbaru tentang kegiatan dan program pendidikan madrasah:</p>
+                <ul>
+                    <li>Facebook: @LPMNUPWNUDIY</li>
+                    <li>Instagram: @lpmnu_pwnu_diy</li>
+                    <li>Twitter: @LPMNU_PWNU_DIY</li>
+                    <li>YouTube: LPMNU PWNU DIY Official</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="contact-form-section animate fade-up">
+            <h3 class="form-title">Kirim Pesan</h3>
+            <form action="{{ route('landing.kontak.submit') }}" method="POST" class="contact-form">
+                @csrf
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Nama Lengkap</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subjek</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Pesan</label>
+                    <textarea id="message" name="message" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Kirim Pesan</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+@include('landing.footer')
+@endsection
+
+@section('scripts')
 <script>
-// Section active on scroll and animation trigger
 document.addEventListener('DOMContentLoaded', function () {
     const animateElements = document.querySelectorAll('.animate');
-    if (animateElements.length > 0) {
-        const animateObserver = new IntersectionObserver(
-            (entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('show');
-                    }
-                });
-            },
-            {
-                threshold: 0.15
-            }
-        );
 
-        animateElements.forEach(el => {
-            animateObserver.observe(el);
-
-            // Tampilkan langsung kalau sudah terlihat
-            if (el.getBoundingClientRect().top < window.innerHeight) {
-                el.classList.add('show');
-            }
-        });
+    if (animateElements.length === 0) {
+        return;
     }
 
-    // Custom Cursor Effect
-    const cursorSmall = document.createElement('div');
-    cursorSmall.className = 'cursor-small';
-    document.body.appendChild(cursorSmall);
+    const animateObserver = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                }
+            });
+        },
+        {
+            threshold: 0.15
+        }
+    );
 
-    const cursorLarge = document.createElement('div');
-    cursorLarge.className = 'cursor-large';
-    document.body.appendChild(cursorLarge);
+    animateElements.forEach((el) => {
+        animateObserver.observe(el);
 
-    let mouseX = 0;
-    let mouseY = 0;
-    let cursorSmallX = 0;
-    let cursorSmallY = 0;
-    let cursorLargeX = 0;
-    let cursorLargeY = 0;
-
-    // Track mouse movement
-    document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+        if (el.getBoundingClientRect().top < window.innerHeight) {
+            el.classList.add('show');
+        }
     });
-
-    // Animate cursor positions
-    function animateCursor() {
-        // Smooth follow for small cursor
-        cursorSmallX += (mouseX - cursorSmallX) * 0.2;
-        cursorSmallY += (mouseY - cursorSmallY) * 0.2;
-
-        // Slower follow for large cursor
-        cursorLargeX += (mouseX - cursorLargeX) * 0.1;
-        cursorLargeY += (mouseY - cursorLargeY) * 0.1;
-
-        cursorSmall.style.left = cursorSmallX - 5 + 'px';
-        cursorSmall.style.top = cursorSmallY - 5 + 'px';
-
-        cursorLarge.style.left = cursorLargeX - 15 + 'px';
-        cursorLarge.style.top = cursorLargeY - 15 + 'px';
-
-        requestAnimationFrame(animateCursor);
-    }
-
-    animateCursor();
-
-    // Hide cursors on mobile devices
-    if ('ontouchstart' in window) {
-        cursorSmall.style.display = 'none';
-        cursorLarge.style.display = 'none';
-    }
 });
 </script>
+@endsection
