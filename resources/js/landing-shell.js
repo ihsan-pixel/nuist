@@ -359,6 +359,8 @@ class LandingNavigation {
 
     scrollToPageTop() {
         window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
         this.applyNavbarScrollState();
         this.updateBackToTop();
     }
@@ -382,6 +384,10 @@ class LandingNavigation {
         this.abortController = new AbortController();
         const requestId = ++this.currentRequestId;
         const restoreScroll = options.restoreScroll || { x: 0, y: 0 };
+
+        if (!options.popstate) {
+            this.scrollToPageTop();
+        }
 
         this.showLoader();
         this.announce('Membuka halaman...');
@@ -417,6 +423,7 @@ class LandingNavigation {
                 window.scrollTo(restoreScroll.x, restoreScroll.y);
             } else {
                 this.scrollToPageTop();
+                window.requestAnimationFrame(() => this.scrollToPageTop());
             }
 
             this.main.focus({ preventScroll: true });
