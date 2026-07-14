@@ -141,9 +141,10 @@
         align-items: center;
         justify-content: center;
         text-align: center;
+        overflow: hidden;
     }
 
-    /* .hero::before {
+    .hero::before {
         content: '';
         position: absolute;
         inset: 0;
@@ -152,7 +153,12 @@
             linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
         background-size: 50px 50px;
         pointer-events: none;
-    } */
+    }
+
+    .hero .container {
+        position: relative;
+        z-index: 1;
+    }
 
     .hero h1 {
         font-size: 56px;
@@ -228,7 +234,7 @@
         color: white;
     }
 
-    /* .features::before {
+    .features::before {
         content: '';
         position: absolute;
         inset: 0;
@@ -237,7 +243,12 @@
             linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
         background-size: 50px 50px;
         pointer-events: none;
-    } */
+    }
+
+    .features > * {
+        position: relative;
+        z-index: 1;
+    }
 
     .section-description {
         text-align: center;
