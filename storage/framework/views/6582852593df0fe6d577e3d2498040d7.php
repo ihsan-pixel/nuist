@@ -510,6 +510,12 @@
                     >
                         <i class="bx bx-spreadsheet me-1"></i>Export Excel Upload Sekolah
                     </a>
+                    <a
+                        href="<?php echo e(route('data-sekolah.data-siswa.export-complete', request()->query())); ?>"
+                        class="btn btn-success btn-sm"
+                    >
+                        <i class="bx bx-spreadsheet me-1"></i>Export Excel Data Siswa Lengkap
+                    </a>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin_spp'): ?>
                     <button

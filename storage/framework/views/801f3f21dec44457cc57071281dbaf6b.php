@@ -1,4 +1,4 @@
-<style>
+<style data-landing-page-style>
     * {
         margin: 0;
         padding: 0;
@@ -78,6 +78,7 @@
         margin: 0 auto;
         border-radius: 16px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        background: linear-gradient(135deg, #eef6f2, #f8fafc);
     }
 
     /* SEKOLAH LIST */
@@ -143,6 +144,8 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         overflow: hidden;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        content-visibility: auto;
+        contain-intrinsic-size: 260px;
     }
 
     .school-card:hover {
@@ -216,7 +219,7 @@
     .animate {
         opacity: 0;
         transform: translateY(30px);
-        transition: all 0.8s ease;
+        transition: opacity 0.8s ease, transform 0.8s ease;
     }
 
     .animate.show {
@@ -271,31 +274,5 @@
         }
     }
 
-    /* Custom Cursor Effect */
-    .cursor-small {
-        position: fixed;
-        width: 10px;
-        height: 10px;
-        background-color: #00ff00;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        transition: transform 0.1s ease;
-    }
-
-    .cursor-large {
-        position: fixed;
-        width: 30px;
-        height: 30px;
-        background-color: #00ff88;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9998;
-        transition: transform 0.15s ease;
-        opacity: 0.5;
-    }
 </style>
-
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/landing/_sekolah_styles.blade.php ENDPATH**/ ?>

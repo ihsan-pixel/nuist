@@ -36,8 +36,8 @@
     vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 8px 24px 7px 12px;
-    width: 92px;
+    padding: 4px 24px 7px 44px;
+    width: 108px;
 }
 .sk-letterhead-text {
     padding-left: 26px;
@@ -47,41 +47,48 @@
     color: #2f6f45;
     font-family: Arial, sans-serif;
     font-weight: 700;
-    height: 60px;
-    margin-left: auto;
-    margin-top: 2px;
+    height: auto;
+    margin-left: 6px;
+    margin-top: 6px;
     text-align: center;
-    width: 72px;
+    width: 92px;
+}
+.sk-logo-box img {
+    display: block;
+    height: 108px !important;
+    margin-top: 0 !important;
+    max-width: 180px;
+    object-fit: contain;
 }
 .sk-logo-mark {
     background: #82c39a;
     color: #fff;
-    font-size: 15px;
-    height: 74px;
+    font-size: 16px;
+    height: 86px;
     letter-spacing: 3px;
     line-height: 1.15;
-    padding-top: 12px;
+    padding-top: 10px;
 }
 .sk-logo-name {
-    font-size: 15px;
+    font-size: 14px;
     letter-spacing: 1px;
-    padding-top: 5px;
+    padding-top: 4px;
 }
 .sk-org-title {
     color: #000;
     font-family: Cambria;
     font-size: 24pt;
     font-weight: 700;
-    line-height: 1.14;
-    padding: 4px 8px 0 8px;
+    line-height: 0.96;
+    padding: 0 8px;
 }
 .sk-org-subtitle {
     color: #000;
     font-family: Cambria;
     font-size: 17pt;
     font-weight: 700;
-    line-height: 1.12;
-    padding: 2px 8px 0 8px;
+    line-height: 0.95;
+    padding: 0 8px;
 }
 .sk-org-meta {
     color: #000;
@@ -89,6 +96,9 @@
     font-size: 10.5pt;
     line-height: 1.2;
     padding: 4px 8px 0 8px;
+}
+.sk-email-link {
+    color: #1d4ed8;
 }
 .sk-green-line {
     display: flex;
@@ -139,7 +149,7 @@
 }
 .sk-decision {
     font-weight: 700;
-    margin: 20px 0 9px 0;
+    margin: 10px 0 9px 0;
     text-align: center;
 }
 .sk-person-table {
@@ -160,11 +170,30 @@
 .sk-person-table .sk-colon {
     width: 5px;
 }
+.sk-person-value {
+    padding-left: 8px;
+}
+.sk-mengingat-list {
+    margin: 0;
+    padding-left: 22px;
+}
+.sk-mengingat-list li {
+    margin: 0;
+    padding-left: 0;
+}
+.sk-kedua-content,
+.sk-ketiga-content {
+    line-height: 1.32;
+}
 .sk-signature {
     line-height: 1.02;
     margin-left: auto;
     margin-top: 0;
     width: 290px;
+}
+.sk-signature-role {
+    display: block;
+    padding-top: 14px;
 }
 .sk-signature-name {
     font-weight: 700;
@@ -216,7 +245,7 @@
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 2</div>
                 <div class="sk-org-meta">
                     Jl. Ibu Ruswo Nomor 60 Prawirodirjan, Gondomanan, Yogyakarta. 55121<br>
-                    Website: https://lpmnudiy.id email: sekretariat@lpmnudiy.id
+                    Website: <span class="sk-email-link">https://lpmnudiy.id</span> email: <span class="sk-email-link">sekretariat@lpmnudiy.id</span>
                 </div>
             </td>
         </tr>
@@ -242,10 +271,12 @@
             <td class="sk-label">Mengingat</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
-                1. Permendiknas Nomor 16 tahun 2007;<br>
-                2. Permendikbud Nomor 25 Tahun 2024;<br>
-                3. Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;<br>
-                4. Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.
+                <ol class="sk-mengingat-list">
+                    <li>Permendiknas Nomor 16 tahun 2007;</li>
+                    <li>Permendikbud Nomor 25 Tahun 2024;</li>
+                    <li>Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;</li>
+                    <li>Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.</li>
+                </ol>
             </td>
         </tr>
         <tr>
@@ -269,16 +300,16 @@
             <td class="sk-content-cell">
                 Guru Tetap Yayasan tersebut di bawah ini:
                 <table class="sk-person-table">
-                    <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td>@{{nama_pegawai}}</td></tr>
-                    <tr><td class="sk-person-no">2.</td><td class="sk-person-label">Tempat, tanggal lahir</td><td class="sk-colon">:</td><td>@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
-                    <tr><td class="sk-person-no">3.</td><td class="sk-person-label">NUPTK</td><td class="sk-colon">:</td><td>@{{nuptk}}</td></tr>
-                    <tr><td class="sk-person-no">4.</td><td class="sk-person-label">Kartanu</td><td class="sk-colon">:</td><td>@{{nomor_kartanu}}</td></tr>
-                    <tr><td class="sk-person-no">5.</td><td class="sk-person-label">NIP Ma'arif baru</td><td class="sk-colon">:</td><td>@{{nip_maarif}}</td></tr>
-                    <tr><td class="sk-person-no">6.</td><td class="sk-person-label">TMT pertama</td><td class="sk-colon">:</td><td>@{{tmt_pertama}}</td></tr>
-                    <tr><td class="sk-person-no">7.</td><td class="sk-person-label">Pendidikan, tahun lulus</td><td class="sk-colon">:</td><td>@{{pendidikan_terakhir}}, @{{tahun_lulus}}</td></tr>
-                    <tr><td class="sk-person-no">8.</td><td class="sk-person-label">Program studi</td><td class="sk-colon">:</td><td>@{{program_studi}}</td></tr>
-                    <tr><td class="sk-person-no">9.</td><td class="sk-person-label">Masa kerja</td><td class="sk-colon">:</td><td>@{{masa_kerja}}</td></tr>
-                    <tr><td class="sk-person-no">10.</td><td class="sk-person-label">Penilaian perilaku kerja</td><td class="sk-colon">:</td><td>@{{penilaian_kinerja}}</td></tr>
+                    <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nama_pegawai}}</td></tr>
+                    <tr><td class="sk-person-no">2.</td><td class="sk-person-label">Tempat, tanggal lahir</td><td class="sk-colon">:</td><td class="sk-person-value">@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
+                    <tr><td class="sk-person-no">3.</td><td class="sk-person-label">NUPTK</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nuptk}}</td></tr>
+                    <tr><td class="sk-person-no">4.</td><td class="sk-person-label">Kartanu</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nomor_kartanu}}</td></tr>
+                    <tr><td class="sk-person-no">5.</td><td class="sk-person-label">NIP Ma'arif baru</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nip_maarif}}</td></tr>
+                    <tr><td class="sk-person-no">6.</td><td class="sk-person-label">TMT pertama</td><td class="sk-colon">:</td><td class="sk-person-value">@{{tmt_pertama}}</td></tr>
+                    <tr><td class="sk-person-no">7.</td><td class="sk-person-label">Pendidikan, tahun lulus</td><td class="sk-colon">:</td><td class="sk-person-value">@{{pendidikan_terakhir}}, @{{tahun_lulus}}</td></tr>
+                    <tr><td class="sk-person-no">8.</td><td class="sk-person-label">Program studi</td><td class="sk-colon">:</td><td class="sk-person-value">@{{program_studi}}</td></tr>
+                    <tr><td class="sk-person-no">9.</td><td class="sk-person-label">Masa kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{masa_kerja}}</td></tr>
+                    <tr><td class="sk-person-no">10.</td><td class="sk-person-label">Penilaian perilaku kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{penilaian_kinerja}}</td></tr>
                 </table>
                 diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.
             </td>
@@ -286,12 +317,12 @@
         <tr>
             <td class="sk-label">Kedua</td>
             <td class="sk-colon">:</td>
-            <td class="sk-content-cell">Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
+            <td class="sk-content-cell sk-kedua-content">Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
         </tr>
         <tr>
             <td class="sk-label">Ketiga</td>
             <td class="sk-colon">:</td>
-            <td class="sk-content-cell">Asli Surat Keputusan ini diberikan kepada yang bersangkutan.</td>
+            <td class="sk-content-cell sk-ketiga-content">Asli Surat Keputusan ini diberikan kepada yang bersangkutan.</td>
         </tr>
     </table>
 
@@ -308,9 +339,8 @@
             <td class="sk-footer-signature-cell">
                 <div class="sk-signature">
                     Ditetapkan di&nbsp;&nbsp;: Yogyakarta<br>
-                    Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}<br>
-                    @{{jabatan_penandatangan}}<br>
-                    Ketua,
+                    Pada Tanggal&nbsp;&nbsp;: @{{tanggal_terbit}}
+                    <div class="sk-signature-role">@{{jabatan_penandatangan}}<br>Ketua,</div>
                     <div class="sk-signature-name">@{{nama_penandatangan}}</div>
                 </div>
             </td>
@@ -329,7 +359,7 @@ HTML;
         '@{{gelar}}' => 'S.Pd.',
         '@{{tempat_lahir}}' => 'Bantul',
         '@{{tanggal_lahir}}' => '12 Januari 1990',
-        '@{{nip_maarif}}' => 'MIF.2026.001',
+        '@{{nip_maarif}}' => '2026001',
         '@{{nuptk}}' => '1234567890123456',
         '@{{nomor_kartanu}}' => 'NU.34.02.001',
         '@{{tmt_pertama}}' => '01 Juli 2020',
@@ -338,7 +368,7 @@ HTML;
         '@{{tahun_lulus}}' => '2015',
         '@{{program_studi}}' => 'Pendidikan Teknik Informatika',
         '@{{mapel_tugas_yang_diampu}}' => 'XXX',
-        '@{{penilaian_kinerja}}' => 'Baik',
+        '@{{penilaian_kinerja}}' => '60,00',
         '@{{keterangan_sk_yayasan}}' => 'Perpanjangan SK',
         '@{{jabatan}}' => 'Guru',
         '@{{status_kepegawaian}}' => 'Guru Tetap Yayasan',
@@ -358,7 +388,7 @@ HTML;
         '@{{source_gelar}}' => 'S.Pd.',
         '@{{source_tempat_lahir}}' => 'Bantul',
         '@{{source_tanggal_lahir}}' => '12 Januari 1990',
-        '@{{source_nip_maarif}}' => 'MIF.2026.001',
+        '@{{source_nip_maarif}}' => '2026001',
         '@{{source_nuptk}}' => '1234567890123456',
         '@{{source_nomor_kartanu}}' => 'NU.34.02.001',
         '@{{source_tmt_pertama}}' => '01 Juli 2020',
@@ -367,7 +397,7 @@ HTML;
         '@{{source_tahun_lulus}}' => '2015',
         '@{{source_program_studi}}' => 'Pendidikan Teknik Informatika',
         '@{{source_mapel_tugas}}' => 'XXX',
-        '@{{source_penilaian_kinerja}}' => 'Baik',
+        '@{{source_penilaian_kinerja}}' => '60,00',
         '@{{source_keterangan}}' => 'Perpanjangan SK',
     ];
 
@@ -458,10 +488,10 @@ HTML;
         'menimbangContentFontSize' => 13.5,
         'mengingatLabelText' => 'Mengingat',
         'mengingatLabelFontSize' => 13.5,
-        'mengingat1Text' => '1. Permendiknas Nomor 16 tahun 2007;',
-        'mengingat2Text' => '2. Permendikbud Nomor 25 Tahun 2024;',
-        'mengingat3Text' => "3. Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;",
-        'mengingat4Text' => "4. Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.",
+        'mengingat1Text' => 'Permendiknas Nomor 16 tahun 2007;',
+        'mengingat2Text' => 'Permendikbud Nomor 25 Tahun 2024;',
+        'mengingat3Text' => "Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;",
+        'mengingat4Text' => "Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.",
         'mengingatContentFontSize' => 13.5,
         'memperhatikanLabelText' => 'Memperhatikan',
         'memperhatikanLabelFontSize' => 13.5,
@@ -514,6 +544,9 @@ HTML;
         'signaturePrefixText' => 'Ketua,',
         'signatureNameText' => '@{{nama_penandatangan}}',
         'signatureNameFontSize' => 13.5,
+        'signatureBlockSpacing' => 20,
+        'signatureNameSpacing' => 54,
+        'signatureToCopySpacing' => 12,
         'copyTitleText' => 'Tembusan Yth:',
         'copyFontSize' => 13.5,
         'copy1Text' => '1. Kepala Dinas Pendidikan, Pemuda, dan Olahraga DIY',
@@ -546,10 +579,10 @@ HTML;
                 ['key' => 'menimbangContentText', 'label' => 'Isi Menimbang', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'menimbangContentFontSize'],
                 ['key' => 'menimbangContent2Text', 'label' => 'Isi Menimbang 2', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'menimbangContentFontSize'],
                 ['key' => 'mengingatLabelText', 'label' => 'Label Mengingat', 'type' => 'text', 'fontKey' => 'mengingatLabelFontSize'],
-                ['key' => 'mengingat1Text', 'label' => 'Mengingat 1', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
-                ['key' => 'mengingat2Text', 'label' => 'Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
-                ['key' => 'mengingat3Text', 'label' => 'Mengingat 3', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
-                ['key' => 'mengingat4Text', 'label' => 'Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize'],
+                ['key' => 'mengingat1Text', 'label' => 'Mengingat 1', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '1.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'mengingat2Text', 'label' => 'Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '2.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'mengingat3Text', 'label' => 'Mengingat 3', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '3.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'mengingat4Text', 'label' => 'Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '4.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'memperhatikanLabelText', 'label' => 'Label Memperhatikan', 'type' => 'text', 'fontKey' => 'memperhatikanLabelFontSize'],
                 ['key' => 'memperhatikanContentText', 'label' => 'Isi Memperhatikan', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'memperhatikanContentFontSize'],
             ],
@@ -601,7 +634,10 @@ HTML;
                 ['key' => 'signatureDateLabelText', 'label' => 'Label Tanggal', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
                 ['key' => 'signatureRoleText', 'label' => 'Jabatan Penandatangan', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
                 ['key' => 'signaturePrefixText', 'label' => 'Sapaan Penandatangan', 'type' => 'text', 'fontKey' => 'signatureFontSize'],
+                ['key' => 'signatureBlockSpacing', 'label' => 'Jarak Bagian Ketiga ke Tanda Tangan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak vertikal antara isi keputusan terakhir dan blok tanda tangan.'],
+                ['key' => 'signatureNameSpacing', 'label' => 'Jarak Teks ke Tanda Tangan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak antara teks di atas tanda tangan dengan nama/tanda tangan.'],
                 ['key' => 'signatureNameText', 'label' => 'Nama Penandatangan', 'type' => 'text', 'fontKey' => 'signatureNameFontSize'],
+                ['key' => 'signatureToCopySpacing', 'label' => 'Jarak Tanda Tangan ke Tembusan (px)', 'type' => 'number', 'min' => 0, 'step' => 1, 'help' => 'Atur jarak vertikal antara blok tanda tangan dan bagian tembusan.'],
                 ['key' => 'copyTitleText', 'label' => 'Judul Tembusan', 'type' => 'text', 'fontKey' => 'copyFontSize'],
                 ['key' => 'copy1Text', 'label' => 'Tembusan 1', 'type' => 'text', 'fontKey' => 'copyFontSize'],
                 ['key' => 'copy2Text', 'label' => 'Tembusan 2', 'type' => 'text', 'fontKey' => 'copyFontSize'],
@@ -1370,6 +1406,18 @@ HTML;
             return escapeHtml(value).replace(/\n/g, '<br>');
         }
 
+        function formatOrgMetaText(value) {
+            return nl2br(value)
+                .replace(
+                    /(https?:\/\/[^\s<]+)/gi,
+                    '<span class="sk-email-link">$1</span>'
+                )
+                .replace(
+                    /([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})/gi,
+                    '<span class="sk-email-link">$1</span>'
+                );
+        }
+
         function formatRichText(value) {
             let formatted = escapeHtml(value).replace(/\n/g, '<br>');
 
@@ -1396,6 +1444,27 @@ HTML;
         function safeFontSize(value, fallback = 13.5) {
             const parsed = Number.parseFloat(value);
             return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+        }
+
+        function safeNumber(value, fallback = 0, min = 0) {
+            const parsed = Number.parseFloat(value);
+            return Number.isFinite(parsed) && parsed >= min ? parsed : fallback;
+        }
+
+        function stripLeadingListMarker(value) {
+            return String(value ?? '').replace(/^\s*\d+[\.\)]\s*/u, '').trim();
+        }
+
+        function normalizeStructuredConfig(config) {
+            const normalized = { ...config };
+
+            ['mengingat1Text', 'mengingat2Text', 'mengingat3Text', 'mengingat4Text'].forEach((key) => {
+                if (Object.prototype.hasOwnProperty.call(normalized, key)) {
+                    normalized[key] = stripLeadingListMarker(normalized[key]);
+                }
+            });
+
+            return normalized;
         }
 
         function encodeMeta(config) {
@@ -1433,7 +1502,7 @@ HTML;
 
         function buildStructuredHtml(config, title, numberText) {
             const logoMarkup = config.logoImageData
-                ? `<img src="${escapeHtml(config.logoImageData)}" alt="Logo Yayasan" style="display:block; height:96px; margin-top:2px; max-width:170px; object-fit:contain;">`
+                ? `<img src="${escapeHtml(config.logoImageData)}" alt="Logo Yayasan" class="sk-logo-image">`
                 : `<div style="color:#94a3b8; font-family:Arial,sans-serif; font-size:12px; padding-top:38px;">Logo</div>`;
             const orgSubtitle1Markup = config.orgSubtitle1Text
                 ? `<div class="sk-org-subtitle" style="font-size:${safeFontSize(config.orgSubtitle1FontSize)}pt;">${nl2br(config.orgSubtitle1Text)}</div>`
@@ -1459,15 +1528,19 @@ HTML;
                         <td class="sk-person-no">${index + 1}.</td>
                         <td class="sk-person-label">${escapeHtml(row.labelText)}</td>
                         <td class="sk-colon">:</td>
-                        <td>${nl2br(row.valueText)}</td>
+                        <td class="sk-person-value">${nl2br(row.valueText)}</td>
                     </tr>
                 `).join('');
 
             const mengingatItems = [1, 2, 3, 4]
-                .map((index) => config[`mengingat${index}Text`])
+                .map((index) => stripLeadingListMarker(config[`mengingat${index}Text`]))
                 .filter(Boolean)
-                .map((item) => nl2br(item))
-                .join('<br>');
+                .map((item) => `<li>${nl2br(item)}</li>`)
+                .join('');
+
+            const mengingatMarkup = mengingatItems
+                ? `<ol class="sk-mengingat-list">${mengingatItems}</ol>`
+                : '';
 
             const copyItems = [1, 2, 3]
                 .map((index) => config[`copy${index}Text`])
@@ -1501,7 +1574,7 @@ HTML;
     width: 100%;
 }
 .sk-letterhead td { vertical-align: top; }
-.sk-logo-cell { padding: 8px 24px 7px 12px; width: 92px; }
+.sk-logo-cell { padding: 4px 24px 7px 44px; width: 108px; }
 .sk-letterhead-text { padding-left: 26px; }
 .sk-logo-box {
     align-items: center;
@@ -1510,26 +1583,27 @@ HTML;
     display: flex;
     font-family: Arial, sans-serif;
     font-weight: 700;
-    height: 60px;
-    justify-content: center;
-    margin-left: auto;
-    margin-top: 2px;
+    height: auto;
+    justify-content: flex-start;
+    margin-left: 6px;
+    margin-top: 6px;
     text-align: center;
-    width: 72px;
+    width: 92px;
 }
+.sk-logo-box img, .sk-logo-image { display: block; height: 108px !important; margin-top: 0 !important; max-width: 180px; object-fit: contain; }
 .sk-org-title {
     color: #000;
     font-family: Cambria;
     font-weight: 700;
-    line-height: 1.14;
-    padding: 4px 8px 0 8px;
+    line-height: 0.96;
+    padding: 0 8px;
 }
 .sk-org-subtitle {
     color: #000;
     font-family: Cambria;
     font-weight: 700;
-    line-height: 1.12;
-    padding: 2px 8px 0 8px;
+    line-height: 0.95;
+    padding: 0 8px;
 }
 .sk-org-meta {
     color: #000;
@@ -1537,6 +1611,7 @@ HTML;
     line-height: 1.2;
     padding: 4px 8px 0 8px;
 }
+.sk-email-link { color: #1d4ed8; }
 .sk-green-line {
     margin: 0 0 20px 0;
 }
@@ -1567,15 +1642,20 @@ HTML;
 .sk-content-cell { padding-left: 7px; text-align: justify; text-justify: inter-word; }
 .sk-label { width: 164px; }
 .sk-colon { text-align: center; width: 9px; }
-.sk-decision { font-weight: 700; margin: 20px 0 9px 0; text-align: center; }
+.sk-decision { font-weight: 700; margin: 10px 0 9px 0; text-align: center; }
 .sk-person-table { margin: 7px 0 9px 0; width: 100%; }
 .sk-person-table td { padding: 0 1px 2px 0; vertical-align: top; }
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
-.sk-signature { line-height: 1.02; margin-left: auto; margin-top: 20px; width: 290px; }
-.sk-signature-name { font-weight: 700; margin-top: 54px; text-decoration: underline; }
-.sk-copy { margin-left: 0; margin-right: 0; margin-top: 12px; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
+.sk-person-value { padding-left: 8px; }
+.sk-mengingat-list { margin: 0; padding-left: 22px; }
+.sk-mengingat-list li { margin: 0; padding-left: 0; }
+.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }
+.sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
+.sk-signature-role { display: block; padding-top: 14px; }
+.sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
+.sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
 .sk-copy-title { text-decoration: underline; }
 </style>
 <div class="sk-full-document" data-sk-full-document="1">
@@ -1590,7 +1670,7 @@ HTML;
                 <div class="sk-org-title" style="font-size:${safeFontSize(config.orgTitleFontSize)}pt;">${nl2br(config.orgTitleText)}</div>
                 ${orgSubtitle1Markup}
                 ${orgSubtitle2Markup}
-                <div class="sk-org-meta" style="font-size:${safeFontSize(config.orgMetaFontSize)}pt;">${nl2br(config.orgMetaText)}</div>
+                <div class="sk-org-meta" style="font-size:${safeFontSize(config.orgMetaFontSize)}pt;">${formatOrgMetaText(config.orgMetaText)}</div>
             </td>
         </tr>
     </table>
@@ -1615,7 +1695,7 @@ HTML;
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">${escapeHtml(config.mengingatLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.mengingatContentFontSize)}pt;">${mengingatItems}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.mengingatContentFontSize)}pt;">${mengingatMarkup}</td>
         </tr>
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">${escapeHtml(config.memperhatikanLabelText)}</td>
@@ -1644,24 +1724,23 @@ HTML;
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.keduaLabelFontSize)}pt;">${escapeHtml(config.keduaLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.keduaLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.keduaContentFontSize)}pt;">${nl2br(config.keduaContentText)}</td>
+            <td class="sk-content-cell sk-kedua-content" style="font-size:${safeFontSize(config.keduaContentFontSize)}pt;">${nl2br(config.keduaContentText)}</td>
         </tr>
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.ketigaLabelFontSize)}pt;">${escapeHtml(config.ketigaLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.ketigaLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.ketigaContentFontSize)}pt;">${nl2br(config.ketigaContentText)}</td>
+            <td class="sk-content-cell sk-ketiga-content" style="font-size:${safeFontSize(config.ketigaContentFontSize)}pt;">${nl2br(config.ketigaContentText)}</td>
         </tr>
     </table>
 
-    <div class="sk-signature" style="font-size:${safeFontSize(config.signatureFontSize)}pt;">
+    <div class="sk-signature" style="font-size:${safeFontSize(config.signatureFontSize)}pt; margin-top:${safeNumber(config.signatureBlockSpacing, defaultTemplateConfig.signatureBlockSpacing, 0)}px;">
         ${escapeHtml(config.signatureLocationLabelText)}&nbsp;&nbsp;: ${nl2br(config.signatureLocationValueText)}<br>
-        ${escapeHtml(config.signatureDateLabelText)}&nbsp;&nbsp;: {{tanggal_terbit}}<br>
-        ${nl2br(config.signatureRoleText)}<br>
-        ${nl2br(config.signaturePrefixText)}
-        <div class="sk-signature-name" style="font-size:${safeFontSize(config.signatureNameFontSize)}pt;">${nl2br(config.signatureNameText)}</div>
+        ${escapeHtml(config.signatureDateLabelText)}&nbsp;&nbsp;: {{tanggal_terbit}}
+        <div class="sk-signature-role">${nl2br(config.signatureRoleText)}<br>${nl2br(config.signaturePrefixText)}</div>
+        <div class="sk-signature-name" style="font-size:${safeFontSize(config.signatureNameFontSize)}pt; margin-top:${safeNumber(config.signatureNameSpacing, defaultTemplateConfig.signatureNameSpacing, 0)}px;">${nl2br(config.signatureNameText)}</div>
     </div>
 
-    <div class="sk-copy" style="font-size:${safeFontSize(config.copyFontSize)}pt;">
+    <div class="sk-copy" style="font-size:${safeFontSize(config.copyFontSize)}pt; margin-top:${safeNumber(config.signatureToCopySpacing, defaultTemplateConfig.signatureToCopySpacing, 0)}px;">
         <div class="sk-copy-title">${nl2br(config.copyTitleText)}</div>
         ${copyItems}
     </div>
@@ -1674,8 +1753,10 @@ HTML;
             const config = { ...defaultTemplateConfig };
 
             editor.querySelectorAll('[data-sk-config-key]').forEach((input) => {
-                config[input.dataset.skConfigKey] = input.type === 'number'
-                    ? safeFontSize(input.value, defaultTemplateConfig[input.dataset.skConfigKey] ?? 13.5)
+                const key = input.dataset.skConfigKey;
+
+                config[key] = input.type === 'number'
+                    ? safeNumber(input.value, defaultTemplateConfig[key] ?? 0, Number(input.min || 0))
                     : input.value;
             });
 
@@ -1713,9 +1794,34 @@ HTML;
                 return imageFieldControl(field, value);
             }
 
-            const inputControl = field.type === 'textarea'
-                ? `<textarea class="form-control" rows="${field.rows || 2}" data-sk-config-key="${field.key}">${escapeHtml(value)}</textarea>`
-                : `<input type="text" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
+            let inputControl = '';
+
+            if (field.type === 'textarea') {
+                inputControl = `<textarea class="form-control" rows="${field.rows || 2}" data-sk-config-key="${field.key}">${escapeHtml(value)}</textarea>`;
+            } else if (field.type === 'number') {
+                inputControl = `<input type="number" step="${escapeHtml(field.step || '1')}" min="${escapeHtml(field.min ?? '0')}" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
+            } else {
+                inputControl = `<input type="text" class="form-control" value="${escapeHtml(value)}" data-sk-config-key="${field.key}">`;
+            }
+
+            if (field.prefix) {
+                inputControl = `
+                    <div class="input-group">
+                        <span class="input-group-text">${escapeHtml(field.prefix)}</span>
+                        ${inputControl}
+                    </div>
+                `;
+            }
+
+            if (!field.fontKey) {
+                return `
+                    <div class="sk-structured-field">
+                        <label class="form-label">${field.label}</label>
+                        ${inputControl}
+                        ${field.help ? `<small class="text-muted d-block mt-2">${field.help}</small>` : ''}
+                    </div>
+                `;
+            }
 
             return `
                 <div class="sk-structured-field">
@@ -1898,8 +2004,9 @@ HTML;
 
         editors.forEach((editor) => {
             const { config, isLegacy } = extractTemplateConfig(editor.querySelector('[data-sk-preview-body]')?.value || '');
-            hydrateStandaloneConfigInputs(editor, config);
-            renderStructuredFields(editor, config, isLegacy);
+            const normalizedConfig = normalizeStructuredConfig(config);
+            hydrateStandaloneConfigInputs(editor, normalizedConfig);
+            renderStructuredFields(editor, normalizedConfig, isLegacy);
             editor.querySelectorAll('[data-sk-config-key]').forEach((input) => {
                 syncDuplicateConfigInputs(editor, input);
             });

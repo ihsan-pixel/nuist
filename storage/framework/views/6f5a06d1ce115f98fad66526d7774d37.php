@@ -1,10 +1,8 @@
-@extends('layouts.master-without-nav')
+<?php $__env->startSection('landing_shell', '1'); ?>
+<?php $__env->startSection('title', 'Produk - NUIST'); ?>
+<?php $__env->startSection('description', 'Ekosistem produk digital NUIST untuk sekolah, tenaga pendidik, dan pengurus.'); ?>
 
-@section('landing_shell', '1')
-@section('title', 'Produk - NUIST')
-@section('description', 'Ekosistem produk digital NUIST untuk sekolah, tenaga pendidik, dan pengurus.')
-
-@section('css')
+<?php $__env->startSection('css'); ?>
 <style data-landing-page-style>
     * {
         box-sizing: border-box;
@@ -524,9 +522,9 @@
         }
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="produk-page landing-product-page" data-landing-page="produk">
     <div class="produk-shell">
         <section class="produk-hero">
@@ -536,7 +534,7 @@
                 <p class="produk-lead">Kumpulan aplikasi dan layanan yang dirancang untuk membantu sekolah, tenaga pendidik, operator, dan pengurus bekerja lebih rapi, cepat, dan terhubung dalam satu ekosistem.</p>
                 <div class="produk-hero-actions">
                     <a href="#produk-list" class="produk-button produk-button-primary">Jelajahi Produk</a>
-                    <a href="{{ route('landing.sekolah') }}" class="produk-button produk-button-secondary" data-nav-ajax="true">Lihat Data Sekolah</a>
+                    <a href="<?php echo e(route('landing.sekolah')); ?>" class="produk-button produk-button-secondary" data-nav-ajax="true">Lihat Data Sekolah</a>
                 </div>
             </div>
 
@@ -548,11 +546,11 @@
 
                 <div class="produk-stat-grid">
                     <div class="produk-stat">
-                        <strong>{{ collect($productGroups)->sum(fn ($group) => count($group['products'])) }}</strong>
+                        <strong><?php echo e(collect($productGroups)->sum(fn ($group) => count($group['products']))); ?></strong>
                         <span>Total produk & layanan</span>
                     </div>
                     <div class="produk-stat">
-                        <strong>{{ collect($productGroups)->sum(fn ($group) => collect($group['products'])->where('status', 'LIVE')->count()) }}</strong>
+                        <strong><?php echo e(collect($productGroups)->sum(fn ($group) => collect($group['products'])->where('status', 'LIVE')->count())); ?></strong>
                         <span>Produk live</span>
                     </div>
                 </div>
@@ -560,59 +558,62 @@
                 <div class="produk-summary-card">
                     <h3>Kelompok Produk</h3>
                     <ul class="produk-anchor-list">
-                        @foreach($productGroups as $index => $group)
-                            <li><a href="#group-{{ $index + 1 }}">{{ $group['title'] }}</a></li>
-                        @endforeach
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $productGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <li><a href="#group-<?php echo e($index + 1); ?>"><?php echo e($group['title']); ?></a></li>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     </ul>
                 </div>
             </div>
         </section>
 
         <section id="produk-list" class="produk-groups">
-            @foreach($productGroups as $index => $group)
-                <section class="produk-group" id="group-{{ $index + 1 }}">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $productGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                <section class="produk-group" id="group-<?php echo e($index + 1); ?>">
                     <div class="produk-group-head">
                         <div>
-                            <span class="produk-group-kicker">Kategori {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
-                            <h2>{{ $group['title'] }}</h2>
-                            <p>{{ $group['description'] }}</p>
+                            <span class="produk-group-kicker">Kategori <?php echo e(str_pad($index + 1, 2, '0', STR_PAD_LEFT)); ?></span>
+                            <h2><?php echo e($group['title']); ?></h2>
+                            <p><?php echo e($group['description']); ?></p>
                         </div>
-                        <div class="produk-group-index">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</div>
+                        <div class="produk-group-index"><?php echo e(str_pad($index + 1, 2, '0', STR_PAD_LEFT)); ?></div>
                     </div>
 
                     <div class="produk-grid">
-                        @foreach($group['products'] as $product)
-                            <article class="produk-card accent-{{ $product['accent'] }}">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $group['products']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <article class="produk-card accent-<?php echo e($product['accent']); ?>">
                                 <div class="produk-card-head">
-                                    <span class="produk-badge {{ $product['status'] === 'LIVE' ? 'live' : 'development' }}">
-                                        {{ $product['status'] }}
+                                    <span class="produk-badge <?php echo e($product['status'] === 'LIVE' ? 'live' : 'development'); ?>">
+                                        <?php echo e($product['status']); ?>
+
                                     </span>
-                                    <span class="produk-icon accent-{{ $product['accent'] }}">
-                                        <i class='bx {{ $product['icon'] }}'></i>
+                                    <span class="produk-icon accent-<?php echo e($product['accent']); ?>">
+                                        <i class='bx <?php echo e($product['icon']); ?>'></i>
                                     </span>
                                 </div>
 
-                                <h3>{{ $product['name'] }}</h3>
-                                <p>{{ $product['description'] }}</p>
+                                <h3><?php echo e($product['name']); ?></h3>
+                                <p><?php echo e($product['description']); ?></p>
 
                                 <div class="produk-card-foot">
-                                    @if($product['link'])
-                                        <a href="{{ $product['link'] }}" class="produk-cta">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($product['link']): ?>
+                                        <a href="<?php echo e($product['link']); ?>" class="produk-cta">
                                             Lihat Selengkapnya
                                             <i class='bx bx-right-arrow-alt'></i>
                                         </a>
-                                    @else
+                                    <?php else: ?>
                                         <span class="produk-cta-disabled">Segera Hadir</span>
-                                    @endif
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                                    <span class="produk-meta">{{ $product['status'] === 'LIVE' ? 'Siap digunakan' : 'Roadmap berikutnya' }}</span>
+                                    <span class="produk-meta"><?php echo e($product['status'] === 'LIVE' ? 'Siap digunakan' : 'Roadmap berikutnya'); ?></span>
                                 </div>
                             </article>
-                        @endforeach
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     </div>
                 </section>
-            @endforeach
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
         </section>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/landing/produk.blade.php ENDPATH**/ ?>

@@ -1,114 +1,109 @@
+<?php $__env->startSection('landing_shell', '1'); ?>
 <?php $__env->startSection('title', 'Home'); ?>
 <?php $__env->startSection('description', 'Sistem Informasi Digital LPMNU PWNU DIY'); ?>
 
 <?php $__env->startSection('content'); ?>
-<?php echo $__env->make('landing.navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<div class="landing-page landing-home-page" data-landing-page="landing">
+    <section id="home" class="hero">
+        <div class="container">
+            <img src="<?php echo e(asset('images/image 1.png')); ?>" alt="Hero Image 1" class="hero-image animate zoom-soft" loading="eager" fetchpriority="high" decoding="async" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
+            <h1 class="hero-title animate fade-up">
+                Nuist - Sistem Informasi Digital
+            </h1>
+            <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">LP. Ma'arif NU PWNU DIY</h1>
+            <p class="animate fade-up delay-2"><?php echo e($landing->content_hero ?? 'Kelola data kelembagaan, aktivitas, sistem informasi dan layanan dalam satu aplikasi yang modern, aman, dan mudah digunakan.'); ?></p>
+             <img src="<?php echo e(asset('images/image 2.png')); ?>" alt="Hero Image 2" class="hero-image animate zoom-soft delay-3" loading="eager" fetchpriority="high" decoding="async" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
+        </div>
+    </section>
 
-<!-- HERO -->
-<section id="home" class="hero">
-    <div class="container">
-        <img src="<?php echo e(asset('images/image 1.png')); ?>" alt="Hero Image 1" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
-        <h1 class="hero-title animate fade-up"">
-            Nuist - Sistem Informasi Digital
-        </h1>
-        <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">LP. Ma'arif NU PWNU DIY</h1>
-        <p class="animate fade-up delay-2"><?php echo e($landing->content_hero ?? 'Kelola data kelembagaan, aktivitas, sistem informasi dan layanan dalam satu aplikasi yang modern, aman, dan mudah digunakan.'); ?></p>
-         <img src="<?php echo e(asset('images/image 2.png')); ?>" alt="Hero Image 2" class="hero-image animate zoom-soft delay-3" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
-    </div>
-</section>
+    <section id="sekolah" class="sekolah">
+            <h2 class="section-title animate fade-up" style="font-size: 24px;">Sekolah/Madrasah dessous naungan kami</h2>
+            <div class="carousel-container animate fade-up delay-1">
+                <div class="carousel-track">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <div class="madrasah-item">
+                            <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>" loading="lazy" decoding="async">
+                            <p><?php echo e($madrasah->name); ?></p>
+                            <p><?php echo e($madrasah->kabupaten); ?></p>
+                        </div>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <div class="madrasah-item">
+                            <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>" loading="lazy" decoding="async">
+                            <p><?php echo e($madrasah->name); ?></p>
+                            <p><?php echo e($madrasah->kabupaten); ?></p>
+                        </div>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                </div>
+            </div>
+    </section>
 
-<!-- SEKOLAH/MADRASAH -->
-<section id="sekolah" class="sekolah">
-        <h2 class="section-title animate fade-up" style="font-size: 24px;">Sekolah/Madrasah dessous naungan kami</h2>
-        <div class="carousel-container animate fade-up delay-1">
-            <div class="carousel-track">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                    <div class="madrasah-item">
-                        <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
-                        <p><?php echo e($madrasah->name); ?></p>
-                        <p><?php echo e($madrasah->kabupaten); ?></p>
-                    </div>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                    <div class="madrasah-item">
-                        <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
-                        <p><?php echo e($madrasah->name); ?></p>
-                        <p><?php echo e($madrasah->kabupaten); ?></p>
-                    </div>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+    <section id="about" class="profile">
+        <h2 class="section-title animate fade-up" style="font-size:24px;">Profile Nuist</h2>
+        <div class="container profile-flex animate fade-up delay-1" style="width: 100%;">
+            <div class="profile-content" style="text-align: center;">
+                <p>Nuist menghadirkan ekosistem aplikasi terintegrasi yang dirancang untuk mendukung pengelolaan administrasi sekolah secara menyeluruh. Melalui Nuist Desktop dan Nuist Mobile, sekolah dapat mengelola data, aktivitas, dan kehadiran secara terpusat, akurat, serta mudah diakses oleh administrator, tenaga pendidik, dan kepala sekolah dalam satu sistem yang saling terhubung.</p>
             </div>
         </div>
-</section>
+        <div class="container profile-flex animate fade-up delay-2" style="margin-top: 50px;">
+                <img src="<?php echo e(asset('images/image 3.png')); ?>" alt="Profile Image 1" class="hero-image animate fade-left delay-1" loading="lazy" decoding="async" style="height: 230px; margin-top: 0px; margin-bottom: -0px;">
+                <img src="<?php echo e(asset('images/image 4.png')); ?>" alt="Profile Image 2" class="hero-image animate fade-right delay-2" loading="lazy" decoding="async" style="height: 230px; margin-top: 0px; margin-bottom: -0px;">
+        </div>
+        <div class="container profile-flex animate fade-up delay-3" style="margin-top: 50px;">
+            <div class="profile-content animate fade-left">
+                <h2 class="title-with-dot"><span class="dot"></span>Nuist Dekstop</h2>
+                <p><?php echo e($landing->content_2_profile ?? 'Aplikasi khusus untuk administrator sekolah dalam mengelola data sekolah dan data tenaga pendidik secara terpusat, aman, dan efisien. Dirancang untuk mendukung kebutuhan administrasi modern, Nuist Desktop membantu menyederhanakan pengelolaan data, meningkatkan akurasi informasi, serta mendukung pengambilan keputusan berbasis data.'); ?></p>
+            </div>
+            <div class="profile-content animate fade-right delay-1">
+                <h2 class="title-with-dot"><span class="dot"></span>Nuist Mobile</h2>
+                <p><?php echo e($landing->content_3_profile ?? 'Aplikasi berbasis mobile yang dirancang khusus untuk tenaga pendidik dan kepala sekolah dalam melakukan presensi, presensi mengajar, pengajuan izin, serta penyesuaian data pribadi secara praktis dan real-time. Aplikasi ini mendukung kemudahan akses, akurasi data, dan efisiensi administrasi dalam satu platform terpadu.'); ?></p>
+            </div>
+        </div>
+        <div class="container profile-flex animate fade-up delay-1" style="margin-top: 50px; justify-content: center;">
+            <div class="profile-content animate fade-up delay-1" style="text-align: center">
+                <h1 id="count1" style="text-align:center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;"><?php echo e($countMadrasah); ?></h1>
+                <p>Sekolah/Madrasah</p>
+            </div>
+            <div class="profile-content animate fade-up delay-2" style="text-align: center">
+                <h1 id="count2" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;"><?php echo e($countTenagaPendidik); ?>+</h1>
+                <P>Tenaga Pendidik Aktif</P>
+            </div>
+            <div class="profile-content animate fade-up delay-3" style="text-align: center">
+                <h1 id="count3" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;"><?php echo e($countAdmin); ?></h1>
+                <p>Admin Operator Aktif</p>
+            </div>
+        </div>
+    </section>
 
-<!-- PROFILE -->
-<section id="about" class="profile">
-    <h2 class="section-title animate fade-up" style="font-size:24px;">Profile Nuist</h2>
-    <div class="container profile-flex animate fade-up delay-1" style="width: 100%;">
-        <div class="profile-content" style="text-align: center;">
-            <p>Nuist menghadirkan ekosistem aplikasi terintegrasi yang dirancang untuk mendukung pengelolaan administrasi sekolah secara menyeluruh. Melalui Nuist Desktop dan Nuist Mobile, sekolah dapat mengelola data, aktivitas, dan kehadiran secara terpusat, akurat, serta mudah diakses oleh administrator, tenaga pendidik, dan kepala sekolah dalam satu sistem yang saling terhubung.</p>
-        </div>
-    </div>
-    <div class="container profile-flex animate fade-up delay-2" style="margin-top: 50px;">
-            <img src="<?php echo e(asset('images/image 3.png')); ?>" alt="Profile Image 1" class="hero-image animate fade-left delay-1" style="height: 230px; margin-top: 0px; margin-bottom: -0px;">
-            <img src="<?php echo e(asset('images/image 4.png')); ?>" alt="Profile Image 2" class="hero-image animate fade-right delay-2" style="height: 230px; margin-top: 0px; margin-bottom: -0px;">
-    </div>
-    <div class="container profile-flex animate fade-up delay-3" style="margin-top: 50px;">
-        <div class="profile-content animate fade-left">
-            <h2 class="title-with-dot"><span class="dot"></span>Nuist Dekstop</h2>
-            <p><?php echo e($landing->content_2_profile ?? 'Aplikasi khusus untuk administrator sekolah dalam mengelola data sekolah dan data tenaga pendidik secara terpusat, aman, dan efisien. Dirancang untuk mendukung kebutuhan administrasi modern, Nuist Desktop membantu menyederhanakan pengelolaan data, meningkatkan akurasi informasi, serta mendukung pengambilan keputusan berbasis data.'); ?></p>
-        </div>
-        <div class="profile-content animate fade-right delay-1">
-            <h2 class="title-with-dot"><span class="dot"></span>Nuist Mobile</h2>
-            <p><?php echo e($landing->content_3_profile ?? 'Aplikasi berbasis mobile yang dirancang khusus untuk tenaga pendidik dan kepala sekolah dalam melakukan presensi, presensi mengajar, pengajuan izin, serta penyesuaian data pribadi secara praktis dan real-time. Aplikasi ini mendukung kemudahan akses, akurasi data, dan efisiensi administrasi dalam satu platform terpadu.'); ?></p>
-        </div>
-    </div>
-    <div class="container profile-flex animate fade-up delay-1" style="margin-top: 50px; justify-content: center;">
-        <div class="profile-content animate fade-up delay-1" style="text-align: center">
-            <h1 id="count1" style="text-align:center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;"><?php echo e($countMadrasah); ?></h1>
-            <p>Sekolah/Madrasah</p>
-        </div>
-        <div class="profile-content animate fade-up delay-2" style="text-align: center">
-            <h1 id="count2" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;"><?php echo e($countTenagaPendidik); ?>+</h1>
-            <P>Tenaga Pendidik Aktif</P>
-        </div>
-        <div class="profile-content animate fade-up delay-3" style="text-align: center">
-            <h1 id="count3" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;"><?php echo e($countAdmin); ?></h1>
-            <p>Admin Operator Aktif</p>
-        </div>
-    </div>
-</section>
+    <section id="features" class="features">
+        <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px;">Fitur Unggulan</h2>
+        <p class="section-description animate fade-up delay-1" style="color:aliceblue; margin-top:60px;">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
 
-<!-- FEATURES -->
-<section id="features" class="features">
-    <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px;">Fitur Unggulan</h2>
-    <p class="section-description animate fade-up delay-1" style="color:aliceblue; margin-top:60px;">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
-
-    <div class="grid animate fade-up delay-3">
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->features): ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $landing->features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($feature['status'] == 'active'): ?>
-        <div class="card animate fade-up active-feature" style="animation-delay: <?php echo e(0.3 + ($index * 0.1)); ?>s;">
-            <h3><?php echo e($feature['name']); ?></h3>
-            <p><?php echo e($feature['content']); ?></p>
+        <div class="grid animate fade-up delay-3">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->features): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $landing->features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($feature['status'] == 'active'): ?>
+            <div class="card animate fade-up active-feature" style="animation-delay: <?php echo e(0.3 + ($index * 0.1)); ?>s;">
+                <h3><?php echo e($feature['name']); ?></h3>
+                <p><?php echo e($feature['content']); ?></p>
+            </div>
+            <?php elseif($feature['status'] == 'coming_soon'): ?>
+            <div class="card animate fade-up coming-soon-card" style="animation-delay: <?php echo e(0.3 + ($index * 0.1)); ?>s;">
+                <h3><?php echo e($feature['name']); ?></h3>
+                <p><?php echo e($feature['content']); ?></p>
+                <div class="status-ribbon">Coming Soon</div>
+            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
-        <?php elseif($feature['status'] == 'coming_soon'): ?>
-        <div class="card animate fade-up coming-soon-card" style="animation-delay: <?php echo e(0.3 + ($index * 0.1)); ?>s;">
-            <h3><?php echo e($feature['name']); ?></h3>
-            <p><?php echo e($feature['content']); ?></p>
-            <div class="status-ribbon">Coming Soon</div>
-        </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    </div>
-</section>
-
-<?php echo $__env->make('landing.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    </section>
+</div>
 
 <?php $__env->stopSection(); ?>
 
-<?php $__env->startPush('styles'); ?>
-<style>
+<?php $__env->startSection('css'); ?>
+<style data-landing-page-style>
     * {
         margin: 0;
         padding: 0;
@@ -296,7 +291,7 @@
         border-radius: 28px;
         border: 2px solid #eee;
         background: #fff;
-        transition: all 0.3s ease;
+        transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
         text-align: center;
     }
 
@@ -485,7 +480,7 @@
     .animate {
         opacity: 0;
         transform: translateY(30px);
-        transition: all 0.8s ease;
+        transition: opacity 0.8s ease, transform 0.8s ease;
     }
 
     .animate.show {
@@ -662,128 +657,7 @@
             padding: 25px 15px;
         }
     }
-
-    /* Custom Cursor Effect */
-    .cursor-small {
-        position: fixed;
-        width: 10px;
-        height: 10px;
-        background-color: #00ff00;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        transition: transform 0.1s ease;
-    }
-
-    .cursor-large {
-        position: fixed;
-        width: 30px;
-        height: 30px;
-        background-color: #00ff88;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9998;
-        transition: transform 0.15s ease;
-        opacity: 0.5;
-    }
 </style>
-
-<script>
-// Section active on scroll and animation trigger
-document.addEventListener('DOMContentLoaded', function () {
-    // Section titles observer
-    const titles = document.querySelectorAll('.section-title');
-    if (titles.length > 0) {
-        const titleObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                } else {
-                    entry.target.classList.remove('active');
-                }
-            });
-        }, { threshold: 0.5 });
-
-        titles.forEach(title => {
-            if (title instanceof Element) {
-                titleObserver.observe(title);
-            }
-        });
-    }
-
-    // Animation elements observer
-    const animateElements = document.querySelectorAll('.animate');
-    if (animateElements.length > 0) {
-        const animateObserver = new IntersectionObserver(
-            (entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('show');
-                    }
-                });
-            },
-            {
-                threshold: 0.15
-            }
-        );
-
-        animateElements.forEach(el => {
-            if (el instanceof Element) {
-                animateObserver.observe(el);
-            }
-        });
-    }
-
-    // Custom Cursor Effect
-    const cursorSmall = document.createElement('div');
-    cursorSmall.className = 'cursor-small';
-    document.body.appendChild(cursorSmall);
-
-    const cursorLarge = document.createElement('div');
-    cursorLarge.className = 'cursor-large';
-    document.body.appendChild(cursorLarge);
-
-    let mouseX = 0;
-    let mouseY = 0;
-    let cursorSmallX = 0;
-    let cursorSmallY = 0;
-    let cursorLargeX = 0;
-    let cursorLargeY = 0;
-
-    // Track mouse movement
-    document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-
-    // Animate cursor positions
-    function animateCursor() {
-        // Smooth follow for small cursor
-        cursorSmallX += (mouseX - cursorSmallX) * 0.2;
-        cursorSmallY += (mouseY - cursorSmallY) * 0.2;
-
-        // Slower follow for large cursor
-        cursorLargeX += (mouseX - cursorLargeX) * 0.1;
-        cursorLargeY += (mouseY - cursorLargeY) * 0.1;
-
-        cursorSmall.style.left = cursorSmallX - 5 + 'px';
-        cursorSmall.style.top = cursorSmallY - 5 + 'px';
-
-        cursorLarge.style.left = cursorLargeX - 15 + 'px';
-        cursorLarge.style.top = cursorLargeY - 15 + 'px';
-
-        requestAnimationFrame(animateCursor);
-    }
-
-    animateCursor();
-
-    // Hide cursors on mobile devices
-    if ('ontouchstart' in window) {
-        cursorSmall.style.display = 'none';
-        cursorLarge.style.display = 'none';
-    }
-});
-</script>
-
+<?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/landing/landing.blade.php ENDPATH**/ ?>

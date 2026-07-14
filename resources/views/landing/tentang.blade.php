@@ -1,10 +1,11 @@
 @extends('layouts.master-without-nav')
 
+@section('landing_shell', '1')
 @section('title', 'Tentang Kami - NUIST')
 @section('description', 'Pelajari lebih lanjut tentang LPMNU PWNU DIY, sejarah, visi misi, dan komitmen kami dalam pendidikan.')
 
 @section('css')
-<style>
+<style data-landing-page-style>
     * {
         margin: 0;
         padding: 0;
@@ -154,7 +155,7 @@
     .animate {
         opacity: 0;
         transform: translateY(30px);
-        transition: all 0.8s ease;
+        transition: opacity 0.8s ease, transform 0.8s ease;
     }
 
     .animate.show {
@@ -211,81 +212,46 @@
 @endsection
 
 @section('content')
-@include('landing.navbar')
+<div class="landing-page landing-about-page" data-landing-page="tentang">
+    <section id="hero" class="hero">
+        <div class="container">
+            <h1 class="hero-title">Tentang Kami</h1>
+            <h1 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h1>
+            <p>Mengenal lebih dekat Lembaga Pengembangan Madrasah Nahdlatul Ulama Pengurus Wilayah Nahdlatul Ulama Daerah Istimewa Yogyakarta.</p>
+        </div>
+    </section>
 
-<section id="hero" class="hero">
-    <div class="container">
-        <h1 class="hero-title">Tentang Kami</h1>
-        <h1 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h1>
-        <p>Mengenal lebih dekat Lembaga Pengembangan Madrasah Nahdlatul Ulama Pengurus Wilayah Nahdlatul Ulama Daerah Istimewa Yogyakarta.</p>
-    </div>
-</section>
+    <section id="tentang-content" class="tentang-content">
+        <div class="container">
+            <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Mengenal LPMNU PWNU DIY</h2>
 
-<section id="tentang-content" class="tentang-content">
-    <div class="container">
-        <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Mengenal LPMNU PWNU DIY</h2>
+            <div class="content-grid">
+                <div class="content-card animate fade-up">
+                    <h3>Sejarah</h3>
+                    <p>LPMNU PWNU DIY didirikan dengan tujuan untuk mengembangkan dan meningkatkan kualitas pendidikan madrasah di wilayah Daerah Istimewa Yogyakarta. Sejak berdirinya, kami telah berkomitmen untuk mendukung pengembangan sumber daya manusia melalui pendidikan yang berkualitas dan berbasis nilai-nilai Islam Ahlussunnah Wal Jama'ah.</p>
+                </div>
 
-        <div class="content-grid">
-            <div class="content-card animate fade-up">
-                <h3>Sejarah</h3>
-                <p>LPMNU PWNU DIY didirikan dengan tujuan untuk mengembangkan dan meningkatkan kualitas pendidikan madrasah di wilayah Daerah Istimewa Yogyakarta. Sejak berdirinya, kami telah berkomitmen untuk mendukung pengembangan sumber daya manusia melalui pendidikan yang berkualitas dan berbasis nilai-nilai Islam Ahlussunnah Wal Jama'ah.</p>
-            </div>
+                <div class="content-card animate fade-up delay-1">
+                    <h3>Visi</h3>
+                    <p>Menjadi lembaga terdepan dalam pengembangan madrasah yang unggul, inovatif, dan berdaya saing tinggi di tingkat nasional dan internasional, serta mampu menghasilkan generasi muda yang berakhlak mulia, berilmu, dan beramal shaleh.</p>
+                </div>
 
-            <div class="content-card animate fade-up delay-1">
-                <h3>Visi</h3>
-                <p>Menjadi lembaga terdepan dalam pengembangan madrasah yang unggul, inovatif, dan berdaya saing tinggi di tingkat nasional dan internasional, serta mampu menghasilkan generasi muda yang berakhlak mulia, berilmu, dan beramal shaleh.</p>
-            </div>
+                <div class="content-card animate fade-up delay-2">
+                    <h3>Misi</h3>
+                    <ul>
+                        <li>Mengembangkan kurikulum dan metode pembelajaran yang inovatif dan relevan dengan perkembangan zaman.</li>
+                        <li>Meningkatkan kompetensi tenaga pendidik dan kependidikan melalui berbagai program pelatihan dan pengembangan.</li>
+                        <li>Mendorong terciptanya lingkungan madrasah yang kondusif untuk pengembangan potensi siswa.</li>
+                        <li>Membangun kemitraan strategis dengan berbagai pihak untuk mendukung kemajuan pendidikan madrasah.</li>
+                    </ul>
+                </div>
 
-            <div class="content-card animate fade-up delay-2">
-                <h3>Misi</h3>
-                <ul>
-                    <li>Mengembangkan kurikulum dan metode pembelajaran yang inovatif dan relevan dengan perkembangan zaman.</li>
-                    <li>Meningkatkan kompetensi tenaga pendidik dan kependidikan melalui berbagai program pelatihan dan pengembangan.</li>
-                    <li>Mendorong terciptanya lingkungan madrasah yang kondusif untuk pengembangan potensi siswa.</li>
-                    <li>Membangun kemitraan strategis dengan berbagai pihak untuk mendukung kemajuan pendidikan madrasah.</li>
-                </ul>
-            </div>
-
-            <div class="content-card animate fade-up">
-                <h3>Komitmen Kami</h3>
-                <p>Kami berkomitmen untuk terus berinovasi dan berkontribusi dalam dunia pendidikan, khususnya madrasah di bawah naungan Nahdlatul Ulama. Dengan dukungan dari berbagai pihak, kami berusaha menciptakan ekosistem pendidikan yang holistik dan berkelanjutan.</p>
+                <div class="content-card animate fade-up">
+                    <h3>Komitmen Kami</h3>
+                    <p>Kami berkomitmen untuk terus berinovasi dan berkontribusi dalam dunia pendidikan, khususnya madrasah di bawah naungan Nahdlatul Ulama. Dengan dukungan dari berbagai pihak, kami berusaha menciptakan ekosistem pendidikan yang holistik dan berkelanjutan.</p>
+                </div>
             </div>
         </div>
-    </div>
-</section>
-
-@include('landing.footer')
-@endsection
-
-@section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const animateElements = document.querySelectorAll('.animate');
-
-    if (animateElements.length === 0) {
-        return;
-    }
-
-    const animateObserver = new IntersectionObserver(
-        (entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('show');
-                }
-            });
-        },
-        {
-            threshold: 0.15
-        }
-    );
-
-    animateElements.forEach((el) => {
-        animateObserver.observe(el);
-
-        if (el.getBoundingClientRect().top < window.innerHeight) {
-            el.classList.add('show');
-        }
-    });
-});
-</script>
+    </section>
+</div>
 @endsection

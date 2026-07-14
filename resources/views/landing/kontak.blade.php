@@ -1,10 +1,11 @@
 @extends('layouts.master-without-nav')
 
+@section('landing_shell', '1')
 @section('title', 'Kontak Kami - NUIST')
 @section('description', 'Hubungi LPMNU PWNU DIY untuk informasi lebih lanjut tentang pendidikan madrasah.')
 
 @section('css')
-<style>
+<style data-landing-page-style>
     * {
         margin: 0;
         padding: 0;
@@ -226,7 +227,7 @@
     .animate {
         opacity: 0;
         transform: translateY(30px);
-        transition: all 0.8s ease;
+        transition: opacity 0.8s ease, transform 0.8s ease;
     }
 
     .animate.show {
@@ -292,114 +293,79 @@
 @endsection
 
 @section('content')
-@include('landing.navbar')
-
-<section id="hero" class="hero">
-    <div class="container">
-        <h1 class="hero-title">Kontak Kami</h1>
-        <h1 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h1>
-        <p>Hubungi kami untuk informasi lebih lanjut tentang pendidikan madrasah dan layanan kami.</p>
-    </div>
-</section>
-
-<section id="kontak-content" class="kontak-content">
-    <div class="container">
-        <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Informasi Kontak</h2>
-
-        <div class="content-grid">
-            <div class="content-card animate fade-up">
-                <h3>Alamat</h3>
-                <p>Lembaga Pengembangan Madrasah Nahdlatul Ulama<br>
-                Pengurus Wilayah Nahdlatul Ulama Daerah Istimewa Yogyakarta<br>
-                Jl. Malioboro No. 123, Yogyakarta 55271</p>
-            </div>
-
-            <div class="content-card animate fade-up delay-1">
-                <h3>Kontak</h3>
-                <p><strong>Telepon:</strong> (0274) 123-4567<br>
-                <strong>Email:</strong> info@lpmnu-pwnu-diy.or.id<br>
-                <strong>Website:</strong> www.lpmnu-pwnu-diy.or.id</p>
-            </div>
-
-            <div class="content-card animate fade-up delay-2">
-                <h3>Jam Operasional</h3>
-                <p><strong>Senin - Kamis:</strong> 08:00 - 16:00 WIB<br>
-                <strong>Jumat:</strong> 08:00 - 15:00 WIB<br>
-                <strong>Sabtu - Minggu:</strong> Tutup</p>
-            </div>
-
-            <div class="content-card animate fade-up">
-                <h3>Media Sosial</h3>
-                <p>Ikuti kami di media sosial untuk mendapatkan informasi terbaru tentang kegiatan dan program pendidikan madrasah:</p>
-                <ul>
-                    <li>Facebook: @LPMNUPWNUDIY</li>
-                    <li>Instagram: @lpmnu_pwnu_diy</li>
-                    <li>Twitter: @LPMNU_PWNU_DIY</li>
-                    <li>YouTube: LPMNU PWNU DIY Official</li>
-                </ul>
-            </div>
+<div class="landing-page landing-contact-page" data-landing-page="kontak">
+    <section id="hero" class="hero">
+        <div class="container">
+            <h1 class="hero-title">Kontak Kami</h1>
+            <h1 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h1>
+            <p>Hubungi kami untuk informasi lebih lanjut tentang pendidikan madrasah dan layanan kami.</p>
         </div>
+    </section>
 
-        <div class="contact-form-section animate fade-up">
-            <h3 class="form-title">Kirim Pesan</h3>
-            <form action="{{ route('landing.kontak.submit') }}" method="POST" class="contact-form">
-                @csrf
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name">Nama Lengkap</label>
-                        <input type="text" id="name" name="name" required>
+    <section id="kontak-content" class="kontak-content">
+        <div class="container">
+            <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Informasi Kontak</h2>
+
+            <div class="content-grid">
+                <div class="content-card animate fade-up">
+                    <h3>Alamat</h3>
+                    <p>Lembaga Pengembangan Madrasah Nahdlatul Ulama<br>
+                    Pengurus Wilayah Nahdlatul Ulama Daerah Istimewa Yogyakarta<br>
+                    Jl. Malioboro No. 123, Yogyakarta 55271</p>
+                </div>
+
+                <div class="content-card animate fade-up delay-1">
+                    <h3>Kontak</h3>
+                    <p><strong>Telepon:</strong> (0274) 123-4567<br>
+                    <strong>Email:</strong> info@lpmnu-pwnu-diy.or.id<br>
+                    <strong>Website:</strong> www.lpmnu-pwnu-diy.or.id</p>
+                </div>
+
+                <div class="content-card animate fade-up delay-2">
+                    <h3>Jam Operasional</h3>
+                    <p><strong>Senin - Kamis:</strong> 08:00 - 16:00 WIB<br>
+                    <strong>Jumat:</strong> 08:00 - 15:00 WIB<br>
+                    <strong>Sabtu - Minggu:</strong> Tutup</p>
+                </div>
+
+                <div class="content-card animate fade-up">
+                    <h3>Media Sosial</h3>
+                    <p>Ikuti kami di media sosial untuk mendapatkan informasi terbaru tentang kegiatan dan program pendidikan madrasah:</p>
+                    <ul>
+                        <li>Facebook: @LPMNUPWNUDIY</li>
+                        <li>Instagram: @lpmnu_pwnu_diy</li>
+                        <li>Twitter: @LPMNU_PWNU_DIY</li>
+                        <li>YouTube: LPMNU PWNU DIY Official</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="contact-form-section animate fade-up">
+                <h3 class="form-title">Kirim Pesan</h3>
+                <form action="{{ route('landing.kontak.submit') }}" method="POST" class="contact-form">
+                    @csrf
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Nama Lengkap</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="subject">Subjek</label>
+                        <input type="text" id="subject" name="subject" required>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="subject">Subjek</label>
-                    <input type="text" id="subject" name="subject" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Pesan</label>
-                    <textarea id="message" name="message" rows="5" required></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Kirim Pesan</button>
-            </form>
+                    <div class="form-group">
+                        <label for="message">Pesan</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Kirim Pesan</button>
+                </form>
+            </div>
         </div>
-    </div>
-</section>
-
-@include('landing.footer')
-@endsection
-
-@section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const animateElements = document.querySelectorAll('.animate');
-
-    if (animateElements.length === 0) {
-        return;
-    }
-
-    const animateObserver = new IntersectionObserver(
-        (entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('show');
-                }
-            });
-        },
-        {
-            threshold: 0.15
-        }
-    );
-
-    animateElements.forEach((el) => {
-        animateObserver.observe(el);
-
-        if (el.getBoundingClientRect().top < window.innerHeight) {
-            el.classList.add('show');
-        }
-    });
-});
-</script>
+    </section>
+</div>
 @endsection

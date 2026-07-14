@@ -1,4 +1,4 @@
-<style>
+<style data-landing-page-style>
     * {
         margin: 0;
         padding: 0;
@@ -219,7 +219,7 @@
     .animate {
         opacity: 0;
         transform: translateY(30px);
-        transition: all 0.8s ease;
+        transition: opacity 0.8s ease, transform 0.8s ease;
     }
 
     .animate.show {

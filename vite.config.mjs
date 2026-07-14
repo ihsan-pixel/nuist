@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/scss/icons.scss',
                 'resources/scss/app.scss',
                 'resources/js/app.js',
+                'resources/js/landing-shell.js',
             ],
             refresh: true,
         }),

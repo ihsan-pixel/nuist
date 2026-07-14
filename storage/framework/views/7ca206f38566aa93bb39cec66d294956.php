@@ -314,7 +314,7 @@
                                         <i class="bx bx-cart"></i>
                                     </span>
                                 </div>
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h6 class="mt-0 mb-1" key="t-your-order"><?php echo app('translator')->get('translation.Your_order_is_placed'); ?></h6>
                                     <div class="font-size-12 text-muted">
                                         <p class="mb-1" key="t-grammer"><?php echo app('translator')->get('translation.If_several_languages_coalesce_the_grammar'); ?></p>
@@ -326,7 +326,7 @@
                         <a href="" class="text-reset notification-item">
                             <div class="d-flex">
                                 <img src="<?php echo e(asset ('build/images/users/avatar-3.jpg')); ?>" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h6 class="mt-0 mb-1"><?php echo app('translator')->get('translation.James_Lemire'); ?></h6>
                                     <div class="font-size-12 text-muted">
                                         <p class="mb-1" key="t-simplified"><?php echo app('translator')->get('translation.It_will_seem_like_simplified_English'); ?></p>
@@ -342,7 +342,7 @@
                                         <i class="bx bx-badge-check"></i>
                                     </span>
                                 </div>
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h6 class="mt-0 mb-1" key="t-shipped"><?php echo app('translator')->get('translation.Your_item_is_shipped'); ?></h6>
                                     <div class="font-size-12 text-muted">
                                         <p class="mb-1" key="t-grammer"><?php echo app('translator')->get('translation.If_several_languages_coalesce_the_grammar'); ?></p>
@@ -355,7 +355,7 @@
                         <a href="" class="text-reset notification-item">
                             <div class="d-flex">
                                 <img src="<?php echo e(asset ('build/images/users/avatar-4.jpg')); ?>" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h6 class="mt-0 mb-1"><?php echo app('translator')->get('translation.Salena_Layfield'); ?></h6>
                                     <div class="font-size-12 text-muted">
                                         <p class="mb-1" key="t-occidental"><?php echo app('translator')->get('translation.As_a_skeptical_Cambridge_friend_of_mine_occidental'); ?></p>

@@ -94,6 +94,86 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                        <div>
+                            <div class="sky-panel-label mb-1">Surat Pengajuan SK</div>
+                            <h6 class="mb-1">Nomor dan tanggal surat pengajuan sekolah</h6>
+                            <p class="text-muted mb-0">Perubahan di form ini akan diterapkan ke semua pengajuan tersinkron yang tampil pada halaman generate sekolah ini.</p>
+                        </div>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissionLetterIsMixed): ?>
+                            <span class="badge bg-warning-subtle text-warning">Data saat ini berbeda-beda antar pengajuan</span>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+
+                    <form method="POST" action="<?php echo e(route('sk-yayasan.generate.school.submission-letter.update', $madrasah)); ?>">
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('PATCH'); ?>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-lg-7">
+                                <label class="form-label fw-semibold">Nomor Surat Pengajuan</label>
+                                <input type="text"
+                                       name="submission_letter_number"
+                                       class="form-control <?php $__errorArgs = ['submission_letter_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                       value="<?php echo e(old('submission_letter_number', $submissionLetterReference?->submission_letter_number)); ?>"
+                                       placeholder="Contoh: 421.5/SMK-PD/VI/2026"
+                                       required>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['submission_letter_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
+                            <div class="col-lg-3">
+                                <label class="form-label fw-semibold">Tanggal Surat</label>
+                                <input type="date"
+                                       name="submission_letter_date"
+                                       class="form-control <?php $__errorArgs = ['submission_letter_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                                       value="<?php echo e(old('submission_letter_date', optional($submissionLetterReference?->submission_letter_date)->format('Y-m-d'))); ?>"
+                                       required>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['submission_letter_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
+                            <div class="col-lg-2 d-grid">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="bx bx-save me-1"></i>Simpan
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Antrean Generate</div>

@@ -1,55 +1,102 @@
 <!doctype html>
 <html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
+<?php
+    $hasLandingShell = trim((string) $__env->yieldContent('landing_shell')) !== '';
+    $landingNavVersion = file_exists(public_path('build/manifest.json'))
+        ? substr(md5_file(public_path('build/manifest.json')), 0, 12)
+        : app()->version();
+    $metaDescription = trim((string) $__env->yieldContent('description')) ?: "Nuist.id adalah Sistem Informasi Digital LP. Ma'arif NU PWNU DIY untuk manajemen data madrasah, tenaga pendidik, dan laporan pendidikan berbasis web.";
+    $pageTitle = trim((string) $__env->yieldContent('title'))
+        ? trim((string) $__env->yieldContent('title')) . ' | Nuist.id - Sistem Informasi Digital LP. Ma\'arif NU PWNU DIY'
+        : 'Nuist.id - Sistem Informasi Digital LP. Ma\'arif NU PWNU DIY';
+    $canonicalUrl = url()->current();
+    $ogImage = asset('images/logo favicon 1.png');
+?>
 
 <head>
     <meta charset="utf-8" />
-    <title><?php echo $__env->yieldContent('title'); ?> | Nuist.id - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</title>
+    <title id="page-title"><?php echo e($pageTitle); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
     <!-- SEO Meta -->
-    <meta name="description" content="Nuist.id adalah Sistem Informasi Digital LP. Ma'arif NU PWNU DIY untuk manajemen data madrasah, tenaga pendidik, dan laporan pendidikan berbasis web.">
+    <meta id="meta-description" name="description" content="<?php echo e($metaDescription); ?>">
     <meta name="keywords" content="nuist.id, sistem informasi madrasah, LP Ma'arif NU, pendidikan DIY, aplikasi sekolah, aplikasi madrasah, pendidikan digital">
     <meta name="author" content="Nuist.id">
+    <link id="meta-canonical" rel="canonical" href="<?php echo e($canonicalUrl); ?>">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Nuist.id - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
-    <meta property="og:description" content="Sistem Informasi Madrasah & Pendidikan berbasis web untuk LP. Ma'arif NU PWNU DIY." />
-    <meta property="og:url" content="https://nuist.id" />
+    <meta id="meta-og-title" property="og:title" content="<?php echo e($pageTitle); ?>" />
+    <meta id="meta-og-description" property="og:description" content="<?php echo e($metaDescription); ?>" />
+    <meta id="meta-og-url" property="og:url" content="<?php echo e($canonicalUrl); ?>" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="<?php echo e(asset('images/logo favicon 1.png')); ?>" />
+    <meta id="meta-og-image" property="og:image" content="<?php echo e($ogImage); ?>" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="<?php echo e(asset('images/logo favicon 1.png')); ?>">
-
-    <!-- Prevent caching -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <link rel="shortcut icon" href="<?php echo e($ogImage); ?>">
 
     
     <?php echo $__env->make('layouts.head-css', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     
-    <?php echo $__env->yieldContent('css'); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! ($hasLandingShell)): ?>
+        <?php echo $__env->yieldContent('css'); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasLandingShell): ?>
+        <?php echo app('Illuminate\Foundation\Vite')('resources/js/landing-shell.js'); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </head>
 
 
 <?php echo $__env->yieldContent('body'); ?>
 
-    
-    <?php echo $__env->yieldContent('content'); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasLandingShell): ?>
+        <div
+            id="landing-shell"
+            data-landing-shell
+            data-nav-version="<?php echo e($landingNavVersion); ?>"
+            data-current-url="<?php echo e($canonicalUrl); ?>"
+        >
+            <?php echo $__env->make('landing.navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
+            <div class="landing-nav-loading" data-landing-loading hidden aria-hidden="true">
+                <div class="landing-nav-loading__bar"></div>
+            </div>
+
+            <div class="landing-nav-status visually-hidden" data-landing-status aria-live="polite" aria-atomic="true"></div>
+
+            <main id="landing-content" data-landing-content tabindex="-1">
+                <?php echo $__env->yieldContent('content'); ?>
+            </main>
+
+            <div data-landing-page-assets hidden aria-hidden="true">
+                <?php echo $__env->yieldContent('css'); ?>
+                <?php echo $__env->yieldContent('script-bottom'); ?>
+                <?php echo $__env->yieldContent('scripts'); ?>
+            </div>
+
+            <?php echo $__env->make('landing.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+        </div>
+    <?php else: ?>
+        
+        <?php echo $__env->yieldContent('content'); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     
     <?php echo $__env->make('layouts.vendor-scripts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     
-    <?php echo $__env->yieldContent('script-bottom'); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! ($hasLandingShell)): ?>
+        <?php echo $__env->yieldContent('script-bottom'); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     
-    <?php echo $__env->yieldContent('scripts'); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! ($hasLandingShell)): ?>
+        <?php echo $__env->yieldContent('scripts'); ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <script>
         // If the app is running as a PWA (installed / standalone), prefer the mobile login page.
