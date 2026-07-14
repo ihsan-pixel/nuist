@@ -4,7 +4,7 @@
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(18px);
     position: fixed;
-    top: 10px;
+    top: 8px;
     width: min(1400px, calc(100% - 48px));
     margin-left: auto;
     margin-right: auto;
@@ -45,7 +45,7 @@
     width: 100%;
     margin: 0 auto;
     padding: 0 20px;
-    height: 64px;
+    height: 56px;
 }
 
 .navbar.full-width .nav-left {
@@ -59,18 +59,18 @@
 }
 
 .navbar.full-width .brand-mark img {
-    height: 32px;
+    height: 28px;
 }
 
 .navbar.full-width .nav-menu {
-    padding: 5px 10px;
+    padding: 4px 8px;
     background: #fcfcfa;
     border: 1px solid rgba(25, 43, 38, 0.08);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .navbar.full-width .nav-menu a {
-    padding: 6px 20px;
+    padding: 5px 16px;
 }
 
 .navbar.full-width .desktop-login {
@@ -81,25 +81,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 58px;
+    height: 50px;
     transition: justify-content 0.3s ease;
 }
 
 .nav-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
 .brand-mark {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    padding-left: 14px;
+    padding-left: 10px;
 }
 
 .brand-mark img {
-    height: 34px;
+    height: 30px;
     width: auto;
     display: block;
 }
@@ -107,10 +107,10 @@
 .nav-menu {
     list-style: none;
     display: flex;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
     margin: 0;
-    padding: 4px;
+    padding: 3px;
     border-radius: 999px;
 }
 
@@ -119,7 +119,7 @@
     color: #657381;
     font-weight: 400;
     font-size: 14px;
-    padding: 6px 16px;
+    padding: 4px 12px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0);
     transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
@@ -148,7 +148,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 6px 14px;
+    padding: 4px 10px;
     border-radius: 999px;
     font-weight: 400;
     font-size: 14px;
@@ -292,7 +292,7 @@
 
     .navbar.full-width .nav-flex {
         padding: 0;
-        height: 48px;
+        height: 42px;
     }
 
     .navbar.full-width .nav-left {
@@ -309,7 +309,7 @@
     }
 
     .brand-mark img {
-        height: 30px;
+        height: 26px;
     }
 
     .nav-menu {
@@ -335,7 +335,7 @@
 
     .nav-menu a {
         width: 100%;
-        padding: 10px 14px;
+        padding: 8px 12px;
         border-radius: 18px;
         text-align: center;
     }
@@ -349,7 +349,7 @@
     }
 
     .nav-flex {
-        height: 48px;
+        height: 42px;
     }
 
     .btn-primary.desktop-login {
