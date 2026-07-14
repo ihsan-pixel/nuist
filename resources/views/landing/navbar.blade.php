@@ -372,15 +372,15 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <a href="{{ route('landing') }}" class="brand-mark" aria-label="NUIST">
+            <a href="{{ route('landing') }}" class="brand-mark" aria-label="NUIST" data-nav-ajax="true">
                 <img src="{{ asset('images/logo1.png') }}" alt="NUIST">
             </a>
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}">Beranda</a></li>
-                <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}">Sekolah</a></li>
-                <li><a href="{{ route('talenta.login') }}" class="{{ request()->routeIs('talenta.login') ? 'active' : '' }}">Talenta</a></li>
-                <li><a href="{{ route('mgmp.public') }}" class="{{ request()->routeIs('mgmp.public') ? 'active' : '' }}">MGMP</a></li>
-                <li class="mobile-only"><a href="{{ route('login') }}">Login</a></li>
+                <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}" data-nav-ajax="true">Beranda</a></li>
+                <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}" data-nav-ajax="true">Sekolah</a></li>
+                <li><a href="{{ route('talenta.login') }}" class="{{ request()->routeIs('talenta.login') ? 'active' : '' }}" data-nav-ajax="true">Talenta</a></li>
+                <li><a href="{{ route('mgmp.public') }}" class="{{ request()->routeIs('mgmp.public') ? 'active' : '' }}" data-nav-ajax="true">MGMP</a></li>
+                <li class="mobile-only"><a href="{{ route('login') }}" data-nav-ajax="true">Login</a></li>
                 {{-- <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
                     <ul class="submenu">
@@ -397,7 +397,7 @@
                 <span></span>
             </div>
         </div>
-        <a href="{{ route('login') }}" class="btn-primary desktop-login">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+        <a href="{{ route('login') }}" class="btn-primary desktop-login" data-nav-ajax="true">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
     </div>
 </nav>
 
@@ -435,6 +435,75 @@ function toggleMobileMenu() {
     navMenu.classList.toggle('show');
     hamburger.classList.toggle('open');
 }
+
+function shouldHandleAjaxNavigation(link, event) {
+    if (!link || link.dataset.navAjax !== 'true') {
+        return false;
+    }
+
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return false;
+    }
+
+    if (link.target && link.target !== '_self') {
+        return false;
+    }
+
+    const url = new URL(link.href, window.location.origin);
+
+    if (url.origin !== window.location.origin || url.hash) {
+        return false;
+    }
+
+    return true;
+}
+
+async function navigateWithoutReload(url, options = {}) {
+    const targetUrl = typeof url === 'string' ? url : url.toString();
+
+    try {
+        const response = await fetch(targetUrl, {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Navigation request failed');
+        }
+
+        const html = await response.text();
+
+        if (options.replaceState) {
+            window.history.replaceState({ ajaxNav: true }, '', targetUrl);
+        } else {
+            window.history.pushState({ ajaxNav: true }, '', targetUrl);
+        }
+
+        document.open();
+        document.write(html);
+        document.close();
+    } catch (error) {
+        window.location.href = targetUrl;
+    }
+}
+
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a[data-nav-ajax="true"]');
+
+    if (!shouldHandleAjaxNavigation(link, e)) {
+        return;
+    }
+
+    e.preventDefault();
+    navigateWithoutReload(link.href);
+});
+
+window.addEventListener('popstate', function() {
+    navigateWithoutReload(window.location.href, { replaceState: true });
+});
 
 // Close submenu when clicking outside
 document.addEventListener('click', function(e) {
