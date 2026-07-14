@@ -36,6 +36,7 @@
         box-shadow var(--landing-transition-medium),
         top var(--landing-transition-medium),
         width var(--landing-transition-medium);
+    font-family: 'Inter', sans-serif;
 }
 
 @supports (backdrop-filter: blur(18px)) {
@@ -132,6 +133,8 @@
     text-decoration: none;
     font-size: 15px;
     font-weight: 400;
+    font-family: inherit;
+    line-height: 1.2;
     transition:
         background-color var(--landing-transition-fast),
         color var(--landing-transition-fast),
