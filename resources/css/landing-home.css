@@ -46,11 +46,30 @@
 .landing-home-page {
     color: var(--landing-home-color-ink);
     background:
-        radial-gradient(circle at top left, rgba(22, 163, 74, 0.1), transparent 30%),
-        radial-gradient(circle at top right, rgba(13, 148, 136, 0.08), transparent 26%),
-        linear-gradient(180deg, #f7fbf8 0%, #ffffff 38%, #f8fafc 100%);
+        radial-gradient(circle at top left, rgba(22, 163, 74, 0.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(13, 148, 136, 0.1), transparent 26%),
+        linear-gradient(180deg, #edf7f1 0%, #f7fbf8 18%, #ffffff 40%, #f8fafc 100%);
     line-height: 1.6;
     overflow-x: clip;
+    position: relative;
+    isolation: isolate;
+}
+
+.landing-home-page::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 18rem;
+    background:
+        radial-gradient(circle at top center, rgba(22, 163, 74, 0.08), transparent 60%),
+        linear-gradient(180deg, rgba(224, 244, 233, 0.95) 0%, rgba(237, 247, 241, 0.9) 48%, rgba(247, 251, 248, 0) 100%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.landing-home-page > * {
+    position: relative;
+    z-index: 1;
 }
 
 .landing-home-page .container {
