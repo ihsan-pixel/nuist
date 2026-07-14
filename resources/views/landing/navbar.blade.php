@@ -59,7 +59,7 @@
     text-decoration: none;
     color: #004b4c;
     font-weight: 500;
-    font-size: 18px;
+    font-size: 16px;
     padding: 8px 16px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0);
@@ -240,6 +240,7 @@
     }
 
     .nav-menu a {
+        font-size: 14px;
         padding: 15px 20px;
         border-radius: 0;
         text-align: center;
@@ -371,4 +372,3 @@ window.addEventListener('scroll', function() {
     }
 });
 </script>
-
