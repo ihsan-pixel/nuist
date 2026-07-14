@@ -64,12 +64,14 @@
     align-items: center;
     justify-content: space-between;
     height: 70px;
+    width: min(1400px, calc(100% - 48px));
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
 }
 
 .landing-navbar.is-full-width .nav-flex {
     width: min(1400px, calc(100% - 48px));
-    max-width: 1400px;
-    margin: 0 auto;
 }
 
 .landing-navbar .nav-left {
