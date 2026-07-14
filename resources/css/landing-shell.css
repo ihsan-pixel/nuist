@@ -29,7 +29,7 @@
     margin-right: auto;
     border-radius: var(--landing-radius-pill);
     border: none;
-    box-shadow: none;
+    box-shadow: var(--landing-shadow-soft);
     transition:
         background-color var(--landing-transition-medium),
         border-radius var(--landing-transition-medium),
