@@ -380,7 +380,6 @@
                 <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}" data-nav-ajax="true">Sekolah</a></li>
                 <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}" data-nav-ajax="true">Tentang</a></li>
                 <li><a href="{{ route('landing.kontak') }}" class="{{ request()->routeIs('landing.kontak') ? 'active' : '' }}" data-nav-ajax="true">Kontak</a></li>
-                <li class="mobile-only"><a href="{{ route('login') }}">Login</a></li>
                 {{-- <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
                     <ul class="submenu">
@@ -397,7 +396,6 @@
                 <span></span>
             </div>
         </div>
-        <a href="{{ route('login') }}" class="btn-primary desktop-login">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
     </div>
 </nav>
 
