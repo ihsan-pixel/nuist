@@ -1,110 +1,133 @@
 <style>
 /* NAVBAR Styles */
 .navbar {
-    background: rgb(255, 255, 255);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(18px);
     position: fixed;
-    top: 20px;
-    width: 1400px;
+    top: 18px;
+    width: min(1400px, calc(100% - 48px));
     margin-left: auto;
     margin-right: auto;
     left: 0;
     right: 0;
     z-index: 1000;
-    border-radius: 50px;
+    border-radius: 999px;
+    border: 1px solid rgba(25, 43, 38, 0.08);
+    box-shadow: 0 14px 38px rgba(25, 43, 38, 0.08), 0 2px 8px rgba(25, 43, 38, 0.05);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar.transparent {
-    background: rgb(255, 255, 255);
-    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(22px);
 }
 
 .navbar.full-width {
-    width: 100%;
-    top: 0;
-    border-radius: 0 0 28px 28px;
+    width: min(1400px, calc(100% - 32px));
+    top: 10px;
+    border-radius: 999px;
     position: fixed;
     left: 0;
     right: 0;
 }
 
 .navbar.scrolled {
-    top: 0px;
+    box-shadow: 0 18px 42px rgba(25, 43, 38, 0.12), 0 3px 10px rgba(25, 43, 38, 0.08);
 }
 
 .nav-flex {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 80px;
+    height: 84px;
     transition: justify-content 0.3s ease;
 }
 
 .nav-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 28px;
+}
+
+.brand-mark {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding-left: 18px;
+}
+
+.brand-mark img {
+    height: 50px;
+    width: auto;
+    display: block;
 }
 
 .nav-menu {
     list-style: none;
     display: flex;
-    gap: 20px;
+    gap: 10px;
     align-items: center;
-    margin-top: 20px;
+    margin: 0;
+    padding: 8px;
+    border-radius: 999px;
 }
 
 .nav-menu a {
     text-decoration: none;
-    color: #004b4c;
+    color: #657381;
     font-weight: 500;
     font-size: 16px;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 10px 22px;
+    border-radius: 999px;
     background: rgba(255, 255, 255, 0);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
-    transform: translateY(0) scale(1);
-    box-shadow: 0 0 0 rgba(0, 75, 76, 0);
-}
-
-.nav-menu a:hover, .nav-menu a.active {
-    color: #fefefe;
-    background: linear-gradient(135deg, #004b4c, #006666);
-}
-
-.btn-primary {
-    position: relative;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 26px;
+}
+
+.nav-menu a:hover {
+    color: #1a8b57;
+    background: rgba(37, 166, 91, 0.08);
+}
+
+.nav-menu a.active {
+    color: #1a8b57;
+    background: #f3f8f2;
+    box-shadow: inset 0 0 0 1px rgba(37, 166, 91, 0.06);
+}
+
+.nav-menu .mobile-only {
+    display: none;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 24px;
     border-radius: 999px;
     font-weight: 600;
-    color: #fff;
-    background: linear-gradient(135deg, #004b4c, #006666);
-    overflow: hidden;
-    z-index: 1;
+    font-size: 15px;
+    color: #157347;
+    background: #ffffff;
+    border: 1px solid rgba(21, 115, 71, 0.14);
+    box-shadow: 0 8px 22px rgba(25, 43, 38, 0.08);
+    text-decoration: none;
+    margin-right: 18px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
-.btn-primary::before {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    min-width: 0;
-    min-height: 0;
-    background: rgba(2, 2, 2, 0.976);
-    border-radius: 50%;
-    bottom: -60%;
-    right: -60%;
-    transition: width 0.55s ease-out, height 0.55s ease-out;
-    z-index: -1;
+.btn-primary:hover {
+    color: #0f5c38;
+    border-color: rgba(21, 115, 71, 0.22);
+    box-shadow: 0 12px 26px rgba(25, 43, 38, 0.12);
+    transform: translateY(-1px);
 }
 
-.btn-primary:hover::before {
-    width: 380%;
-    height: 380%;
+.btn-primary i {
+    font-size: 17px;
 }
 
 /* DROPDOWN SUBMENU */
@@ -123,8 +146,9 @@
     display: inline-block;
     transition: transform 0.3s;
     transform: rotate(0deg);
-    font-size: 20px;
+    font-size: 18px;
     vertical-align: middle;
+    margin-left: 4px;
 }
 
 .dropdown:hover .arrow,
@@ -138,8 +162,9 @@
     left: 0;
     min-width: 240px;
     background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    border-radius: 20px;
+    border: 1px solid rgba(25, 43, 38, 0.08);
+    box-shadow: 0 16px 38px rgba(25, 43, 38, 0.1);
     padding: 12px;
     display: none;
     opacity: 0;
@@ -162,17 +187,16 @@
 .submenu li a {
     display: block;
     padding: 12px 14px;
-    border-radius: 10px;
+    border-radius: 14px;
     font-size: 14px;
-    color: #004b4c;
+    color: #475467;
     text-decoration: none;
     transition: all 0.25s ease;
 }
 
 .submenu li a:hover {
-    background: #f1f5ff;
-    color: #eda711;
-    padding-left: 18px;
+    background: #f3f8f2;
+    color: #1a8b57;
 }
 
 /* Hamburger Menu */
@@ -185,8 +209,9 @@
 
 .hamburger span {
     width: 25px;
-    height: 3px;
-    background: #004b4c;
+    height: 2px;
+    background: #475467;
+    border-radius: 999px;
     transition: 0.3s;
 }
 
@@ -210,28 +235,43 @@
         padding: 0 15px;
         left: 0;
         right: 0;
+        border-radius: 32px;
     }
 
     .navbar.full-width {
-        width: 100%;
-        margin: 0;
-        border-radius: 0;
+        width: 95%;
+        margin: 10px auto;
+        border-radius: 32px;
         left: 0;
         right: 0;
+    }
+
+    .nav-left {
+        gap: 14px;
+    }
+
+    .brand-mark {
+        padding-left: 0;
+    }
+
+    .brand-mark img {
+        height: 40px;
     }
 
     .nav-menu {
         display: none;
         position: absolute;
         top: 100%;
-        left: 0;
-        width: 100%;
+        left: 12px;
+        right: 12px;
+        width: auto;
         background: #ffffff;
         flex-direction: column;
         gap: 0;
-        padding: 20px 0;
-        border-radius: 0 0 28px 28px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 14px;
+        border-radius: 28px;
+        border: 1px solid rgba(25, 43, 38, 0.08);
+        box-shadow: 0 16px 36px rgba(25, 43, 38, 0.12);
         z-index: 1000;
     }
 
@@ -241,9 +281,14 @@
 
     .nav-menu a {
         font-size: 14px;
-        padding: 15px 20px;
-        border-radius: 0;
+        width: 100%;
+        padding: 14px 18px;
+        border-radius: 18px;
         text-align: center;
+    }
+
+    .nav-menu .mobile-only {
+        display: block;
     }
 
     .hamburger {
@@ -252,6 +297,10 @@
 
     .nav-flex {
         height: 60px;
+    }
+
+    .btn-primary.desktop-login {
+        display: none;
     }
 }
 
@@ -270,12 +319,15 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 50px; margin-left: 20px;">
+            <a href="{{ route('landing') }}" class="brand-mark" aria-label="NUIST">
+                <img src="{{ asset('images/logo1.png') }}" alt="NUIST">
+            </a>
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}">Beranda</a></li>
                 <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}">Sekolah</a></li>
                 <li><a href="{{ route('talenta.login') }}" class="{{ request()->routeIs('talenta.login') ? 'active' : '' }}">Talenta</a></li>
                 <li><a href="{{ route('mgmp.public') }}" class="{{ request()->routeIs('mgmp.public') ? 'active' : '' }}">MGMP</a></li>
+                <li class="mobile-only"><a href="{{ route('login') }}">Login</a></li>
                 {{-- <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class='bx bx-chevron-down arrow'></i></a>
                     <ul class="submenu">
@@ -292,7 +344,7 @@
                 <span></span>
             </div>
         </div>
-        <a href="{{ route('login') }}" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+        <a href="{{ route('login') }}" class="btn-primary desktop-login">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
     </div>
 </nav>
 
