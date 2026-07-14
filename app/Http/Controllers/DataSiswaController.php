@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SiswaCompleteExport;
 use App\Exports\SiswaUploadSummaryExport;
 use App\Exports\SiswaTemplateExport;
 use App\Imports\SiswaImport;
@@ -97,6 +98,37 @@ class DataSiswaController extends Controller
         return Excel::download(
             new SiswaUploadSummaryExport($summaryRows),
             'ringkasan-upload-data-siswa-' . now()->format('Ymd_His') . '.xlsx'
+        );
+    }
+
+    public function exportComplete(Request $request)
+    {
+        $user = auth()->user();
+        $userRole = $this->normalizedRole($user->role);
+        abort_if($userRole !== 'super_admin', 403);
+
+        $selectedMadrasahId = $request->integer('madrasah_id');
+        $siswas = $this->buildSiswaIndexQuery($request, $selectedMadrasahId, $userRole)
+            ->get()
+            ->sortBy(function (Siswa $siswa) {
+                $effectiveScod = $this->nullableString($siswa->scod ?: $siswa->madrasah?->scod) ?? '';
+                $effectiveSchool = $this->nullableString($siswa->nama_madrasah ?: $siswa->madrasah?->name) ?? '';
+                $name = $this->nullableString($siswa->nama_lengkap) ?? '';
+                $nis = $this->nullableString($siswa->nis) ?? '';
+
+                return implode('|', [
+                    $effectiveScod === '' ? '1' : '0',
+                    mb_strtolower($effectiveScod),
+                    mb_strtolower($effectiveSchool),
+                    mb_strtolower($name),
+                    mb_strtolower($nis),
+                ]);
+            })
+            ->values();
+
+        return Excel::download(
+            new SiswaCompleteExport($siswas),
+            'data-siswa-lengkap-' . now()->format('Ymd_His') . '.xlsx'
         );
     }
 
