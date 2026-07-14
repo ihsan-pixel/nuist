@@ -49,9 +49,10 @@
 }
 
 .navbar.full-width .nav-left {
-    width: 100%;
-    justify-content: space-between;
-    gap: 24px;
+    flex: 1;
+    width: auto;
+    justify-content: flex-start;
+    gap: 16px;
 }
 
 .navbar.full-width .brand-mark {
@@ -73,10 +74,6 @@
     padding: 5px 16px;
 }
 
-.navbar.full-width .desktop-login {
-    display: none;
-}
-
 .nav-flex {
     display: flex;
     justify-content: space-between;
@@ -87,6 +84,7 @@
 
 .nav-left {
     display: flex;
+    flex: 1;
     align-items: center;
     gap: 16px;
 }
@@ -110,6 +108,7 @@
     gap: 4px;
     align-items: center;
     margin: 0;
+    margin-right: auto;
     padding: 3px;
     border-radius: 999px;
 }
@@ -145,6 +144,7 @@
 
 .btn-primary {
     display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
     gap: 8px;
