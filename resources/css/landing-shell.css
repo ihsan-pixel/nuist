@@ -34,7 +34,9 @@
         background-color var(--landing-transition-medium),
         border-radius var(--landing-transition-medium),
         box-shadow var(--landing-transition-medium),
+        top var(--landing-transition-medium),
         width var(--landing-transition-medium);
+    height: 70px;
 }
 
 @supports (backdrop-filter: blur(18px)) {
@@ -52,21 +54,25 @@
 }
 
 .landing-navbar.is-full-width {
-    top: 24px;
+    top: 0;
     width: 100%;
     border-radius: 0;
     box-shadow: var(--landing-shadow-medium);
 }
 
 .landing-navbar .nav-flex {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 70px;
     width: min(1400px, calc(100% - 48px));
     max-width: 1400px;
-    margin: 0 auto;
     padding: 0;
+    z-index: 1001;
 }
 
 .landing-navbar.is-full-width .nav-flex {
