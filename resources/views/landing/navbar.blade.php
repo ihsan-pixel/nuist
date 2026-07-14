@@ -550,6 +550,46 @@ function shouldHandleAjaxNavigation(link, event) {
     return true;
 }
 
+function bindNavbarPrefetchLinks() {
+    document.querySelectorAll('a[data-nav-ajax="true"]').forEach((link) => {
+        if (link.dataset.navPrefetchBound === 'true') {
+            return;
+        }
+
+        link.addEventListener('mouseenter', function() {
+            prefetchPage(link.href);
+        }, { passive: true });
+
+        link.addEventListener('touchstart', function() {
+            prefetchPage(link.href);
+        }, { passive: true, once: true });
+
+        link.dataset.navPrefetchBound = 'true';
+    });
+}
+
+function warmNavbarCache() {
+    if (!('requestIdleCallback' in window)) {
+        return;
+    }
+
+    requestIdleCallback(() => {
+        document.querySelectorAll('a[data-nav-ajax="true"]').forEach((link) => {
+            if (normalizeNavUrl(link.href) !== normalizeNavUrl(window.location.href)) {
+                prefetchPage(link.href);
+            }
+        });
+    });
+}
+
+function initLandingNavbar() {
+    clearLegacyNavCache();
+    applyNavbarScrollState();
+    bindNavbarPrefetchLinks();
+    warmNavbarCache();
+    requestAnimationFrame(applyNavbarScrollState);
+}
+
 async function navigateWithoutReload(url, options = {}) {
     const targetUrl = normalizeNavUrl(typeof url === 'string' ? url : url.toString());
 
@@ -570,49 +610,14 @@ async function navigateWithoutReload(url, options = {}) {
     }
 }
 
-document.addEventListener('click', function(e) {
+const handleLandingNavbarDocumentClick = function(e) {
     const link = e.target.closest('a[data-nav-ajax="true"]');
 
-    if (!shouldHandleAjaxNavigation(link, e)) {
-        return;
+    if (shouldHandleAjaxNavigation(link, e)) {
+        e.preventDefault();
+        navigateWithoutReload(link.href);
     }
 
-    e.preventDefault();
-    navigateWithoutReload(link.href);
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    clearLegacyNavCache();
-    applyNavbarScrollState();
-    requestAnimationFrame(applyNavbarScrollState);
-
-    document.querySelectorAll('a[data-nav-ajax="true"]').forEach((link) => {
-        link.addEventListener('mouseenter', function() {
-            prefetchPage(link.href);
-        }, { passive: true });
-
-        link.addEventListener('touchstart', function() {
-            prefetchPage(link.href);
-        }, { passive: true, once: true });
-    });
-
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-            document.querySelectorAll('a[data-nav-ajax="true"]').forEach((link) => {
-                if (normalizeNavUrl(link.href) !== normalizeNavUrl(window.location.href)) {
-                    prefetchPage(link.href);
-                }
-            });
-        });
-    }
-});
-
-window.addEventListener('popstate', function() {
-    navigateWithoutReload(window.location.href, { replaceState: true });
-});
-
-// Close submenu when clicking outside
-document.addEventListener('click', function(e) {
     if (!e.target.closest('.dropdown')) {
         document.querySelectorAll('.dropdown').forEach(drop => {
             drop.classList.remove('open');
@@ -627,6 +632,10 @@ document.addEventListener('click', function(e) {
             hamburger.classList.remove('open');
         }
     }
+};
+
+window.addEventListener('popstate', function() {
+    navigateWithoutReload(window.location.href, { replaceState: true });
 });
 
 // Navbar scroll effect
@@ -654,10 +663,13 @@ window.__landingNavbarPageShowHandler = applyNavbarScrollState;
 window.addEventListener('scroll', window.__landingNavbarScrollHandler, { passive: true });
 window.addEventListener('pageshow', window.__landingNavbarPageShowHandler);
 
-if (document.readyState !== 'loading') {
-    clearLegacyNavCache();
-    applyNavbarScrollState();
-    requestAnimationFrame(applyNavbarScrollState);
+if (window.__landingNavbarDocumentClickHandler) {
+    document.removeEventListener('click', window.__landingNavbarDocumentClickHandler);
 }
+
+window.__landingNavbarDocumentClickHandler = handleLandingNavbarDocumentClick;
+document.addEventListener('click', window.__landingNavbarDocumentClickHandler);
+
+initLandingNavbar();
 </script>
 @endonce
