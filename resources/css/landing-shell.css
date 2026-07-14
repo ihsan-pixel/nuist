@@ -104,7 +104,7 @@
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 12px;
     margin: 0;
     margin-left: auto;
     padding: 3px;
@@ -121,7 +121,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 4px 12px;
+    padding: 4px 10px;
     border-radius: var(--landing-radius-pill);
     background: transparent;
     color: var(--landing-text-muted);
