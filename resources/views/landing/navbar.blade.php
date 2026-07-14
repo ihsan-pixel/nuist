@@ -143,36 +143,6 @@
     display: none;
 }
 
-.btn-primary {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-weight: 400;
-    font-size: 14px;
-    color: #157347;
-    background: #ffffff;
-    border: 1px solid rgba(21, 115, 71, 0.14);
-    box-shadow: 0 8px 22px rgba(25, 43, 38, 0.08);
-    text-decoration: none;
-    margin-right: 18px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-}
-
-.btn-primary:hover {
-    color: #0f5c38;
-    border-color: rgba(21, 115, 71, 0.22);
-    box-shadow: 0 12px 26px rgba(25, 43, 38, 0.12);
-    transform: translateY(-1px);
-}
-
-.btn-primary i {
-    font-size: 17px;
-}
-
 /* DROPDOWN SUBMENU */
 .dropdown {
     position: relative;
@@ -352,10 +322,6 @@
     .nav-flex {
         height: 42px;
     }
-
-    .btn-primary.desktop-login {
-        display: none;
-    }
 }
 
 @media (max-width: 480px) {
@@ -402,7 +368,33 @@
 </nav>
 
 <script>
+const LANDING_NAV_CACHE_VERSION = 'v2';
+const LANDING_NAV_STORAGE_PREFIX = `landing-nav:${LANDING_NAV_CACHE_VERSION}:`;
 const landingNavCache = new Map();
+
+function getNavStorageKey(url) {
+    return `${LANDING_NAV_STORAGE_PREFIX}${normalizeNavUrl(url)}`;
+}
+
+function clearLegacyNavCache() {
+    try {
+        const currentPrefix = LANDING_NAV_STORAGE_PREFIX;
+
+        for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
+            const key = sessionStorage.key(index);
+
+            if (!key || !key.startsWith('landing-nav:')) {
+                continue;
+            }
+
+            if (!key.startsWith(currentPrefix)) {
+                sessionStorage.removeItem(key);
+            }
+        }
+    } catch (error) {
+        // Ignore storage access issues.
+    }
+}
 
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -446,13 +438,14 @@ function normalizeNavUrl(url) {
 
 function readCachedPage(url) {
     const normalizedUrl = normalizeNavUrl(url);
+    const storageKey = getNavStorageKey(normalizedUrl);
 
     if (landingNavCache.has(normalizedUrl)) {
         return landingNavCache.get(normalizedUrl);
     }
 
     try {
-        const cached = sessionStorage.getItem(`landing-nav:${normalizedUrl}`);
+        const cached = sessionStorage.getItem(storageKey);
         if (!cached) {
             return null;
         }
@@ -471,10 +464,11 @@ function readCachedPage(url) {
 
 function writeCachedPage(url, html) {
     const normalizedUrl = normalizeNavUrl(url);
+    const storageKey = getNavStorageKey(normalizedUrl);
     landingNavCache.set(normalizedUrl, html);
 
     try {
-        sessionStorage.setItem(`landing-nav:${normalizedUrl}`, JSON.stringify({ html }));
+        sessionStorage.setItem(storageKey, JSON.stringify({ html }));
     } catch (error) {
         // Ignore storage quota errors.
     }
@@ -490,6 +484,7 @@ async function fetchPageHtml(url) {
 
     const response = await fetch(normalizedUrl, {
         method: 'GET',
+        cache: 'no-store',
         credentials: 'same-origin',
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
@@ -572,6 +567,8 @@ document.addEventListener('click', function(e) {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    clearLegacyNavCache();
+
     document.querySelectorAll('a[data-nav-ajax="true"]').forEach((link) => {
         link.addEventListener('mouseenter', function() {
             prefetchPage(link.href);
