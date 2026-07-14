@@ -237,7 +237,7 @@ hr.my-4 {
             <div class="footer-col">
                 <div class="footer-logo mb-3">
                     <div class="footer-logo-button">
-                        <img src="{{ asset('images/logo1.png') }}" alt="NUIST Logo">
+                        <img src="{{ asset('images/logo1.png') }}" alt="NUIST Logo" loading="lazy" decoding="async">
                     </div>
                     {{-- <span>NUIST</span> --}}
                 </div>
@@ -335,4 +335,3 @@ hr.my-4 {
         });
     }
 </script>
-
