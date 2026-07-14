@@ -295,7 +295,7 @@
     <section id="hero" class="hero">
         <div class="container">
             <h1 class="hero-title">Kontak Kami</h1>
-            <h1 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h1>
+            <h2 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h2>
             <p>Hubungi kami untuk informasi lebih lanjut tentang pendidikan madrasah dan layanan kami.</p>
         </div>
     </section>

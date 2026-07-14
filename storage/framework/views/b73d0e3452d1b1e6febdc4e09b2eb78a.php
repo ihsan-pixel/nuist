@@ -10,11 +10,24 @@
     $hasLandingShellAssets = file_exists($landingShellCssPath) && file_exists($landingShellJsPath);
     $landingShellSourceCssPath = resource_path('css/landing-shell.css');
     $landingShellSourceJsPath = resource_path('js/landing-shell.js');
+    $landingShellModulePaths = [
+        resource_path('js/modules/landing-observers.js'),
+        resource_path('js/modules/landing-carousel.js'),
+    ];
     $landingShellSourceCss = file_exists($landingShellSourceCssPath) ? file_get_contents($landingShellSourceCssPath) : '';
     $landingShellSourceJs = file_exists($landingShellSourceJsPath) ? file_get_contents($landingShellSourceJsPath) : '';
-    $landingShellFallbackJs = $landingShellSourceJs
-        ? preg_replace("/^\\s*import\\s+['\"][^'\"]*landing-shell\\.css['\"];\\s*/m", '', $landingShellSourceJs)
-        : '';
+    $landingShellFallbackParts = [];
+    foreach ($landingShellModulePaths as $landingShellModulePath) {
+        if (!file_exists($landingShellModulePath)) {
+            continue;
+        }
+
+        $landingShellFallbackParts[] = preg_replace('/^\\s*export\\s+/m', '', file_get_contents($landingShellModulePath));
+    }
+    if ($landingShellSourceJs) {
+        $landingShellFallbackParts[] = preg_replace('/^\\s*import\\s+.*?;\\s*$/m', '', $landingShellSourceJs);
+    }
+    $landingShellFallbackJs = trim(implode("\n\n", $landingShellFallbackParts));
     $metaDescription = trim((string) $__env->yieldContent('description')) ?: "Nuist.id adalah Sistem Informasi Digital LP. Ma'arif NU PWNU DIY untuk manajemen data madrasah, tenaga pendidik, dan laporan pendidikan berbasis web.";
     $pageTitle = trim((string) $__env->yieldContent('title'))
         ? trim((string) $__env->yieldContent('title')) . ' | Nuist.id - Sistem Informasi Digital LP. Ma\'arif NU PWNU DIY'

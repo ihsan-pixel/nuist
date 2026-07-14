@@ -1,6 +1,6 @@
 <?php $__env->startSection('landing_shell', '1'); ?>
 <?php $__env->startSection('title', 'Sekolah/Madrasah - NUIST'); ?>
-<?php $__env->startSection('description', 'Daftar Sekolah/Madrasah Dibawah Naungan LPMNU PWNU DIY'); ?>
+<?php $__env->startSection('description', 'Daftar Sekolah/Madrasah di bawah Naungan LPMNU PWNU DIY'); ?>
 
 <?php $__env->startSection('css'); ?>
 <?php echo $__env->make('landing._sekolah_styles', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
@@ -25,7 +25,7 @@
     <section id="hero" class="hero">
         <div class="container">
             <h1 class="hero-title">Sekolah/Madrasah</h1>
-            <h1 class="hero-subtitle" style="color: #eda711">Dibawah Naungan LPMNU PWNU DIY</h1>
+            <h2 class="hero-subtitle" style="color: #eda711">Di bawah Naungan LPMNU PWNU DIY</h2>
             <p>Temukan sekolah dan madrasah yang menjadi bagian dari ekosistem pendidikan kami. Klik pada sekolah untuk melihat profil lengkapnya.</p>
         </div>
     </section>

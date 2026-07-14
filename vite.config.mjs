@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/scss/bootstrap.scss',
                 'resources/scss/icons.scss',
                 'resources/scss/app.scss',
+                'resources/css/landing-home.css',
                 'resources/js/app.js',
                 'resources/js/landing-shell.js',
             ],

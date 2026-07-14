@@ -1,7 +1,7 @@
 @extends('layouts.master-without-nav')
 
 @section('title', $madrasah->name . ' - NUIST')
-@section('description', 'Profil ' . $madrasah->name . ' Dibawah Naungan LPMNU PWNU DIY')
+@section('description', 'Profil ' . $madrasah->name . ' di bawah Naungan LPMNU PWNU DIY')
 
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
