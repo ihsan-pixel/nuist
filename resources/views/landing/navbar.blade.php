@@ -396,6 +396,21 @@ function clearLegacyNavCache() {
     }
 }
 
+function applyNavbarScrollState() {
+    const navbar = document.querySelector('.navbar');
+
+    if (!navbar) {
+        return;
+    }
+
+    const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+    const isScrolled = currentScroll > 50;
+
+    navbar.classList.toggle('transparent', isScrolled);
+    navbar.classList.toggle('full-width', isScrolled);
+    navbar.classList.toggle('scrolled', isScrolled);
+}
+
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -568,6 +583,8 @@ document.addEventListener('click', function(e) {
 
 document.addEventListener('DOMContentLoaded', function() {
     clearLegacyNavCache();
+    applyNavbarScrollState();
+    requestAnimationFrame(applyNavbarScrollState);
 
     document.querySelectorAll('a[data-nav-ajax="true"]').forEach((link) => {
         link.addEventListener('mouseenter', function() {
@@ -614,25 +631,33 @@ document.addEventListener('click', function(e) {
 
 // Navbar scroll effect
 let ticking = false;
-window.addEventListener('scroll', function() {
+const handleNavbarScrollEffect = function() {
     if (!ticking) {
         requestAnimationFrame(function() {
-            const navbar = document.querySelector('.navbar');
-            if (navbar) {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('transparent');
-                    navbar.classList.add('full-width');
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('transparent');
-                    navbar.classList.remove('full-width');
-                    navbar.classList.remove('scrolled');
-                }
-            }
+            applyNavbarScrollState();
             ticking = false;
         });
         ticking = true;
     }
-});
+};
+
+if (window.__landingNavbarScrollHandler) {
+    window.removeEventListener('scroll', window.__landingNavbarScrollHandler);
+}
+
+if (window.__landingNavbarPageShowHandler) {
+    window.removeEventListener('pageshow', window.__landingNavbarPageShowHandler);
+}
+
+window.__landingNavbarScrollHandler = handleNavbarScrollEffect;
+window.__landingNavbarPageShowHandler = applyNavbarScrollState;
+window.addEventListener('scroll', window.__landingNavbarScrollHandler, { passive: true });
+window.addEventListener('pageshow', window.__landingNavbarPageShowHandler);
+
+if (document.readyState !== 'loading') {
+    clearLegacyNavCache();
+    applyNavbarScrollState();
+    requestAnimationFrame(applyNavbarScrollState);
+}
 </script>
 @endonce
