@@ -40,7 +40,7 @@
                         <a href="{{ route('landing.sekolah.detail', $madrasah->id) }}" class="school-card-link">
                             <div class="school-card">
                                 <div class="school-logo">
-                                    <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}">
+                                    <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}" loading="lazy" decoding="async">
                                 </div>
                                 <div class="school-info">
                                     <h3>{{ $madrasah->name }}</h3>
@@ -60,9 +60,6 @@
 @endsection
 
 @include('landing._sekolah_styles')
-
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
 // Section active on scroll and animation trigger
@@ -92,70 +89,108 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Custom Cursor Effect
-    const cursorSmall = document.createElement('div');
-    cursorSmall.className = 'cursor-small';
-    document.body.appendChild(cursorSmall);
+    const mapSection = document.getElementById('map-section');
+    let mapInitialized = false;
+    const mapLocations = [
+        @foreach($madrasahs as $madrasah)
+            @if($madrasah->latitude && $madrasah->longitude)
+                {
+                    lat: {{ $madrasah->latitude }},
+                    lng: {{ $madrasah->longitude }},
+                    name: @json($madrasah->name),
+                    kabupaten: @json($madrasah->kabupaten),
+                    detailUrl: @json(route('landing.sekolah.detail', $madrasah->id))
+                },
+            @endif
+        @endforeach
+    ];
 
-    const cursorLarge = document.createElement('div');
-    cursorLarge.className = 'cursor-large';
-    document.body.appendChild(cursorLarge);
+    function loadStylesheetOnce(href) {
+        if (document.querySelector(`link[href="${href}"]`)) {
+            return Promise.resolve();
+        }
 
-    let mouseX = 0;
-    let mouseY = 0;
-    let cursorSmallX = 0;
-    let cursorSmallY = 0;
-    let cursorLargeX = 0;
-    let cursorLargeY = 0;
-
-    // Track mouse movement
-    document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-
-    // Animate cursor positions
-    function animateCursor() {
-        // Smooth follow for small cursor
-        cursorSmallX += (mouseX - cursorSmallX) * 0.2;
-        cursorSmallY += (mouseY - cursorSmallY) * 0.2;
-
-        // Slower follow for large cursor
-        cursorLargeX += (mouseX - cursorLargeX) * 0.1;
-        cursorLargeY += (mouseY - cursorLargeY) * 0.1;
-
-        cursorSmall.style.left = cursorSmallX - 5 + 'px';
-        cursorSmall.style.top = cursorSmallY - 5 + 'px';
-
-        cursorLarge.style.left = cursorLargeX - 15 + 'px';
-        cursorLarge.style.top = cursorLargeY - 15 + 'px';
-
-        requestAnimationFrame(animateCursor);
+        return new Promise((resolve, reject) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            link.onload = resolve;
+            link.onerror = reject;
+            document.head.appendChild(link);
+        });
     }
 
-    animateCursor();
+    function loadScriptOnce(src) {
+        if (document.querySelector(`script[src="${src}"]`)) {
+            return Promise.resolve();
+        }
 
-    // Hide cursors on mobile devices
-    if ('ontouchstart' in window) {
-        cursorSmall.style.display = 'none';
-        cursorLarge.style.display = 'none';
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.body.appendChild(script);
+        });
     }
 
-    // Initialize Leaflet Map
-    const map = L.map('map').setView([-7.7956, 110.3695], 10); // Yogyakarta coordinates
+    async function initializeMap() {
+        if (mapInitialized || !mapSection) {
+            return;
+        }
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+        mapInitialized = true;
 
-    // Add markers for each madrasah
-    @foreach($madrasahs as $madrasah)
-        @if($madrasah->latitude && $madrasah->longitude)
-            L.marker([{{ $madrasah->latitude }}, {{ $madrasah->longitude }}])
-                .addTo(map)
-                .bindPopup('<b>{{ $madrasah->name }}</b><br>{{ $madrasah->kabupaten }}<br><a href="{{ route("landing.sekolah.detail", $madrasah->id) }}">Lihat Detail</a>');
-        @endif
-    @endforeach
+        try {
+            await loadStylesheetOnce('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+            await loadScriptOnce('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
+
+            const map = L.map('map', {
+                preferCanvas: true
+            }).setView([-7.7956, 110.3695], 10);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            let markerIndex = 0;
+            const chunkSize = 20;
+
+            function addMarkerChunk() {
+                const end = Math.min(markerIndex + chunkSize, mapLocations.length);
+
+                for (; markerIndex < end; markerIndex++) {
+                    const location = mapLocations[markerIndex];
+                    L.marker([location.lat, location.lng])
+                        .addTo(map)
+                        .bindPopup(`<b>${location.name}</b><br>${location.kabupaten}<br><a href="${location.detailUrl}">Lihat Detail</a>`);
+                }
+
+                if (markerIndex < mapLocations.length) {
+                    requestAnimationFrame(addMarkerChunk);
+                }
+            }
+
+            addMarkerChunk();
+        } catch (error) {
+            mapInitialized = false;
+        }
+    }
+
+    if (mapSection) {
+        const mapObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    initializeMap();
+                    observer.disconnect();
+                }
+            });
+        }, {
+            rootMargin: '200px 0px'
+        });
+
+        mapObserver.observe(mapSection);
+    }
 });
 </script>
-
