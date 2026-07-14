@@ -22,11 +22,7 @@ class LandingController extends Controller
     public function index()
     {
         $landing = Landing::getLanding();
-        $madrasahs = Madrasah::query()
-            ->select(['id', 'name', 'kabupaten', 'logo'])
-            ->whereNotNull('logo')
-            ->orderBy('scod')
-            ->get();
+        $madrasahs = Madrasah::all();
         $yayasan = Yayasan::find(1);
 
         // Dynamic counts from database

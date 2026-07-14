@@ -1,6 +1,4 @@
 import '../css/landing-shell.css';
-import { initAnimateObserver, initSectionTitleObserver } from './modules/landing-observers';
-import { initHomeCarousel } from './modules/landing-carousel';
 
 class LruPageCache {
     constructor({ version, ttlMs = 5 * 60 * 1000, maxEntries = 8 }) {
@@ -616,23 +614,63 @@ class LandingNavigation {
         const pageRoot = this.main.querySelector('[data-landing-page]');
         const pageKey = pageRoot?.dataset.landingPage || '';
 
-        initAnimateObserver(pageRoot || this.main, {
-            registerCleanup: (cleanup) => this.registerCleanup(cleanup),
-            once: true,
-        });
+        this.initAnimateObserver(pageRoot || this.main);
 
         if (pageKey === 'landing') {
-            initSectionTitleObserver(pageRoot, {
-                registerCleanup: (cleanup) => this.registerCleanup(cleanup),
-            });
-            initHomeCarousel(pageRoot, {
-                registerCleanup: (cleanup) => this.registerCleanup(cleanup),
-            });
+            this.initSectionTitleObserver(pageRoot);
         }
 
         if (pageKey === 'sekolah') {
             this.initSekolahMap(pageRoot);
         }
+    }
+
+    initAnimateObserver(root) {
+        if (!root) {
+            return;
+        }
+
+        const animateElements = root.querySelectorAll('.animate');
+        if (!animateElements.length) {
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        animateElements.forEach((element) => {
+            observer.observe(element);
+            if (element.getBoundingClientRect().top < window.innerHeight) {
+                element.classList.add('show');
+            }
+        });
+
+        this.registerCleanup(() => observer.disconnect());
+    }
+
+    initSectionTitleObserver(root) {
+        if (!root) {
+            return;
+        }
+
+        const titles = root.querySelectorAll('.section-title');
+        if (!titles.length) {
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                entry.target.classList.toggle('active', entry.isIntersecting);
+            });
+        }, { threshold: 0.5 });
+
+        titles.forEach((title) => observer.observe(title));
+        this.registerCleanup(() => observer.disconnect());
     }
 
     initSekolahMap(root) {

@@ -2,7 +2,7 @@
 
 @section('landing_shell', '1')
 @section('title', 'Sekolah/Madrasah - NUIST')
-@section('description', 'Daftar Sekolah/Madrasah di bawah Naungan LPMNU PWNU DIY')
+@section('description', 'Daftar Sekolah/Madrasah Dibawah Naungan LPMNU PWNU DIY')
 
 @section('css')
 @include('landing._sekolah_styles')
@@ -27,7 +27,7 @@
     <section id="hero" class="hero">
         <div class="container">
             <h1 class="hero-title">Sekolah/Madrasah</h1>
-            <h2 class="hero-subtitle" style="color: #eda711">Di bawah Naungan LPMNU PWNU DIY</h2>
+            <h1 class="hero-subtitle" style="color: #eda711">Dibawah Naungan LPMNU PWNU DIY</h1>
             <p>Temukan sekolah dan madrasah yang menjadi bagian dari ekosistem pendidikan kami. Klik pada sekolah untuk melihat profil lengkapnya.</p>
         </div>
     </section>

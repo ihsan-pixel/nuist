@@ -216,7 +216,7 @@
     <section id="hero" class="hero">
         <div class="container">
             <h1 class="hero-title">Tentang Kami</h1>
-            <h2 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h2>
+            <h1 class="hero-subtitle" style="color: #eda711">LPMNU PWNU DIY</h1>
             <p>Mengenal lebih dekat Lembaga Pengembangan Madrasah Nahdlatul Ulama Pengurus Wilayah Nahdlatul Ulama Daerah Istimewa Yogyakarta.</p>
         </div>
     </section>
