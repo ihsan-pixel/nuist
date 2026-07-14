@@ -256,10 +256,10 @@ hr.my-4 {
             <div class="footer-col">
                 <h5 class="fw-bold mb-3">Link Cepat</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2"><a href="{{ route('landing') }}#home" class="text-light text-decoration-none">Beranda</a></li>
-                    <li class="mb-2"><a href="{{ route('landing') }}#sekolah" class="text-light text-decoration-none">Sekolah</a></li>
-                    <li class="mb-2"><a href="{{ route('landing') }}#tentang" class="text-light text-decoration-none">Tentang</a></li>
-                    <li class="mb-2"><a href="{{ route('landing') }}#kontak" class="text-light text-decoration-none">Kontak</a></li>
+                    <li class="mb-2"><a href="{{ route('landing') }}" class="text-light text-decoration-none">Beranda</a></li>
+                    <li class="mb-2"><a href="{{ route('landing.sekolah') }}" class="text-light text-decoration-none">Sekolah</a></li>
+                    <li class="mb-2"><a href="{{ route('landing') }}#about" class="text-light text-decoration-none">Tentang</a></li>
+                    <li class="mb-2"><a href="{{ route('landing') }}#features" class="text-light text-decoration-none">Fitur</a></li>
                     <li class="mb-2"><a href="{{ route('mobile.dashboard') }}" class="text-light text-decoration-none">Download Aplikasi Nuist (PWA)</a></li>
                 </ul>
             </div>
@@ -335,3 +335,4 @@ hr.my-4 {
         });
     }
 </script>
+

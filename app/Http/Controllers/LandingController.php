@@ -47,7 +47,15 @@ class LandingController extends Controller
      */
     public function sekolah()
     {
-        return redirect()->to(route('landing') . '#sekolah');
+        // Order by kabupaten first, then by scod within each kabupaten
+        $madrasahs = Madrasah::orderBy('kabupaten')->orderBy('scod')->get();
+
+        // Group by kabupaten for display
+        $groupedMadrasahs = $madrasahs->groupBy('kabupaten');
+
+        $yayasan = Yayasan::find(1);
+
+        return view('landing.sekolah', compact('groupedMadrasahs', 'madrasahs', 'yayasan'));
     }
 
     /**
@@ -57,7 +65,9 @@ class LandingController extends Controller
      */
     public function tentang()
     {
-        return redirect()->to(route('landing') . '#tentang');
+        $yayasan = Yayasan::find(1);
+
+        return view('landing.tentang', compact('yayasan'));
     }
 
     /**
@@ -67,7 +77,9 @@ class LandingController extends Controller
      */
     public function kontak()
     {
-        return redirect()->to(route('landing') . '#kontak');
+        $yayasan = Yayasan::find(1);
+
+        return view('landing.kontak', compact('yayasan'));
     }
 
     /**
