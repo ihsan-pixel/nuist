@@ -115,7 +115,6 @@
         left: 0;
     }
 
-    .produk-overview-grid,
     .produk-group-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -124,8 +123,56 @@
         margin: 0 auto;
     }
 
-    .produk-overview-grid {
-        margin-bottom: 40px;
+    .produk-intro {
+        max-width: 980px;
+        margin: 0 auto 48px;
+        text-align: center;
+    }
+
+    .produk-intro-copy {
+        margin-bottom: 28px;
+    }
+
+    .produk-intro-copy p {
+        max-width: 780px;
+        margin: 16px auto 0;
+        color: #6b7280;
+        font-size: 18px;
+        line-height: 1.8;
+    }
+
+    .produk-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .produk-metric {
+        background: white;
+        border: 1px solid rgba(0, 75, 76, 0.08);
+        border-radius: 999px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+        padding: 16px 22px;
+    }
+
+    .produk-metric strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #004b4c;
+        font-size: 28px;
+        line-height: 1;
+    }
+
+    .produk-metric span {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .produk-anchor-wrap {
+        display: flex;
+        justify-content: center;
     }
 
     .content-card,
@@ -169,15 +216,6 @@
         margin-bottom: 10px;
     }
 
-    .produk-stat-value {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 36px;
-        font-weight: 700;
-        color: #004b4c;
-        line-height: 1;
-    }
-
     .produk-anchor-list {
         display: flex;
         flex-wrap: wrap;
@@ -191,14 +229,16 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 40px;
-        padding: 0 14px;
+        min-height: 46px;
+        padding: 0 18px;
         border-radius: 999px;
-        background: rgba(22, 163, 74, 0.08);
+        background: #ffffff;
+        border: 1px solid rgba(0, 75, 76, 0.12);
         color: #166534;
         text-decoration: none;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 600;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     }
 
     .produk-group-grid {
@@ -374,10 +414,18 @@
             font-size: 16px;
         }
 
-        .produk-overview-grid,
+        .produk-metrics,
         .produk-group-grid {
             grid-template-columns: 1fr;
             gap: 20px;
+        }
+
+        .produk-intro {
+            margin-bottom: 36px;
+        }
+
+        .produk-intro-copy p {
+            font-size: 16px;
         }
 
         .content-card,
@@ -385,6 +433,10 @@
         .produk-card {
             margin: 0 10px;
             padding: 24px;
+        }
+
+        .produk-metric {
+            border-radius: 20px;
         }
 
         .section-title {
@@ -407,22 +459,28 @@
 
     <section id="produk-content" class="produk-content">
         <div class="container">
-            <h2 class="section-title animate fade-up">Mengenal Produk NUIST</h2>
-
-            <div class="produk-overview-grid">
-                <div class="content-card animate fade-up">
-                    <h3>Katalog Produk</h3>
-                    <p>Halaman ini memuat seluruh produk dan layanan digital NUIST dalam satu tampilan yang rapi agar mudah dijelajahi tanpa perpindahan halaman yang berat.</p>
+            <div class="produk-intro">
+                <div class="produk-intro-copy animate fade-up">
+                    <h2 class="section-title">Mengenal Produk NUIST</h2>
+                    <p>Temukan layanan digital NUIST yang dirancang untuk mendukung tata kelola, operasional sekolah, dan pengembangan ekosistem pendidikan dalam satu tampilan yang lebih ringkas.</p>
                 </div>
 
-                <div class="content-card animate fade-up delay-1">
-                    <h3>Statistik Produk</h3>
-                    <p><span class="produk-stat-value">{{ collect($productGroups)->sum(fn ($group) => count($group['products'])) }}</span>Total produk dan layanan yang tersedia dalam ekosistem NUIST.</p>
-                    <p style="margin-top: 14px;"><span class="produk-stat-value">{{ collect($productGroups)->sum(fn ($group) => collect($group['products'])->where('status', 'LIVE')->count()) }}</span>Produk yang sudah live dan siap digunakan.</p>
+                <div class="produk-metrics animate fade-up delay-1">
+                    <div class="produk-metric">
+                        <strong>{{ collect($productGroups)->sum(fn ($group) => count($group['products'])) }}</strong>
+                        <span>Total produk dan layanan</span>
+                    </div>
+                    <div class="produk-metric">
+                        <strong>{{ collect($productGroups)->sum(fn ($group) => collect($group['products'])->where('status', 'LIVE')->count()) }}</strong>
+                        <span>Produk live dan siap digunakan</span>
+                    </div>
+                    <div class="produk-metric">
+                        <strong>{{ count($productGroups) }}</strong>
+                        <span>Kelompok kategori produk</span>
+                    </div>
                 </div>
 
-                <div class="content-card animate fade-up delay-2">
-                    <h3>Kelompok Produk</h3>
+                <div class="produk-anchor-wrap animate fade-up delay-2">
                     <ul class="produk-anchor-list">
                         @foreach($productGroups as $index => $group)
                             <li><a href="#group-{{ $index + 1 }}">{{ $group['title'] }}</a></li>
