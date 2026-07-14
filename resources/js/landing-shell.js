@@ -357,13 +357,19 @@ class LandingNavigation {
         history.replaceState({ ...state, landingNav: true, scroll }, '', normalized);
     }
 
+    scrollToPageTop() {
+        window.scrollTo(0, 0);
+        this.applyNavbarScrollState();
+        this.updateBackToTop();
+    }
+
     async navigate(url, options = {}) {
         const targetUrl = this.normalizeUrl(url);
         const isSameUrl = targetUrl === this.currentUrl;
 
         if (isSameUrl && !options.popstate) {
             this.closeMenu();
-            this.applyNavbarScrollState();
+            this.scrollToPageTop();
             return;
         }
 
@@ -407,11 +413,13 @@ class LandingNavigation {
             this.initCurrentPage();
             this.idleCallback(() => this.prefetchVisibleLinks());
 
-            const nextScroll = options.popstate ? restoreScroll : { x: 0, y: 0 };
-            window.scrollTo(nextScroll.x, nextScroll.y);
+            if (options.popstate) {
+                window.scrollTo(restoreScroll.x, restoreScroll.y);
+            } else {
+                this.scrollToPageTop();
+            }
+
             this.main.focus({ preventScroll: true });
-            this.applyNavbarScrollState();
-            this.updateBackToTop();
             this.trackPageView(payload.meta, targetUrl);
             this.announce('Halaman berhasil dibuka.');
         } catch (error) {
