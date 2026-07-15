@@ -18,6 +18,8 @@ use App\Services\AttendanceObligationService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\FcmPushService;
 use App\Services\ExternalTeachingPermissionService;
+use App\Services\FaceVerificationService;
+use App\Services\MobileAttendanceSettingsService;
 use App\Services\PicketScheduleApprovalService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -43,6 +45,8 @@ class TeacherAppController extends Controller
         private AcademicCalendarEventService $academicCalendarEventService,
         private PicketScheduleApprovalService $picketScheduleApprovalService,
         private AttendanceObligationService $attendanceObligationService,
+        private MobileAttendanceSettingsService $mobileAttendanceSettingsService,
+        private FaceVerificationService $faceVerificationService,
     )
     {
     }
@@ -418,6 +422,7 @@ class TeacherAppController extends Controller
                 'school_name' => $user->madrasah?->name ?? '-',
                 'teacher_name' => $user->name,
                 'time_ranges' => $this->buildPresensiTimeRanges($user, $today),
+                'verification' => $this->buildAttendanceVerificationState($user),
                 'form' => $attendanceForm,
                 'today_attendance' => $this->buildTodayAttendanceState(
                     $todayPresensi,
@@ -465,9 +470,21 @@ class TeacherAppController extends Controller
             'selfie_data' => ['required', 'string', 'min:100'],
         ]);
 
+        $verificationMode = $this->mobileAttendanceSettingsService->currentMode();
+
+        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
+            $validated = array_merge($validated, $request->validate([
+                'face_descriptor' => ['required', 'array', 'min:32'],
+                'liveness_score' => ['required', 'numeric', 'min:0', 'max:1'],
+                'liveness_challenges' => ['required', 'array', 'min:1'],
+            ]));
+        }
+
         if (!$this->isValidBase64Image($validated['selfie_data'])) {
             throw ValidationException::withMessages([
-                'selfie_data' => 'Data foto selfie tidak valid. Silakan ambil foto lagi.',
+                'selfie_data' => $verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN
+                    ? 'Data foto hasil scan wajah tidak valid. Silakan ulangi scan.'
+                    : 'Data foto selfie tidak valid. Silakan ambil foto lagi.',
             ]);
         }
 
@@ -571,6 +588,33 @@ class TeacherAppController extends Controller
             ]);
         }
 
+        $faceVerification = [
+            'success' => true,
+            'face_id_used' => null,
+            'similarity' => null,
+            'liveness_score' => null,
+            'challenges' => null,
+            'notes' => 'selfie_only',
+            'verified' => false,
+        ];
+
+        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
+            $faceVerification = $this->faceVerificationService->verifyForAttendance(
+                $user,
+                $validated['face_descriptor'] ?? null,
+                $validated['liveness_score'] ?? null,
+                $validated['liveness_challenges'] ?? []
+            );
+
+            if (!$faceVerification['success']) {
+                throw ValidationException::withMessages([
+                    'face_verification' => $faceVerification['message'],
+                ]);
+            }
+
+            $faceVerification['verified'] = true;
+        }
+
         $selfiePath = $this->processAndSaveSelfie(
             $validated['selfie_data'],
             $user->id,
@@ -602,6 +646,12 @@ class TeacherAppController extends Controller
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 'is_fake_location' => false,
                 'fake_location_analysis' => $locationValidation['analysis'] ?? null,
+                'face_id_used' => $faceVerification['face_id_used'] ?? null,
+                'face_similarity_score' => $faceVerification['similarity'] ?? null,
+                'liveness_score' => $faceVerification['liveness_score'] ?? null,
+                'liveness_challenges' => $faceVerification['challenges'] ?? null,
+                'face_verified' => $faceVerification['verified'] ?? false,
+                'face_verification_notes' => $faceVerification['notes'] ?? null,
             ]));
 
             $message = 'Presensi masuk berhasil dicatat.';
@@ -627,6 +677,12 @@ class TeacherAppController extends Controller
                 'keterangan' => $newKeterangan,
                 'is_fake_location_keluar' => false,
                 'fake_location_analysis_keluar' => $locationValidation['analysis'] ?? null,
+                'face_id_used' => $faceVerification['face_id_used'] ?? null,
+                'face_similarity_score' => $faceVerification['similarity'] ?? null,
+                'liveness_score' => $faceVerification['liveness_score'] ?? null,
+                'liveness_challenges' => $faceVerification['challenges'] ?? null,
+                'face_verified' => $faceVerification['verified'] ?? false,
+                'face_verification_notes' => $faceVerification['notes'] ?? null,
             ]));
 
             $message = 'Presensi keluar berhasil dicatat.';
@@ -2151,6 +2207,7 @@ class TeacherAppController extends Controller
         ?Izin $approvedBlockingIzin,
         bool $pendingLatePermit,
     ): array {
+        $verification = $this->buildAttendanceVerificationState($user);
         $blockedMessage = null;
         $nextMode = null;
         $nextModeLabel = null;
@@ -2196,11 +2253,27 @@ class TeacherAppController extends Controller
             'pending_late_permit' => $pendingLatePermit,
             'guidance' => [
                 'Aktifkan GPS dan ambil lokasi terbaru sebelum submit.',
-                'Ambil selfie langsung dari kamera depan saat presensi.',
+                $verification['mode'] === MobileAttendanceSettingsService::MODE_FACE_SCAN
+                    ? 'Lakukan scan wajah dan selesaikan tantangan liveness saat presensi.'
+                    : 'Ambil selfie langsung dari kamera depan saat presensi.',
                 'Mode presensi akan mengikuti status hari ini secara otomatis.',
             ],
             'school_name' => $user->madrasah?->name ?? '-',
             'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+        ];
+    }
+
+    private function buildAttendanceVerificationState(User $user): array
+    {
+        $state = $this->mobileAttendanceSettingsService->runtimeStateForUser($user);
+
+        return [
+            'mode' => $state['mode'],
+            'label' => $state['label'],
+            'description' => $state['description'],
+            'requires_face_scan' => $state['requires_face_scan'],
+            'face_enrollment_required' => $state['face_enrollment_required'],
+            'face_enrolled' => $state['face_enrolled'],
         ];
     }
 

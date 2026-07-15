@@ -187,4 +187,14 @@ class Madrasah extends Model
     {
         return $this->hasMany(SkYayasanImportBatch::class, 'madrasah_id');
     }
+
+    public function attendanceDevices()
+    {
+        return $this->hasMany(RegisteredAttendanceDevice::class, 'madrasah_id');
+    }
+
+    public function attendanceKioskLogs()
+    {
+        return $this->hasMany(AttendanceKioskLog::class, 'madrasah_id');
+    }
 }

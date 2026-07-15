@@ -4,18 +4,20 @@ namespace App\Http\Controllers\Mobile\Presensi;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-use App\Models\Izin;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\AttendanceObligationService;
+use App\Services\AttendanceValidationService;
+use App\Services\AttendanceWorkflowService;
+use App\Services\FaceVerificationService;
 use App\Services\ExternalTeachingPermissionService;
+use App\Services\MobileAttendanceSettingsService;
 use App\Services\PicketScheduleApprovalService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -24,6 +26,10 @@ class PresensiController extends \App\Http\Controllers\Controller
     public function __construct(
         private PicketScheduleApprovalService $picketScheduleApprovalService,
         private AttendanceObligationService $attendanceObligationService,
+        private FaceVerificationService $faceVerificationService,
+        private MobileAttendanceSettingsService $mobileAttendanceSettingsService,
+        private AttendanceValidationService $attendanceValidationService,
+        private AttendanceWorkflowService $attendanceWorkflowService,
     )
     {
         $this->middleware(['web', 'auth']);
@@ -40,14 +46,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         // Check if user has pending izin terlambat for today - block access to presensi menu
-        $pendingIzinTerlambat = Presensi::where('user_id', $user->id)
-            ->whereDate('tanggal', Carbon::today())
-            ->where('status', 'izin')
-            ->where('status_izin', 'pending')
-            ->where('keterangan', 'like', '%terlambat%')
-            ->first();
-
-        if ($pendingIzinTerlambat) {
+        if ($this->attendanceWorkflowService->findPendingLatePermit($user, Carbon::today('Asia/Jakarta'))) {
             return redirect()->back()->with('error', 'Izin terlambat Anda sedang menunggu persetujuan kepala sekolah. Presensi akan dapat dilakukan setelah izin disetujui.');
         }
 
@@ -133,7 +132,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->where('status', 'hadir')
             ->get();
 
-        $approvedBlockingIzin = $this->findApprovedBlockingIzin($user, $selectedDate);
+        $approvedBlockingIzin = $this->attendanceWorkflowService->findApprovedBlockingIzin($user, $selectedDate);
 
         // For penjaga sekolah, if no presensi for today, show the last presensi to display status
         if ($user->ketugasan === 'penjaga sekolah' && $presensiHariIni->isEmpty()) {
@@ -147,49 +146,30 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
         }
 
-
-
-        // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)
-        $timeRanges = null;
-        if ($user->madrasah && $user->madrasah->hari_kbm) {
-            $hariKbm = $user->madrasah->hari_kbm;
-            $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek; // 0=Sunday, 5=Friday
-
-            // Defaults
-            $masukStart = $user->madrasah->presensi_masuk_start ?? '00:01';
-            $masukEnd = $user->madrasah->presensi_masuk_end ?? '07:00';
-            $pulangEnd = $user->madrasah->presensi_pulang_end ?? '22:00';
-
-            // Determine pulang start using day-specific overrides if present
-            if ($dayOfWeek == 5 && $user->madrasah->presensi_pulang_jumat) {
-                $pulangStart = $user->madrasah->presensi_pulang_jumat;
-            } elseif ($dayOfWeek == 6 && $user->madrasah->presensi_pulang_sabtu) {
-                $pulangStart = $user->madrasah->presensi_pulang_sabtu;
-            } elseif ($user->madrasah->presensi_pulang_start) {
-                $pulangStart = $user->madrasah->presensi_pulang_start;
-            } else {
-                // Fallbacks depending on KBM policy
-                if ($hariKbm == '5') {
-                    $pulangStart = ($dayOfWeek == 5) ? '11:15' : '13:35';
-                } elseif ($hariKbm == '6') {
-                    $pulangStart = ($dayOfWeek == 5) ? '13:00' : (($dayOfWeek == 6) ? '12:00' : '14:00');
-                } else {
-                    $pulangStart = '15:00';
-                }
-            }
-
-            $timeRanges = [
-                'masuk_start' => $masukStart,
-                'masuk_end' => $masukEnd,
-                'pulang_start' => $pulangStart,
-                'pulang_end' => $pulangEnd,
-            ];
-
-            // Remove masuk_end to indicate no time limit for presensi entry
-            $timeRanges['masuk_end'] = null;
+        $faceVerificationState = $this->mobileAttendanceSettingsService->runtimeStateForUser($user);
+        if ($faceVerificationState['requires_face_scan']) {
+            $faceVerificationState = array_merge(
+                $faceVerificationState,
+                $this->faceVerificationService->requirementState($user)
+            );
+        } else {
+            $faceVerificationState['required'] = false;
+            $faceVerificationState['enrolled'] = true;
+            $faceVerificationState['message'] = 'Presensi mobile saat ini menggunakan selfie.';
         }
 
-        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'approvedPicketSubmission', 'presensiHariIni', 'approvedBlockingIzin', 'timeRanges', 'mapData', 'user'));
+
+        $timeRanges = null;
+        if ($user->madrasah) {
+            $timeRanges = [
+                'masuk_start' => substr($this->attendanceWorkflowService->resolveMasukStart($user->madrasah), 0, 5),
+                'masuk_end' => null,
+                'pulang_start' => substr($this->attendanceWorkflowService->resolvePulangStart($user->madrasah, $selectedDate), 0, 5),
+                'pulang_end' => substr($this->attendanceWorkflowService->resolveEndOfDayCutoff($user->madrasah, '22:00:00'), 0, 5),
+            ];
+        }
+
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'approvedPicketSubmission', 'presensiHariIni', 'approvedBlockingIzin', 'timeRanges', 'mapData', 'user', 'faceVerificationState'));
     }
 
     // Store presensi (mobile)
@@ -211,15 +191,26 @@ class PresensiController extends \App\Http\Controllers\Controller
             'speed' => 'nullable|numeric',
             'device_info' => 'nullable|string',
             'location_readings' => 'nullable|string',
-            'selfie_data' => 'required|string|min:100', // Ensure it's not empty and has minimum length
+            'selfie_data' => 'required|string|min:100',
 
         ]);
 
-        // Additional validation for selfie data
+        $verificationMode = $this->mobileAttendanceSettingsService->currentMode();
+
+        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
+            $request->validate([
+                'face_descriptor' => 'required|array|min:32',
+                'liveness_score' => 'required|numeric|min:0|max:1',
+                'liveness_challenges' => 'required|array|min:1',
+            ]);
+        }
+
         if (!$this->isValidBase64Image($request->selfie_data)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data foto selfie tidak valid atau corrupt. Silakan ambil foto lagi.'
+                'message' => $verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN
+                    ? 'Foto hasil scan wajah tidak valid. Silakan ulangi scan wajah.'
+                    : 'Foto selfie tidak valid. Silakan ambil ulang selfie.'
             ], 400);
         }
 
@@ -230,21 +221,15 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $tanggal);
 
-        // Check if it's a holiday or Sunday - prevent presensi
-        $isHoliday = Holiday::isHoliday($tanggal);
-        $isSunday = Carbon::parse($tanggal)->dayOfWeek === Carbon::SUNDAY;
-        $approvedPicketSubmission = $this->picketScheduleApprovalService->approvedSubmissionForDate($user, $tanggal);
-
-        if (($isHoliday || $isSunday) && !$approvedPicketSubmission) {
-            $holiday = $isHoliday ? Holiday::getHoliday($tanggal) : null;
-            $reason = $isHoliday ? "hari libur ({$holiday->name})" : "hari Minggu";
+        $blockedDayReason = $this->attendanceWorkflowService->blockedAttendanceDayReason($user, $tanggal);
+        if ($blockedDayReason) {
             return response()->json([
                 'success' => false,
-                'message' => "Presensi tidak dapat dilakukan pada {$reason}."
+                'message' => "Presensi tidak dapat dilakukan pada {$blockedDayReason}."
             ], 400);
         }
 
-        $approvedBlockingIzin = $this->findApprovedBlockingIzin($user, $tanggal);
+        $approvedBlockingIzin = $this->attendanceWorkflowService->findApprovedBlockingIzin($user, $tanggal);
         if ($approvedBlockingIzin) {
             $izinLabel = ucfirst(str_replace('_', ' ', $approvedBlockingIzin->type));
             $periodLabel = $approvedBlockingIzin->tanggal_selesai
@@ -259,12 +244,7 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         // Special handling for penjaga sekolah - no time restrictions
         if ($user->ketugasan !== 'penjaga sekolah') {
-            // Use madrasah-specific presensi_pulang_end as end-of-day cutoff if available
-            $endOfDayCutoff = '23:59:59';
-            if ($user->madrasah && $user->madrasah->presensi_pulang_end) {
-                $val = $user->madrasah->presensi_pulang_end;
-                $endOfDayCutoff = (strlen($val) == 5) ? $val . ':00' : $val;
-            }
+            $endOfDayCutoff = $this->attendanceWorkflowService->resolveEndOfDayCutoff($user->madrasah);
 
             // Check if time is after endOfDayCutoff - mark as alpha (only for non-penjaga sekolah)
             if ($now->format('H:i:s') > $endOfDayCutoff) {
@@ -398,14 +378,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         }
 
         // Check if user has pending izin terlambat for today - block presensi if pending
-        $pendingIzinTerlambat = Presensi::where('user_id', $user->id)
-            ->whereDate('tanggal', $tanggal)
-            ->where('status', 'izin')
-            ->where('status_izin', 'pending')
-            ->where('keterangan', 'like', '%terlambat%')
-            ->first();
-
-        if ($pendingIzinTerlambat) {
+        if ($this->attendanceWorkflowService->findPendingLatePermit($user, $tanggal)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Izin terlambat Anda sedang menunggu persetujuan kepala sekolah. Presensi akan dapat dilakukan setelah izin disetujui.'
@@ -488,13 +461,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 // Penjaga sekolah: no time restrictions for presensi masuk
                 // Can presensi anytime 24 hours
             } elseif ($user->pemenuhan_beban_kerja_lain) {
-                // User with beban kerja lain: presensi masuk 00:01 - 22:00
-                // Prefer madrasah-specific presensi_masuk_start if present else default 00:01
-                $minTimeMasuk = '00:01:00';
-                if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
-                    $v = $user->madrasah->presensi_masuk_start;
-                    $minTimeMasuk = (strlen($v) == 5) ? $v . ':00' : $v;
-                }
+                $minTimeMasuk = $this->attendanceWorkflowService->resolveMasukStart($user->madrasah);
                 if ($now->format('H:i:s') < $minTimeMasuk) {
                     return response()->json([
                         'success' => false,
@@ -502,13 +469,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                     ], 400);
                 }
             } else {
-                // User biasa: presensi masuk sesuai hari KBM
-                // Use madrasah-specific presensi_masuk_start when available
-                $minTimeMasuk = '00:01:00';
-                if ($user->madrasah && $user->madrasah->presensi_masuk_start) {
-                    $v = $user->madrasah->presensi_masuk_start;
-                    $minTimeMasuk = (strlen($v) == 5) ? $v . ':00' : $v;
-                }
+                $minTimeMasuk = $this->attendanceWorkflowService->resolveMasukStart($user->madrasah);
                 if ($now->format('H:i:s') < $minTimeMasuk) {
                     return response()->json([
                         'success' => false,
@@ -528,7 +489,37 @@ class PresensiController extends \App\Http\Controllers\Controller
             ], 400);
         }
 
-        // Process and save selfie image
+        $faceVerification = [
+            'success' => true,
+            'face_id_used' => null,
+            'similarity' => null,
+            'liveness_score' => null,
+            'challenges' => null,
+            'notes' => 'selfie_only',
+            'verified' => false,
+        ];
+
+        if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
+            $faceVerification = $this->faceVerificationService->verifyForAttendance(
+                $user,
+                $request->input('face_descriptor'),
+                $request->input('liveness_score'),
+                $request->input('liveness_challenges', []),
+                true,
+            );
+
+            if (!$faceVerification['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $faceVerification['message'],
+                    'notes' => $faceVerification['notes'] ?? null,
+                    'similarity' => $faceVerification['similarity'] ?? null,
+                ], 422);
+            }
+
+            $faceVerification['verified'] = true;
+        }
+
         $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
 
         // Prevent double submission for masuk if already exists
@@ -559,38 +550,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 $tanggal = Carbon::today()->toDateString();
             }
 
-            // Check if user has approved izin terlambat for today
-            $approvedIzinTerlambat = Presensi::where('user_id', $user->id)
-                ->whereDate('tanggal', $tanggal)
-                ->where('status', 'izin')
-                ->where('status_izin', 'approved')
-                ->where('keterangan', 'like', '%terlambat%')
-                ->first();
-
-            // Calculate lateness - only set keterangan if late (after 07:00)
-            $keterangan = "";
-            if ($approvedIzinTerlambat) {
-                // If has approved izin terlambat, mark as "terlambat sudah izin"
-                $keterangan = "terlambat sudah izin";
-            } else {
-                // Jika waktu presensi setelah 07:00, hitung keterlambatan
-                if ($now->format('H:i:s') > '07:00:00') {
-                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                    $sekarang = Carbon::now('Asia/Jakarta');
-                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
-
-                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                    if ($sekarang->lessThan($batas)) {
-                        $terlambatMenit = 0;
-                    } else {
-                        $terlambatMenit = abs(round($terlambatMenit));
-                    }
-
-                    $keterangan = "Terlambat {$terlambatMenit} menit";
-                } else {
-                    $keterangan = "tidak terlambat";
-                }
-            }
+            $keterangan = $this->attendanceWorkflowService->determineMasukKeterangan($user, $now);
 
             // Special handling for early presensi (between 01:00 and 00:01)
             if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '00:01:00') {
@@ -620,6 +580,12 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 'is_fake_location' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis' => $locationValidation['analysis'] ?? null,
+                'face_id_used' => $faceVerification['face_id_used'] ?? null,
+                'face_similarity_score' => $faceVerification['similarity'] ?? null,
+                'liveness_score' => $faceVerification['liveness_score'] ?? null,
+                'liveness_challenges' => $faceVerification['challenges'] ?? null,
+                'face_verified' => $faceVerification['verified'] ?? false,
+                'face_verification_notes' => $faceVerification['notes'] ?? null,
             ]));
 
             $message = 'Presensi masuk berhasil dicatat!';
@@ -630,51 +596,17 @@ class PresensiController extends \App\Http\Controllers\Controller
                 // Penjaga sekolah: no time restrictions for presensi keluar
                 // Can presensi anytime 24 hours
             } elseif (!$user->pemenuhan_beban_kerja_lain) {
-                // User biasa: presensi keluar sesuai hari KBM
-                $pulangStart = '15:00:00'; // Default fallback
-                // Prefer madrasah-specific settings when available
-                if ($user->madrasah) {
-                    $ms = $user->madrasah;
-                    $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek;
-
-                    if ($dayOfWeek == 5 && $ms->presensi_pulang_jumat) {
-                        $pulangStart = (strlen($ms->presensi_pulang_jumat) == 5) ? $ms->presensi_pulang_jumat . ':00' : $ms->presensi_pulang_jumat;
-                    } elseif ($dayOfWeek == 6 && $ms->presensi_pulang_sabtu) {
-                        $pulangStart = (strlen($ms->presensi_pulang_sabtu) == 5) ? $ms->presensi_pulang_sabtu . ':00' : $ms->presensi_pulang_sabtu;
-                    } elseif ($ms->presensi_pulang_start) {
-                        $pulangStart = (strlen($ms->presensi_pulang_start) == 5) ? $ms->presensi_pulang_start . ':00' : $ms->presensi_pulang_start;
-                    } else {
-                        // fallback based on hari_kbm
-                        $hariKbm = $ms->hari_kbm;
-                        if ($hariKbm == '5') {
-                            $pulangStart = ($dayOfWeek == 5) ? '11:15:00' : '13:35:00';
-                        } elseif ($hariKbm == '6') {
-                            $pulangStart = ($dayOfWeek == 5) ? '13:00:00' : (($dayOfWeek == 6) ? '12:00:00' : '14:00:00');
-                        }
-                    }
-                }
-
-                // If it's before pulangStart, allow checkout but mark as pulang awal
-                $isPulangAwal = false;
-                if ($now->format('H:i:s') < $pulangStart) {
-                    $isPulangAwal = true;
-                    // we'll continue and set keterangan pada saat update existing presensi
-                }
+                $isPulangAwal = $this->attendanceWorkflowService->isEarlyCheckout($user, $user->madrasah, $now);
             }
             // User with beban kerja lain: no time restriction for presensi keluar
 
             // Presensi Keluar - update existing record
             // For penjaga sekolah, update the existing open presensi record
             // If this checkout is before official pulang_start, append 'pulang awal' to keterangan
-            $newKeterangan = $existingPresensi->keterangan ?? '';
-            if (!empty($isPulangAwal) && $isPulangAwal) {
-                $suffix = 'pulang awal';
-                if (trim($newKeterangan) !== '') {
-                    $newKeterangan = $newKeterangan . ' / ' . $suffix;
-                } else {
-                    $newKeterangan = $suffix;
-                }
-            }
+            $newKeterangan = $this->attendanceWorkflowService->appendCheckoutNote(
+                $existingPresensi->keterangan,
+                !empty($isPulangAwal) && $isPulangAwal
+            );
 
             $existingPresensi->update($this->filterPresensiAttributes([
                 'waktu_keluar' => $now,
@@ -690,6 +622,12 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'keterangan' => $newKeterangan,
                 'is_fake_location_keluar' => $locationValidation['is_fake'] ?? false,
                 'fake_location_analysis_keluar' => $locationValidation['analysis'] ?? null,
+                'face_id_used' => $faceVerification['face_id_used'] ?? null,
+                'face_similarity_score' => $faceVerification['similarity'] ?? null,
+                'liveness_score' => $faceVerification['liveness_score'] ?? null,
+                'liveness_challenges' => $faceVerification['challenges'] ?? null,
+                'face_verified' => $faceVerification['verified'] ?? false,
+                'face_verification_notes' => $faceVerification['notes'] ?? null,
             ]));
 
             $presensi = $existingPresensi;
@@ -911,65 +849,7 @@ class PresensiController extends \App\Http\Controllers\Controller
      */
     private function validateLocationConsistency(string $locationReadingsJson): array
     {
-        try {
-            $readings = json_decode($locationReadingsJson, true);
-
-            if (!is_array($readings) || count($readings) < 2) {
-                return ['valid' => true, 'message' => ''];
-            }
-
-            $previousReading = null;
-            $suspiciousJumpCount = 0;
-
-            foreach ($readings as $reading) {
-                if (
-                    !is_array($reading)
-                    || !isset($reading['latitude'], $reading['longitude'])
-                    || !is_numeric($reading['latitude'])
-                    || !is_numeric($reading['longitude'])
-                ) {
-                    continue;
-                }
-
-                if ($previousReading) {
-                    $distanceKm = $this->calculateDistance(
-                        (float) $previousReading['latitude'],
-                        (float) $previousReading['longitude'],
-                        (float) $reading['latitude'],
-                        (float) $reading['longitude']
-                    );
-
-                    $timeDiffSeconds = null;
-                    if (
-                        isset($previousReading['timestamp'], $reading['timestamp'])
-                        && is_numeric($previousReading['timestamp'])
-                        && is_numeric($reading['timestamp'])
-                    ) {
-                        $timeDiffSeconds = max(1, abs(((int) $reading['timestamp']) - ((int) $previousReading['timestamp'])) / 1000);
-                    }
-
-                    // Real user can stay in the same spot. Yang dicurigai hanya loncatan lokasi
-                    // yang sangat jauh dalam waktu sangat singkat.
-                    if ($timeDiffSeconds !== null && $timeDiffSeconds <= 60 && $distanceKm > 2) {
-                        $suspiciousJumpCount++;
-                    }
-                }
-
-                $previousReading = $reading;
-            }
-
-            if ($suspiciousJumpCount >= 2) {
-                return [
-                    'valid' => false,
-                    'message' => 'Pembacaan lokasi terdeteksi berpindah sangat jauh dalam waktu singkat. Silakan pastikan GPS aktif dan coba kembali.'
-                ];
-            }
-
-            return ['valid' => true, 'message' => ''];
-        } catch (\Throwable $e) {
-            // Jangan blok presensi hanya karena parsing reading bermasalah.
-            return ['valid' => true, 'message' => ''];
-        }
+        return $this->attendanceValidationService->validateLocationConsistency($locationReadingsJson);
     }
 
     /**
@@ -981,144 +861,13 @@ class PresensiController extends \App\Http\Controllers\Controller
      */
     private function validateLocationForFakeGPS(Request $request, $user, bool $isPresensiMasuk): array
     {
-        $analysis = [
-            'accuracy_check' => false,
-            'consistency_check' => false,
-            'speed_check' => false,
-            'location_history_check' => false,
-            'suspicious_indicators' => []
-        ];
-
-        $isFake = false;
-        $messages = [];
-
-        // 1. Check GPS accuracy - fake GPS often has unrealistically high accuracy
-        if ($request->accuracy && $request->accuracy < 3) {
-            // Accuracy better than 1 meter is suspicious (too perfect)
-            $analysis['accuracy_check'] = true;
-            $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
-            $isFake = true;
-            $messages[] = 'Akurasi GPS terlalu sempurna (Terindikasi Lokasi Palsu)';
-        }
-
-        // 2. Check location consistency from readings
-        if ($request->location_readings) {
-            $consistencyResult = $this->validateLocationConsistency($request->location_readings);
-            if (!$consistencyResult['valid']) {
-                $analysis['consistency_check'] = true;
-                $analysis['suspicious_indicators'][] = 'location_consistency';
-                $isFake = true;
-                $messages[] = $consistencyResult['message'];
-            }
-        }
-
-        // 3. Check for abnormal movement speed (teleportation detection)
-        if ($isPresensiMasuk) {
-            // For presensi masuk, check against last known location
-            $lastPresensi = Presensi::where('user_id', $user->id)
-                ->where('status', 'hadir')
-                ->whereDate('tanggal', '<', Carbon::today())
-                ->orderBy('tanggal', 'desc')
-                ->first();
-
-            if ($lastPresensi && $lastPresensi->latitude && $lastPresensi->longitude) {
-                $distance = $this->calculateDistance(
-                    $lastPresensi->latitude,
-                    $lastPresensi->longitude,
-                    $request->latitude,
-                    $request->longitude
-                );
-
-                // Calculate time difference in hours
-                $lastPresensiTime = $lastPresensi->waktu_keluar ?? $lastPresensi->waktu_masuk;
-                $timeDiffHours = $lastPresensiTime ? Carbon::now()->diffInHours($lastPresensiTime) : 24;
-
-                if ($timeDiffHours > 0) {
-                    $speedKmh = $distance / $timeDiffHours; // km/h
-
-                    // If speed > 200 km/h (impossible for human travel), flag as suspicious
-                    if ($speedKmh > 200) {
-                        $analysis['speed_check'] = true;
-                        $analysis['suspicious_indicators'][] = 'abnormal_speed';
-                        $isFake = true;
-                        $messages[] = 'Deteksi pergerakan tidak wajar (kemungkinan teleportasi GPS)';
-                    }
-                }
-            }
-        } else {
-            // For presensi keluar, check against presensi masuk location
-            $existingPresensi = Presensi::where('user_id', $user->id)
-                ->whereNotNull('waktu_masuk')
-                ->whereNull('waktu_keluar')
-                ->orderBy('tanggal', 'desc')
-                ->first();
-
-            if ($existingPresensi && $existingPresensi->latitude && $existingPresensi->longitude) {
-                $distance = $this->calculateDistance(
-                    $existingPresensi->latitude,
-                    $existingPresensi->longitude,
-                    $request->latitude,
-                    $request->longitude
-                );
-
-                // If distance > 5km between masuk and keluar, suspicious
-                if ($distance > 5) {
-                    $analysis['location_history_check'] = true;
-                    $analysis['suspicious_indicators'][] = 'location_jump';
-                    $isFake = true;
-                    $messages[] = 'Jarak lokasi masuk dan keluar terlalu jauh (kemungkinan fake GPS)';
-                }
-            }
-        }
-
-        // 4. Check for suspicious device info patterns
-        if ($request->device_info) {
-            $deviceInfo = strtolower($request->device_info);
-            $suspiciousApps = ['fake', 'mock', 'gps', 'location', 'spoof'];
-
-            foreach ($suspiciousApps as $app) {
-                if (strpos($deviceInfo, $app) !== false) {
-                    $analysis['suspicious_indicators'][] = 'device_info_suspicious';
-                    $isFake = true;
-                    $messages[] = 'Informasi device menunjukkan penggunaan aplikasi GPS palsu';
-                    break;
-                }
-            }
-        }
-
-        // 5. Check for perfect coordinates (common fake GPS pattern)
-        if ($request->latitude && $request->longitude) {
-            $latStr = (string)$request->latitude;
-            $lngStr = (string)$request->longitude;
-
-            // Check if coordinates have unrealistically high precision (>15 decimal places)
-            // Normal GPS precision is around 6-8 decimal places, iOS can provide up to 12-14
-            $latParts = explode('.', $latStr);
-            $lngParts = explode('.', $lngStr);
-
-            $latDecimals = isset($latParts[1]) ? strlen($latParts[1]) : 0;
-            $lngDecimals = isset($lngParts[1]) ? strlen($lngParts[1]) : 0;
-
-            // Only flag as suspicious if precision is extremely high (>15 decimal places)
-            if ($latDecimals > 15 || $lngDecimals > 15) {
-                $analysis['suspicious_indicators'][] = 'precision_too_high';
-                $isFake = true;
-                $messages[] = 'Presisi koordinat GPS tidak wajar';
-            }
-
-            // Check for exact round numbers (suspicious)
-            if (fmod($request->latitude, 1) == 0 || fmod($request->longitude, 1) == 0) {
-                $analysis['suspicious_indicators'][] = 'round_coordinates';
-                $isFake = true;
-                $messages[] = 'Koordinat GPS terlalu bulat (kemungkinan fake)';
-            }
-        }
-
-        return [
-            'is_fake' => $isFake,
-            'message' => !empty($messages) ? implode('. ', $messages) : 'Lokasi GPS valid',
-            'analysis' => $analysis
-        ];
+        return $this->attendanceValidationService->validateLocationForFakeGps([
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'accuracy' => $request->accuracy,
+            'location_readings' => $request->location_readings,
+            'device_info' => $request->device_info,
+        ], $user, $isPresensiMasuk);
     }
 
     /**
@@ -1152,45 +901,7 @@ class PresensiController extends \App\Http\Controllers\Controller
      */
     private function isValidBase64Image(string $data): bool
     {
-        // Check minimum length
-        if (strlen($data) < 100) {
-            return false;
-        }
-
-        // Check if it starts with data:image/ pattern
-        if (!preg_match('/^data:image\/(jpeg|jpg|png);base64,/', $data)) {
-            return false;
-        }
-
-        // Extract base64 part
-        $base64Data = preg_replace('/^data:image\/(jpeg|jpg|png);base64,/', '', $data);
-
-        // Check if it's valid base64
-        if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $base64Data)) {
-            return false;
-        }
-
-        // Try to decode and check if it's valid image data
-        $decoded = base64_decode($base64Data, true);
-        if ($decoded === false) {
-            return false;
-        }
-
-        // Check if decoded data looks like image (starts with image signature)
-        $imageSignatures = [
-            "\xFF\xD8\xFF", // JPEG
-            "\x89\x50\x4E\x47", // PNG
-        ];
-
-        $isValidImage = false;
-        foreach ($imageSignatures as $signature) {
-            if (strpos($decoded, $signature) === 0) {
-                $isValidImage = true;
-                break;
-            }
-        }
-
-        return $isValidImage;
+        return $this->attendanceValidationService->isValidBase64Image($data);
     }
 
     /**
@@ -1203,96 +914,12 @@ class PresensiController extends \App\Http\Controllers\Controller
      */
     private function processAndSaveSelfie(string $selfieData, int $userId, string $tanggal, bool $isMasuk): string
     {
-        try {
-            // Path to storage/app/public for Laravel consistency
-            $path = storage_path('app/public/presensi-selfies');
-
-            // Pastikan folder sudah ada
-            if (!file_exists($path)) {
-                mkdir($path, 0755, true);
-            }
-
-            // Generate filename
-            $type = $isMasuk ? 'masuk' : 'keluar';
-            $timestamp = time();
-            $namaFile = "selfie_{$userId}_{$type}_{$timestamp}.jpg";
-
-            // Decode base64 image data
-            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $selfieData));
-
-            // Save to temporary file first
-            $tempFile = tempnam(sys_get_temp_dir(), 'selfie');
-            file_put_contents($tempFile, $imageData);
-
-            // Create file instance and move to destination
-            $file = new \Illuminate\Http\UploadedFile(
-                $tempFile,
-                $namaFile,
-                'image/jpeg',
-                null,
-                true
-            );
-
-            $file->move($path, $namaFile);
-
-            // Verify file was actually saved
-            $fullPath = $path . '/' . $namaFile;
-            if (!file_exists($fullPath) || filesize($fullPath) === 0) {
-                throw new \Exception('File was not saved successfully or is empty');
-            }
-
-            // Additional validation: check if file is readable and has valid image content
-            if (!is_readable($fullPath)) {
-                throw new \Exception('Saved file is not readable');
-            }
-
-            // Try to get image info to ensure it's a valid image
-            $imageInfo = getimagesize($fullPath);
-            if (!$imageInfo) {
-                // If getimagesize fails, delete the invalid file
-                unlink($fullPath);
-                throw new \Exception('Saved file is not a valid image');
-            }
-
-            // Clean up temp file
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
-            }
-
-            // Return path yang disimpan ke database
-            return 'presensi-selfies/' . $namaFile;
-
-        } catch (\Exception $e) {
-            // Log detailed error information
-            Log::error('Selfie processing failed', [
-                'user_id' => $userId,
-                'tanggal' => $tanggal,
-                'is_masuk' => $isMasuk,
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'path_used' => $path ?? 'unknown',
-                'filename' => $namaFile ?? 'unknown'
-            ]);
-
-            // Throw exception instead of returning empty string to prevent blank photos
-            throw new \Exception('Gagal memproses foto selfie: ' . $e->getMessage());
-        }
+        return $this->attendanceValidationService->processAndSaveSelfie($selfieData, $userId, $tanggal, $isMasuk);
     }
 
     private function filterPresensiAttributes(array $attributes): array
     {
-        $availableColumns = $this->getPresensiTableColumns();
-
-        if (empty($availableColumns)) {
-            return $attributes;
-        }
-
-        return array_filter(
-            $attributes,
-            fn ($key) => isset($availableColumns[$key]),
-            ARRAY_FILTER_USE_KEY
-        );
+        return $this->attendanceValidationService->filterPresensiAttributes($attributes);
     }
 
     private function getPresensiTableColumns(): array
@@ -1323,25 +950,7 @@ class PresensiController extends \App\Http\Controllers\Controller
      */
     private function isPointInPolygon(array $point, array $polygon): bool
     {
-        $pointLng = $point[0];
-        $pointLat = $point[1];
-        $isInside = false;
-        $j = count($polygon) - 1;
-
-        for ($i = 0; $i < count($polygon); $j = $i++) {
-            $vertexiLat = $polygon[$i][1];
-            $vertexiLng = $polygon[$i][0];
-            $vertexjLat = $polygon[$j][1];
-            $vertexjLng = $polygon[$j][0];
-
-            // This is the core of the ray-casting algorithm
-            if ((($vertexiLat > $pointLat) != ($vertexjLat > $pointLat)) &&
-                ($pointLng < ($vertexjLng - $vertexiLng) * ($pointLat - $vertexiLat) / ($vertexjLat - $vertexiLat) + $vertexiLng)) {
-                $isInside = !$isInside;
-            }
-        }
-
-        return $isInside;
+        return $this->attendanceValidationService->isPointInPolygon($point, $polygon);
     }
 
     private function buildAttendanceSummary(int $userId, ?string $hariKbm, Carbon $startDate, Carbon $endDate, Carbon $today): array
@@ -1461,8 +1070,4 @@ class PresensiController extends \App\Http\Controllers\Controller
         return true;
     }
 
-    private function findApprovedBlockingIzin(User $user, Carbon|string $date): ?Izin
-    {
-        return ApprovedIzinSyncService::approvedRequestForDate($user, $date);
-    }
 }

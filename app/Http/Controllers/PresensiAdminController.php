@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Madrasah;
 use App\Models\PresensiSettings;
 use App\Models\Presensi;
 use App\Models\User;
@@ -18,10 +19,14 @@ use App\Exports\PresensiSemuaExport;
 use App\Services\AttendanceObligationService;
 use App\Services\ApprovedIzinSyncService;
 use App\Services\ExternalTeachingPermissionService;
+use App\Services\MobileAttendanceSettingsService;
 
 class PresensiAdminController extends Controller
 {
-    public function __construct(private AttendanceObligationService $attendanceObligationService)
+    public function __construct(
+        private AttendanceObligationService $attendanceObligationService,
+        private MobileAttendanceSettingsService $mobileAttendanceSettingsService,
+    )
     {
         // Middleware to restrict access to super_admin, admin, pengurus, and tenaga_pendidik with ketugasan kepala
         $this->middleware(function ($request, $next) {
@@ -43,18 +48,35 @@ class PresensiAdminController extends Controller
     // Show presensi settings form
     public function settings()
     {
-        // Since times are now based on hari_kbm, show the fixed time ranges
-        $hariKbmOptions = [
-            '5' => '5 Hari KBM',
-            '6' => '6 Hari KBM'
-        ];
+        $now = Carbon::now('Asia/Jakarta');
+        $runtimeCards = Madrasah::query()
+            ->select([
+                'id',
+                'name',
+                'kabupaten',
+                'scod',
+                'hari_kbm',
+                'presensi_masuk_start',
+                'presensi_masuk_end',
+                'presensi_pulang_start',
+                'presensi_pulang_end',
+                'presensi_pulang_jumat',
+                'presensi_pulang_sabtu',
+            ])
+            ->orderBy('kabupaten')
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Madrasah $madrasah) => $this->buildSchoolRuntimeCard($madrasah, $now));
 
-        // Calculate time ranges for today (to show Friday exception if applicable)
-        $today = Carbon::now('Asia/Jakarta')->toDateString();
-        $timeRanges5 = $this->getPresensiTimeRanges('5', $today);
-        $timeRanges6 = $this->getPresensiTimeRanges('6', $today);
+        $verificationMode = $this->mobileAttendanceSettingsService->currentMode();
+        $verificationOptions = $this->mobileAttendanceSettingsService->modeOptions();
 
-        return view('presensi_admin.settings', compact('hariKbmOptions', 'timeRanges5', 'timeRanges6'));
+        return view('presensi_admin.settings', compact(
+            'now',
+            'runtimeCards',
+            'verificationMode',
+            'verificationOptions'
+        ));
     }
 
     /**
@@ -94,9 +116,125 @@ class PresensiAdminController extends Controller
         ];
     }
 
+    private function buildRuntimeNote(string $hariKbm, Carbon $date): string
+    {
+        if ($hariKbm === '5') {
+            return $date->isFriday()
+                ? 'Mode 5 hari: jadwal Jumat sedang aktif.'
+                : 'Mode 5 hari: jadwal hari kerja reguler sedang aktif.';
+        }
+
+        if ($hariKbm === '6') {
+            if ($date->isFriday()) {
+                return 'Mode 6 hari: override Jumat sedang aktif.';
+            }
+
+            if ($date->isSaturday()) {
+                return 'Mode 6 hari: jadwal Sabtu sedang aktif.';
+            }
+
+            return 'Mode 6 hari: jadwal hari kerja reguler sedang aktif.';
+        }
+
+        return 'Jadwal presensi sedang aktif sesuai Hari KBM.';
+    }
+
+    private function buildSchoolRuntimeCard(Madrasah $madrasah, Carbon $date): array
+    {
+        $hariKbm = (string) ($madrasah->hari_kbm ?? '');
+        $hasOverrides = collect([
+            $madrasah->presensi_masuk_start,
+            $madrasah->presensi_masuk_end,
+            $madrasah->presensi_pulang_start,
+            $madrasah->presensi_pulang_end,
+            $madrasah->presensi_pulang_jumat,
+            $madrasah->presensi_pulang_sabtu,
+        ])->filter()->isNotEmpty();
+
+        $todaySchedule = $this->buildSchoolDaySchedule($madrasah, $date);
+        $fridaySchedule = $this->buildSchoolDaySchedule($madrasah, $this->resolveWeekdayReference($date, Carbon::FRIDAY));
+        $saturdaySchedule = $this->buildSchoolDaySchedule($madrasah, $this->resolveWeekdayReference($date, Carbon::SATURDAY));
+
+        return [
+            'school_name' => $madrasah->name,
+            'kabupaten' => $madrasah->kabupaten,
+            'scod' => $madrasah->scod,
+            'hari_kbm' => in_array($hariKbm, ['5', '6'], true) ? $hariKbm : null,
+            'hari_kbm_label' => $hariKbm === '6' ? '6 Hari KBM' : ($hariKbm === '5' ? '5 Hari KBM' : 'Belum diatur'),
+            'today_schedule' => $todaySchedule,
+            'friday_schedule' => $fridaySchedule,
+            'saturday_schedule' => $saturdaySchedule,
+            'note' => $hariKbm
+                ? $this->buildRuntimeNote($hariKbm, $date) . ($hasOverrides ? ' Menggunakan override jam madrasah.' : '')
+                : 'Hari KBM belum diatur pada data madrasah.',
+        ];
+    }
+
+    private function buildSchoolDaySchedule(Madrasah $madrasah, Carbon $date): array
+    {
+        $hariKbm = (string) ($madrasah->hari_kbm ?? '');
+
+        if ($hariKbm === '5' && $date->isSaturday()) {
+            return [
+                'label' => $date->locale('id')->isoFormat('dddd'),
+                'masuk' => 'Libur',
+                'pulang' => 'Libur',
+                'note' => 'Tidak ada presensi pada Sabtu untuk mode 5 Hari KBM.',
+            ];
+        }
+
+        $timeRanges = $this->getPresensiTimeRanges($hariKbm, $date->toDateString());
+        $masukStart = $this->formatRuntimeTime($madrasah->presensi_masuk_start) ?? $timeRanges['masuk_start'];
+        $masukEnd = $this->formatRuntimeTime($madrasah->presensi_masuk_end) ?? $timeRanges['masuk_end'];
+        $pulangEnd = $this->formatRuntimeTime($madrasah->presensi_pulang_end) ?? $timeRanges['pulang_end'];
+
+        if ($date->isFriday() && $madrasah->presensi_pulang_jumat) {
+            $pulangStart = $this->formatRuntimeTime($madrasah->presensi_pulang_jumat);
+        } elseif ($date->isSaturday() && $madrasah->presensi_pulang_sabtu) {
+            $pulangStart = $this->formatRuntimeTime($madrasah->presensi_pulang_sabtu);
+        } else {
+            $pulangStart = $this->formatRuntimeTime($madrasah->presensi_pulang_start) ?? $timeRanges['pulang_start'];
+        }
+
+        return [
+            'label' => $date->locale('id')->isoFormat('dddd'),
+            'masuk' => "{$masukStart} - {$masukEnd}",
+            'pulang' => "{$pulangStart} - {$pulangEnd}",
+            'note' => $this->buildRuntimeNote($hariKbm, $date),
+        ];
+    }
+
+    private function resolveWeekdayReference(Carbon $date, int $weekday): Carbon
+    {
+        return $date->copy()->startOfWeek(Carbon::MONDAY)->addDays($weekday - 1);
+    }
+
+    private function formatRuntimeTime($value): ?string
+    {
+        if (blank($value)) {
+            return null;
+        }
+
+        return Carbon::parse($value)->format('H:i');
+    }
+
     // Update presensi settings
     public function updateSettings(Request $request)
     {
+        if ($request->filled('mobile_attendance_verification_mode')) {
+            $validated = $request->validate([
+                'mobile_attendance_verification_mode' => 'required|in:selfie,face_scan',
+            ]);
+
+            $this->mobileAttendanceSettingsService->updateMode($validated['mobile_attendance_verification_mode']);
+
+            $modeLabel = $this->mobileAttendanceSettingsService->modeLabel($validated['mobile_attendance_verification_mode']);
+
+            return redirect()
+                ->route('presensi_admin.settings')
+                ->with('success', "Metode verifikasi presensi mobile berhasil diubah ke {$modeLabel}.");
+        }
+
         if ($request->has('status_id')) {
             // Single status update
             $statusId = $request->input('status_id');

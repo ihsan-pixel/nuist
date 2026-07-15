@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\StatusKepegawaian;
 use App\Models\Madrasah;
 use App\Models\PushDeviceToken;
+use Illuminate\Support\Facades\Crypt;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -67,7 +68,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'tmt' => 'date',
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
-        'face_data' => 'array',
         'face_registered_at' => 'datetime',
         'face_verification_required' => 'boolean',
         'is_active' => 'boolean',
@@ -111,9 +111,62 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(PushDeviceToken::class, 'user_id');
     }
 
+    public function registeredAttendanceDevices()
+    {
+        return $this->hasMany(RegisteredAttendanceDevice::class, 'registered_by');
+    }
+
+    public function recordedPresensis()
+    {
+        return $this->hasMany(\App\Models\Presensi::class, 'recorded_by_user_id');
+    }
+
+    public function attendanceKioskLogsAsOperator()
+    {
+        return $this->hasMany(AttendanceKioskLog::class, 'operator_user_id');
+    }
+
+    public function attendanceKioskLogsAsTarget()
+    {
+        return $this->hasMany(AttendanceKioskLog::class, 'target_user_id');
+    }
+
     public function approvedSppOperatorRegistration()
     {
         return $this->hasOne(SppOperatorRegistration::class, 'approved_user_id');
+    }
+
+    public function decodedFaceData(): mixed
+    {
+        $rawValue = $this->getRawOriginal('face_data');
+
+        if ($rawValue === null || $rawValue === '') {
+            return null;
+        }
+
+        if (is_array($rawValue)) {
+            return $rawValue;
+        }
+
+        if (!is_string($rawValue)) {
+            return $this->face_data;
+        }
+
+        try {
+            $decrypted = Crypt::decryptString($rawValue);
+            $decoded = json_decode($decrypted, true);
+
+            return json_last_error() === JSON_ERROR_NONE ? $decoded : $decrypted;
+        } catch (\Throwable) {
+            $decoded = json_decode($rawValue, true);
+
+            return json_last_error() === JSON_ERROR_NONE ? $decoded : $rawValue;
+        }
+    }
+
+    public function hasFaceEnrollment(): bool
+    {
+        return !empty($this->face_registered_at) && !empty($this->decodedFaceData());
     }
 
     public function skYayasanRequestsAsEmployee()

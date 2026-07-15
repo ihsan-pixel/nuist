@@ -246,10 +246,25 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
     );
+    final verification = Map<String, dynamic>.from(
+      (data['verification'] as Map?) ?? const <String, dynamic>{},
+    );
     final timeRanges = Map<String, dynamic>.from(
       (data['time_ranges'] as Map?) ?? const <String, dynamic>{},
     );
     final mode = form['next_mode'] as String?;
+    final verificationMode = verification['mode'] as String? ?? 'selfie';
+
+    if (verificationMode != 'selfie') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Mode scan wajah sedang aktif. Gunakan presensi mobile web sampai aplikasi native mendukung scan wajah.',
+          ),
+        ),
+      );
+      return;
+    }
 
     if (mode == null || mode.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -554,6 +569,9 @@ class _AttendanceContent extends StatelessWidget {
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
     );
+    final verification = Map<String, dynamic>.from(
+      (data['verification'] as Map?) ?? const <String, dynamic>{},
+    );
     final recent = ((data['recent'] as List?) ?? const [])
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
@@ -561,6 +579,12 @@ class _AttendanceContent extends StatelessWidget {
     final canSubmit = form['can_submit'] == true;
     final nextModeLabel =
         form['next_mode_label'] as String? ?? 'Presensi Hari Ini';
+    final verificationMode = verification['mode'] as String? ?? 'selfie';
+    final verificationLabel = verification['label'] as String? ?? 'Selfie';
+    final verificationDescription =
+        verification['description'] as String? ??
+        'Presensi mobile memakai selfie kamera depan.';
+    final nativeSupportsVerification = verificationMode == 'selfie';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -608,11 +632,58 @@ class _AttendanceContent extends StatelessWidget {
           onRefreshLocation: onCaptureLocation,
         ),
         const SizedBox(height: 14),
+        AppSectionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Metode Verifikasi',
+                style: TextStyle(
+                  color: _attendanceText,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '$verificationLabel aktif. $verificationDescription',
+                style: const TextStyle(
+                  color: _attendanceMuted,
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
+              if (!nativeSupportsVerification) ...[
+                const SizedBox(height: 10),
+                const Text(
+                  'Aplikasi native ini belum mendukung scan wajah. Gunakan presensi mobile web jika mode scan wajah diaktifkan.',
+                  style: TextStyle(
+                    color: Color(0xFFB54708),
+                    fontSize: 12,
+                    height: 1.4,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
         _AttendanceSelfieCard(
           selfieFile: selfieFile,
           capturingSelfie: capturingSelfie,
           onCaptureSelfie: onCaptureSelfie,
           onClearSelfie: onClearSelfie,
+          enabled: nativeSupportsVerification,
+          title: verificationMode == 'selfie'
+              ? 'Selfie Presensi'
+              : 'Scan Wajah Tidak Tersedia',
+          emptyTitle: verificationMode == 'selfie'
+              ? 'Belum ada selfie'
+              : 'Scan wajah aktif',
+          emptyDescription: verificationMode == 'selfie'
+              ? 'Gunakan kamera depan untuk mengambil selfie presensi.'
+              : 'Mode scan wajah diaktifkan dari pengaturan presensi mobile. Gunakan presensi mobile web untuk mode ini.',
         ),
         const SizedBox(height: 14),
         AppSectionCard(
@@ -630,7 +701,9 @@ class _AttendanceContent extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 canSubmit
-                    ? 'Lokasi dan selfie wajib tersedia sebelum presensi dikirim.'
+                    ? (nativeSupportsVerification
+                        ? 'Lokasi dan selfie wajib tersedia sebelum presensi dikirim.'
+                        : 'Submit dari aplikasi native dinonaktifkan saat mode scan wajah aktif.')
                     : (form['blocked_message'] as String? ??
                         'Presensi untuk hari ini belum dapat dilakukan.'),
                 style: const TextStyle(
@@ -643,7 +716,9 @@ class _AttendanceContent extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: canSubmit && !submitting ? onSubmit : null,
+                  onPressed: canSubmit && nativeSupportsVerification && !submitting
+                      ? onSubmit
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _attendancePrimary,
                     disabledBackgroundColor: const Color(0xFFF8E3CD),
@@ -1186,12 +1261,20 @@ class _AttendanceSelfieCard extends StatelessWidget {
     required this.capturingSelfie,
     required this.onCaptureSelfie,
     required this.onClearSelfie,
+    required this.enabled,
+    required this.title,
+    required this.emptyTitle,
+    required this.emptyDescription,
   });
 
   final XFile? selfieFile;
   final bool capturingSelfie;
   final Future<void> Function() onCaptureSelfie;
   final VoidCallback onClearSelfie;
+  final bool enabled;
+  final String title;
+  final String emptyTitle;
+  final String emptyDescription;
 
   @override
   Widget build(BuildContext context) {
@@ -1214,10 +1297,10 @@ class _AttendanceSelfieCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Selfie Presensi',
-                  style: TextStyle(
+                  title,
+                  style: const TextStyle(
                     color: _attendanceText,
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
@@ -1225,9 +1308,11 @@ class _AttendanceSelfieCard extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: capturingSelfie ? null : onCaptureSelfie,
+                onPressed: !enabled || capturingSelfie ? null : onCaptureSelfie,
                 child: Text(
-                  capturingSelfie ? 'Membuka...' : 'Ambil Selfie',
+                  !enabled
+                      ? 'Mode Web'
+                      : (capturingSelfie ? 'Membuka...' : 'Ambil Selfie'),
                   style: const TextStyle(
                     color: _attendancePrimary,
                     fontWeight: FontWeight.w800,
@@ -1246,26 +1331,26 @@ class _AttendanceSelfieCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: const Color(0xFFF8D7B1)),
               ),
-              child: const Column(
+              child: Column(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.account_circle_outlined,
                     size: 42,
                     color: _attendancePrimary,
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    'Belum ada selfie',
-                    style: TextStyle(
+                    emptyTitle,
+                    style: const TextStyle(
                       color: _attendanceText,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Gunakan kamera depan untuk mengambil selfie presensi.',
+                    emptyDescription,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: _attendanceMuted,
                       fontSize: 12,
                       height: 1.4,

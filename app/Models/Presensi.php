@@ -51,6 +51,10 @@ class Presensi extends Model
         'status_izin',
         'approved_by',
         'status_kepegawaian_id',
+        'attendance_channel',
+        'registered_device_id',
+        'recorded_by_user_id',
+        'source_ip_address',
     ];
 
     protected $casts = [
@@ -97,5 +101,15 @@ class Presensi extends Model
     public function statusKepegawaian()
     {
         return $this->belongsTo(\App\Models\StatusKepegawaian::class, 'status_kepegawaian_id');
+    }
+
+    public function registeredDevice()
+    {
+        return $this->belongsTo(RegisteredAttendanceDevice::class, 'registered_device_id');
+    }
+
+    public function recordedBy()
+    {
+        return $this->belongsTo(User::class, 'recorded_by_user_id');
     }
 }

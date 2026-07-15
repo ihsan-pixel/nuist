@@ -89,6 +89,10 @@ Route::middleware(['auth'])->group(function () {
     // Presensi Admin routes - authorization handled by controller
     Route::get('/presensi-admin/settings', [PresensiAdminController::class, 'settings'])->name('presensi_admin.settings');
     Route::post('/presensi-admin/settings', [PresensiAdminController::class, 'updateSettings'])->name('presensi_admin.updateSettings');
+    Route::get('/presensi-admin/kiosk-devices', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'index'])->name('presensi_admin.kiosk_devices');
+    Route::post('/presensi-admin/kiosk-devices', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'store'])->name('presensi_admin.kiosk_devices.store');
+    Route::patch('/presensi-admin/kiosk-devices/{device}/toggle', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'toggle'])->name('presensi_admin.kiosk_devices.toggle');
+    Route::post('/presensi-admin/kiosk-devices/{device}/sync-ip', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'syncCurrentIp'])->name('presensi_admin.kiosk_devices.sync_ip');
     Route::get('/presensi-admin', [PresensiAdminController::class, 'index'])->name('presensi_admin.index');
     Route::get('/presensi-admin/data', [PresensiAdminController::class, 'getData'])->name('presensi_admin.data');
     Route::get('/presensi-admin/summary', [PresensiAdminController::class, 'getSummary'])->name('presensi_admin.summary');
@@ -153,6 +157,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     });
+
+    Route::get('/school-kiosk', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'index'])->name('school-kiosk.index');
+    Route::post('/school-kiosk/presensi', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'submit'])->name('school-kiosk.submit');
 
     // Laporan Presensi Mingguan - Super Admin Only
     Route::middleware(['role:super_admin'])->group(function () {
@@ -386,6 +393,9 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     // Face enrollment (mobile)
     Route::get('/face-enrollment', function () { return view('mobile.face-enrollment'); })->name('face.enrollment');
     Route::post('/face-enroll', [App\Http\Controllers\Api\FaceController::class, 'enroll'])->name('face.enroll');
+    Route::post('/face-verify', [App\Http\Controllers\Api\FaceController::class, 'verify'])
+        ->middleware('throttle:20,1')
+        ->name('face.verify');
 
     // Jadwal
     Route::get('/jadwal', [App\Http\Controllers\Mobile\Jadwal\JadwalController::class, 'jadwal'])->name('jadwal');

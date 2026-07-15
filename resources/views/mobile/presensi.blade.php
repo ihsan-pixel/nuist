@@ -587,10 +587,10 @@
         .selfie-modal {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.58);
+            background: rgba(0, 0, 0, 0.82);
             z-index: 2100;
             display: none;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
             padding: 12px;
         }
@@ -599,15 +599,36 @@
             display: flex;
         }
 
+        .selfie-modal.face-scan-modal {
+            padding: 0;
+            align-items: stretch;
+            justify-content: stretch;
+            background: #000;
+        }
+
         .selfie-modal-dialog {
+            position: relative;
             width: min(100%, 420px);
             max-height: calc(100vh - 24px);
-            background: #fff;
-            border-radius: 22px;
+            min-height: min(780px, calc(100vh - 24px));
+            background: #000;
+            border-radius: 32px;
             overflow: hidden;
-            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
+            box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
             display: flex;
             flex-direction: column;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+        }
+
+        .face-scan-mode.selfie-modal-dialog {
+            width: 100vw;
+            max-width: 100vw;
+            height: 100vh;
+            max-height: 100vh;
+            min-height: 100vh;
+            border-radius: 0;
+            border: 0;
+            box-shadow: none;
         }
 
         .selfie-modal-header {
@@ -615,112 +636,831 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            padding: 16px 16px 12px;
-            border-bottom: 1px solid #eef2f7;
+            padding: 18px 18px 10px;
+            border-bottom: none;
         }
 
         .selfie-modal-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 2px;
+            font-size: 0;
+            margin: 0;
         }
 
         .selfie-modal-subtitle {
-            font-size: 11px;
-            color: #6b7280;
+            display: none;
+        }
+
+        .selfie-modal-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
         }
 
         .selfie-modal-close {
-            width: 34px;
-            height: 34px;
-            border: 1px solid #e5e7eb;
-            background: #fff;
-            border-radius: 50%;
-            color: #475467;
+            width: auto;
+            height: auto;
+            border: 0;
+            background: transparent;
+            border-radius: 0;
+            color: #f87171;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
+            padding: 0;
+            line-height: 1;
+            font-weight: 500;
+        }
+
+        .selfie-modal-retry {
+            width: auto;
+            height: auto;
+            border: 0;
+            background: transparent;
+            border-radius: 0;
+            color: #34d399;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            padding: 0;
+            line-height: 1;
+            font-weight: 600;
+            gap: 4px;
+        }
+
+        .selfie-modal-retry[hidden] {
+            display: none !important;
+        }
+
+        .face-scan-mode .selfie-modal-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: block;
+            z-index: 5;
+            padding: 18px 16px 0;
+            min-height: 56px;
+        }
+
+        .face-scan-mode .selfie-modal-close {
+            position: absolute;
+            top: 18px;
+            left: 16px;
+            z-index: 6;
+        }
+
+        .face-scan-mode .selfie-modal-actions {
+            position: absolute;
+            top: 18px;
+            right: 16px;
+            z-index: 6;
         }
 
         .selfie-modal-body {
-            padding: 14px 16px;
+            padding: 6px 18px 18px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .face-scan-mode .selfie-modal-body {
+            padding: 0;
+            overflow: hidden;
+            align-items: stretch;
+        }
+
+        .face-scan-onboarding {
+            position: absolute;
+            inset: 0;
+            z-index: 12;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(10px);
+        }
+
+        .face-scan-onboarding[hidden] {
+            display: none !important;
+        }
+
+        .face-scan-onboarding-panel {
+            width: min(100%, 420px);
+            border-radius: 24px;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 20px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+        }
+
+        .face-scan-onboarding-title {
+            margin: 0 0 6px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .face-scan-onboarding-subtitle {
+            margin: 0 0 16px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .face-scan-onboarding-steps {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .face-scan-onboarding-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            line-height: 1.45;
+            color: #334155;
+        }
+
+        .face-scan-onboarding-step i {
+            margin-top: 1px;
+            color: #059669;
+            font-size: 18px;
+            flex: 0 0 auto;
+        }
+
+        .face-scan-example-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .face-scan-example {
+            min-height: 132px;
+            border-radius: 18px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .face-scan-example.is-good {
+            border-color: rgba(16, 185, 129, 0.34);
+            background: #ecfdf5;
+        }
+
+        .face-scan-example.is-bad {
+            border-color: rgba(248, 113, 113, 0.32);
+            background: #fef2f2;
+        }
+
+        .face-scan-example-oval {
+            width: 58px;
+            height: 78px;
+            border-radius: 48% 48% 44% 44% / 38% 38% 54% 54%;
+            border: 2px solid #10b981;
+            position: relative;
+        }
+
+        .face-scan-example.is-bad .face-scan-example-oval {
+            border-color: #ef4444;
+        }
+
+        .face-scan-example-face {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 34px;
+            height: 44px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: #cbd5e1;
+        }
+
+        .face-scan-example.is-bad .face-scan-example-face {
+            transform: translate(-22%, -64%) rotate(-12deg);
+            opacity: 0.82;
+        }
+
+        .face-scan-example-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .face-scan-example.is-good .face-scan-example-label {
+            color: #047857;
+        }
+
+        .face-scan-example.is-bad .face-scan-example-label {
+            color: #b91c1c;
+        }
+
+        .face-scan-onboarding-button {
+            width: 100%;
+            border: 0;
+            border-radius: 16px;
+            padding: 14px 18px;
+            color: #fff;
+            background: linear-gradient(135deg, #10b981 0%, #16a34a 100%);
+            font-weight: 700;
+            box-shadow: 0 14px 28px rgba(22, 163, 74, 0.24);
+        }
+
+        .face-scan-help-button {
+            position: absolute;
+            right: 18px;
+            bottom: 24px;
+            z-index: 8;
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.58);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+            backdrop-filter: blur(12px);
+        }
+
+        .face-scan-help-button:active {
+            transform: scale(0.96);
         }
 
         .selfie-note {
-            background: rgba(14, 133, 73, 0.08);
-            border: 1px solid rgba(14, 133, 73, 0.14);
-            border-radius: 12px;
-            padding: 10px 12px;
-            font-size: 11px;
-            color: #1f2937;
-            margin-bottom: 12px;
+            display: none;
         }
 
-        .selfie-note i {
-            color: #0e8549;
-            margin-right: 6px;
+        .selfie-status-banner {
+            min-height: 18px;
+            color: rgba(226, 232, 240, 0.68);
+            text-align: center;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        .selfie-status-banner span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            color: rgba(255, 255, 255, 0.94);
+            line-height: 1.4;
+            backdrop-filter: blur(14px);
         }
 
         .selfie-stage {
             position: relative;
-            border-radius: 16px;
+            width: 100%;
             overflow: hidden;
-            background: #f8fafc;
-            border: 1px solid #e5e7eb;
-            min-height: 420px;
+            background: transparent;
+            border: 0;
+            min-height: 540px;
+            padding: 12px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .selfie-placeholder,
-        #selfie-video,
-        #selfie-canvas,
-        #selfie-preview {
+        .face-scan-mode .selfie-status-banner {
+            display: none;
+        }
+
+        .face-scan-mode .selfie-stage {
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .selfie-camera-layer {
+            position: relative;
             width: 100%;
-            height: 420px;
-            border-radius: 16px;
+            min-height: 540px;
+            z-index: 0;
+        }
+
+        .face-scan-mode .selfie-camera-layer {
+            min-height: 100vh;
         }
 
         .selfie-placeholder {
+            position: absolute;
+            inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            color: #6b7280;
-            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            color: rgba(255, 255, 255, 0.88);
+            background: radial-gradient(circle at top, rgba(71, 85, 105, 0.46) 0%, rgba(30, 41, 59, 0.82) 100%);
             text-align: center;
-            padding: 20px;
+            padding: 28px;
         }
 
         .selfie-placeholder i {
-            font-size: 44px;
+            font-size: 42px;
             margin-bottom: 10px;
-            color: #94a3b8;
+            color: rgba(134, 239, 172, 0.92);
         }
 
-        .selfie-overlay-actions {
+        #selfie-video,
+        #selfie-canvas,
+        #selfie-preview {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .selfie-guide {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .selfie-guide-oval {
+            position: absolute;
+            left: 50%;
+            top: 22%;
+            width: min(74vw, 332px);
+            height: min(102vw, 448px);
+            transform: translateX(-50%);
+            border: 3px solid rgba(255, 255, 255, 0.92);
+            border-radius: 48% 48% 44% 44% / 38% 38% 54% 54%;
+            box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.42);
+            transition: border-color 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1), transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .selfie-guide-pill {
+            position: absolute;
+            top: calc(22% - 108px);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: min(80vw, 296px);
+            padding: 0;
+            border-radius: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            color: rgba(255, 255, 255, 0.96);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            backdrop-filter: none;
+            text-align: center;
+            transition: color 220ms cubic-bezier(0.22, 1, 0.36, 1), transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .selfie-guide-pill i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: auto;
+            border-radius: 0;
+            font-size: 34px;
+            flex: 0 0 auto;
+            color: rgba(255, 255, 255, 0.94);
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .selfie-guide-pill span {
+            display: none;
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.25;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            max-width: 240px;
+            text-shadow: 0 10px 24px rgba(0, 0, 0, 0.48);
+        }
+
+        .selfie-guide-pill small {
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.45;
+            font-weight: 700;
+            max-width: 300px;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 10px 24px rgba(0, 0, 0, 0.44);
+        }
+
+        #btn-capture-selfie.retry-scan {
+            display: inline-flex !important;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 16px 36px rgba(220, 38, 38, 0.3);
+        }
+
+        .selfie-progress-orb {
+            --progress-angle: 0deg;
+            --progress-fill: #4ade80;
+            --progress-track: rgba(255, 255, 255, 0.16);
+            position: absolute;
+            left: 50%;
+            top: 79%;
+            transform: translateX(-50%);
+            z-index: 3;
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at center, rgba(255, 255, 255, 0.04) 52%, transparent 53%),
+                conic-gradient(var(--progress-fill) 0deg, var(--progress-fill) var(--progress-angle), var(--progress-track) var(--progress-angle), var(--progress-track) 360deg);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+            transition: transform 220ms ease, box-shadow 220ms ease;
+        }
+
+        .selfie-progress-orb::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .selfie-progress-orb-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: transparent;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.01em;
+        }
+
+        .selfie-guide-detail {
+            position: absolute;
+            left: 50%;
+            top: calc(79% + 92px);
+            transform: translateX(-50%);
+            z-index: 4;
+            width: min(86vw, 308px);
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.45;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.82);
+            text-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .selfie-progress-value,
+        .selfie-progress-success,
+        .selfie-progress-error {
+            transition: opacity 180ms ease, transform 220ms ease;
+        }
+
+        .selfie-progress-success,
+        .selfie-progress-error {
+            position: absolute;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.58);
+            font-size: 34px;
+            color: #fff;
+        }
+
+        .selfie-progress-success {
+            text-shadow: 0 0 16px rgba(134, 239, 172, 0.38), 0 0 30px rgba(74, 222, 128, 0.28);
+        }
+
+        .selfie-progress-error {
+            text-shadow: 0 0 16px rgba(248, 113, 113, 0.34), 0 0 30px rgba(239, 68, 68, 0.24);
+        }
+
+        .selfie-progress-orb.is-complete .selfie-progress-value,
+        .selfie-progress-orb.is-error .selfie-progress-value {
+            opacity: 0;
+            transform: scale(0.72);
+        }
+
+        .selfie-progress-orb.is-complete .selfie-progress-success {
+            opacity: 1;
+            transform: scale(1);
+            animation: selfie-progress-success-pop 820ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .selfie-progress-orb.is-error .selfie-progress-error {
+            opacity: 1;
+            transform: scale(1);
+            animation: selfie-progress-error-pop 720ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .selfie-progress-orb.is-complete {
+            animation: selfie-progress-orb-pulse 900ms cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 0 10px rgba(74, 222, 128, 0.14), 0 18px 40px rgba(74, 222, 128, 0.34);
+        }
+
+        .selfie-progress-orb.is-complete::before {
+            border-color: rgba(134, 239, 172, 0.42);
+            animation: selfie-progress-orb-ring 900ms ease-out;
+        }
+
+        .selfie-progress-orb.is-error {
+            animation: selfie-progress-orb-error-pulse 760ms cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 0 10px rgba(248, 113, 113, 0.14), 0 18px 40px rgba(239, 68, 68, 0.28);
+        }
+
+        .selfie-progress-orb.is-error::before {
+            border-color: rgba(248, 113, 113, 0.42);
+            animation: selfie-progress-orb-ring 760ms ease-out;
+        }
+
+        .selfie-stage[data-guide-state="searching"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="too-far"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="too-close"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="tilted"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="off-center"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="warning"] .selfie-guide-oval {
+            border-color: #f87171;
+            box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.4), 0 0 34px rgba(248, 113, 113, 0.24);
+        }
+
+        .selfie-stage[data-guide-state="steady"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="aligned"] .selfie-guide-oval,
+        .selfie-stage[data-guide-state="success"] .selfie-guide-oval {
+            border-color: #4ade80;
+            box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.34), 0 0 34px rgba(74, 222, 128, 0.26);
+        }
+
+        .selfie-stage[data-guide-state="searching"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="too-far"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="too-close"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="tilted"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="off-center"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="warning"] .selfie-guide-pill {
+            color: rgba(254, 202, 202, 0.98);
+        }
+
+        .selfie-stage[data-guide-state="steady"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="aligned"] .selfie-guide-pill,
+        .selfie-stage[data-guide-state="success"] .selfie-guide-pill {
+            color: rgba(220, 252, 231, 0.98);
+        }
+
+        .selfie-stage[data-guide-state="steady"] .selfie-guide-oval {
+            transform: translateX(-50%) scale(0.996);
+        }
+
+        .selfie-stage[data-guide-state="success"] .selfie-guide-oval {
+            animation: selfie-oval-pulse 700ms ease;
+        }
+
+        @keyframes selfie-oval-pulse {
+            0% {
+                transform: translateX(-50%) scale(0.98);
+            }
+
+            55% {
+                transform: translateX(-50%) scale(1.02);
+            }
+
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        @keyframes selfie-progress-orb-pulse {
+            0% {
+                transform: translateX(-50%) scale(0.92);
+            }
+
+            48% {
+                transform: translateX(-50%) scale(1.14);
+            }
+
+            72% {
+                transform: translateX(-50%) scale(0.98);
+            }
+
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        @keyframes selfie-progress-orb-ring {
+            0% {
+                transform: scale(0.86);
+                opacity: 0;
+            }
+
+            35% {
+                transform: scale(1.08);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.18);
+                opacity: 0;
+            }
+        }
+
+        @keyframes selfie-progress-success-pop {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) rotate(-18deg);
+            }
+
+            42% {
+                opacity: 1;
+                transform: scale(1.34) rotate(8deg);
+            }
+
+            68% {
+                opacity: 1;
+                transform: scale(1.02) rotate(-4deg);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1.14) rotate(0deg);
+            }
+        }
+
+        @keyframes selfie-progress-orb-error-pulse {
+            0% {
+                transform: translateX(-50%) scale(0.92);
+            }
+
+            32% {
+                transform: translateX(calc(-50% - 4px)) scale(1.04);
+            }
+
+            58% {
+                transform: translateX(calc(-50% + 4px)) scale(1.02);
+            }
+
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        @keyframes selfie-progress-error-pop {
+            0% {
+                opacity: 0;
+                transform: scale(0.34) rotate(-24deg);
+            }
+
+            46% {
+                opacity: 1;
+                transform: scale(1.28) rotate(10deg);
+            }
+
+            72% {
+                opacity: 1;
+                transform: scale(0.96) rotate(-6deg);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1.08) rotate(0deg);
+            }
+        }
+
+        .selfie-stage-copy {
             position: absolute;
             left: 0;
             right: 0;
-            bottom: 14px;
+            bottom: 0;
+            z-index: 3;
+            padding: 0 8px 120px;
             display: flex;
             justify-content: center;
-            gap: 10px;
-            padding: 0 14px;
         }
 
-        .selfie-overlay-actions .btn {
-            padding: 10px 14px;
-            font-size: 12px;
+        .face-scan-mode .selfie-stage-copy {
+            display: none;
+        }
+
+        .selfie-feedback {
+            border: 0;
+            background: transparent;
+            color: #f8fafc;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        .selfie-feedback strong {
+            display: none;
+        }
+
+        .selfie-feedback span {
+            display: block;
+            font-size: 14px;
+            line-height: 1.45;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.94);
+        }
+
+        .selfie-progress {
+            display: none;
+        }
+
+        .selfie-progress-item,
+        .selfie-quality-item {
+            display: none;
+        }
+
+        .selfie-progress-meter {
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.12);
+            margin-bottom: 12px;
+        }
+
+        .selfie-progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+            transition: width 220ms ease;
+        }
+
+        .selfie-section-label,
+        .selfie-quality-grid {
+            display: none;
+        }
+
+        .selfie-footer-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 12px;
         }
 
         .selfie-modal-footer {
-            padding: 14px 16px 16px;
-            border-top: 1px solid #eef2f7;
+            padding: 16px 18px 22px;
+            border-top: none;
             display: grid;
             grid-template-columns: 1fr;
             gap: 10px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(17, 24, 39, 0.36) 100%);
+            backdrop-filter: blur(18px);
+        }
+
+        .face-scan-mode .selfie-modal-footer {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 22px;
+            z-index: 5;
+            padding: 0;
+            background: transparent;
+            backdrop-filter: none;
+            gap: 12px;
+        }
+
+        .face-scan-mode .selfie-footer-title,
+        .face-scan-mode .selfie-progress-meter {
+            display: none;
+        }
+
+        .face-scan-mode #btn-submit-presensi {
+            display: none !important;
         }
 
         .swal2-container {
@@ -738,13 +1478,67 @@
                 grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
+            .selfie-overlay-actions {
+                gap: 8px;
+            }
+
             .selfie-stage,
             .selfie-placeholder,
             #selfie-video,
             #selfie-canvas,
             #selfie-preview {
-                height: 360px;
-                min-height: 360px;
+                min-height: 0;
+            }
+
+            .selfie-stage {
+                min-height: 500px;
+            }
+
+            .selfie-feedback span {
+                font-size: 16px;
+            }
+
+            .selfie-guide-oval {
+                width: min(78vw, 286px);
+                height: min(104vw, 396px);
+                top: 23%;
+            }
+
+            .selfie-progress-orb {
+                top: 81%;
+                width: 68px;
+                height: 68px;
+            }
+
+            .selfie-guide-pill {
+                top: calc(23% - 100px);
+                width: min(84vw, 286px);
+            }
+
+            .selfie-guide-pill i {
+                width: auto;
+                height: auto;
+                font-size: 30px;
+            }
+
+            .selfie-guide-pill span {
+                display: none;
+            }
+
+            .selfie-guide-pill small {
+                font-size: 15px;
+            }
+
+            .selfie-progress-orb-inner {
+                width: 48px;
+                height: 48px;
+                font-size: 14px;
+            }
+
+            .selfie-guide-detail {
+                top: calc(81% + 82px);
+                width: min(88vw, 292px);
+                font-size: 10px;
             }
         }
     </style>
@@ -994,8 +1788,16 @@
             $isDisabled = false;
             $buttonText = 'Presensi Sekarang';
             $buttonIcon = 'check-circle';
+            $verificationMode = $faceVerificationState['mode'] ?? 'selfie';
+            $verificationLabel = $faceVerificationState['label'] ?? 'Selfie';
+            $faceEnrollmentRequired = $faceVerificationState['requires_face_scan'] ?? false;
+            $faceEnrollmentReady = $faceVerificationState['enrolled'] ?? false;
 
-            if ($isPenjagaSekolah) {
+            if ($faceEnrollmentRequired && !$faceEnrollmentReady) {
+                $isDisabled = true;
+                $buttonText = 'Daftarkan Wajah Terlebih Dahulu';
+                $buttonIcon = 'scan';
+            } elseif ($isPenjagaSekolah) {
                 // For penjaga sekolah, always allow presensi
                 $isDisabled = false;
                 $buttonText = 'Presensi Sekarang';
@@ -1013,6 +1815,29 @@
                 $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Sekarang';
             }
         @endphp
+
+        @if($faceEnrollmentRequired && !$faceEnrollmentReady)
+        <div class="alert-custom warning">
+            <div class="d-flex">
+                <i class="bx bx-scan text-warning me-2"></i>
+                <div>
+                    <strong>Scan wajah belum aktif</strong>
+                    <p class="mb-2 text-muted">Wajah Anda belum terdaftar. Presensi kehadiran sekarang memakai scan wajah sebagai pengganti selfie.</p>
+                    <a href="{{ route('mobile.face.enrollment') }}" class="btn-primary-custom">Daftar Wajah</a>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <div class="alert-custom info">
+            <div class="d-flex">
+                <i class="bx {{ $verificationMode === 'face_scan' ? 'bx-scan' : 'bx-camera' }} text-info me-2"></i>
+                <div>
+                    <strong>Metode verifikasi mobile aktif: {{ $verificationLabel }}</strong>
+                    <p class="mb-0 text-muted">{{ $faceVerificationState['description'] ?? '' }}</p>
+                </div>
+            </div>
+        </div>
 
         <div class="form-section">
             <button type="button" id="btn-presensi"
@@ -1184,57 +2009,151 @@
     @endif --}}
 </div>
 
-<div id="selfie-modal" class="selfie-modal" aria-hidden="true">
-    <div class="selfie-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="selfie-modal-title">
+<div id="selfie-modal" class="selfie-modal {{ $verificationMode === 'face_scan' ? 'face-scan-modal' : '' }}" aria-hidden="true">
+    <div class="selfie-modal-dialog {{ $verificationMode === 'face_scan' ? 'face-scan-mode' : '' }}" role="dialog" aria-modal="true" aria-labelledby="selfie-modal-title">
         <div class="selfie-modal-header">
-            <div>
-                <div id="selfie-modal-title" class="selfie-modal-title">Selfie Presensi</div>
-                {{-- <div id="selfie-modal-subtitle" class="selfie-modal-subtitle">Ambil foto selfie lalu kirim presensi.</div> --}}
-            </div>
             <button type="button" id="btn-close-selfie-modal" class="selfie-modal-close" aria-label="Tutup">
-                <i class="bx bx-x"></i>
+                Batal
             </button>
+            <div>
+                <div id="selfie-modal-title" class="selfie-modal-title">{{ $verificationMode === 'face_scan' ? 'Scan Wajah' : 'Selfie Presensi' }}</div>
+                <div id="selfie-modal-subtitle" class="selfie-modal-subtitle">
+                    {{ $verificationMode === 'face_scan' ? 'Posisikan wajah lalu ikuti arahan singkat sampai presensi diproses.' : 'Ambil foto selfie sebelum presensi dikirim.' }}
+                </div>
+            </div>
+            <div class="selfie-modal-actions">
+                <button type="button" id="btn-retry-selfie-modal" class="selfie-modal-retry" aria-label="Ulangi scan" {{ $verificationMode === 'face_scan' ? '' : 'hidden' }}>
+                    <i class="bx bx-refresh"></i>Ulangi
+                </button>
+            </div>
         </div>
 
         <div class="selfie-modal-body">
-            <div class="selfie-note">
-                <i class="bx bx-info-circle"></i>
-                Pastikan wajah terlihat jelas dan foto diambil di lingkungan madrasah/sekolah.
+            @if($verificationMode === 'face_scan')
+            <div class="face-scan-onboarding" id="face-scan-onboarding" role="dialog" aria-modal="true" aria-labelledby="face-scan-onboarding-title">
+                <div class="face-scan-onboarding-panel">
+                    <h2 class="face-scan-onboarding-title" id="face-scan-onboarding-title">Panduan Scan Wajah</h2>
+                    <p class="face-scan-onboarding-subtitle">Ikuti panduan singkat ini agar wajah cepat cocok dan presensi bisa diproses.</p>
+
+                    <div class="face-scan-onboarding-steps">
+                        <div class="face-scan-onboarding-step">
+                            <i class="bx bx-check-circle"></i>
+                            <span>Posisikan satu wajah tepat di dalam oval.</span>
+                        </div>
+                        <div class="face-scan-onboarding-step">
+                            <i class="bx bx-low-vision"></i>
+                            <span>Ikuti instruksi seperti kedip atau arah wajah yang tampil.</span>
+                        </div>
+                        <div class="face-scan-onboarding-step">
+                            <i class="bx bx-shield-quarter"></i>
+                            <span>Pastikan wajah asli sesuai data yang sudah didaftarkan.</span>
+                        </div>
+                    </div>
+
+                    <div class="face-scan-example-grid" aria-label="Contoh scan wajah presensi">
+                        <div class="face-scan-example is-good">
+                            <div class="face-scan-example-oval">
+                                <span class="face-scan-example-face"></span>
+                            </div>
+                            <div class="face-scan-example-label"><i class="bx bx-check"></i> Benar</div>
+                        </div>
+                        <div class="face-scan-example is-bad">
+                            <div class="face-scan-example-oval">
+                                <span class="face-scan-example-face"></span>
+                            </div>
+                            <div class="face-scan-example-label"><i class="bx bx-x"></i> Salah</div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="face-scan-onboarding-button" id="btn-face-scan-onboarding-continue">
+                        Lanjutkan
+                    </button>
+                </div>
+            </div>
+            @endif
+
+            <div id="selfie-status" class="selfie-status-banner">
+                <span>{{ $verificationMode === 'face_scan' ? 'Kamera akan aktif otomatis saat modal dibuka.' : 'Kamera akan aktif otomatis saat modal dibuka.' }}</span>
             </div>
 
-            <div id="selfie-container" class="selfie-stage">
-                <div class="selfie-placeholder">
-                    <i class="bx bx-camera"></i>
-                    <strong class="mb-1">Menyiapkan kamera</strong>
-                    <span>Izinkan akses kamera jika diminta.</span>
+            <div id="selfie-container" class="selfie-stage" data-guide-state="searching">
+                @if($verificationMode === 'face_scan')
+                <div class="selfie-guide">
+                    <div class="selfie-guide-oval"></div>
+                    <div class="selfie-guide-pill" id="selfie-guide-pill">
+                        <i class="bx bx-scan"></i>
+                        <span id="selfie-guide-text">Pusatkan Wajah di Oval</span>
+                        <small id="selfie-guide-instruction">Ikuti instruksi scan yang tampil.</small>
+                    </div>
+                    <div class="selfie-progress-orb" id="selfie-progress-orb" aria-hidden="true">
+                        <div class="selfie-progress-orb-inner">
+                            <span id="selfie-progress-value" class="selfie-progress-value">0%</span>
+                            <span class="selfie-progress-success" aria-hidden="true">
+                                <i class="bx bx-check"></i>
+                            </span>
+                            <span class="selfie-progress-error" aria-hidden="true">
+                                <i class="bx bx-x"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="selfie-guide-detail" id="selfie-guide-detail">Pusatkan wajah di dalam oval agar scan terbaca.</div>
                 </div>
-                <video id="selfie-video" autoplay playsinline style="display: none; object-fit: cover;"></video>
-                <canvas id="selfie-canvas" style="display: none;"></canvas>
-                <img id="selfie-preview" style="object-fit: cover; display: none;" alt="Selfie Preview">
+                @endif
 
-                <div class="selfie-overlay-actions">
-                    <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="display: none;">
-                        <i class="bx bx-camera me-1"></i>Ambil Foto
-                    </button>
-                    <button type="button" id="btn-retake-selfie" class="btn btn-outline-secondary" style="display: none;">
-                        <i class="bx bx-refresh me-1"></i>Ulang
-                    </button>
+                <div class="selfie-camera-layer">
+                    <div class="selfie-placeholder">
+                        @if($verificationMode !== 'face_scan')
+                        <i class="bx bx-camera"></i>
+                        <strong class="mb-1">Menyiapkan kamera selfie</strong>
+                        <span>Izinkan akses kamera jika diminta.</span>
+                        @endif
+                    </div>
+                    <video id="selfie-video" autoplay playsinline style="display: none; object-fit: cover;"></video>
+                    <canvas id="selfie-canvas" style="display: none;"></canvas>
+                    <img id="selfie-preview" style="object-fit: cover; display: none;" alt="Preview Scan Wajah">
                 </div>
+
+                <div class="selfie-stage-copy">
+                    <div id="face-instruction-box" class="selfie-feedback">
+                        <strong>{{ $verificationMode === 'face_scan' ? 'Instruksi' : 'Selfie' }}</strong>
+                        <span id="face-instruction-text">
+                            {{ $verificationMode === 'face_scan'
+                                ? 'Aktifkan kamera lalu ikuti arahan scan wajah.'
+                                : 'Aktifkan kamera lalu ambil selfie untuk presensi.' }}
+                        </span>
+                    </div>
+
+                    @if($verificationMode === 'face_scan')
+                    <div class="selfie-progress">
+                        <div class="selfie-progress-item" data-step="align">Posisikan</div>
+                        <div class="selfie-progress-item" data-step="blink">Kedip</div>
+                        <div class="selfie-progress-item" data-step="challenge">Challenge</div>
+                        <div class="selfie-progress-item" data-step="done">Selesai</div>
+                    </div>
+                    @endif
+                </div>
+
+                @if($verificationMode === 'face_scan')
+                <button type="button" id="btn-face-scan-help" class="face-scan-help-button" aria-label="Buka panduan scan wajah">
+                    <i class="bx bx-info-circle"></i>
+                </button>
+                @endif
             </div>
 
             <input type="hidden" id="selfie-data" name="selfie_data">
-            <div id="selfie-status" class="location-info info" style="margin-top: 12px;">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-camera-off me-1"></i>
-                    <div>
-                        <strong>Selfie belum diambil</strong>
-                        <br><small class="text-muted">Kamera akan aktif otomatis saat modal dibuka.</small>
-                    </div>
-                </div>
-            </div>
+            <input type="hidden" id="face-descriptor" name="face_descriptor">
+            <input type="hidden" id="liveness-score" name="liveness_score">
+            <input type="hidden" id="liveness-challenges" name="liveness_challenges">
         </div>
 
         <div class="selfie-modal-footer">
+            <div class="selfie-footer-title">{{ $verificationMode === 'face_scan' ? 'Scan Wajah' : 'Selfie Presensi' }}</div>
+            <div class="selfie-progress-meter">
+                <div class="selfie-progress-fill" id="selfie-progress-fill"></div>
+            </div>
+            <button type="button" id="btn-capture-selfie" class="presensi-btn" style="display: none;">
+                <i class="bx {{ $verificationMode === 'face_scan' ? 'bx-scan' : 'bx-camera' }} me-1"></i>{{ $verificationMode === 'face_scan' ? 'Mulai Scan' : 'Ambil Foto' }}
+            </button>
             <button type="button" id="btn-submit-presensi"
                     class="presensi-btn"
                     style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
@@ -1248,6 +2167,8 @@
 
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('models/face-api.js') }}"></script>
+<script src="{{ asset('js/face-recognition.js') }}"></script>
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!-- Leaflet JS -->
@@ -1415,7 +2336,28 @@ window.addEventListener('load', function() {
         }
     }
 
+    let lastFormalAlertSignature = '';
+    let lastFormalAlertShownAt = 0;
+
     function showFormalAlert(options = {}) {
+        const signature = [
+            options.icon || '',
+            options.title || '',
+            options.text || ''
+        ].join('|');
+        const now = Date.now();
+
+        if (signature === lastFormalAlertSignature && now - lastFormalAlertShownAt < 2500) {
+            return Promise.resolve({ isDismissed: true, isDuplicate: true });
+        }
+
+        lastFormalAlertSignature = signature;
+        lastFormalAlertShownAt = now;
+
+        if (window.Swal && typeof Swal.isVisible === 'function' && Swal.isVisible()) {
+            Swal.close();
+        }
+
         return Swal.fire({
             confirmButtonText: 'Tutup',
             ...options
@@ -1441,16 +2383,7 @@ window.addEventListener('load', function() {
     }
 
     function showFormalLoadingAlert(title, text) {
-        return Swal.fire({
-            title,
-            text,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showConfirmButton: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+        return Promise.resolve({ title, text });
     }
 
     function showFormalRejectMessage(message, fallback = 'Permintaan presensi tidak dapat diproses saat ini.') {
@@ -1789,18 +2722,547 @@ window.addEventListener('load', function() {
 
 
 
-    // Selfie variables
+    // Face scan variables
     let selfieStream = null;
     let selfieCaptured = false;
     let presensiSubmitInFlight = false;
+    let presensiFinalAlertShown = false;
     const selfieModal = document.getElementById('selfie-modal');
     const selfieModalSubtitle = document.getElementById('selfie-modal-subtitle');
+    const faceScanOnboarding = document.getElementById('face-scan-onboarding');
+    const faceScanOnboardingContinue = document.getElementById('btn-face-scan-onboarding-continue');
+    const faceScanHelpButton = document.getElementById('btn-face-scan-help');
+    const faceScanner = new window.FaceRecognition();
+    let faceVerificationResult = null;
+    const verificationMode = @json($faceVerificationState['mode'] ?? 'selfie');
+    const verificationLabel = @json($faceVerificationState['label'] ?? 'Selfie');
+    const faceVerifyUrl = @json(route('mobile.face.verify'));
+    const faceScanRequired = verificationMode === 'face_scan';
+    const faceEnrollmentReady = @json($faceVerificationState['enrolled'] ?? false);
+    const selfieContainer = document.getElementById('selfie-container');
+    const selfieGuideText = document.getElementById('selfie-guide-text');
+    const selfieGuideInstruction = document.getElementById('selfie-guide-instruction');
+    const selfieGuideDetail = document.getElementById('selfie-guide-detail');
+    const selfieProgressItems = Array.from(document.querySelectorAll('.selfie-progress-item'));
+    const selfieProgressFill = document.getElementById('selfie-progress-fill');
+    const selfieProgressOrb = document.getElementById('selfie-progress-orb');
+    const selfieProgressValue = document.getElementById('selfie-progress-value');
+    let currentSelfieProgress = 0;
+    let targetSelfieProgress = 0;
+    let selfieProgressAnimationFrame = null;
+    let faceScanAutoStarted = false;
+    let faceScanOnboardingAccepted = false;
+    let currentFaceInstructionIcon = 'bx-scan';
+    let currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
 
     function stopSelfieStream() {
-        if (selfieStream) {
+        faceScanner.stopCamera(document.getElementById('selfie-video'));
+        if (selfieStream && typeof selfieStream.getTracks === 'function') {
             selfieStream.getTracks().forEach(track => track.stop());
-            selfieStream = null;
         }
+        selfieStream = null;
+    }
+
+    function setSelfieStatus(message, type = 'info', title = null) {
+        const statusElement = document.getElementById('selfie-status');
+        if (!statusElement) {
+            return;
+        }
+        statusElement.className = 'selfie-status-banner';
+        statusElement.innerHTML = `<span>${message}</span>`;
+    }
+
+    function isRetryableFaceScanError(message = '') {
+        return typeof message === 'string'
+            && (message.includes('Gerakan tidak sesuai instruksi') || message.includes('Gerakan belum sesuai instruksi'));
+    }
+
+    function isFaceMismatchRejection(message = '', notes = '') {
+        const normalizedMessage = String(message || '').toLowerCase();
+        const normalizedNotes = String(notes || '').toLowerCase();
+
+        return normalizedNotes === 'face_similarity_below_threshold'
+            || normalizedMessage.includes('wajah tidak cocok');
+    }
+
+    function resolveFaceInstructionMeta(message = '') {
+        const normalized = String(message || '').toLowerCase();
+
+        if (normalized.includes('memeriksa kecocokan') || normalized.includes('mencocokkan wajah')) {
+            return { icon: 'bx-loader-alt', title: 'Memeriksa Kecocokan' };
+        }
+        if (normalized.includes('wajah tidak cocok')) {
+            return { icon: 'bx-x-circle', title: 'Wajah Tidak Cocok' };
+        }
+        if (normalized.includes('kedip')) {
+            return { icon: 'bx-low-vision', title: 'Kedipkan Mata' };
+        }
+        if (normalized.includes('kiri')) {
+            return { icon: 'bx-left-arrow-alt', title: 'Menengok Sedikit ke Kiri' };
+        }
+        if (normalized.includes('kanan')) {
+            return { icon: 'bx-right-arrow-alt', title: 'Menengok Sedikit ke Kanan' };
+        }
+        if (normalized.includes('atas')) {
+            return { icon: 'bx-up-arrow-alt', title: 'Menengok Sedikit ke Atas' };
+        }
+        if (normalized.includes('bawah')) {
+            return { icon: 'bx-down-arrow-alt', title: 'Menengok Sedikit ke Bawah' };
+        }
+        if (normalized.includes('mulut')) {
+            return { icon: 'bx-message-rounded-detail', title: 'Buka Mulut Sedikit' };
+        }
+        if (normalized.includes('berhasil') || normalized.includes('selesai') || normalized.includes('terverifikasi')) {
+            return { icon: 'bx-check-circle', title: 'Berhasil' };
+        }
+        if (normalized.includes('ulang') || normalized.includes('gagal') || normalized.includes('tidak sesuai')) {
+            return { icon: 'bx-refresh', title: 'Ulangi Scan' };
+        }
+        if (normalized.includes('memuat') || normalized.includes('menyiapkan') || normalized.includes('memindai')) {
+            return { icon: 'bx-loader-alt', title: 'Memproses' };
+        }
+        if (normalized.includes('posisi') || normalized.includes('pusatkan') || normalized.includes('wajah')) {
+            return { icon: 'bx-user-circle', title: 'Pusatkan Wajah di Oval' };
+        }
+
+        return { icon: 'bx-scan', title: 'Instruksi' };
+    }
+
+    function resolveFaceGuideLabel(message = '') {
+        const normalized = String(message || '').toLowerCase();
+
+        if (normalized.includes('memeriksa kecocokan') || normalized.includes('mencocokkan wajah')) {
+            return 'Memeriksa Kecocokan';
+        }
+        if (normalized.includes('wajah tidak cocok')) {
+            return 'Wajah Tidak Cocok';
+        }
+        if (normalized.includes('berhasil') || normalized.includes('selesai') || normalized.includes('terverifikasi')) {
+            return 'Verifikasi Selesai';
+        }
+        if (normalized.includes('kedip')) {
+            return 'Kedipkan Mata';
+        }
+        if (normalized.includes('kiri')) {
+            return 'Menengok Sedikit ke Kiri';
+        }
+        if (normalized.includes('kanan')) {
+            return 'Menengok Sedikit ke Kanan';
+        }
+        if (normalized.includes('atas')) {
+            return 'Menengok Sedikit ke Atas';
+        }
+        if (normalized.includes('bawah')) {
+            return 'Menengok Sedikit ke Bawah';
+        }
+        if (normalized.includes('mulut')) {
+            return 'Buka Mulut Sedikit';
+        }
+        if (normalized.includes('ulang') || normalized.includes('gagal') || normalized.includes('tidak sesuai')) {
+            return 'Ulangi Scan';
+        }
+        if (normalized.includes('memuat') || normalized.includes('menyiapkan') || normalized.includes('memindai')) {
+            return 'Menyiapkan Scan';
+        }
+        if (normalized.includes('posisi') || normalized.includes('pusatkan') || normalized.includes('wajah') || normalized.includes('geser')) {
+            return 'Pusatkan Wajah di Oval';
+        }
+
+        return 'Ikuti Instruksi';
+    }
+
+    function resolveFaceGuideInstruction(message = '') {
+        const normalized = String(message || '').toLowerCase();
+
+        if (normalized.includes('memeriksa kecocokan') || normalized.includes('mencocokkan wajah')) {
+            return 'Tunggu proses pencocokan dengan wajah terdaftar.';
+        }
+        if (normalized.includes('wajah tidak cocok')) {
+            return 'Presensi ditolak karena wajah tidak cocok.';
+        }
+        if (normalized.includes('kedip')) {
+            return 'Kedip satu kali dengan jelas.';
+        }
+        if (normalized.includes('kiri')) {
+            return 'Sedikit menengok ke arah kiri.';
+        }
+        if (normalized.includes('kanan')) {
+            return 'Sedikit menengok ke arah kanan.';
+        }
+        if (normalized.includes('atas')) {
+            return 'Sedikit menengok ke arah atas.';
+        }
+        if (normalized.includes('bawah')) {
+            return 'Sedikit menengok ke arah bawah.';
+        }
+        if (normalized.includes('mulut')) {
+            return 'Buka mulut sedikit sebentar.';
+        }
+        if (normalized.includes('ulang') || normalized.includes('gagal') || normalized.includes('tidak sesuai')) {
+            return 'Ulangi proses scan dari awal.';
+        }
+        if (normalized.includes('berhasil') || normalized.includes('selesai') || normalized.includes('terverifikasi')) {
+            return 'Verifikasi sudah selesai.';
+        }
+        if (normalized.includes('posisi') || normalized.includes('pusatkan') || normalized.includes('wajah') || normalized.includes('geser')) {
+            return 'Pusatkan wajah di dalam oval.';
+        }
+
+        return 'Ikuti instruksi scan yang tampil.';
+    }
+
+    function updateFaceInstruction(message, title = null) {
+        const instructionElement = document.getElementById('face-instruction-box');
+        const instructionText = document.getElementById('face-instruction-text');
+        if (!instructionElement || !instructionText) return;
+
+        const instructionMeta = faceScanRequired
+            ? resolveFaceInstructionMeta(message)
+            : { icon: 'bx-camera', title: 'Selfie' };
+        currentFaceInstructionIcon = instructionMeta.icon;
+        const heading = title || (faceScanRequired ? instructionMeta.title : 'Selfie');
+        instructionElement.querySelector('strong').textContent = heading;
+        instructionText.textContent = message;
+
+        if (faceScanRequired && selfieGuideText) {
+            selfieGuideText.textContent = resolveFaceGuideLabel(message);
+            currentFaceGuideInstruction = resolveFaceGuideInstruction(message);
+            if (selfieGuideInstruction) {
+                selfieGuideInstruction.textContent = currentFaceGuideInstruction;
+            }
+            if (selfieGuideDetail) {
+                selfieGuideDetail.textContent = message;
+            }
+            updateSelfieGuideTone(selfieContainer?.dataset.guideState || 'searching');
+        }
+    }
+
+    function resetSelfieProgress() {
+        selfieProgressItems.forEach((item) => item.classList.remove('active', 'done'));
+        currentSelfieProgress = 0;
+        targetSelfieProgress = 0;
+        if (selfieProgressAnimationFrame !== null) {
+            window.cancelAnimationFrame(selfieProgressAnimationFrame);
+            selfieProgressAnimationFrame = null;
+        }
+        setSelfieProgressOrbState('default');
+        renderSelfieProgress(0);
+    }
+
+    function setSelfieProgressOrbState(state = 'default') {
+        if (!selfieProgressOrb) {
+            return;
+        }
+
+        const palette = {
+            default: '#4ade80',
+            success: '#4ade80',
+            error: '#f87171',
+        };
+
+        selfieProgressOrb.style.setProperty('--progress-fill', palette[state] || palette.default);
+        selfieProgressOrb.classList.toggle('is-complete', state === 'success');
+        selfieProgressOrb.classList.toggle('is-error', state === 'error');
+    }
+
+    function renderSelfieProgress(progress) {
+        const normalized = Math.max(0, Math.min(progress, 1));
+        if (selfieProgressFill) {
+            selfieProgressFill.style.width = `${normalized * 100}%`;
+        }
+
+        if (selfieProgressOrb && selfieProgressValue) {
+            const percent = Math.round(normalized * 100);
+            selfieProgressOrb.style.setProperty('--progress-angle', `${normalized * 360}deg`);
+            selfieProgressValue.textContent = `${percent}%`;
+
+            if (!selfieProgressOrb.classList.contains('is-error')) {
+                setSelfieProgressOrbState(percent >= 100 ? 'success' : 'default');
+            }
+        }
+    }
+
+    function animateSelfieProgress() {
+        const delta = targetSelfieProgress - currentSelfieProgress;
+
+        if (Math.abs(delta) < 0.003) {
+            currentSelfieProgress = targetSelfieProgress;
+            renderSelfieProgress(currentSelfieProgress);
+            selfieProgressAnimationFrame = null;
+            return;
+        }
+
+        currentSelfieProgress += delta * 0.18;
+        renderSelfieProgress(currentSelfieProgress);
+        selfieProgressAnimationFrame = window.requestAnimationFrame(animateSelfieProgress);
+    }
+
+    function updateSelfieProgress(step, state) {
+        const target = document.querySelector(`.selfie-progress-item[data-step="${step}"]`);
+        if (!target) {
+            return;
+        }
+
+        target.classList.remove('active', 'done');
+        if (state === 'active') {
+            target.classList.add('active');
+        }
+        if (state === 'done') {
+            target.classList.add('done');
+        }
+
+        updateSelfieProgressRing();
+    }
+
+    function updateSelfieProgressRing() {
+        if (!selfieProgressFill && !selfieProgressOrb) {
+            return;
+        }
+
+        const totalSteps = selfieProgressItems.length || 1;
+        const doneCount = selfieProgressItems.filter((item) => item.classList.contains('done')).length;
+        const activeIndex = selfieProgressItems.findIndex((item) => item.classList.contains('active'));
+        let progress = doneCount / totalSteps;
+
+        if (activeIndex >= 0 && doneCount < totalSteps) {
+            progress = Math.max(progress, (activeIndex + 0.5) / totalSteps);
+        }
+
+        if (selfieContainer?.dataset.guideState === 'success') {
+            progress = 1;
+        }
+
+        targetSelfieProgress = Math.max(0, Math.min(progress, 1));
+
+        if (selfieProgressAnimationFrame !== null) {
+            return;
+        }
+
+        selfieProgressAnimationFrame = window.requestAnimationFrame(animateSelfieProgress);
+    }
+
+    function setSelfieQualityState(key, state = 'idle') {
+        const target = document.querySelector(`.selfie-quality-item[data-quality="${key}"]`);
+        if (!target) {
+            return;
+        }
+
+        target.classList.remove('active', 'done');
+        if (state === 'active') {
+            target.classList.add('active');
+        }
+        if (state === 'done') {
+            target.classList.add('done');
+        }
+    }
+
+    function updateSelfieQualityIndicators(guideState) {
+        if (!faceScanRequired) {
+            return;
+        }
+
+        const qualityMap = {
+            searching: { detected: 'idle', centered: 'idle', stable: 'idle' },
+            'too-far': { detected: 'active', centered: 'idle', stable: 'idle' },
+            'too-close': { detected: 'active', centered: 'idle', stable: 'idle' },
+            tilted: { detected: 'active', centered: 'active', stable: 'idle' },
+            'off-center': { detected: 'active', centered: 'idle', stable: 'idle' },
+            warning: { detected: 'done', centered: 'active', stable: 'idle' },
+            steady: { detected: 'done', centered: 'active', stable: 'active' },
+            aligned: { detected: 'done', centered: 'done', stable: 'done' },
+            success: { detected: 'done', centered: 'done', stable: 'done' },
+        };
+
+        const current = qualityMap[guideState] || qualityMap.searching;
+        Object.entries(current).forEach(([key, state]) => setSelfieQualityState(key, state));
+    }
+
+    function inferSelfieStatusType(message) {
+        if (!message) {
+            return 'info';
+        }
+
+        if (message.includes('berhasil')) {
+            return 'success';
+        }
+
+        if (message.includes('Menunggu aksi') || message.includes('Pertahankan') || message.includes('Posisi')) {
+            return 'warning';
+        }
+
+        return 'info';
+    }
+
+    function updateSelfieGuideTone(state) {
+        if (!faceScanRequired) {
+            return;
+        }
+
+        const iconEl = document.querySelector('#selfie-guide-pill i');
+        if (!iconEl) {
+            return;
+        }
+
+        const palette = {
+            success: '#86efac',
+            aligned: '#86efac',
+            steady: '#86efac',
+            processing: '#fef08a',
+            warning: '#fca5a5',
+            'too-far': '#fca5a5',
+            'too-close': '#fca5a5',
+            tilted: '#fca5a5',
+            'off-center': '#fca5a5',
+            searching: '#fca5a5',
+        };
+
+        const resolvedIcon = state === 'success' ? 'bx-check-circle' : (currentFaceInstructionIcon || 'bx-scan');
+        iconEl.className = `bx ${resolvedIcon}`;
+        iconEl.style.color = palette[state] || palette.searching;
+    }
+
+    function showFaceScanRetryButton(label = 'Ulangi Scan') {
+        const captureBtn = document.getElementById('btn-capture-selfie');
+        if (!captureBtn || !faceScanRequired) {
+            return;
+        }
+
+        captureBtn.disabled = false;
+        captureBtn.classList.add('retry-scan');
+        captureBtn.style.display = 'inline-flex';
+        captureBtn.innerHTML = `<i class="bx bx-refresh me-1"></i>${label}`;
+    }
+
+    function hideFaceScanRetryButton() {
+        const captureBtn = document.getElementById('btn-capture-selfie');
+        if (!captureBtn) {
+            return;
+        }
+
+        captureBtn.classList.remove('retry-scan');
+        captureBtn.style.display = faceScanRequired ? 'none' : 'block';
+        captureBtn.innerHTML = faceScanRequired
+            ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
+            : '<i class="bx bx-camera me-1"></i>Ambil Foto';
+    }
+
+    function handleFaceScanVerificationRejection(message, notes = null) {
+        if (!faceScanRequired) {
+            return false;
+        }
+
+        if (!isFaceMismatchRejection(message, notes)) {
+            return false;
+        }
+
+        const rejectionMessage = 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.';
+        presensiSubmitInFlight = false;
+        selfieCaptured = false;
+        faceVerificationResult = null;
+
+        const selfieDataInput = document.getElementById('selfie-data');
+        const faceDescriptorInput = document.getElementById('face-descriptor');
+        const livenessScoreInput = document.getElementById('liveness-score');
+        const livenessChallengesInput = document.getElementById('liveness-challenges');
+
+        if (selfieDataInput) {
+            selfieDataInput.value = '';
+        }
+        if (faceDescriptorInput) {
+            faceDescriptorInput.value = '';
+        }
+        if (livenessScoreInput) {
+            livenessScoreInput.value = '';
+        }
+        if (livenessChallengesInput) {
+            livenessChallengesInput.value = '';
+        }
+
+        updateSelfieGuideState({
+            state: 'warning',
+            message: rejectionMessage,
+        });
+        setSelfieProgressOrbState('error');
+        setSelfieStatus(rejectionMessage, 'error');
+        updateFaceInstruction(rejectionMessage);
+        showFaceScanRetryButton('Scan Ulang');
+
+        $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
+
+        return true;
+    }
+
+    async function requestFaceMatchVerification(descriptor, livenessScore = 1, livenessChallenges = []) {
+        const response = await fetch(faceVerifyUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            body: JSON.stringify({
+                face_descriptor: descriptor,
+                liveness_score: livenessScore,
+                liveness_challenges: livenessChallenges,
+            }),
+        });
+
+        let payload = null;
+        try {
+            payload = await response.json();
+        } catch (error) {
+            payload = null;
+        }
+
+        if (!response.ok || !payload?.face_verified) {
+            return {
+                face_verified: false,
+                message: payload?.message || 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.',
+                notes: payload?.notes || 'face_similarity_below_threshold',
+                similarity: payload?.similarity ?? null,
+            };
+        }
+
+        return payload;
+    }
+
+    async function verifyFaceMatchBeforeChallenges(descriptor) {
+        return requestFaceMatchVerification(descriptor, 1, []);
+    }
+
+    async function verifyFaceMatchAfterChallenges(result) {
+        updateSelfieGuideState({
+            state: 'processing',
+            message: 'Mencocokkan wajah dengan data terdaftar.',
+        });
+        setSelfieProgressOrbState('default');
+        updateFaceInstruction('Mencocokkan wajah dengan data terdaftar.');
+        setSelfieStatus('Mencocokkan wajah hasil scan dengan data yang terdaftar.');
+
+        const verification = await requestFaceMatchVerification(
+            result?.face_descriptor || [],
+            result?.liveness_score ?? 0,
+            result?.liveness_challenges || []
+        );
+
+        if (!verification?.face_verified) {
+            const message = verification?.message || 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.';
+            const error = new Error(message);
+            error.notes = verification?.notes || 'face_similarity_below_threshold';
+            error.similarity = verification?.similarity ?? null;
+            throw error;
+        }
+
+        updateSelfieGuideState({
+            state: 'success',
+            message: 'Wajah cocok dengan data terdaftar.',
+        });
+        updateFaceInstruction('Wajah cocok dengan data terdaftar.');
+        setSelfieStatus('Wajah cocok. Presensi sedang dikirim.', 'success');
+
+        return verification;
     }
 
     function resetSelfieModalState() {
@@ -1808,10 +3270,11 @@ window.addEventListener('load', function() {
         const preview = document.getElementById('selfie-preview');
         const canvas = document.getElementById('selfie-canvas');
         const captureBtn = document.getElementById('btn-capture-selfie');
-        const retakeBtn = document.getElementById('btn-retake-selfie');
         const submitBtn = document.getElementById('btn-submit-presensi');
         const selfieDataInput = document.getElementById('selfie-data');
-        const statusElement = document.getElementById('selfie-status');
+        const faceDescriptorInput = document.getElementById('face-descriptor');
+        const livenessScoreInput = document.getElementById('liveness-score');
+        const livenessChallengesInput = document.getElementById('liveness-challenges');
         const placeholder = document.querySelector('#selfie-container .selfie-placeholder');
 
         if (video) {
@@ -1826,10 +3289,11 @@ window.addEventListener('load', function() {
             canvas.style.display = 'none';
         }
         if (captureBtn) {
-            captureBtn.style.display = 'none';
-        }
-        if (retakeBtn) {
-            retakeBtn.style.display = 'none';
+            captureBtn.style.display = faceScanRequired ? 'none' : 'none';
+            captureBtn.disabled = false;
+            captureBtn.innerHTML = faceScanRequired
+                ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
+                : '<i class="bx bx-camera me-1"></i>Ambil Foto';
         }
         if (submitBtn) {
             submitBtn.style.display = 'none';
@@ -1839,25 +3303,45 @@ window.addEventListener('load', function() {
         if (selfieDataInput) {
             selfieDataInput.value = '';
         }
+        if (faceDescriptorInput) {
+            faceDescriptorInput.value = '';
+        }
+        if (livenessScoreInput) {
+            livenessScoreInput.value = '';
+        }
+        if (livenessChallengesInput) {
+            livenessChallengesInput.value = '';
+        }
         if (placeholder) {
             placeholder.style.display = 'flex';
-        }
-        if (statusElement) {
-            statusElement.innerHTML = `
-                <div class="location-info info">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-camera-off me-1"></i>
-                        <div>
-                            <strong>Selfie belum diambil</strong>
-                            <br><small class="text-muted">Kamera akan aktif otomatis saat modal dibuka.</small>
-                        </div>
-                    </div>
-                </div>
-            `;
         }
 
         stopSelfieStream();
         selfieCaptured = false;
+        faceVerificationResult = null;
+        faceScanAutoStarted = false;
+        faceScanOnboardingAccepted = !faceScanRequired;
+        currentFaceGuideInstruction = 'Pusatkan wajah di dalam oval.';
+        if (faceScanOnboarding) {
+            faceScanOnboarding.hidden = !faceScanRequired;
+        }
+        resetSelfieProgress();
+        updateSelfieQualityIndicators('searching');
+        updateSelfieGuideTone('searching');
+        setSelfieStatus(
+            faceScanRequired
+                ? 'Kamera akan aktif otomatis saat modal dibuka.'
+                : 'Kamera akan aktif otomatis saat modal dibuka.',
+            'info',
+            faceScanRequired ? 'Siapkan scan' : 'Siapkan selfie'
+        );
+        updateFaceInstruction(faceScanRequired
+            ? 'Aktifkan kamera lalu ikuti arahan scan wajah.'
+            : 'Aktifkan kamera lalu ambil selfie untuk presensi.');
+        updateSelfieGuideState({
+            state: 'searching',
+            message: 'Pusatkan wajah di dalam oval.',
+        });
     }
 
     function openSelfieModal() {
@@ -1869,9 +3353,70 @@ window.addEventListener('load', function() {
         document.body.classList.add('selfie-modal-open');
 
         if (selfieModalSubtitle) {
-            selfieModalSubtitle.textContent = isPresensiKeluar
-                ? 'Ambil foto selfie untuk presensi keluar, lalu kirim.'
-                : 'Ambil foto selfie untuk presensi masuk, lalu kirim.';
+            if (faceScanRequired) {
+                selfieModalSubtitle.textContent = isPresensiKeluar
+                    ? 'Posisikan wajah lalu ikuti arahan singkat untuk presensi keluar.'
+                    : 'Posisikan wajah lalu ikuti arahan singkat untuk presensi masuk.';
+            } else {
+                selfieModalSubtitle.textContent = isPresensiKeluar
+                    ? 'Ambil selfie untuk presensi keluar, lalu kirim.'
+                    : 'Ambil selfie untuk presensi masuk, lalu kirim.';
+            }
+        }
+
+        if (faceScanRequired && faceScanOnboardingContinue) {
+            window.setTimeout(() => faceScanOnboardingContinue.focus(), 80);
+        }
+    }
+
+    async function retryFaceScanFromHeader() {
+        if (!faceScanRequired || !selfieModal?.classList.contains('show') || presensiSubmitInFlight) {
+            return;
+        }
+
+        resetSelfieModalState();
+
+        if (faceScanOnboarding) {
+            faceScanOnboarding.hidden = true;
+        }
+        faceScanOnboardingAccepted = true;
+
+        try {
+            await initializeSelfieCamera();
+        } catch (error) {
+            closeSelfieModal();
+            showFormalErrorAlert(
+                'Akses Kamera Tidak Tersedia',
+                'Kamera tidak dapat diakses. Pastikan izin kamera telah diberikan, lalu coba kembali.'
+            );
+        }
+    }
+
+    async function startFaceScanAfterOnboarding() {
+        if (!faceScanRequired) {
+            return;
+        }
+
+        if (faceScanOnboardingAccepted) {
+            if (faceScanOnboarding) {
+                faceScanOnboarding.hidden = true;
+            }
+            return;
+        }
+
+        faceScanOnboardingAccepted = true;
+        if (faceScanOnboarding) {
+            faceScanOnboarding.hidden = true;
+        }
+
+        try {
+            await initializeSelfieCamera();
+        } catch (error) {
+            closeSelfieModal();
+            showFormalErrorAlert(
+                'Akses Kamera Tidak Tersedia',
+                'Kamera tidak dapat diakses. Pastikan izin kamera telah diberikan, lalu coba kembali.'
+            );
         }
     }
 
@@ -1888,199 +3433,327 @@ window.addEventListener('load', function() {
         document.body.classList.remove('selfie-modal-open');
     }
 
-    // Initialize selfie camera
+    function updateSelfieGuideState(payload = {}) {
+        if (!faceScanRequired || !selfieContainer) {
+            return;
+        }
+
+        if (payload.state) {
+            selfieContainer.dataset.guideState = payload.state;
+            updateSelfieQualityIndicators(payload.state);
+            updateSelfieGuideTone(payload.state);
+            updateSelfieProgressRing();
+        }
+
+        if (selfieGuideText && payload.message) {
+            selfieGuideText.textContent = resolveFaceGuideLabel(payload.message);
+        }
+
+        if (selfieGuideInstruction) {
+            selfieGuideInstruction.textContent = currentFaceGuideInstruction || resolveFaceGuideInstruction(payload.message);
+        }
+
+        if (selfieGuideDetail && payload.message) {
+            selfieGuideDetail.textContent = payload.message;
+        }
+    }
+
+    // Initialize face scan camera
     async function initializeSelfieCamera() {
         try {
-            // Check if required DOM elements exist
             const video = document.getElementById('selfie-video');
             const container = document.getElementById('selfie-container');
             const captureBtn = document.getElementById('btn-capture-selfie');
-            const statusElement = document.getElementById('selfie-status');
 
-            if (!video || !container || !captureBtn || !statusElement) {
+            if (!video || !container || !captureBtn) {
                 console.error('Required DOM elements for selfie camera not found');
                 throw new Error('DOM elements not ready');
             }
 
             stopSelfieStream();
 
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: 'user',
-                    width: { ideal: 480 },
-                    height: { ideal: 640 },
-                    aspectRatio: 3/4
-                }
-            });
-            selfieStream = stream;
-
-            video.srcObject = stream;
+            if (faceScanRequired) {
+                updateFaceInstruction('Memuat model scan wajah. Mohon tunggu sebentar.');
+                await faceScanner.loadModels();
+                await faceScanner.initializeCamera(video);
+            } else {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 480 },
+                        height: { ideal: 640 },
+                        aspectRatio: 3/4
+                    }
+                });
+                selfieStream = stream;
+                video.srcObject = stream;
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => resolve(true);
+                });
+                await video.play();
+                updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
+            }
             video.style.display = 'block';
 
-            // Hide the placeholder and show video
             const placeholder = container.querySelector('.selfie-placeholder');
             if (placeholder) {
                 placeholder.style.display = 'none';
             }
 
-            // Show capture button
-            captureBtn.style.display = 'block';
+            if (faceScanRequired) {
+                captureBtn.style.display = 'none';
+                setSelfieStatus('Kamera aktif. Tahan posisi wajah sebentar.');
+                updateFaceInstruction('Posisikan wajah di dalam oval lalu ikuti arahan scan wajah.');
+                updateSelfieGuideState({
+                    state: 'steady',
+                    message: 'Pusatkan wajah di dalam oval.',
+                });
 
-            // Update status to show camera is ready
-            statusElement.innerHTML = `
-                <div class="location-info success">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-camera me-1"></i>
-                        <div>
-                            <strong>Kamera aktif</strong>
-                        </div>
-                    </div>
-                </div>
-            `;
+                if (!faceScanAutoStarted && selfieModal?.classList.contains('show')) {
+                    faceScanAutoStarted = true;
+                    window.setTimeout(() => {
+                        if (!selfieModal?.classList.contains('show') || selfieCaptured) {
+                            return;
+                        }
+                        captureSelfie();
+                    }, 220);
+                }
+            } else {
+                captureBtn.style.display = 'block';
+                setSelfieStatus('Kamera siap digunakan untuk selfie presensi.');
+            }
 
         } catch (error) {
             console.error('Error accessing camera:', error);
-            const statusElement = document.getElementById('selfie-status');
-            if (statusElement) {
-                statusElement.innerHTML = `
-                    <div class="location-info error">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-error-circle me-1"></i>
-                            <div>
-                                <strong>Kamera tidak dapat diakses</strong>
-                                <br><small class="text-muted">Pastikan memberikan izin kamera</small>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
+            setSelfieStatus('Pastikan izin kamera diberikan lalu coba lagi.');
             throw error; // Re-throw to handle in calling function
         }
     }
 
-    // Capture selfie
-    function captureSelfie() {
+    async function captureSelfie() {
         const video = document.getElementById('selfie-video');
         const canvas = document.getElementById('selfie-canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Set canvas to portrait dimensions (3:4 aspect ratio)
-        const aspectRatio = 3/4;
-        const canvasWidth = Math.min(video.videoWidth, video.videoHeight * aspectRatio);
-        const canvasHeight = canvasWidth / aspectRatio;
-
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-
-    // Center the image on canvas for portrait crop
-    const sourceX = (video.videoWidth - canvasWidth) / 2;
-    const sourceY = (video.videoHeight - canvasHeight) / 2;
-
-    // Balik horizontal sebelum menggambar agar hasil tidak terbalik
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, sourceX, sourceY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform setelah menggambar
-
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
         const selfieDataInput = document.getElementById('selfie-data');
+        const faceDescriptorInput = document.getElementById('face-descriptor');
+        const livenessScoreInput = document.getElementById('liveness-score');
+        const livenessChallengesInput = document.getElementById('liveness-challenges');
         const selfiePreview = document.getElementById('selfie-preview');
-
-        if (selfieDataInput) {
-            selfieDataInput.value = imageData;
-        }
-
-        if (selfiePreview) {
-            selfiePreview.src = imageData;
-            selfiePreview.style.display = 'block';
-        }
-
-        // Hide video and show preview
-        if (video) {
-            video.style.display = 'none';
-        }
-
-        // Hide capture button and show retake button
         const captureBtn = document.getElementById('btn-capture-selfie');
-        const retakeBtn = document.getElementById('btn-retake-selfie');
+
+        if (faceScanRequired) {
+            hideFaceScanRetryButton();
+        }
 
         if (captureBtn) {
-            captureBtn.style.display = 'none';
+            captureBtn.disabled = true;
+            captureBtn.innerHTML = faceScanRequired
+                ? '<i class="bx bx-loader-alt bx-spin me-1"></i>Memindai...'
+                : '<i class="bx bx-loader-alt bx-spin me-1"></i>Mengambil...';
         }
 
-        if (retakeBtn) {
-            retakeBtn.style.display = 'block';
-        }
-
-        // Stop camera stream after capture to freeze result
-        stopSelfieStream();
-
-        selfieCaptured = true;
-        document.getElementById('selfie-status').innerHTML = `
-            <div class="location-info success">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-check-circle me-1"></i>
-                    <div>
-                        <strong>Selfie berhasil diambil</strong>
-                        <br><small class="text-muted">Klik tombol "Kirim Presensi" untuk menyelesaikan</small>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Show submit button after selfie is captured
-        setTimeout(() => {
-            // Verify selfie data is set before proceeding
-            const selfieData = document.getElementById('selfie-data').value;
-            console.log('Selfie captured with data length:', selfieData.length);
-
-            if (selfieData && selfieData.length > 100) {
-                $('#btn-submit-presensi').show();
-                $('#btn-submit-presensi').prop('disabled', false);
+        try {
+            if (faceScanRequired) {
+                resetSelfieProgress();
+                setSelfieProgressOrbState('default');
+                faceVerificationResult = await faceScanner.performAttendanceScan(video, {
+                    onInstruction: (message) => updateFaceInstruction(message),
+                    onChallengeState: (step, state) => updateSelfieProgress(step, state),
+                    onStatus: (message) => {
+                        setSelfieStatus(message, inferSelfieStatusType(message));
+                    },
+                    onGuideState: (payload) => updateSelfieGuideState(payload),
+                    onFaceMatchCheck: (descriptor) => verifyFaceMatchBeforeChallenges(descriptor),
+                });
+                await verifyFaceMatchAfterChallenges(faceVerificationResult);
             } else {
-                console.error('Selfie data not properly set, length:', selfieData.length);
+                const ctx = canvas.getContext('2d');
+                const aspectRatio = 3 / 4;
+                const canvasWidth = Math.min(video.videoWidth, video.videoHeight * aspectRatio);
+                const canvasHeight = canvasWidth / aspectRatio;
+                canvas.width = canvasWidth;
+                canvas.height = canvasHeight;
+
+                const sourceX = (video.videoWidth - canvasWidth) / 2;
+                const sourceY = (video.videoHeight - canvasHeight) / 2;
+
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(video, sourceX, sourceY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+                faceVerificationResult = {
+                    captured_image: canvas.toDataURL('image/jpeg', 0.85),
+                    face_descriptor: null,
+                    liveness_score: null,
+                    liveness_challenges: null,
+                };
+            }
+
+            if (selfieDataInput) {
+                selfieDataInput.value = faceVerificationResult.captured_image;
+            }
+            if (faceDescriptorInput) {
+                faceDescriptorInput.value = faceVerificationResult.face_descriptor ? JSON.stringify(faceVerificationResult.face_descriptor) : '';
+            }
+            if (livenessScoreInput) {
+                livenessScoreInput.value = faceVerificationResult.liveness_score !== null ? String(faceVerificationResult.liveness_score) : '';
+            }
+            if (livenessChallengesInput) {
+                livenessChallengesInput.value = faceVerificationResult.liveness_challenges ? JSON.stringify(faceVerificationResult.liveness_challenges) : '';
+            }
+
+            if (selfiePreview) {
+                selfiePreview.src = faceVerificationResult.captured_image;
+                selfiePreview.style.display = 'block';
+            }
+
+            if (video) {
+                video.style.display = 'none';
+            }
+            if (captureBtn) {
+                captureBtn.style.display = 'none';
+            }
+
+            stopSelfieStream();
+            selfieCaptured = true;
+            if (faceScanRequired) {
+                updateSelfieGuideState({
+                    state: 'success',
+                    message: 'Wajah cocok. Mengirim presensi.',
+                });
+                setSelfieProgressOrbState('success');
+                updateFaceInstruction('Wajah cocok. Mengirim presensi.');
+                setSelfieStatus('Wajah cocok dengan data terdaftar. Presensi sedang dikirim.', 'success');
+            } else {
+                updateSelfieGuideState({
+                    state: 'processing',
+                    message: 'Selfie berhasil diambil. Tekan Kirim Presensi untuk lanjut.',
+                });
+                updateFaceInstruction('Selfie berhasil diambil. Tekan Kirim Presensi untuk lanjut.');
+                setSelfieStatus('Selfie berhasil diambil.');
+            }
+
+            const submitPresensiBtn = $('#btn-submit-presensi');
+            submitPresensiBtn.prop('disabled', false);
+            if (faceScanRequired) {
+                window.setTimeout(() => {
+                    if (!presensiSubmitInFlight) {
+                        submitPresensiBtn.trigger('click');
+                    }
+                }, 260);
+            } else {
+                submitPresensiBtn.show();
+            }
+        } catch (error) {
+            console.error('Face scan failed:', error);
+            const errorMessage = error?.message || (faceScanRequired ? 'Scan wajah belum berhasil.' : 'Selfie belum berhasil diambil.');
+            const shouldAutoRetry = faceScanRequired && isRetryableFaceScanError(errorMessage);
+            const verificationRejected = faceScanRequired && (
+                isFaceMismatchRejection(errorMessage, error?.notes)
+                || error?.notes === 'liveness_below_threshold'
+                || error?.notes === 'challenge_payload_invalid'
+            );
+
+            if (!faceScanRequired) {
                 showFormalErrorAlert(
-                    'Foto Selfie Tidak Valid',
-                    'Foto selfie belum berhasil diproses. Silakan ambil ulang foto selfie Anda.'
+                    'Pengambilan Selfie Gagal',
+                    errorMessage || 'Selfie belum berhasil diambil. Silakan ulangi.'
                 );
             }
-        }, 1000);
-    }
+            setSelfieStatus(
+                shouldAutoRetry
+                    ? 'Instruksi salah. Scan diulang dari awal.'
+                    : errorMessage,
+                'error'
+            );
+            if (faceScanRequired) {
+                setSelfieProgressOrbState('error');
+            }
+            updateFaceInstruction(faceScanRequired
+                ? (shouldAutoRetry ? 'Instruksi salah. Mengulang scan dari awal.' : errorMessage)
+                : 'Ulangi pengambilan selfie.');
 
-    // Retake selfie
-    function retakeSelfie() {
-        const selfiePreview = document.getElementById('selfie-preview');
-        const selfieDataInput = document.getElementById('selfie-data');
+            if (verificationRejected) {
+                updateSelfieGuideState({
+                    state: 'warning',
+                    message: errorMessage,
+                });
+                showFaceScanRetryButton('Scan Ulang');
+            }
 
-        if (selfiePreview) {
-            selfiePreview.style.display = 'none';
+            if (shouldAutoRetry) {
+                window.setTimeout(() => {
+                    if (!selfieModal?.classList.contains('show')) {
+                        return;
+                    }
+
+                    resetSelfieProgress();
+                    updateSelfieGuideState({
+                        state: 'steady',
+                        message: 'Pusatkan wajah di dalam oval.',
+                    });
+                    updateFaceInstruction('Mengulang scan dari awal. Ikuti instruksi berikutnya.');
+                    setSelfieStatus('Scan diulang dari awal.', 'info');
+                }, 520);
+
+                window.setTimeout(() => {
+                    if (!selfieModal?.classList.contains('show') || !captureBtn) {
+                        return;
+                    }
+
+                    captureSelfie();
+                }, 860);
+            }
+        } finally {
+            if (captureBtn) {
+                captureBtn.disabled = false;
+                if (!captureBtn.classList.contains('retry-scan')) {
+                    captureBtn.innerHTML = faceScanRequired
+                        ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
+                        : '<i class="bx bx-camera me-1"></i>Ambil Foto';
+                }
+            }
         }
-
-        if (selfieDataInput) {
-            selfieDataInput.value = '';
-        }
-
-        selfieCaptured = false;
-        $('#btn-submit-presensi').hide();
-        initializeSelfieCamera();
     }
 
     // Event listeners for selfie buttons
     const captureBtn = document.getElementById('btn-capture-selfie');
-    const retakeBtn = document.getElementById('btn-retake-selfie');
 
     if (captureBtn) {
         captureBtn.addEventListener('click', captureSelfie);
     }
 
-    if (retakeBtn) {
-        retakeBtn.addEventListener('click', retakeSelfie);
+    if (faceScanOnboardingContinue) {
+        faceScanOnboardingContinue.addEventListener('click', startFaceScanAfterOnboarding);
     }
 
-    // Handle presensi button (Ambil Selfie)
+    if (faceScanHelpButton) {
+        faceScanHelpButton.addEventListener('click', function () {
+            if (!faceScanRequired || !faceScanOnboarding) {
+                return;
+            }
+
+            faceScanOnboarding.hidden = false;
+            if (faceScanOnboardingContinue) {
+                faceScanOnboardingContinue.focus();
+            }
+        });
+    }
+
     $('#btn-presensi').click(async function() {
+        if (faceScanRequired && !faceEnrollmentReady) {
+            showFormalErrorAlert(
+                'Wajah Belum Terdaftar',
+                'Wajah Anda belum terdaftar. Tekan tombol "Daftar Wajah" pada peringatan presensi terlebih dahulu.'
+            );
+            return;
+        }
+
         try {
             openSelfieModal();
+            if (faceScanRequired) {
+                return;
+            }
             await initializeSelfieCamera();
         } catch (error) {
             closeSelfieModal();
@@ -2093,6 +3766,10 @@ window.addEventListener('load', function() {
 
     $('#btn-close-selfie-modal').click(function() {
         closeSelfieModal();
+    });
+
+    $('#btn-retry-selfie-modal').click(function() {
+        retryFaceScanFromHeader();
     });
 
     if (selfieModal) {
@@ -2110,13 +3787,13 @@ window.addEventListener('load', function() {
         }
 
         presensiSubmitInFlight = true;
+        presensiFinalAlertShown = false;
         const submitButton = $(this);
         submitButton.prop('disabled', true);
 
         const latestLocationState = syncLatestLocationState();
         const presensiMode = isPresensiKeluar ? 'keluar' : 'masuk';
 
-        // If selfie is already captured, proceed with location validation
         // If this action is a checkout and current time is before pulangStart, ask for confirmation
         if (isPresensiKeluar && pulangStartSeconds) {
             const now = new Date();
@@ -2147,6 +3824,24 @@ window.addEventListener('load', function() {
             return;
         }
 
+        const selfieDataValue = document.getElementById('selfie-data').value;
+        const faceDescriptorValue = document.getElementById('face-descriptor').value;
+        const livenessScoreValue = document.getElementById('liveness-score').value;
+        const livenessChallengesValue = document.getElementById('liveness-challenges').value;
+
+        const faceDataIncomplete = faceScanRequired && (!faceDescriptorValue || !livenessScoreValue || !livenessChallengesValue);
+        if (!selfieDataValue || selfieDataValue.length < 100 || faceDataIncomplete) {
+            presensiSubmitInFlight = false;
+            submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
+            showFormalErrorAlert(
+                faceScanRequired ? 'Scan Wajah Belum Lengkap' : 'Selfie Belum Lengkap',
+                faceScanRequired
+                    ? 'Silakan selesaikan scan wajah terlebih dahulu sebelum mengirim presensi.'
+                    : 'Silakan ambil selfie terlebih dahulu sebelum mengirim presensi.'
+            );
+            return;
+        }
+
         showFormalLoadingAlert(
             'Sedang Memproses Presensi',
             'Mohon menunggu. Data presensi sedang dikirim ke sistem.'
@@ -2174,23 +3869,6 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed
                 });
 
-                const selfieDataInput = document.getElementById('selfie-data');
-                let selfieDataValue = selfieDataInput ? selfieDataInput.value : '';
-                console.log('Final selfie data length:', selfieDataValue.length);
-                console.log('Final selfie data starts with:', selfieDataValue.substring(0, 50));
-
-                // Ensure selfie data is valid before sending
-                if (!selfieDataValue || selfieDataValue.length < 100) {
-                    console.error('Selfie data validation failed, length:', selfieDataValue.length);
-                    presensiSubmitInFlight = false;
-                    $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
-                    showFormalErrorAlert(
-                        'Data Selfie Tidak Valid',
-                        'Data foto selfie belum valid. Silakan ambil ulang foto selfie Anda.'
-                    );
-                    return;
-                }
-
                 let postData = {
                     _token: '{{ csrf_token() }}',
                     presensi_mode: presensiMode,
@@ -2204,6 +3882,12 @@ window.addEventListener('load', function() {
                     location_readings: JSON.stringify(allReadings),
                     selfie_data: selfieDataValue
                 };
+
+                if (faceScanRequired) {
+                    postData.face_descriptor = JSON.parse(faceDescriptorValue);
+                    postData.liveness_score = parseFloat(livenessScoreValue);
+                    postData.liveness_challenges = JSON.parse(livenessChallengesValue);
+                }
 
                 // Update UI with final location data
                 $('#latitude').val(reading4Lat.toFixed(6));
@@ -2226,6 +3910,19 @@ window.addEventListener('load', function() {
                     timeout: 30000,
                     success: function(resp) {
                         if (resp && resp.success) {
+                            if (faceScanRequired) {
+                                updateSelfieGuideState({
+                                    state: 'success',
+                                    message: 'Verifikasi wajah berhasil.',
+                                });
+                                setSelfieProgressOrbState('success');
+                                updateFaceInstruction('Verifikasi wajah berhasil.');
+                                setSelfieStatus('Presensi berhasil. Wajah cocok dengan data terdaftar.', 'success');
+                            }
+                            if (presensiFinalAlertShown) {
+                                return;
+                            }
+                            presensiFinalAlertShown = true;
                             showFormalSuccessAlert(
                                 'Presensi Berhasil Direkam',
                                 resp.message || 'Data presensi telah berhasil dicatat.',
@@ -2240,10 +3937,16 @@ window.addEventListener('load', function() {
                             });
                         } else {
                             presensiSubmitInFlight = false;
-                            showFormalErrorAlert(
-                                'Presensi Ditolak',
-                                showFormalRejectMessage(resp.message, 'Presensi tidak dapat diproses. Silakan periksa kembali data yang dikirim.')
-                            );
+                            if (handleFaceScanVerificationRejection(resp?.message, resp?.notes)) {
+                                return;
+                            }
+                            if (!presensiFinalAlertShown) {
+                                presensiFinalAlertShown = true;
+                                showFormalErrorAlert(
+                                    'Presensi Ditolak',
+                                    showFormalRejectMessage(resp.message, 'Presensi tidak dapat diproses. Silakan periksa kembali data yang dikirim.')
+                                );
+                            }
                             $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                         }
                     },
@@ -2255,10 +3958,16 @@ window.addEventListener('load', function() {
                             title = xhr.status >= 400 && xhr.status < 500 ? 'Presensi Ditolak' : 'Permintaan Presensi Gagal';
                         }
                         presensiSubmitInFlight = false;
-                        showFormalErrorAlert(
-                            title,
-                            showFormalRejectMessage(message, 'Permintaan presensi tidak dapat diproses saat ini.')
-                        );
+                        if (handleFaceScanVerificationRejection(message, xhr?.responseJSON?.notes)) {
+                            return;
+                        }
+                        if (!presensiFinalAlertShown) {
+                            presensiFinalAlertShown = true;
+                            showFormalErrorAlert(
+                                title,
+                                showFormalRejectMessage(message, 'Permintaan presensi tidak dapat diproses saat ini.')
+                            );
+                        }
                         $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     }
                 });
@@ -2266,10 +3975,13 @@ window.addEventListener('load', function() {
             },
             function(err){
                 presensiSubmitInFlight = false;
-                showFormalErrorAlert(
-                    'Pembacaan Lokasi Gagal',
-                    showFormalRejectMessage(err.message, 'Lokasi terakhir tidak dapat diperoleh. Silakan pastikan GPS aktif, lalu coba kembali.')
-                );
+                if (!presensiFinalAlertShown) {
+                    presensiFinalAlertShown = true;
+                    showFormalErrorAlert(
+                        'Pembacaan Lokasi Gagal',
+                        showFormalRejectMessage(err.message, 'Lokasi terakhir tidak dapat diperoleh. Silakan pastikan GPS aktif, lalu coba kembali.')
+                    );
+                }
                 $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
     });

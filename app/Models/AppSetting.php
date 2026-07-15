@@ -32,6 +32,7 @@ class AppSetting extends Model
         'bni_va_merchant_id',
         'bni_va_prefix',
         'bni_va_callback_token',
+        'mobile_attendance_verification_mode',
         'sk_yayasan_school_year',
         'sk_yayasan_number_start',
         'sk_yayasan_signer_name',
@@ -48,6 +49,7 @@ class AppSetting extends Model
         'session_lifetime' => 'integer',
         'bni_va_enabled' => 'boolean',
         'bni_va_mock_mode' => 'boolean',
+        'mobile_attendance_verification_mode' => 'string',
         'sk_yayasan_number_start' => 'integer',
         'sk_yayasan_issued_date' => 'date',
     ];
@@ -69,6 +71,7 @@ class AppSetting extends Model
             'session_lifetime' => 120,
             'bni_va_enabled' => false,
             'bni_va_mock_mode' => true,
+            'mobile_attendance_verification_mode' => 'selfie',
             'sk_yayasan_school_year' => now()->format('Y') . '-' . now()->addYear()->format('Y'),
             'sk_yayasan_number_start' => 1,
             'sk_yayasan_signer_name' => '',
