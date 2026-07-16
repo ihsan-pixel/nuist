@@ -2763,6 +2763,26 @@ window.addEventListener('load', function() {
         selfieStream = null;
     }
 
+    async function waitForVideoFrame(video, timeoutMs = 4000) {
+        if (!video) {
+            throw new Error('Kamera tidak tersedia.');
+        }
+
+        const startedAt = Date.now();
+        while (Date.now() - startedAt < timeoutMs) {
+            const hasDimensions = Number(video.videoWidth) > 0 && Number(video.videoHeight) > 0;
+            const hasCurrentFrame = Number(video.readyState) >= 2;
+
+            if (hasDimensions && hasCurrentFrame) {
+                return;
+            }
+
+            await new Promise((resolve) => window.setTimeout(resolve, 120));
+        }
+
+        throw new Error('Kamera belum siap mengambil foto. Tunggu sebentar lalu coba lagi.');
+    }
+
     function setSelfieStatus(message, type = 'info', title = null) {
         const statusElement = document.getElementById('selfie-status');
         if (!statusElement) {
@@ -3491,6 +3511,7 @@ window.addEventListener('load', function() {
                     video.onloadedmetadata = () => resolve(true);
                 });
                 await video.play();
+                await waitForVideoFrame(video);
                 updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
             }
             video.style.display = 'block';
@@ -3566,15 +3587,22 @@ window.addEventListener('load', function() {
                 });
                 await verifyFaceMatchAfterChallenges(faceVerificationResult);
             } else {
+                await waitForVideoFrame(video);
                 const ctx = canvas.getContext('2d');
+                const sourceWidth = Number(video.videoWidth) || 0;
+                const sourceHeight = Number(video.videoHeight) || 0;
                 const aspectRatio = 3 / 4;
-                const canvasWidth = Math.min(video.videoWidth, video.videoHeight * aspectRatio);
-                const canvasHeight = canvasWidth / aspectRatio;
+                if (!ctx || sourceWidth <= 0 || sourceHeight <= 0) {
+                    throw new Error('Frame kamera belum siap. Silakan ambil ulang selfie.');
+                }
+
+                const canvasWidth = Math.round(Math.min(sourceWidth, sourceHeight * aspectRatio));
+                const canvasHeight = Math.round(canvasWidth / aspectRatio);
                 canvas.width = canvasWidth;
                 canvas.height = canvasHeight;
 
-                const sourceX = (video.videoWidth - canvasWidth) / 2;
-                const sourceY = (video.videoHeight - canvasHeight) / 2;
+                const sourceX = (sourceWidth - canvasWidth) / 2;
+                const sourceY = (sourceHeight - canvasHeight) / 2;
 
                 ctx.translate(canvas.width, 0);
                 ctx.scale(-1, 1);
@@ -3587,6 +3615,14 @@ window.addEventListener('load', function() {
                     liveness_score: null,
                     liveness_challenges: null,
                 };
+            }
+
+            if (!faceVerificationResult?.captured_image || faceVerificationResult.captured_image.length < 100) {
+                throw new Error(
+                    faceScanRequired
+                        ? 'Hasil scan wajah belum berhasil diproses. Silakan ulangi scan.'
+                        : 'Foto selfie belum berhasil diproses. Silakan ambil ulang selfie.'
+                );
             }
 
             if (selfieDataInput) {
@@ -3605,6 +3641,9 @@ window.addEventListener('load', function() {
             if (selfiePreview) {
                 selfiePreview.src = faceVerificationResult.captured_image;
                 selfiePreview.style.display = 'block';
+            }
+            if (canvas) {
+                canvas.style.display = 'none';
             }
 
             if (video) {
