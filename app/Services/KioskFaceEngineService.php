@@ -10,19 +10,17 @@ class KioskFaceEngineService
 {
     public function driver(): string
     {
-        return $this->usesPython() ? 'python' : 'browser';
+        return 'browser';
     }
 
     public function usesPython(): bool
     {
-        return strtolower((string) config('kiosk_face.driver', 'browser')) === 'python';
+        return false;
     }
 
     public function displayLabel(): string
     {
-        return $this->usesPython()
-            ? 'Python FastAPI / OpenCV SFace'
-            : 'Browser Face API';
+        return 'Browser Face API';
     }
 
     public function enroll(User $teacher, array $payload, array $context = []): array
