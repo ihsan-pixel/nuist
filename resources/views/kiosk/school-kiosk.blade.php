@@ -642,7 +642,7 @@
     .camera-guide-pill {
         position: absolute;
         left: 50%;
-        bottom: clamp(28px, 7%, 72px);
+        bottom: clamp(16px, 4.5%, 48px);
         transform: translateX(-50%);
         display: inline-flex;
         align-items: center;
@@ -1441,7 +1441,7 @@
 
         .camera-guide-pill {
             width: calc(100% - 24px);
-            bottom: calc(38% + 24px);
+            bottom: calc(38% + 14px);
             border-radius: 18px;
             padding: 12px 14px;
             gap: 6px;
@@ -2897,13 +2897,16 @@
 
             try {
                 await faceRecognition.initializeCamera(video);
-                await prepareBrowserFaceScan();
                 placeholder.style.display = 'none';
                 preview.classList.remove('show');
                 video.classList.remove('hide');
                 startLivePreview(video, canvas, 'attendance');
+                setStageState('camera_permission', 'done', 'Kamera aktif. Sistem melanjutkan persiapan scan wajah.');
+                setPrimaryNotice('Kamera aktif', 'Kamera sudah menyala. Sistem sedang memuat model scan wajah dan akan segera masuk ke mode siaga.');
+                setScanBadge('Menyiapkan scan', 'info');
+                setCameraGuide('Kamera aktif. Menyiapkan scan wajah otomatis.', 'bx-loader-circle');
+                await prepareBrowserFaceScan();
                 cameraReady = true;
-                setStageState('camera_permission', 'done', 'Kamera aktif dan siap dipakai untuk presensi otomatis.');
                 setPrimaryNotice('Kamera aktif', 'Guru cukup berdiri di depan kamera lalu mengikuti scan wajah singkat seperti pada presensi mobile.');
                 setScanBadge('Menunggu pengguna', 'warning');
                 setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
@@ -3191,10 +3194,12 @@
             setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Posisikan satu wajah di dalam oval dan pastikan cahaya cukup.');
 
             await faceRecognition.initializeCamera(enrollmentVideo);
-            await prepareBrowserFaceScan();
             startLivePreview(enrollmentVideo, enrollmentCanvas, 'enrollment');
-            enrollmentCameraReady = true;
             enrollmentStatusTitle.textContent = 'Kamera siap';
+            enrollmentStatusCopy.textContent = 'Kamera sudah aktif. Menyiapkan scan wajah registrasi.';
+            enrollmentGuideText.textContent = 'Kamera aktif. Menyiapkan scan wajah.';
+            await prepareBrowserFaceScan();
+            enrollmentCameraReady = true;
             enrollmentStatusCopy.textContent = selectedEnrollmentTeacher
                 ? `Kamera aktif. Mulai scan wajah ${selectedEnrollmentTeacher.name}, lalu simpan hasilnya.`
                 : 'Kamera aktif. Pilih guru lalu mulai scan wajah.';

@@ -9,13 +9,14 @@ class FaceRecognition {
         this.lastGeometryDetection = null;
         this.lastGeometryDetectedAt = 0;
         this.detectorOptions = {
-            inputSize: 256,
-            scoreThreshold: 0.45,
+            inputSize: 224,
+            scoreThreshold: 0.4,
         };
         this.minimumFaceWidthRatio = 0.16;
         this.maximumEyeTiltDegrees = 22;
-        this.enrollmentSharpnessThreshold = 0.15;
-        this.enrollmentMotionThreshold = 0.045;
+        this.enrollmentSharpnessThreshold = 0.11;
+        this.enrollmentMotionThreshold = 0.075;
+        this.enrollmentHoldMs = 320;
         this.attendanceChallengePool = ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'];
     }
 
@@ -135,7 +136,7 @@ class FaceRecognition {
             throw new Error('Kamera sudah diizinkan tetapi browser belum bisa menampilkan stream video. Muat ulang halaman lalu coba lagi.');
         }
 
-        await new Promise((resolve) => window.setTimeout(resolve, 180));
+        await new Promise((resolve) => window.setTimeout(resolve, 60));
 
         return true;
     }
@@ -296,7 +297,7 @@ class FaceRecognition {
         return results;
     }
 
-    async waitForPreciseEnrollmentAlignment(videoElement, callbacks = {}, timeoutMs = 15000) {
+    async waitForPreciseEnrollmentAlignment(videoElement, callbacks = {}, timeoutMs = 10000) {
         const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
@@ -315,13 +316,13 @@ class FaceRecognition {
             }
 
             this.emit(callbacks.onStatus, 'Pusatkan wajah tepat di dalam oval dan sesuaikan jaraknya.');
-            await this.delay(70);
+            await this.delay(45);
         }
 
         throw new Error('Wajah belum tepat di dalam oval. Dekatkan atau geser posisi wajah hingga pas pada bingkai.');
     }
 
-    async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = 520, timeoutMs = 5000) {
+    async waitForEnrollmentAutoCapture(videoElement, callbacks = {}, holdMs = this.enrollmentHoldMs, timeoutMs = 4200) {
         const startedAt = Date.now();
         let heldSince = null;
         let previousSignature = null;
@@ -358,7 +359,7 @@ class FaceRecognition {
                     motion: null,
                 });
                 this.emit(callbacks.onStatus, 'Posisi wajah berubah. Kembalikan wajah tepat ke oval.');
-                await this.delay(70);
+                await this.delay(45);
                 continue;
             }
 
@@ -386,7 +387,7 @@ class FaceRecognition {
                     this.emit(callbacks.onStatus, 'Menstabilkan pembacaan wajah.');
                 }
 
-                await this.delay(60);
+                await this.delay(40);
                 continue;
             }
 
@@ -427,7 +428,7 @@ class FaceRecognition {
                 return true;
             }
 
-            await this.delay(55);
+            await this.delay(35);
         }
 
         throw new Error('Wajah belum cukup stabil di dalam oval. Tahan posisi wajah hingga sistem mengambil gambar otomatis.');
@@ -1439,11 +1440,11 @@ class FaceRecognition {
         const tooSmall = videoWidth > 0 && faceWidthRatio < this.minimumFaceWidthRatio;
         const tooTilted = eyeTilt > this.maximumEyeTiltDegrees;
         const tooOffCenter = horizontalOffsetRatio > 0.34 || verticalOffsetRatio > 0.36;
-        const enrollmentTooWide = profile === 'enrollment' && faceWidthRatio > 0.42;
-        const enrollmentTooTall = profile === 'enrollment' && faceHeightRatio > 0.68;
-        const enrollmentTooLow = profile === 'enrollment' && verticalOffsetRatio > 0.22;
-        const enrollmentTooFarSide = profile === 'enrollment' && horizontalOffsetRatio > 0.18;
-        const enrollmentTooSmall = profile === 'enrollment' && (faceWidthRatio < 0.2 || faceHeightRatio < 0.33);
+        const enrollmentTooWide = profile === 'enrollment' && faceWidthRatio > 0.46;
+        const enrollmentTooTall = profile === 'enrollment' && faceHeightRatio > 0.72;
+        const enrollmentTooLow = profile === 'enrollment' && verticalOffsetRatio > 0.28;
+        const enrollmentTooFarSide = profile === 'enrollment' && horizontalOffsetRatio > 0.24;
+        const enrollmentTooSmall = profile === 'enrollment' && (faceWidthRatio < 0.18 || faceHeightRatio < 0.3);
         const usable = !tooSmall
             && !tooTilted
             && !(strict && tooOffCenter)
