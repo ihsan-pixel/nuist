@@ -326,7 +326,21 @@ class SchoolKioskController extends Controller
                 ], 422);
             }
 
-            if ($this->kioskFaceEngineService->usesPython()) {
+            $normalizedDescriptor = $this->normalizeDescriptor($validated['face_descriptor'] ?? null);
+            $hasBrowserFaceScan = $normalizedDescriptor !== []
+                && is_numeric($validated['liveness_score'] ?? null)
+                && is_array($validated['liveness_challenges'] ?? null)
+                && count($validated['liveness_challenges']) > 0;
+
+            if ($hasBrowserFaceScan) {
+                $teacherMatch = $this->faceVerificationService->identifyBestMatchingUser(
+                    $this->teachersQuery($device)->get(),
+                    $normalizedDescriptor,
+                    $validated['liveness_score'] ?? null,
+                    $validated['liveness_challenges'] ?? [],
+                    true,
+                );
+            } elseif ($this->kioskFaceEngineService->usesPython()) {
                 $teacherMatch = $this->kioskFaceEngineService->identify(
                     $this->teachersQuery($device)->get(),
                     $validated,
@@ -354,7 +368,10 @@ class SchoolKioskController extends Controller
                 ], (int) ($teacherMatch['status'] ?? 422));
             }
 
-            if ($this->kioskFaceEngineService->usesPython()) {
+            if ($hasBrowserFaceScan) {
+                /** @var User $teacher */
+                $teacher = $teacherMatch['user'];
+            } elseif ($this->kioskFaceEngineService->usesPython()) {
                 $teacher = $this->resolveTeacher($device, (int) ($teacherMatch['user_id'] ?? 0));
             } else {
                 /** @var User $teacher */
@@ -368,7 +385,7 @@ class SchoolKioskController extends Controller
                 'presensi_mode' => null,
             ]);
 
-            if ($this->kioskFaceEngineService->usesPython()) {
+            if ($this->kioskFaceEngineService->usesPython() && !$hasBrowserFaceScan) {
                 $attendancePayload['selfie_data'] = $teacherMatch['captured_image'] ?? $validated['selfie_data'];
                 $attendancePayload['external_face_verification'] = [
                     'success' => true,

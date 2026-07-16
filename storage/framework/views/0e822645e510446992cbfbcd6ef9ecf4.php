@@ -1459,9 +1459,9 @@
         const pythonCaptureFrameCount = Math.max(3, Math.min(Number(<?php echo json_encode((int) config('kiosk_face.capture.frame_count', 6), 512) ?>) || 6, 5));
         const pythonCaptureIntervalMs = 95;
         const pythonCaptureWarmupMs = 90;
-        const initialScanDelayMs = faceEngineUsesPython ? 260 : 700;
-        const retryScanDelayMs = faceEngineUsesPython ? 820 : 1500;
-        const successScanDelayMs = faceEngineUsesPython ? 3200 : 4500;
+        const initialScanDelayMs = 420;
+        const retryScanDelayMs = 1100;
+        const successScanDelayMs = 3600;
         const locationCheckUrl = <?php echo json_encode(route('school-kiosk.check-location'), 15, 512) ?>;
         const autoSubmitUrl = <?php echo json_encode(route('school-kiosk.auto-submit'), 15, 512) ?>;
         const enrollFaceUrl = <?php echo json_encode(route('school-kiosk.enroll-face'), 15, 512) ?>;
@@ -1546,7 +1546,7 @@
         let enrollmentPreviewFrame = null;
         let flashTimer = null;
         let matchHudTimer = null;
-        let pythonLocalDetectionAvailable = !faceEngineUsesPython;
+        let browserFaceScanAvailable = false;
         let attendanceActivities = Array.isArray(initialAttendanceActivities) ? initialAttendanceActivities.slice() : [];
 
         const stageOrder = [
@@ -2087,15 +2087,20 @@
             );
 
             try {
-                if (faceEngineUsesPython) {
+                try {
+                    await faceRecognition.loadModels();
+                    browserFaceScanAvailable = true;
+                } catch (scanModelError) {
+                    browserFaceScanAvailable = false;
+                    if (!faceEngineUsesPython) {
+                        throw scanModelError;
+                    }
+
                     try {
                         await faceRecognition.loadDetectionModels();
-                        pythonLocalDetectionAvailable = true;
                     } catch (detectionError) {
-                        pythonLocalDetectionAvailable = false;
+                        // Python fallback can still continue with direct frame capture.
                     }
-                } else {
-                    await faceRecognition.loadModels();
                 }
                 await faceRecognition.initializeCamera(video);
                 placeholder.style.display = 'none';
@@ -2106,20 +2111,16 @@
                 setStageState('camera_permission', 'done', 'Kamera aktif dan siap dipakai untuk presensi otomatis.');
                 setPrimaryNotice(
                     'Kamera aktif',
-                    faceEngineUsesPython
-                        ? (
-                            pythonLocalDetectionAvailable
-                                ? `Guru cukup berdiri di depan kamera. Deteksi wajah, verifikasi identitas, dan liveness akan diproses otomatis oleh ${faceEngineLabel}.`
-                                : `Kamera aktif. Engine ${faceEngineLabel} akan langsung mengambil frame untuk presensi otomatis.`
-                        )
-                        : 'Guru cukup berdiri di depan kamera dan mengikuti instruksi liveness singkat.'
+                    browserFaceScanAvailable
+                        ? 'Guru cukup berdiri di depan kamera lalu mengikuti scan wajah singkat seperti pada presensi mobile.'
+                        : `Kamera aktif. Engine ${faceEngineLabel} akan langsung mengambil frame untuk presensi otomatis.`
                 );
                 setScanBadge('Menunggu pengguna', 'warning');
                 setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
                 setCameraGuide(
-                    faceEngineUsesPython && !pythonLocalDetectionAvailable
+                    !browserFaceScanAvailable
                         ? 'Arahkan satu wajah ke kamera. Sistem memakai scan cepat tanpa detector lokal.'
-                        : 'Arahkan satu wajah ke dalam oval untuk memulai presensi otomatis.',
+                        : 'Arahkan satu wajah ke dalam oval untuk memulai scan wajah otomatis.',
                     'bx-user-check'
                 );
             } catch (error) {
@@ -2218,7 +2219,7 @@
         }
 
         async function performPythonAttendanceCapture(callbacks = {}) {
-            if (pythonLocalDetectionAvailable) {
+            if (browserFaceScanAvailable) {
                 setPrimaryNotice('Mendeteksi wajah', 'Sistem membaca wajah yang masuk ke oval lalu langsung menyiapkan pencocokan data.');
                 setScanBadge('Mendeteksi wajah', 'info');
                 setCameraGuide('Arahkan satu wajah sampai tepat di tengah oval.', 'bx-scan');
@@ -2293,9 +2294,9 @@
                     },
                 };
 
-                const result = faceEngineUsesPython
-                    ? await performPythonAttendanceCapture(scanCallbacks)
-                    : await faceRecognition.performAttendanceScan(video, scanCallbacks);
+                const result = browserFaceScanAvailable
+                    ? await faceRecognition.performAttendanceScan(video, scanCallbacks)
+                    : await performPythonAttendanceCapture(scanCallbacks);
 
                 await submitAutomaticAttendance(result);
                 scheduleNextScan(successScanDelayMs);
