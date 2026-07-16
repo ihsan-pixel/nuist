@@ -1850,13 +1850,6 @@
                                             </div>
                                         </div>
 
-                                        <div class="enroll-status-box">
-                                            <div class="enroll-status-title" id="enrollmentStatusTitle">Status Registrasi</div>
-                                            <div class="enroll-status-copy" id="enrollmentStatusCopy">
-                                                Kamera pendaftaran sedang disiapkan. Pilih guru lalu mulai scan wajah.
-                                            </div>
-                                        </div>
-
                                         <div class="enroll-quality-box">
                                             <div class="enroll-progress" id="enrollmentProgress">
                                                 <div class="enroll-progress-item" data-step="align">Posisikan</div>
@@ -2341,6 +2334,16 @@
             if (saveEnrollmentButton) {
                 saveEnrollmentButton.hidden = !pendingEnrollmentResult;
                 saveEnrollmentButton.disabled = enrollmentBusy || !selectedEnrollmentTeacher || !pendingEnrollmentResult;
+            }
+        }
+
+        function setEnrollmentStatus(title, copy) {
+            if (enrollmentStatusTitle) {
+                enrollmentStatusTitle.textContent = title;
+            }
+
+            if (enrollmentStatusCopy) {
+                enrollmentStatusCopy.textContent = copy;
             }
         }
 
@@ -3168,8 +3171,7 @@
             cameraMode = 'enrollment';
             enrollmentPreview.classList.remove('show');
             enrollmentPlaceholder.style.display = 'none';
-            enrollmentStatusTitle.textContent = 'Menyalakan kamera';
-            enrollmentStatusCopy.textContent = 'Kamera registrasi sedang diaktifkan.';
+            setEnrollmentStatus('Menyalakan kamera', 'Kamera registrasi sedang diaktifkan.');
             enrollmentGuideText.textContent = 'Siapkan wajah di dalam oval.';
             setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Posisikan satu wajah di dalam oval dan pastikan cahaya cukup.');
 
@@ -3177,10 +3179,9 @@
             await prepareBrowserFaceScan();
             startLivePreview(enrollmentVideo, enrollmentCanvas, 'enrollment');
             enrollmentCameraReady = true;
-            enrollmentStatusTitle.textContent = 'Kamera siap';
-            enrollmentStatusCopy.textContent = selectedEnrollmentTeacher
+            setEnrollmentStatus('Kamera siap', selectedEnrollmentTeacher
                 ? `Kamera aktif. Mulai scan wajah ${selectedEnrollmentTeacher.name}, lalu simpan hasilnya.`
-                : 'Kamera aktif. Pilih guru lalu mulai scan wajah.';
+                : 'Kamera aktif. Pilih guru lalu mulai scan wajah.');
             enrollmentGuideText.textContent = 'Posisikan satu wajah tepat di dalam oval.';
             setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Wajah akan dinilai dari ketajaman dan kestabilannya sebelum disimpan.');
         }
@@ -3192,8 +3193,7 @@
 
             if (!selectedEnrollmentTeacher) {
                 setTeacherState(null);
-                enrollmentStatusTitle.textContent = 'Pilih guru terlebih dahulu';
-                enrollmentStatusCopy.textContent = 'Tentukan guru yang akan didaftarkan, lalu mulai registrasi kembali.';
+                setEnrollmentStatus('Pilih guru terlebih dahulu', 'Tentukan guru yang akan didaftarkan, lalu mulai registrasi kembali.');
                 return;
             }
 
@@ -3202,16 +3202,14 @@
             startEnrollmentButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Memindai...';
             resetEnrollmentCaptureState();
             enrollmentPlaceholder.style.display = 'none';
-            enrollmentStatusTitle.textContent = 'Memulai scan';
-            enrollmentStatusCopy.textContent = 'Sistem sedang menyiapkan pengambilan wajah.';
+            setEnrollmentStatus('Memulai scan', 'Sistem sedang menyiapkan pengambilan wajah.');
             enrollmentGuideText.textContent = 'Memulai scan wajah.';
             setEnrollmentQualityState(8, 'idle', 'Menyiapkan', 'Sistem mulai membaca kualitas wajah dari kamera.');
             resetEnrollmentProgress();
 
             try {
                 await startEnrollmentCameraPreview();
-                enrollmentStatusTitle.textContent = 'Registrasi berjalan';
-                enrollmentStatusCopy.textContent = 'Minta guru menatap kamera dan tahan posisi sampai sistem mengambil frame terbaik secara otomatis.';
+                setEnrollmentStatus('Registrasi berjalan', 'Minta guru menatap kamera dan tahan posisi sampai sistem mengambil frame terbaik secara otomatis.');
                 enrollmentGuideText.textContent = 'Posisikan satu wajah tepat di dalam oval.';
 
                 const enrollmentResult = await faceRecognition.performEnrollmentScan(enrollmentVideo, {
@@ -3222,7 +3220,7 @@
                         updateEnrollmentProgress(step, state);
                     },
                     onStatus: function (message) {
-                        enrollmentStatusCopy.textContent = message;
+                        setEnrollmentStatus('Registrasi berjalan', message);
                     },
                     onCaptureProgress: function (progress) {
                         const level = Math.max(12, Math.min(Math.round(progress * 100), 100));
@@ -3270,8 +3268,7 @@
                 stopLivePreview('enrollment');
                 enrollmentCameraReady = false;
                 pendingEnrollmentResult = enrollmentResult;
-                enrollmentStatusTitle.textContent = 'Hasil scan siap';
-                enrollmentStatusCopy.textContent = 'Wajah berhasil diambil. Periksa hasilnya lalu simpan data wajah guru.';
+                setEnrollmentStatus('Hasil scan siap', 'Wajah berhasil diambil. Periksa hasilnya lalu simpan data wajah guru.');
                 enrollmentGuideText.textContent = 'Hasil scan siap disimpan.';
                 setEnrollmentQualityState(100, 'success', 'Siap simpan', 'Gambar wajah sudah jelas. Lanjutkan dengan menyimpan data wajah seperti pada face enrollment mobile.');
             } catch (error) {
@@ -3279,8 +3276,7 @@
                 stopLivePreview('enrollment');
                 enrollmentCameraReady = false;
                 enrollmentPlaceholder.style.display = 'flex';
-                enrollmentStatusTitle.textContent = 'Registrasi gagal';
-                enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah belum berhasil. Ulangi proses dan pastikan wajah berada di dalam oval.';
+                setEnrollmentStatus('Registrasi gagal', error.message || 'Registrasi wajah belum berhasil. Ulangi proses dan pastikan wajah berada di dalam oval.');
                 enrollmentGuideText.textContent = 'Registrasi gagal. Ulangi proses scan wajah.';
                 setEnrollmentQualityState(26, 'warning', 'Belum jelas', 'Gambar belum memenuhi syarat atau belum stabil. Ulangi registrasi sampai indikator menunjukkan wajah siap disimpan.');
             } finally {
@@ -3297,8 +3293,7 @@
             enrollmentBusy = true;
             updateEnrollmentActionState();
             saveEnrollmentButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...';
-            enrollmentStatusTitle.textContent = 'Menyimpan data wajah';
-            enrollmentStatusCopy.textContent = 'Frame terbaik berhasil diambil. Sistem sedang menyimpan data wajah guru.';
+            setEnrollmentStatus('Menyimpan data wajah', 'Frame terbaik berhasil diambil. Sistem sedang menyimpan data wajah guru.');
             enrollmentGuideText.textContent = 'Menyimpan data wajah ke server.';
             setEnrollmentQualityState(100, 'success', 'Berhasil diambil', 'Gambar wajah sudah jelas. Sistem sedang menyimpan hasil registrasi ke database.');
 
@@ -3346,8 +3341,7 @@
                 updateEnrollmentBanner();
                 pendingEnrollmentResult = null;
 
-                enrollmentStatusTitle.textContent = 'Registrasi berhasil';
-                enrollmentStatusCopy.textContent = payload.message || 'Data wajah berhasil disimpan. Kiosk akan kembali ke mode presensi otomatis.';
+                setEnrollmentStatus('Registrasi berhasil', payload.message || 'Data wajah berhasil disimpan. Kiosk akan kembali ke mode presensi otomatis.');
                 enrollmentGuideText.textContent = 'Registrasi selesai. Menutup modal dan kembali ke mode presensi.';
                 setEnrollmentQualityState(100, 'success', 'Tersimpan', 'Data wajah sudah berhasil disimpan dan siap dipakai untuk presensi.');
 
@@ -3357,8 +3351,7 @@
                     }
                 }, 1200);
             } catch (error) {
-                enrollmentStatusTitle.textContent = 'Registrasi gagal';
-                enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah gagal disimpan.';
+                setEnrollmentStatus('Registrasi gagal', error.message || 'Registrasi wajah gagal disimpan.');
                 enrollmentGuideText.textContent = 'Penyimpanan gagal. Periksa hasil scan lalu coba simpan kembali.';
                 setEnrollmentQualityState(100, 'warning', 'Siap simpan', 'Hasil scan masih tersedia. Anda bisa mencoba menyimpan kembali tanpa scan ulang.');
             } finally {
@@ -3373,8 +3366,7 @@
             cameraMode = 'enrollment';
             resetEnrollmentCaptureState();
             enrollmentPlaceholder.style.display = 'flex';
-            enrollmentStatusTitle.textContent = 'Status Registrasi';
-            enrollmentStatusCopy.textContent = 'Modal registrasi dibuka. Kamera akan disiapkan otomatis.';
+            setEnrollmentStatus('Status Registrasi', 'Modal registrasi dibuka. Kamera akan disiapkan otomatis.');
             enrollmentGuideText.textContent = 'Menyiapkan kamera registrasi.';
             setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Sistem akan menilai apakah wajah sudah cukup jelas sebelum wajah disimpan.');
 
@@ -3401,8 +3393,7 @@
 
             startEnrollmentCameraPreview().catch(function (error) {
                 enrollmentPlaceholder.style.display = 'flex';
-                enrollmentStatusTitle.textContent = 'Kamera gagal';
-                enrollmentStatusCopy.textContent = error.message || 'Kamera registrasi belum bisa diaktifkan.';
+                setEnrollmentStatus('Kamera gagal', error.message || 'Kamera registrasi belum bisa diaktifkan.');
                 enrollmentGuideText.textContent = 'Izinkan kamera lalu coba lagi.';
                 enrollmentCameraReady = false;
             });
