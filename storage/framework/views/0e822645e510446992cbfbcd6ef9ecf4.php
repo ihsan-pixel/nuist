@@ -432,63 +432,25 @@
         box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
     }
 
+    .face-modal .modal-dialog {
+        max-width: min(1320px, calc(100vw - 40px));
+    }
+
     .face-modal .modal-header {
-        padding: 20px 24px 0;
+        padding: 18px 22px 14px;
         border-bottom: 0;
+        align-items: center;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .face-modal .modal-body {
-        padding: 0 24px 24px;
-    }
-
-    .enroll-guide-banner {
-        margin-top: 12px;
-        margin-bottom: 18px;
-        padding: 16px 18px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #eff6ff 0%, #ecfeff 100%);
-        border: 1px solid #bfdbfe;
-    }
-
-    .enroll-guide-title {
-        font-size: 14px;
-        font-weight: 800;
-        color: #1d4ed8;
-        margin-bottom: 6px;
-    }
-
-    .enroll-guide-copy {
-        margin: 0;
-        color: #1e3a8a;
-        font-size: 13px;
-        line-height: 1.55;
-    }
-
-    .enroll-guide-steps {
-        display: grid;
-        gap: 8px;
-        margin-top: 14px;
-    }
-
-    .enroll-guide-step {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        color: #1e40af;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    .enroll-guide-step i {
-        font-size: 16px;
-        margin-top: 1px;
-        color: #2563eb;
+        padding: 18px 22px 22px;
     }
 
     .enroll-controls {
         display: grid;
-        grid-template-columns: minmax(260px, 320px) 1fr;
-        gap: 18px;
+        grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+        gap: 16px;
         align-items: start;
     }
 
@@ -496,7 +458,7 @@
     .enroll-stage-card {
         border: 1px solid #e2e8f0;
         border-radius: 18px;
-        padding: 16px;
+        padding: 16px 16px 14px;
         background: #fff;
     }
 
@@ -513,6 +475,25 @@
         color: #64748b;
         font-size: 12px;
         line-height: 1.5;
+    }
+
+    .enroll-compact-note {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .enroll-compact-note i {
+        font-size: 16px;
+        color: #2563eb;
+        flex: 0 0 auto;
     }
 
     .teacher-search-note,
@@ -553,8 +534,8 @@
         border-radius: 18px;
         overflow: hidden;
         background: linear-gradient(180deg, #020617 0%, #111827 100%);
-        aspect-ratio: 4 / 5;
-        min-height: 420px;
+        aspect-ratio: 16 / 10;
+        min-height: 500px;
     }
 
     .enroll-camera-shell video,
@@ -580,16 +561,16 @@
     }
 
     .enroll-camera-shell .camera-oval {
-        inset: 10% 22%;
+        inset: 9% 34%;
     }
 
     .enroll-status-box {
-        margin-top: 12px;
+        margin-top: 10px;
         border-radius: 16px;
         background: #0f172a;
         color: #e2e8f0;
-        padding: 14px;
-        min-height: 96px;
+        padding: 12px 14px;
+        min-height: 82px;
     }
 
     .enroll-status-title {
@@ -605,7 +586,7 @@
     }
 
     .enroll-actions {
-        margin-top: 12px;
+        margin-top: 10px;
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
@@ -652,6 +633,11 @@
 
         .enroll-camera-shell {
             min-height: 320px;
+            aspect-ratio: 4 / 5;
+        }
+
+        .enroll-camera-shell .camera-oval {
+            inset: 10% 22%;
         }
     }
 </style>
@@ -844,37 +830,15 @@
                             <div class="modal-header">
                                 <div>
                                     <h5 class="modal-title mb-1">Registrasi Wajah Guru</h5>
-                                    <div class="text-muted small">Pendaftaran wajah dilakukan langsung di kiosk ini tanpa berpindah halaman.</div>
+                                    <div class="text-muted small">Pilih guru, lihat kamera, lalu scan dan simpan wajah.</div>
                                 </div>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="enroll-guide-banner">
-                                    <div class="enroll-guide-title">Panduan singkat registrasi wajah</div>
-                                    <p class="enroll-guide-copy">
-                                        Pilih guru, aktifkan kamera pendaftaran, lalu minta guru menatap kamera dengan cahaya cukup.
-                                        Sistem akan mengambil frame terbaik secara otomatis dan langsung menyimpan data wajah.
-                                    </p>
-                                    <div class="enroll-guide-steps">
-                                        <div class="enroll-guide-step">
-                                            <i class="bx bx-check-circle"></i>
-                                            <span>Posisikan satu wajah tepat di dalam oval.</span>
-                                        </div>
-                                        <div class="enroll-guide-step">
-                                            <i class="bx bx-sun"></i>
-                                            <span>Gunakan pencahayaan cukup dan hindari backlight berlebihan.</span>
-                                        </div>
-                                        <div class="enroll-guide-step">
-                                            <i class="bx bx-target-lock"></i>
-                                            <span>Tahan wajah sejenak sampai proses auto capture selesai.</span>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div class="enroll-controls">
                                     <div class="teacher-picker-card">
                                         <h6>Pilih Guru</h6>
-                                        <p>Gunakan pencarian untuk menemukan guru yang ingin didaftarkan atau diperbarui data wajahnya.</p>
+                                        <p>Pilih guru yang akan didaftarkan atau diperbarui wajahnya.</p>
 
                                         <div class="mb-3">
                                             <label class="form-label">Cari guru</label>
@@ -906,13 +870,16 @@
                                         <div class="teacher-state-copy" id="teacherStateCopy">
                                             Pilih guru dari daftar di atas untuk melihat status wajah dan memulai pendaftaran langsung dari kiosk.
                                         </div>
+
+                                        <div class="enroll-compact-note">
+                                            <i class="bx bx-info-circle"></i>
+                                            <span>Pastikan satu wajah saja terlihat, cahaya cukup, dan wajah berada di dalam oval.</span>
+                                        </div>
                                     </div>
 
                                     <div class="enroll-stage-card">
                                         <h6>Kamera Registrasi</h6>
-                                        <p>
-                                            Setelah dimulai, sistem akan mengambil wajah secara otomatis dan langsung menyimpannya ke data guru yang dipilih.
-                                        </p>
+                                        <p>Kamera aktif otomatis. Setelah guru dipilih, klik sekali untuk scan dan simpan.</p>
 
                                         <div class="enroll-camera-shell">
                                             <video id="enrollmentVideo" autoplay playsinline muted></video>
@@ -938,13 +905,13 @@
                                         <div class="enroll-status-box">
                                             <div class="enroll-status-title" id="enrollmentStatusTitle">Status Registrasi</div>
                                             <div class="enroll-status-copy" id="enrollmentStatusCopy">
-                                                Sistem siap mengambil wajah. Setelah guru dipilih, tekan mulai registrasi untuk menyalakan kamera.
+                                                Kamera pendaftaran sedang disiapkan. Pilih guru lalu mulai scan wajah.
                                             </div>
                                         </div>
 
                                         <div class="enroll-actions">
                                             <button type="button" class="btn btn-primary" id="startEnrollmentButton">
-                                                <i class="bx bx-camera me-1"></i>Mulai Registrasi
+                                                <i class="bx bx-camera me-1"></i>Scan dan Simpan
                                             </button>
                                             <button type="button" class="btn btn-outline-secondary" id="closeEnrollmentButton" data-bs-dismiss="modal">
                                                 Tutup
@@ -1024,6 +991,7 @@
         let selectedEnrollmentTeacherId = null;
         let selectedEnrollmentTeacher = null;
         let enrollmentBusy = false;
+        let enrollmentCameraReady = false;
         let attendancePreviewFrame = null;
         let enrollmentPreviewFrame = null;
 
@@ -1133,6 +1101,15 @@
             selectedEnrollmentTeacherId = teacherId || null;
             selectedEnrollmentTeacher = teachers.find((teacher) => teacher.id === teacherId) || null;
             setTeacherState(selectedEnrollmentTeacher);
+            updateEnrollmentActionState();
+        }
+
+        function updateEnrollmentActionState() {
+            if (!startEnrollmentButton) {
+                return;
+            }
+
+            startEnrollmentButton.disabled = enrollmentBusy || !selectedEnrollmentTeacher;
         }
 
         function filterEnrollmentTeachers() {
@@ -1147,12 +1124,25 @@
                 const haystack = [teacher.name, teacher.nip, teacher.nuptk].join(' ').toLowerCase();
                 option.hidden = keyword !== '' && !haystack.includes(keyword);
             });
+
+            const currentOption = enrollmentTeacherSelect.options[enrollmentTeacherSelect.selectedIndex];
+            if (!currentOption || currentOption.hidden) {
+                const firstVisible = Array.from(enrollmentTeacherSelect.options).find((option) => !option.hidden);
+                if (firstVisible) {
+                    enrollmentTeacherSelect.value = firstVisible.value;
+                }
+            }
+
+            updateEnrollmentTeacherSelection();
         }
 
         function stopCurrentCamera() {
             faceRecognition.stopCamera(cameraMode === 'enrollment' ? enrollmentVideo : video);
             stopLivePreview(cameraMode === 'enrollment' ? 'enrollment' : 'attendance');
             cameraReady = false;
+            if (cameraMode === 'enrollment') {
+                enrollmentCameraReady = false;
+            }
             if (cameraMode === 'attendance') {
                 video.classList.remove('hide');
                 preview.classList.remove('show');
@@ -1537,6 +1527,33 @@
             }
         }
 
+        async function startEnrollmentCameraPreview() {
+            if (enrollmentCameraReady) {
+                return;
+            }
+
+            stopCurrentCamera();
+            cameraMode = 'enrollment';
+            enrollmentPreview.classList.remove('show');
+            enrollmentPlaceholder.style.display = 'none';
+            enrollmentStatusTitle.textContent = 'Menyalakan kamera';
+            enrollmentStatusCopy.textContent = 'Kamera registrasi sedang diaktifkan.';
+            enrollmentGuideText.textContent = 'Siapkan wajah di dalam oval.';
+
+            if (!faceEngineUsesPython) {
+                await faceRecognition.loadModels();
+            }
+
+            await faceRecognition.initializeCamera(enrollmentVideo);
+            startLivePreview(enrollmentVideo, enrollmentCanvas, 'enrollment');
+            enrollmentCameraReady = true;
+            enrollmentStatusTitle.textContent = 'Kamera siap';
+            enrollmentStatusCopy.textContent = selectedEnrollmentTeacher
+                ? `Kamera aktif. Klik scan untuk menyimpan wajah ${selectedEnrollmentTeacher.name}.`
+                : 'Kamera aktif. Pilih guru lalu klik scan dan simpan.';
+            enrollmentGuideText.textContent = 'Posisikan satu wajah tepat di dalam oval.';
+        }
+
         async function startEnrollmentFlow() {
             if (enrollmentBusy) {
                 return;
@@ -1550,22 +1567,16 @@
             }
 
             enrollmentBusy = true;
-            startEnrollmentButton.disabled = true;
+            updateEnrollmentActionState();
             startEnrollmentButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Memproses...';
             enrollmentPreview.classList.remove('show');
             enrollmentPlaceholder.style.display = 'none';
-            enrollmentStatusTitle.textContent = 'Menyalakan kamera pendaftaran';
-            enrollmentStatusCopy.textContent = 'Sistem sedang memuat kamera dan model wajah untuk registrasi.';
-            enrollmentGuideText.textContent = 'Memuat kamera pendaftaran wajah.';
+            enrollmentStatusTitle.textContent = 'Memulai scan';
+            enrollmentStatusCopy.textContent = 'Sistem sedang menyiapkan pengambilan wajah.';
+            enrollmentGuideText.textContent = 'Memulai scan wajah.';
 
             try {
-                stopCurrentCamera();
-                cameraMode = 'enrollment';
-                if (!faceEngineUsesPython) {
-                    await faceRecognition.loadModels();
-                }
-                await faceRecognition.initializeCamera(enrollmentVideo);
-                startLivePreview(enrollmentVideo, enrollmentCanvas, 'enrollment');
+                await startEnrollmentCameraPreview();
                 enrollmentStatusTitle.textContent = 'Registrasi berjalan';
                 enrollmentStatusCopy.textContent = faceEngineUsesPython
                     ? `Minta guru menatap kamera dan tahan posisi sebentar. Beberapa frame akan diambil otomatis untuk registrasi melalui ${faceEngineLabel}.`
@@ -1616,6 +1627,7 @@
                 enrollmentPreview.classList.add('show');
                 faceRecognition.stopCamera(enrollmentVideo);
                 stopLivePreview('enrollment');
+                enrollmentCameraReady = false;
                 enrollmentStatusTitle.textContent = 'Menyimpan data wajah';
                 enrollmentStatusCopy.textContent = 'Frame terbaik berhasil diambil. Sistem sedang menyimpan data wajah guru.';
                 enrollmentGuideText.textContent = 'Menyimpan data wajah ke server.';
@@ -1674,14 +1686,15 @@
             } catch (error) {
                 faceRecognition.stopCamera(enrollmentVideo);
                 stopLivePreview('enrollment');
+                enrollmentCameraReady = false;
                 enrollmentPlaceholder.style.display = 'flex';
                 enrollmentStatusTitle.textContent = 'Registrasi gagal';
                 enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah belum berhasil. Ulangi proses dan pastikan wajah berada di dalam oval.';
                 enrollmentGuideText.textContent = 'Registrasi gagal. Ulangi proses scan wajah.';
             } finally {
                 enrollmentBusy = false;
-                startEnrollmentButton.disabled = false;
-                startEnrollmentButton.innerHTML = '<i class="bx bx-camera me-1"></i>Mulai Registrasi';
+                updateEnrollmentActionState();
+                startEnrollmentButton.innerHTML = '<i class="bx bx-camera me-1"></i>Scan dan Simpan';
             }
         }
 
@@ -1692,17 +1705,36 @@
             enrollmentPreview.classList.remove('show');
             enrollmentPlaceholder.style.display = 'flex';
             enrollmentStatusTitle.textContent = 'Status Registrasi';
-            enrollmentStatusCopy.textContent = 'Sistem siap mengambil wajah. Setelah guru dipilih, tekan mulai registrasi untuk menyalakan kamera.';
-            enrollmentGuideText.textContent = 'Pilih guru lalu mulai registrasi wajah.';
+            enrollmentStatusCopy.textContent = 'Modal registrasi dibuka. Kamera akan disiapkan otomatis.';
+            enrollmentGuideText.textContent = 'Menyiapkan kamera registrasi.';
+
+            const firstVisible = Array.from(enrollmentTeacherSelect.options).find((option) => !option.hidden);
+            if (firstVisible) {
+                enrollmentTeacherSelect.value = firstVisible.value;
+            }
+
+            updateEnrollmentTeacherSelection();
+            updateEnrollmentActionState();
 
             if (faceEnrollmentModal) {
                 faceEnrollmentModal.show();
             }
         });
 
+        faceEnrollmentModalEl?.addEventListener('shown.bs.modal', function () {
+            startEnrollmentCameraPreview().catch(function (error) {
+                enrollmentPlaceholder.style.display = 'flex';
+                enrollmentStatusTitle.textContent = 'Kamera gagal';
+                enrollmentStatusCopy.textContent = error.message || 'Kamera registrasi belum bisa diaktifkan.';
+                enrollmentGuideText.textContent = 'Izinkan kamera lalu coba lagi.';
+                enrollmentCameraReady = false;
+            });
+        });
+
         faceEnrollmentModalEl?.addEventListener('hidden.bs.modal', function () {
             faceRecognition.stopCamera(enrollmentVideo);
             stopLivePreview('enrollment');
+            enrollmentCameraReady = false;
             enrollmentPreview.classList.remove('show');
             enrollmentPlaceholder.style.display = 'flex';
             cameraMode = 'attendance';
