@@ -2815,6 +2815,29 @@
                 scheduleNextScan(successScanDelayMs);
             } catch (error) {
                 const message = error.message || 'Scan wajah belum berhasil.';
+                if (error.statusCode === 'attendance_completed') {
+                    const teacherName = matchedTeacherCandidate?.name || 'Guru';
+                    finishMatchHud(true, 'Selesai');
+                    faceMustExitBeforeNextMatch = true;
+                    clearCameraGuideLock();
+                    setStageState('detecting_face', 'done', 'Wajah berhasil dikenali oleh sistem.');
+                    setStageState('verifying_identity', 'done', `Identitas ${teacherName} berhasil dicocokkan.`);
+                    setStageState('processing_attendance', 'done', 'Sistem mengecek data presensi hari ini.');
+                    setStageState('attendance_success', 'done', message);
+                    setPrimaryNotice('Presensi hari ini selesai', `${teacherName} sudah memiliki presensi masuk dan pulang untuk hari ini.`);
+                    setScanBadge('Sudah lengkap', 'success');
+                    setCameraGuide('Presensi hari ini sudah lengkap. Tunggu wajah berikutnya.', 'bx-check-double');
+                    showFlashModal({
+                        tone: 'success',
+                        title: 'Presensi Hari Ini Sudah Lengkap',
+                        copy: `${teacherName} sudah menyelesaikan presensi hari ini.`,
+                        meta: message,
+                        duration: 2800,
+                    });
+                    showAttendanceResult('Presensi sudah lengkap', `${teacherName}: ${message}`);
+                    scheduleNextScan(successScanDelayMs);
+                    return;
+                }
                 if (cameraMatchHud?.classList.contains('is-visible')) {
                     finishMatchHud(false, 'Gagal');
                 }
