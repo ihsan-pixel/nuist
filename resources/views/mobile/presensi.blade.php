@@ -599,6 +599,7 @@
             display: flex;
         }
 
+        .selfie-modal.selfie-fullscreen-modal,
         .selfie-modal.face-scan-modal {
             padding: 0;
             align-items: stretch;
@@ -620,6 +621,7 @@
             border: 1px solid rgba(148, 163, 184, 0.16);
         }
 
+        .selfie-fullscreen-mode.selfie-modal-dialog,
         .face-scan-mode.selfie-modal-dialog {
             width: 100vw;
             max-width: 100vw;
@@ -692,6 +694,7 @@
             display: none !important;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-header,
         .face-scan-mode .selfie-modal-header {
             position: absolute;
             top: 0;
@@ -703,6 +706,7 @@
             min-height: 56px;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-close,
         .face-scan-mode .selfie-modal-close {
             position: absolute;
             top: 18px;
@@ -710,6 +714,11 @@
             z-index: 6;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-close {
+            color: #fff;
+        }
+
+        .selfie-fullscreen-mode .selfie-modal-actions,
         .face-scan-mode .selfie-modal-actions {
             position: absolute;
             top: 18px;
@@ -726,6 +735,7 @@
             flex: 1;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-body,
         .face-scan-mode .selfie-modal-body {
             padding: 0;
             overflow: hidden;
@@ -941,10 +951,12 @@
             justify-content: space-between;
         }
 
+        .selfie-fullscreen-mode .selfie-status-banner,
         .face-scan-mode .selfie-status-banner {
             display: none;
         }
 
+        .selfie-fullscreen-mode .selfie-stage,
         .face-scan-mode .selfie-stage {
             min-height: 100vh;
             padding: 0;
@@ -957,8 +969,19 @@
             z-index: 0;
         }
 
+        .selfie-fullscreen-mode .selfie-camera-layer,
         .face-scan-mode .selfie-camera-layer {
             min-height: 100vh;
+        }
+
+        .selfie-fullscreen-mode .selfie-placeholder {
+            background: #000;
+        }
+
+        .selfie-fullscreen-mode .selfie-placeholder i,
+        .selfie-fullscreen-mode .selfie-placeholder strong,
+        .selfie-fullscreen-mode .selfie-placeholder span {
+            display: none;
         }
 
         .selfie-placeholder {
@@ -1367,6 +1390,7 @@
             justify-content: center;
         }
 
+        .selfie-fullscreen-mode .selfie-stage-copy,
         .face-scan-mode .selfie-stage-copy {
             display: none;
         }
@@ -1442,6 +1466,7 @@
             backdrop-filter: blur(18px);
         }
 
+        .selfie-fullscreen-mode .selfie-modal-footer,
         .face-scan-mode .selfie-modal-footer {
             position: absolute;
             left: 16px;
@@ -1454,6 +1479,8 @@
             gap: 12px;
         }
 
+        .selfie-fullscreen-mode .selfie-footer-title,
+        .selfie-fullscreen-mode .selfie-progress-meter,
         .face-scan-mode .selfie-footer-title,
         .face-scan-mode .selfie-progress-meter {
             display: none;
@@ -2009,8 +2036,8 @@
     @endif --}}
 </div>
 
-<div id="selfie-modal" class="selfie-modal {{ $verificationMode === 'face_scan' ? 'face-scan-modal' : '' }}" aria-hidden="true">
-    <div class="selfie-modal-dialog {{ $verificationMode === 'face_scan' ? 'face-scan-mode' : '' }}" role="dialog" aria-modal="true" aria-labelledby="selfie-modal-title">
+<div id="selfie-modal" class="selfie-modal {{ $verificationMode === 'face_scan' ? 'face-scan-modal' : 'selfie-fullscreen-modal' }}" aria-hidden="true">
+    <div class="selfie-modal-dialog {{ $verificationMode === 'face_scan' ? 'face-scan-mode' : 'selfie-fullscreen-mode' }}" role="dialog" aria-modal="true" aria-labelledby="selfie-modal-title">
         <div class="selfie-modal-header">
             <button type="button" id="btn-close-selfie-modal" class="selfie-modal-close" aria-label="Tutup">
                 Batal
