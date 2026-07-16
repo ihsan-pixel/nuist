@@ -565,16 +565,16 @@
     }
 
     .camera-activity-stat-label {
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.03em;
         color: rgba(226, 232, 240, 0.72);
-        margin-bottom: 6px;
+        margin-bottom: 5px;
     }
 
     .camera-activity-stat-time {
-        font-size: 15px;
+        font-size: 13px;
         font-weight: 800;
         color: #fff;
         line-height: 1;
@@ -1522,7 +1522,7 @@
             cameraActivityList.innerHTML = attendanceActivities
                 .map(function (item) {
                     const avatar = item.avatar_url
-                        ? `<img src="${item.avatar_url}" alt="${item.teacher_name || 'Guru'}">`
+                        ? `<img src="${item.avatar_url}" alt="${item.teacher_name || 'Guru'}" loading="lazy" decoding="async">`
                         : '<i class="bx bx-user"></i>';
                     const latestTime = item.latest_mode === 'keluar'
                         ? (item.pulang?.time || '--:--')

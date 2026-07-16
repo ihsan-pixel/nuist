@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -633,7 +634,7 @@ class SchoolKioskController extends Controller
             'presensi_id' => $presensi->id,
             'teacher_id' => $teacher->id,
             'teacher_name' => $teacher->name,
-            'avatar_url' => $teacher->avatar ? asset('storage/'.$teacher->avatar) : null,
+            'avatar_url' => $this->resolveTeacherAvatarUrl($teacher),
             'latest_mode' => $keluar ? 'keluar' : 'masuk',
             'masuk' => [
                 'label' => 'Presensi Masuk',
@@ -648,6 +649,30 @@ class SchoolKioskController extends Controller
             'note' => $note !== '' ? $note : 'Presensi tercatat.',
             'timestamp' => $timestamp?->timestamp ?? now('Asia/Jakarta')->timestamp,
         ];
+    }
+
+    private function resolveTeacherAvatarUrl(User $teacher): ?string
+    {
+        $avatarPath = trim((string) $teacher->avatar);
+        if ($avatarPath === '') {
+            return null;
+        }
+
+        if (strtolower(pathinfo($avatarPath, PATHINFO_EXTENSION)) === 'webp') {
+            return asset('storage/'.$avatarPath);
+        }
+
+        $webpPath = pathinfo($avatarPath, PATHINFO_DIRNAME);
+        $webpFilename = pathinfo($avatarPath, PATHINFO_FILENAME).'.webp';
+        $resolvedWebpPath = ($webpPath && $webpPath !== '.')
+            ? $webpPath.'/'.$webpFilename
+            : $webpFilename;
+
+        if (Storage::disk('public')->exists($resolvedWebpPath)) {
+            return asset('storage/'.$resolvedWebpPath);
+        }
+
+        return asset('storage/'.$avatarPath);
     }
 
     private function normalizeDescriptor(mixed $descriptor): array
