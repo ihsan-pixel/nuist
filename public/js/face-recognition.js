@@ -1,6 +1,8 @@
 class FaceRecognition {
     constructor() {
         this.modelsLoaded = false;
+        this.detectionModelsLoaded = false;
+        this.recognitionModelsLoaded = false;
         this.activeStream = null;
         this.modelBaseUri = '/models';
         this.recentDetectionMemoryMs = 450;
@@ -18,7 +20,37 @@ class FaceRecognition {
     }
 
     async loadModels() {
-        if (this.modelsLoaded) {
+        if (this.recognitionModelsLoaded) {
+            return true;
+        }
+
+        await this.loadDetectionModels();
+
+        try {
+            await faceapi.nets.faceRecognitionNet.loadFromUri(this.modelBaseUri);
+        } catch (error) {
+            const rawMessage = String(error?.message || error || '');
+
+            if (
+                rawMessage.includes('Based on the provided shape')
+                || rawMessage.includes('tensor should have')
+                || rawMessage.includes('Failed to fetch')
+                || rawMessage.includes('404')
+            ) {
+                throw new Error('File model scan wajah di server tidak lengkap atau rusak. Hubungi admin untuk memperbarui model wajah.');
+            }
+
+            throw error;
+        }
+
+        this.recognitionModelsLoaded = true;
+        this.modelsLoaded = true;
+        return true;
+    }
+
+    async loadDetectionModels() {
+        if (this.detectionModelsLoaded) {
+            this.modelsLoaded = this.recognitionModelsLoaded;
             return true;
         }
 
@@ -30,7 +62,6 @@ class FaceRecognition {
             await Promise.all([
                 faceapi.nets.tinyFaceDetector.loadFromUri(this.modelBaseUri),
                 faceapi.nets.faceLandmark68Net.loadFromUri(this.modelBaseUri),
-                faceapi.nets.faceRecognitionNet.loadFromUri(this.modelBaseUri),
             ]);
         } catch (error) {
             const rawMessage = String(error?.message || error || '');
@@ -47,7 +78,8 @@ class FaceRecognition {
             throw error;
         }
 
-        this.modelsLoaded = true;
+        this.detectionModelsLoaded = true;
+        this.modelsLoaded = this.recognitionModelsLoaded;
         return true;
     }
 
@@ -121,6 +153,46 @@ class FaceRecognition {
 
         this.lastGeometryDetection = null;
         this.lastGeometryDetectedAt = 0;
+    }
+
+    async waitForQuickAlignedFace(videoElement, callbacks = {}, timeoutMs = 4200, stableHitsRequired = 2) {
+        await this.loadDetectionModels();
+
+        const startedAt = Date.now();
+        let stableHits = 0;
+
+        while (Date.now() - startedAt < timeoutMs) {
+            const detection = await this.detectSingleFaceGeometry(videoElement, callbacks, {
+                strict: true,
+                allowFallback: false,
+            });
+
+            if (detection) {
+                stableHits += 1;
+                this.emit(callbacks.onStatus, stableHits >= stableHitsRequired
+                    ? 'Wajah sudah sesuai. Mengambil gambar untuk mencocokkan data.'
+                    : 'Wajah terdeteksi. Menstabilkan posisi sebentar.');
+                this.emit(callbacks.onGuideState, {
+                    state: stableHits >= stableHitsRequired ? 'success' : 'aligned',
+                    message: stableHits >= stableHitsRequired
+                        ? 'Wajah sesuai. Gambar diambil.'
+                        : 'Posisi wajah sudah sesuai. Tahan sebentar.',
+                });
+
+                if (stableHits >= stableHitsRequired) {
+                    return detection;
+                }
+
+                await this.delay(45);
+                continue;
+            }
+
+            stableHits = 0;
+            this.emit(callbacks.onStatus, 'Arahkan satu wajah ke tengah oval agar sistem langsung mencocokkan data.');
+            await this.delay(55);
+        }
+
+        throw new Error('Wajah belum terbaca dengan stabil. Pastikan satu wajah saja terlihat dan posisinya tepat di dalam oval.');
     }
 
     async performEnrollmentScan(videoElement, callbacks = {}) {
@@ -1138,7 +1210,7 @@ class FaceRecognition {
     }
 
     async detectSingleFace(videoElement, options = {}) {
-        if (!this.modelsLoaded) {
+        if (!this.recognitionModelsLoaded) {
             throw new Error('Model scan wajah belum dimuat.');
         }
 
@@ -1157,7 +1229,7 @@ class FaceRecognition {
     }
 
     async detectSingleFaceGeometry(videoElement, callbacks = {}, options = {}) {
-        if (!this.modelsLoaded) {
+        if (!this.detectionModelsLoaded) {
             throw new Error('Model scan wajah belum dimuat.');
         }
 

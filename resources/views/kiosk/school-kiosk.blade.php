@@ -381,6 +381,77 @@
             inset 0 0 30px rgba(255, 255, 255, 0.12);
     }
 
+    .camera-match-hud {
+        position: absolute;
+        left: 50%;
+        top: 56%;
+        transform: translate(-50%, -50%);
+        width: 176px;
+        height: 176px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+    }
+
+    .camera-match-hud.is-visible {
+        display: flex;
+    }
+
+    .camera-match-ring {
+        --match-progress: 0%;
+        --match-color: #38bdf8;
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        padding: 10px;
+        background:
+            radial-gradient(circle at center, rgba(15, 23, 42, 0.16) 0 58%, transparent 59%),
+            conic-gradient(var(--match-color) var(--match-progress), rgba(255, 255, 255, 0.14) 0);
+        box-shadow:
+            0 18px 44px rgba(2, 6, 23, 0.34),
+            inset 0 0 24px rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
+    }
+
+    .camera-match-ring[data-tone="success"] {
+        --match-color: #22c55e;
+    }
+
+    .camera-match-ring[data-tone="danger"] {
+        --match-color: #f97316;
+    }
+
+    .camera-match-core {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        color: #fff;
+        padding: 18px;
+    }
+
+    .camera-match-percent {
+        font-size: 34px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        margin-bottom: 8px;
+    }
+
+    .camera-match-label {
+        font-size: 12px;
+        line-height: 1.45;
+        font-weight: 700;
+        color: rgba(226, 232, 240, 0.92);
+    }
+
     .camera-guide-pill {
         position: absolute;
         left: 50%;
@@ -1098,6 +1169,14 @@
                                 <div class="camera-overlay">
                                     <div class="camera-grid"></div>
                                     <div class="camera-oval"></div>
+                                    <div class="camera-match-hud" id="cameraMatchHud" aria-hidden="true">
+                                        <div class="camera-match-ring" id="cameraMatchRing" data-tone="info">
+                                            <div class="camera-match-core">
+                                                <div class="camera-match-percent" id="cameraMatchPercent">0%</div>
+                                                <div class="camera-match-label" id="cameraMatchLabel">Menunggu wajah</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="camera-guide-pill" id="cameraGuidePill">
                                         <i class="bx bx-scan"></i>
                                         <span id="cameraGuideText">Menyiapkan School Kiosk.</span>
@@ -1367,9 +1446,7 @@
 
 @section('script')
 @if($accessGranted)
-@if(!$faceEngineUsesPython)
 <script src="{{ asset('models/face-api.js') }}"></script>
-@endif
 <script src="{{ asset('js/face-recognition.js') }}"></script>
 <script>
     (function () {
@@ -1398,6 +1475,10 @@
         const cameraPanelCopy = document.getElementById('cameraPanelCopy');
         const primaryNotice = document.getElementById('primaryNotice');
         const cameraGuideText = document.getElementById('cameraGuideText');
+        const cameraMatchHud = document.getElementById('cameraMatchHud');
+        const cameraMatchRing = document.getElementById('cameraMatchRing');
+        const cameraMatchPercent = document.getElementById('cameraMatchPercent');
+        const cameraMatchLabel = document.getElementById('cameraMatchLabel');
         const attendanceResultCard = document.getElementById('attendanceResultCard');
         const attendanceResultTitle = document.getElementById('attendanceResultTitle');
         const attendanceResultCopy = document.getElementById('attendanceResultCopy');
@@ -1464,6 +1545,7 @@
         let attendancePreviewFrame = null;
         let enrollmentPreviewFrame = null;
         let flashTimer = null;
+        let matchHudTimer = null;
         let attendanceActivities = Array.isArray(initialAttendanceActivities) ? initialAttendanceActivities.slice() : [];
 
         const stageOrder = [
@@ -1486,6 +1568,51 @@
             scanBadge.style.color = tone === 'success' ? '#166534' : tone === 'danger' ? '#b91c1c' : tone === 'warning' ? '#92400e' : '#0f766e';
             scanBadge.style.background = tone === 'success' ? '#f0fdf4' : tone === 'danger' ? '#fef2f2' : tone === 'warning' ? '#fffbeb' : '#ecfeff';
             scanBadge.style.borderColor = tone === 'success' ? '#86efac' : tone === 'danger' ? '#fca5a5' : tone === 'warning' ? '#fcd34d' : '#99f6e4';
+        }
+
+        function clearMatchHudTimer() {
+            if (matchHudTimer) {
+                window.clearInterval(matchHudTimer);
+                matchHudTimer = null;
+            }
+        }
+
+        function updateMatchHud(progress, label, tone = 'info') {
+            if (!cameraMatchHud || !cameraMatchRing || !cameraMatchPercent || !cameraMatchLabel) {
+                return;
+            }
+
+            const normalized = Math.max(0, Math.min(Math.round(progress), 100));
+            cameraMatchHud.classList.add('is-visible');
+            cameraMatchRing.dataset.tone = tone;
+            cameraMatchRing.style.setProperty('--match-progress', `${normalized}%`);
+            cameraMatchPercent.textContent = `${normalized}%`;
+            cameraMatchLabel.textContent = label;
+        }
+
+        function hideMatchHud() {
+            clearMatchHudTimer();
+            cameraMatchHud?.classList.remove('is-visible');
+        }
+
+        function startMatchHud(label = 'Mencocokkan data') {
+            clearMatchHudTimer();
+            let progress = 18;
+            updateMatchHud(progress, label, 'info');
+
+            matchHudTimer = window.setInterval(function () {
+                progress = Math.min(progress + (progress < 54 ? 9 : 4), 88);
+                updateMatchHud(progress, label, 'info');
+
+                if (progress >= 88) {
+                    clearMatchHudTimer();
+                }
+            }, 120);
+        }
+
+        function finishMatchHud(success, label) {
+            clearMatchHudTimer();
+            updateMatchHud(100, label, success ? 'success' : 'danger');
         }
 
         function setCameraGuide(message, icon = 'bx-scan') {
@@ -1959,7 +2086,9 @@
             );
 
             try {
-                if (!faceEngineUsesPython) {
+                if (faceEngineUsesPython) {
+                    await faceRecognition.loadDetectionModels();
+                } else {
                     await faceRecognition.loadModels();
                 }
                 await faceRecognition.initializeCamera(video);
@@ -1990,6 +2119,7 @@
         }
 
         async function submitAutomaticAttendance(scanResult) {
+            startMatchHud('Mencocokkan data guru');
             setStageState(
                 'detecting_face',
                 'done',
@@ -2039,6 +2169,8 @@
                 throw createRequestError(result, 'Presensi otomatis gagal diproses.');
             }
 
+            finishMatchHud(true, 'Diterima');
+
             setStageState('verifying_identity', 'done', `Guru dikenali sebagai ${result.teacher?.name || 'guru terdaftar'}.`);
             setStageState('processing_attendance', 'active', 'Aturan presensi sekolah sedang diproses.');
             setPrimaryNotice('Memproses presensi', 'Mode presensi masuk atau keluar ditentukan otomatis sesuai data hari ini.');
@@ -2070,10 +2202,17 @@
             );
         }
 
-        async function performPythonAttendanceCapture() {
-            setPrimaryNotice('Mendeteksi wajah', `Mengambil beberapa frame otomatis untuk dianalisis oleh ${faceEngineLabel}.`);
-            setScanBadge('Mengambil frame', 'info');
-            setCameraGuide('Wajah terdeteksi. Tahan posisi sebentar, scan dipercepat.', 'bx-scan');
+        async function performPythonAttendanceCapture(callbacks = {}) {
+            setPrimaryNotice('Mendeteksi wajah', 'Sistem membaca wajah yang masuk ke oval lalu langsung menyiapkan pencocokan data.');
+            setScanBadge('Mendeteksi wajah', 'info');
+            setCameraGuide('Arahkan satu wajah sampai tepat di tengah oval.', 'bx-scan');
+
+            await faceRecognition.waitForQuickAlignedFace(video, callbacks);
+
+            updateMatchHud(10, 'Wajah sesuai, mengambil gambar', 'info');
+            setPrimaryNotice('Wajah sesuai', 'Posisi wajah sudah sesuai. Gambar terbaik sedang diambil untuk proses pencocokan data.');
+            setScanBadge('Mengambil gambar', 'info');
+            setCameraGuide('Wajah sesuai. Mengambil gambar untuk pencocokan data.', 'bx-camera');
 
             const burst = await faceRecognition.captureBurstFrames(video, {
                 count: pythonCaptureFrameCount,
@@ -2105,6 +2244,7 @@
             }
 
             scanInProgress = true;
+            hideMatchHud();
             hideAttendanceResult();
             setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
             setStageState('detecting_face', 'active', 'Sistem mulai membaca posisi wajah dan challenge liveness.');
@@ -2116,28 +2256,33 @@
             setCameraGuide('Arahkan satu wajah ke dalam oval untuk memulai scan.', 'bx-user-voice');
 
             try {
+                const scanCallbacks = {
+                    onInstruction: function (message) {
+                        setCameraGuide(message, 'bx-scan');
+                    },
+                    onStatus: function (message) {
+                        setPrimaryNotice('Mendeteksi wajah', message);
+                        setStageState('detecting_face', 'active', message);
+                        setScanBadge('Mendeteksi wajah', 'info');
+                    },
+                    onGuideState: function (payload) {
+                        if (payload?.message) {
+                            setCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
+                        }
+                    },
+                };
+
                 const result = faceEngineUsesPython
-                    ? await performPythonAttendanceCapture()
-                    : await faceRecognition.performAttendanceScan(video, {
-                        onInstruction: function (message) {
-                            setCameraGuide(message, 'bx-scan');
-                        },
-                        onStatus: function (message) {
-                            setPrimaryNotice('Mendeteksi wajah', message);
-                            setStageState('detecting_face', 'active', message);
-                            setScanBadge('Mendeteksi wajah', 'info');
-                        },
-                        onGuideState: function (payload) {
-                            if (payload?.message) {
-                                setCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
-                            }
-                        },
-                    });
+                    ? await performPythonAttendanceCapture(scanCallbacks)
+                    : await faceRecognition.performAttendanceScan(video, scanCallbacks);
 
                 await submitAutomaticAttendance(result);
                 scheduleNextScan(successScanDelayMs);
             } catch (error) {
                 const message = error.message || 'Scan wajah belum berhasil.';
+                if (cameraMatchHud?.classList.contains('is-visible')) {
+                    finishMatchHud(false, 'Gagal');
+                }
                 setStageState('detecting_face', 'error', message);
                 setPrimaryNotice('Scan belum berhasil', message);
                 setScanBadge('Scan diulang', 'warning');
