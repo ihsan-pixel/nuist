@@ -640,37 +640,41 @@
     .camera-guide-pill {
         position: absolute;
         left: 50%;
-        top: 24px;
+        bottom: clamp(28px, 7%, 72px);
         transform: translateX(-50%);
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        padding: 12px 16px;
-        border-radius: 999px;
+        justify-content: center;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px 18px;
+        border-radius: 24px;
         background: rgba(15, 23, 42, 0.8);
         color: #fff;
         font-size: 13px;
         font-weight: 700;
         backdrop-filter: blur(12px);
-        max-width: min(90%, 620px);
+        width: min(360px, calc(100% - 36px));
         text-align: center;
     }
 
     .camera-guide-pill i {
-        font-size: 18px;
+        font-size: 34px;
         flex: 0 0 auto;
+        line-height: 1;
     }
 
     .camera-guide-copy {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 2px;
+        gap: 6px;
         min-width: 0;
+        width: 100%;
     }
 
     .camera-guide-label {
-        font-size: 10px;
+        font-size: 11px;
         line-height: 1.2;
         font-weight: 800;
         letter-spacing: 0.08em;
@@ -680,6 +684,8 @@
 
     .camera-guide-text {
         line-height: 1.45;
+        font-size: 13px;
+        color: rgba(226, 232, 240, 0.94);
     }
 
     .camera-activity-panel {
@@ -1433,8 +1439,14 @@
 
         .camera-guide-pill {
             width: calc(100% - 24px);
-            top: 12px;
+            bottom: calc(38% + 24px);
             border-radius: 18px;
+            padding: 12px 14px;
+            gap: 6px;
+        }
+
+        .camera-guide-pill i {
+            font-size: 28px;
         }
 
         .camera-activity-panel {
@@ -1607,9 +1619,9 @@
                                         </div>
                                     </div>
                                     <div class="camera-guide-pill" id="cameraGuidePill">
-                                        <i class="bx bx-scan"></i>
                                         <div class="camera-guide-copy">
                                             <span class="camera-guide-label" id="cameraGuideLabel">Instruksi</span>
+                                            <i class="bx bx-scan"></i>
                                             <span class="camera-guide-text" id="cameraGuideText">Menyiapkan School Kiosk.</span>
                                         </div>
                                     </div>
