@@ -8,16 +8,9 @@
 
 @section('css')
 <style>
-    html,
-    body.kiosk-fullscreen-page {
-        width: 100%;
-        min-height: 100dvh;
-    }
-
     body.kiosk-fullscreen-page {
         margin: 0;
-        min-height: 100dvh;
-        overflow-x: hidden;
+        min-height: 100vh;
         background:
             radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 28%),
             radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 22%),
@@ -25,25 +18,16 @@
     }
 
     .kiosk-page {
-        width: 100%;
-        min-height: 100dvh;
-        padding: 0;
+        min-height: 100vh;
+        padding: 18px;
     }
 
     .kiosk-shell {
         border: 0;
-        border-radius: 0;
-        box-shadow: none;
-        background: transparent;
-        backdrop-filter: none;
-        width: 100%;
-        min-height: 100dvh;
-        margin: 0;
-    }
-
-    .kiosk-shell > .card-body {
-        min-height: 100dvh;
-        padding: 16px !important;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.1);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(18px);
     }
 
     .status-pill {
@@ -1248,10 +1232,6 @@
     }
 
     @media (max-width: 768px) {
-        .kiosk-shell > .card-body {
-            padding: 12px !important;
-        }
-
         .camera-shell {
             min-height: 260px;
         }
