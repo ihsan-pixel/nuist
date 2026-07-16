@@ -418,7 +418,7 @@ class SchoolKioskController extends Controller
                     'waktu_masuk' => $result['presensi']->waktu_masuk?->format('H:i'),
                     'waktu_keluar' => $result['presensi']->waktu_keluar?->format('H:i'),
                 ],
-                'attendance_activity' => $this->attendanceActivityResource($result['presensi'], $teacher, $result['mode']),
+                'attendance_activity' => $this->attendanceActivityResource($result['presensi'], $teacher),
                 'face_similarity' => $teacherMatch['similarity'] ?? null,
             ]);
         } catch (ValidationException $exception) {
@@ -595,7 +595,7 @@ class SchoolKioskController extends Controller
         $today = Carbon::today('Asia/Jakarta')->toDateString();
 
         $events = Presensi::query()
-            ->with(['user:id,name'])
+            ->with(['user:id,name,avatar'])
             ->where('madrasah_id', $device->madrasah_id)
             ->whereDate('tanggal', $today)
             ->where(function (Builder $query) {
@@ -603,50 +603,49 @@ class SchoolKioskController extends Controller
                     ->orWhereNotNull('waktu_keluar');
             })
             ->latest('updated_at')
-            ->limit(24)
+            ->limit(20)
             ->get()
-            ->flatMap(function (Presensi $presensi) {
+            ->map(function (Presensi $presensi) {
                 $teacher = $presensi->user;
                 if (!$teacher) {
-                    return [];
+                    return null;
                 }
 
-                $items = [];
-                if ($presensi->waktu_masuk) {
-                    $items[] = $this->attendanceActivityResource($presensi, $teacher, 'masuk');
-                }
-
-                if ($presensi->waktu_keluar) {
-                    $items[] = $this->attendanceActivityResource($presensi, $teacher, 'keluar');
-                }
-
-                return $items;
+                return $this->attendanceActivityResource($presensi, $teacher);
             })
             ->filter()
             ->sortByDesc('timestamp')
-            ->take(14)
+            ->take(12)
             ->values();
 
         return $events->all();
     }
 
-    private function attendanceActivityResource(Presensi $presensi, User $teacher, string $mode): array
+    private function attendanceActivityResource(Presensi $presensi, User $teacher): array
     {
-        $timestamp = $mode === 'keluar'
-            ? $presensi->waktu_keluar
-            : $presensi->waktu_masuk;
-
+        $masuk = $presensi->waktu_masuk;
+        $keluar = $presensi->waktu_keluar;
+        $timestamp = $keluar ?: $masuk;
         $note = trim((string) ($presensi->keterangan ?? ''));
 
         return [
-            'id' => $presensi->id.'-'.$mode,
+            'id' => (string) $presensi->id,
             'presensi_id' => $presensi->id,
             'teacher_id' => $teacher->id,
             'teacher_name' => $teacher->name,
-            'mode' => $mode,
-            'mode_label' => $mode === 'keluar' ? 'Presensi Pulang' : 'Presensi Masuk',
-            'time' => $timestamp?->format('H:i') ?? '--:--',
-            'note' => $note !== '' ? $note : ($mode === 'keluar' ? 'Presensi keluar tercatat.' : 'Presensi masuk tercatat.'),
+            'avatar_url' => $teacher->avatar ? asset('storage/'.$teacher->avatar) : null,
+            'latest_mode' => $keluar ? 'keluar' : 'masuk',
+            'masuk' => [
+                'label' => 'Presensi Masuk',
+                'time' => $masuk?->format('H:i') ?? '--:--',
+                'done' => (bool) $masuk,
+            ],
+            'pulang' => [
+                'label' => 'Presensi Pulang',
+                'time' => $keluar?->format('H:i') ?? '--:--',
+                'done' => (bool) $keluar,
+            ],
+            'note' => $note !== '' ? $note : 'Presensi tercatat.',
             'timestamp' => $timestamp?->timestamp ?? now('Asia/Jakarta')->timestamp,
         ];
     }

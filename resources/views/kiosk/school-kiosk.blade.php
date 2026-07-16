@@ -373,7 +373,7 @@
 
     .camera-oval {
         position: absolute;
-        inset: 12% 36% 14% 36%;
+        inset: 9% 33% 11% 33%;
         border-radius: 44% / 50%;
         border: 2px solid rgba(255, 255, 255, 0.82);
         box-shadow:
@@ -489,6 +489,9 @@
     }
 
     .camera-activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
         border-radius: 18px;
         padding: 12px 12px 11px;
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -496,12 +499,34 @@
         color: #f8fafc;
     }
 
-    .camera-activity-item[data-mode="masuk"] {
-        box-shadow: inset 3px 0 0 #22c55e;
+    .camera-activity-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        overflow: hidden;
+        flex: 0 0 auto;
+        background: rgba(255, 255, 255, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .camera-activity-item[data-mode="keluar"] {
-        box-shadow: inset 3px 0 0 #f59e0b;
+    .camera-activity-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .camera-activity-avatar i {
+        font-size: 20px;
+    }
+
+    .camera-activity-body {
+        min-width: 0;
+        flex: 1 1 auto;
     }
 
     .camera-activity-topline {
@@ -509,7 +534,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .camera-activity-name {
@@ -517,6 +542,7 @@
         font-weight: 800;
         color: #fff;
         line-height: 1.4;
+        min-width: 0;
     }
 
     .camera-activity-time {
@@ -526,25 +552,34 @@
         white-space: nowrap;
     }
 
-    .camera-activity-mode {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 5px 10px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 800;
+    .camera-activity-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
         margin-bottom: 8px;
     }
 
-    .camera-activity-mode.is-masuk {
-        background: rgba(34, 197, 94, 0.18);
-        color: #bbf7d0;
+    .camera-activity-stat {
+        border-radius: 14px;
+        padding: 10px 10px 9px;
+        background: rgba(15, 23, 42, 0.26);
+        border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .camera-activity-mode.is-keluar {
-        background: rgba(245, 158, 11, 0.18);
-        color: #fde68a;
+    .camera-activity-stat-label {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: rgba(226, 232, 240, 0.72);
+        margin-bottom: 6px;
+    }
+
+    .camera-activity-stat-time {
+        font-size: 15px;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
     }
 
     .camera-activity-note {
@@ -830,7 +865,7 @@
         }
 
         .camera-oval {
-            inset: 13% 24% 15%;
+            inset: 12% 22% 14%;
         }
 
         .camera-guide-pill {
@@ -1486,20 +1521,33 @@
 
             cameraActivityList.innerHTML = attendanceActivities
                 .map(function (item) {
-                    const mode = item.mode === 'keluar' ? 'keluar' : 'masuk';
-                    const icon = mode === 'keluar' ? 'bx-log-out-circle' : 'bx-log-in-circle';
+                    const avatar = item.avatar_url
+                        ? `<img src="${item.avatar_url}" alt="${item.teacher_name || 'Guru'}">`
+                        : '<i class="bx bx-user"></i>';
+                    const latestTime = item.latest_mode === 'keluar'
+                        ? (item.pulang?.time || '--:--')
+                        : (item.masuk?.time || '--:--');
 
                     return `
-                        <article class="camera-activity-item" data-mode="${mode}">
-                            <div class="camera-activity-topline">
-                                <div class="camera-activity-name">${item.teacher_name || 'Guru'}</div>
-                                <div class="camera-activity-time">${item.time || '--:--'}</div>
+                        <article class="camera-activity-item" data-mode="${item.latest_mode || 'masuk'}">
+                            <div class="camera-activity-avatar">${avatar}</div>
+                            <div class="camera-activity-body">
+                                <div class="camera-activity-topline">
+                                    <div class="camera-activity-name">${item.teacher_name || 'Guru'}</div>
+                                    <div class="camera-activity-time">${latestTime}</div>
+                                </div>
+                                <div class="camera-activity-grid">
+                                    <div class="camera-activity-stat">
+                                        <div class="camera-activity-stat-label">${item.masuk?.label || 'Presensi Masuk'}</div>
+                                        <div class="camera-activity-stat-time">${item.masuk?.time || '--:--'}</div>
+                                    </div>
+                                    <div class="camera-activity-stat">
+                                        <div class="camera-activity-stat-label">${item.pulang?.label || 'Presensi Pulang'}</div>
+                                        <div class="camera-activity-stat-time">${item.pulang?.time || '--:--'}</div>
+                                    </div>
+                                </div>
+                                <div class="camera-activity-note">${item.note || ''}</div>
                             </div>
-                            <div class="camera-activity-mode ${mode === 'keluar' ? 'is-keluar' : 'is-masuk'}">
-                                <i class="bx ${icon}"></i>
-                                <span>${item.mode_label || modeLabel(mode)}</span>
-                            </div>
-                            <div class="camera-activity-note">${item.note || ''}</div>
                         </article>
                     `;
                 })
