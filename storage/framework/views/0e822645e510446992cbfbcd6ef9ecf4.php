@@ -482,6 +482,27 @@
         flex: 0 0 auto;
     }
 
+    .camera-guide-copy {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .camera-guide-label {
+        font-size: 10px;
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(186, 230, 253, 0.92);
+    }
+
+    .camera-guide-text {
+        line-height: 1.45;
+    }
+
     .camera-activity-panel {
         position: absolute;
         top: 20px;
@@ -1307,7 +1328,10 @@
                                     </div>
                                     <div class="camera-guide-pill" id="cameraGuidePill">
                                         <i class="bx bx-scan"></i>
-                                        <span id="cameraGuideText">Menyiapkan School Kiosk.</span>
+                                        <div class="camera-guide-copy">
+                                            <span class="camera-guide-label" id="cameraGuideLabel">Instruksi</span>
+                                            <span class="camera-guide-text" id="cameraGuideText">Menyiapkan School Kiosk.</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1623,6 +1647,7 @@
         const scanBadge = document.getElementById('scanBadge');
         const cameraPanelCopy = document.getElementById('cameraPanelCopy');
         const primaryNotice = document.getElementById('primaryNotice');
+        const cameraGuideLabel = document.getElementById('cameraGuideLabel');
         const cameraGuideText = document.getElementById('cameraGuideText');
         const cameraMatchHud = document.getElementById('cameraMatchHud');
         const cameraMatchRing = document.getElementById('cameraMatchRing');
@@ -1775,8 +1800,59 @@
             updateMatchHud(100, label, success ? 'success' : 'danger');
         }
 
+        function resolveCameraGuidePresentation(message, fallbackIcon = 'bx-scan') {
+            const text = String(message || '').trim();
+            const normalized = text.toLowerCase();
+
+            if (normalized.includes('kedip')) {
+                return { label: 'Challenge Kedip', icon: 'bx-show-alt' };
+            }
+
+            if (normalized.includes('kiri')) {
+                return { label: 'Challenge Arah', icon: 'bx-left-arrow-alt' };
+            }
+
+            if (normalized.includes('kanan')) {
+                return { label: 'Challenge Arah', icon: 'bx-right-arrow-alt' };
+            }
+
+            if (normalized.includes('atas')) {
+                return { label: 'Challenge Arah', icon: 'bx-up-arrow-alt' };
+            }
+
+            if (normalized.includes('bawah')) {
+                return { label: 'Challenge Arah', icon: 'bx-down-arrow-alt' };
+            }
+
+            if (normalized.includes('mulut')) {
+                return { label: 'Challenge Mulut', icon: 'bx-user-voice' };
+            }
+
+            if (normalized.includes('cocok') || normalized.includes('verifikasi')) {
+                return { label: 'Verifikasi', icon: 'bx-check-shield' };
+            }
+
+            if (normalized.includes('mengambil gambar') || normalized.includes('diambil')) {
+                return { label: 'Pengambilan', icon: 'bx-camera' };
+            }
+
+            if (normalized.includes('selesai') || normalized.includes('berhasil')) {
+                return { label: 'Selesai', icon: 'bx-check-circle' };
+            }
+
+            if (normalized.includes('posisikan') || normalized.includes('oval') || normalized.includes('wajah')) {
+                return { label: 'Posisikan', icon: 'bx-scan' };
+            }
+
+            return { label: 'Instruksi', icon: fallbackIcon };
+        }
+
         function setCameraGuide(message, icon = 'bx-scan') {
-            cameraGuideText.parentElement.querySelector('i').className = `bx ${icon}`;
+            const presentation = resolveCameraGuidePresentation(message, icon);
+            cameraGuideText.parentElement.parentElement.querySelector('i').className = `bx ${presentation.icon}`;
+            if (cameraGuideLabel) {
+                cameraGuideLabel.textContent = presentation.label;
+            }
             cameraGuideText.textContent = message;
         }
 
