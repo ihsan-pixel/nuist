@@ -1607,9 +1607,6 @@
         const faceEngineDriver = @json($faceEngineDriver);
         const faceEngineLabel = @json($faceEngineLabel);
         const faceEngineUsesPython = @json($faceEngineUsesPython);
-        const pythonCaptureFrameCount = Math.max(3, Math.min(Number(@json((int) config('kiosk_face.capture.frame_count', 6))) || 6, 5));
-        const pythonCaptureIntervalMs = 95;
-        const pythonCaptureWarmupMs = 90;
         const initialScanDelayMs = 420;
         const retryScanDelayMs = 1100;
         const successScanDelayMs = 3600;
@@ -2206,6 +2203,17 @@
             return error;
         }
 
+        async function prepareBrowserFaceScan() {
+            try {
+                await faceRecognition.loadModels();
+                browserFaceScanAvailable = true;
+                return true;
+            } catch (error) {
+                browserFaceScanAvailable = false;
+                throw new Error(error?.message || 'Model scan wajah browser belum dapat dimuat.');
+            }
+        }
+
         async function requestKioskFaceMatchVerification(descriptor) {
             const response = await fetch(verifyFaceMatchUrl, {
                 method: 'POST',
@@ -2393,56 +2401,26 @@
             setStageState('camera_permission', 'active', 'Meminta izin kamera untuk memulai scan realtime.');
             setPrimaryNotice(
                 'Mengaktifkan kamera',
-                faceEngineUsesPython
-                    ? `Sistem sedang menyalakan kamera kiosk dan menyiapkan engine ${faceEngineLabel}.`
-                    : 'Sistem sedang menyalakan kamera kiosk dan memuat model scan wajah.'
+                'Sistem sedang menyalakan kamera kiosk dan memuat model scan wajah.'
             );
             setScanBadge('Menyalakan kamera', 'info');
-            setCameraGuide(
-                faceEngineUsesPython
-                    ? `Meminta izin kamera dan menyiapkan ${faceEngineLabel}.`
-                    : 'Meminta izin kamera dan memuat model wajah.',
-                'bx-camera'
-            );
+            setCameraGuide('Meminta izin kamera dan memuat model wajah.', 'bx-camera');
 
             try {
-                try {
-                    await faceRecognition.loadModels();
-                    browserFaceScanAvailable = true;
-                } catch (scanModelError) {
-                    browserFaceScanAvailable = false;
-                    if (!faceEngineUsesPython) {
-                        throw scanModelError;
-                    }
-
-                    try {
-                        await faceRecognition.loadDetectionModels();
-                    } catch (detectionError) {
-                        // Python fallback can still continue with direct frame capture.
-                    }
-                }
                 await faceRecognition.initializeCamera(video);
+                await prepareBrowserFaceScan();
                 placeholder.style.display = 'none';
                 preview.classList.remove('show');
                 video.classList.remove('hide');
                 startLivePreview(video, canvas, 'attendance');
                 cameraReady = true;
                 setStageState('camera_permission', 'done', 'Kamera aktif dan siap dipakai untuk presensi otomatis.');
-                setPrimaryNotice(
-                    'Kamera aktif',
-                    browserFaceScanAvailable
-                        ? 'Guru cukup berdiri di depan kamera lalu mengikuti scan wajah singkat seperti pada presensi mobile.'
-                        : `Kamera aktif. Engine ${faceEngineLabel} akan langsung mengambil frame untuk presensi otomatis.`
-                );
+                setPrimaryNotice('Kamera aktif', 'Guru cukup berdiri di depan kamera lalu mengikuti scan wajah singkat seperti pada presensi mobile.');
                 setScanBadge('Menunggu pengguna', 'warning');
                 setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
-                setCameraGuide(
-                    !browserFaceScanAvailable
-                        ? 'Arahkan satu wajah ke kamera. Sistem memakai scan cepat tanpa detector lokal.'
-                        : 'Arahkan satu wajah ke dalam oval untuk memulai scan wajah otomatis.',
-                    'bx-user-check'
-                );
+                setCameraGuide('Arahkan satu wajah ke dalam oval untuk memulai scan wajah otomatis.', 'bx-user-check');
             } catch (error) {
+                faceRecognition.stopCamera(video);
                 placeholder.style.display = 'flex';
                 setStageState('camera_permission', 'error', error.message || 'Kamera tidak dapat diakses.');
                 setPrimaryNotice('Kamera gagal diakses', error.message || 'Izinkan kamera agar School Kiosk dapat berjalan otomatis.');
@@ -2538,48 +2516,6 @@
             );
         }
 
-        async function performPythonAttendanceCapture(callbacks = {}) {
-            if (browserFaceScanAvailable) {
-                setPrimaryNotice('Mendeteksi wajah', 'Sistem membaca wajah yang masuk ke oval lalu langsung menyiapkan pencocokan data.');
-                setScanBadge('Mendeteksi wajah', 'info');
-                setCameraGuide('Arahkan satu wajah sampai tepat di tengah oval.', 'bx-scan');
-
-                await faceRecognition.waitForQuickAlignedFace(video, callbacks);
-
-                updateMatchHud(10, 'Wajah sesuai, mengambil gambar', 'info');
-                setPrimaryNotice('Wajah sesuai', 'Posisi wajah sudah sesuai. Gambar terbaik sedang diambil untuk proses pencocokan data.');
-                setScanBadge('Mengambil gambar', 'info');
-                setCameraGuide('Wajah sesuai. Mengambil gambar untuk pencocokan data.', 'bx-camera');
-            } else {
-                setPrimaryNotice('Mengambil frame', `Detector lokal tidak tersedia. ${faceEngineLabel} akan langsung mengambil frame untuk pencocokan data.`);
-                setScanBadge('Mengambil frame', 'info');
-                setCameraGuide('Tatap kamera sebentar. Sistem langsung mengambil frame untuk pencocokan.', 'bx-camera');
-            }
-
-            const burst = await faceRecognition.captureBurstFrames(video, {
-                count: pythonCaptureFrameCount,
-                intervalMs: pythonCaptureIntervalMs,
-                warmupMs: pythonCaptureWarmupMs,
-                onProgress: function (current, total) {
-                    setStageState('detecting_face', 'active', `Mengambil frame ${current} dari ${total} untuk scan otomatis.`);
-                },
-            });
-
-            if (!burst.best_frame || !Array.isArray(burst.frames) || burst.frames.length === 0) {
-                throw new Error('Frame kamera belum berhasil diambil. Ulangi scan wajah.');
-            }
-
-            setStageState('detecting_face', 'active', 'Frame scan berhasil diambil. Sistem sedang menyiapkan verifikasi.');
-
-            return {
-                captured_image: burst.best_frame,
-                selfie_frames: burst.frames,
-                face_descriptor: [],
-                liveness_score: null,
-                liveness_challenges: [],
-            };
-        }
-
         async function runAutomaticFaceScan(options = {}) {
             if (!cameraReady || scanInProgress || enrollmentBusy || !activeLocation) {
                 return;
@@ -2665,9 +2601,7 @@
                     },
                 };
 
-                const result = browserFaceScanAvailable
-                    ? await faceRecognition.performAttendanceScan(video, scanCallbacks)
-                    : await performPythonAttendanceCapture(scanCallbacks);
+                const result = await faceRecognition.performAttendanceScan(video, scanCallbacks);
 
                 await submitAutomaticAttendance(result);
                 scheduleNextScan(successScanDelayMs);
@@ -2721,23 +2655,8 @@
             enrollmentGuideText.textContent = 'Siapkan wajah di dalam oval.';
             setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Posisikan satu wajah di dalam oval dan pastikan cahaya cukup.');
 
-            try {
-                await faceRecognition.loadModels();
-                browserFaceScanAvailable = true;
-            } catch (scanModelError) {
-                browserFaceScanAvailable = false;
-                if (!faceEngineUsesPython) {
-                    throw scanModelError;
-                }
-
-                try {
-                    await faceRecognition.loadDetectionModels();
-                } catch (detectionError) {
-                    // Registrasi masih dapat lanjut memakai burst capture saat engine Python aktif.
-                }
-            }
-
             await faceRecognition.initializeCamera(enrollmentVideo);
+            await prepareBrowserFaceScan();
             startLivePreview(enrollmentVideo, enrollmentCanvas, 'enrollment');
             enrollmentCameraReady = true;
             enrollmentStatusTitle.textContent = 'Kamera siap';
@@ -2774,102 +2693,58 @@
             try {
                 await startEnrollmentCameraPreview();
                 enrollmentStatusTitle.textContent = 'Registrasi berjalan';
-                enrollmentStatusCopy.textContent = browserFaceScanAvailable
-                    ? (faceEngineUsesPython
-                        ? `Minta guru menatap kamera dan tahan posisi sebentar. Sistem mengambil data wajah lokal lebih dulu lalu menyinkronkannya ke ${faceEngineLabel}.`
-                        : 'Minta guru menatap kamera dan tahan posisi sampai sistem mengambil frame terbaik secara otomatis.')
-                    : `Minta guru menatap kamera dan tahan posisi sebentar. Beberapa frame akan diambil otomatis untuk registrasi melalui ${faceEngineLabel}.`;
+                enrollmentStatusCopy.textContent = 'Minta guru menatap kamera dan tahan posisi sampai sistem mengambil frame terbaik secara otomatis.';
                 enrollmentGuideText.textContent = 'Posisikan satu wajah tepat di dalam oval.';
 
-                const enrollmentResult = browserFaceScanAvailable
-                    ? await faceRecognition.performEnrollmentScan(enrollmentVideo, {
-                        onInstruction: function (message) {
-                            enrollmentGuideText.textContent = message;
-                        },
-                        onChallengeState: function (step, state) {
-                            updateEnrollmentProgress(step, state);
-                        },
-                        onStatus: function (message) {
-                            enrollmentStatusCopy.textContent = message;
-                        },
-                        onCaptureProgress: function (progress) {
-                            const level = Math.max(12, Math.min(Math.round(progress * 100), 100));
-                            setEnrollmentQualityState(
-                                level,
-                                progress >= 1 ? 'success' : (progress >= 0.55 ? 'warning' : 'idle'),
-                                progress >= 1 ? 'Siap simpan' : (progress >= 0.55 ? 'Hampir jelas' : 'Belum jelas'),
-                                progress >= 1
-                                    ? 'Wajah sudah jelas dan stabil. Sistem langsung mengambil lalu menyimpan data.'
-                                    : 'Tahan posisi wajah. Sistem sedang memastikan gambar cukup jelas dan stabil.'
-                            );
-                        },
-                        onEnrollmentQuality: function (payload) {
-                            const sharpnessScore = Math.max(0, Math.min(Math.round((payload?.sharpness || 0) * 300), 100));
-                            const stabilityScore = payload?.stableEnough ? 100 : 42;
-                            const level = payload?.ready
-                                ? Math.max(70, Math.round((payload?.progress || 0) * 100))
-                                : Math.round((sharpnessScore * 0.62) + (stabilityScore * 0.38));
-                            const tone = payload?.ready ? 'success' : ((payload?.sharpEnough || payload?.stableEnough) ? 'warning' : 'idle');
-                            const label = payload?.ready
-                                ? 'Siap simpan'
-                                : (!payload?.sharpEnough
-                                    ? 'Belum jelas'
-                                    : (!payload?.stableEnough ? 'Belum stabil' : 'Membaca wajah'));
-                            const copy = payload?.ready
-                                ? 'Gambar sudah jelas dan stabil. Sistem akan otomatis mengambil lalu menyimpan data wajah.'
-                                : (!payload?.sharpEnough
-                                    ? 'Wajah belum cukup tajam. Perbaiki cahaya dan tahan posisi sebentar.'
-                                    : (!payload?.stableEnough
-                                        ? 'Gambar sudah cukup jelas, tetapi wajah masih bergerak. Tahan posisi lebih tenang.'
-                                        : 'Sistem sedang menilai kualitas gambar wajah.'));
+                const enrollmentResult = await faceRecognition.performEnrollmentScan(enrollmentVideo, {
+                    onInstruction: function (message) {
+                        enrollmentGuideText.textContent = message;
+                    },
+                    onChallengeState: function (step, state) {
+                        updateEnrollmentProgress(step, state);
+                    },
+                    onStatus: function (message) {
+                        enrollmentStatusCopy.textContent = message;
+                    },
+                    onCaptureProgress: function (progress) {
+                        const level = Math.max(12, Math.min(Math.round(progress * 100), 100));
+                        setEnrollmentQualityState(
+                            level,
+                            progress >= 1 ? 'success' : (progress >= 0.55 ? 'warning' : 'idle'),
+                            progress >= 1 ? 'Siap simpan' : (progress >= 0.55 ? 'Hampir jelas' : 'Belum jelas'),
+                            progress >= 1
+                                ? 'Wajah sudah jelas dan stabil. Sistem langsung mengambil lalu menyimpan data.'
+                                : 'Tahan posisi wajah. Sistem sedang memastikan gambar cukup jelas dan stabil.'
+                        );
+                    },
+                    onEnrollmentQuality: function (payload) {
+                        const sharpnessScore = Math.max(0, Math.min(Math.round((payload?.sharpness || 0) * 300), 100));
+                        const stabilityScore = payload?.stableEnough ? 100 : 42;
+                        const level = payload?.ready
+                            ? Math.max(70, Math.round((payload?.progress || 0) * 100))
+                            : Math.round((sharpnessScore * 0.62) + (stabilityScore * 0.38));
+                        const tone = payload?.ready ? 'success' : ((payload?.sharpEnough || payload?.stableEnough) ? 'warning' : 'idle');
+                        const label = payload?.ready
+                            ? 'Siap simpan'
+                            : (!payload?.sharpEnough
+                                ? 'Belum jelas'
+                                : (!payload?.stableEnough ? 'Belum stabil' : 'Membaca wajah'));
+                        const copy = payload?.ready
+                            ? 'Gambar sudah jelas dan stabil. Sistem akan otomatis mengambil lalu menyimpan data wajah.'
+                            : (!payload?.sharpEnough
+                                ? 'Wajah belum cukup tajam. Perbaiki cahaya dan tahan posisi sebentar.'
+                                : (!payload?.stableEnough
+                                    ? 'Gambar sudah cukup jelas, tetapi wajah masih bergerak. Tahan posisi lebih tenang.'
+                                    : 'Sistem sedang menilai kualitas gambar wajah.'));
 
-                            setEnrollmentQualityState(level, tone, label, copy);
-                        },
-                        onGuideState: function (payload) {
-                            if (payload?.message) {
-                                enrollmentGuideText.textContent = payload.message;
-                            }
-                        },
-                    })
-                    : await (async function () {
-                        await wait(420);
-                        updateEnrollmentProgress('align', 'done');
-                        updateEnrollmentProgress('steady', 'active');
-
-                        const burst = await faceRecognition.captureBurstFrames(enrollmentVideo, {
-                            count: 6,
-                            intervalMs: 170,
-                            warmupMs: 260,
-                            onProgress: function (current, total, frameMeta) {
-                                const qualityPercent = Math.max(18, Math.min(Math.round((frameMeta?.quality || 0) * 100), 96));
-                                enrollmentStatusCopy.textContent = `Mengambil frame ${current} dari ${total} untuk registrasi wajah otomatis.`;
-                                enrollmentGuideText.textContent = 'Tahan posisi wajah dan kedip alami sebentar.';
-                                setEnrollmentQualityState(
-                                    qualityPercent,
-                                    qualityPercent >= 82 ? 'success' : 'warning',
-                                    qualityPercent >= 82 ? 'Siap simpan' : 'Membaca wajah',
-                                    qualityPercent >= 82
-                                        ? 'Gambar sudah cukup jelas. Sistem sedang memilih frame terbaik untuk langsung disimpan.'
-                                        : 'Sistem sedang mencari frame yang paling jelas dan stabil.'
-                                );
-                            },
-                        });
-
-                        if (!burst.best_frame || !Array.isArray(burst.frames) || burst.frames.length === 0) {
-                            throw new Error('Frame registrasi belum berhasil diambil. Ulangi proses registrasi.');
+                        setEnrollmentQualityState(level, tone, label, copy);
+                    },
+                    onGuideState: function (payload) {
+                        if (payload?.message) {
+                            enrollmentGuideText.textContent = payload.message;
                         }
-
-                        updateEnrollmentProgress('steady', 'done');
-                        updateEnrollmentProgress('done', 'done');
-
-                        return {
-                            captured_image: burst.best_frame,
-                            selfie_frames: burst.frames,
-                            face_descriptor: [],
-                            liveness_score: null,
-                            liveness_challenges: [],
-                        };
-                    })();
+                    },
+                });
 
                 enrollmentPreview.src = enrollmentResult.captured_image;
                 enrollmentPreview.classList.add('show');
