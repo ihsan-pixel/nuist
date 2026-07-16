@@ -957,10 +957,7 @@
 <script src="<?php echo e(asset('js/face-recognition.js')); ?>"></script>
 <script>
     (function () {
-        const teachers = <?php echo json_encode(
-            $teachers->map(function ($teacher) {
-                return [
-                    'id' => $teacher->id, 'name' => $teacher->name, 'nip' => $teacher->nip) ?>;
+        const teachers = <?php echo json_encode($teachersPayload, 15, 512) ?>;
         const verificationMode = <?php echo json_encode($verificationMode, 15, 512) ?>;
         const faceEngineDriver = <?php echo json_encode($faceEngineDriver, 15, 512) ?>;
         const faceEngineLabel = <?php echo json_encode($faceEngineLabel, 15, 512) ?>;
