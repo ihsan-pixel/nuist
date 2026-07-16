@@ -17,6 +17,8 @@ class FaceRecognition {
         this.enrollmentSharpnessThreshold = 0.11;
         this.enrollmentMotionThreshold = 0.075;
         this.enrollmentHoldMs = 320;
+        this.challengeBlinkLeadMs = 850;
+        this.challengeActionLeadMs = 1050;
         this.attendanceChallengePool = ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'];
     }
 
@@ -471,7 +473,8 @@ class FaceRecognition {
         let blinkResult = passiveSignals.blink_result || null;
 
         if (!blinkResult) {
-            this.emit(callbacks.onInstruction, 'Kedip akan dibaca otomatis. Cukup kedip satu kali.');
+            this.emit(callbacks.onInstruction, 'Tahan wajah lurus. Sistem menyiapkan deteksi kedip.');
+            this.emit(callbacks.onStatus, 'Menyiapkan pembacaan kedip.');
             blinkResult = await this.waitForBlinkChallenge(videoElement, callbacks);
         } else {
             this.emit(callbacks.onInstruction, 'Kedipan sudah terbaca. Lanjut ke verifikasi berikutnya.');
@@ -492,7 +495,8 @@ class FaceRecognition {
         this.emit(callbacks.onChallengeState, 'blink', 'done');
 
         const randomChallenge = this.pickRandomAttendanceChallenge();
-        this.emit(callbacks.onInstruction, this.challengeInstruction(randomChallenge));
+        this.emit(callbacks.onInstruction, 'Tahan wajah lurus. Sistem menyiapkan instruksi berikutnya.');
+        this.emit(callbacks.onStatus, 'Menyiapkan challenge berikutnya.');
         this.emit(callbacks.onChallengeState, 'challenge', 'active');
         const randomChallengeResult = await this.runRandomChallenge(videoElement, randomChallenge, callbacks);
         results.push({
@@ -658,13 +662,14 @@ class FaceRecognition {
         let blinkCandidateAt = null;
         let previousEar = null;
         let previousMinEyeEar = null;
-        const startedAt = Date.now();
 
+        await this.presentTimedChallengeInstruction(
+            callbacks,
+            'Kedip satu kali untuk verifikasi.',
+            this.challengeBlinkLeadMs,
+        );
         this.emit(callbacks.onStatus, 'Deteksi kedip aktif. Cukup kedip satu kali.');
-        this.emit(callbacks.onGuideState, {
-            state: 'steady',
-            message: 'Kedip satu kali untuk verifikasi.',
-        });
+        const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
@@ -794,6 +799,21 @@ class FaceRecognition {
     pickRandomAttendanceChallenge() {
         const index = Math.floor(Math.random() * this.attendanceChallengePool.length);
         return this.attendanceChallengePool[index];
+    }
+
+    async presentTimedChallengeInstruction(callbacks = {}, instruction, leadMs = this.challengeActionLeadMs) {
+        const safeInstruction = instruction || 'Ikuti instruksi verifikasi wajah.';
+
+        this.emit(callbacks.onInstruction, safeInstruction);
+        this.emit(callbacks.onStatus, 'Ikuti instruksi di layar. Sistem memberi jeda sebentar.');
+        this.emit(callbacks.onGuideState, {
+            state: 'steady',
+            message: safeInstruction,
+        });
+
+        if (leadMs > 0) {
+            await this.delay(leadMs);
+        }
     }
 
     async collectPassiveSignals(videoElement, callbacks = {}, sampleMs = 1200) {
@@ -1006,19 +1026,15 @@ class FaceRecognition {
         const baseline = this.median(baselineSamples) || 0;
         const baselineVertical = this.median(baselineVerticalSamples) || 0.94;
         const baselineMouth = this.median(baselineMouthSamples) || 0.28;
-        const startedAt = Date.now();
         const expectedDirection = direction === 'turn_left' ? -1 : 1;
         let bestTurn = 0;
-
-        this.emit(callbacks.onStatus, direction === 'turn_left'
+        const instruction = direction === 'turn_left'
             ? 'Menengok sedikit ke kiri.'
-            : 'Menengok sedikit ke kanan.');
-        this.emit(callbacks.onGuideState, {
-            state: 'steady',
-            message: direction === 'turn_left'
-                ? 'Menengok sedikit ke kiri.'
-                : 'Menengok sedikit ke kanan.',
-        });
+            : 'Menengok sedikit ke kanan.';
+
+        await this.presentTimedChallengeInstruction(callbacks, instruction);
+        this.emit(callbacks.onStatus, 'Membaca gerakan kepala sesuai instruksi.');
+        const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
@@ -1074,19 +1090,15 @@ class FaceRecognition {
         const baseline = this.median(baselineSamples) || 0.94;
         const baselineTurn = this.median(baselineTurnSamples) || 0;
         const baselineMouth = this.median(baselineMouthSamples) || 0.28;
-        const startedAt = Date.now();
         let bestMove = 0;
         const expectedDirection = direction === 'look_up' ? -1 : 1;
-
-        this.emit(callbacks.onStatus, direction === 'look_up'
+        const instruction = direction === 'look_up'
             ? 'Menengok sedikit ke atas.'
-            : 'Menengok sedikit ke bawah.');
-        this.emit(callbacks.onGuideState, {
-            state: 'steady',
-            message: direction === 'look_up'
-                ? 'Menengok sedikit ke atas.'
-                : 'Menengok sedikit ke bawah.',
-        });
+            : 'Menengok sedikit ke bawah.';
+
+        await this.presentTimedChallengeInstruction(callbacks, instruction);
+        this.emit(callbacks.onStatus, 'Membaca arah pandangan sesuai instruksi.');
+        const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
@@ -1142,14 +1154,11 @@ class FaceRecognition {
         const baseline = this.median(baselineSamples) || 0.28;
         const baselineTurn = this.median(baselineTurnSamples) || 0;
         const baselineVertical = this.median(baselineVerticalSamples) || 0.94;
-        const startedAt = Date.now();
         let bestOpen = baseline;
 
-        this.emit(callbacks.onStatus, 'Buka mulut sedikit sebentar.');
-        this.emit(callbacks.onGuideState, {
-            state: 'steady',
-            message: 'Buka mulut sedikit sebentar.',
-        });
+        await this.presentTimedChallengeInstruction(callbacks, 'Buka mulut sedikit sebentar.');
+        this.emit(callbacks.onStatus, 'Membaca gerakan mulut sesuai instruksi.');
+        const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks);
