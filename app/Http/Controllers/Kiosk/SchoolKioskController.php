@@ -642,13 +642,13 @@ class SchoolKioskController extends Controller
                 'label' => 'Presensi Masuk',
                 'time' => $masuk?->format('H:i') ?? '--:--',
                 'done' => (bool) $masuk,
-                'selfie_url' => $this->resolveStorageAssetUrl($presensi->selfie_masuk_path),
+                'selfie_url' => $this->resolveAttendancePhotoUrl($presensi, 'masuk'),
             ],
             'pulang' => [
                 'label' => 'Presensi Pulang',
                 'time' => $keluar?->format('H:i') ?? '--:--',
                 'done' => (bool) $keluar,
-                'selfie_url' => $this->resolveStorageAssetUrl($presensi->selfie_keluar_path),
+                'selfie_url' => $this->resolveAttendancePhotoUrl($presensi, 'keluar'),
             ],
             'note' => $note !== '' ? $note : 'Presensi tercatat.',
             'timestamp' => $timestamp?->timestamp ?? now('Asia/Jakarta')->timestamp,
@@ -679,11 +679,21 @@ class SchoolKioskController extends Controller
         return asset('storage/'.$avatarPath);
     }
 
-    private function resolveStorageAssetUrl(?string $path): ?string
+    private function resolveAttendancePhotoUrl(Presensi $presensi, string $type): ?string
     {
-        $normalized = trim((string) $path);
+        $photoPath = $type === 'masuk'
+            ? $presensi->selfie_masuk_path
+            : $presensi->selfie_keluar_path;
 
-        return $normalized !== '' ? asset('storage/'.$normalized) : null;
+        if (blank($photoPath)) {
+            return null;
+        }
+
+        return route('foto.show', [
+            'type' => $type,
+            'id' => $presensi->id,
+            'format' => 'webp',
+        ]);
     }
 
     private function normalizeDescriptor(mixed $descriptor): array

@@ -671,6 +671,22 @@
         box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
     }
 
+    .attendance-detail-modal {
+        z-index: 2055 !important;
+    }
+
+    .attendance-detail-modal .modal-dialog {
+        max-width: min(1040px, calc(100vw - 40px));
+        margin: 1rem auto;
+        pointer-events: auto;
+    }
+
+    .attendance-detail-backdrop {
+        z-index: 2050 !important;
+        background: rgba(15, 23, 42, 0.24) !important;
+        opacity: 1 !important;
+    }
+
     .attendance-detail-modal .modal-header {
         padding: 18px 22px 14px;
         border-bottom: 1px solid #e2e8f0;
@@ -1422,6 +1438,10 @@
             document.body.appendChild(faceEnrollmentModalEl);
         }
 
+        if (attendanceDetailModalEl && attendanceDetailModalEl.parentElement !== document.body) {
+            document.body.appendChild(attendanceDetailModalEl);
+        }
+
         const faceRecognition = new window.FaceRecognition();
         const statusSteps = Array.from(document.querySelectorAll('.status-step'));
 
@@ -1758,7 +1778,7 @@
                 return `<div class="attendance-detail-empty">${label} belum tersedia.</div>`;
             }
 
-            return `<img src="${url}" alt="${label}" loading="lazy" decoding="async">`;
+            return `<img src="${url}" alt="${label}" loading="eager" decoding="async" referrerpolicy="no-referrer">`;
         }
 
         function openAttendanceDetail(activity) {
@@ -2362,6 +2382,18 @@
             });
             cameraMode = 'attendance';
             bootstrapAutomation();
+        });
+
+        attendanceDetailModalEl?.addEventListener('shown.bs.modal', function () {
+            document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+                backdrop.classList.add('attendance-detail-backdrop');
+            });
+        });
+
+        attendanceDetailModalEl?.addEventListener('hidden.bs.modal', function () {
+            document.querySelectorAll('.attendance-detail-backdrop').forEach(function (backdrop) {
+                backdrop.classList.remove('attendance-detail-backdrop');
+            });
         });
 
         enrollmentTeacherSearchInput?.addEventListener('input', filterEnrollmentTeachers);
