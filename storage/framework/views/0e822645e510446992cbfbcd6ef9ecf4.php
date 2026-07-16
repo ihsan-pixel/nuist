@@ -1546,6 +1546,7 @@
         let enrollmentPreviewFrame = null;
         let flashTimer = null;
         let matchHudTimer = null;
+        let pythonLocalDetectionAvailable = !faceEngineUsesPython;
         let attendanceActivities = Array.isArray(initialAttendanceActivities) ? initialAttendanceActivities.slice() : [];
 
         const stageOrder = [
@@ -2087,7 +2088,12 @@
 
             try {
                 if (faceEngineUsesPython) {
-                    await faceRecognition.loadDetectionModels();
+                    try {
+                        await faceRecognition.loadDetectionModels();
+                        pythonLocalDetectionAvailable = true;
+                    } catch (detectionError) {
+                        pythonLocalDetectionAvailable = false;
+                    }
                 } else {
                     await faceRecognition.loadModels();
                 }
@@ -2101,12 +2107,21 @@
                 setPrimaryNotice(
                     'Kamera aktif',
                     faceEngineUsesPython
-                        ? `Guru cukup berdiri di depan kamera. Deteksi wajah, verifikasi identitas, dan liveness akan diproses otomatis oleh ${faceEngineLabel}.`
+                        ? (
+                            pythonLocalDetectionAvailable
+                                ? `Guru cukup berdiri di depan kamera. Deteksi wajah, verifikasi identitas, dan liveness akan diproses otomatis oleh ${faceEngineLabel}.`
+                                : `Kamera aktif. Engine ${faceEngineLabel} akan langsung mengambil frame untuk presensi otomatis.`
+                        )
                         : 'Guru cukup berdiri di depan kamera dan mengikuti instruksi liveness singkat.'
                 );
                 setScanBadge('Menunggu pengguna', 'warning');
                 setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
-                setCameraGuide('Arahkan satu wajah ke dalam oval untuk memulai presensi otomatis.', 'bx-user-check');
+                setCameraGuide(
+                    faceEngineUsesPython && !pythonLocalDetectionAvailable
+                        ? 'Arahkan satu wajah ke kamera. Sistem memakai scan cepat tanpa detector lokal.'
+                        : 'Arahkan satu wajah ke dalam oval untuk memulai presensi otomatis.',
+                    'bx-user-check'
+                );
             } catch (error) {
                 placeholder.style.display = 'flex';
                 setStageState('camera_permission', 'error', error.message || 'Kamera tidak dapat diakses.');
@@ -2203,16 +2218,22 @@
         }
 
         async function performPythonAttendanceCapture(callbacks = {}) {
-            setPrimaryNotice('Mendeteksi wajah', 'Sistem membaca wajah yang masuk ke oval lalu langsung menyiapkan pencocokan data.');
-            setScanBadge('Mendeteksi wajah', 'info');
-            setCameraGuide('Arahkan satu wajah sampai tepat di tengah oval.', 'bx-scan');
+            if (pythonLocalDetectionAvailable) {
+                setPrimaryNotice('Mendeteksi wajah', 'Sistem membaca wajah yang masuk ke oval lalu langsung menyiapkan pencocokan data.');
+                setScanBadge('Mendeteksi wajah', 'info');
+                setCameraGuide('Arahkan satu wajah sampai tepat di tengah oval.', 'bx-scan');
 
-            await faceRecognition.waitForQuickAlignedFace(video, callbacks);
+                await faceRecognition.waitForQuickAlignedFace(video, callbacks);
 
-            updateMatchHud(10, 'Wajah sesuai, mengambil gambar', 'info');
-            setPrimaryNotice('Wajah sesuai', 'Posisi wajah sudah sesuai. Gambar terbaik sedang diambil untuk proses pencocokan data.');
-            setScanBadge('Mengambil gambar', 'info');
-            setCameraGuide('Wajah sesuai. Mengambil gambar untuk pencocokan data.', 'bx-camera');
+                updateMatchHud(10, 'Wajah sesuai, mengambil gambar', 'info');
+                setPrimaryNotice('Wajah sesuai', 'Posisi wajah sudah sesuai. Gambar terbaik sedang diambil untuk proses pencocokan data.');
+                setScanBadge('Mengambil gambar', 'info');
+                setCameraGuide('Wajah sesuai. Mengambil gambar untuk pencocokan data.', 'bx-camera');
+            } else {
+                setPrimaryNotice('Mengambil frame', `Detector lokal tidak tersedia. ${faceEngineLabel} akan langsung mengambil frame untuk pencocokan data.`);
+                setScanBadge('Mengambil frame', 'info');
+                setCameraGuide('Tatap kamera sebentar. Sistem langsung mengambil frame untuk pencocokan.', 'bx-camera');
+            }
 
             const burst = await faceRecognition.captureBurstFrames(video, {
                 count: pythonCaptureFrameCount,
