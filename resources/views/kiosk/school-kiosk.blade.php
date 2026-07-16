@@ -1547,6 +1547,7 @@
         let flashTimer = null;
         let matchHudTimer = null;
         let browserFaceScanAvailable = false;
+        let faceMustExitBeforeNextMatch = false;
         let attendanceActivities = Array.isArray(initialAttendanceActivities) ? initialAttendanceActivities.slice() : [];
 
         const stageOrder = [
@@ -1983,7 +1984,68 @@
 
         function scheduleNextScan(delay = initialScanDelayMs) {
             clearScanTimer();
-            scanTimer = window.setTimeout(runAutomaticFaceScan, delay);
+            scanTimer = window.setTimeout(
+                browserFaceScanAvailable ? waitForFaceInOval : runAutomaticFaceScan,
+                delay
+            );
+        }
+
+        async function waitForFaceInOval() {
+            if (!cameraReady || scanInProgress || enrollmentBusy || !activeLocation) {
+                return;
+            }
+
+            if (!browserFaceScanAvailable) {
+                runAutomaticFaceScan();
+                return;
+            }
+
+            const watcherCallbacks = {
+                onGuideState: function (payload) {
+                    if (payload?.message) {
+                        setCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
+                    }
+                },
+            };
+
+            try {
+                const detection = await faceRecognition.detectSingleFaceGeometry(video, watcherCallbacks, {
+                    strict: true,
+                    allowFallback: false,
+                });
+
+                if (faceMustExitBeforeNextMatch) {
+                    if (detection) {
+                        hideMatchHud();
+                        setPrimaryNotice('Menunggu wajah berikutnya', 'Presensi sebelumnya sudah diproses. Geser wajah keluar dari oval sebentar untuk memulai scan berikutnya.');
+                        setScanBadge('Menunggu wajah baru', 'warning');
+                        setCameraGuide('Geser wajah keluar oval sebentar untuk scan berikutnya.', 'bx-user-x');
+                        scheduleNextScan(180);
+                        return;
+                    }
+
+                    faceMustExitBeforeNextMatch = false;
+                }
+
+                if (!detection) {
+                    hideMatchHud();
+                    setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
+                    setPrimaryNotice('Menunggu pengguna', 'Kiosk siaga. Pencocokan baru dimulai saat wajah masuk ke dalam oval.');
+                    setScanBadge('Menunggu pengguna', 'warning');
+                    scheduleNextScan(120);
+                    return;
+                }
+
+                setStageState('waiting_user', 'done', 'Wajah terdeteksi di dalam oval. Menyiapkan scan wajah.');
+                setStageState('detecting_face', 'active', 'Wajah sudah masuk bingkai. Scan wajah dimulai.');
+                setPrimaryNotice('Wajah terdeteksi', 'Wajah sudah masuk ke oval. Sistem langsung memulai scan dan pencocokan data.');
+                setScanBadge('Wajah terdeteksi', 'info');
+                updateMatchHud(12, 'Wajah terdeteksi', 'info');
+                setCameraGuide('Wajah terdeteksi. Memulai scan wajah.', 'bx-check-circle');
+                runAutomaticFaceScan({ startedFromOval: true });
+            } catch (error) {
+                scheduleNextScan(220);
+            }
         }
 
         async function getLocationReading() {
@@ -2186,6 +2248,7 @@
             }
 
             finishMatchHud(true, 'Diterima');
+            faceMustExitBeforeNextMatch = true;
 
             setStageState('verifying_identity', 'done', `Guru dikenali sebagai ${result.teacher?.name || 'guru terdaftar'}.`);
             setStageState('processing_attendance', 'active', 'Aturan presensi sekolah sedang diproses.');
@@ -2260,22 +2323,35 @@
             };
         }
 
-        async function runAutomaticFaceScan() {
+        async function runAutomaticFaceScan(options = {}) {
             if (!cameraReady || scanInProgress || enrollmentBusy || !activeLocation) {
                 return;
             }
 
+            const startedFromOval = options.startedFromOval === true;
             scanInProgress = true;
-            hideMatchHud();
+            if (!startedFromOval) {
+                hideMatchHud();
+            }
             hideAttendanceResult();
-            setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
+            setStageState('waiting_user', startedFromOval ? 'done' : 'active', startedFromOval
+                ? 'Wajah sudah masuk ke bingkai dan scan wajah dimulai.'
+                : 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
             setStageState('detecting_face', 'active', 'Sistem mulai membaca posisi wajah dan challenge liveness.');
             setStageState('verifying_identity', 'idle');
             setStageState('processing_attendance', 'idle');
             setStageState('attendance_success', 'idle');
-            setPrimaryNotice('Menunggu pengguna', 'Guru cukup berdiri di depan kamera. Begitu wajah stabil, verifikasi akan berjalan otomatis.');
-            setScanBadge('Menunggu pengguna', 'warning');
-            setCameraGuide('Arahkan satu wajah ke dalam oval untuk memulai scan.', 'bx-user-voice');
+            setPrimaryNotice(
+                startedFromOval ? 'Memulai scan wajah' : 'Menunggu pengguna',
+                startedFromOval
+                    ? 'Wajah sudah sesuai. Sistem langsung menjalankan scan wajah dan verifikasi.'
+                    : 'Guru cukup berdiri di depan kamera. Begitu wajah stabil, verifikasi akan berjalan otomatis.'
+            );
+            setScanBadge(startedFromOval ? 'Memulai scan' : 'Menunggu pengguna', startedFromOval ? 'info' : 'warning');
+            setCameraGuide(
+                startedFromOval ? 'Scan wajah dimulai. Ikuti arahan singkat.' : 'Arahkan satu wajah ke dalam oval untuk memulai scan.',
+                startedFromOval ? 'bx-scan' : 'bx-user-voice'
+            );
 
             try {
                 const scanCallbacks = {
