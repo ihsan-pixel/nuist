@@ -636,15 +636,19 @@ class SchoolKioskController extends Controller
             'teacher_name' => $teacher->name,
             'avatar_url' => $this->resolveTeacherAvatarUrl($teacher),
             'latest_mode' => $keluar ? 'keluar' : 'masuk',
+            'tanggal' => optional($presensi->tanggal)->format('Y-m-d'),
+            'keterangan' => $note,
             'masuk' => [
                 'label' => 'Presensi Masuk',
                 'time' => $masuk?->format('H:i') ?? '--:--',
                 'done' => (bool) $masuk,
+                'selfie_url' => $this->resolveStorageAssetUrl($presensi->selfie_masuk_path),
             ],
             'pulang' => [
                 'label' => 'Presensi Pulang',
                 'time' => $keluar?->format('H:i') ?? '--:--',
                 'done' => (bool) $keluar,
+                'selfie_url' => $this->resolveStorageAssetUrl($presensi->selfie_keluar_path),
             ],
             'note' => $note !== '' ? $note : 'Presensi tercatat.',
             'timestamp' => $timestamp?->timestamp ?? now('Asia/Jakarta')->timestamp,
@@ -673,6 +677,13 @@ class SchoolKioskController extends Controller
         }
 
         return asset('storage/'.$avatarPath);
+    }
+
+    private function resolveStorageAssetUrl(?string $path): ?string
+    {
+        $normalized = trim((string) $path);
+
+        return $normalized !== '' ? asset('storage/'.$normalized) : null;
     }
 
     private function normalizeDescriptor(mixed $descriptor): array

@@ -490,13 +490,21 @@
 
     .camera-activity-item {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: 12px;
         border-radius: 18px;
         padding: 12px 12px 11px;
         border: 1px solid rgba(255, 255, 255, 0.08);
         background: rgba(255, 255, 255, 0.08);
         color: #f8fafc;
+        cursor: pointer;
+        transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .camera-activity-item:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.16);
     }
 
     .camera-activity-avatar {
@@ -564,6 +572,7 @@
         padding: 10px 10px 9px;
         background: rgba(15, 23, 42, 0.26);
         border: 1px solid rgba(255, 255, 255, 0.06);
+        text-align: center;
     }
 
     .camera-activity-stat-label {
@@ -581,12 +590,6 @@
         font-weight: 800;
         color: #fff;
         line-height: 1;
-    }
-
-    .camera-activity-note {
-        font-size: 11px;
-        line-height: 1.55;
-        color: rgba(226, 232, 240, 0.84);
     }
 
     .kiosk-flash-modal {
@@ -661,6 +664,131 @@
         font-size: 13px;
         font-weight: 700;
         color: #0f766e;
+    }
+
+    .attendance-detail-modal .modal-content {
+        border: 0;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    }
+
+    .attendance-detail-modal .modal-header {
+        padding: 18px 22px 14px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .attendance-detail-modal .modal-body {
+        padding: 18px 22px 22px;
+    }
+
+    .attendance-detail-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .attendance-detail-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 14px;
+        background: #fff;
+    }
+
+    .attendance-detail-label {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .attendance-detail-time {
+        font-size: 24px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 10px;
+    }
+
+    .attendance-detail-photo {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .attendance-detail-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .attendance-detail-empty {
+        text-align: center;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.5;
+        padding: 16px;
+    }
+
+    .attendance-detail-summary {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 0 18px;
+    }
+
+    .attendance-detail-avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        overflow: hidden;
+        background: #eff6ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2563eb;
+        flex: 0 0 auto;
+    }
+
+    .attendance-detail-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .attendance-detail-avatar i {
+        font-size: 24px;
+    }
+
+    .attendance-detail-name {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .attendance-detail-meta {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .attendance-detail-keterangan {
+        margin-top: 14px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 12px 14px;
+        color: #334155;
+        font-size: 13px;
+        line-height: 1.6;
     }
 
     .face-modal .modal-content {
@@ -895,6 +1023,10 @@
             margin: 0.5rem auto;
         }
 
+        .attendance-detail-grid {
+            grid-template-columns: 1fr;
+        }
+
         .enroll-camera-shell {
             min-height: 320px;
             aspect-ratio: 4 / 5;
@@ -1073,6 +1205,46 @@
                     </div>
                 </div>
 
+                <div class="modal fade attendance-detail-modal" id="attendanceDetailModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div>
+                                    <h5 class="modal-title mb-1">Detail Presensi Hari Ini</h5>
+                                    <div class="text-muted small">Data presensi guru dan foto scan yang berhasil diambil.</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="attendance-detail-summary">
+                                    <div class="attendance-detail-avatar" id="attendanceDetailAvatar">
+                                        <i class="bx bx-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="attendance-detail-name" id="attendanceDetailName">Guru</div>
+                                        <div class="attendance-detail-meta" id="attendanceDetailMeta">Presensi hari ini</div>
+                                    </div>
+                                </div>
+
+                                <div class="attendance-detail-grid">
+                                    <div class="attendance-detail-card">
+                                        <div class="attendance-detail-label">Presensi Masuk</div>
+                                        <div class="attendance-detail-time" id="attendanceDetailMasukTime">--:--</div>
+                                        <div class="attendance-detail-photo" id="attendanceDetailMasukPhoto"></div>
+                                    </div>
+                                    <div class="attendance-detail-card">
+                                        <div class="attendance-detail-label">Presensi Pulang</div>
+                                        <div class="attendance-detail-time" id="attendanceDetailPulangTime">--:--</div>
+                                        <div class="attendance-detail-photo" id="attendanceDetailPulangPhoto"></div>
+                                    </div>
+                                </div>
+
+                                <div class="attendance-detail-keterangan" id="attendanceDetailKeterangan"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="modal fade face-modal" id="faceEnrollmentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
                     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content">
@@ -1220,6 +1392,16 @@
         const kioskFlashCopy = document.getElementById('kioskFlashCopy');
         const kioskFlashMeta = document.getElementById('kioskFlashMeta');
         const kioskFlashIcon = document.getElementById('kioskFlashIcon');
+        const attendanceDetailModalEl = document.getElementById('attendanceDetailModal');
+        const attendanceDetailModal = window.bootstrap ? new bootstrap.Modal(attendanceDetailModalEl) : null;
+        const attendanceDetailAvatar = document.getElementById('attendanceDetailAvatar');
+        const attendanceDetailName = document.getElementById('attendanceDetailName');
+        const attendanceDetailMeta = document.getElementById('attendanceDetailMeta');
+        const attendanceDetailMasukTime = document.getElementById('attendanceDetailMasukTime');
+        const attendanceDetailPulangTime = document.getElementById('attendanceDetailPulangTime');
+        const attendanceDetailMasukPhoto = document.getElementById('attendanceDetailMasukPhoto');
+        const attendanceDetailPulangPhoto = document.getElementById('attendanceDetailPulangPhoto');
+        const attendanceDetailKeterangan = document.getElementById('attendanceDetailKeterangan');
 
         const enrollmentTeacherSearchInput = document.getElementById('enrollmentTeacherSearchInput');
         const enrollmentTeacherSelect = document.getElementById('enrollmentTeacherSelect');
@@ -1530,7 +1712,7 @@
                         : (item.masuk?.time || '--:--');
 
                     return `
-                        <article class="camera-activity-item" data-mode="${item.latest_mode || 'masuk'}">
+                        <article class="camera-activity-item" data-mode="${item.latest_mode || 'masuk'}" data-presensi-id="${item.presensi_id}">
                             <div class="camera-activity-avatar">${avatar}</div>
                             <div class="camera-activity-body">
                                 <div class="camera-activity-topline">
@@ -1547,7 +1729,6 @@
                                         <div class="camera-activity-stat-time">${item.pulang?.time || '--:--'}</div>
                                     </div>
                                 </div>
-                                <div class="camera-activity-note">${item.note || ''}</div>
                             </div>
                         </article>
                     `;
@@ -1570,6 +1751,40 @@
             ].slice(0, 14);
 
             renderAttendanceActivities();
+        }
+
+        function buildAttendancePhotoMarkup(url, label) {
+            if (!url) {
+                return `<div class="attendance-detail-empty">${label} belum tersedia.</div>`;
+            }
+
+            return `<img src="${url}" alt="${label}" loading="lazy" decoding="async">`;
+        }
+
+        function openAttendanceDetail(activity) {
+            if (!activity || !attendanceDetailModal) {
+                return;
+            }
+
+            attendanceDetailName.textContent = activity.teacher_name || 'Guru';
+            attendanceDetailMeta.textContent = activity.tanggal
+                ? `Tanggal ${activity.tanggal}`
+                : 'Presensi hari ini';
+            attendanceDetailMasukTime.textContent = activity.masuk?.time || '--:--';
+            attendanceDetailPulangTime.textContent = activity.pulang?.time || '--:--';
+            attendanceDetailMasukPhoto.innerHTML = buildAttendancePhotoMarkup(activity.masuk?.selfie_url || null, 'Foto scan masuk');
+            attendanceDetailPulangPhoto.innerHTML = buildAttendancePhotoMarkup(activity.pulang?.selfie_url || null, 'Foto scan pulang');
+            attendanceDetailKeterangan.textContent = activity.keterangan && activity.keterangan !== ''
+                ? activity.keterangan
+                : 'Tidak ada keterangan tambahan untuk presensi hari ini.';
+
+            if (activity.avatar_url) {
+                attendanceDetailAvatar.innerHTML = `<img src="${activity.avatar_url}" alt="${activity.teacher_name || 'Guru'}" loading="lazy" decoding="async">`;
+            } else {
+                attendanceDetailAvatar.innerHTML = '<i class="bx bx-user"></i>';
+            }
+
+            attendanceDetailModal.show();
         }
 
         function hideFlashModal() {
@@ -2159,6 +2374,22 @@
 
         restartScannerButton?.addEventListener('click', function () {
             bootstrapAutomation();
+        });
+
+        cameraActivityList?.addEventListener('click', function (event) {
+            const card = event.target.closest('.camera-activity-item');
+            if (!card) {
+                return;
+            }
+
+            const presensiId = String(card.dataset.presensiId || '');
+            const activity = attendanceActivities.find(function (item) {
+                return String(item.presensi_id || '') === presensiId;
+            });
+
+            if (activity) {
+                openAttendanceDetail(activity);
+            }
         });
 
         kioskFlashModal?.addEventListener('click', function (event) {
