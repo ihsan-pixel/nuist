@@ -1334,10 +1334,10 @@
                                         <button type="button" class="btn btn-outline-warning btn-sm" id="openEnrollmentRefreshButton">
                                             <i class="bx bx-refresh me-1"></i>Registrasi Ulang
                                         </button>
-                                        {{-- <div class="scan-badge" id="scanBadge">
+                                        <div class="scan-badge" id="scanBadge">
                                             <i class="bx bx-loader-circle"></i>
                                             <span>Menyiapkan</span>
-                                        </div> --}}
+                                        </div>
                                     </div>
                                 </div>
 
