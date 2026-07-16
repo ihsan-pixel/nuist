@@ -195,6 +195,7 @@ class SchoolKioskController extends Controller
             ]);
 
             $teacher = $this->resolveTeacher($device, (int) $validated['teacher_id']);
+            $faceDescriptor = $this->normalizeDescriptor($validated['face_descriptor'] ?? null);
 
             if ($this->kioskFaceEngineService->usesPython()) {
                 $engineResult = $this->kioskFaceEngineService->enroll($teacher, $validated, [
@@ -203,7 +204,10 @@ class SchoolKioskController extends Controller
                     'operator_user_id' => $operator->id,
                 ]);
 
-                if (!($engineResult['success'] ?? false)) {
+                $canFallbackToBrowserDescriptor = ($engineResult['notes'] ?? null) === 'engine_unreachable'
+                    && $faceDescriptor !== [];
+
+                if (!($engineResult['success'] ?? false) && !$canFallbackToBrowserDescriptor) {
                     return response()->json([
                         'success' => false,
                         'message' => $engineResult['message'] ?? 'Registrasi wajah melalui engine Python gagal.',
@@ -211,33 +215,60 @@ class SchoolKioskController extends Controller
                     ], (int) ($engineResult['status'] ?? 422));
                 }
 
-                $faceEmbedding = $this->normalizeVector($engineResult['face_embedding'] ?? null);
-                if ($faceEmbedding === []) {
-                    throw ValidationException::withMessages([
-                        'face_data' => 'Embedding wajah dari engine Python tidak valid. Silakan ulangi registrasi wajah.',
-                    ]);
-                }
+                if ($canFallbackToBrowserDescriptor) {
+                    $livenessScore = (float) ($validated['liveness_score'] ?? 0);
+                    if ($livenessScore < 0.78) {
+                        throw ValidationException::withMessages([
+                            'liveness_score' => 'Scan wajah belum cukup stabil untuk pendaftaran. Posisikan wajah dengan jelas lalu coba lagi.',
+                        ]);
+                    }
 
-                $teacher->face_data = json_encode([
-                    'face_engine' => 'python',
-                    'face_provider' => $engineResult['provider'] ?? null,
-                    'face_embedding' => $faceEmbedding,
-                    'face_embedding_dimension' => count($faceEmbedding),
-                    'liveness_score' => $engineResult['liveness_score'] ?? null,
-                    'liveness_challenges' => $this->normalizeChallenges($engineResult['liveness_challenges'] ?? []),
-                    'quality_score' => $engineResult['quality_score'] ?? null,
-                    'captured_image' => $engineResult['captured_image'] ?? ($validated['selfie_data'] ?? null),
-                    'enrolled_at' => now()->toIso8601String(),
-                    'enrolled_by' => $operator->id,
-                    'device_info' => is_string($validated['device_info'] ?? null)
-                        ? Str::limit($validated['device_info'], 1000, '')
-                        : null,
-                    'engine_metadata' => is_array($engineResult['metadata'] ?? null) ? $engineResult['metadata'] : [],
-                    'enrollment_channel' => 'school_kiosk_python',
-                    'registered_device_id' => $device->id,
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+                    $teacher->face_data = json_encode([
+                        'face_engine' => 'browser_fallback',
+                        'face_descriptor' => $faceDescriptor,
+                        'liveness_score' => $livenessScore,
+                        'liveness_challenges' => $this->normalizeChallenges($validated['liveness_challenges'] ?? []),
+                        'captured_image' => $validated['selfie_data'] ?? null,
+                        'enrolled_at' => now()->toIso8601String(),
+                        'enrolled_by' => $operator->id,
+                        'device_info' => is_string($validated['device_info'] ?? null)
+                            ? Str::limit($validated['device_info'], 1000, '')
+                            : null,
+                        'engine_metadata' => [
+                            'fallback_reason' => 'python_engine_unreachable',
+                        ],
+                        'enrollment_channel' => 'school_kiosk_browser_fallback',
+                        'registered_device_id' => $device->id,
+                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+                } else {
+                    $faceEmbedding = $this->normalizeVector($engineResult['face_embedding'] ?? null);
+                    if ($faceEmbedding === []) {
+                        throw ValidationException::withMessages([
+                            'face_data' => 'Embedding wajah dari engine Python tidak valid. Silakan ulangi registrasi wajah.',
+                        ]);
+                    }
+
+                    $teacher->face_data = json_encode([
+                        'face_engine' => 'python',
+                        'face_provider' => $engineResult['provider'] ?? null,
+                        'face_embedding' => $faceEmbedding,
+                        'face_embedding_dimension' => count($faceEmbedding),
+                        'face_descriptor' => $faceDescriptor !== [] ? $faceDescriptor : null,
+                        'liveness_score' => $engineResult['liveness_score'] ?? null,
+                        'liveness_challenges' => $this->normalizeChallenges($engineResult['liveness_challenges'] ?? []),
+                        'quality_score' => $engineResult['quality_score'] ?? null,
+                        'captured_image' => $engineResult['captured_image'] ?? ($validated['selfie_data'] ?? null),
+                        'enrolled_at' => now()->toIso8601String(),
+                        'enrolled_by' => $operator->id,
+                        'device_info' => is_string($validated['device_info'] ?? null)
+                            ? Str::limit($validated['device_info'], 1000, '')
+                            : null,
+                        'engine_metadata' => is_array($engineResult['metadata'] ?? null) ? $engineResult['metadata'] : [],
+                        'enrollment_channel' => 'school_kiosk_python',
+                        'registered_device_id' => $device->id,
+                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+                }
             } else {
-                $faceDescriptor = $this->normalizeDescriptor($validated['face_descriptor'] ?? null);
                 if ($faceDescriptor === []) {
                     throw ValidationException::withMessages([
                         'face_descriptor' => 'Data wajah hasil scan tidak valid. Silakan ulangi scan wajah.',
@@ -340,6 +371,23 @@ class SchoolKioskController extends Controller
                     $validated['liveness_challenges'] ?? [],
                     true,
                 );
+
+                $canFallbackToPython = $this->kioskFaceEngineService->usesPython()
+                    && in_array(($teacherMatch['notes'] ?? null), ['no_enrolled_teachers', 'face_similarity_below_threshold'], true);
+
+                if (!($teacherMatch['success'] ?? false) && $canFallbackToPython) {
+                    $teacherMatch = $this->kioskFaceEngineService->identify(
+                        $this->teachersQuery($device)->get(),
+                        $validated,
+                        [
+                            'device_id' => $device->id,
+                            'madrasah_id' => $device->madrasah_id,
+                            'operator_user_id' => $operator->id,
+                        ]
+                    );
+
+                    $hasBrowserFaceScan = false;
+                }
             } elseif ($this->kioskFaceEngineService->usesPython()) {
                 $teacherMatch = $this->kioskFaceEngineService->identify(
                     $this->teachersQuery($device)->get(),

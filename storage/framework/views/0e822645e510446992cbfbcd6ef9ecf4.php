@@ -2560,8 +2560,20 @@
             enrollmentGuideText.textContent = 'Siapkan wajah di dalam oval.';
             setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Posisikan satu wajah di dalam oval dan pastikan cahaya cukup.');
 
-            if (!faceEngineUsesPython) {
+            try {
                 await faceRecognition.loadModels();
+                browserFaceScanAvailable = true;
+            } catch (scanModelError) {
+                browserFaceScanAvailable = false;
+                if (!faceEngineUsesPython) {
+                    throw scanModelError;
+                }
+
+                try {
+                    await faceRecognition.loadDetectionModels();
+                } catch (detectionError) {
+                    // Registrasi masih dapat lanjut memakai burst capture saat engine Python aktif.
+                }
             }
 
             await faceRecognition.initializeCamera(enrollmentVideo);
@@ -2600,47 +2612,15 @@
             try {
                 await startEnrollmentCameraPreview();
                 enrollmentStatusTitle.textContent = 'Registrasi berjalan';
-                enrollmentStatusCopy.textContent = faceEngineUsesPython
-                    ? `Minta guru menatap kamera dan tahan posisi sebentar. Beberapa frame akan diambil otomatis untuk registrasi melalui ${faceEngineLabel}.`
-                    : 'Minta guru menatap kamera dan tahan posisi sampai sistem mengambil frame terbaik secara otomatis.';
+                enrollmentStatusCopy.textContent = browserFaceScanAvailable
+                    ? (faceEngineUsesPython
+                        ? `Minta guru menatap kamera dan tahan posisi sebentar. Sistem mengambil data wajah lokal lebih dulu lalu menyinkronkannya ke ${faceEngineLabel}.`
+                        : 'Minta guru menatap kamera dan tahan posisi sampai sistem mengambil frame terbaik secara otomatis.')
+                    : `Minta guru menatap kamera dan tahan posisi sebentar. Beberapa frame akan diambil otomatis untuk registrasi melalui ${faceEngineLabel}.`;
                 enrollmentGuideText.textContent = 'Posisikan satu wajah tepat di dalam oval.';
 
-                const enrollmentResult = faceEngineUsesPython
-                    ? await (async function () {
-                        await wait(420);
-
-                        const burst = await faceRecognition.captureBurstFrames(enrollmentVideo, {
-                            count: 6,
-                            intervalMs: 170,
-                            warmupMs: 260,
-                            onProgress: function (current, total, frameMeta) {
-                                const qualityPercent = Math.max(18, Math.min(Math.round((frameMeta?.quality || 0) * 100), 96));
-                                enrollmentStatusCopy.textContent = `Mengambil frame ${current} dari ${total} untuk registrasi wajah otomatis.`;
-                                enrollmentGuideText.textContent = 'Tahan posisi wajah dan kedip alami sebentar.';
-                                setEnrollmentQualityState(
-                                    qualityPercent,
-                                    qualityPercent >= 82 ? 'success' : 'warning',
-                                    qualityPercent >= 82 ? 'Siap simpan' : 'Membaca wajah',
-                                    qualityPercent >= 82
-                                        ? 'Gambar sudah cukup jelas. Sistem sedang memilih frame terbaik untuk langsung disimpan.'
-                                        : 'Sistem sedang mencari frame yang paling jelas dan stabil.'
-                                );
-                            },
-                        });
-
-                        if (!burst.best_frame || !Array.isArray(burst.frames) || burst.frames.length === 0) {
-                            throw new Error('Frame registrasi belum berhasil diambil. Ulangi proses registrasi.');
-                        }
-
-                        return {
-                            captured_image: burst.best_frame,
-                            selfie_frames: burst.frames,
-                            face_descriptor: [],
-                            liveness_score: null,
-                            liveness_challenges: [],
-                        };
-                    })()
-                    : await faceRecognition.performEnrollmentScan(enrollmentVideo, {
+                const enrollmentResult = browserFaceScanAvailable
+                    ? await faceRecognition.performEnrollmentScan(enrollmentVideo, {
                         onInstruction: function (message) {
                             enrollmentGuideText.textContent = message;
                         },
@@ -2685,7 +2665,41 @@
                                 enrollmentGuideText.textContent = payload.message;
                             }
                         },
-                    });
+                    })
+                    : await (async function () {
+                        await wait(420);
+
+                        const burst = await faceRecognition.captureBurstFrames(enrollmentVideo, {
+                            count: 6,
+                            intervalMs: 170,
+                            warmupMs: 260,
+                            onProgress: function (current, total, frameMeta) {
+                                const qualityPercent = Math.max(18, Math.min(Math.round((frameMeta?.quality || 0) * 100), 96));
+                                enrollmentStatusCopy.textContent = `Mengambil frame ${current} dari ${total} untuk registrasi wajah otomatis.`;
+                                enrollmentGuideText.textContent = 'Tahan posisi wajah dan kedip alami sebentar.';
+                                setEnrollmentQualityState(
+                                    qualityPercent,
+                                    qualityPercent >= 82 ? 'success' : 'warning',
+                                    qualityPercent >= 82 ? 'Siap simpan' : 'Membaca wajah',
+                                    qualityPercent >= 82
+                                        ? 'Gambar sudah cukup jelas. Sistem sedang memilih frame terbaik untuk langsung disimpan.'
+                                        : 'Sistem sedang mencari frame yang paling jelas dan stabil.'
+                                );
+                            },
+                        });
+
+                        if (!burst.best_frame || !Array.isArray(burst.frames) || burst.frames.length === 0) {
+                            throw new Error('Frame registrasi belum berhasil diambil. Ulangi proses registrasi.');
+                        }
+
+                        return {
+                            captured_image: burst.best_frame,
+                            selfie_frames: burst.frames,
+                            face_descriptor: [],
+                            liveness_score: null,
+                            liveness_challenges: [],
+                        };
+                    })();
 
                 enrollmentPreview.src = enrollmentResult.captured_image;
                 enrollmentPreview.classList.add('show');
