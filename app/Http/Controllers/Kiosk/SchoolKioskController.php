@@ -325,6 +325,66 @@ class SchoolKioskController extends Controller
         }
     }
 
+    public function verifyFaceMatch(Request $request): JsonResponse
+    {
+        $operator = Auth::user();
+
+        try {
+            $device = $this->resolveAuthorizedDevice($request, $operator);
+            $validated = $request->validate([
+                'face_descriptor' => ['required', 'array'],
+                'face_descriptor.*' => ['numeric'],
+            ]);
+
+            $match = $this->faceVerificationService->identifyByDescriptorOnly(
+                $this->teachersQuery($device)->get(),
+                $validated['face_descriptor']
+            );
+
+            if (!($match['success'] ?? false) || !($match['user'] ?? null) instanceof User) {
+                return response()->json([
+                    'success' => false,
+                    'face_verified' => false,
+                    'message' => $match['message'] ?? 'Wajah tidak cocok dengan data guru terdaftar.',
+                    'notes' => $match['notes'] ?? 'face_similarity_below_threshold',
+                    'similarity' => $match['similarity'] ?? null,
+                ], 422);
+            }
+
+            /** @var User $teacher */
+            $teacher = $match['user'];
+
+            return response()->json([
+                'success' => true,
+                'face_verified' => true,
+                'message' => $match['message'] ?? 'Wajah cocok dengan data terdaftar.',
+                'notes' => $match['notes'] ?? 'face_verified',
+                'similarity' => $match['similarity'] ?? null,
+                'teacher' => [
+                    'id' => $teacher->id,
+                    'name' => $teacher->name,
+                    'nip' => $teacher->nip,
+                    'nuptk' => $teacher->nuptk,
+                ],
+            ]);
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'success' => false,
+                'face_verified' => false,
+                'message' => collect($exception->errors())->flatten()->first() ?: 'Verifikasi wajah awal gagal.',
+                'errors' => $exception->errors(),
+                'notes' => 'invalid_face_descriptor',
+            ], 422);
+        } catch (AuthorizationException $exception) {
+            return response()->json([
+                'success' => false,
+                'face_verified' => false,
+                'message' => $exception->getMessage(),
+                'notes' => 'unauthorized_device',
+            ], 403);
+        }
+    }
+
     public function autoSubmit(Request $request): JsonResponse
     {
         $operator = Auth::user();

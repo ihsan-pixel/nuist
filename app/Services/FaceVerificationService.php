@@ -310,6 +310,75 @@ class FaceVerificationService
         ];
     }
 
+    public function identifyByDescriptorOnly(iterable $users, mixed $descriptor): array
+    {
+        $normalizedDescriptor = $this->normalizeDescriptor($descriptor);
+        if (empty($normalizedDescriptor)) {
+            return [
+                'success' => false,
+                'face_verified' => false,
+                'message' => 'Data descriptor wajah tidak valid. Silakan ulangi scan wajah.',
+                'notes' => 'invalid_face_descriptor',
+            ];
+        }
+
+        $bestUser = null;
+        $bestDistance = null;
+
+        foreach ($users as $user) {
+            if (!$user instanceof User) {
+                continue;
+            }
+
+            $storedDescriptors = $this->storedDescriptors($user);
+            if (empty($storedDescriptors)) {
+                continue;
+            }
+
+            foreach ($storedDescriptors as $storedDescriptor) {
+                $distance = $this->euclideanDistance($storedDescriptor, $normalizedDescriptor);
+                if ($bestDistance === null || $distance < $bestDistance) {
+                    $bestDistance = $distance;
+                    $bestUser = $user;
+                }
+            }
+        }
+
+        if (!$bestUser || $bestDistance === null) {
+            return [
+                'success' => false,
+                'face_verified' => false,
+                'message' => 'Belum ada data wajah guru yang siap dicocokkan di kiosk ini.',
+                'notes' => 'no_enrolled_teachers',
+            ];
+        }
+
+        $bestSimilarity = $this->distanceToSimilarity($bestDistance);
+        if ($bestDistance > self::FACE_DISTANCE_THRESHOLD) {
+            return [
+                'success' => false,
+                'face_verified' => false,
+                'message' => 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.',
+                'similarity' => round($bestSimilarity, 4),
+                'face_distance' => round($bestDistance, 4),
+                'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                'notes' => 'face_similarity_below_threshold',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'face_verified' => true,
+            'message' => 'Wajah cocok dengan data terdaftar.',
+            'user' => $bestUser,
+            'face_id_used' => $bestUser->face_id,
+            'similarity' => round($bestSimilarity, 4),
+            'face_distance' => round($bestDistance, 4),
+            'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+            'notes' => 'face_verified',
+        ];
+    }
+
     private function hasEnrollment(User $user): bool
     {
         return !empty($this->storedDescriptors($user));

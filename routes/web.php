@@ -161,6 +161,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/school-kiosk', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'index'])->name('school-kiosk.index');
     Route::post('/school-kiosk/check-location', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'checkLocation'])->name('school-kiosk.check-location');
+    Route::post('/school-kiosk/verify-face-match', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'verifyFaceMatch'])->name('school-kiosk.verify-face-match');
     Route::post('/school-kiosk/enroll-face', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'enrollFace'])->name('school-kiosk.enroll-face');
     Route::post('/school-kiosk/auto-presensi', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'autoSubmit'])->name('school-kiosk.auto-submit');
     Route::post('/school-kiosk/presensi', [App\Http\Controllers\Kiosk\SchoolKioskController::class, 'submit'])->name('school-kiosk.submit');

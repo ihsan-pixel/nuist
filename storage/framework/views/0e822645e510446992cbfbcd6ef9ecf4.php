@@ -1064,6 +1064,41 @@
         padding: 12px 14px;
     }
 
+    .enroll-progress {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .enroll-progress-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 800;
+        text-align: center;
+        transition: all 0.18s ease;
+    }
+
+    .enroll-progress-item.is-active {
+        border-color: #67e8f9;
+        background: #ecfeff;
+        color: #0f766e;
+    }
+
+    .enroll-progress-item.is-done {
+        border-color: #86efac;
+        background: #f0fdf4;
+        color: #166534;
+    }
+
     .enroll-quality-head {
         display: flex;
         align-items: center;
@@ -1488,7 +1523,7 @@
 
                                     <div class="enroll-stage-card">
                                         <h6>Kamera Registrasi</h6>
-                                        <p>Kamera aktif otomatis. Setelah guru dipilih, klik sekali untuk scan dan simpan.</p>
+                                        <p>Kamera aktif otomatis. Setelah guru dipilih, mulai scan wajah, periksa hasilnya, lalu simpan seperti pada face enrollment mobile.</p>
 
                                         <div class="enroll-camera-shell">
                                             <video id="enrollmentVideo" autoplay playsinline muted></video>
@@ -1519,6 +1554,11 @@
                                         </div>
 
                                         <div class="enroll-quality-box">
+                                            <div class="enroll-progress" id="enrollmentProgress">
+                                                <div class="enroll-progress-item" data-step="align">Posisikan</div>
+                                                <div class="enroll-progress-item" data-step="steady">Stabilkan</div>
+                                                <div class="enroll-progress-item" data-step="done">Selesai</div>
+                                            </div>
                                             <div class="enroll-quality-head">
                                                 <div class="enroll-quality-title">Level Kejelasan Wajah</div>
                                                 <div class="enroll-quality-chip" id="enrollmentQualityChip" data-tone="idle">Belum jelas</div>
@@ -1534,7 +1574,10 @@
 
                                         <div class="enroll-actions">
                                             <button type="button" class="btn btn-primary" id="startEnrollmentButton">
-                                                <i class="bx bx-camera me-1"></i>Scan dan Simpan
+                                                <i class="bx bx-camera me-1"></i>Mulai Scan
+                                            </button>
+                                            <button type="button" class="btn btn-success" id="saveEnrollmentButton" hidden disabled>
+                                                <i class="bx bx-save me-1"></i>Simpan Wajah
                                             </button>
                                             <button type="button" class="btn btn-outline-secondary" id="closeEnrollmentButton" data-bs-dismiss="modal">
                                                 Tutup
@@ -1571,6 +1614,7 @@
         const retryScanDelayMs = 1100;
         const successScanDelayMs = 3600;
         const locationCheckUrl = <?php echo json_encode(route('school-kiosk.check-location'), 15, 512) ?>;
+        const verifyFaceMatchUrl = <?php echo json_encode(route('school-kiosk.verify-face-match'), 15, 512) ?>;
         const autoSubmitUrl = <?php echo json_encode(route('school-kiosk.auto-submit'), 15, 512) ?>;
         const enrollFaceUrl = <?php echo json_encode(route('school-kiosk.enroll-face'), 15, 512) ?>;
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -1622,6 +1666,7 @@
         const faceEnrollmentModalEl = document.getElementById('faceEnrollmentModal');
         const faceEnrollmentModal = window.bootstrap ? new bootstrap.Modal(faceEnrollmentModalEl) : null;
         const startEnrollmentButton = document.getElementById('startEnrollmentButton');
+        const saveEnrollmentButton = document.getElementById('saveEnrollmentButton');
         const enrollmentVideo = document.getElementById('enrollmentVideo');
         const enrollmentPreview = document.getElementById('enrollmentPreview');
         const enrollmentCanvas = document.getElementById('enrollmentCanvas');
@@ -1629,6 +1674,7 @@
         const enrollmentGuideText = document.getElementById('enrollmentGuideText');
         const enrollmentStatusTitle = document.getElementById('enrollmentStatusTitle');
         const enrollmentStatusCopy = document.getElementById('enrollmentStatusCopy');
+        const enrollmentProgressItems = Array.from(document.querySelectorAll('#enrollmentProgress .enroll-progress-item'));
         const enrollmentQualityChip = document.getElementById('enrollmentQualityChip');
         const enrollmentQualityFill = document.getElementById('enrollmentQualityFill');
         const enrollmentQualityValue = document.getElementById('enrollmentQualityValue');
@@ -1661,6 +1707,8 @@
         let matchHudTimer = null;
         let browserFaceScanAvailable = false;
         let faceMustExitBeforeNextMatch = false;
+        let matchedTeacherCandidate = null;
+        let pendingEnrollmentResult = null;
         let attendanceActivities = Array.isArray(initialAttendanceActivities) ? initialAttendanceActivities.slice() : [];
 
         const stageOrder = [
@@ -1809,6 +1857,37 @@
             enrollmentBannerCopy.textContent = `Terdapat ${remaining} guru yang belum memiliki data wajah. Daftarkan wajah sekali saja, lalu guru bisa langsung presensi dari kiosk ini tanpa pindah halaman.`;
         }
 
+        function resetEnrollmentProgress() {
+            enrollmentProgressItems.forEach((item) => item.classList.remove('is-active', 'is-done'));
+        }
+
+        function updateEnrollmentProgress(step, state) {
+            const item = enrollmentProgressItems.find((entry) => entry.dataset.step === step);
+            if (!item) {
+                return;
+            }
+
+            item.classList.remove('is-active', 'is-done');
+            if (state === 'active') {
+                item.classList.add('is-active');
+            } else if (state === 'done') {
+                item.classList.add('is-done');
+            }
+        }
+
+        function resetEnrollmentCaptureState() {
+            pendingEnrollmentResult = null;
+            enrollmentPreview.src = '';
+            enrollmentPreview.classList.remove('show');
+            resetEnrollmentProgress();
+
+            if (saveEnrollmentButton) {
+                saveEnrollmentButton.hidden = true;
+                saveEnrollmentButton.disabled = true;
+                saveEnrollmentButton.innerHTML = '<i class="bx bx-save me-1"></i>Simpan Wajah';
+            }
+        }
+
         function setTeacherState(teacher) {
             if (!teacher) {
                 teacherStateChip.className = 'teacher-state-chip';
@@ -1834,6 +1913,7 @@
             const teacherId = Number(enrollmentTeacherSelect.value || 0);
             selectedEnrollmentTeacherId = teacherId || null;
             selectedEnrollmentTeacher = teachers.find((teacher) => teacher.id === teacherId) || null;
+            resetEnrollmentCaptureState();
             setTeacherState(selectedEnrollmentTeacher);
             updateEnrollmentActionState();
         }
@@ -1844,6 +1924,16 @@
             }
 
             startEnrollmentButton.disabled = enrollmentBusy || !selectedEnrollmentTeacher;
+            if (!enrollmentBusy) {
+                startEnrollmentButton.innerHTML = pendingEnrollmentResult
+                    ? '<i class="bx bx-refresh me-1"></i>Scan Ulang'
+                    : '<i class="bx bx-camera me-1"></i>Mulai Scan';
+            }
+
+            if (saveEnrollmentButton) {
+                saveEnrollmentButton.hidden = !pendingEnrollmentResult;
+                saveEnrollmentButton.disabled = enrollmentBusy || !selectedEnrollmentTeacher || !pendingEnrollmentResult;
+            }
         }
 
         function filterEnrollmentTeachers() {
@@ -2114,6 +2204,39 @@
             error.payload = payload || {};
 
             return error;
+        }
+
+        async function requestKioskFaceMatchVerification(descriptor) {
+            const response = await fetch(verifyFaceMatchUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    face_descriptor: descriptor,
+                }),
+            });
+
+            let payload = null;
+            try {
+                payload = await response.json();
+            } catch (error) {
+                payload = null;
+            }
+
+            if (!response.ok || !payload?.face_verified) {
+                return {
+                    face_verified: false,
+                    message: payload?.message || 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.',
+                    notes: payload?.notes || 'face_similarity_below_threshold',
+                    similarity: payload?.similarity ?? null,
+                };
+            }
+
+            return payload;
         }
 
         function scheduleNextScan(delay = initialScanDelayMs) {
@@ -2463,6 +2586,7 @@
             }
 
             const startedFromOval = options.startedFromOval === true;
+            matchedTeacherCandidate = null;
             scanInProgress = true;
             if (!startedFromOval) {
                 hideMatchHud();
@@ -2501,6 +2625,43 @@
                         if (payload?.message) {
                             setCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
                         }
+                    },
+                    onChallengeState: function (step, state) {
+                        const progressMap = {
+                            align: [18, 'Menstabilkan posisi wajah'],
+                            blink: [44, 'Membaca kedipan'],
+                            challenge: [72, 'Menjalankan challenge wajah'],
+                            done: [92, 'Menyelesaikan verifikasi wajah'],
+                        };
+
+                        const current = progressMap[step];
+                        if (!current) {
+                            return;
+                        }
+
+                        if (state === 'active') {
+                            updateMatchHud(current[0], current[1], 'info');
+                        } else if (state === 'done') {
+                            updateMatchHud(Math.min(current[0] + 10, 96), current[1], 'success');
+                        }
+                    },
+                    onFaceMatchCheck: async function (descriptor) {
+                        setStageState('verifying_identity', 'active', 'Memeriksa kecocokan awal wajah dengan data guru terdaftar.');
+                        setPrimaryNotice('Memeriksa kecocokan wajah', 'Sistem memastikan wajah cocok dengan data guru sebelum challenge scan wajah dilanjutkan.');
+                        setScanBadge('Cocokkan awal', 'info');
+                        updateMatchHud(28, 'Memeriksa wajah awal', 'info');
+
+                        const verification = await requestKioskFaceMatchVerification(descriptor);
+                        if (verification?.face_verified) {
+                            matchedTeacherCandidate = verification.teacher || null;
+                            const teacherName = matchedTeacherCandidate?.name || 'guru terdaftar';
+                            setStageState('verifying_identity', 'active', `Wajah awal cocok sebagai ${teacherName}. Lanjut ke challenge scan.`);
+                            setPrimaryNotice('Wajah cocok', `${teacherName} terdeteksi. Sistem melanjutkan challenge liveness seperti pada presensi mobile.`);
+                            setScanBadge('Wajah cocok', 'success');
+                            updateMatchHud(38, `Cocok: ${teacherName}`, 'success');
+                        }
+
+                        return verification;
                     },
                 };
 
@@ -2581,8 +2742,8 @@
             enrollmentCameraReady = true;
             enrollmentStatusTitle.textContent = 'Kamera siap';
             enrollmentStatusCopy.textContent = selectedEnrollmentTeacher
-                ? `Kamera aktif. Klik scan untuk menyimpan wajah ${selectedEnrollmentTeacher.name}.`
-                : 'Kamera aktif. Pilih guru lalu klik scan dan simpan.';
+                ? `Kamera aktif. Mulai scan wajah ${selectedEnrollmentTeacher.name}, lalu simpan hasilnya.`
+                : 'Kamera aktif. Pilih guru lalu mulai scan wajah.';
             enrollmentGuideText.textContent = 'Posisikan satu wajah tepat di dalam oval.';
             setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Wajah akan dinilai dari ketajaman dan kestabilannya sebelum disimpan.');
         }
@@ -2601,13 +2762,14 @@
 
             enrollmentBusy = true;
             updateEnrollmentActionState();
-            startEnrollmentButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Memproses...';
-            enrollmentPreview.classList.remove('show');
+            startEnrollmentButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Memindai...';
+            resetEnrollmentCaptureState();
             enrollmentPlaceholder.style.display = 'none';
             enrollmentStatusTitle.textContent = 'Memulai scan';
             enrollmentStatusCopy.textContent = 'Sistem sedang menyiapkan pengambilan wajah.';
             enrollmentGuideText.textContent = 'Memulai scan wajah.';
             setEnrollmentQualityState(8, 'idle', 'Menyiapkan', 'Sistem mulai membaca kualitas wajah dari kamera.');
+            resetEnrollmentProgress();
 
             try {
                 await startEnrollmentCameraPreview();
@@ -2623,6 +2785,9 @@
                     ? await faceRecognition.performEnrollmentScan(enrollmentVideo, {
                         onInstruction: function (message) {
                             enrollmentGuideText.textContent = message;
+                        },
+                        onChallengeState: function (step, state) {
+                            updateEnrollmentProgress(step, state);
                         },
                         onStatus: function (message) {
                             enrollmentStatusCopy.textContent = message;
@@ -2668,6 +2833,8 @@
                     })
                     : await (async function () {
                         await wait(420);
+                        updateEnrollmentProgress('align', 'done');
+                        updateEnrollmentProgress('steady', 'active');
 
                         const burst = await faceRecognition.captureBurstFrames(enrollmentVideo, {
                             count: 6,
@@ -2692,6 +2859,9 @@
                             throw new Error('Frame registrasi belum berhasil diambil. Ulangi proses registrasi.');
                         }
 
+                        updateEnrollmentProgress('steady', 'done');
+                        updateEnrollmentProgress('done', 'done');
+
                         return {
                             captured_image: burst.best_frame,
                             selfie_frames: burst.frames,
@@ -2706,11 +2876,40 @@
                 faceRecognition.stopCamera(enrollmentVideo);
                 stopLivePreview('enrollment');
                 enrollmentCameraReady = false;
-                enrollmentStatusTitle.textContent = 'Menyimpan data wajah';
-                enrollmentStatusCopy.textContent = 'Frame terbaik berhasil diambil. Sistem sedang menyimpan data wajah guru.';
-                enrollmentGuideText.textContent = 'Menyimpan data wajah ke server.';
-                setEnrollmentQualityState(100, 'success', 'Berhasil diambil', 'Gambar wajah sudah jelas. Sistem sedang menyimpan hasil registrasi ke database.');
+                pendingEnrollmentResult = enrollmentResult;
+                enrollmentStatusTitle.textContent = 'Hasil scan siap';
+                enrollmentStatusCopy.textContent = 'Wajah berhasil diambil. Periksa hasilnya lalu simpan data wajah guru.';
+                enrollmentGuideText.textContent = 'Hasil scan siap disimpan.';
+                setEnrollmentQualityState(100, 'success', 'Siap simpan', 'Gambar wajah sudah jelas. Lanjutkan dengan menyimpan data wajah seperti pada face enrollment mobile.');
+            } catch (error) {
+                faceRecognition.stopCamera(enrollmentVideo);
+                stopLivePreview('enrollment');
+                enrollmentCameraReady = false;
+                enrollmentPlaceholder.style.display = 'flex';
+                enrollmentStatusTitle.textContent = 'Registrasi gagal';
+                enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah belum berhasil. Ulangi proses dan pastikan wajah berada di dalam oval.';
+                enrollmentGuideText.textContent = 'Registrasi gagal. Ulangi proses scan wajah.';
+                setEnrollmentQualityState(26, 'warning', 'Belum jelas', 'Gambar belum memenuhi syarat atau belum stabil. Ulangi registrasi sampai indikator menunjukkan wajah siap disimpan.');
+            } finally {
+                enrollmentBusy = false;
+                updateEnrollmentActionState();
+            }
+        }
 
+        async function submitEnrollmentResult() {
+            if (enrollmentBusy || !selectedEnrollmentTeacher || !pendingEnrollmentResult) {
+                return;
+            }
+
+            enrollmentBusy = true;
+            updateEnrollmentActionState();
+            saveEnrollmentButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...';
+            enrollmentStatusTitle.textContent = 'Menyimpan data wajah';
+            enrollmentStatusCopy.textContent = 'Frame terbaik berhasil diambil. Sistem sedang menyimpan data wajah guru.';
+            enrollmentGuideText.textContent = 'Menyimpan data wajah ke server.';
+            setEnrollmentQualityState(100, 'success', 'Berhasil diambil', 'Gambar wajah sudah jelas. Sistem sedang menyimpan hasil registrasi ke database.');
+
+            try {
                 const response = await fetch(enrollFaceUrl, {
                     method: 'POST',
                     headers: {
@@ -2721,11 +2920,11 @@
                     },
                     body: JSON.stringify({
                         teacher_id: selectedEnrollmentTeacher.id,
-                        selfie_data: enrollmentResult.captured_image,
-                        selfie_frames: enrollmentResult.selfie_frames || [],
-                        face_descriptor: enrollmentResult.face_descriptor,
-                        liveness_score: enrollmentResult.liveness_score,
-                        liveness_challenges: enrollmentResult.liveness_challenges,
+                        selfie_data: pendingEnrollmentResult.captured_image,
+                        selfie_frames: pendingEnrollmentResult.selfie_frames || [],
+                        face_descriptor: pendingEnrollmentResult.face_descriptor,
+                        liveness_score: pendingEnrollmentResult.liveness_score,
+                        liveness_challenges: pendingEnrollmentResult.liveness_challenges,
                         device_info: navigator.userAgent || '',
                     }),
                 });
@@ -2752,6 +2951,7 @@
                 selectedEnrollmentTeacher.face_registered_at = updated?.face_registered_at || new Date().toISOString();
                 setTeacherState(selectedEnrollmentTeacher);
                 updateEnrollmentBanner();
+                pendingEnrollmentResult = null;
 
                 enrollmentStatusTitle.textContent = 'Registrasi berhasil';
                 enrollmentStatusCopy.textContent = payload.message || 'Data wajah berhasil disimpan. Kiosk akan kembali ke mode presensi otomatis.';
@@ -2764,18 +2964,13 @@
                     }
                 }, 1200);
             } catch (error) {
-                faceRecognition.stopCamera(enrollmentVideo);
-                stopLivePreview('enrollment');
-                enrollmentCameraReady = false;
-                enrollmentPlaceholder.style.display = 'flex';
                 enrollmentStatusTitle.textContent = 'Registrasi gagal';
-                enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah belum berhasil. Ulangi proses dan pastikan wajah berada di dalam oval.';
-                enrollmentGuideText.textContent = 'Registrasi gagal. Ulangi proses scan wajah.';
-                setEnrollmentQualityState(26, 'warning', 'Belum jelas', 'Gambar belum memenuhi syarat atau belum stabil. Ulangi registrasi sampai indikator menunjukkan wajah siap disimpan.');
+                enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah gagal disimpan.';
+                enrollmentGuideText.textContent = 'Penyimpanan gagal. Periksa hasil scan lalu coba simpan kembali.';
+                setEnrollmentQualityState(100, 'warning', 'Siap simpan', 'Hasil scan masih tersedia. Anda bisa mencoba menyimpan kembali tanpa scan ulang.');
             } finally {
                 enrollmentBusy = false;
                 updateEnrollmentActionState();
-                startEnrollmentButton.innerHTML = '<i class="bx bx-camera me-1"></i>Scan dan Simpan';
             }
         }
 
@@ -2783,12 +2978,12 @@
             clearScanTimer();
             stopCurrentCamera();
             cameraMode = 'enrollment';
-            enrollmentPreview.classList.remove('show');
+            resetEnrollmentCaptureState();
             enrollmentPlaceholder.style.display = 'flex';
             enrollmentStatusTitle.textContent = 'Status Registrasi';
             enrollmentStatusCopy.textContent = 'Modal registrasi dibuka. Kamera akan disiapkan otomatis.';
             enrollmentGuideText.textContent = 'Menyiapkan kamera registrasi.';
-            setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Sistem akan menilai apakah wajah sudah cukup jelas sebelum otomatis disimpan.');
+            setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Sistem akan menilai apakah wajah sudah cukup jelas sebelum wajah disimpan.');
 
             const firstVisible = Array.from(enrollmentTeacherSelect.options).find((option) => !option.hidden);
             if (firstVisible) {
@@ -2824,7 +3019,7 @@
             faceRecognition.stopCamera(enrollmentVideo);
             stopLivePreview('enrollment');
             enrollmentCameraReady = false;
-            enrollmentPreview.classList.remove('show');
+            resetEnrollmentCaptureState();
             enrollmentPlaceholder.style.display = 'flex';
             document.querySelectorAll('.face-modal-backdrop').forEach(function (backdrop) {
                 backdrop.classList.remove('face-modal-backdrop');
@@ -2848,6 +3043,7 @@
         enrollmentTeacherSearchInput?.addEventListener('input', filterEnrollmentTeachers);
         enrollmentTeacherSelect?.addEventListener('change', updateEnrollmentTeacherSelection);
         startEnrollmentButton?.addEventListener('click', startEnrollmentFlow);
+        saveEnrollmentButton?.addEventListener('click', submitEnrollmentResult);
 
         retryLocationButton?.addEventListener('click', function () {
             bootstrapAutomation();
