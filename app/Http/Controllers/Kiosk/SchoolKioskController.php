@@ -197,6 +197,25 @@ class SchoolKioskController extends Controller
             $teacher = $this->resolveTeacher($device, (int) $validated['teacher_id']);
             $faceDescriptor = $this->normalizeDescriptor($validated['face_descriptor'] ?? null);
 
+            if ($faceDescriptor !== []) {
+                $duplicateFaceMatch = $this->faceVerificationService->identifyByDescriptorOnly(
+                    User::query()
+                        ->whereNotNull('face_registered_at')
+                        ->whereKeyNot($teacher->id)
+                        ->get(),
+                    $faceDescriptor
+                );
+
+                if (($duplicateFaceMatch['success'] ?? false) && ($duplicateFaceMatch['user'] ?? null) instanceof User) {
+                    /** @var User $duplicateTeacher */
+                    $duplicateTeacher = $duplicateFaceMatch['user'];
+
+                    throw ValidationException::withMessages([
+                        'face_descriptor' => "Registrasi ditolak karena wajah ini terdeteksi sudah terdaftar atas nama {$duplicateTeacher->name}. Hapus atau perbarui data wajah pada akun tersebut terlebih dahulu.",
+                    ]);
+                }
+            }
+
             if ($this->kioskFaceEngineService->usesPython()) {
                 $engineResult = $this->kioskFaceEngineService->enroll($teacher, $validated, [
                     'device_id' => $device->id,
