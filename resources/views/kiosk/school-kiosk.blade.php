@@ -257,6 +257,12 @@
         align-items: flex-start;
         gap: 10px;
         width: 100%;
+        padding: 14px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(15, 23, 42, 0.42);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 18px 38px rgba(2, 6, 23, 0.18);
         pointer-events: auto;
     }
 
@@ -1389,6 +1395,11 @@
         .camera-summary-card {
             padding: 10px 12px;
             border-radius: 16px;
+        }
+
+        .camera-panel-copy-wrap {
+            padding: 12px;
+            border-radius: 18px;
         }
 
         .camera-summary-value {
