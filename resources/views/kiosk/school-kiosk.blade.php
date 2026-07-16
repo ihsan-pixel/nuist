@@ -251,6 +251,14 @@
         pointer-events: none;
     }
 
+    .camera-panel-copy-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        pointer-events: auto;
+    }
+
     .camera-panel-actions {
         display: flex;
         align-items: center;
@@ -258,6 +266,35 @@
         gap: 10px;
         flex-wrap: wrap;
         pointer-events: auto;
+    }
+
+    .camera-panel-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(250, 204, 21, 0.34);
+        background: rgba(15, 23, 42, 0.62);
+        color: #fde68a;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 14px 28px rgba(2, 6, 23, 0.2);
+        transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
+    }
+
+    .camera-panel-button:hover,
+    .camera-panel-button:focus {
+        background: rgba(30, 41, 59, 0.84);
+        border-color: rgba(250, 204, 21, 0.5);
+        color: #fef3c7;
+        transform: translateY(-1px);
+    }
+
+    .camera-panel-button i {
+        font-size: 15px;
     }
 
     .camera-panel-title {
@@ -1249,6 +1286,10 @@
             justify-content: space-between;
         }
 
+        .camera-panel-copy-wrap {
+            width: 100%;
+        }
+
         .camera-panel-title {
             font-size: 17px;
         }
@@ -1326,14 +1367,16 @@
                                 <div class="camera-panel-header">
                                     <div>
                                         <div class="camera-panel-title">Kiosk Kamera Presensi Kehadiran</div>
-                                        <p class="camera-panel-copy" id="cameraPanelCopy">
-                                            Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
-                                        </p>
+                                        <div class="camera-panel-copy-wrap">
+                                            <p class="camera-panel-copy" id="cameraPanelCopy">
+                                                Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
+                                            </p>
+                                            <button type="button" class="camera-panel-button" id="openEnrollmentRefreshButton">
+                                                <i class="bx bx-refresh"></i>Registrasi Ulang
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="camera-panel-actions">
-                                        <button type="button" class="btn btn-outline-warning btn-sm" id="openEnrollmentRefreshButton">
-                                            <i class="bx bx-refresh me-1"></i>Registrasi Ulang
-                                        </button>
                                         <div class="scan-badge" id="scanBadge">
                                             <i class="bx bx-loader-circle"></i>
                                             <span>Menyiapkan</span>
