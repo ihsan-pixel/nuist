@@ -268,6 +268,19 @@
                         <i class="bx bx-info-circle me-2"></i>
                         Validasi perangkat gagal. Selesaikan registrasi komputer sekolah lebih dulu dari menu admin.
                     </div>
+
+                    @if($device && str_contains($accessMessage, 'Fingerprint browser'))
+                        <form method="POST" action="{{ route('presensi_admin.kiosk_devices.sync_fingerprint', $device) }}" class="mt-3">
+                            @csrf
+                            <input type="hidden" name="browser_fingerprint" id="kioskFingerprintSyncInput">
+                            <button type="submit" class="btn btn-primary" id="kioskFingerprintSyncButton" disabled>
+                                Sinkronkan fingerprint browser ini
+                            </button>
+                            <div class="form-text mt-2">
+                                Gunakan tombol ini dari komputer kiosk yang benar jika browser atau cookie sebelumnya berubah.
+                            </div>
+                        </form>
+                    @endif
                 @endif
             </div>
         </div>
@@ -276,6 +289,37 @@
 @endsection
 
 @section('script')
+<script>
+    (function () {
+        const buildFingerprint = () => {
+            const parts = [
+                navigator.userAgent || '',
+                navigator.language || '',
+                window.screen?.width || '',
+                window.screen?.height || '',
+                window.screen?.colorDepth || '',
+                Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+                navigator.platform || '',
+            ];
+
+            return btoa(unescape(encodeURIComponent(parts.join('|')))).slice(0, 500);
+        };
+
+        const fingerprint = buildFingerprint();
+        const syncInput = document.getElementById('kioskFingerprintSyncInput');
+        const syncButton = document.getElementById('kioskFingerprintSyncButton');
+
+        document.cookie = `nuist_kiosk_fingerprint=${encodeURIComponent(fingerprint)}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+
+        if (syncInput) {
+            syncInput.value = fingerprint;
+        }
+
+        if (syncButton) {
+            syncButton.disabled = false;
+        }
+    })();
+</script>
 @if($accessGranted)
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="{{ asset('js/face-recognition.js') }}"></script>

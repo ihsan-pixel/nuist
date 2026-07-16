@@ -65,6 +65,14 @@ class AttendanceDeviceRegistryService
         return $device;
     }
 
+    public function updateFingerprint(RegisteredAttendanceDevice $device, ?string $fingerprint): RegisteredAttendanceDevice
+    {
+        $device->browser_fingerprint_hash = $this->hashFingerprint($fingerprint);
+        $device->save();
+
+        return $device;
+    }
+
     public function touchSeen(RegisteredAttendanceDevice $device, ?string $ipAddress, ?string $userAgent): void
     {
         $device->forceFill([

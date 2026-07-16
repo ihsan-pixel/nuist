@@ -315,6 +315,13 @@
                                                                     Sinkronkan IP
                                                                 </button>
                                                             </form>
+                                                            <form method="POST" action="{{ route('presensi_admin.kiosk_devices.sync_fingerprint', $device) }}">
+                                                                @csrf
+                                                                <input type="hidden" name="browser_fingerprint" class="browser-fingerprint-input">
+                                                                <button type="submit" class="btn btn-sm btn-light">
+                                                                    Sinkronkan Fingerprint
+                                                                </button>
+                                                            </form>
                                                             <form method="POST" action="{{ route('presensi_admin.kiosk_devices.toggle', $device) }}">
                                                                 @csrf
                                                                 @method('PATCH')
@@ -399,6 +406,7 @@
 <script>
     (function () {
         const fingerprintInput = document.getElementById('browserFingerprintInput');
+        const fingerprintSyncInputs = document.querySelectorAll('.browser-fingerprint-input');
 
         const buildFingerprint = () => {
             const parts = [
@@ -419,6 +427,10 @@
         if (fingerprintInput) {
             fingerprintInput.value = fingerprint;
         }
+
+        fingerprintSyncInputs.forEach((input) => {
+            input.value = fingerprint;
+        });
 
         document.cookie = `nuist_kiosk_fingerprint=${encodeURIComponent(fingerprint)}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
     })();

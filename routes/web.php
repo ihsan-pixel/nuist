@@ -93,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/presensi-admin/kiosk-devices', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'store'])->name('presensi_admin.kiosk_devices.store');
     Route::patch('/presensi-admin/kiosk-devices/{device}/toggle', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'toggle'])->name('presensi_admin.kiosk_devices.toggle');
     Route::post('/presensi-admin/kiosk-devices/{device}/sync-ip', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'syncCurrentIp'])->name('presensi_admin.kiosk_devices.sync_ip');
+    Route::post('/presensi-admin/kiosk-devices/{device}/sync-fingerprint', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'syncCurrentFingerprint'])->name('presensi_admin.kiosk_devices.sync_fingerprint');
     Route::get('/presensi-admin', [PresensiAdminController::class, 'index'])->name('presensi_admin.index');
     Route::get('/presensi-admin/data', [PresensiAdminController::class, 'getData'])->name('presensi_admin.data');
     Route::get('/presensi-admin/summary', [PresensiAdminController::class, 'getSummary'])->name('presensi_admin.summary');

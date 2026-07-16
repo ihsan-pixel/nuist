@@ -192,6 +192,37 @@ class AttendanceKioskDeviceController extends Controller
             ->with('success', "IP aktif untuk \"{$device->name}\" berhasil disinkronkan ke {$request->ip()}.");
     }
 
+    public function syncCurrentFingerprint(Request $request, RegisteredAttendanceDevice $device): RedirectResponse
+    {
+        $this->authorizeDeviceSchool(Auth::user(), $device);
+
+        $validated = $request->validate([
+            'browser_fingerprint' => ['required', 'string', 'max:500'],
+        ]);
+
+        $device = $this->attendanceDeviceRegistryService->updateFingerprint($device, $validated['browser_fingerprint']);
+        $this->attendanceDeviceRegistryService->touchSeen($device, $request->ip(), $request->userAgent());
+
+        $redirect = redirect()->back()->with(
+            'success',
+            "Fingerprint browser untuk \"{$device->name}\" berhasil disinkronkan."
+        );
+
+        $redirect->withCookie(cookie(
+            'nuist_kiosk_fingerprint',
+            $validated['browser_fingerprint'],
+            60 * 24 * 365,
+            '/',
+            null,
+            false,
+            false,
+            false,
+            'Lax'
+        ));
+
+        return $redirect;
+    }
+
     private function accessibleSchoolsQuery(User $user): Builder
     {
         $query = Madrasah::query()->orderBy('kabupaten')->orderBy('name');
