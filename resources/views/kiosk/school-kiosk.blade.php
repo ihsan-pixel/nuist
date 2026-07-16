@@ -1,9 +1,27 @@
-@extends('layouts.master')
+@extends('layouts.master-without-nav')
 
 @section('title', 'Mode Kiosk Presensi')
 
+@section('body')
+<body class="kiosk-fullscreen-page">
+@endsection
+
 @section('css')
 <style>
+    body.kiosk-fullscreen-page {
+        margin: 0;
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 28%),
+            radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 22%),
+            linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+    }
+
+    .kiosk-page {
+        min-height: 100vh;
+        padding: 24px;
+    }
+
     .kiosk-status-card {
         border: 0;
         border-radius: 22px;
@@ -101,17 +119,19 @@
         font-size: 11px;
         margin-top: 6px;
     }
+
+    @media (max-width: 768px) {
+        .kiosk-page {
+            padding: 12px;
+        }
+    }
 </style>
 @endsection
 
 @section('content')
-@component('components.breadcrumb')
-    @slot('li_1') Presensi Admin @endslot
-    @slot('title') Mode Kiosk Presensi @endslot
-@endcomponent
-
-<div class="row">
-    <div class="col-12">
+<div class="kiosk-page">
+    <div class="row g-0">
+        <div class="col-12">
         <div class="card kiosk-status-card">
             <div class="card-body p-4 p-lg-5">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
