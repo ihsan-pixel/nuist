@@ -57,6 +57,7 @@ class SchoolKioskController extends Controller
         $accessMessage = 'Komputer presensi belum tervalidasi.';
         $teachers = collect();
         $attendanceActivities = [];
+        $attendanceSummary = [];
 
         try {
             $device = $this->resolveAuthorizedDevice($request, $operator);
@@ -66,6 +67,7 @@ class SchoolKioskController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name', 'nip', 'nuptk', 'ketugasan', 'face_registered_at']);
             $attendanceActivities = $this->recentAttendanceActivities($device);
+            $attendanceSummary = $this->attendanceSummary($device, $teachers);
 
             $this->attendanceKioskAccessService->logAccess(
                 action: 'kiosk_access',
@@ -111,6 +113,7 @@ class SchoolKioskController extends Controller
             'verificationLabel' => $this->mobileAttendanceSettingsService->modeLabel(),
             'teachersWithoutFaceCount' => $teachers->whereNull('face_registered_at')->count(),
             'attendanceActivities' => $attendanceActivities,
+            'attendanceSummary' => $attendanceSummary,
             'faceEngineDriver' => $this->kioskFaceEngineService->driver(),
             'faceEngineLabel' => $this->kioskFaceEngineService->displayLabel(),
             'faceEngineUsesPython' => $this->kioskFaceEngineService->usesPython(),
@@ -732,6 +735,57 @@ class SchoolKioskController extends Controller
             'ketugasan' => $teacher->ketugasan,
             'face_registered_at' => optional($teacher->face_registered_at)?->toIso8601String(),
             'has_face_enrollment' => $teacher->hasFaceEnrollment(),
+        ];
+    }
+
+    private function attendanceSummary(RegisteredAttendanceDevice $device, $teachers): array
+    {
+        $teacherIds = $teachers->pluck('id')->filter()->values();
+        $totalPeople = $teacherIds->count();
+
+        if ($totalPeople === 0) {
+            return [
+                'school_name' => $device->madrasah?->name ?? '-',
+                'total_people' => 0,
+                'present_count' => 0,
+                'not_present_count' => 0,
+                'izin_count' => 0,
+                'attendance_percentage' => 0,
+            ];
+        }
+
+        $today = Carbon::today('Asia/Jakarta')->toDateString();
+
+        $presensiToday = Presensi::query()
+            ->where('madrasah_id', $device->madrasah_id)
+            ->whereDate('tanggal', $today)
+            ->whereIn('user_id', $teacherIds)
+            ->get(['user_id', 'status', 'waktu_masuk', 'waktu_keluar']);
+
+        $presentCount = $presensiToday
+            ->filter(fn (Presensi $presensi) => $presensi->waktu_masuk || $presensi->waktu_keluar)
+            ->pluck('user_id')
+            ->unique()
+            ->count();
+
+        $izinCount = $presensiToday
+            ->filter(fn (Presensi $presensi) => $presensi->status === 'izin')
+            ->pluck('user_id')
+            ->unique()
+            ->count();
+
+        $notPresentCount = max($totalPeople - $presentCount - $izinCount, 0);
+        $attendancePercentage = $totalPeople > 0
+            ? round(($presentCount / $totalPeople) * 100, 1)
+            : 0;
+
+        return [
+            'school_name' => $device->madrasah?->name ?? '-',
+            'total_people' => $totalPeople,
+            'present_count' => $presentCount,
+            'not_present_count' => $notPresentCount,
+            'izin_count' => $izinCount,
+            'attendance_percentage' => $attendancePercentage,
         ];
     }
 

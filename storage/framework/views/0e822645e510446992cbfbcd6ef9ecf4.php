@@ -240,12 +240,12 @@
         position: absolute;
         top: 18px;
         left: 18px;
-        right: 18px;
         z-index: 6;
         display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        width: var(--camera-side-panel-width);
         pointer-events: none;
     }
 
@@ -254,15 +254,32 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+        width: 100%;
         pointer-events: auto;
     }
 
     .camera-panel-actions {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: flex-start;
         gap: 10px;
         flex-wrap: wrap;
+        pointer-events: auto;
+    }
+
+    .camera-panel-footer {
+        position: absolute;
+        left: 18px;
+        bottom: 18px;
+        z-index: 6;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        pointer-events: none;
+    }
+
+    .camera-panel-footer > * {
         pointer-events: auto;
     }
 
@@ -307,9 +324,52 @@
         color: rgba(226, 232, 240, 0.92);
         font-size: 13px;
         margin-bottom: 0;
-        max-width: min(640px, 70vw);
+        max-width: 100%;
         line-height: 1.5;
         text-shadow: 0 1px 12px rgba(2, 6, 23, 0.32);
+    }
+
+    .camera-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        width: 100%;
+        pointer-events: auto;
+    }
+
+    .camera-summary-card {
+        min-width: 0;
+        padding: 12px 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(15, 23, 42, 0.42);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 14px 30px rgba(2, 6, 23, 0.18);
+    }
+
+    .camera-summary-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(186, 230, 253, 0.8);
+        margin-bottom: 6px;
+    }
+
+    .camera-summary-value {
+        display: block;
+        font-size: 16px;
+        font-weight: 800;
+        color: #f8fafc;
+        line-height: 1.25;
+        word-break: break-word;
+    }
+
+    .camera-summary-card.is-text .camera-summary-value {
+        font-size: 13px;
+        font-weight: 700;
+        color: rgba(248, 250, 252, 0.96);
     }
 
     .scan-badge {
@@ -327,6 +387,7 @@
     }
 
     .camera-shell {
+        --camera-side-panel-width: min(320px, 28%);
         position: relative;
         border-radius: 22px;
         overflow: hidden;
@@ -556,7 +617,7 @@
         top: 20px;
         right: 20px;
         bottom: 20px;
-        width: min(320px, 28%);
+        width: var(--camera-side-panel-width);
         display: flex;
         flex-direction: column;
         border-radius: 22px;
@@ -1254,11 +1315,8 @@
         }
 
         .camera-shell {
+            --camera-side-panel-width: min(290px, 34%);
             min-height: 340px;
-        }
-
-        .camera-activity-panel {
-            width: min(290px, 34%);
         }
 
         .enroll-controls {
@@ -1274,17 +1332,19 @@
         .camera-panel-header {
             top: 12px;
             left: 12px;
-            right: 12px;
             gap: 10px;
-            flex-direction: column;
-            align-items: stretch;
+            width: calc(100% - 24px);
+            max-width: 320px;
+        }
+
+        .camera-panel-footer {
+            left: 12px;
+            right: 12px;
+            bottom: calc(38% + 22px);
+            gap: 8px;
         }
 
         .camera-panel-actions {
-            justify-content: space-between;
-        }
-
-        .camera-panel-copy-wrap {
             width: 100%;
         }
 
@@ -1314,6 +1374,25 @@
             bottom: 12px;
             width: auto;
             max-height: 38%;
+        }
+
+        .camera-summary-grid {
+            gap: 8px;
+        }
+
+        .camera-summary-card {
+            padding: 10px 12px;
+            border-radius: 16px;
+        }
+
+        .camera-summary-value {
+            font-size: 14px;
+        }
+
+        .scan-badge,
+        .camera-panel-button {
+            width: auto;
+            max-width: 100%;
         }
 
         .face-modal .modal-header,
@@ -1364,18 +1443,45 @@
                                 <canvas id="cameraCanvas"></canvas>
 
                                 <div class="camera-panel-header">
-                                    <div>
+                                    <div class="camera-panel-copy-wrap">
                                         <div class="camera-panel-title">Kiosk Kamera Presensi Kehadiran</div>
-                                        <div class="camera-panel-copy-wrap">
-                                            <p class="camera-panel-copy" id="cameraPanelCopy">
-                                                Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
-                                            </p>
-                                            <button type="button" class="camera-panel-button" id="openEnrollmentRefreshButton">
-                                                <i class="bx bx-refresh"></i>Registrasi Ulang
-                                            </button>
+                                        <p class="camera-panel-copy" id="cameraPanelCopy">
+                                            Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
+                                        </p>
+                                        <div class="camera-summary-grid">
+                                            <div class="camera-summary-card is-text">
+                                                <span class="camera-summary-label">Nama Sekolah</span>
+                                                <span class="camera-summary-value" id="summarySchoolName"><?php echo e($attendanceSummary['school_name'] ?? '-'); ?></span>
+                                            </div>
+                                            <div class="camera-summary-card">
+                                                <span class="camera-summary-label">Guru & Pegawai</span>
+                                                <span class="camera-summary-value" id="summaryTotalPeople"><?php echo e($attendanceSummary['total_people'] ?? 0); ?></span>
+                                            </div>
+                                            <div class="camera-summary-card">
+                                                <span class="camera-summary-label">Sudah Presensi</span>
+                                                <span class="camera-summary-value" id="summaryPresentCount"><?php echo e($attendanceSummary['present_count'] ?? 0); ?></span>
+                                            </div>
+                                            <div class="camera-summary-card">
+                                                <span class="camera-summary-label">Belum Presensi</span>
+                                                <span class="camera-summary-value" id="summaryNotPresentCount"><?php echo e($attendanceSummary['not_present_count'] ?? 0); ?></span>
+                                            </div>
+                                            <div class="camera-summary-card">
+                                                <span class="camera-summary-label">Izin</span>
+                                                <span class="camera-summary-value" id="summaryIzinCount"><?php echo e($attendanceSummary['izin_count'] ?? 0); ?></span>
+                                            </div>
+                                            <div class="camera-summary-card">
+                                                <span class="camera-summary-label">Persentase Kehadiran</span>
+                                                <span class="camera-summary-value" id="summaryAttendancePercentage"><?php echo e(number_format((float) ($attendanceSummary['attendance_percentage'] ?? 0), 1)); ?>%</span>
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div class="camera-panel-footer">
                                     <div class="camera-panel-actions">
+                                        <button type="button" class="camera-panel-button" id="openEnrollmentRefreshButton">
+                                            <i class="bx bx-refresh"></i>Registrasi Ulang
+                                        </button>
                                         <div class="scan-badge" id="scanBadge">
                                             <i class="bx bx-loader-circle"></i>
                                             <span>Menyiapkan</span>
@@ -1703,6 +1809,7 @@
     (function () {
         const teachers = <?php echo json_encode($teachersPayload, 15, 512) ?>;
         const initialAttendanceActivities = <?php echo json_encode($attendanceActivities, 15, 512) ?>;
+        const initialAttendanceSummary = <?php echo json_encode($attendanceSummary, 15, 512) ?>;
         const verificationMode = <?php echo json_encode($verificationMode, 15, 512) ?>;
         const faceEngineDriver = <?php echo json_encode($faceEngineDriver, 15, 512) ?>;
         const faceEngineLabel = <?php echo json_encode($faceEngineLabel, 15, 512) ?>;
@@ -1735,6 +1842,12 @@
         const attendanceResultCopy = document.getElementById('attendanceResultCopy');
         const cameraActivityList = document.getElementById('cameraActivityList');
         const cameraActivityCount = document.getElementById('cameraActivityCount');
+        const summarySchoolName = document.getElementById('summarySchoolName');
+        const summaryTotalPeople = document.getElementById('summaryTotalPeople');
+        const summaryPresentCount = document.getElementById('summaryPresentCount');
+        const summaryNotPresentCount = document.getElementById('summaryNotPresentCount');
+        const summaryIzinCount = document.getElementById('summaryIzinCount');
+        const summaryAttendancePercentage = document.getElementById('summaryAttendancePercentage');
         const retryLocationButton = document.getElementById('retryLocationButton');
         const restartScannerButton = document.getElementById('restartScannerButton');
         const enrollmentBanner = document.getElementById('enrollmentBanner');
@@ -1810,6 +1923,16 @@
         let matchedTeacherCandidate = null;
         let pendingEnrollmentResult = null;
         let attendanceActivities = Array.isArray(initialAttendanceActivities) ? initialAttendanceActivities.slice() : [];
+        let attendanceSummary = initialAttendanceSummary && typeof initialAttendanceSummary === 'object'
+            ? { ...initialAttendanceSummary }
+            : {
+                school_name: '-',
+                total_people: 0,
+                present_count: 0,
+                not_present_count: 0,
+                izin_count: 0,
+                attendance_percentage: 0,
+            };
 
         const stageOrder = [
             'camera_permission',
@@ -2254,6 +2377,46 @@
             cameraActivityCount.textContent = String(attendanceActivities.length);
         }
 
+        function renderAttendanceSummary() {
+            if (!summarySchoolName) {
+                return;
+            }
+
+            summarySchoolName.textContent = attendanceSummary.school_name || '-';
+            summaryTotalPeople.textContent = String(attendanceSummary.total_people || 0);
+            summaryPresentCount.textContent = String(attendanceSummary.present_count || 0);
+            summaryNotPresentCount.textContent = String(attendanceSummary.not_present_count || 0);
+            summaryIzinCount.textContent = String(attendanceSummary.izin_count || 0);
+
+            const percentage = Number(attendanceSummary.attendance_percentage || 0);
+            summaryAttendancePercentage.textContent = `${percentage.toFixed(1)}%`;
+        }
+
+        function recalculateAttendanceSummary() {
+            const totalPeople = Number(attendanceSummary.total_people || 0);
+            const izinCount = Number(attendanceSummary.izin_count || 0);
+            const presentCount = new Set(
+                attendanceActivities
+                    .map(function (item) {
+                        return item?.teacher_id || null;
+                    })
+                    .filter(Boolean)
+            ).size;
+            const notPresentCount = Math.max(totalPeople - presentCount - izinCount, 0);
+            const attendancePercentage = totalPeople > 0
+                ? Number(((presentCount / totalPeople) * 100).toFixed(1))
+                : 0;
+
+            attendanceSummary = {
+                ...attendanceSummary,
+                present_count: presentCount,
+                not_present_count: notPresentCount,
+                attendance_percentage: attendancePercentage,
+            };
+
+            renderAttendanceSummary();
+        }
+
         function renderAttendanceActivities() {
             if (!cameraActivityList) {
                 return;
@@ -2314,6 +2477,7 @@
             ].slice(0, 14);
 
             renderAttendanceActivities();
+            recalculateAttendanceSummary();
         }
 
         function buildAttendancePhotoMarkup(url, label) {
@@ -3183,6 +3347,7 @@
             }
         });
 
+        recalculateAttendanceSummary();
         renderAttendanceActivities();
         updateEnrollmentBanner();
         updateEnrollmentTeacherSelection();
