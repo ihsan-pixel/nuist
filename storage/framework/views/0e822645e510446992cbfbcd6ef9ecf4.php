@@ -353,8 +353,8 @@
     }
 
     .camera-summary-lottie {
-        width: 116px;
-        height: 116px;
+        width: 168px;
+        height: 168px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1462,8 +1462,8 @@
         }
 
         .camera-summary-lottie {
-            width: 96px;
-            height: 96px;
+            width: 132px;
+            height: 132px;
         }
 
         .camera-panel-copy-wrap {
@@ -1909,6 +1909,7 @@
         const teachers = <?php echo json_encode($teachersPayload, 15, 512) ?>;
         const initialAttendanceActivities = <?php echo json_encode($attendanceActivities, 15, 512) ?>;
         const initialAttendanceSummary = <?php echo json_encode($attendanceSummary, 15, 512) ?>;
+        const summaryLottieData = <?php echo json_encode(json_decode(file_get_contents(public_path('animations/school-kiosk-face-scan.json')), true), 512) ?>;
         const verificationMode = <?php echo json_encode($verificationMode, 15, 512) ?>;
         const faceEngineDriver = <?php echo json_encode($faceEngineDriver, 15, 512) ?>;
         const faceEngineLabel = <?php echo json_encode($faceEngineLabel, 15, 512) ?>;
@@ -2478,18 +2479,19 @@
         }
 
         function initSummaryLottie() {
-            if (!cameraSummaryLottie || typeof window.lottie === 'undefined') {
+            const lottiePlayer = window.lottie || window.bodymovin;
+            if (!cameraSummaryLottie || !lottiePlayer || !summaryLottieData) {
                 return;
             }
 
             cameraSummaryLottie.innerHTML = '';
 
-            window.lottie.loadAnimation({
+            lottiePlayer.loadAnimation({
                 container: cameraSummaryLottie,
                 renderer: 'svg',
                 loop: true,
                 autoplay: true,
-                path: <?php echo json_encode(asset('animations/school-kiosk-success-alert.json'), 15, 512) ?>,
+                animationData: summaryLottieData,
                 rendererSettings: {
                     preserveAspectRatio: 'xMidYMid meet',
                 },

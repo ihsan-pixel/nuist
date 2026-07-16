@@ -355,8 +355,8 @@
     }
 
     .camera-summary-lottie {
-        width: 116px;
-        height: 116px;
+        width: 168px;
+        height: 168px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1464,8 +1464,8 @@
         }
 
         .camera-summary-lottie {
-            width: 96px;
-            height: 96px;
+            width: 132px;
+            height: 132px;
         }
 
         .camera-panel-copy-wrap {
@@ -1909,6 +1909,7 @@
         const teachers = @json($teachersPayload);
         const initialAttendanceActivities = @json($attendanceActivities);
         const initialAttendanceSummary = @json($attendanceSummary);
+        const summaryLottieData = @json(json_decode(file_get_contents(public_path('animations/school-kiosk-face-scan.json')), true));
         const verificationMode = @json($verificationMode);
         const faceEngineDriver = @json($faceEngineDriver);
         const faceEngineLabel = @json($faceEngineLabel);
@@ -2478,18 +2479,19 @@
         }
 
         function initSummaryLottie() {
-            if (!cameraSummaryLottie || typeof window.lottie === 'undefined') {
+            const lottiePlayer = window.lottie || window.bodymovin;
+            if (!cameraSummaryLottie || !lottiePlayer || !summaryLottieData) {
                 return;
             }
 
             cameraSummaryLottie.innerHTML = '';
 
-            window.lottie.loadAnimation({
+            lottiePlayer.loadAnimation({
                 container: cameraSummaryLottie,
                 renderer: 'svg',
                 loop: true,
                 autoplay: true,
-                path: @json(asset('animations/school-kiosk-success-alert.json')),
+                animationData: summaryLottieData,
                 rendererSettings: {
                     preserveAspectRatio: 'xMidYMid meet',
                 },
