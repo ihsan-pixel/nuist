@@ -1058,6 +1058,87 @@
         line-height: 1.6;
     }
 
+    .enroll-quality-box {
+        margin-top: 10px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        padding: 12px 14px;
+    }
+
+    .enroll-quality-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .enroll-quality-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .enroll-quality-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 88px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        color: #475569;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .enroll-quality-chip[data-tone="warning"] {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .enroll-quality-chip[data-tone="success"] {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .enroll-quality-bar {
+        height: 10px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e2e8f0;
+        margin-bottom: 8px;
+    }
+
+    .enroll-quality-fill {
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #f97316 0%, #facc15 52%, #22c55e 100%);
+        transition: width 0.18s ease;
+    }
+
+    .enroll-quality-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .enroll-quality-value {
+        font-size: 12px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .enroll-quality-copy {
+        font-size: 12px;
+        color: #64748b;
+        line-height: 1.5;
+    }
+
     .enroll-actions {
         margin-top: 10px;
         display: flex;
@@ -1437,6 +1518,20 @@
                                             </div>
                                         </div>
 
+                                        <div class="enroll-quality-box">
+                                            <div class="enroll-quality-head">
+                                                <div class="enroll-quality-title">Level Kejelasan Wajah</div>
+                                                <div class="enroll-quality-chip" id="enrollmentQualityChip" data-tone="idle">Belum jelas</div>
+                                            </div>
+                                            <div class="enroll-quality-bar" aria-hidden="true">
+                                                <div class="enroll-quality-fill" id="enrollmentQualityFill"></div>
+                                            </div>
+                                            <div class="enroll-quality-meta">
+                                                <div class="enroll-quality-value" id="enrollmentQualityValue">0%</div>
+                                                <div class="enroll-quality-copy" id="enrollmentQualityCopy">Posisikan wajah di dalam oval. Saat wajah sudah jelas dan stabil, sistem akan otomatis mengambil dan menyimpan data.</div>
+                                            </div>
+                                        </div>
+
                                         <div class="enroll-actions">
                                             <button type="button" class="btn btn-primary" id="startEnrollmentButton">
                                                 <i class="bx bx-camera me-1"></i>Scan dan Simpan
@@ -1534,6 +1629,10 @@
         const enrollmentGuideText = document.getElementById('enrollmentGuideText');
         const enrollmentStatusTitle = document.getElementById('enrollmentStatusTitle');
         const enrollmentStatusCopy = document.getElementById('enrollmentStatusCopy');
+        const enrollmentQualityChip = document.getElementById('enrollmentQualityChip');
+        const enrollmentQualityFill = document.getElementById('enrollmentQualityFill');
+        const enrollmentQualityValue = document.getElementById('enrollmentQualityValue');
+        const enrollmentQualityCopy = document.getElementById('enrollmentQualityCopy');
 
         if (faceEnrollmentModalEl && faceEnrollmentModalEl.parentElement !== document.body) {
             document.body.appendChild(faceEnrollmentModalEl);
@@ -1634,6 +1733,27 @@
         function setCameraGuide(message, icon = 'bx-scan') {
             cameraGuideText.parentElement.querySelector('i').className = `bx ${icon}`;
             cameraGuideText.textContent = message;
+        }
+
+        function setEnrollmentQualityState(level = 0, tone = 'idle', label = 'Belum jelas', copy = 'Posisikan wajah di dalam oval. Saat wajah sudah jelas dan stabil, sistem akan otomatis mengambil dan menyimpan data.') {
+            const normalized = Math.max(0, Math.min(Math.round(level), 100));
+
+            if (enrollmentQualityFill) {
+                enrollmentQualityFill.style.width = `${normalized}%`;
+            }
+
+            if (enrollmentQualityValue) {
+                enrollmentQualityValue.textContent = `${normalized}%`;
+            }
+
+            if (enrollmentQualityChip) {
+                enrollmentQualityChip.dataset.tone = tone;
+                enrollmentQualityChip.textContent = label;
+            }
+
+            if (enrollmentQualityCopy) {
+                enrollmentQualityCopy.textContent = copy;
+            }
         }
 
         function setStageState(stage, state = 'idle', message = null) {
@@ -2438,6 +2558,7 @@
             enrollmentStatusTitle.textContent = 'Menyalakan kamera';
             enrollmentStatusCopy.textContent = 'Kamera registrasi sedang diaktifkan.';
             enrollmentGuideText.textContent = 'Siapkan wajah di dalam oval.';
+            setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Posisikan satu wajah di dalam oval dan pastikan cahaya cukup.');
 
             if (!faceEngineUsesPython) {
                 await faceRecognition.loadModels();
@@ -2451,6 +2572,7 @@
                 ? `Kamera aktif. Klik scan untuk menyimpan wajah ${selectedEnrollmentTeacher.name}.`
                 : 'Kamera aktif. Pilih guru lalu klik scan dan simpan.';
             enrollmentGuideText.textContent = 'Posisikan satu wajah tepat di dalam oval.';
+            setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Wajah akan dinilai dari ketajaman dan kestabilannya sebelum disimpan.');
         }
 
         async function startEnrollmentFlow() {
@@ -2473,6 +2595,7 @@
             enrollmentStatusTitle.textContent = 'Memulai scan';
             enrollmentStatusCopy.textContent = 'Sistem sedang menyiapkan pengambilan wajah.';
             enrollmentGuideText.textContent = 'Memulai scan wajah.';
+            setEnrollmentQualityState(8, 'idle', 'Menyiapkan', 'Sistem mulai membaca kualitas wajah dari kamera.');
 
             try {
                 await startEnrollmentCameraPreview();
@@ -2490,9 +2613,18 @@
                             count: 6,
                             intervalMs: 170,
                             warmupMs: 260,
-                            onProgress: function (current, total) {
+                            onProgress: function (current, total, frameMeta) {
+                                const qualityPercent = Math.max(18, Math.min(Math.round((frameMeta?.quality || 0) * 100), 96));
                                 enrollmentStatusCopy.textContent = `Mengambil frame ${current} dari ${total} untuk registrasi wajah otomatis.`;
                                 enrollmentGuideText.textContent = 'Tahan posisi wajah dan kedip alami sebentar.';
+                                setEnrollmentQualityState(
+                                    qualityPercent,
+                                    qualityPercent >= 82 ? 'success' : 'warning',
+                                    qualityPercent >= 82 ? 'Siap simpan' : 'Membaca wajah',
+                                    qualityPercent >= 82
+                                        ? 'Gambar sudah cukup jelas. Sistem sedang memilih frame terbaik untuk langsung disimpan.'
+                                        : 'Sistem sedang mencari frame yang paling jelas dan stabil.'
+                                );
                             },
                         });
 
@@ -2515,6 +2647,39 @@
                         onStatus: function (message) {
                             enrollmentStatusCopy.textContent = message;
                         },
+                        onCaptureProgress: function (progress) {
+                            const level = Math.max(12, Math.min(Math.round(progress * 100), 100));
+                            setEnrollmentQualityState(
+                                level,
+                                progress >= 1 ? 'success' : (progress >= 0.55 ? 'warning' : 'idle'),
+                                progress >= 1 ? 'Siap simpan' : (progress >= 0.55 ? 'Hampir jelas' : 'Belum jelas'),
+                                progress >= 1
+                                    ? 'Wajah sudah jelas dan stabil. Sistem langsung mengambil lalu menyimpan data.'
+                                    : 'Tahan posisi wajah. Sistem sedang memastikan gambar cukup jelas dan stabil.'
+                            );
+                        },
+                        onEnrollmentQuality: function (payload) {
+                            const sharpnessScore = Math.max(0, Math.min(Math.round((payload?.sharpness || 0) * 300), 100));
+                            const stabilityScore = payload?.stableEnough ? 100 : 42;
+                            const level = payload?.ready
+                                ? Math.max(70, Math.round((payload?.progress || 0) * 100))
+                                : Math.round((sharpnessScore * 0.62) + (stabilityScore * 0.38));
+                            const tone = payload?.ready ? 'success' : ((payload?.sharpEnough || payload?.stableEnough) ? 'warning' : 'idle');
+                            const label = payload?.ready
+                                ? 'Siap simpan'
+                                : (!payload?.sharpEnough
+                                    ? 'Belum jelas'
+                                    : (!payload?.stableEnough ? 'Belum stabil' : 'Membaca wajah'));
+                            const copy = payload?.ready
+                                ? 'Gambar sudah jelas dan stabil. Sistem akan otomatis mengambil lalu menyimpan data wajah.'
+                                : (!payload?.sharpEnough
+                                    ? 'Wajah belum cukup tajam. Perbaiki cahaya dan tahan posisi sebentar.'
+                                    : (!payload?.stableEnough
+                                        ? 'Gambar sudah cukup jelas, tetapi wajah masih bergerak. Tahan posisi lebih tenang.'
+                                        : 'Sistem sedang menilai kualitas gambar wajah.'));
+
+                            setEnrollmentQualityState(level, tone, label, copy);
+                        },
                         onGuideState: function (payload) {
                             if (payload?.message) {
                                 enrollmentGuideText.textContent = payload.message;
@@ -2530,6 +2695,7 @@
                 enrollmentStatusTitle.textContent = 'Menyimpan data wajah';
                 enrollmentStatusCopy.textContent = 'Frame terbaik berhasil diambil. Sistem sedang menyimpan data wajah guru.';
                 enrollmentGuideText.textContent = 'Menyimpan data wajah ke server.';
+                setEnrollmentQualityState(100, 'success', 'Berhasil diambil', 'Gambar wajah sudah jelas. Sistem sedang menyimpan hasil registrasi ke database.');
 
                 const response = await fetch(enrollFaceUrl, {
                     method: 'POST',
@@ -2576,6 +2742,7 @@
                 enrollmentStatusTitle.textContent = 'Registrasi berhasil';
                 enrollmentStatusCopy.textContent = payload.message || 'Data wajah berhasil disimpan. Kiosk akan kembali ke mode presensi otomatis.';
                 enrollmentGuideText.textContent = 'Registrasi selesai. Menutup modal dan kembali ke mode presensi.';
+                setEnrollmentQualityState(100, 'success', 'Tersimpan', 'Data wajah sudah berhasil disimpan dan siap dipakai untuk presensi.');
 
                 window.setTimeout(function () {
                     if (faceEnrollmentModal) {
@@ -2590,6 +2757,7 @@
                 enrollmentStatusTitle.textContent = 'Registrasi gagal';
                 enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah belum berhasil. Ulangi proses dan pastikan wajah berada di dalam oval.';
                 enrollmentGuideText.textContent = 'Registrasi gagal. Ulangi proses scan wajah.';
+                setEnrollmentQualityState(26, 'warning', 'Belum jelas', 'Gambar belum memenuhi syarat atau belum stabil. Ulangi registrasi sampai indikator menunjukkan wajah siap disimpan.');
             } finally {
                 enrollmentBusy = false;
                 updateEnrollmentActionState();
@@ -2606,6 +2774,7 @@
             enrollmentStatusTitle.textContent = 'Status Registrasi';
             enrollmentStatusCopy.textContent = 'Modal registrasi dibuka. Kamera akan disiapkan otomatis.';
             enrollmentGuideText.textContent = 'Menyiapkan kamera registrasi.';
+            setEnrollmentQualityState(0, 'idle', 'Belum jelas', 'Sistem akan menilai apakah wajah sudah cukup jelas sebelum otomatis disimpan.');
 
             const firstVisible = Array.from(enrollmentTeacherSelect.options).find((option) => !option.hidden);
             if (firstVisible) {

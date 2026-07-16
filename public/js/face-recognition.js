@@ -328,6 +328,14 @@ class FaceRecognition {
         let stableFrames = 0;
 
         this.emit(callbacks.onCaptureProgress, 0);
+        this.emit(callbacks.onEnrollmentQuality, {
+            progress: 0,
+            ready: false,
+            sharpEnough: false,
+            stableEnough: false,
+            sharpness: 0,
+            motion: null,
+        });
 
         while (Date.now() - startedAt < timeoutMs) {
             const detection = await this.detectSingleFaceGeometry(videoElement, callbacks, {
@@ -341,6 +349,14 @@ class FaceRecognition {
                 stableFrames = 0;
                 previousSignature = null;
                 this.emit(callbacks.onCaptureProgress, 0);
+                this.emit(callbacks.onEnrollmentQuality, {
+                    progress: 0,
+                    ready: false,
+                    sharpEnough: false,
+                    stableEnough: false,
+                    sharpness: 0,
+                    motion: null,
+                });
                 this.emit(callbacks.onStatus, 'Posisi wajah berubah. Kembalikan wajah tepat ke oval.');
                 await this.delay(70);
                 continue;
@@ -348,6 +364,14 @@ class FaceRecognition {
 
             const readiness = this.evaluateEnrollmentCaptureReadiness(videoElement, detection, previousSignature);
             previousSignature = readiness.signature;
+            this.emit(callbacks.onEnrollmentQuality, {
+                progress: readiness.ready ? (heldSince === null ? 0 : this.clamp((Date.now() - heldSince) / holdMs, 0, 1)) : 0,
+                ready: readiness.ready,
+                sharpEnough: readiness.sharpEnough,
+                stableEnough: readiness.stableEnough,
+                sharpness: readiness.sharpness,
+                motion: readiness.motion,
+            });
 
             if (!readiness.ready) {
                 heldSince = null;
@@ -376,9 +400,25 @@ class FaceRecognition {
             const holdElapsed = heldSince === null ? 0 : Date.now() - heldSince;
             const holdProgress = this.clamp(holdElapsed / holdMs, 0, 1);
             this.emit(callbacks.onCaptureProgress, holdProgress);
+            this.emit(callbacks.onEnrollmentQuality, {
+                progress: holdProgress,
+                ready: readiness.ready,
+                sharpEnough: readiness.sharpEnough,
+                stableEnough: readiness.stableEnough,
+                sharpness: readiness.sharpness,
+                motion: readiness.motion,
+            });
 
             if (heldSince !== null && holdElapsed >= holdMs) {
                 this.emit(callbacks.onCaptureProgress, 1);
+                this.emit(callbacks.onEnrollmentQuality, {
+                    progress: 1,
+                    ready: true,
+                    sharpEnough: readiness.sharpEnough,
+                    stableEnough: readiness.stableEnough,
+                    sharpness: readiness.sharpness,
+                    motion: readiness.motion,
+                });
                 this.emit(callbacks.onGuideState, {
                     state: 'success',
                     message: 'Wajah berhasil diambil otomatis.',
