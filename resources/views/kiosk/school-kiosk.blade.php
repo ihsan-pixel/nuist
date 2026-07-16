@@ -1850,6 +1850,13 @@
                                             </div>
                                         </div>
 
+                                        <div class="enroll-status-box">
+                                            <div class="enroll-status-title" id="enrollmentStatusTitle">Status Registrasi</div>
+                                            <div class="enroll-status-copy" id="enrollmentStatusCopy">
+                                                Kamera pendaftaran sedang disiapkan. Pilih guru lalu mulai scan wajah.
+                                            </div>
+                                        </div>
+
                                         <div class="enroll-quality-box">
                                             <div class="enroll-progress" id="enrollmentProgress">
                                                 <div class="enroll-progress-item" data-step="align">Posisikan</div>
