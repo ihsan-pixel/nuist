@@ -950,7 +950,9 @@
 
 @section('script')
 @if($accessGranted)
+@if(!$faceEngineUsesPython)
 <script src="{{ asset('models/face-api.js') }}"></script>
+@endif
 <script src="{{ asset('js/face-recognition.js') }}"></script>
 <script>
     (function () {
@@ -966,6 +968,9 @@
             ])->values()
         );
         const verificationMode = @json($verificationMode);
+        const faceEngineDriver = @json($faceEngineDriver);
+        const faceEngineLabel = @json($faceEngineLabel);
+        const faceEngineUsesPython = @json($faceEngineUsesPython);
         const locationCheckUrl = @json(route('school-kiosk.check-location'));
         const autoSubmitUrl = @json(route('school-kiosk.auto-submit'));
         const enrollFaceUrl = @json(route('school-kiosk.enroll-face'));
@@ -1156,6 +1161,10 @@
             }
         }
 
+        function wait(ms) {
+            return new Promise((resolve) => window.setTimeout(resolve, ms));
+        }
+
         function scheduleNextScan(delay = 1000) {
             clearScanTimer();
             scanTimer = window.setTimeout(runAutomaticFaceScan, delay);
@@ -1247,19 +1256,36 @@
             cameraMode = 'attendance';
             restartScannerButton.hidden = true;
             setStageState('camera_permission', 'active', 'Meminta izin kamera untuk memulai scan realtime.');
-            setPrimaryNotice('Mengaktifkan kamera', 'Sistem sedang menyalakan kamera kiosk dan memuat model scan wajah.');
+            setPrimaryNotice(
+                'Mengaktifkan kamera',
+                faceEngineUsesPython
+                    ? `Sistem sedang menyalakan kamera kiosk dan menyiapkan engine ${faceEngineLabel}.`
+                    : 'Sistem sedang menyalakan kamera kiosk dan memuat model scan wajah.'
+            );
             setScanBadge('Menyalakan kamera', 'info');
-            setCameraGuide('Meminta izin kamera dan memuat model wajah.', 'bx-camera');
+            setCameraGuide(
+                faceEngineUsesPython
+                    ? `Meminta izin kamera dan menyiapkan ${faceEngineLabel}.`
+                    : 'Meminta izin kamera dan memuat model wajah.',
+                'bx-camera'
+            );
 
             try {
-                await faceRecognition.loadModels();
+                if (!faceEngineUsesPython) {
+                    await faceRecognition.loadModels();
+                }
                 await faceRecognition.initializeCamera(video);
                 placeholder.style.display = 'none';
                 preview.classList.remove('show');
                 video.classList.remove('hide');
                 cameraReady = true;
                 setStageState('camera_permission', 'done', 'Kamera aktif dan siap dipakai untuk presensi otomatis.');
-                setPrimaryNotice('Kamera aktif', 'Guru cukup berdiri di depan kamera dan mengikuti instruksi liveness singkat.');
+                setPrimaryNotice(
+                    'Kamera aktif',
+                    faceEngineUsesPython
+                        ? `Guru cukup berdiri di depan kamera. Deteksi wajah, verifikasi identitas, dan liveness akan diproses otomatis oleh ${faceEngineLabel}.`
+                        : 'Guru cukup berdiri di depan kamera dan mengikuti instruksi liveness singkat.'
+                );
                 setScanBadge('Menunggu pengguna', 'warning');
                 setStageState('waiting_user', 'active', 'Kamera siaga dan menunggu wajah masuk ke bingkai.');
                 setCameraGuide('Arahkan satu wajah ke dalam oval untuk memulai presensi otomatis.', 'bx-user-check');
@@ -1275,9 +1301,20 @@
         }
 
         async function submitAutomaticAttendance(scanResult) {
-            setStageState('detecting_face', 'done', 'Challenge liveness selesai dan frame terbaik berhasil diambil.');
+            setStageState(
+                'detecting_face',
+                'done',
+                faceEngineUsesPython
+                    ? 'Burst frame berhasil diambil dan dikirim ke engine Python.'
+                    : 'Challenge liveness selesai dan frame terbaik berhasil diambil.'
+            );
             setStageState('verifying_identity', 'active', 'Mencocokkan wajah dengan data guru terdaftar.');
-            setPrimaryNotice('Memverifikasi identitas', 'Descriptor wajah sedang dicocokkan dengan data guru yang terdaftar di sekolah ini.');
+            setPrimaryNotice(
+                'Memverifikasi identitas',
+                faceEngineUsesPython
+                    ? `Frame wajah sedang dianalisis oleh ${faceEngineLabel} untuk deteksi, liveness, dan pengenalan identitas.`
+                    : 'Descriptor wajah sedang dicocokkan dengan data guru yang terdaftar di sekolah ini.'
+            );
             setScanBadge('Verifikasi identitas', 'info');
             setCameraGuide('Memverifikasi identitas guru.', 'bx-shield-quarter');
 
@@ -1291,6 +1328,7 @@
                 device_info: navigator.userAgent || '',
                 location_readings: JSON.stringify(locationReadings),
                 selfie_data: scanResult.captured_image,
+                selfie_frames: scanResult.selfie_frames || [],
                 face_descriptor: scanResult.face_descriptor || [],
                 liveness_score: scanResult.liveness_score ?? 0,
                 liveness_challenges: scanResult.liveness_challenges || [],
@@ -1329,6 +1367,35 @@
             );
         }
 
+        async function performPythonAttendanceCapture() {
+            setPrimaryNotice('Mendeteksi wajah', `Mengambil beberapa frame otomatis untuk dianalisis oleh ${faceEngineLabel}.`);
+            setScanBadge('Mengambil frame', 'info');
+            setCameraGuide('Tatap kamera, kedip alami, dan tahan posisi sebentar.', 'bx-scan');
+
+            const burst = await faceRecognition.captureBurstFrames(video, {
+                count: 6,
+                intervalMs: 170,
+                warmupMs: 260,
+                onProgress: function (current, total) {
+                    setStageState('detecting_face', 'active', `Mengambil frame ${current} dari ${total} untuk scan otomatis.`);
+                },
+            });
+
+            if (!burst.best_frame || !Array.isArray(burst.frames) || burst.frames.length === 0) {
+                throw new Error('Frame kamera belum berhasil diambil. Ulangi scan wajah.');
+            }
+
+            setStageState('detecting_face', 'active', 'Frame scan berhasil diambil. Sistem sedang menyiapkan verifikasi.');
+
+            return {
+                captured_image: burst.best_frame,
+                selfie_frames: burst.frames,
+                face_descriptor: [],
+                liveness_score: null,
+                liveness_challenges: [],
+            };
+        }
+
         async function runAutomaticFaceScan() {
             if (!cameraReady || scanInProgress || enrollmentBusy || !activeLocation) {
                 return;
@@ -1346,21 +1413,23 @@
             setCameraGuide('Arahkan satu wajah ke dalam oval untuk memulai scan.', 'bx-user-voice');
 
             try {
-                const result = await faceRecognition.performAttendanceScan(video, {
-                    onInstruction: function (message) {
-                        setCameraGuide(message, 'bx-scan');
-                    },
-                    onStatus: function (message) {
-                        setPrimaryNotice('Mendeteksi wajah', message);
-                        setStageState('detecting_face', 'active', message);
-                        setScanBadge('Mendeteksi wajah', 'info');
-                    },
-                    onGuideState: function (payload) {
-                        if (payload?.message) {
-                            setCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
-                        }
-                    },
-                });
+                const result = faceEngineUsesPython
+                    ? await performPythonAttendanceCapture()
+                    : await faceRecognition.performAttendanceScan(video, {
+                        onInstruction: function (message) {
+                            setCameraGuide(message, 'bx-scan');
+                        },
+                        onStatus: function (message) {
+                            setPrimaryNotice('Mendeteksi wajah', message);
+                            setStageState('detecting_face', 'active', message);
+                            setScanBadge('Mendeteksi wajah', 'info');
+                        },
+                        onGuideState: function (payload) {
+                            if (payload?.message) {
+                                setCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
+                            }
+                        },
+                    });
 
                 await submitAutomaticAttendance(result);
                 scheduleNextScan(5000);
@@ -1412,25 +1481,55 @@
             try {
                 stopCurrentCamera();
                 cameraMode = 'enrollment';
-                await faceRecognition.loadModels();
+                if (!faceEngineUsesPython) {
+                    await faceRecognition.loadModels();
+                }
                 await faceRecognition.initializeCamera(enrollmentVideo);
                 enrollmentStatusTitle.textContent = 'Registrasi berjalan';
-                enrollmentStatusCopy.textContent = 'Minta guru menatap kamera dan tahan posisi sampai sistem mengambil frame terbaik secara otomatis.';
+                enrollmentStatusCopy.textContent = faceEngineUsesPython
+                    ? `Minta guru menatap kamera dan tahan posisi sebentar. Beberapa frame akan diambil otomatis untuk registrasi melalui ${faceEngineLabel}.`
+                    : 'Minta guru menatap kamera dan tahan posisi sampai sistem mengambil frame terbaik secara otomatis.';
                 enrollmentGuideText.textContent = 'Posisikan satu wajah tepat di dalam oval.';
 
-                const enrollmentResult = await faceRecognition.performEnrollmentScan(enrollmentVideo, {
-                    onInstruction: function (message) {
-                        enrollmentGuideText.textContent = message;
-                    },
-                    onStatus: function (message) {
-                        enrollmentStatusCopy.textContent = message;
-                    },
-                    onGuideState: function (payload) {
-                        if (payload?.message) {
-                            enrollmentGuideText.textContent = payload.message;
+                const enrollmentResult = faceEngineUsesPython
+                    ? await (async function () {
+                        await wait(420);
+
+                        const burst = await faceRecognition.captureBurstFrames(enrollmentVideo, {
+                            count: 6,
+                            intervalMs: 170,
+                            warmupMs: 260,
+                            onProgress: function (current, total) {
+                                enrollmentStatusCopy.textContent = `Mengambil frame ${current} dari ${total} untuk registrasi wajah otomatis.`;
+                                enrollmentGuideText.textContent = 'Tahan posisi wajah dan kedip alami sebentar.';
+                            },
+                        });
+
+                        if (!burst.best_frame || !Array.isArray(burst.frames) || burst.frames.length === 0) {
+                            throw new Error('Frame registrasi belum berhasil diambil. Ulangi proses registrasi.');
                         }
-                    },
-                });
+
+                        return {
+                            captured_image: burst.best_frame,
+                            selfie_frames: burst.frames,
+                            face_descriptor: [],
+                            liveness_score: null,
+                            liveness_challenges: [],
+                        };
+                    })()
+                    : await faceRecognition.performEnrollmentScan(enrollmentVideo, {
+                        onInstruction: function (message) {
+                            enrollmentGuideText.textContent = message;
+                        },
+                        onStatus: function (message) {
+                            enrollmentStatusCopy.textContent = message;
+                        },
+                        onGuideState: function (payload) {
+                            if (payload?.message) {
+                                enrollmentGuideText.textContent = payload.message;
+                            }
+                        },
+                    });
 
                 enrollmentPreview.src = enrollmentResult.captured_image;
                 enrollmentPreview.classList.add('show');
@@ -1449,6 +1548,8 @@
                     },
                     body: JSON.stringify({
                         teacher_id: selectedEnrollmentTeacher.id,
+                        selfie_data: enrollmentResult.captured_image,
+                        selfie_frames: enrollmentResult.selfie_frames || [],
                         face_descriptor: enrollmentResult.face_descriptor,
                         liveness_score: enrollmentResult.liveness_score,
                         liveness_challenges: enrollmentResult.liveness_challenges,

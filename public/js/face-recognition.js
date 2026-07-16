@@ -1064,6 +1064,51 @@ class FaceRecognition {
         return canvas.toDataURL('image/jpeg', 0.85);
     }
 
+    async captureBurstFrames(videoElement, options = {}) {
+        const totalFrames = Number.isFinite(options.count) ? Math.max(1, Math.floor(options.count)) : 6;
+        const intervalMs = Number.isFinite(options.intervalMs) ? Math.max(40, Math.floor(options.intervalMs)) : 160;
+        const warmupMs = Number.isFinite(options.warmupMs) ? Math.max(0, Math.floor(options.warmupMs)) : 260;
+        const frames = [];
+
+        if (warmupMs > 0) {
+            await this.delay(warmupMs);
+        }
+
+        for (let index = 0; index < totalFrames; index += 1) {
+            const frame = this.captureFrame(videoElement);
+            const stats = this.sampleFrameStats(videoElement);
+            const quality = this.estimateLightingScore(stats.brightness, stats.contrast);
+
+            frames.push({
+                data: frame,
+                quality,
+                brightness: stats.brightness,
+                contrast: stats.contrast,
+            });
+
+            this.emit(options.onProgress, index + 1, totalFrames, {
+                quality,
+                brightness: stats.brightness,
+                contrast: stats.contrast,
+            });
+
+            if (index < totalFrames - 1) {
+                await this.delay(intervalMs);
+            }
+        }
+
+        const sorted = frames
+            .slice()
+            .sort((first, second) => second.quality - first.quality);
+        const best = sorted[0] || frames[0] || null;
+
+        return {
+            frames: frames.map((item) => item.data),
+            best_frame: best?.data || null,
+            best_quality: best?.quality ?? null,
+        };
+    }
+
     async detectSingleFace(videoElement, options = {}) {
         if (!this.modelsLoaded) {
             throw new Error('Model scan wajah belum dimuat.');

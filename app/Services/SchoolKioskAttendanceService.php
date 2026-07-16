@@ -76,13 +76,22 @@ class SchoolKioskAttendanceService
         ];
 
         if ($verificationMode === MobileAttendanceSettingsService::MODE_FACE_SCAN) {
-            $faceVerification = $this->faceVerificationService->verifyForAttendance(
-                $teacher,
-                $payload['face_descriptor'] ?? null,
-                $payload['liveness_score'] ?? null,
-                $payload['liveness_challenges'] ?? [],
-                true,
+            $externalVerification = $this->normalizeExternalFaceVerification(
+                $payload['external_face_verification'] ?? null,
+                $teacher
             );
+
+            if ($externalVerification !== null) {
+                $faceVerification = $externalVerification;
+            } else {
+                $faceVerification = $this->faceVerificationService->verifyForAttendance(
+                    $teacher,
+                    $payload['face_descriptor'] ?? null,
+                    $payload['liveness_score'] ?? null,
+                    $payload['liveness_challenges'] ?? [],
+                    true,
+                );
+            }
 
             if (!$faceVerification['success']) {
                 throw ValidationException::withMessages([
@@ -399,5 +408,67 @@ class SchoolKioskAttendanceService
     private function filterPresensiAttributes(array $attributes): array
     {
         return $this->attendanceValidationService->filterPresensiAttributes($attributes);
+    }
+
+    private function normalizeExternalFaceVerification(mixed $payload, User $teacher): ?array
+    {
+        if (!is_array($payload)) {
+            return null;
+        }
+
+        $matchedUserId = is_numeric($payload['user_id'] ?? null)
+            ? (int) $payload['user_id']
+            : null;
+
+        if ($matchedUserId !== null && $matchedUserId !== $teacher->id) {
+            return [
+                'success' => false,
+                'message' => 'Hasil verifikasi eksternal tidak cocok dengan guru yang akan diproses.',
+                'face_id_used' => null,
+                'similarity' => null,
+                'liveness_score' => null,
+                'challenges' => [],
+                'notes' => 'external_user_mismatch',
+                'verified' => false,
+            ];
+        }
+
+        $success = (bool) ($payload['success'] ?? false);
+
+        return [
+            'success' => $success,
+            'message' => (string) ($payload['message'] ?? ($success
+                ? 'Verifikasi wajah eksternal berhasil.'
+                : 'Verifikasi wajah eksternal gagal.')),
+            'face_id_used' => isset($payload['face_id_used']) ? (string) $payload['face_id_used'] : null,
+            'similarity' => is_numeric($payload['similarity'] ?? null) ? round((float) $payload['similarity'], 4) : null,
+            'liveness_score' => is_numeric($payload['liveness_score'] ?? null) ? round((float) $payload['liveness_score'], 4) : null,
+            'challenges' => $this->normalizeChallenges($payload['challenges'] ?? $payload['liveness_challenges'] ?? []),
+            'notes' => (string) ($payload['notes'] ?? ($success ? 'face_verified_external' : 'face_verification_failed_external')),
+            'verified' => $success,
+        ];
+    }
+
+    private function normalizeChallenges(mixed $challenges): array
+    {
+        if (!is_array($challenges)) {
+            return [];
+        }
+
+        return collect($challenges)
+            ->filter(fn ($challenge) => is_array($challenge))
+            ->map(function (array $challenge) {
+                return [
+                    'type' => (string) ($challenge['type'] ?? 'unknown'),
+                    'passed' => (bool) ($challenge['passed'] ?? false),
+                    'score' => is_numeric($challenge['score'] ?? null) ? round((float) $challenge['score'], 4) : null,
+                    'detail' => isset($challenge['detail']) ? (string) $challenge['detail'] : null,
+                    'timestamp' => is_numeric($challenge['timestamp'] ?? null)
+                        ? (int) $challenge['timestamp']
+                        : now()->timestamp,
+                ];
+            })
+            ->values()
+            ->all();
     }
 }
