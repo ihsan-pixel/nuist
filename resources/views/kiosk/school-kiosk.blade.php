@@ -246,6 +246,14 @@
         margin-bottom: 14px;
     }
 
+    .camera-panel-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
     .camera-panel-title {
         font-size: 20px;
         font-weight: 800;
@@ -1147,9 +1155,14 @@
                                         Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
                                     </p>
                                 </div>
-                                <div class="scan-badge" id="scanBadge">
-                                    <i class="bx bx-loader-circle"></i>
-                                    <span>Menyiapkan</span>
+                                <div class="camera-panel-actions">
+                                    <button type="button" class="btn btn-outline-warning btn-sm" id="openEnrollmentRefreshButton">
+                                        <i class="bx bx-refresh me-1"></i>Registrasi Ulang
+                                    </button>
+                                    <div class="scan-badge" id="scanBadge">
+                                        <i class="bx bx-loader-circle"></i>
+                                        <span>Menyiapkan</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1489,6 +1502,7 @@
         const enrollmentBanner = document.getElementById('enrollmentBanner');
         const enrollmentBannerCopy = document.getElementById('enrollmentBannerCopy');
         const openEnrollmentModalButton = document.getElementById('openEnrollmentModalButton');
+        const openEnrollmentRefreshButton = document.getElementById('openEnrollmentRefreshButton');
         const kioskFlashModal = document.getElementById('kioskFlashModal');
         const kioskFlashCard = document.getElementById('kioskFlashCard');
         const kioskFlashTitle = document.getElementById('kioskFlashTitle');
@@ -2583,7 +2597,7 @@
             }
         }
 
-        openEnrollmentModalButton?.addEventListener('click', function () {
+        function openEnrollmentModal() {
             clearScanTimer();
             stopCurrentCamera();
             cameraMode = 'enrollment';
@@ -2604,7 +2618,10 @@
             if (faceEnrollmentModal) {
                 faceEnrollmentModal.show();
             }
-        });
+        }
+
+        openEnrollmentModalButton?.addEventListener('click', openEnrollmentModal);
+        openEnrollmentRefreshButton?.addEventListener('click', openEnrollmentModal);
 
         faceEnrollmentModalEl?.addEventListener('shown.bs.modal', function () {
             document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
