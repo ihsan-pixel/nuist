@@ -432,8 +432,20 @@
         box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
     }
 
+    .face-modal {
+        z-index: 2055 !important;
+    }
+
     .face-modal .modal-dialog {
         max-width: min(1320px, calc(100vw - 40px));
+        margin: 1rem auto;
+        pointer-events: auto;
+    }
+
+    .face-modal-backdrop {
+        z-index: 2050 !important;
+        background: rgba(15, 23, 42, 0.24) !important;
+        opacity: 1 !important;
     }
 
     .face-modal .modal-header {
@@ -629,6 +641,11 @@
         .face-modal .modal-body {
             padding-left: 16px;
             padding-right: 16px;
+        }
+
+        .face-modal .modal-dialog {
+            max-width: calc(100vw - 18px);
+            margin: 0.5rem auto;
         }
 
         .enroll-camera-shell {
@@ -978,6 +995,10 @@
         const enrollmentGuideText = document.getElementById('enrollmentGuideText');
         const enrollmentStatusTitle = document.getElementById('enrollmentStatusTitle');
         const enrollmentStatusCopy = document.getElementById('enrollmentStatusCopy');
+
+        if (faceEnrollmentModalEl && faceEnrollmentModalEl.parentElement !== document.body) {
+            document.body.appendChild(faceEnrollmentModalEl);
+        }
 
         const faceRecognition = new window.FaceRecognition();
         const statusSteps = Array.from(document.querySelectorAll('.status-step'));
@@ -1722,6 +1743,10 @@
         });
 
         faceEnrollmentModalEl?.addEventListener('shown.bs.modal', function () {
+            document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+                backdrop.classList.add('face-modal-backdrop');
+            });
+
             startEnrollmentCameraPreview().catch(function (error) {
                 enrollmentPlaceholder.style.display = 'flex';
                 enrollmentStatusTitle.textContent = 'Kamera gagal';
@@ -1737,6 +1762,9 @@
             enrollmentCameraReady = false;
             enrollmentPreview.classList.remove('show');
             enrollmentPlaceholder.style.display = 'flex';
+            document.querySelectorAll('.face-modal-backdrop').forEach(function (backdrop) {
+                backdrop.classList.remove('face-modal-backdrop');
+            });
             cameraMode = 'attendance';
             bootstrapAutomation();
         });
