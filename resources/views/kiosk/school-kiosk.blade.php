@@ -149,9 +149,11 @@
                     </span>
                 </div>
 
-                <div class="alert {{ $accessGranted ? 'alert-success' : 'alert-danger' }} mb-4">
-                    <i class="bx {{ $accessGranted ? 'bx-check-shield' : 'bx-error-circle' }} me-2"></i>{{ $accessMessage }}
-                </div>
+                @unless($accessGranted)
+                    <div class="alert alert-danger mb-4">
+                        <i class="bx bx-error-circle me-2"></i>{{ $accessMessage }}
+                    </div>
+                @endunless
 
                 <div class="row g-3 mb-4">
                     <div class="col-md-6 col-xl-3">
