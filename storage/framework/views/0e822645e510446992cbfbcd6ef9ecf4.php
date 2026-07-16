@@ -688,26 +688,77 @@
 
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($accessGranted): ?>
                 <div class="row g-4">
-                    <div class="col-xl-3">
+                    <div class="col-12">
                         <div class="panel-box">
-                            <div class="automation-intro">
-                                <div class="automation-intro-title">Status Otomatis</div>
-                                <p class="automation-intro-copy">
-                                    Guru cukup berada di lokasi sekolah dan menghadapkan wajah ke kamera. Kiosk akan mendeteksi, mengenali,
-                                    memverifikasi liveness, lalu memproses presensi secara otomatis.
-                                </p>
+                            <div class="camera-panel-header">
+                                <div>
+                                    <div class="camera-panel-title">Kamera Kiosk</div>
+                                    <p class="camera-panel-copy" id="cameraPanelCopy">
+                                        Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
+                                    </p>
+                                </div>
+                                <div class="scan-badge" id="scanBadge">
+                                    <i class="bx bx-loader-circle"></i>
+                                    <span>Menyiapkan</span>
+                                </div>
                             </div>
 
-                            <div class="automation-summary">
-                                <span class="summary-chip">
-                                    <i class="bx bx-group"></i><?php echo e($teacherCount); ?> guru terhubung
-                                </span>
-                                <span class="summary-chip">
-                                    <i class="bx bx-scan"></i>Face recognition aktif
-                                </span>
+                            <div class="camera-shell">
+                                <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
+                                <img id="cameraPreview" class="camera-preview" alt="Preview scan wajah">
+                                <canvas id="cameraCanvas"></canvas>
+
+                                <div class="camera-placeholder" id="cameraPlaceholder">
+                                    <i class="bx bx-camera-off"></i>
+                                    <strong>Kamera akan aktif otomatis</strong>
+                                    <span>
+                                        Sistem sedang mempersiapkan lokasi dan kamera. Jika semua izin diberikan, kiosk akan langsung masuk ke mode siaga.
+                                    </span>
+                                </div>
+
+                                <div class="camera-overlay">
+                                    <div class="camera-grid"></div>
+                                    <div class="camera-oval"></div>
+                                    <div class="camera-guide-pill" id="cameraGuidePill">
+                                        <i class="bx bx-scan"></i>
+                                        <span id="cameraGuideText">Menyiapkan School Kiosk.</span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="status-board">
+                            <div class="primary-notice mt-3" id="primaryNotice">
+                                <strong>Menyiapkan School Kiosk</strong>
+                                <span>Meminta izin lokasi dan kamera, lalu sistem akan masuk ke mode siaga otomatis.</span>
+                            </div>
+
+                            <div class="enrollment-banner" id="enrollmentBanner" <?php if($teachersWithoutFaceCount === 0): ?> hidden <?php endif; ?>>
+                                <div class="enrollment-banner-title">Registrasi wajah guru tersedia</div>
+                                <div class="enrollment-banner-copy" id="enrollmentBannerCopy">
+                                    Terdapat <?php echo e($teachersWithoutFaceCount); ?> guru yang belum memiliki data wajah. Daftarkan wajah sekali saja,
+                                    lalu guru bisa langsung presensi dari kiosk ini tanpa pindah halaman.
+                                </div>
+                                <div class="enrollment-actions">
+                                    <button type="button" class="btn btn-warning btn-sm" id="openEnrollmentModalButton">
+                                        <i class="bx bx-user-plus me-1"></i>Registrasi Wajah Guru
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="system-actions">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="retryLocationButton" hidden>
+                                    <i class="bx bx-current-location me-1"></i>Coba Lokasi Lagi
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="restartScannerButton" hidden>
+                                    <i class="bx bx-refresh me-1"></i>Mulai Ulang Scanner
+                                </button>
+                            </div>
+
+                            <div class="attendance-result" id="attendanceResultCard" hidden>
+                                <div class="attendance-result-title" id="attendanceResultTitle">Hasil Presensi</div>
+                                <p class="attendance-result-copy" id="attendanceResultCopy"></p>
+                            </div>
+
+                            <div class="d-none" aria-hidden="true">
                                 <div class="status-step" data-stage="camera_permission">
                                     <div class="status-step-dot"></div>
                                     <div>
@@ -762,78 +813,6 @@
                                     <div>
                                         <div class="status-step-title">Presensi berhasil</div>
                                         <div class="status-step-copy">Hasil presensi dan status harian ditampilkan di sini.</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="primary-notice" id="primaryNotice">
-                                <strong>Menyiapkan School Kiosk</strong>
-                                <span>Meminta izin lokasi dan kamera, lalu sistem akan masuk ke mode siaga otomatis.</span>
-                            </div>
-
-                            <div class="enrollment-banner" id="enrollmentBanner" <?php if($teachersWithoutFaceCount === 0): ?> hidden <?php endif; ?>>
-                                <div class="enrollment-banner-title">Registrasi wajah guru tersedia</div>
-                                <div class="enrollment-banner-copy" id="enrollmentBannerCopy">
-                                    Terdapat <?php echo e($teachersWithoutFaceCount); ?> guru yang belum memiliki data wajah. Daftarkan wajah sekali saja,
-                                    lalu guru bisa langsung presensi dari kiosk ini tanpa pindah halaman.
-                                </div>
-                                <div class="enrollment-actions">
-                                    <button type="button" class="btn btn-warning btn-sm" id="openEnrollmentModalButton">
-                                        <i class="bx bx-user-plus me-1"></i>Registrasi Wajah Guru
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="system-actions">
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="retryLocationButton" hidden>
-                                    <i class="bx bx-current-location me-1"></i>Coba Lokasi Lagi
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="restartScannerButton" hidden>
-                                    <i class="bx bx-refresh me-1"></i>Mulai Ulang Scanner
-                                </button>
-                            </div>
-
-                            <div class="attendance-result" id="attendanceResultCard" hidden>
-                                <div class="attendance-result-title" id="attendanceResultTitle">Hasil Presensi</div>
-                                <p class="attendance-result-copy" id="attendanceResultCopy"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-9">
-                        <div class="panel-box">
-                            <div class="camera-panel-header">
-                                <div>
-                                    <div class="camera-panel-title">Kamera Kiosk</div>
-                                    <p class="camera-panel-copy" id="cameraPanelCopy">
-                                        Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
-                                    </p>
-                                </div>
-                                <div class="scan-badge" id="scanBadge">
-                                    <i class="bx bx-loader-circle"></i>
-                                    <span>Menyiapkan</span>
-                                </div>
-                            </div>
-
-                            <div class="camera-shell">
-                                <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
-                                <img id="cameraPreview" class="camera-preview" alt="Preview scan wajah">
-                                <canvas id="cameraCanvas"></canvas>
-
-                                <div class="camera-placeholder" id="cameraPlaceholder">
-                                    <i class="bx bx-camera-off"></i>
-                                    <strong>Kamera akan aktif otomatis</strong>
-                                    <span>
-                                        Sistem sedang mempersiapkan lokasi dan kamera. Jika semua izin diberikan, kiosk akan langsung masuk ke mode siaga.
-                                    </span>
-                                </div>
-
-                                <div class="camera-overlay">
-                                    <div class="camera-grid"></div>
-                                    <div class="camera-oval"></div>
-                                    <div class="camera-guide-pill" id="cameraGuidePill">
-                                        <i class="bx bx-scan"></i>
-                                        <span id="cameraGuideText">Menyiapkan School Kiosk.</span>
                                     </div>
                                 </div>
                             </div>
