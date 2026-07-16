@@ -1379,6 +1379,12 @@
         const faceEngineDriver = <?php echo json_encode($faceEngineDriver, 15, 512) ?>;
         const faceEngineLabel = <?php echo json_encode($faceEngineLabel, 15, 512) ?>;
         const faceEngineUsesPython = <?php echo json_encode($faceEngineUsesPython, 15, 512) ?>;
+        const pythonCaptureFrameCount = Math.max(3, Math.min(Number(<?php echo json_encode((int) config('kiosk_face.capture.frame_count', 6), 512) ?>) || 6, 5));
+        const pythonCaptureIntervalMs = 95;
+        const pythonCaptureWarmupMs = 90;
+        const initialScanDelayMs = faceEngineUsesPython ? 260 : 700;
+        const retryScanDelayMs = faceEngineUsesPython ? 820 : 1500;
+        const successScanDelayMs = faceEngineUsesPython ? 3200 : 4500;
         const locationCheckUrl = <?php echo json_encode(route('school-kiosk.check-location'), 15, 512) ?>;
         const autoSubmitUrl = <?php echo json_encode(route('school-kiosk.auto-submit'), 15, 512) ?>;
         const enrollFaceUrl = <?php echo json_encode(route('school-kiosk.enroll-face'), 15, 512) ?>;
@@ -1847,7 +1853,7 @@
             return error;
         }
 
-        function scheduleNextScan(delay = 1000) {
+        function scheduleNextScan(delay = initialScanDelayMs) {
             clearScanTimer();
             scanTimer = window.setTimeout(runAutomaticFaceScan, delay);
         }
@@ -2067,12 +2073,12 @@
         async function performPythonAttendanceCapture() {
             setPrimaryNotice('Mendeteksi wajah', `Mengambil beberapa frame otomatis untuk dianalisis oleh ${faceEngineLabel}.`);
             setScanBadge('Mengambil frame', 'info');
-            setCameraGuide('Tatap kamera, kedip alami, dan tahan posisi sebentar.', 'bx-scan');
+            setCameraGuide('Wajah terdeteksi. Tahan posisi sebentar, scan dipercepat.', 'bx-scan');
 
             const burst = await faceRecognition.captureBurstFrames(video, {
-                count: 6,
-                intervalMs: 170,
-                warmupMs: 260,
+                count: pythonCaptureFrameCount,
+                intervalMs: pythonCaptureIntervalMs,
+                warmupMs: pythonCaptureWarmupMs,
                 onProgress: function (current, total) {
                     setStageState('detecting_face', 'active', `Mengambil frame ${current} dari ${total} untuk scan otomatis.`);
                 },
@@ -2129,7 +2135,7 @@
                     });
 
                 await submitAutomaticAttendance(result);
-                scheduleNextScan(5000);
+                scheduleNextScan(successScanDelayMs);
             } catch (error) {
                 const message = error.message || 'Scan wajah belum berhasil.';
                 setStageState('detecting_face', 'error', message);
@@ -2146,7 +2152,7 @@
                     });
                 }
                 showAttendanceResult('Scan diulang', message);
-                scheduleNextScan(1800);
+                scheduleNextScan(retryScanDelayMs);
             } finally {
                 scanInProgress = false;
             }
@@ -2157,7 +2163,7 @@
             try {
                 await requestLocationAndValidate();
                 await startAttendanceCamera();
-                scheduleNextScan(1000);
+                scheduleNextScan(initialScanDelayMs);
             } catch (error) {
                 // error state already rendered in helpers
             }

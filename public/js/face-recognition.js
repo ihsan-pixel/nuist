@@ -7,8 +7,8 @@ class FaceRecognition {
         this.lastGeometryDetection = null;
         this.lastGeometryDetectedAt = 0;
         this.detectorOptions = {
-            inputSize: 320,
-            scoreThreshold: 0.5,
+            inputSize: 256,
+            scoreThreshold: 0.45,
         };
         this.minimumFaceWidthRatio = 0.16;
         this.maximumEyeTiltDegrees = 22;
@@ -70,8 +70,8 @@ class FaceRecognition {
             audio: false,
             video: {
                 facingMode: 'user',
-                width: { ideal: 720 },
-                height: { ideal: 960 },
+                width: { ideal: 640 },
+                height: { ideal: 840 },
                 frameRate: { ideal: 24, max: 30 },
             },
         });
@@ -437,7 +437,7 @@ class FaceRecognition {
         };
     }
 
-    async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 12000) {
+    async waitForStableSingleFace(videoElement, callbacks = {}, timeoutMs = 9000) {
         const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
@@ -456,13 +456,13 @@ class FaceRecognition {
             }
 
             this.emit(callbacks.onStatus, 'Arahkan satu wajah ke tengah oval dan dekatkan sedikit ke kamera.');
-            await this.delay(110);
+            await this.delay(65);
         }
 
         throw new Error('Wajah tidak terdeteksi dengan stabil. Pastikan pencahayaan cukup dan hanya satu wajah di layar.');
     }
 
-    async waitForSteadyFaceHold(videoElement, callbacks = {}, holdMs = 700, timeoutMs = 7000) {
+    async waitForSteadyFaceHold(videoElement, callbacks = {}, holdMs = 420, timeoutMs = 5200) {
         const startedAt = Date.now();
         let heldSince = null;
 
@@ -472,7 +472,7 @@ class FaceRecognition {
             if (!detection) {
                 heldSince = null;
                 this.emit(callbacks.onStatus, 'Menstabilkan pembacaan wajah. Jangan terlalu banyak bergerak.');
-                await this.delay(120);
+                await this.delay(85);
                 continue;
             }
 
@@ -490,7 +490,7 @@ class FaceRecognition {
                 return true;
             }
 
-            await this.delay(90);
+            await this.delay(60);
         }
 
         throw new Error('Wajah belum terbaca dengan stabil. Coba tahan posisi wajah lebih tenang.');
