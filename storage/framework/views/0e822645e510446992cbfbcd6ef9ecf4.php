@@ -1962,7 +1962,6 @@
         const kioskFlashMeta = document.getElementById('kioskFlashMeta');
         const kioskFlashIcon = document.getElementById('kioskFlashIcon');
         const attendanceDetailModalEl = document.getElementById('attendanceDetailModal');
-        const attendanceDetailModal = window.bootstrap ? new bootstrap.Modal(attendanceDetailModalEl) : null;
         const attendanceDetailAvatar = document.getElementById('attendanceDetailAvatar');
         const attendanceDetailName = document.getElementById('attendanceDetailName');
         const attendanceDetailMeta = document.getElementById('attendanceDetailMeta');
@@ -1977,7 +1976,6 @@
         const teacherStateChip = document.getElementById('teacherStateChip');
         const teacherStateCopy = document.getElementById('teacherStateCopy');
         const faceEnrollmentModalEl = document.getElementById('faceEnrollmentModal');
-        const faceEnrollmentModal = window.bootstrap ? new bootstrap.Modal(faceEnrollmentModalEl) : null;
         const startEnrollmentButton = document.getElementById('startEnrollmentButton');
         const saveEnrollmentButton = document.getElementById('saveEnrollmentButton');
         const enrollmentVideo = document.getElementById('enrollmentVideo');
@@ -2000,6 +1998,13 @@
         if (attendanceDetailModalEl && attendanceDetailModalEl.parentElement !== document.body) {
             document.body.appendChild(attendanceDetailModalEl);
         }
+
+        const faceEnrollmentModal = window.bootstrap && faceEnrollmentModalEl
+            ? window.bootstrap.Modal.getOrCreateInstance(faceEnrollmentModalEl)
+            : null;
+        const attendanceDetailModal = window.bootstrap && attendanceDetailModalEl
+            ? window.bootstrap.Modal.getOrCreateInstance(attendanceDetailModalEl)
+            : null;
 
         const faceRecognition = new window.FaceRecognition();
         const statusSteps = Array.from(document.querySelectorAll('.status-step'));
@@ -3386,8 +3391,12 @@
             updateEnrollmentTeacherSelection();
             updateEnrollmentActionState();
 
-            if (faceEnrollmentModal) {
-                faceEnrollmentModal.show();
+            if (window.bootstrap && faceEnrollmentModalEl) {
+                window.bootstrap.Modal.getOrCreateInstance(faceEnrollmentModalEl).show();
+            } else if (faceEnrollmentModalEl) {
+                faceEnrollmentModalEl.style.display = 'block';
+                faceEnrollmentModalEl.classList.add('show');
+                faceEnrollmentModalEl.removeAttribute('aria-hidden');
             }
         }
 
