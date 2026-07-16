@@ -597,6 +597,7 @@
             display: flex;
         }
 
+        .selfie-modal.selfie-fullscreen-modal,
         .selfie-modal.face-scan-modal {
             padding: 0;
             align-items: stretch;
@@ -618,6 +619,7 @@
             border: 1px solid rgba(148, 163, 184, 0.16);
         }
 
+        .selfie-fullscreen-mode.selfie-modal-dialog,
         .face-scan-mode.selfie-modal-dialog {
             width: 100vw;
             max-width: 100vw;
@@ -690,6 +692,7 @@
             display: none !important;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-header,
         .face-scan-mode .selfie-modal-header {
             position: absolute;
             top: 0;
@@ -701,6 +704,7 @@
             min-height: 56px;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-close,
         .face-scan-mode .selfie-modal-close {
             position: absolute;
             top: 18px;
@@ -708,6 +712,11 @@
             z-index: 6;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-close {
+            color: #fff;
+        }
+
+        .selfie-fullscreen-mode .selfie-modal-actions,
         .face-scan-mode .selfie-modal-actions {
             position: absolute;
             top: 18px;
@@ -724,6 +733,7 @@
             flex: 1;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-body,
         .face-scan-mode .selfie-modal-body {
             padding: 0;
             overflow: hidden;
@@ -939,10 +949,12 @@
             justify-content: space-between;
         }
 
+        .selfie-fullscreen-mode .selfie-status-banner,
         .face-scan-mode .selfie-status-banner {
             display: none;
         }
 
+        .selfie-fullscreen-mode .selfie-stage,
         .face-scan-mode .selfie-stage {
             min-height: 100vh;
             padding: 0;
@@ -955,8 +967,19 @@
             z-index: 0;
         }
 
+        .selfie-fullscreen-mode .selfie-camera-layer,
         .face-scan-mode .selfie-camera-layer {
             min-height: 100vh;
+        }
+
+        .selfie-fullscreen-mode .selfie-placeholder {
+            background: #000;
+        }
+
+        .selfie-fullscreen-mode .selfie-placeholder i,
+        .selfie-fullscreen-mode .selfie-placeholder strong,
+        .selfie-fullscreen-mode .selfie-placeholder span {
+            display: none;
         }
 
         .selfie-placeholder {
@@ -1365,6 +1388,7 @@
             justify-content: center;
         }
 
+        .selfie-fullscreen-mode .selfie-stage-copy,
         .face-scan-mode .selfie-stage-copy {
             display: none;
         }
@@ -1440,6 +1464,7 @@
             backdrop-filter: blur(18px);
         }
 
+        .selfie-fullscreen-mode .selfie-modal-footer,
         .face-scan-mode .selfie-modal-footer {
             position: absolute;
             left: 16px;
@@ -1452,6 +1477,8 @@
             gap: 12px;
         }
 
+        .selfie-fullscreen-mode .selfie-footer-title,
+        .selfie-fullscreen-mode .selfie-progress-meter,
         .face-scan-mode .selfie-footer-title,
         .face-scan-mode .selfie-progress-meter {
             display: none;
@@ -1930,8 +1957,8 @@
     
 </div>
 
-<div id="selfie-modal" class="selfie-modal <?php echo e($verificationMode === 'face_scan' ? 'face-scan-modal' : ''); ?>" aria-hidden="true">
-    <div class="selfie-modal-dialog <?php echo e($verificationMode === 'face_scan' ? 'face-scan-mode' : ''); ?>" role="dialog" aria-modal="true" aria-labelledby="selfie-modal-title">
+<div id="selfie-modal" class="selfie-modal <?php echo e($verificationMode === 'face_scan' ? 'face-scan-modal' : 'selfie-fullscreen-modal'); ?>" aria-hidden="true">
+    <div class="selfie-modal-dialog <?php echo e($verificationMode === 'face_scan' ? 'face-scan-mode' : 'selfie-fullscreen-mode'); ?>" role="dialog" aria-modal="true" aria-labelledby="selfie-modal-title">
         <div class="selfie-modal-header">
             <button type="button" id="btn-close-selfie-modal" class="selfie-modal-close" aria-label="Tutup">
                 Batal
@@ -2687,6 +2714,26 @@ window.addEventListener('load', function() {
         selfieStream = null;
     }
 
+    async function waitForVideoFrame(video, timeoutMs = 4000) {
+        if (!video) {
+            throw new Error('Kamera tidak tersedia.');
+        }
+
+        const startedAt = Date.now();
+        while (Date.now() - startedAt < timeoutMs) {
+            const hasDimensions = Number(video.videoWidth) > 0 && Number(video.videoHeight) > 0;
+            const hasCurrentFrame = Number(video.readyState) >= 2;
+
+            if (hasDimensions && hasCurrentFrame) {
+                return;
+            }
+
+            await new Promise((resolve) => window.setTimeout(resolve, 120));
+        }
+
+        throw new Error('Kamera belum siap mengambil foto. Tunggu sebentar lalu coba lagi.');
+    }
+
     function setSelfieStatus(message, type = 'info', title = null) {
         const statusElement = document.getElementById('selfie-status');
         if (!statusElement) {
@@ -3415,6 +3462,7 @@ window.addEventListener('load', function() {
                     video.onloadedmetadata = () => resolve(true);
                 });
                 await video.play();
+                await waitForVideoFrame(video);
                 updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
             }
             video.style.display = 'block';
@@ -3490,15 +3538,22 @@ window.addEventListener('load', function() {
                 });
                 await verifyFaceMatchAfterChallenges(faceVerificationResult);
             } else {
+                await waitForVideoFrame(video);
                 const ctx = canvas.getContext('2d');
+                const sourceWidth = Number(video.videoWidth) || 0;
+                const sourceHeight = Number(video.videoHeight) || 0;
                 const aspectRatio = 3 / 4;
-                const canvasWidth = Math.min(video.videoWidth, video.videoHeight * aspectRatio);
-                const canvasHeight = canvasWidth / aspectRatio;
+                if (!ctx || sourceWidth <= 0 || sourceHeight <= 0) {
+                    throw new Error('Frame kamera belum siap. Silakan ambil ulang selfie.');
+                }
+
+                const canvasWidth = Math.round(Math.min(sourceWidth, sourceHeight * aspectRatio));
+                const canvasHeight = Math.round(canvasWidth / aspectRatio);
                 canvas.width = canvasWidth;
                 canvas.height = canvasHeight;
 
-                const sourceX = (video.videoWidth - canvasWidth) / 2;
-                const sourceY = (video.videoHeight - canvasHeight) / 2;
+                const sourceX = (sourceWidth - canvasWidth) / 2;
+                const sourceY = (sourceHeight - canvasHeight) / 2;
 
                 ctx.translate(canvas.width, 0);
                 ctx.scale(-1, 1);
@@ -3511,6 +3566,14 @@ window.addEventListener('load', function() {
                     liveness_score: null,
                     liveness_challenges: null,
                 };
+            }
+
+            if (!faceVerificationResult?.captured_image || faceVerificationResult.captured_image.length < 100) {
+                throw new Error(
+                    faceScanRequired
+                        ? 'Hasil scan wajah belum berhasil diproses. Silakan ulangi scan.'
+                        : 'Foto selfie belum berhasil diproses. Silakan ambil ulang selfie.'
+                );
             }
 
             if (selfieDataInput) {
@@ -3529,6 +3592,9 @@ window.addEventListener('load', function() {
             if (selfiePreview) {
                 selfiePreview.src = faceVerificationResult.captured_image;
                 selfiePreview.style.display = 'block';
+            }
+            if (canvas) {
+                canvas.style.display = 'none';
             }
 
             if (video) {

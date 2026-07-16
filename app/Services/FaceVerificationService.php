@@ -168,6 +168,148 @@ class FaceVerificationService
         ];
     }
 
+    public function identifyBestMatchingUser(
+        iterable $users,
+        mixed $descriptor,
+        mixed $livenessScore,
+        mixed $challenges,
+        bool $enforceAdvancedLiveness = false,
+    ): array {
+        $normalizedDescriptor = $this->normalizeDescriptor($descriptor);
+        if (empty($normalizedDescriptor)) {
+            return [
+                'success' => false,
+                'message' => 'Data descriptor wajah tidak valid. Silakan ulangi scan wajah.',
+                'notes' => 'invalid_face_descriptor',
+            ];
+        }
+
+        $normalizedChallenges = $this->normalizeChallenges($challenges);
+        $normalizedLivenessScore = is_numeric($livenessScore) ? (float) $livenessScore : null;
+
+        if ($normalizedLivenessScore === null) {
+            return [
+                'success' => false,
+                'message' => 'Skor liveness tidak valid. Silakan ulangi scan wajah.',
+                'notes' => 'invalid_liveness_score',
+            ];
+        }
+
+        if (!$this->hasPassedChallenge($normalizedChallenges, self::REQUIRED_ATTENDANCE_CHALLENGE)) {
+            return [
+                'success' => false,
+                'message' => 'Kedipan belum terverifikasi. Ulangi scan wajah lalu kedip satu kali.',
+                'liveness_score' => round($normalizedLivenessScore, 4),
+                'challenges' => $normalizedChallenges,
+                'notes' => 'blink_challenge_missing',
+            ];
+        }
+
+        if ($enforceAdvancedLiveness) {
+            $dynamicChallenge = $this->firstPassedChallenge($normalizedChallenges, self::REQUIRED_DYNAMIC_CHALLENGES);
+            if (!$dynamicChallenge) {
+                return [
+                    'success' => false,
+                    'message' => 'Challenge wajah tambahan belum terpenuhi. Ulangi scan dan ikuti arahan gerakan wajah.',
+                    'liveness_score' => round($normalizedLivenessScore, 4),
+                    'challenges' => $normalizedChallenges,
+                    'notes' => 'dynamic_challenge_missing',
+                ];
+            }
+
+            $lightingChallenge = $this->findChallenge($normalizedChallenges, 'lighting');
+            if ($lightingChallenge && !$lightingChallenge['passed']) {
+                return [
+                    'success' => false,
+                    'message' => 'Pencahayaan wajah belum cukup baik. Dekatkan wajah dan gunakan cahaya yang lebih jelas.',
+                    'liveness_score' => round($normalizedLivenessScore, 4),
+                    'challenges' => $normalizedChallenges,
+                    'notes' => 'lighting_insufficient',
+                ];
+            }
+
+            $screenReplayRisk = $this->findChallenge($normalizedChallenges, 'screen_replay_risk');
+            if (($screenReplayRisk['score'] ?? 0) > self::SCREEN_REPLAY_RISK_THRESHOLD) {
+                return [
+                    'success' => false,
+                    'message' => 'Scan wajah terdeteksi berisiko seperti layar atau replay video. Gunakan wajah asli di depan kamera.',
+                    'liveness_score' => round($normalizedLivenessScore, 4),
+                    'challenges' => $normalizedChallenges,
+                    'notes' => 'screen_replay_risk_high',
+                ];
+            }
+        }
+
+        if ($normalizedLivenessScore < self::LIVENESS_THRESHOLD) {
+            return [
+                'success' => false,
+                'message' => 'Scan wajah gagal diverifikasi. Wajah belum terbaca dengan cukup stabil.',
+                'liveness_score' => round($normalizedLivenessScore, 4),
+                'challenges' => $normalizedChallenges,
+                'notes' => 'liveness_below_threshold',
+            ];
+        }
+
+        $bestUser = null;
+        $bestDistance = null;
+
+        foreach ($users as $user) {
+            if (!$user instanceof User) {
+                continue;
+            }
+
+            $storedDescriptors = $this->storedDescriptors($user);
+            if (empty($storedDescriptors)) {
+                continue;
+            }
+
+            foreach ($storedDescriptors as $storedDescriptor) {
+                $distance = $this->euclideanDistance($storedDescriptor, $normalizedDescriptor);
+                if ($bestDistance === null || $distance < $bestDistance) {
+                    $bestDistance = $distance;
+                    $bestUser = $user;
+                }
+            }
+        }
+
+        if (!$bestUser || $bestDistance === null) {
+            return [
+                'success' => false,
+                'message' => 'Belum ada data wajah guru yang siap dicocokkan di kiosk ini.',
+                'liveness_score' => round($normalizedLivenessScore, 4),
+                'challenges' => $normalizedChallenges,
+                'notes' => 'no_enrolled_teachers',
+            ];
+        }
+
+        $bestSimilarity = $this->distanceToSimilarity($bestDistance);
+        if ($bestDistance > self::FACE_DISTANCE_THRESHOLD) {
+            return [
+                'success' => false,
+                'message' => 'Wajah tidak dikenali. Pastikan guru sudah mendaftarkan wajah yang benar.',
+                'similarity' => round($bestSimilarity, 4),
+                'face_distance' => round($bestDistance, 4),
+                'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+                'liveness_score' => round($normalizedLivenessScore, 4),
+                'challenges' => $normalizedChallenges,
+                'notes' => 'face_similarity_below_threshold',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Identitas wajah berhasil dikenali.',
+            'user' => $bestUser,
+            'face_id_used' => $bestUser->face_id,
+            'similarity' => round($bestSimilarity, 4),
+            'face_distance' => round($bestDistance, 4),
+            'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
+            'liveness_score' => round($normalizedLivenessScore, 4),
+            'challenges' => $normalizedChallenges,
+            'notes' => 'face_identified',
+        ];
+    }
+
     private function hasEnrollment(User $user): bool
     {
         return !empty($this->storedDescriptors($user));

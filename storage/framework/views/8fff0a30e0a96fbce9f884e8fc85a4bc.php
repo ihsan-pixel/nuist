@@ -92,6 +92,61 @@
         vertical-align: top;
         font-size: 13px;
     }
+
+    .kiosk-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .kiosk-pagination-info {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .kiosk-pagination-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .kiosk-pagination-links .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 10px;
+        border: 1px solid #dbe4f0;
+        background: #fff;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        box-shadow: none;
+    }
+
+    .kiosk-pagination-links .page-link i {
+        font-size: 16px;
+    }
+
+    .kiosk-pagination-links .page-link.active {
+        background: #0f172a;
+        border-color: #0f172a;
+        color: #fff;
+    }
+
+    .kiosk-pagination-links .page-link.disabled {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        color: #94a3b8;
+        pointer-events: none;
+    }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -141,15 +196,15 @@
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('kiosk_registration')): ?>
                     <?php ($registration = session('kiosk_registration')); ?>
-                    <div class="alert alert-info">
-                        <div class="fw-semibold mb-2">Perangkat baru berhasil didaftarkan</div>
-                        <div class="small text-muted mb-2">
-                            Browser ini sudah diikat ke perangkat <strong><?php echo e($registration['device_name']); ?></strong> untuk <?php echo e($registration['madrasah_name']); ?>.
-                        </div>
-                        <div class="token-box"><?php echo e($registration['plain_token']); ?></div>
-                        <div class="small mt-2 mb-0 text-muted">
-                            Token ini ditampilkan sekali. Simpan hanya jika Anda perlu migrasi ulang browser kiosk.
-                        </div>
+                        <div class="alert alert-info">
+                            <div class="fw-semibold mb-2">Perangkat baru berhasil didaftarkan</div>
+                            <div class="small text-muted mb-2">
+                            Komputer ini sudah terhubung ke perangkat <strong><?php echo e($registration['device_name']); ?></strong> untuk <?php echo e($registration['madrasah_name']); ?>.
+                            </div>
+                            <div class="token-box"><?php echo e($registration['plain_token']); ?></div>
+                            <div class="small mt-2 mb-0 text-muted">
+                                Token ini ditampilkan sekali. Simpan hanya jika Anda perlu migrasi ulang browser kiosk.
+                            </div>
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
@@ -226,11 +281,9 @@
                                         <div class="form-text">Pisahkan lebih dari satu IP dengan koma atau baris baru.</div>
                                     </div>
 
-                                    <input type="hidden" name="browser_fingerprint" id="browserFingerprintInput">
-
                                     <div class="alert alert-warning small mb-3">
                                         <i class="bx bx-info-circle me-1"></i>
-                                        Gunakan form ini dari browser komputer yang benar-benar akan dipakai untuk presensi.
+                                        Gunakan form ini dari komputer yang benar-benar akan dipakai untuk presensi.
                                     </div>
 
                                     <button type="submit" class="btn btn-primary w-100">
@@ -330,6 +383,13 @@
 
                                                                 </button>
                                                             </form>
+                                                            <form method="POST" action="<?php echo e(route('presensi_admin.kiosk_devices.destroy', $device)); ?>" onsubmit="return confirm('Hapus perangkat <?php echo e(addslashes($device->name)); ?>?');">
+                                                                <?php echo csrf_field(); ?>
+                                                                <?php echo method_field('DELETE'); ?>
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                    Hapus
+                                                                </button>
+                                                            </form>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -397,42 +457,49 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($logs->hasPages()): ?>
+                            <div class="kiosk-pagination mt-3">
+                                <div class="kiosk-pagination-info">
+                                    Menampilkan <?php echo e($logs->firstItem()); ?>-<?php echo e($logs->lastItem()); ?> dari <?php echo e($logs->total()); ?> aktivitas
+                                </div>
+                                <div class="kiosk-pagination-links">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($logs->onFirstPage()): ?>
+                                        <span class="page-link disabled">
+                                            <i class="bx bx-chevron-left"></i>
+                                        </span>
+                                    <?php else: ?>
+                                        <a href="<?php echo e($logs->previousPageUrl()); ?>" class="page-link" aria-label="Previous">
+                                            <i class="bx bx-chevron-left"></i>
+                                        </a>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $logs->getUrlRange(max(1, $logs->currentPage() - 2), min($logs->lastPage(), $logs->currentPage() + 2)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($page === $logs->currentPage()): ?>
+                                            <span class="page-link active"><?php echo e($page); ?></span>
+                                        <?php else: ?>
+                                            <a href="<?php echo e($url); ?>" class="page-link"><?php echo e($page); ?></a>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($logs->hasMorePages()): ?>
+                                        <a href="<?php echo e($logs->nextPageUrl()); ?>" class="page-link" aria-label="Next">
+                                            <i class="bx bx-chevron-right"></i>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="page-link disabled">
+                                            <i class="bx bx-chevron-right"></i>
+                                        </span>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<?php $__env->stopSection(); ?>
-
-<?php $__env->startSection('script'); ?>
-<script>
-    (function () {
-        const fingerprintInput = document.getElementById('browserFingerprintInput');
-
-        const buildFingerprint = () => {
-            const parts = [
-                navigator.userAgent || '',
-                navigator.language || '',
-                window.screen?.width || '',
-                window.screen?.height || '',
-                window.screen?.colorDepth || '',
-                Intl.DateTimeFormat().resolvedOptions().timeZone || '',
-                navigator.platform || '',
-            ];
-
-            return btoa(unescape(encodeURIComponent(parts.join('|')))).slice(0, 500);
-        };
-
-        const fingerprint = buildFingerprint();
-
-        if (fingerprintInput) {
-            fingerprintInput.value = fingerprint;
-        }
-
-        document.cookie = `nuist_kiosk_fingerprint=${encodeURIComponent(fingerprint)}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
-    })();
-</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/admin/attendance-kiosk-devices.blade.php ENDPATH**/ ?>
