@@ -73,19 +73,29 @@
         border-radius: 18px;
         overflow: hidden;
         background: #0f172a;
-        min-height: 420px;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        min-height: clamp(360px, 62vh, 760px);
+        max-height: 72vh;
     }
 
     .camera-shell video,
     .camera-shell img {
+        position: absolute;
+        inset: 0;
         width: 100%;
-        height: 420px;
+        height: 100%;
         object-fit: cover;
         display: block;
         transform: scaleX(-1);
+        background: #0f172a;
     }
 
     .camera-shell canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         display: none;
     }
 
@@ -123,6 +133,11 @@
     @media (max-width: 768px) {
         .kiosk-page {
             padding: 12px;
+        }
+
+        .camera-shell {
+            min-height: 280px;
+            max-height: none;
         }
     }
 </style>
