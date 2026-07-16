@@ -341,37 +341,41 @@
 
     .camera-summary-card {
         min-width: 0;
-        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 12px 11px;
         border-radius: 18px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(15, 23, 42, 0.42);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.08);
         backdrop-filter: blur(14px);
-        box-shadow: 0 14px 30px rgba(2, 6, 23, 0.18);
+        box-shadow: 0 14px 30px rgba(2, 6, 23, 0.12);
     }
 
     .camera-summary-label {
         display: block;
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: rgba(186, 230, 253, 0.8);
-        margin-bottom: 6px;
+        letter-spacing: 0;
+        text-transform: none;
+        color: rgba(226, 232, 240, 0.78);
+        line-height: 1.35;
+        margin-bottom: 0;
     }
 
     .camera-summary-value {
         display: block;
-        font-size: 16px;
+        font-size: 13px;
         font-weight: 800;
-        color: #f8fafc;
-        line-height: 1.25;
+        color: #ffffff;
+        line-height: 1.4;
         word-break: break-word;
     }
 
     .camera-summary-card.is-text .camera-summary-value {
         font-size: 13px;
-        font-weight: 700;
-        color: rgba(248, 250, 252, 0.96);
+        font-weight: 800;
+        color: #ffffff;
     }
 
     .scan-badge {
