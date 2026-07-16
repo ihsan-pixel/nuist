@@ -214,6 +214,7 @@ class SchoolKioskController extends Controller
 
                 $teacher->face_data = json_encode([
                     'face_engine' => 'python',
+                    'face_provider' => $engineResult['provider'] ?? null,
                     'face_embedding' => $faceEmbedding,
                     'face_embedding_dimension' => count($faceEmbedding),
                     'liveness_score' => $engineResult['liveness_score'] ?? null,

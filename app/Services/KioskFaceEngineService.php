@@ -21,7 +21,7 @@ class KioskFaceEngineService
     public function displayLabel(): string
     {
         return $this->usesPython()
-            ? 'Python FastAPI / InsightFace'
+            ? 'Python FastAPI / OpenCV SFace'
             : 'Browser Face API';
     }
 
@@ -58,6 +58,7 @@ class KioskFaceEngineService
         return [
             'success' => true,
             'message' => (string) ($response['message'] ?? 'Data wajah berhasil diproses oleh engine Python.'),
+            'provider' => $this->normalizeProvider($response['provider'] ?? data_get($response, 'metadata.provider')),
             'face_embedding' => $embedding,
             'face_embedding_dimension' => count($embedding),
             'liveness_score' => $this->normalizeFloat($response['liveness_score'] ?? null),
@@ -117,6 +118,7 @@ class KioskFaceEngineService
             'message' => (string) ($response['message'] ?? 'Identitas guru berhasil dikenali oleh engine Python.'),
             'user_id' => $userId,
             'face_id_used' => isset($response['face_id_used']) ? (string) $response['face_id_used'] : null,
+            'provider' => $this->normalizeProvider($response['provider'] ?? data_get($response, 'metadata.provider')),
             'similarity' => $this->normalizeFloat($response['similarity'] ?? null),
             'face_distance' => $this->normalizeFloat($response['face_distance'] ?? null),
             'liveness_score' => $this->normalizeFloat($response['liveness_score'] ?? null),
@@ -211,7 +213,7 @@ class KioskFaceEngineService
         $embedding = $this->normalizeVector($stored['face_embedding'] ?? null);
         if ($embedding !== []) {
             $vectors[] = [
-                'type' => 'face_embedding',
+                'type' => $this->embeddingVectorType($stored),
                 'dimension' => count($embedding),
                 'values' => $embedding,
             ];
@@ -220,7 +222,7 @@ class KioskFaceEngineService
         $descriptor = $this->normalizeVector($stored['face_descriptor'] ?? null);
         if ($descriptor !== []) {
             $vectors[] = [
-                'type' => 'face_descriptor',
+                'type' => 'face_descriptor:browser_face_api',
                 'dimension' => count($descriptor),
                 'values' => $descriptor,
             ];
@@ -234,7 +236,7 @@ class KioskFaceEngineService
                 }
 
                 $vectors[] = [
-                    'type' => 'face_descriptor',
+                    'type' => 'face_descriptor:browser_face_api',
                     'dimension' => count($normalized),
                     'values' => $normalized,
                     'index' => $index,
@@ -352,6 +354,31 @@ class KioskFaceEngineService
     private function normalizeFloat(mixed $value): ?float
     {
         return is_numeric($value) ? round((float) $value, 4) : null;
+    }
+
+    private function embeddingVectorType(array $stored): string
+    {
+        $provider = $this->normalizeProvider($stored['face_provider'] ?? data_get($stored, 'engine_metadata.provider'));
+
+        return $provider
+            ? 'face_embedding:'.$provider
+            : 'face_embedding:legacy_python';
+    }
+
+    private function normalizeProvider(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $provider = str($value)
+            ->lower()
+            ->replace('-', '_')
+            ->replace(' ', '_')
+            ->trim('_')
+            ->value();
+
+        return $provider !== '' ? $provider : null;
     }
 
     private function failure(string $message, string $notes, int $status = 422): array

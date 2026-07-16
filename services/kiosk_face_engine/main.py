@@ -7,6 +7,7 @@ import os
 import time
 from dataclasses import dataclass
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 import cv2
@@ -14,13 +15,8 @@ import numpy as np
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
-try:
-    from insightface.app import FaceAnalysis
-except Exception:  # pragma: no cover - dependency may be absent in local parse-only checks
-    FaceAnalysis = None
 
-
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.2.0"
 
 
 def env_bool(name: str, default: bool) -> bool:
@@ -29,6 +25,20 @@ def env_bool(name: str, default: bool) -> bool:
 
 def clamp(value: float, minimum: float = 0.0, maximum: float = 1.0) -> float:
     return max(minimum, min(maximum, value))
+
+
+def normalize_provider_name(value: str | None) -> str:
+    normalized = (value or "").strip().lower().replace("-", "_").replace(" ", "_")
+    return normalized or "unknown"
+
+
+def resolve_path(value: str, *, base_dir: Path) -> Path:
+    path = Path(value).expanduser()
+
+    if path.is_absolute():
+        return path
+
+    return (base_dir / path).resolve()
 
 
 class CandidateVector(BaseModel):
@@ -68,6 +78,14 @@ class HealthResponse(BaseModel):
 
 
 @dataclass
+class ModelBundle:
+    detector: Any
+    recognizer: Any
+    detector_model_path: str
+    recognizer_model_path: str
+
+
+@dataclass
 class FaceFrameAnalysis:
     embedding: np.ndarray
     bbox: tuple[float, float, float, float]
@@ -79,14 +97,31 @@ class FaceFrameAnalysis:
 
 
 class Settings:
+    base_dir = Path(__file__).resolve().parent
+    model_dir = resolve_path(
+        os.getenv("KIOSK_FACE_MODEL_DIR", "models"),
+        base_dir=base_dir,
+    )
     api_key = os.getenv("KIOSK_FACE_SERVICE_KEY", "").strip()
     require_api_key = env_bool("KIOSK_FACE_REQUIRE_KEY", False)
-    provider = os.getenv("KIOSK_FACE_PROVIDER", "insightface")
-    ctx_id = int(os.getenv("KIOSK_FACE_CTX_ID", "0"))
+    provider = normalize_provider_name(os.getenv("KIOSK_FACE_PROVIDER", "opencv_sface"))
+    detector_model = resolve_path(
+        os.getenv("KIOSK_FACE_DETECTOR_MODEL", str(model_dir / "face_detection_yunet_2023mar.onnx")),
+        base_dir=base_dir,
+    )
+    recognizer_model = resolve_path(
+        os.getenv("KIOSK_FACE_RECOGNIZER_MODEL", str(model_dir / "face_recognition_sface_2021dec.onnx")),
+        base_dir=base_dir,
+    )
+    allow_legacy_embeddings = env_bool("KIOSK_FACE_ALLOW_LEGACY_EMBEDDINGS", False)
     det_width = int(os.getenv("KIOSK_FACE_DET_WIDTH", "640"))
     det_height = int(os.getenv("KIOSK_FACE_DET_HEIGHT", "640"))
+    det_score_threshold = float(os.getenv("KIOSK_FACE_DET_SCORE_THRESHOLD", "0.88"))
+    det_nms_threshold = float(os.getenv("KIOSK_FACE_DET_NMS_THRESHOLD", "0.30"))
+    det_top_k = int(os.getenv("KIOSK_FACE_DET_TOP_K", "500"))
     min_similarity = float(os.getenv("KIOSK_FACE_MIN_SIMILARITY", "0.55"))
     min_liveness = float(os.getenv("KIOSK_FACE_MIN_LIVENESS", "0.68"))
+    min_face_size = int(os.getenv("KIOSK_FACE_MIN_FACE_SIZE", "96"))
 
 
 settings = Settings()
@@ -106,15 +141,39 @@ class EngineUnavailable(RuntimeError):
 
 
 @lru_cache(maxsize=1)
-def face_engine() -> FaceAnalysis:
-    if FaceAnalysis is None:
+def face_engine() -> ModelBundle:
+    if not hasattr(cv2, "FaceDetectorYN_create"):
+        raise EngineUnavailable("OpenCV build ini tidak mendukung FaceDetectorYN_create.")
+
+    if not hasattr(cv2, "FaceRecognizerSF_create"):
+        raise EngineUnavailable("OpenCV build ini tidak mendukung FaceRecognizerSF_create.")
+
+    if not settings.detector_model.is_file():
         raise EngineUnavailable(
-            "InsightFace dependency is not installed. Install requirements.txt in the Python service environment."
+            f"Model detector tidak ditemukan: {settings.detector_model}. Unggah file ONNX YuNet terlebih dahulu."
         )
 
-    app_instance = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
-    app_instance.prepare(ctx_id=settings.ctx_id, det_size=(settings.det_width, settings.det_height))
-    return app_instance
+    if not settings.recognizer_model.is_file():
+        raise EngineUnavailable(
+            f"Model recognizer tidak ditemukan: {settings.recognizer_model}. Unggah file ONNX SFace terlebih dahulu."
+        )
+
+    detector = cv2.FaceDetectorYN_create(
+        str(settings.detector_model),
+        "",
+        (settings.det_width, settings.det_height),
+        settings.det_score_threshold,
+        settings.det_nms_threshold,
+        settings.det_top_k,
+    )
+    recognizer = cv2.FaceRecognizerSF_create(str(settings.recognizer_model), "")
+
+    return ModelBundle(
+        detector=detector,
+        recognizer=recognizer,
+        detector_model_path=str(settings.detector_model),
+        recognizer_model_path=str(settings.recognizer_model),
+    )
 
 
 def decode_data_url(data_url: str) -> np.ndarray:
@@ -151,7 +210,7 @@ def crop_with_padding(image: np.ndarray, bbox: tuple[float, float, float, float]
 
 
 def normalize_embedding(vector: np.ndarray) -> np.ndarray:
-    vector = vector.astype(np.float32)
+    vector = np.asarray(vector, dtype=np.float32).flatten()
     norm = float(np.linalg.norm(vector))
     if norm <= 0:
         return vector
@@ -171,6 +230,34 @@ def sample_crop_metrics(crop: np.ndarray) -> tuple[float, float, float]:
     return blur_score, brightness, contrast
 
 
+def detect_face(image: np.ndarray, engine: ModelBundle) -> tuple[np.ndarray, tuple[float, float, float, float], float] | None:
+    try:
+        engine.detector.setInputSize((image.shape[1], image.shape[0]))
+        _, faces = engine.detector.detect(image)
+    except cv2.error:
+        return None
+
+    if faces is None or len(faces) != 1:
+        return None
+
+    face = np.asarray(faces[0], dtype=np.float32)
+    x, y, width, height = [float(value) for value in face[:4]]
+    if min(width, height) < settings.min_face_size:
+        return None
+
+    bbox = (x, y, x + width, y + height)
+
+    try:
+        aligned_face = engine.recognizer.alignCrop(image, face)
+        embedding = normalize_embedding(engine.recognizer.feature(aligned_face))
+    except cv2.error:
+        return None
+
+    det_score = float(face[14]) if face.shape[0] > 14 else 0.0
+
+    return embedding, bbox, det_score
+
+
 def analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
     try:
         engine = face_engine()
@@ -181,21 +268,11 @@ def analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
 
     for frame_data in frame_payloads:
         image = decode_data_url(frame_data)
-        faces = engine.get(image)
-        if len(faces) != 1:
+        detection = detect_face(image, engine)
+        if detection is None:
             continue
 
-        face = faces[0]
-        embedding = getattr(face, "normed_embedding", None)
-        if embedding is None:
-            raw_embedding = getattr(face, "embedding", None)
-            if raw_embedding is None:
-                continue
-            embedding = normalize_embedding(np.asarray(raw_embedding, dtype=np.float32))
-        else:
-            embedding = normalize_embedding(np.asarray(embedding, dtype=np.float32))
-
-        bbox_values = tuple(float(value) for value in np.asarray(face.bbox).tolist())
+        embedding, bbox_values, det_score = detection
         crop = crop_with_padding(image, bbox_values)
         blur_score, brightness, contrast = sample_crop_metrics(crop)
 
@@ -203,7 +280,7 @@ def analyze_frames(frame_payloads: list[str]) -> list[FaceFrameAnalysis]:
             FaceFrameAnalysis(
                 embedding=embedding,
                 bbox=bbox_values,
-                det_score=float(getattr(face, "det_score", 0.0) or 0.0),
+                det_score=det_score,
                 blur_score=blur_score,
                 brightness=brightness,
                 contrast=contrast,
@@ -221,17 +298,17 @@ def choose_best_analysis(analyses: list[FaceFrameAnalysis]) -> FaceFrameAnalysis
     return max(
         analyses,
         key=lambda item: (
-            item.det_score * 0.45
-            + clamp(item.blur_score / 220.0) * 0.35
+            item.det_score * 0.48
+            + clamp(item.blur_score / 220.0) * 0.30
             + clamp(item.contrast / 42.0) * 0.12
-            + clamp(item.brightness / 160.0) * 0.08
+            + clamp(item.brightness / 160.0) * 0.10
         ),
     )
 
 
 def compute_liveness(analyses: list[FaceFrameAnalysis]) -> tuple[float, list[dict[str, Any]], dict[str, Any]]:
     if not analyses:
-        return 0.0, [], {"valid_frames": 0}
+        return 0.0, [], {"valid_frames": 0, "provider": settings.provider}
 
     centers_x = []
     centers_y = []
@@ -302,6 +379,7 @@ def compute_liveness(analyses: list[FaceFrameAnalysis]) -> tuple[float, list[dic
     ]
 
     metadata = {
+        "provider": settings.provider,
         "valid_frames": len(analyses),
         "average_blur": round(float(np.mean(blurs)), 4),
         "average_brightness": round(float(np.mean(brightnesses)), 4),
@@ -319,6 +397,29 @@ def candidate_similarity(query_embedding: np.ndarray, candidate_vector: list[flo
         return -1.0
 
     return float(np.dot(query_embedding, candidate))
+
+
+def is_vector_compatible(vector_type: str) -> bool:
+    normalized_type = normalize_provider_name(vector_type)
+    provider_type = f"face_embedding:{settings.provider}"
+
+    if normalized_type == provider_type:
+        return True
+
+    if settings.allow_legacy_embeddings and normalized_type in {"face_embedding", "embedding"}:
+        return True
+
+    return False
+
+
+def provider_compatibility_message() -> str:
+    if settings.allow_legacy_embeddings:
+        return "Belum ada kandidat wajah yang kompatibel untuk dibandingkan."
+
+    return (
+        "Belum ada data wajah guru yang kompatibel dengan engine Python aktif. "
+        "Registrasikan ulang wajah guru dengan engine saat ini."
+    )
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -352,6 +453,7 @@ def enroll(request: EnrollRequest, _: None = Depends(require_api_key)) -> dict[s
             detail={
                 "message": "Registrasi wajah ditolak karena liveness belum meyakinkan.",
                 "notes": "liveness_below_threshold",
+                "provider": settings.provider,
                 "liveness_score": liveness_score,
                 "liveness_challenges": challenges,
                 "metadata": metadata,
@@ -362,6 +464,7 @@ def enroll(request: EnrollRequest, _: None = Depends(require_api_key)) -> dict[s
         "success": True,
         "message": "Data wajah berhasil diproses oleh engine Python.",
         "notes": "face_enrolled_python",
+        "provider": settings.provider,
         "face_embedding": best.embedding.astype(float).tolist(),
         "liveness_score": liveness_score,
         "liveness_challenges": challenges,
@@ -383,6 +486,7 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
             detail={
                 "message": "Presensi ditolak karena liveness belum meyakinkan.",
                 "notes": "liveness_below_threshold",
+                "provider": settings.provider,
                 "liveness_score": liveness_score,
                 "liveness_challenges": challenges,
                 "metadata": metadata,
@@ -390,14 +494,37 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         )
 
     best_candidate: CandidatePayload | None = None
+    best_face_id: str | None = None
     best_similarity = -1.0
+    compatible_vector_count = 0
 
     for candidate in request.candidates:
         for vector in candidate.vectors:
+            if not is_vector_compatible(vector.type):
+                continue
+
+            compatible_vector_count += 1
             similarity = candidate_similarity(best.embedding, vector.values)
             if similarity > best_similarity:
                 best_similarity = similarity
                 best_candidate = candidate
+                best_face_id = candidate.face_id
+
+    if compatible_vector_count == 0:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": provider_compatibility_message(),
+                "notes": "no_compatible_candidates",
+                "provider": settings.provider,
+                "liveness_score": liveness_score,
+                "liveness_challenges": challenges,
+                "metadata": {
+                    **metadata,
+                    "required_vector_type": f"face_embedding:{settings.provider}",
+                },
+            },
+        )
 
     if best_candidate is None:
         raise HTTPException(
@@ -405,6 +532,7 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
             detail={
                 "message": "Belum ada kandidat wajah yang kompatibel untuk dibandingkan.",
                 "notes": "no_compatible_candidates",
+                "provider": settings.provider,
                 "liveness_score": liveness_score,
                 "liveness_challenges": challenges,
                 "metadata": metadata,
@@ -417,6 +545,7 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
             detail={
                 "message": "Wajah tidak dikenali oleh engine Python.",
                 "notes": "face_similarity_below_threshold",
+                "provider": settings.provider,
                 "similarity": round(best_similarity, 4),
                 "face_distance": round(1.0 - best_similarity, 4),
                 "liveness_score": liveness_score,
@@ -429,8 +558,9 @@ def identify(request: IdentifyRequest, _: None = Depends(require_api_key)) -> di
         "success": True,
         "message": "Identitas wajah berhasil dikenali oleh engine Python.",
         "notes": "face_identified_python",
+        "provider": settings.provider,
         "user_id": best_candidate.user_id,
-        "face_id_used": best_candidate.face_id,
+        "face_id_used": best_face_id,
         "similarity": round(best_similarity, 4),
         "face_distance": round(1.0 - best_similarity, 4),
         "liveness_score": liveness_score,
@@ -463,6 +593,7 @@ async def generic_exception_handler(_, exc: Exception) -> Any:
             "success": False,
             "message": str(exc) or "Unhandled kiosk face engine error.",
             "notes": "engine_internal_error",
+            "provider": settings.provider,
         },
         500,
     )
