@@ -571,6 +571,7 @@
         letter-spacing: 0.03em;
         color: rgba(226, 232, 240, 0.72);
         margin-bottom: 5px;
+        white-space: nowrap;
     }
 
     .camera-activity-stat-time {
