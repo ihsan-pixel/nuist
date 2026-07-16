@@ -282,9 +282,9 @@
         min-height: clamp(380px, 68vh, 860px);
     }
 
-    .camera-shell video,
-    .camera-shell img,
-    .camera-shell canvas {
+    .camera-shell > video,
+    .camera-shell > .camera-preview,
+    .camera-shell > canvas {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -300,18 +300,18 @@
         z-index: 1;
     }
 
-    .camera-shell canvas,
-    .camera-preview {
+    .camera-shell > canvas,
+    .camera-shell > .camera-preview {
         display: none;
     }
 
-    .camera-shell canvas.is-live,
+    .camera-shell > canvas.is-live,
     .enroll-camera-shell canvas.is-live {
         display: block;
         z-index: 1;
     }
 
-    .camera-preview.show {
+    .camera-shell > .camera-preview.show {
         display: block;
         z-index: 2;
     }
