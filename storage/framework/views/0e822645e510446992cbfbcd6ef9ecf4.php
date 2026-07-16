@@ -237,11 +237,16 @@
     }
 
     .camera-panel-header {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        right: 18px;
+        z-index: 6;
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
         gap: 16px;
-        margin-bottom: 14px;
+        pointer-events: none;
     }
 
     .camera-panel-actions {
@@ -250,19 +255,24 @@
         justify-content: flex-end;
         gap: 10px;
         flex-wrap: wrap;
+        pointer-events: auto;
     }
 
     .camera-panel-title {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 800;
-        color: #0f172a;
+        color: #f8fafc;
         margin-bottom: 4px;
+        line-height: 1.1;
     }
 
     .camera-panel-copy {
-        color: #64748b;
+        color: rgba(226, 232, 240, 0.92);
         font-size: 13px;
         margin-bottom: 0;
+        max-width: min(640px, 70vw);
+        line-height: 1.5;
+        text-shadow: 0 1px 12px rgba(2, 6, 23, 0.32);
     }
 
     .scan-badge {
@@ -274,8 +284,9 @@
         font-size: 12px;
         font-weight: 700;
         color: #0f766e;
-        background: #ecfeff;
-        border: 1px solid #99f6e4;
+        background: rgba(236, 254, 255, 0.92);
+        border: 1px solid rgba(153, 246, 228, 0.96);
+        box-shadow: 0 14px 30px rgba(2, 6, 23, 0.22);
     }
 
     .camera-shell {
@@ -1223,6 +1234,28 @@
             min-height: 260px;
         }
 
+        .camera-panel-header {
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            gap: 10px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .camera-panel-actions {
+            justify-content: space-between;
+        }
+
+        .camera-panel-title {
+            font-size: 17px;
+        }
+
+        .camera-panel-copy {
+            max-width: none;
+            font-size: 12px;
+        }
+
         .camera-oval {
             inset: 12% 22% 14%;
         }
@@ -1284,28 +1317,28 @@
                 <div class="row g-4">
                     <div class="col-12">
                         <div class="panel-box">
-                            <div class="camera-panel-header">
-                                <div>
-                                    <div class="camera-panel-title">Kiosk Kamera Presensi Kehadiran</div>
-                                    <p class="camera-panel-copy" id="cameraPanelCopy">
-                                        Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
-                                    </p>
-                                </div>
-                                <div class="camera-panel-actions">
-                                    <button type="button" class="btn btn-outline-warning btn-sm" id="openEnrollmentRefreshButton">
-                                        <i class="bx bx-refresh me-1"></i>Registrasi Ulang
-                                    </button>
-                                    <div class="scan-badge" id="scanBadge">
-                                        <i class="bx bx-loader-circle"></i>
-                                        <span>Menyiapkan</span>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="camera-shell">
                                 <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
                                 <img id="cameraPreview" class="camera-preview" alt="Preview scan wajah">
                                 <canvas id="cameraCanvas"></canvas>
+
+                                <div class="camera-panel-header">
+                                    <div>
+                                        <div class="camera-panel-title">Kiosk Kamera Presensi Kehadiran</div>
+                                        <p class="camera-panel-copy" id="cameraPanelCopy">
+                                            Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
+                                        </p>
+                                    </div>
+                                    <div class="camera-panel-actions">
+                                        <button type="button" class="btn btn-outline-warning btn-sm" id="openEnrollmentRefreshButton">
+                                            <i class="bx bx-refresh me-1"></i>Registrasi Ulang
+                                        </button>
+                                        <div class="scan-badge" id="scanBadge">
+                                            <i class="bx bx-loader-circle"></i>
+                                            <span>Menyiapkan</span>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="camera-placeholder" id="cameraPlaceholder">
                                     <i class="bx bx-camera-off"></i>
