@@ -269,7 +269,7 @@
                         Validasi perangkat gagal. Selesaikan registrasi komputer sekolah lebih dulu dari menu admin.
                     </div>
 
-                    @if($device && str_contains($accessMessage, 'Fingerprint browser'))
+                    @if($device && str_contains($accessMessage, 'Fingerprint browser') && Route::has('presensi_admin.kiosk_devices.sync_fingerprint'))
                         <form method="POST" action="{{ route('presensi_admin.kiosk_devices.sync_fingerprint', $device) }}" class="mt-3">
                             @csrf
                             <input type="hidden" name="browser_fingerprint" id="kioskFingerprintSyncInput">
