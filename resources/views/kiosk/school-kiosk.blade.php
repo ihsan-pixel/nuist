@@ -376,9 +376,9 @@
     }
 
     .camera-summary-logo {
-        width: 72px;
-        height: 72px;
-        border-radius: 20px;
+        width: 104px;
+        height: 104px;
+        border-radius: 26px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         background: rgba(255, 255, 255, 0.08);
         box-shadow: 0 12px 30px rgba(2, 6, 23, 0.12);
@@ -397,7 +397,7 @@
     }
 
     .camera-summary-logo i {
-        font-size: 30px;
+        font-size: 42px;
         opacity: 0.9;
     }
 
@@ -1458,9 +1458,9 @@
         }
 
         .camera-summary-logo {
-            width: 62px;
-            height: 62px;
-            border-radius: 18px;
+            width: 84px;
+            height: 84px;
+            border-radius: 22px;
         }
 
         .camera-summary-lottie {
