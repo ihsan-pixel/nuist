@@ -317,13 +317,25 @@
         background: #020617;
     }
 
+    .camera-video,
+    .enroll-video {
+        z-index: 1;
+    }
+
     .camera-shell canvas,
     .camera-preview {
         display: none;
     }
 
+    .camera-shell canvas.is-live,
+    .enroll-camera-shell canvas.is-live {
+        display: block;
+        z-index: 1;
+    }
+
     .camera-preview.show {
         display: block;
+        z-index: 2;
     }
 
     .camera-video.hide {
@@ -366,7 +378,7 @@
 
     .camera-overlay {
         pointer-events: none;
-        z-index: 3;
+        z-index: 4;
     }
 
     .camera-grid {
@@ -564,6 +576,7 @@
 
     .enroll-preview.show {
         display: block;
+        z-index: 2;
     }
 
     .enroll-camera-shell .camera-oval {
@@ -1011,6 +1024,8 @@
         let selectedEnrollmentTeacherId = null;
         let selectedEnrollmentTeacher = null;
         let enrollmentBusy = false;
+        let attendancePreviewFrame = null;
+        let enrollmentPreviewFrame = null;
 
         const stageOrder = [
             'camera_permission',
@@ -1136,6 +1151,7 @@
 
         function stopCurrentCamera() {
             faceRecognition.stopCamera(cameraMode === 'enrollment' ? enrollmentVideo : video);
+            stopLivePreview(cameraMode === 'enrollment' ? 'enrollment' : 'attendance');
             cameraReady = false;
             if (cameraMode === 'attendance') {
                 video.classList.remove('hide');
@@ -1150,6 +1166,78 @@
                 window.clearTimeout(scanTimer);
                 scanTimer = null;
             }
+        }
+
+        function stopLivePreview(mode = 'attendance') {
+            const isEnrollment = mode === 'enrollment';
+            const canvasElement = isEnrollment ? enrollmentCanvas : canvas;
+            const frameId = isEnrollment ? enrollmentPreviewFrame : attendancePreviewFrame;
+
+            if (frameId) {
+                window.cancelAnimationFrame(frameId);
+            }
+
+            if (isEnrollment) {
+                enrollmentPreviewFrame = null;
+            } else {
+                attendancePreviewFrame = null;
+            }
+
+            if (!canvasElement) {
+                return;
+            }
+
+            canvasElement.classList.remove('is-live');
+
+            const context = canvasElement.getContext('2d');
+            if (context) {
+                context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            }
+        }
+
+        function startLivePreview(videoElement, canvasElement, mode = 'attendance') {
+            stopLivePreview(mode);
+
+            if (!videoElement || !canvasElement) {
+                return;
+            }
+
+            const context = canvasElement.getContext('2d', { alpha: false });
+            if (!context) {
+                return;
+            }
+
+            const render = function () {
+                if (!videoElement.srcObject || videoElement.readyState < 2) {
+                    const pendingFrame = window.requestAnimationFrame(render);
+                    if (mode === 'enrollment') {
+                        enrollmentPreviewFrame = pendingFrame;
+                    } else {
+                        attendancePreviewFrame = pendingFrame;
+                    }
+                    return;
+                }
+
+                const width = videoElement.videoWidth || canvasElement.clientWidth || 1280;
+                const height = videoElement.videoHeight || canvasElement.clientHeight || 720;
+
+                if (canvasElement.width !== width || canvasElement.height !== height) {
+                    canvasElement.width = width;
+                    canvasElement.height = height;
+                }
+
+                context.drawImage(videoElement, 0, 0, width, height);
+                canvasElement.classList.add('is-live');
+
+                const nextFrame = window.requestAnimationFrame(render);
+                if (mode === 'enrollment') {
+                    enrollmentPreviewFrame = nextFrame;
+                } else {
+                    attendancePreviewFrame = nextFrame;
+                }
+            };
+
+            render();
         }
 
         function wait(ms) {
@@ -1269,6 +1357,7 @@
                 placeholder.style.display = 'none';
                 preview.classList.remove('show');
                 video.classList.remove('hide');
+                startLivePreview(video, canvas, 'attendance');
                 cameraReady = true;
                 setStageState('camera_permission', 'done', 'Kamera aktif dan siap dipakai untuk presensi otomatis.');
                 setPrimaryNotice(
@@ -1476,6 +1565,7 @@
                     await faceRecognition.loadModels();
                 }
                 await faceRecognition.initializeCamera(enrollmentVideo);
+                startLivePreview(enrollmentVideo, enrollmentCanvas, 'enrollment');
                 enrollmentStatusTitle.textContent = 'Registrasi berjalan';
                 enrollmentStatusCopy.textContent = faceEngineUsesPython
                     ? `Minta guru menatap kamera dan tahan posisi sebentar. Beberapa frame akan diambil otomatis untuk registrasi melalui ${faceEngineLabel}.`
@@ -1525,6 +1615,7 @@
                 enrollmentPreview.src = enrollmentResult.captured_image;
                 enrollmentPreview.classList.add('show');
                 faceRecognition.stopCamera(enrollmentVideo);
+                stopLivePreview('enrollment');
                 enrollmentStatusTitle.textContent = 'Menyimpan data wajah';
                 enrollmentStatusCopy.textContent = 'Frame terbaik berhasil diambil. Sistem sedang menyimpan data wajah guru.';
                 enrollmentGuideText.textContent = 'Menyimpan data wajah ke server.';
@@ -1582,6 +1673,7 @@
                 }, 1200);
             } catch (error) {
                 faceRecognition.stopCamera(enrollmentVideo);
+                stopLivePreview('enrollment');
                 enrollmentPlaceholder.style.display = 'flex';
                 enrollmentStatusTitle.textContent = 'Registrasi gagal';
                 enrollmentStatusCopy.textContent = error.message || 'Registrasi wajah belum berhasil. Ulangi proses dan pastikan wajah berada di dalam oval.';
@@ -1610,6 +1702,7 @@
 
         faceEnrollmentModalEl?.addEventListener('hidden.bs.modal', function () {
             faceRecognition.stopCamera(enrollmentVideo);
+            stopLivePreview('enrollment');
             enrollmentPreview.classList.remove('show');
             enrollmentPlaceholder.style.display = 'flex';
             cameraMode = 'attendance';

@@ -58,6 +58,14 @@ class FaceRecognition {
 
         this.stopCamera(videoElement);
 
+        videoElement.autoplay = true;
+        videoElement.muted = true;
+        videoElement.playsInline = true;
+        videoElement.setAttribute('autoplay', 'autoplay');
+        videoElement.setAttribute('muted', 'muted');
+        videoElement.setAttribute('playsinline', 'playsinline');
+        videoElement.setAttribute('webkit-playsinline', 'webkit-playsinline');
+
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
@@ -72,10 +80,30 @@ class FaceRecognition {
         videoElement.srcObject = stream;
 
         await new Promise((resolve) => {
-            videoElement.onloadedmetadata = () => resolve(true);
+            if (videoElement.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+                resolve(true);
+                return;
+            }
+
+            const markReady = () => {
+                videoElement.removeEventListener('loadedmetadata', markReady);
+                videoElement.removeEventListener('loadeddata', markReady);
+                videoElement.removeEventListener('canplay', markReady);
+                resolve(true);
+            };
+
+            videoElement.addEventListener('loadedmetadata', markReady, { once: true });
+            videoElement.addEventListener('loadeddata', markReady, { once: true });
+            videoElement.addEventListener('canplay', markReady, { once: true });
         });
 
-        await videoElement.play();
+        try {
+            await videoElement.play();
+        } catch (error) {
+            throw new Error('Kamera sudah diizinkan tetapi browser belum bisa menampilkan stream video. Muat ulang halaman lalu coba lagi.');
+        }
+
+        await new Promise((resolve) => window.setTimeout(resolve, 180));
 
         return true;
     }
