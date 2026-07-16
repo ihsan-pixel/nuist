@@ -28,28 +28,6 @@
         backdrop-filter: blur(18px);
     }
 
-    .kiosk-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .kiosk-header h1 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 800;
-        color: #0f172a;
-    }
-
-    .kiosk-header p {
-        margin: 8px 0 0;
-        color: #64748b;
-        font-size: 14px;
-        max-width: 760px;
-    }
-
     .status-pill {
         display: inline-flex;
         align-items: center;
@@ -619,10 +597,6 @@
     }
 
     @media (max-width: 768px) {
-        .kiosk-header {
-            flex-direction: column;
-        }
-
         .camera-shell {
             min-height: 260px;
         }
@@ -664,21 +638,6 @@
 <div class="kiosk-page">
     <div class="card kiosk-shell">
         <div class="card-body p-4 p-lg-4">
-            <div class="kiosk-header">
-                <div>
-                    <h1>School Kiosk Otomatis</h1>
-                    <p>
-                        Lokasi divalidasi otomatis, kamera aktif otomatis, wajah dikenali secara realtime, lalu presensi langsung diproses
-                        memakai aturan presensi sekolah yang sudah berjalan.
-                    </p>
-                </div>
-                <span class="status-pill <?php echo e($accessGranted ? 'success' : 'danger'); ?>">
-                    <i class="bx <?php echo e($accessGranted ? 'bx-check-circle' : 'bx-x-circle'); ?>"></i>
-                    <?php echo e($accessGranted ? 'Perangkat Tervalidasi' : 'Akses Ditolak'); ?>
-
-                </span>
-            </div>
-
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! ($accessGranted)): ?>
                 <div class="alert alert-danger mb-0">
                     <i class="bx bx-error-circle me-2"></i><?php echo e($accessMessage); ?>
