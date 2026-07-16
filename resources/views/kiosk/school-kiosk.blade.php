@@ -170,33 +170,6 @@
                     </div>
                 @endunless
 
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6 col-xl-3">
-                        <div class="meta-box">
-                            <div class="meta-label">Madrasah</div>
-                            <div class="meta-value">{{ $device?->madrasah?->name ?? '-' }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <div class="meta-box">
-                            <div class="meta-label">Perangkat</div>
-                            <div class="meta-value">{{ $device?->name ?? '-' }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <div class="meta-box">
-                            <div class="meta-label">Guru Tersedia</div>
-                            <div class="meta-value">{{ $teacherCount }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <div class="meta-box">
-                            <div class="meta-label">Metode Verifikasi</div>
-                            <div class="meta-value">{{ $verificationLabel }}</div>
-                        </div>
-                    </div>
-                </div>
-
                 @if($accessGranted)
                     <form id="kioskAttendanceForm" class="row g-4">
                         @csrf
