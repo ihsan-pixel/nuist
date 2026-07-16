@@ -746,6 +746,7 @@ class SchoolKioskController extends Controller
         if ($totalPeople === 0) {
             return [
                 'school_name' => $device->madrasah?->name ?? '-',
+                'school_logo_url' => $this->resolveSchoolLogoUrl($device->madrasah),
                 'total_people' => 0,
                 'present_count' => 0,
                 'not_present_count' => 0,
@@ -781,12 +782,37 @@ class SchoolKioskController extends Controller
 
         return [
             'school_name' => $device->madrasah?->name ?? '-',
+            'school_logo_url' => $this->resolveSchoolLogoUrl($device->madrasah),
             'total_people' => $totalPeople,
             'present_count' => $presentCount,
             'not_present_count' => $notPresentCount,
             'izin_count' => $izinCount,
             'attendance_percentage' => $attendancePercentage,
         ];
+    }
+
+    private function resolveSchoolLogoUrl(?\App\Models\Madrasah $school): ?string
+    {
+        $logoPath = trim((string) ($school?->logo ?? ''));
+        if ($logoPath === '') {
+            return null;
+        }
+
+        if (strtolower(pathinfo($logoPath, PATHINFO_EXTENSION)) === 'webp') {
+            return asset('storage/'.$logoPath);
+        }
+
+        $webpPath = pathinfo($logoPath, PATHINFO_DIRNAME);
+        $webpFilename = pathinfo($logoPath, PATHINFO_FILENAME).'.webp';
+        $resolvedWebpPath = ($webpPath && $webpPath !== '.')
+            ? $webpPath.'/'.$webpFilename
+            : $webpFilename;
+
+        if (Storage::disk('public')->exists($resolvedWebpPath)) {
+            return asset('storage/'.$resolvedWebpPath);
+        }
+
+        return asset('storage/'.$logoPath);
     }
 
     private function recentAttendanceActivities(RegisteredAttendanceDevice $device): array

@@ -343,10 +343,49 @@
         pointer-events: auto;
     }
 
+    .camera-summary-brand {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 2px;
+        text-align: center;
+    }
+
+    .camera-summary-logo {
+        width: 72px;
+        height: 72px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 12px 30px rgba(2, 6, 23, 0.12);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #f8fafc;
+    }
+
+    .camera-summary-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .camera-summary-logo i {
+        font-size: 30px;
+        opacity: 0.9;
+    }
+
     .camera-summary-card {
         min-width: 0;
         display: flex;
         flex-direction: column;
+        align-items: center;
+        justify-content: center;
         gap: 6px;
         padding: 12px 12px 11px;
         border-radius: 18px;
@@ -364,6 +403,7 @@
         text-transform: none;
         color: rgba(226, 232, 240, 0.78);
         line-height: 1.35;
+        text-align: center;
         margin-bottom: 0;
     }
 
@@ -373,6 +413,7 @@
         font-weight: 800;
         color: #ffffff;
         line-height: 1.4;
+        text-align: center;
         word-break: break-word;
     }
 
@@ -1395,6 +1436,12 @@
             border-radius: 16px;
         }
 
+        .camera-summary-logo {
+            width: 62px;
+            height: 62px;
+            border-radius: 18px;
+        }
+
         .camera-panel-copy-wrap {
             padding: 12px;
             border-radius: 18px;
@@ -1463,6 +1510,15 @@
                                         <p class="camera-panel-copy" id="cameraPanelCopy">
                                             Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
                                         </p>
+                                        <div class="camera-summary-brand">
+                                            <div class="camera-summary-logo">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($attendanceSummary['school_logo_url'])): ?>
+                                                    <img src="<?php echo e($attendanceSummary['school_logo_url']); ?>" alt="<?php echo e($attendanceSummary['school_name'] ?? 'Sekolah'); ?>" loading="lazy" decoding="async">
+                                                <?php else: ?>
+                                                    <i class="bx bxs-school"></i>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            </div>
+                                        </div>
                                         <div class="camera-summary-grid">
                                             <div class="camera-summary-card is-text">
                                                 <span class="camera-summary-label">Nama Sekolah</span>
