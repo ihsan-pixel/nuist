@@ -173,7 +173,7 @@
                 @if($accessGranted)
                     <form id="kioskAttendanceForm" class="row g-4">
                         @csrf
-                        <div class="col-xl-4">
+                        <div class="col-xl-3">
                             <div class="panel-box">
                                 <div class="fw-semibold mb-3">Data Presensi</div>
 
@@ -242,7 +242,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xl-8">
+                        <div class="col-xl-9">
                             <div class="panel-box">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div class="fw-semibold">Kamera Kiosk</div>
