@@ -958,8 +958,9 @@
 <script>
     (function () {
         const teachers = <?php echo json_encode(
-            $teachers->map(fn ($teacher) => [
-                'id' => $teacher->id, 'name' => $teacher->name, 'nip' => $teacher->nip) ?>;
+            $teachers->map(function ($teacher) {
+                return [
+                    'id' => $teacher->id, 'name' => $teacher->name, 'nip' => $teacher->nip) ?>;
         const verificationMode = <?php echo json_encode($verificationMode, 15, 512) ?>;
         const faceEngineDriver = <?php echo json_encode($faceEngineDriver, 15, 512) ?>;
         const faceEngineLabel = <?php echo json_encode($faceEngineLabel, 15, 512) ?>;

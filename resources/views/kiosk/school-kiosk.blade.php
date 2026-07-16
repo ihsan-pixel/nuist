@@ -957,15 +957,17 @@
 <script>
     (function () {
         const teachers = @json(
-            $teachers->map(fn ($teacher) => [
-                'id' => $teacher->id,
-                'name' => $teacher->name,
-                'nip' => $teacher->nip,
-                'nuptk' => $teacher->nuptk,
-                'ketugasan' => $teacher->ketugasan,
-                'face_registered_at' => optional($teacher->face_registered_at)?->toIso8601String(),
-                'has_face' => (bool) $teacher->face_registered_at,
-            ])->values()
+            $teachers->map(function ($teacher) {
+                return [
+                    'id' => $teacher->id,
+                    'name' => $teacher->name,
+                    'nip' => $teacher->nip,
+                    'nuptk' => $teacher->nuptk,
+                    'ketugasan' => $teacher->ketugasan,
+                    'face_registered_at' => optional($teacher->face_registered_at)?->toIso8601String(),
+                    'has_face' => (bool) $teacher->face_registered_at,
+                ];
+            })->values()
         );
         const verificationMode = @json($verificationMode);
         const faceEngineDriver = @json($faceEngineDriver);
