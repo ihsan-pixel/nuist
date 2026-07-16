@@ -1196,10 +1196,7 @@ class FaceRecognition {
         canvas.height = videoElement.videoHeight || 640;
 
         const context = canvas.getContext('2d');
-        context.translate(canvas.width, 0);
-        context.scale(-1, 1);
         context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        context.setTransform(1, 0, 0, 1, 0, 0);
 
         return canvas.toDataURL('image/jpeg', 0.85);
     }
