@@ -32,6 +32,7 @@
         "@capacitor/ios": "^5.7.8",
         "bootstrap": "5.3.5",
         "face-api.js": "^0.22.2",
+        "lottie-web": "^5.13.0",
         "vite-plugin-static-copy": "^0.13.1"
     }
 }

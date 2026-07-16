@@ -343,6 +343,25 @@
         pointer-events: auto;
     }
 
+    .camera-summary-lottie-wrap {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 2px;
+        pointer-events: auto;
+    }
+
+    .camera-summary-lottie {
+        width: 116px;
+        height: 116px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.94;
+        filter: drop-shadow(0 12px 24px rgba(2, 6, 23, 0.18));
+    }
+
     .camera-summary-brand {
         width: 100%;
         display: flex;
@@ -1442,6 +1461,11 @@
             border-radius: 18px;
         }
 
+        .camera-summary-lottie {
+            width: 96px;
+            height: 96px;
+        }
+
         .camera-panel-copy-wrap {
             padding: 12px;
             border-radius: 18px;
@@ -1544,6 +1568,9 @@
                                                 <span class="camera-summary-label">Persentase Kehadiran</span>
                                                 <span class="camera-summary-value" id="summaryAttendancePercentage"><?php echo e(number_format((float) ($attendanceSummary['attendance_percentage'] ?? 0), 1)); ?>%</span>
                                             </div>
+                                        </div>
+                                        <div class="camera-summary-lottie-wrap">
+                                            <div class="camera-summary-lottie" id="cameraSummaryLottie" aria-hidden="true"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1874,6 +1901,7 @@
 
 <?php $__env->startSection('script'); ?>
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($accessGranted): ?>
+<script src="<?php echo e(asset('js/vendor/lottie.min.js')); ?>"></script>
 <script src="<?php echo e(asset('models/face-api.js')); ?>"></script>
 <script src="<?php echo e(asset('js/face-recognition.js')); ?>"></script>
 <script>
@@ -1913,6 +1941,7 @@
         const attendanceResultCopy = document.getElementById('attendanceResultCopy');
         const cameraActivityList = document.getElementById('cameraActivityList');
         const cameraActivityCount = document.getElementById('cameraActivityCount');
+        const cameraSummaryLottie = document.getElementById('cameraSummaryLottie');
         const summarySchoolName = document.getElementById('summarySchoolName');
         const summaryTotalPeople = document.getElementById('summaryTotalPeople');
         const summaryPresentCount = document.getElementById('summaryPresentCount');
@@ -2446,6 +2475,25 @@
             }
 
             cameraActivityCount.textContent = String(attendanceActivities.length);
+        }
+
+        function initSummaryLottie() {
+            if (!cameraSummaryLottie || typeof window.lottie === 'undefined') {
+                return;
+            }
+
+            cameraSummaryLottie.innerHTML = '';
+
+            window.lottie.loadAnimation({
+                container: cameraSummaryLottie,
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: <?php echo json_encode(asset('animations/school-kiosk-success-alert.json'), 15, 512) ?>,
+                rendererSettings: {
+                    preserveAspectRatio: 'xMidYMid meet',
+                },
+            });
         }
 
         function renderAttendanceSummary() {
@@ -3418,6 +3466,7 @@
             }
         });
 
+        initSummaryLottie();
         recalculateAttendanceSummary();
         renderAttendanceActivities();
         updateEnrollmentBanner();
