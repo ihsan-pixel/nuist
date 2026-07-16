@@ -50,10 +50,10 @@
     }
 
     .panel-box {
-        border: 1px solid #e2e8f0;
-        border-radius: 20px;
-        padding: 18px;
-        background: rgba(255, 255, 255, 0.96);
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+        background: transparent;
         height: 100%;
     }
 
