@@ -94,6 +94,61 @@
         vertical-align: top;
         font-size: 13px;
     }
+
+    .kiosk-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .kiosk-pagination-info {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .kiosk-pagination-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .kiosk-pagination-links .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 10px;
+        border: 1px solid #dbe4f0;
+        background: #fff;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        box-shadow: none;
+    }
+
+    .kiosk-pagination-links .page-link i {
+        font-size: 16px;
+    }
+
+    .kiosk-pagination-links .page-link.active {
+        background: #0f172a;
+        border-color: #0f172a;
+        color: #fff;
+    }
+
+    .kiosk-pagination-links .page-link.disabled {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        color: #94a3b8;
+        pointer-events: none;
+    }
 </style>
 @endsection
 
@@ -394,8 +449,39 @@
                         </div>
 
                         @if($logs->hasPages())
-                            <div class="mt-3">
-                                {{ $logs->links() }}
+                            <div class="kiosk-pagination mt-3">
+                                <div class="kiosk-pagination-info">
+                                    Menampilkan {{ $logs->firstItem() }}-{{ $logs->lastItem() }} dari {{ $logs->total() }} aktivitas
+                                </div>
+                                <div class="kiosk-pagination-links">
+                                    @if($logs->onFirstPage())
+                                        <span class="page-link disabled">
+                                            <i class="bx bx-chevron-left"></i>
+                                        </span>
+                                    @else
+                                        <a href="{{ $logs->previousPageUrl() }}" class="page-link" aria-label="Previous">
+                                            <i class="bx bx-chevron-left"></i>
+                                        </a>
+                                    @endif
+
+                                    @foreach($logs->getUrlRange(max(1, $logs->currentPage() - 2), min($logs->lastPage(), $logs->currentPage() + 2)) as $page => $url)
+                                        @if($page === $logs->currentPage())
+                                            <span class="page-link active">{{ $page }}</span>
+                                        @else
+                                            <a href="{{ $url }}" class="page-link">{{ $page }}</a>
+                                        @endif
+                                    @endforeach
+
+                                    @if($logs->hasMorePages())
+                                        <a href="{{ $logs->nextPageUrl() }}" class="page-link" aria-label="Next">
+                                            <i class="bx bx-chevron-right"></i>
+                                        </a>
+                                    @else
+                                        <span class="page-link disabled">
+                                            <i class="bx bx-chevron-right"></i>
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         @endif
                     </div>
