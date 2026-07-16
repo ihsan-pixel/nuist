@@ -2036,6 +2036,7 @@
         let flashTimer = null;
         let matchHudTimer = null;
         let browserFaceScanAvailable = false;
+        let browserFaceRecognitionWarmupPromise = null;
         let faceMustExitBeforeNextMatch = false;
         let cameraGuideLock = null;
         let matchedTeacherCandidate = null;
@@ -2692,10 +2693,41 @@
             return error;
         }
 
+        function warmupBrowserFaceRecognition() {
+            if (faceRecognition.recognitionModelsLoaded) {
+                return Promise.resolve(true);
+            }
+
+            if (browserFaceRecognitionWarmupPromise) {
+                return browserFaceRecognitionWarmupPromise;
+            }
+
+            browserFaceRecognitionWarmupPromise = faceRecognition.loadModels()
+                .then(() => true)
+                .catch((error) => {
+                    browserFaceRecognitionWarmupPromise = null;
+                    throw error;
+                });
+
+            return browserFaceRecognitionWarmupPromise;
+        }
+
+        async function ensureBrowserFaceRecognitionReady() {
+            try {
+                await warmupBrowserFaceRecognition();
+                browserFaceScanAvailable = true;
+                return true;
+            } catch (error) {
+                browserFaceScanAvailable = false;
+                throw new Error(error?.message || 'Model pencocokan wajah browser belum dapat dimuat.');
+            }
+        }
+
         async function prepareBrowserFaceScan() {
             try {
-                await faceRecognition.loadModels();
+                await faceRecognition.loadDetectionModels();
                 browserFaceScanAvailable = true;
+                warmupBrowserFaceRecognition().catch(() => {});
                 return true;
             } catch (error) {
                 browserFaceScanAvailable = false;
@@ -3041,6 +3073,8 @@
             );
 
             try {
+                await ensureBrowserFaceRecognitionReady();
+
                 const scanCallbacks = {
                     onInstruction: function (message) {
                         if (isChallengeInstruction(message)) {
@@ -3499,6 +3533,7 @@
         renderAttendanceActivities();
         updateEnrollmentBanner();
         updateEnrollmentTeacherSelection();
+        warmupBrowserFaceRecognition().catch(() => {});
         bootstrapAutomation();
     })();
 </script>
