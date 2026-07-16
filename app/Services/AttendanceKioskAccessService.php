@@ -32,7 +32,6 @@ class AttendanceKioskAccessService
         Request $request,
         User $operator,
         ?RegisteredAttendanceDevice $device,
-        ?string $browserFingerprint = null,
     ): RegisteredAttendanceDevice {
         if (!$device || !$device->is_active) {
             throw new AuthorizationException('Komputer presensi belum terdaftar atau sudah dinonaktifkan.');
@@ -44,10 +43,6 @@ class AttendanceKioskAccessService
 
         if (!$this->matchesAllowedIpAddress($device, $request->ip())) {
             throw new AuthorizationException('IP komputer ini belum diizinkan untuk presensi sekolah.');
-        }
-
-        if (!$this->matchesFingerprint($device, $browserFingerprint)) {
-            throw new AuthorizationException('Fingerprint browser komputer ini tidak cocok dengan perangkat terdaftar.');
         }
 
         $this->attendanceDeviceRegistryService->touchSeen($device, $request->ip(), $request->userAgent());
@@ -67,18 +62,6 @@ class AttendanceKioskAccessService
 
         return $allowedIps->contains((string) $requestIp);
     }
-
-    public function matchesFingerprint(RegisteredAttendanceDevice $device, ?string $browserFingerprint): bool
-    {
-        if (!$device->browser_fingerprint_hash) {
-            return true;
-        }
-
-        $hash = $this->attendanceDeviceRegistryService->hashFingerprint($browserFingerprint);
-
-        return $hash !== null && hash_equals($device->browser_fingerprint_hash, $hash);
-    }
-
     public function logAccess(
         string $action,
         string $status,

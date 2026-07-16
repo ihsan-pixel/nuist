@@ -42,15 +42,14 @@ class AttendanceKioskDeviceController extends Controller
         $schools = $this->accessibleSchoolsQuery($user)->get(['id', 'name', 'kabupaten', 'scod']);
         $selectedMadrasahId = $this->resolveSelectedMadrasahId($request, $user, $schools);
 
-        $devices = RegisteredAttendanceDevice::query()
+        $devicesQuery = RegisteredAttendanceDevice::query()
             ->with(['madrasah:id,name,kabupaten,scod', 'registeredBy:id,name'])
             ->whereIn('madrasah_id', $schools->pluck('id'))
             ->when($selectedMadrasahId, fn (Builder $query) => $query->where('madrasah_id', $selectedMadrasahId))
             ->orderByDesc('is_active')
-            ->latest()
-            ->get();
+            ->latest();
 
-        $logs = AttendanceKioskLog::query()
+        $logsQuery = AttendanceKioskLog::query()
             ->with([
                 'device:id,name,madrasah_id',
                 'madrasah:id,name',
@@ -59,19 +58,24 @@ class AttendanceKioskDeviceController extends Controller
             ])
             ->whereIn('madrasah_id', $schools->pluck('id'))
             ->when($selectedMadrasahId, fn (Builder $query) => $query->where('madrasah_id', $selectedMadrasahId))
-            ->latest()
-            ->limit(25)
-            ->get();
+            ->latest();
+
+        $devices = $devicesQuery->get();
+        $logs = $logsQuery->paginate(10)->withQueryString();
 
         $stats = [
             'total_devices' => $devices->count(),
             'active_devices' => $devices->where('is_active', true)->count(),
-            'submit_success_today' => $logs->where('action', 'kiosk_submit')->where('status', 'success')->filter(
-                fn ($log) => optional($log->created_at)->isToday()
-            )->count(),
-            'access_denied_today' => $logs->where('action', 'kiosk_access')->where('status', 'denied')->filter(
-                fn ($log) => optional($log->created_at)->isToday()
-            )->count(),
+            'submit_success_today' => (clone $logsQuery)
+                ->where('action', 'kiosk_submit')
+                ->where('status', 'success')
+                ->whereDate('created_at', now()->toDateString())
+                ->count(),
+            'access_denied_today' => (clone $logsQuery)
+                ->where('action', 'kiosk_access')
+                ->where('status', 'denied')
+                ->whereDate('created_at', now()->toDateString())
+                ->count(),
         ];
 
         return view('admin.attendance-kiosk-devices', [
@@ -98,7 +102,6 @@ class AttendanceKioskDeviceController extends Controller
                 Rule::in($schools->pluck('id')->all()),
             ],
             'name' => ['required', 'string', 'max:255'],
-            'browser_fingerprint' => ['nullable', 'string', 'max:500'],
             'allowed_ip_addresses' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -116,7 +119,7 @@ class AttendanceKioskDeviceController extends Controller
             $user,
             $validated['name'],
             $plainToken,
-            $validated['browser_fingerprint'] ?? null,
+            null,
             $allowedIps,
             [
                 'last_seen_at' => now(),
@@ -132,7 +135,6 @@ class AttendanceKioskDeviceController extends Controller
                 'device_name' => $device->name,
                 'madrasah_name' => $device->madrasah->name,
                 'plain_token' => $plainToken,
-                'fingerprint' => $validated['browser_fingerprint'] ?? null,
             ]);
 
         $redirect->withCookie(cookie(
@@ -147,19 +149,25 @@ class AttendanceKioskDeviceController extends Controller
             'Lax'
         ));
 
-        if (!empty($validated['browser_fingerprint'])) {
-            $redirect->withCookie(cookie(
-                'nuist_kiosk_fingerprint',
-                $validated['browser_fingerprint'],
-                60 * 24 * 365,
-                '/',
-                null,
-                false,
-                false,
-                false,
-                'Lax'
-            ));
-        }
+        $redirect->withCookie(cookie()->forget('nuist_kiosk_fingerprint'));
+
+        return $redirect;
+    }
+
+    public function destroy(Request $request, RegisteredAttendanceDevice $device): RedirectResponse
+    {
+        $this->authorizeDeviceSchool(Auth::user(), $device);
+
+        $deviceName = $device->name;
+        $madrasahId = $device->madrasah_id;
+        $device->delete();
+
+        $redirect = redirect()
+            ->route('presensi_admin.kiosk_devices', ['madrasah_id' => $madrasahId])
+            ->with('success', "Komputer presensi \"{$deviceName}\" berhasil dihapus.");
+
+        $redirect->withCookie(cookie()->forget('nuist_kiosk_token'));
+        $redirect->withCookie(cookie()->forget('nuist_kiosk_fingerprint'));
 
         return $redirect;
     }
@@ -190,37 +198,6 @@ class AttendanceKioskDeviceController extends Controller
         return redirect()
             ->route('presensi_admin.kiosk_devices', ['madrasah_id' => $device->madrasah_id])
             ->with('success', "IP aktif untuk \"{$device->name}\" berhasil disinkronkan ke {$request->ip()}.");
-    }
-
-    public function syncCurrentFingerprint(Request $request, RegisteredAttendanceDevice $device): RedirectResponse
-    {
-        $this->authorizeDeviceSchool(Auth::user(), $device);
-
-        $validated = $request->validate([
-            'browser_fingerprint' => ['required', 'string', 'max:500'],
-        ]);
-
-        $device = $this->attendanceDeviceRegistryService->updateFingerprint($device, $validated['browser_fingerprint']);
-        $this->attendanceDeviceRegistryService->touchSeen($device, $request->ip(), $request->userAgent());
-
-        $redirect = redirect()->back()->with(
-            'success',
-            "Fingerprint browser untuk \"{$device->name}\" berhasil disinkronkan."
-        );
-
-        $redirect->withCookie(cookie(
-            'nuist_kiosk_fingerprint',
-            $validated['browser_fingerprint'],
-            60 * 24 * 365,
-            '/',
-            null,
-            false,
-            false,
-            false,
-            'Lax'
-        ));
-
-        return $redirect;
     }
 
     private function accessibleSchoolsQuery(User $user): Builder

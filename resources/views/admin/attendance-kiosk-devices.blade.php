@@ -141,15 +141,15 @@
 
                 @if(session('kiosk_registration'))
                     @php($registration = session('kiosk_registration'))
-                    <div class="alert alert-info">
-                        <div class="fw-semibold mb-2">Perangkat baru berhasil didaftarkan</div>
-                        <div class="small text-muted mb-2">
-                            Browser ini sudah diikat ke perangkat <strong>{{ $registration['device_name'] }}</strong> untuk {{ $registration['madrasah_name'] }}.
-                        </div>
-                        <div class="token-box">{{ $registration['plain_token'] }}</div>
-                        <div class="small mt-2 mb-0 text-muted">
-                            Token ini ditampilkan sekali. Simpan hanya jika Anda perlu migrasi ulang browser kiosk.
-                        </div>
+                        <div class="alert alert-info">
+                            <div class="fw-semibold mb-2">Perangkat baru berhasil didaftarkan</div>
+                            <div class="small text-muted mb-2">
+                            Komputer ini sudah terhubung ke perangkat <strong>{{ $registration['device_name'] }}</strong> untuk {{ $registration['madrasah_name'] }}.
+                            </div>
+                            <div class="token-box">{{ $registration['plain_token'] }}</div>
+                            <div class="small mt-2 mb-0 text-muted">
+                                Token ini ditampilkan sekali. Simpan hanya jika Anda perlu migrasi ulang browser kiosk.
+                            </div>
                     </div>
                 @endif
 
@@ -225,11 +225,9 @@
                                         <div class="form-text">Pisahkan lebih dari satu IP dengan koma atau baris baru.</div>
                                     </div>
 
-                                    <input type="hidden" name="browser_fingerprint" id="browserFingerprintInput">
-
                                     <div class="alert alert-warning small mb-3">
                                         <i class="bx bx-info-circle me-1"></i>
-                                        Gunakan form ini dari browser komputer yang benar-benar akan dipakai untuk presensi.
+                                        Gunakan form ini dari komputer yang benar-benar akan dipakai untuk presensi.
                                     </div>
 
                                     <button type="submit" class="btn btn-primary w-100">
@@ -315,20 +313,18 @@
                                                                     Sinkronkan IP
                                                                 </button>
                                                             </form>
-                                                            @if(Route::has('presensi_admin.kiosk_devices.sync_fingerprint'))
-                                                                <form method="POST" action="{{ route('presensi_admin.kiosk_devices.sync_fingerprint', $device) }}">
-                                                                    @csrf
-                                                                    <input type="hidden" name="browser_fingerprint" class="browser-fingerprint-input">
-                                                                    <button type="submit" class="btn btn-sm btn-light">
-                                                                        Sinkronkan Fingerprint
-                                                                    </button>
-                                                                </form>
-                                                            @endif
                                                             <form method="POST" action="{{ route('presensi_admin.kiosk_devices.toggle', $device) }}">
                                                                 @csrf
                                                                 @method('PATCH')
                                                                 <button type="submit" class="btn btn-sm {{ $device->is_active ? 'btn-outline-danger' : 'btn-outline-success' }}">
                                                                     {{ $device->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
+                                                                </button>
+                                                            </form>
+                                                            <form method="POST" action="{{ route('presensi_admin.kiosk_devices.destroy', $device) }}" onsubmit="return confirm('Hapus perangkat {{ addslashes($device->name) }}?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                    Hapus
                                                                 </button>
                                                             </form>
                                                         </div>
@@ -396,45 +392,16 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        @if($logs->hasPages())
+                            <div class="mt-3">
+                                {{ $logs->links() }}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endsection
-
-@section('script')
-<script>
-    (function () {
-        const fingerprintInput = document.getElementById('browserFingerprintInput');
-        const fingerprintSyncInputs = document.querySelectorAll('.browser-fingerprint-input');
-
-        const buildFingerprint = () => {
-            const parts = [
-                navigator.userAgent || '',
-                navigator.language || '',
-                window.screen?.width || '',
-                window.screen?.height || '',
-                window.screen?.colorDepth || '',
-                Intl.DateTimeFormat().resolvedOptions().timeZone || '',
-                navigator.platform || '',
-            ];
-
-            return btoa(unescape(encodeURIComponent(parts.join('|')))).slice(0, 500);
-        };
-
-        const fingerprint = buildFingerprint();
-
-        if (fingerprintInput) {
-            fingerprintInput.value = fingerprint;
-        }
-
-        fingerprintSyncInputs.forEach((input) => {
-            input.value = fingerprint;
-        });
-
-        document.cookie = `nuist_kiosk_fingerprint=${encodeURIComponent(fingerprint)}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
-    })();
-</script>
 @endsection

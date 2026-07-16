@@ -41,7 +41,6 @@ class SchoolKioskController extends Controller
     {
         $operator = Auth::user();
         $device = $this->attendanceKioskAccessService->resolveDeviceByToken($request->cookie('nuist_kiosk_token'));
-        $fingerprint = $request->cookie('nuist_kiosk_fingerprint');
         $accessGranted = false;
         $accessMessage = 'Komputer presensi belum tervalidasi.';
         $teacherCount = 0;
@@ -51,8 +50,7 @@ class SchoolKioskController extends Controller
             $device = $this->attendanceKioskAccessService->authorizeSchoolKioskAccess(
                 $request,
                 $operator,
-                $device,
-                $fingerprint
+                $device
             );
 
             $accessGranted = true;
@@ -116,8 +114,7 @@ class SchoolKioskController extends Controller
             $device = $this->attendanceKioskAccessService->authorizeSchoolKioskAccess(
                 $request,
                 $operator,
-                $device,
-                $request->cookie('nuist_kiosk_fingerprint')
+                $device
             );
 
             $validated = $request->validate([
