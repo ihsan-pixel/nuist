@@ -1647,6 +1647,7 @@
         const scanBadge = document.getElementById('scanBadge');
         const cameraPanelCopy = document.getElementById('cameraPanelCopy');
         const primaryNotice = document.getElementById('primaryNotice');
+        const cameraGuideIcon = document.querySelector('#cameraGuidePill i');
         const cameraGuideLabel = document.getElementById('cameraGuideLabel');
         const cameraGuideText = document.getElementById('cameraGuideText');
         const cameraMatchHud = document.getElementById('cameraMatchHud');
@@ -1729,6 +1730,7 @@
         let matchHudTimer = null;
         let browserFaceScanAvailable = false;
         let faceMustExitBeforeNextMatch = false;
+        let cameraGuideLock = null;
         let matchedTeacherCandidate = null;
         let pendingEnrollmentResult = null;
         let attendanceActivities = Array.isArray(initialAttendanceActivities) ? initialAttendanceActivities.slice() : [];
@@ -1800,6 +1802,17 @@
             updateMatchHud(100, label, success ? 'success' : 'danger');
         }
 
+        function isChallengeInstruction(message) {
+            const normalized = String(message || '').trim().toLowerCase();
+
+            return normalized.includes('kedip')
+                || normalized.includes('kiri')
+                || normalized.includes('kanan')
+                || normalized.includes('atas')
+                || normalized.includes('bawah')
+                || normalized.includes('mulut');
+        }
+
         function resolveCameraGuidePresentation(message, fallbackIcon = 'bx-scan') {
             const text = String(message || '').trim();
             const normalized = text.toLowerCase();
@@ -1847,13 +1860,35 @@
             return { label: 'Instruksi', icon: fallbackIcon };
         }
 
-        function setCameraGuide(message, icon = 'bx-scan') {
+        function setCameraGuide(message, icon = 'bx-scan', options = {}) {
+            if (cameraGuideLock && options.force !== true) {
+                const normalizedMessage = String(message || '').trim();
+                if (normalizedMessage !== cameraGuideLock.message) {
+                    return;
+                }
+            }
+
             const presentation = resolveCameraGuidePresentation(message, icon);
-            cameraGuideText.parentElement.parentElement.querySelector('i').className = `bx ${presentation.icon}`;
+            if (cameraGuideIcon) {
+                cameraGuideIcon.className = `bx ${presentation.icon}`;
+            }
             if (cameraGuideLabel) {
                 cameraGuideLabel.textContent = presentation.label;
             }
             cameraGuideText.textContent = message;
+        }
+
+        function lockCameraGuide(message, icon = 'bx-scan') {
+            cameraGuideLock = {
+                message: String(message || '').trim(),
+                icon,
+            };
+
+            setCameraGuide(cameraGuideLock.message, icon, { force: true });
+        }
+
+        function clearCameraGuideLock() {
+            cameraGuideLock = null;
         }
 
         function setEnrollmentQualityState(level = 0, tone = 'idle', label = 'Belum jelas', copy = 'Posisikan wajah di dalam oval. Saat wajah sudah jelas dan stabil, sistem akan otomatis mengambil dan menyimpan data.') {
@@ -2599,6 +2634,7 @@
 
             const startedFromOval = options.startedFromOval === true;
             matchedTeacherCandidate = null;
+            clearCameraGuideLock();
             scanInProgress = true;
             if (!startedFromOval) {
                 hideMatchHud();
@@ -2626,16 +2662,28 @@
             try {
                 const scanCallbacks = {
                     onInstruction: function (message) {
-                        setCameraGuide(message, 'bx-scan');
+                        if (isChallengeInstruction(message)) {
+                            lockCameraGuide(message, 'bx-scan');
+                        } else {
+                            clearCameraGuideLock();
+                            setCameraGuide(message, 'bx-scan', { force: true });
+                        }
                     },
                     onStatus: function (message) {
                         setPrimaryNotice('Mendeteksi wajah', message);
                         setStageState('detecting_face', 'active', message);
                         setScanBadge('Mendeteksi wajah', 'info');
+                        if (isChallengeInstruction(message)) {
+                            lockCameraGuide(message, 'bx-scan');
+                        }
                     },
                     onGuideState: function (payload) {
                         if (payload?.message) {
-                            setCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
+                            if (isChallengeInstruction(payload.message)) {
+                                lockCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
+                            } else {
+                                setCameraGuide(payload.message, payload.state === 'success' ? 'bx-check-circle' : 'bx-scan');
+                            }
                         }
                     },
                     onChallengeState: function (step, state) {
@@ -2653,8 +2701,16 @@
 
                         if (state === 'active') {
                             updateMatchHud(current[0], current[1], 'info');
+                            if (step === 'blink') {
+                                lockCameraGuide('Kedip satu kali untuk verifikasi.', 'bx-show-alt');
+                            } else if (step === 'challenge') {
+                                lockCameraGuide('Ikuti challenge wajah di layar.', 'bx-directions');
+                            }
                         } else if (state === 'done') {
                             updateMatchHud(Math.min(current[0] + 10, 96), current[1], 'success');
+                            if (step === 'blink' || step === 'challenge') {
+                                clearCameraGuideLock();
+                            }
                         }
                     },
                     onFaceMatchCheck: async function (descriptor) {
@@ -2686,10 +2742,11 @@
                 if (cameraMatchHud?.classList.contains('is-visible')) {
                     finishMatchHud(false, 'Gagal');
                 }
+                clearCameraGuideLock();
                 setStageState('detecting_face', 'error', message);
                 setPrimaryNotice('Scan belum berhasil', message);
                 setScanBadge('Scan diulang', 'warning');
-                setCameraGuide(message, 'bx-refresh');
+                setCameraGuide(message, 'bx-refresh', { force: true });
                 if (error.statusCode === 'attendance_checkout_too_early') {
                     showFlashModal({
                         tone: 'warning',
@@ -2702,6 +2759,7 @@
                 showAttendanceResult('Scan diulang', message);
                 scheduleNextScan(retryScanDelayMs);
             } finally {
+                clearCameraGuideLock();
                 scanInProgress = false;
             }
         }
