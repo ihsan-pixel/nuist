@@ -371,8 +371,8 @@
 
     .camera-oval {
         position: absolute;
-        inset: 12% 28%;
-        border-radius: 999px;
+        inset: 12% 36% 14% 36%;
+        border-radius: 44% / 50%;
         border: 2px solid rgba(255, 255, 255, 0.82);
         box-shadow:
             0 0 0 100vmax rgba(2, 6, 23, 0.24),
@@ -382,7 +382,7 @@
     .camera-guide-pill {
         position: absolute;
         left: 50%;
-        bottom: 24px;
+        top: 24px;
         transform: translateX(-50%);
         display: inline-flex;
         align-items: center;
@@ -401,6 +401,228 @@
     .camera-guide-pill i {
         font-size: 18px;
         flex: 0 0 auto;
+    }
+
+    .camera-activity-panel {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        bottom: 20px;
+        width: min(320px, 28%);
+        display: flex;
+        flex-direction: column;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(15, 23, 42, 0.42);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 18px 38px rgba(2, 6, 23, 0.22);
+        z-index: 5;
+        overflow: hidden;
+    }
+
+    .camera-activity-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 16px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .camera-activity-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #f8fafc;
+        margin: 0;
+    }
+
+    .camera-activity-subtitle {
+        margin: 4px 0 0;
+        font-size: 11px;
+        color: rgba(226, 232, 240, 0.78);
+    }
+
+    .camera-activity-count {
+        flex: 0 0 auto;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(56, 189, 248, 0.16);
+        color: #bae6fd;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .camera-activity-list {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .camera-activity-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .camera-activity-list::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.42);
+        border-radius: 999px;
+    }
+
+    .camera-activity-empty {
+        padding: 16px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.42);
+        color: rgba(226, 232, 240, 0.8);
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .camera-activity-item {
+        border-radius: 18px;
+        padding: 12px 12px 11px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+    }
+
+    .camera-activity-item[data-mode="masuk"] {
+        box-shadow: inset 3px 0 0 #22c55e;
+    }
+
+    .camera-activity-item[data-mode="keluar"] {
+        box-shadow: inset 3px 0 0 #f59e0b;
+    }
+
+    .camera-activity-topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .camera-activity-name {
+        font-size: 13px;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.4;
+    }
+
+    .camera-activity-time {
+        font-size: 12px;
+        font-weight: 700;
+        color: #cbd5e1;
+        white-space: nowrap;
+    }
+
+    .camera-activity-mode {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .camera-activity-mode.is-masuk {
+        background: rgba(34, 197, 94, 0.18);
+        color: #bbf7d0;
+    }
+
+    .camera-activity-mode.is-keluar {
+        background: rgba(245, 158, 11, 0.18);
+        color: #fde68a;
+    }
+
+    .camera-activity-note {
+        font-size: 11px;
+        line-height: 1.55;
+        color: rgba(226, 232, 240, 0.84);
+    }
+
+    .kiosk-flash-modal {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(2, 6, 23, 0.28);
+        backdrop-filter: blur(4px);
+        z-index: 2100;
+    }
+
+    .kiosk-flash-modal[hidden] {
+        display: none !important;
+    }
+
+    .kiosk-flash-card {
+        width: min(520px, calc(100vw - 32px));
+        border-radius: 28px;
+        padding: 26px 24px 24px;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+        text-align: center;
+    }
+
+    .kiosk-flash-card.is-success {
+        border: 1px solid #86efac;
+    }
+
+    .kiosk-flash-card.is-warning {
+        border: 1px solid #fcd34d;
+    }
+
+    .kiosk-flash-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 14px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+    }
+
+    .kiosk-flash-card.is-success .kiosk-flash-icon {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .kiosk-flash-card.is-warning .kiosk-flash-icon {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .kiosk-flash-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .kiosk-flash-copy {
+        font-size: 14px;
+        color: #334155;
+        line-height: 1.7;
+        margin-bottom: 10px;
+    }
+
+    .kiosk-flash-meta {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f766e;
     }
 
     .face-modal .modal-content {
@@ -591,6 +813,10 @@
             min-height: 340px;
         }
 
+        .camera-activity-panel {
+            width: min(290px, 34%);
+        }
+
         .enroll-controls {
             grid-template-columns: 1fr;
         }
@@ -602,13 +828,22 @@
         }
 
         .camera-oval {
-            inset: 12% 18%;
+            inset: 13% 24% 15%;
         }
 
         .camera-guide-pill {
             width: calc(100% - 24px);
-            bottom: 14px;
+            top: 12px;
             border-radius: 18px;
+        }
+
+        .camera-activity-panel {
+            top: auto;
+            right: 12px;
+            left: 12px;
+            bottom: 12px;
+            width: auto;
+            max-height: 38%;
         }
 
         .face-modal .modal-header,
@@ -651,7 +886,7 @@
                         <div class="panel-box">
                             <div class="camera-panel-header">
                                 <div>
-                                    <div class="camera-panel-title">Kamera Kiosk</div>
+                                    <div class="camera-panel-title">Kiosk Kamera Presensi Kehadiran</div>
                                     <p class="camera-panel-copy" id="cameraPanelCopy">
                                         Setelah lokasi valid, kamera aktif otomatis. Guru cukup berdiri di depan kamera dan mengikuti instruksi singkat.
                                     </p>
@@ -683,11 +918,17 @@
                                         <span id="cameraGuideText">Menyiapkan School Kiosk.</span>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="primary-notice mt-3" id="primaryNotice">
-                                <strong>Menyiapkan School Kiosk</strong>
-                                <span>Meminta izin lokasi dan kamera, lalu sistem akan masuk ke mode siaga otomatis.</span>
+                                <aside class="camera-activity-panel">
+                                    <div class="camera-activity-header">
+                                        <div>
+                                            <div class="camera-activity-title">Data Presensi Hari Ini</div>
+                                            <p class="camera-activity-subtitle">Guru yang sudah berhasil presensi masuk atau pulang.</p>
+                                        </div>
+                                        <div class="camera-activity-count" id="cameraActivityCount">0</div>
+                                    </div>
+                                    <div class="camera-activity-list" id="cameraActivityList"></div>
+                                </aside>
                             </div>
 
                             <div class="enrollment-banner" id="enrollmentBanner" <?php if($teachersWithoutFaceCount === 0): ?> hidden <?php endif; ?>>
@@ -712,12 +953,17 @@
                                 </button>
                             </div>
 
-                            <div class="attendance-result" id="attendanceResultCard" hidden>
-                                <div class="attendance-result-title" id="attendanceResultTitle">Hasil Presensi</div>
-                                <p class="attendance-result-copy" id="attendanceResultCopy"></p>
-                            </div>
-
                             <div class="d-none" aria-hidden="true">
+                                <div class="primary-notice mt-3" id="primaryNotice">
+                                    <strong>Menyiapkan School Kiosk</strong>
+                                    <span>Meminta izin lokasi dan kamera, lalu sistem akan masuk ke mode siaga otomatis.</span>
+                                </div>
+
+                                <div class="attendance-result" id="attendanceResultCard" hidden>
+                                    <div class="attendance-result-title" id="attendanceResultTitle">Hasil Presensi</div>
+                                    <p class="attendance-result-copy" id="attendanceResultCopy"></p>
+                                </div>
+
                                 <div class="status-step" data-stage="camera_permission">
                                     <div class="status-step-dot"></div>
                                     <div>
@@ -776,6 +1022,17 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="kiosk-flash-modal" id="kioskFlashModal" hidden>
+                    <div class="kiosk-flash-card is-success" id="kioskFlashCard">
+                        <div class="kiosk-flash-icon" id="kioskFlashIcon">
+                            <i class="bx bx-check-circle"></i>
+                        </div>
+                        <div class="kiosk-flash-title" id="kioskFlashTitle">Presensi Berhasil</div>
+                        <div class="kiosk-flash-copy" id="kioskFlashCopy"></div>
+                        <div class="kiosk-flash-meta" id="kioskFlashMeta"></div>
                     </div>
                 </div>
 
@@ -893,6 +1150,7 @@
 <script>
     (function () {
         const teachers = <?php echo json_encode($teachersPayload, 15, 512) ?>;
+        const initialAttendanceActivities = <?php echo json_encode($attendanceActivities, 15, 512) ?>;
         const verificationMode = <?php echo json_encode($verificationMode, 15, 512) ?>;
         const faceEngineDriver = <?php echo json_encode($faceEngineDriver, 15, 512) ?>;
         const faceEngineLabel = <?php echo json_encode($faceEngineLabel, 15, 512) ?>;
@@ -913,11 +1171,19 @@
         const attendanceResultCard = document.getElementById('attendanceResultCard');
         const attendanceResultTitle = document.getElementById('attendanceResultTitle');
         const attendanceResultCopy = document.getElementById('attendanceResultCopy');
+        const cameraActivityList = document.getElementById('cameraActivityList');
+        const cameraActivityCount = document.getElementById('cameraActivityCount');
         const retryLocationButton = document.getElementById('retryLocationButton');
         const restartScannerButton = document.getElementById('restartScannerButton');
         const enrollmentBanner = document.getElementById('enrollmentBanner');
         const enrollmentBannerCopy = document.getElementById('enrollmentBannerCopy');
         const openEnrollmentModalButton = document.getElementById('openEnrollmentModalButton');
+        const kioskFlashModal = document.getElementById('kioskFlashModal');
+        const kioskFlashCard = document.getElementById('kioskFlashCard');
+        const kioskFlashTitle = document.getElementById('kioskFlashTitle');
+        const kioskFlashCopy = document.getElementById('kioskFlashCopy');
+        const kioskFlashMeta = document.getElementById('kioskFlashMeta');
+        const kioskFlashIcon = document.getElementById('kioskFlashIcon');
 
         const enrollmentTeacherSearchInput = document.getElementById('enrollmentTeacherSearchInput');
         const enrollmentTeacherSelect = document.getElementById('enrollmentTeacherSelect');
@@ -953,6 +1219,8 @@
         let enrollmentCameraReady = false;
         let attendancePreviewFrame = null;
         let enrollmentPreviewFrame = null;
+        let flashTimer = null;
+        let attendanceActivities = Array.isArray(initialAttendanceActivities) ? initialAttendanceActivities.slice() : [];
 
         const stageOrder = [
             'camera_permission',
@@ -1193,6 +1461,108 @@
             return new Promise((resolve) => window.setTimeout(resolve, ms));
         }
 
+        function modeLabel(mode) {
+            return mode === 'keluar' ? 'Presensi Pulang' : 'Presensi Masuk';
+        }
+
+        function updateActivityCount() {
+            if (!cameraActivityCount) {
+                return;
+            }
+
+            cameraActivityCount.textContent = String(attendanceActivities.length);
+        }
+
+        function renderAttendanceActivities() {
+            if (!cameraActivityList) {
+                return;
+            }
+
+            if (!attendanceActivities.length) {
+                cameraActivityList.innerHTML = '<div class="camera-activity-empty">Belum ada guru yang berhasil melakukan presensi hari ini.</div>';
+                updateActivityCount();
+                return;
+            }
+
+            cameraActivityList.innerHTML = attendanceActivities
+                .map(function (item) {
+                    const mode = item.mode === 'keluar' ? 'keluar' : 'masuk';
+                    const icon = mode === 'keluar' ? 'bx-log-out-circle' : 'bx-log-in-circle';
+
+                    return `
+                        <article class="camera-activity-item" data-mode="${mode}">
+                            <div class="camera-activity-topline">
+                                <div class="camera-activity-name">${item.teacher_name || 'Guru'}</div>
+                                <div class="camera-activity-time">${item.time || '--:--'}</div>
+                            </div>
+                            <div class="camera-activity-mode ${mode === 'keluar' ? 'is-keluar' : 'is-masuk'}">
+                                <i class="bx ${icon}"></i>
+                                <span>${item.mode_label || modeLabel(mode)}</span>
+                            </div>
+                            <div class="camera-activity-note">${item.note || ''}</div>
+                        </article>
+                    `;
+                })
+                .join('');
+
+            updateActivityCount();
+        }
+
+        function upsertAttendanceActivity(activity) {
+            if (!activity || !activity.id) {
+                return;
+            }
+
+            attendanceActivities = [
+                activity,
+                ...attendanceActivities.filter(function (item) {
+                    return item.id !== activity.id;
+                }),
+            ].slice(0, 14);
+
+            renderAttendanceActivities();
+        }
+
+        function hideFlashModal() {
+            if (flashTimer) {
+                window.clearTimeout(flashTimer);
+                flashTimer = null;
+            }
+
+            if (kioskFlashModal) {
+                kioskFlashModal.hidden = true;
+            }
+        }
+
+        function showFlashModal(options) {
+            if (!kioskFlashModal || !kioskFlashCard) {
+                return;
+            }
+
+            const tone = options?.tone === 'warning' ? 'warning' : 'success';
+            kioskFlashCard.classList.remove('is-success', 'is-warning');
+            kioskFlashCard.classList.add(tone === 'warning' ? 'is-warning' : 'is-success');
+            kioskFlashIcon.innerHTML = `<i class="bx ${tone === 'warning' ? 'bx-error-circle' : 'bx-check-circle'}"></i>`;
+            kioskFlashTitle.textContent = options?.title || 'Informasi Presensi';
+            kioskFlashCopy.textContent = options?.copy || '';
+            kioskFlashMeta.textContent = options?.meta || '';
+            kioskFlashModal.hidden = false;
+
+            if (flashTimer) {
+                window.clearTimeout(flashTimer);
+            }
+
+            flashTimer = window.setTimeout(hideFlashModal, options?.duration ?? 2400);
+        }
+
+        function createRequestError(payload, fallbackMessage) {
+            const error = new Error(payload?.message || fallbackMessage);
+            error.statusCode = payload?.status_code || 'request_failed';
+            error.payload = payload || {};
+
+            return error;
+        }
+
         function scheduleNextScan(delay = 1000) {
             clearScanTimer();
             scanTimer = window.setTimeout(runAutomaticFaceScan, delay);
@@ -1376,7 +1746,7 @@
 
             const result = await response.json();
             if (!response.ok || !result.success) {
-                throw new Error(result.message || 'Presensi otomatis gagal diproses.');
+                throw createRequestError(result, 'Presensi otomatis gagal diproses.');
             }
 
             setStageState('verifying_identity', 'done', `Guru dikenali sebagai ${result.teacher?.name || 'guru terdaftar'}.`);
@@ -1390,9 +1760,23 @@
             setPrimaryNotice('Presensi berhasil', `${result.teacher?.name || 'Guru'} berhasil diproses secara otomatis sebagai presensi ${result.mode || '-'}.`);
             setScanBadge('Presensi berhasil', 'success');
             setCameraGuide('Presensi berhasil. Kiosk kembali ke mode siaga otomatis.', 'bx-check-circle');
+            if (result.attendance_activity) {
+                upsertAttendanceActivity(result.attendance_activity);
+            }
+
+            const note = result.attendance_note || '';
+            const modeLabelText = result.mode === 'keluar' ? 'presensi pulang' : 'presensi masuk';
+            showFlashModal({
+                tone: 'success',
+                title: 'Presensi Berhasil',
+                copy: `${result.teacher?.name || 'Guru'} berhasil melakukan ${modeLabelText}.`,
+                meta: note !== '' ? note : (result.message || 'Presensi berhasil direkam.'),
+                duration: 2600,
+            });
+
             showAttendanceResult(
                 result.teacher?.name || 'Presensi berhasil',
-                `${result.message || 'Presensi berhasil direkam.'} ${result.presensi?.waktu_masuk ? 'Masuk: ' + result.presensi.waktu_masuk + '.' : ''} ${result.presensi?.waktu_keluar ? 'Keluar: ' + result.presensi.waktu_keluar + '.' : ''}`.trim()
+                `${result.message || 'Presensi berhasil direkam.'} ${note ? note + '. ' : ''}${result.presensi?.waktu_masuk ? 'Masuk: ' + result.presensi.waktu_masuk + '.' : ''} ${result.presensi?.waktu_keluar ? 'Keluar: ' + result.presensi.waktu_keluar + '.' : ''}`.trim()
             );
         }
 
@@ -1468,6 +1852,15 @@
                 setPrimaryNotice('Scan belum berhasil', message);
                 setScanBadge('Scan diulang', 'warning');
                 setCameraGuide(message, 'bx-refresh');
+                if (error.statusCode === 'attendance_checkout_too_early') {
+                    showFlashModal({
+                        tone: 'warning',
+                        title: 'Presensi Pulang Belum Bisa',
+                        copy: message,
+                        meta: 'Silakan lakukan presensi pulang sesuai jam sekolah yang sudah ditentukan.',
+                        duration: 3200,
+                    });
+                }
                 showAttendanceResult('Scan diulang', message);
                 scheduleNextScan(1800);
             } finally {
@@ -1719,6 +2112,13 @@
             bootstrapAutomation();
         });
 
+        kioskFlashModal?.addEventListener('click', function (event) {
+            if (event.target === kioskFlashModal) {
+                hideFlashModal();
+            }
+        });
+
+        renderAttendanceActivities();
         updateEnrollmentBanner();
         updateEnrollmentTeacherSelection();
         bootstrapAutomation();

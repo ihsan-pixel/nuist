@@ -347,6 +347,17 @@ class SchoolKioskAttendanceService
         }
 
         if ($mode !== 'masuk' || $teacher->ketugasan === 'penjaga sekolah') {
+            if ($mode !== 'keluar' || $teacher->ketugasan === 'penjaga sekolah' || $teacher->pemenuhan_beban_kerja_lain) {
+                return;
+            }
+
+            $pulangStart = $this->attendanceWorkflowService->resolvePulangStart($school, $now);
+            if ($now->format('H:i:s') < $pulangStart) {
+                throw ValidationException::withMessages([
+                    'attendance' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '.',
+                ]);
+            }
+
             return;
         }
 

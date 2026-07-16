@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kiosk;
 
 use App\Http\Controllers\Controller;
+use App\Models\Presensi;
 use App\Models\RegisteredAttendanceDevice;
 use App\Models\User;
 use App\Services\AttendanceKioskAccessService;
@@ -11,6 +12,7 @@ use App\Services\FaceVerificationService;
 use App\Services\KioskFaceEngineService;
 use App\Services\MobileAttendanceSettingsService;
 use App\Services\SchoolKioskAttendanceService;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -53,6 +55,7 @@ class SchoolKioskController extends Controller
         $accessGranted = false;
         $accessMessage = 'Komputer presensi belum tervalidasi.';
         $teachers = collect();
+        $attendanceActivities = [];
 
         try {
             $device = $this->resolveAuthorizedDevice($request, $operator);
@@ -61,6 +64,7 @@ class SchoolKioskController extends Controller
             $teachers = $this->teachersQuery($device)
                 ->orderBy('name')
                 ->get(['id', 'name', 'nip', 'nuptk', 'ketugasan', 'face_registered_at']);
+            $attendanceActivities = $this->recentAttendanceActivities($device);
 
             $this->attendanceKioskAccessService->logAccess(
                 action: 'kiosk_access',
@@ -105,6 +109,7 @@ class SchoolKioskController extends Controller
             'verificationMode' => $this->mobileAttendanceSettingsService->currentMode(),
             'verificationLabel' => $this->mobileAttendanceSettingsService->modeLabel(),
             'teachersWithoutFaceCount' => $teachers->whereNull('face_registered_at')->count(),
+            'attendanceActivities' => $attendanceActivities,
             'faceEngineDriver' => $this->kioskFaceEngineService->driver(),
             'faceEngineLabel' => $this->kioskFaceEngineService->displayLabel(),
             'faceEngineUsesPython' => $this->kioskFaceEngineService->usesPython(),
@@ -405,6 +410,7 @@ class SchoolKioskController extends Controller
                 'message' => $result['message'],
                 'status_code' => 'attendance_recorded',
                 'mode' => $result['mode'],
+                'attendance_note' => (string) ($result['presensi']->keterangan ?? ''),
                 'teacher' => $this->teacherResource($teacher),
                 'presensi' => [
                     'id' => $result['presensi']->id,
@@ -412,15 +418,19 @@ class SchoolKioskController extends Controller
                     'waktu_masuk' => $result['presensi']->waktu_masuk?->format('H:i'),
                     'waktu_keluar' => $result['presensi']->waktu_keluar?->format('H:i'),
                 ],
+                'attendance_activity' => $this->attendanceActivityResource($result['presensi'], $teacher, $result['mode']),
                 'face_similarity' => $teacherMatch['similarity'] ?? null,
             ]);
         } catch (ValidationException $exception) {
             $message = collect($exception->errors())->flatten()->first() ?: 'Presensi otomatis gagal.';
-            $statusCode = str_contains(strtolower($message), 'sudah lengkap')
+            $lowerMessage = strtolower($message);
+            $statusCode = str_contains($lowerMessage, 'sudah lengkap')
                 ? 'attendance_completed'
-                : (str_contains(strtolower($message), 'keluar')
+                : (str_contains($lowerMessage, 'waktu presensi keluar dimulai')
+                    ? 'attendance_checkout_too_early'
+                    : (str_contains($lowerMessage, 'keluar')
                     ? 'attendance_checkout_pending'
-                    : 'attendance_validation_failed');
+                    : 'attendance_validation_failed'));
 
             $device = $this->attendanceKioskAccessService->resolveDeviceByToken($request->cookie('nuist_kiosk_token'));
             $this->attendanceKioskAccessService->logAccess(
@@ -577,6 +587,67 @@ class SchoolKioskController extends Controller
             'ketugasan' => $teacher->ketugasan,
             'face_registered_at' => optional($teacher->face_registered_at)?->toIso8601String(),
             'has_face_enrollment' => $teacher->hasFaceEnrollment(),
+        ];
+    }
+
+    private function recentAttendanceActivities(RegisteredAttendanceDevice $device): array
+    {
+        $today = Carbon::today('Asia/Jakarta')->toDateString();
+
+        $events = Presensi::query()
+            ->with(['user:id,name'])
+            ->where('madrasah_id', $device->madrasah_id)
+            ->whereDate('tanggal', $today)
+            ->where(function (Builder $query) {
+                $query->whereNotNull('waktu_masuk')
+                    ->orWhereNotNull('waktu_keluar');
+            })
+            ->latest('updated_at')
+            ->limit(24)
+            ->get()
+            ->flatMap(function (Presensi $presensi) {
+                $teacher = $presensi->user;
+                if (!$teacher) {
+                    return [];
+                }
+
+                $items = [];
+                if ($presensi->waktu_masuk) {
+                    $items[] = $this->attendanceActivityResource($presensi, $teacher, 'masuk');
+                }
+
+                if ($presensi->waktu_keluar) {
+                    $items[] = $this->attendanceActivityResource($presensi, $teacher, 'keluar');
+                }
+
+                return $items;
+            })
+            ->filter()
+            ->sortByDesc('timestamp')
+            ->take(14)
+            ->values();
+
+        return $events->all();
+    }
+
+    private function attendanceActivityResource(Presensi $presensi, User $teacher, string $mode): array
+    {
+        $timestamp = $mode === 'keluar'
+            ? $presensi->waktu_keluar
+            : $presensi->waktu_masuk;
+
+        $note = trim((string) ($presensi->keterangan ?? ''));
+
+        return [
+            'id' => $presensi->id.'-'.$mode,
+            'presensi_id' => $presensi->id,
+            'teacher_id' => $teacher->id,
+            'teacher_name' => $teacher->name,
+            'mode' => $mode,
+            'mode_label' => $mode === 'keluar' ? 'Presensi Pulang' : 'Presensi Masuk',
+            'time' => $timestamp?->format('H:i') ?? '--:--',
+            'note' => $note !== '' ? $note : ($mode === 'keluar' ? 'Presensi keluar tercatat.' : 'Presensi masuk tercatat.'),
+            'timestamp' => $timestamp?->timestamp ?? now('Asia/Jakarta')->timestamp,
         ];
     }
 
