@@ -960,7 +960,7 @@
                                     <div class="camera-activity-header">
                                         <div>
                                             <div class="camera-activity-title">Data Presensi Hari Ini</div>
-                                            <p class="camera-activity-subtitle">Guru yang sudah berhasil presensi masuk atau pulang.</p>
+                                            {{-- <p class="camera-activity-subtitle">Guru yang sudah berhasil presensi masuk atau pulang.</p> --}}
                                         </div>
                                         <div class="camera-activity-count" id="cameraActivityCount">0</div>
                                     </div>
