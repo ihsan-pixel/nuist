@@ -88,6 +88,11 @@
                     <div class="col">
                         <h4 class="card-title mb-1">Presensi Mengajar Hari Ini</h4>
                         <p class="text-muted mb-0">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
+                        @if(!empty($activePeriod))
+                            <small class="text-muted d-block mt-1">
+                                {{ $activePeriod->title }} | {{ $activePeriod->semester_label }} | {{ $activePeriod->school_year }} | {{ $activePeriod->date_range_label }}
+                            </small>
+                        @endif
                     </div>
                     <div class="col-auto">
                         <div class="text-end">

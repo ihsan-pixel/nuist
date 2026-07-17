@@ -12,6 +12,7 @@ use App\Models\Presensi;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
+use App\Models\TeachingSchedulePeriod;
 use App\Models\User;
 use App\Services\AcademicCalendarEventService;
 use App\Services\AttendanceObligationService;
@@ -57,6 +58,9 @@ class TeacherAppController extends Controller
         $today = Carbon::today('Asia/Jakarta');
         $monthStart = $today->copy()->startOfMonth();
         $monthEnd = $today->copy()->endOfMonth();
+        $activeTeachingPeriod = $user->madrasah_id
+            ? $this->resolveSchedulePeriod($user->madrasah_id, null, true, $today)
+            : null;
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiInRange($user, $monthStart, $monthEnd);
 
@@ -215,6 +219,7 @@ class TeacherAppController extends Controller
                     ->map(fn (Holiday $holiday) => $this->serializeHoliday($holiday))
                     ->values(),
                 'today_attendance' => $this->serializeTodayAttendance($todayPresensi),
+                'active_teaching_period' => $this->serializeSchedulePeriod($activeTeachingPeriod),
                 'today_schedules' => $scheduleItems,
                 'recent_izin' => Izin::query()
                     ->where('user_id', $user->id)
@@ -230,19 +235,29 @@ class TeacherAppController extends Controller
     public function schedule(Request $request): JsonResponse
     {
         $user = $this->resolveTeacher($request);
+        $schoolId = $user->madrasah_id;
+        $periods = $schoolId ? $this->schedulePeriodsForSchool($schoolId) : collect();
+        $selectedPeriod = $schoolId
+            ? $this->resolveSchedulePeriod($schoolId, $request->integer('period_id'))
+            : null;
 
-        $schedules = TeachingSchedule::query()
-            ->with('school')
-            ->where('teacher_id', $user->id)
-            ->orderByRaw($this->dayOrderSql())
-            ->orderBy('start_time')
-            ->get();
+        $schedules = $selectedPeriod
+            ? TeachingSchedule::query()
+                ->with(['school', 'period'])
+                ->where('teacher_id', $user->id)
+                ->where('teaching_schedule_period_id', $selectedPeriod->id)
+                ->orderByRaw($this->dayOrderSql())
+                ->orderBy('start_time')
+                ->get()
+            : collect();
 
         return response()->json([
             'message' => 'OK',
             'data' => [
                 'items' => $schedules->map(fn (TeachingSchedule $schedule) => $this->serializeSchedule($schedule))->values(),
                 'can_manage' => (bool) $user->madrasah_id,
+                'selected_period' => $this->serializeSchedulePeriod($selectedPeriod),
+                'periods' => $periods->map(fn (TeachingSchedulePeriod $period) => $this->serializeSchedulePeriod($period))->values(),
             ],
         ]);
     }
@@ -258,13 +273,18 @@ class TeacherAppController extends Controller
             ]);
         }
 
+        $periods = $this->schedulePeriodsForSchool($schoolId);
+        $selectedPeriod = $this->resolveSchedulePeriod($schoolId, $request->integer('period_id'));
+
         return response()->json([
             'message' => 'OK',
             'data' => [
                 'days' => self::SCHEDULE_DAYS,
                 'new_value' => self::SCHEDULE_NEW_VALUE,
-                'subjects' => $this->getScheduleSubjects($schoolId)->values(),
-                'classes' => $this->getScheduleClasses($schoolId)->values(),
+                'subjects' => $selectedPeriod ? $this->getScheduleSubjects($schoolId, $selectedPeriod->id)->values() : collect(),
+                'classes' => $selectedPeriod ? $this->getScheduleClasses($schoolId, $selectedPeriod->id)->values() : collect(),
+                'selected_period' => $this->serializeSchedulePeriod($selectedPeriod),
+                'periods' => $periods->map(fn (TeachingSchedulePeriod $period) => $this->serializeSchedulePeriod($period))->values(),
             ],
         ]);
     }
@@ -281,10 +301,22 @@ class TeacherAppController extends Controller
         }
 
         $validated = $this->validateSchedulePayload($request);
-        $this->ensureScheduleDoesNotOverlap($user, $validated);
+        $requestedPeriodId = $request->integer('teaching_schedule_period_id');
+        $period = $requestedPeriodId
+            ? $this->findSchedulePeriodForSchool($schoolId, $requestedPeriodId)
+            : $this->resolveSchedulePeriod($schoolId);
+
+        if (!$period) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_period_id' => 'Belum ada periode jadwal mengajar aktif untuk madrasah Anda.',
+            ]);
+        }
+
+        $this->ensureScheduleDoesNotOverlap($user, $validated, $period->id);
 
         $schedule = TeachingSchedule::create([
             'school_id' => $schoolId,
+            'teaching_schedule_period_id' => $period->id,
             'teacher_id' => $user->id,
             'day' => $validated['day'],
             'subject' => $validated['subject'],
@@ -292,7 +324,7 @@ class TeacherAppController extends Controller
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
             'created_by' => $user->id,
-        ])->load('school');
+        ])->load(['school', 'period']);
 
         return response()->json([
             'message' => 'Jadwal mengajar berhasil ditambahkan.',
@@ -308,9 +340,21 @@ class TeacherAppController extends Controller
         abort_unless($schedule->teacher_id === $user->id, 403);
 
         $validated = $this->validateSchedulePayload($request);
-        $this->ensureScheduleDoesNotOverlap($user, $validated, $schedule->id);
+        $requestedPeriodId = $request->integer('teaching_schedule_period_id');
+        $period = $requestedPeriodId
+            ? $this->findSchedulePeriodForSchool((int) $schedule->school_id, $requestedPeriodId)
+            : ($schedule->period ?: $this->resolveSchedulePeriod((int) $schedule->school_id));
+
+        if (!$period) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_period_id' => 'Belum ada periode jadwal mengajar aktif untuk madrasah ini.',
+            ]);
+        }
+
+        $this->ensureScheduleDoesNotOverlap($user, $validated, $period->id, $schedule->id);
 
         $schedule->update([
+            'teaching_schedule_period_id' => $period->id,
             'day' => $validated['day'],
             'subject' => $validated['subject'],
             'class_name' => $validated['class_name'],
@@ -318,7 +362,7 @@ class TeacherAppController extends Controller
             'end_time' => $validated['end_time'],
         ]);
 
-        $schedule->load('school');
+        $schedule->load(['school', 'period']);
 
         return response()->json([
             'message' => 'Jadwal mengajar berhasil diperbarui.',
@@ -723,6 +767,9 @@ class TeacherAppController extends Controller
         $monthStart = $today->copy()->startOfMonth();
         $monthEnd = $today->copy()->endOfMonth();
         $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
+        $activeTeachingPeriod = $user->madrasah_id
+            ? $this->resolveSchedulePeriod($user->madrasah_id, null, true, $today)
+            : null;
 
         $this->academicCalendarEventService->syncTeacherRange($user, $monthStart, $monthEnd);
 
@@ -742,12 +789,12 @@ class TeacherAppController extends Controller
         );
 
         $items = TeachingAttendance::query()
-            ->with(['teachingSchedule.school', 'academicCalendarEvent'])
+            ->with(['teachingSchedule.school', 'teachingSchedule.period', 'academicCalendarEvent'])
             ->where('user_id', $user->id)
             ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->get();
         $teacherSchedules = TeachingSchedule::query()
-            ->with('school')
+            ->with(['school', 'period'])
             ->where('teacher_id', $user->id)
             ->get()
             ->keyBy('id');
@@ -779,6 +826,7 @@ class TeacherAppController extends Controller
             'data' => [
                 'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
                 'server_time' => $now->toIso8601String(),
+                'active_teaching_period' => $this->serializeSchedulePeriod($activeTeachingPeriod),
                 'month_label' => $today->locale('id')->isoFormat('MMMM YYYY'),
                 'approved_izin_today' => $approvedTeachingJournalIzin
                     ? [
@@ -854,7 +902,7 @@ class TeacherAppController extends Controller
         ]);
 
         $schedule = TeachingSchedule::query()
-            ->with('school')
+            ->with(['school', 'period'])
             ->findOrFail($validated['teaching_schedule_id']);
 
         $today = Carbon::today('Asia/Jakarta');
@@ -918,7 +966,7 @@ class TeacherAppController extends Controller
         }
 
         $schedule = TeachingSchedule::query()
-            ->with('school')
+            ->with(['school', 'period'])
             ->findOrFail($validated['teaching_schedule_id']);
 
         $this->ensureTeachingJournalScheduleAllowed($user, $schedule, $today);
@@ -974,6 +1022,7 @@ class TeacherAppController extends Controller
 
         $classStudentCount = TeachingClassStudentCount::query()
             ->where('school_id', $schedule->school_id)
+            ->where('teaching_schedule_period_id', $schedule->teaching_schedule_period_id)
             ->where('class_name', trim((string) $schedule->class_name))
             ->first();
 
@@ -1014,6 +1063,7 @@ class TeacherAppController extends Controller
             if (!$classStudentCount) {
                 TeachingClassStudentCount::create([
                     'school_id' => $schedule->school_id,
+                    'teaching_schedule_period_id' => $schedule->teaching_schedule_period_id,
                     'class_name' => trim((string) $schedule->class_name),
                     'total_students' => $classTotalStudents,
                     'created_by' => $user->id,
@@ -1059,7 +1109,7 @@ class TeacherAppController extends Controller
             return $attendance;
         });
 
-        $attendance->loadMissing('teachingSchedule.school');
+        $attendance->loadMissing(['teachingSchedule.school', 'teachingSchedule.period']);
 
         return response()->json([
             'message' => 'Presensi mengajar berhasil dicatat pada ' . $now->format('H:i') . '.',
@@ -1821,10 +1871,11 @@ class TeacherAppController extends Controller
         return $validated;
     }
 
-    private function ensureScheduleDoesNotOverlap(User $user, array $validated, ?int $exceptId = null): void
+    private function ensureScheduleDoesNotOverlap(User $user, array $validated, int $periodId, ?int $exceptId = null): void
     {
         $query = TeachingSchedule::query()
             ->where('teacher_id', $user->id)
+            ->where('teaching_schedule_period_id', $periodId)
             ->where('day', $validated['day'])
             ->where(function ($builder) use ($validated) {
                 $builder->where('start_time', '<', $validated['end_time'])
@@ -1842,10 +1893,11 @@ class TeacherAppController extends Controller
         }
     }
 
-    private function getScheduleClasses(int|string $schoolId)
+    private function getScheduleClasses(int|string $schoolId, int|string $periodId)
     {
         return TeachingSchedule::query()
             ->where('school_id', $schoolId)
+            ->where('teaching_schedule_period_id', $periodId)
             ->whereNotNull('class_name')
             ->where('class_name', '!=', '')
             ->select('class_name')
@@ -1854,10 +1906,11 @@ class TeacherAppController extends Controller
             ->pluck('class_name');
     }
 
-    private function getScheduleSubjects(int|string $schoolId)
+    private function getScheduleSubjects(int|string $schoolId, int|string $periodId)
     {
         return TeachingSchedule::query()
             ->where('school_id', $schoolId)
+            ->where('teaching_schedule_period_id', $periodId)
             ->whereNotNull('subject')
             ->where('subject', '!=', '')
             ->select('subject')
@@ -1870,22 +1923,33 @@ class TeacherAppController extends Controller
     {
         return [
             'id' => $schedule->id,
+            'teaching_schedule_period_id' => $schedule->teaching_schedule_period_id,
             'day' => $schedule->day,
             'subject' => $schedule->subject,
             'class_name' => $schedule->class_name,
             'school_name' => $schedule->school?->name,
             'start_time' => $this->formatTime($schedule->start_time),
             'end_time' => $this->formatTime($schedule->end_time),
+            'period' => $this->serializeSchedulePeriod($schedule->period),
         ];
     }
 
     private function todaySchedules(User $user, Carbon $today)
     {
+        $activePeriod = $user->madrasah_id
+            ? $this->resolveSchedulePeriod($user->madrasah_id, null, true, $today)
+            : null;
+
+        if (!$activePeriod) {
+            return collect();
+        }
+
         $todayName = $today->copy()->locale('id')->dayName;
 
         return TeachingSchedule::query()
-            ->with('school')
+            ->with(['school', 'period'])
             ->where('teacher_id', $user->id)
+            ->where('teaching_schedule_period_id', $activePeriod->id)
             ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
             ->orderBy('start_time')
             ->get();
@@ -1906,20 +1970,21 @@ class TeacherAppController extends Controller
 
         $counts = TeachingClassStudentCount::query()
             ->whereIn('school_id', $schoolIds)
+            ->whereIn('teaching_schedule_period_id', $schedules->pluck('teaching_schedule_period_id')->filter()->unique()->values())
             ->whereIn('class_name', $classNames)
             ->get()
-            ->keyBy(fn ($count) => $this->teachingClassStudentCountKey($count->school_id, $count->class_name));
+            ->keyBy(fn ($count) => $this->teachingClassStudentCountKey($count->school_id, $count->teaching_schedule_period_id, $count->class_name));
 
         $schedules->each(function (TeachingSchedule $schedule) use ($counts) {
             $schedule->class_student_count = $counts->get(
-                $this->teachingClassStudentCountKey($schedule->school_id, $schedule->class_name)
+                $this->teachingClassStudentCountKey($schedule->school_id, $schedule->teaching_schedule_period_id, $schedule->class_name)
             );
         });
     }
 
-    private function teachingClassStudentCountKey($schoolId, $className): string
+    private function teachingClassStudentCountKey($schoolId, $periodId, $className): string
     {
-        return $schoolId . '|' . strtolower(trim((string) $className));
+        return $schoolId . '|' . $periodId . '|' . strtolower(trim((string) $className));
     }
 
     private function buildTeachingAttendanceTimeState(TeachingSchedule $schedule, Carbon $now): array
@@ -1957,6 +2022,12 @@ class TeacherAppController extends Controller
         if (strtolower((string) $schedule->day) !== strtolower((string) $todayName)) {
             throw ValidationException::withMessages([
                 'teaching_schedule_id' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.',
+            ]);
+        }
+
+        if (!$this->schedulePeriodMatchesDate($schedule, $today)) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_id' => 'Jadwal mengajar ini tidak berada pada periode yang sedang berjalan.',
             ]);
         }
     }
@@ -2025,7 +2096,101 @@ class TeacherAppController extends Controller
             'class_total_students' => $item->class_total_students,
             'student_attendance_percentage' => $item->student_attendance_percentage,
             'location' => $item->lokasi,
+            'period' => $this->serializeSchedulePeriod($item->teachingSchedule?->period),
         ];
+    }
+
+    private function schedulePeriodsForSchool(int|string|null $schoolId)
+    {
+        if (!$schoolId) {
+            return collect();
+        }
+
+        return TeachingSchedulePeriod::query()
+            ->where('school_id', $schoolId)
+            ->orderByDesc('end_date')
+            ->orderByDesc('start_date')
+            ->get();
+    }
+
+    private function resolveSchedulePeriod(
+        int|string|null $schoolId,
+        ?int $periodId = null,
+        bool $fallbackToCurrent = true,
+        Carbon|string|null $date = null,
+    ): ?TeachingSchedulePeriod {
+        if (!$schoolId) {
+            return null;
+        }
+
+        if ($periodId) {
+            $selected = TeachingSchedulePeriod::query()
+                ->where('school_id', $schoolId)
+                ->whereKey($periodId)
+                ->first();
+
+            if ($selected) {
+                return $selected;
+            }
+        }
+
+        if (!$fallbackToCurrent) {
+            return null;
+        }
+
+        return TeachingSchedulePeriod::activeForSchool($schoolId, $date ?? Carbon::today('Asia/Jakarta'))
+            ?? TeachingSchedulePeriod::latestForSchool($schoolId);
+    }
+
+    private function findSchedulePeriodForSchool(int|string $schoolId, int|string $periodId): TeachingSchedulePeriod
+    {
+        $period = TeachingSchedulePeriod::query()
+            ->where('school_id', $schoolId)
+            ->whereKey($periodId)
+            ->first();
+
+        if (!$period) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_period_id' => 'Periode jadwal mengajar tidak valid untuk madrasah Anda.',
+            ]);
+        }
+
+        return $period;
+    }
+
+    private function serializeSchedulePeriod(?TeachingSchedulePeriod $period): ?array
+    {
+        if (!$period) {
+            return null;
+        }
+
+        return [
+            'id' => $period->id,
+            'title' => $period->title,
+            'school_year' => $period->school_year,
+            'semester' => $period->semester,
+            'semester_label' => $period->semester_label,
+            'date_range_label' => $period->date_range_label,
+            'summary_label' => $period->summary_label,
+            'start_date' => optional($period->start_date)->toDateString(),
+            'end_date' => optional($period->end_date)->toDateString(),
+        ];
+    }
+
+    private function schedulePeriodMatchesDate(TeachingSchedule $schedule, Carbon $date): bool
+    {
+        $period = $schedule->period;
+
+        if (!$period || !$period->start_date || !$period->end_date) {
+            return false;
+        }
+
+        $checkDate = $date->copy()->startOfDay();
+
+        return $checkDate->betweenIncluded(
+            $period->start_date->copy()->startOfDay(),
+            $period->end_date->copy()->endOfDay(),
+        );
     }
 
     private function calculateDashboardAttendanceStats(User $user, $items, Carbon $today): array

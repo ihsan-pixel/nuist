@@ -85,10 +85,13 @@
                 </div>
             @endif
 
-            @if(!$isAdmin)
-                <form method="GET" action="{{ route('class-student-counts.index') }}" class="row g-2 align-items-end mb-3">
-                    <div class="col-md-5">
-                        <label class="form-label">Filter Madrasah/Sekolah</label>
+            <form method="GET" action="{{ route('class-student-counts.index') }}" class="row g-2 align-items-end mb-3">
+                <div class="col-md-5">
+                    <label class="form-label">Filter Madrasah/Sekolah</label>
+                    @if($isAdmin && $defaultSchool)
+                        <input type="hidden" name="school_id" value="{{ $defaultSchool->id }}">
+                        <input type="text" class="form-control" value="{{ $defaultSchool->name }}" disabled>
+                    @else
                         <select name="school_id" class="form-select">
                             <option value="">Semua Madrasah/Sekolah</option>
                             @foreach($schools as $school)
@@ -97,18 +100,40 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
-                    <div class="col-md-auto">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bx bx-filter-alt"></i> Filter
-                        </button>
-                    </div>
-                    <div class="col-md-auto">
-                        <a href="{{ route('class-student-counts.index') }}" class="btn btn-outline-secondary">
-                            Reset
-                        </a>
-                    </div>
-                </form>
+                    @endif
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Filter Periode</label>
+                    <select name="period_id" class="form-select">
+                        <option value="">Pilih periode</option>
+                        @foreach($periods as $period)
+                            <option value="{{ $period->id }}" @selected(optional($selectedPeriod)->id === $period->id)>
+                                {{ $period->semester_label }} {{ $period->school_year }} | {{ $period->date_range_label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-filter-alt"></i> Filter
+                    </button>
+                </div>
+                <div class="col-md-auto">
+                    <a href="{{ route('class-student-counts.index') }}" class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+                </div>
+            </form>
+
+            @if($selectedPeriod)
+                <div class="alert alert-info">
+                    <strong>{{ $selectedPeriod->title }}</strong><br>
+                    <small>{{ $selectedPeriod->semester_label }} | {{ $selectedPeriod->school_year }} | Berlaku {{ $selectedPeriod->date_range_label }}</small>
+                </div>
+            @elseif($selectedSchoolId)
+                <div class="alert alert-warning">
+                    Pilih atau buat periode jadwal mengajar terlebih dahulu agar data jumlah siswa per kelas dapat dikelola per tahun ajaran.
+                </div>
             @endif
 
             <div class="table-responsive">
@@ -196,6 +221,7 @@
                                             @method('PUT')
                                         @else
                                             <input type="hidden" name="school_id" value="{{ $row['school_id'] }}">
+                                            <input type="hidden" name="teaching_schedule_period_id" value="{{ optional($selectedPeriod)->id }}">
                                         @endif
 
                                         <div class="modal-content">
@@ -259,6 +285,7 @@
                     <div class="modal-body">
                         @if($isAdmin && $defaultSchool)
                             <input type="hidden" name="school_id" value="{{ $defaultSchool->id }}">
+                            <input type="hidden" name="teaching_schedule_period_id" value="{{ optional($selectedPeriod)->id }}">
                             <div class="mb-3">
                                 <label class="form-label">Madrasah/Sekolah</label>
                                 <input type="text" class="form-control" value="{{ $defaultSchool->name }}" disabled>
@@ -271,6 +298,17 @@
                                     @foreach($schools as $school)
                                         <option value="{{ $school->id }}" @selected((int) old('school_id', $defaultSchool->id ?? null) === (int) $school->id)>
                                             {{ $school->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Periode Jadwal</label>
+                                <select name="teaching_schedule_period_id" class="form-select" required>
+                                    <option value="">Pilih periode</option>
+                                    @foreach($periods as $period)
+                                        <option value="{{ $period->id }}" @selected((int) old('teaching_schedule_period_id', optional($selectedPeriod)->id) === (int) $period->id)>
+                                            {{ $period->semester_label }} {{ $period->school_year }} | {{ $period->date_range_label }}
                                         </option>
                                     @endforeach
                                 </select>

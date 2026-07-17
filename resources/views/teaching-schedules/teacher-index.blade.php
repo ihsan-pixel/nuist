@@ -14,6 +14,13 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
+                @if(!empty($selectedPeriod))
+                <div class="alert alert-info">
+                    <strong>{{ $selectedPeriod->title }}</strong><br>
+                    <small>{{ $selectedPeriod->semester_label }} | {{ $selectedPeriod->school_year }} | {{ $selectedPeriod->date_range_label }}</small>
+                </div>
+                @endif
+
                 @php
                 $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                 @endphp

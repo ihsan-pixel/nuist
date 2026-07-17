@@ -7,7 +7,9 @@
 <div class="container py-3" style="max-width: 600px; margin: auto;">
     <div class="text-center mb-4">
         <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Jadwal Mengajar</h5>
-        <small class="text-muted" style="font-size: 12px;">Minggu Ini</small>
+        <small class="text-muted" style="font-size: 12px;">
+            {{ $selectedPeriod ? $selectedPeriod->title . ' | ' . $selectedPeriod->semester_label . ' | ' . $selectedPeriod->school_year : 'Belum ada periode aktif' }}
+        </small>
     </div>
     <style>
         body {
@@ -396,7 +398,23 @@
         </div>
         @endif
 
-        <a class="btn btn-success w-100 mb-3" href="{{ route('mobile.jadwal.create') }}">
+        @if($selectedPeriod)
+        <div class="alert alert-info border-0 rounded-3 mb-3" style="background: rgba(13, 110, 253, 0.08); color: #0d6efd; border-radius: 12px; padding: 10px;">
+            <i class="bx bx-calendar-event me-1"></i>Berlaku {{ $selectedPeriod->date_range_label }}
+        </div>
+        @endif
+
+        @if($periods->isNotEmpty())
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            @foreach($periods as $period)
+                <a class="btn btn-sm {{ optional($selectedPeriod)->id === $period->id ? 'btn-primary' : 'btn-outline-primary' }}" href="{{ route('mobile.jadwal', ['period_id' => $period->id]) }}">
+                    {{ $period->semester_label }} {{ $period->school_year }}
+                </a>
+            @endforeach
+        </div>
+        @endif
+
+        <a class="btn btn-success w-100 mb-3" href="{{ route('mobile.jadwal.create', ['period_id' => optional($selectedPeriod)->id]) }}">
             <i class="bx bx-plus me-1"></i> Tambah Jadwal Mengajar
         </a>
 

@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Madrasah;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
+use App\Models\TeachingSchedulePeriod;
 use App\Models\TeachingSchedule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class TeachingClassStudentCountController extends Controller
 {
@@ -27,21 +30,30 @@ class TeachingClassStudentCountController extends Controller
 
         $schools = $schoolsQuery->get(['id', 'name', 'kabupaten', 'scod']);
         $allowedSchoolIds = $schools->pluck('id');
-        $selectedSchoolId = $request->integer('school_id') ?: null;
+        $selectedSchoolId = $request->integer('school_id') ?: ($user->role === 'admin' ? (int) $user->madrasah_id : null);
 
         if ($selectedSchoolId && ! $allowedSchoolIds->contains($selectedSchoolId)) {
             abort(403);
         }
 
-        $activeSchoolIds = $selectedSchoolId ? collect([$selectedSchoolId]) : $allowedSchoolIds;
+        $periods = $selectedSchoolId
+            ? TeachingSchedulePeriod::query()
+                ->where('school_id', $selectedSchoolId)
+                ->orderByDesc('end_date')
+                ->orderByDesc('start_date')
+                ->get()
+            : collect();
+        $selectedPeriod = $selectedSchoolId
+            ? $this->resolveSelectedPeriod($selectedSchoolId, $request->integer('period_id'))
+            : null;
 
         $rows = collect();
         $schoolsById = $schools->keyBy('id');
 
-        if ($activeSchoolIds->isNotEmpty()) {
-            $this->mergeScheduleClasses($rows, $activeSchoolIds, $schoolsById);
-            $this->mergeLatestAttendanceTotals($rows, $activeSchoolIds, $schoolsById);
-            $this->mergeSavedCounts($rows, $activeSchoolIds, $schoolsById);
+        if ($selectedSchoolId && $selectedPeriod) {
+            $this->mergeScheduleClasses($rows, $selectedSchoolId, $selectedPeriod->id, $schoolsById);
+            $this->mergeLatestAttendanceTotals($rows, $selectedSchoolId, $selectedPeriod->id, $schoolsById);
+            $this->mergeSavedCounts($rows, $selectedSchoolId, $selectedPeriod->id, $schoolsById);
         }
 
         $rows = $rows->values()->sort(function ($first, $second) {
@@ -60,6 +72,8 @@ class TeachingClassStudentCountController extends Controller
         return view('masterdata.class-student-counts.index', compact(
             'rows',
             'schools',
+            'periods',
+            'selectedPeriod',
             'selectedSchoolId',
             'stats'
         ));
@@ -73,12 +87,15 @@ class TeachingClassStudentCountController extends Controller
 
         $validated = $request->validate([
             'school_id' => ['required', 'exists:madrasahs,id'],
+            'teaching_schedule_period_id' => ['required', 'exists:teaching_schedule_periods,id'],
             'class_name' => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('teaching_class_student_counts', 'class_name')
-                    ->where(fn ($query) => $query->where('school_id', $request->input('school_id'))),
+                    ->where(fn ($query) => $query
+                        ->where('school_id', $request->input('school_id'))
+                        ->where('teaching_schedule_period_id', $request->input('teaching_schedule_period_id'))),
             ],
             'total_students' => ['required', 'integer', 'min:1', 'max:10000'],
         ], [
@@ -86,9 +103,11 @@ class TeachingClassStudentCountController extends Controller
         ]);
 
         $this->authorizeSchool((int) $validated['school_id']);
+        $this->authorizePeriod((int) $validated['school_id'], (int) $validated['teaching_schedule_period_id']);
 
         TeachingClassStudentCount::create([
             'school_id' => $validated['school_id'],
+            'teaching_schedule_period_id' => $validated['teaching_schedule_period_id'],
             'class_name' => $validated['class_name'],
             'total_students' => $validated['total_students'],
             'created_by' => Auth::id(),
@@ -96,7 +115,7 @@ class TeachingClassStudentCountController extends Controller
         ]);
 
         return redirect()
-            ->route('class-student-counts.index', $this->redirectFilter($validated['school_id']))
+            ->route('class-student-counts.index', $this->redirectFilter($validated['school_id'], (int) $validated['teaching_schedule_period_id']))
             ->with('success', 'Jumlah siswa kelas berhasil ditambahkan.');
     }
 
@@ -114,7 +133,9 @@ class TeachingClassStudentCountController extends Controller
                 'string',
                 'max:255',
                 Rule::unique('teaching_class_student_counts', 'class_name')
-                    ->where(fn ($query) => $query->where('school_id', $classStudentCount->school_id))
+                    ->where(fn ($query) => $query
+                        ->where('school_id', $classStudentCount->school_id)
+                        ->where('teaching_schedule_period_id', $classStudentCount->teaching_schedule_period_id))
                     ->ignore($classStudentCount->id),
             ],
             'total_students' => ['required', 'integer', 'min:1', 'max:10000'],
@@ -129,14 +150,15 @@ class TeachingClassStudentCountController extends Controller
         ]);
 
         return redirect()
-            ->route('class-student-counts.index', $this->redirectFilter($classStudentCount->school_id))
+            ->route('class-student-counts.index', $this->redirectFilter($classStudentCount->school_id, (int) $classStudentCount->teaching_schedule_period_id))
             ->with('success', 'Jumlah siswa kelas berhasil diperbarui.');
     }
 
-    private function mergeScheduleClasses($rows, $activeSchoolIds, $schoolsById): void
+    private function mergeScheduleClasses($rows, int $schoolId, int $periodId, $schoolsById): void
     {
         TeachingSchedule::query()
-            ->whereIn('school_id', $activeSchoolIds)
+            ->where('school_id', $schoolId)
+            ->where('teaching_schedule_period_id', $periodId)
             ->whereNotNull('class_name')
             ->get(['school_id', 'class_name'])
             ->filter(fn ($schedule) => trim((string) $schedule->class_name) !== '')
@@ -149,11 +171,12 @@ class TeachingClassStudentCountController extends Controller
             });
     }
 
-    private function mergeLatestAttendanceTotals($rows, $activeSchoolIds, $schoolsById): void
+    private function mergeLatestAttendanceTotals($rows, int $schoolId, int $periodId, $schoolsById): void
     {
         TeachingAttendance::query()
             ->join('teaching_schedules', 'teaching_schedules.id', '=', 'teaching_attendances.teaching_schedule_id')
-            ->whereIn('teaching_schedules.school_id', $activeSchoolIds)
+            ->where('teaching_schedules.school_id', $schoolId)
+            ->where('teaching_schedules.teaching_schedule_period_id', $periodId)
             ->whereNotNull('teaching_schedules.class_name')
             ->whereNotNull('teaching_attendances.class_total_students')
             ->orderByDesc('teaching_attendances.tanggal')
@@ -182,10 +205,11 @@ class TeachingClassStudentCountController extends Controller
             });
     }
 
-    private function mergeSavedCounts($rows, $activeSchoolIds, $schoolsById): void
+    private function mergeSavedCounts($rows, int $schoolId, int $periodId, $schoolsById): void
     {
         TeachingClassStudentCount::with(['updater:id,name'])
-            ->whereIn('school_id', $activeSchoolIds)
+            ->where('school_id', $schoolId)
+            ->where('teaching_schedule_period_id', $periodId)
             ->get()
             ->each(function ($count) use ($rows, $schoolsById) {
                 $key = $this->rowKey($count->school_id, $count->class_name);
@@ -235,14 +259,51 @@ class TeachingClassStudentCountController extends Controller
         }
     }
 
-    private function redirectFilter(int $schoolId): array
+    private function authorizePeriod(int $schoolId, int $periodId): void
+    {
+        $period = TeachingSchedulePeriod::query()
+            ->where('school_id', $schoolId)
+            ->whereKey($periodId)
+            ->first();
+
+        if (!$period) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_period_id' => 'Periode jadwal mengajar tidak valid.',
+            ]);
+        }
+    }
+
+    private function redirectFilter(int $schoolId, ?int $periodId = null): array
     {
         $user = Auth::user();
 
-        if ($user->role === 'admin') {
-            return [];
+        $params = [];
+
+        if ($user->role !== 'admin') {
+            $params['school_id'] = $schoolId;
         }
 
-        return ['school_id' => $schoolId];
+        if ($periodId) {
+            $params['period_id'] = $periodId;
+        }
+
+        return $params;
+    }
+
+    private function resolveSelectedPeriod(int $schoolId, ?int $periodId = null): ?TeachingSchedulePeriod
+    {
+        if ($periodId) {
+            $selected = TeachingSchedulePeriod::query()
+                ->where('school_id', $schoolId)
+                ->whereKey($periodId)
+                ->first();
+
+            if ($selected) {
+                return $selected;
+            }
+        }
+
+        return TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'))
+            ?? TeachingSchedulePeriod::latestForSchool($schoolId);
     }
 }

@@ -70,15 +70,37 @@
                             <p class="mb-0 text-muted">
                                 Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}
                             </p>
+                            @if($selectedPeriod)
+                                <p class="mb-0 mt-2 text-muted small">
+                                    <i class="bx bx-calendar-event me-1"></i>
+                                    <strong>{{ $selectedPeriod->title }}</strong> |
+                                    {{ $selectedPeriod->semester_label }} |
+                                    {{ $selectedPeriod->school_year }} |
+                                    Berlaku {{ $selectedPeriod->date_range_label }}
+                                </p>
+                            @endif
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <form method="GET" action="{{ route('teaching-schedules.school-classes', $school->id) }}" class="d-flex align-items-center" id="date-form">
-                                <input
-                                    type="date"
-                                    id="date-picker"
-                                    name="date"
-                                    class="form-control form-control-sm"
-                                    value="{{ $selectedDate->format('Y-m-d') }}">
+                            <form method="GET" action="{{ route('teaching-schedules.school-classes', $school->id) }}" class="row g-2 align-items-end" id="date-form">
+                                <div class="col-auto">
+                                    <label for="period-picker" class="form-label form-label-sm mb-1">Periode</label>
+                                    <select id="period-picker" name="period_id" class="form-select form-select-sm">
+                                        @foreach($periods as $period)
+                                            <option value="{{ $period->id }}" @selected(optional($selectedPeriod)->id === $period->id)>
+                                                {{ $period->semester_label }} {{ $period->school_year }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="date-picker" class="form-label form-label-sm mb-1">Tanggal</label>
+                                    <input
+                                        type="date"
+                                        id="date-picker"
+                                        name="date"
+                                        class="form-control form-control-sm"
+                                        value="{{ $selectedDate->format('Y-m-d') }}">
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -88,10 +110,16 @@
 
                 <div class="card-body">
                     <div class="mb-3">
-                        <a href="{{ route('teaching-schedules.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('teaching-schedules.school-schedules', ['schoolId' => $school->id, 'period_id' => optional($selectedPeriod)->id]) }}" class="btn btn-secondary">
                             <i class="bx bx-arrow-back"></i> Kembali ke Daftar Madrasah
                         </a>
                     </div>
+
+                    @if(!$selectedPeriod)
+                        <div class="alert alert-warning">
+                            Belum ada periode jadwal mengajar yang dipilih untuk madrasah ini.
+                        </div>
+                    @endif
 
                     <div class="row">
                         @if($classesByDay->has($selectedDay))
@@ -203,7 +231,7 @@
 <script>
 $(document).ready(function() {
     // Handle date change
-    $('#date-picker').on('change', function(e) {
+    $('#date-picker, #period-picker').on('change', function(e) {
         e.preventDefault();
         $('#date-form').submit();
         return false;

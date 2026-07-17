@@ -10,7 +10,7 @@
                 <div class="fw-semibold">{{ $isEditing ? 'Edit Jadwal Mengajar' : 'Tambah Jadwal Mengajar' }}</div>
                 <div class="text-muted small">Pilih kelas dari daftar atau ketik kelas baru</div>
             </div>
-            <a class="btn btn-sm btn-outline-secondary" href="{{ route('mobile.jadwal') }}">
+            <a class="btn btn-sm btn-outline-secondary" href="{{ route('mobile.jadwal', ['period_id' => optional($selectedPeriod)->id]) }}">
                 <i class="bx bx-arrow-back"></i>
             </a>
         </div>
@@ -37,8 +37,20 @@
             @method('PUT')
         @endif
 
+        @if($selectedPeriod)
+            <input type="hidden" name="period_id" value="{{ $selectedPeriod->id }}">
+        @endif
+
         <div class="card mb-3">
             <div class="card-body">
+                @if($selectedPeriod)
+                    <div class="alert alert-info mb-3">
+                        <div class="fw-semibold">{{ $selectedPeriod->title }}</div>
+                        <div class="small">{{ $selectedPeriod->semester_label }} | {{ $selectedPeriod->school_year }}</div>
+                        <div class="small">Berlaku {{ $selectedPeriod->date_range_label }}</div>
+                    </div>
+                @endif
+
                 @php
                     $subjectValue = old('subject', optional($schedule)->subject ?? '');
                     $classValue = old('class_name', optional($schedule)->class_name ?? '');

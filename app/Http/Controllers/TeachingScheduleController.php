@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\TeachingSchedule;
+use App\Models\TeachingSchedulePeriod;
+use App\Models\TeachingClassStudentCount;
 use App\Models\User;
 use App\Models\Madrasah;
 use App\Imports\TeachingScheduleImport;
 use App\Services\AcademicCalendarEventService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TeachingScheduleController extends Controller
@@ -18,10 +22,11 @@ class TeachingScheduleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $query = TeachingSchedule::with(['teacher', 'school', 'creator']);
+        $selectedPeriodId = $request->integer('period_id') ?: null;
 
         if ($user->role === 'super_admin') {
             // See all
@@ -41,19 +46,39 @@ class TeachingScheduleController extends Controller
             }
         }
 
-        $schedules = $query->orderBy('day')->orderBy('start_time')->get();
-
         if ($user->role === 'tenaga_pendidik') {
             // Check if tenaga_pendidik with ketugasan kepala madrasah/sekolah
             if ($user->ketugasan === 'kepala madrasah/sekolah') {
-                // Show school schedules view like admin
                 $school = Madrasah::findOrFail($user->madrasah_id);
+                $periods = $this->schedulePeriodsForSchool($school->id);
+                $selectedPeriod = $this->resolveSelectedPeriod($school->id, $selectedPeriodId);
+                $schedules = $selectedPeriod
+                    ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
+                        ->where('school_id', $school->id)
+                        ->where('teaching_schedule_period_id', $selectedPeriod->id)
+                        ->orderBy('day')
+                        ->orderBy('start_time')
+                        ->get()
+                    : collect();
                 $grouped = $schedules->groupBy('teacher.name');
-                return view('teaching-schedules.school-schedules', compact('school', 'grouped'));
+
+                return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod'));
             } else {
-                // Group by day for teacher view
+                $schoolId = $user->madrasah_id;
+                $periods = $this->schedulePeriodsForSchool($schoolId);
+                $selectedPeriod = $this->resolveSelectedPeriod($schoolId, $selectedPeriodId);
+                $schedules = $selectedPeriod
+                    ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
+                        ->where('teacher_id', $user->id)
+                        ->where('teaching_schedule_period_id', $selectedPeriod->id)
+                        ->orderBy('day')
+                        ->orderBy('start_time')
+                        ->get()
+                    : collect();
                 $grouped = $schedules->groupBy('day');
-                return view('teaching-schedules.teacher-index', compact('grouped'));
+                $school = $schoolId ? Madrasah::find($schoolId) : null;
+
+                return view('teaching-schedules.teacher-index', compact('grouped', 'periods', 'selectedPeriod', 'school'));
             }
         } elseif ($user->role === 'super_admin') {
             // Super admin view: list all schools grouped by kabupaten, then sorted by scod, with search and filter
@@ -102,17 +127,20 @@ class TeachingScheduleController extends Controller
             $kabupatens = Madrasah::distinct()->pluck('kabupaten')->sort();
             return view('teaching-schedules.pengurus-index', compact('schoolsByKabupaten', 'kabupatens'));
         } else {
-            // Admin view: show school schedules view for their own school
             $school = Madrasah::findOrFail($user->madrasah_id);
-            $schedules = TeachingSchedule::with(['teacher', 'school', 'creator'])
-                ->where('school_id', $user->madrasah_id)
-                ->orderBy('day')
-                ->orderBy('start_time')
-                ->get();
-
+            $periods = $this->schedulePeriodsForSchool($school->id);
+            $selectedPeriod = $this->resolveSelectedPeriod($school->id, $selectedPeriodId);
+            $schedules = $selectedPeriod
+                ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
+                    ->where('school_id', $user->madrasah_id)
+                    ->where('teaching_schedule_period_id', $selectedPeriod->id)
+                    ->orderBy('day')
+                    ->orderBy('start_time')
+                    ->get()
+                : collect();
             $grouped = $schedules->groupBy('teacher.name');
 
-            return view('teaching-schedules.school-schedules', compact('school', 'grouped'));
+            return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod'));
         }
     }
 
@@ -122,6 +150,7 @@ class TeachingScheduleController extends Controller
     public function create()
     {
         $user = Auth::user();
+        $selectedSchoolId = (int) request('school_id', $user->madrasah_id ?: 0);
 
         if ($user->role === 'admin') {
             $schools = Madrasah::where('id', $user->madrasah_id)->get();
@@ -130,12 +159,17 @@ class TeachingScheduleController extends Controller
                 ->get();
         } elseif ($user->role === 'super_admin') {
             $schools = Madrasah::all();
-            $teachers = collect(); // Load via AJAX
+            $teachers = $selectedSchoolId
+                ? User::where('role', 'tenaga_pendidik')->where('madrasah_id', $selectedSchoolId)->get()
+                : collect();
         } else {
             abort(403);
         }
 
-        return view('teaching-schedules.create', compact('teachers', 'schools'));
+        $periods = $selectedSchoolId ? $this->schedulePeriodsForSchool($selectedSchoolId) : collect();
+        $selectedPeriod = $this->resolveSelectedPeriod($selectedSchoolId, request('period_id'), false);
+
+        return view('teaching-schedules.create', compact('teachers', 'schools', 'periods', 'selectedPeriod', 'selectedSchoolId'));
     }
 
     public function getTeachersBySchool($schoolId)
@@ -150,6 +184,23 @@ class TeachingScheduleController extends Controller
         return response()->json($teachers);
     }
 
+    public function getPeriodsBySchool($schoolId)
+    {
+        return response()->json(
+            $this->schedulePeriodsForSchool($schoolId)->map(function (TeachingSchedulePeriod $period) {
+                return [
+                    'id' => $period->id,
+                    'title' => $period->title,
+                    'school_year' => $period->school_year,
+                    'semester' => $period->semester,
+                    'semester_label' => $period->semester_label,
+                    'date_range_label' => $period->date_range_label,
+                    'summary_label' => $period->summary_label,
+                ];
+            })->values()
+        );
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -160,6 +211,7 @@ class TeachingScheduleController extends Controller
 
         $request->validate([
             'school_id' => 'required|exists:madrasahs,id',
+            'teaching_schedule_period_id' => 'required|exists:teaching_schedule_periods,id',
             'teacher_id' => 'required|exists:users,id',
             'schedules' => 'required|array',
             'schedules.*.*.day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
@@ -175,6 +227,8 @@ class TeachingScheduleController extends Controller
         if ($user->role === 'admin' && $request->school_id != $user->madrasah_id) {
             abort(403);
         }
+
+        $period = $this->findPeriodForSchool((int) $request->school_id, (int) $request->teaching_schedule_period_id);
 
         $createdCount = 0;
 
@@ -207,6 +261,7 @@ class TeachingScheduleController extends Controller
 
             // Check overlap for teacher schedule (same teacher, same day, overlapping time)
             $teacherOverlap = TeachingSchedule::where('teacher_id', $request->teacher_id)
+                ->where('teaching_schedule_period_id', $period->id)
                 ->where('day', $scheduleData['day'])
                 ->where(function ($query) use ($scheduleData) {
                     $query->where('start_time', '<', $scheduleData['end_time'])
@@ -222,6 +277,7 @@ class TeachingScheduleController extends Controller
             // Skip class overlap check for madrasah ID 8 and 9 (allow multiple teachers in same class at same time)
             if (!in_array($request->school_id, [8, 9])) {
                 $classOverlap = TeachingSchedule::where('school_id', $request->school_id)
+                    ->where('teaching_schedule_period_id', $period->id)
                     ->where('class_name', $scheduleData['class_name'])
                     ->where('day', $scheduleData['day'])
                     ->where(function ($query) use ($scheduleData) {
@@ -237,6 +293,7 @@ class TeachingScheduleController extends Controller
 
             $createdSchedule = TeachingSchedule::create([
                 'school_id' => $request->school_id,
+                'teaching_schedule_period_id' => $period->id,
                 'teacher_id' => $request->teacher_id,
                 'day' => $scheduleData['day'],
                 'subject' => $scheduleData['subject'],
@@ -255,7 +312,9 @@ class TeachingScheduleController extends Controller
             return back()->withErrors(['none' => 'Tidak ada jadwal yang ditambahkan.'])->withInput();
         }
 
-        return redirect()->route('teaching-schedules.index')->with('success', $createdCount . ' jadwal mengajar berhasil ditambahkan.');
+        return redirect()
+            ->route('teaching-schedules.school-schedules', ['schoolId' => $request->school_id, 'period_id' => $period->id])
+            ->with('success', $createdCount . ' jadwal mengajar berhasil ditambahkan.');
     }
 
     /**
@@ -305,6 +364,7 @@ class TeachingScheduleController extends Controller
 
         $request->validate([
             'school_id' => 'required|exists:madrasahs,id',
+            'teaching_schedule_period_id' => 'required|exists:teaching_schedule_periods,id',
             'teacher_id' => 'required|exists:users,id',
             'day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
             'subject' => 'required|string|max:255',
@@ -322,8 +382,11 @@ class TeachingScheduleController extends Controller
             abort(403);
         }
 
+        $period = $this->findPeriodForSchool((int) $request->school_id, (int) $request->teaching_schedule_period_id);
+
         // Check overlap, excluding current
         $overlap = TeachingSchedule::where('teacher_id', $request->teacher_id)
+            ->where('teaching_schedule_period_id', $period->id)
             ->where('day', $request->day)
             ->where('id', '!=', $id)
             ->where(function ($query) use ($request) {
@@ -339,6 +402,7 @@ class TeachingScheduleController extends Controller
         // Check class overlap, excluding current (skip for madrasah ID 8 and 9)
         if (!in_array($request->school_id, [8, 9])) {
             $classOverlap = TeachingSchedule::where('school_id', $request->school_id)
+                ->where('teaching_schedule_period_id', $period->id)
                 ->where('class_name', $request->class_name)
                 ->where('day', $request->day)
                 ->where('id', '!=', $id)
@@ -354,12 +418,14 @@ class TeachingScheduleController extends Controller
         }
 
         $schedule->update($request->only([
-            'school_id', 'teacher_id', 'day', 'subject', 'class_name', 'start_time', 'end_time'
+            'school_id', 'teacher_id', 'day', 'subject', 'class_name', 'start_time', 'end_time', 'teaching_schedule_period_id'
         ]));
 
         app(AcademicCalendarEventService::class)->syncSchedule($schedule->fresh());
 
-        return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil diperbarui.');
+        return redirect()
+            ->route('teaching-schedules.school-schedules', ['schoolId' => $schedule->school_id, 'period_id' => $period->id])
+            ->with('success', 'Jadwal mengajar berhasil diperbarui.');
     }
 
     /**
@@ -379,10 +445,15 @@ class TeachingScheduleController extends Controller
 
         $schedule->delete();
 
-        return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil dihapus.');
+        return redirect()
+            ->route('teaching-schedules.school-schedules', [
+                'schoolId' => $schedule->school_id,
+                'period_id' => $schedule->teaching_schedule_period_id,
+            ])
+            ->with('success', 'Jadwal mengajar berhasil dihapus.');
     }
 
-    public function destroySchoolSchedules(string $schoolId)
+    public function destroySchoolSchedules(Request $request, string $schoolId)
     {
         $user = Auth::user();
 
@@ -395,14 +466,21 @@ class TeachingScheduleController extends Controller
         }
 
         $school = Madrasah::findOrFail($schoolId);
+        $selectedPeriod = $this->resolveSelectedPeriod($school->id, $request->integer('period_id'), false);
+        if (!$selectedPeriod) {
+            throw ValidationException::withMessages([
+                'period_id' => 'Periode jadwal mengajar belum dipilih.',
+            ]);
+        }
         $schedules = TeachingSchedule::query()
             ->where('school_id', $school->id)
+            ->where('teaching_schedule_period_id', $selectedPeriod->id)
             ->get();
 
         if ($schedules->isEmpty()) {
             return redirect()
-                ->route('teaching-schedules.school-schedules', $school->id)
-                ->with('success', 'Tidak ada jadwal mengajar yang perlu dihapus untuk sekolah ini.');
+                ->route('teaching-schedules.school-schedules', ['schoolId' => $school->id, 'period_id' => $selectedPeriod->id])
+                ->with('success', 'Tidak ada jadwal mengajar yang perlu dihapus untuk periode ini.');
         }
 
         DB::transaction(function () use ($schedules) {
@@ -413,8 +491,8 @@ class TeachingScheduleController extends Controller
         });
 
         return redirect()
-            ->route('teaching-schedules.school-schedules', $school->id)
-            ->with('success', $schedules->count() . ' jadwal mengajar berhasil dihapus untuk sekolah ini.');
+            ->route('teaching-schedules.school-schedules', ['schoolId' => $school->id, 'period_id' => $selectedPeriod->id])
+            ->with('success', $schedules->count() . ' jadwal mengajar berhasil dihapus untuk periode ini.');
     }
 
     /**
@@ -444,10 +522,18 @@ class TeachingScheduleController extends Controller
 
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:10240', // 10MB max
+            'school_id' => 'required|exists:madrasahs,id',
+            'teaching_schedule_period_id' => 'required|exists:teaching_schedule_periods,id',
         ]);
 
+        if ($user->role === 'admin' && (int) $user->madrasah_id !== (int) $request->school_id) {
+            abort(403);
+        }
+
+        $period = $this->findPeriodForSchool((int) $request->school_id, (int) $request->teaching_schedule_period_id);
+
         try {
-            $import = new TeachingScheduleImport($user->id);
+            $import = new TeachingScheduleImport($user->id, $period);
             Excel::import($import, $request->file('file'));
 
             $errors = $import->getErrors();
@@ -457,7 +543,9 @@ class TeachingScheduleController extends Controller
                 return redirect()->back()->with('import_errors', $errors)->with('error', $errorMessage)->withInput();
             }
 
-            return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil diimpor.');
+            return redirect()
+                ->route('teaching-schedules.school-schedules', ['schoolId' => $request->school_id, 'period_id' => $period->id])
+                ->with('success', 'Jadwal mengajar berhasil diimpor.');
 
         } catch (\Exception $e) {
             $errorMessage = 'Gagal mengimpor data: ' . $e->getMessage();
@@ -468,7 +556,7 @@ class TeachingScheduleController extends Controller
     /**
      * Show schedules for a specific school (for super_admin, admin, and pengurus).
      */
-    public function showSchoolSchedules($schoolId)
+    public function showSchoolSchedules($schoolId, Request $request)
     {
         $user = Auth::user();
 
@@ -479,15 +567,20 @@ class TeachingScheduleController extends Controller
         }
 
         $school = Madrasah::findOrFail($schoolId);
-        $schedules = TeachingSchedule::with(['teacher', 'school', 'creator'])
-            ->where('school_id', $schoolId)
-            ->orderBy('day')
-            ->orderBy('start_time')
-            ->get();
+        $periods = $this->schedulePeriodsForSchool($schoolId);
+        $selectedPeriod = $this->resolveSelectedPeriod($schoolId, $request->integer('period_id'));
+        $schedules = $selectedPeriod
+            ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
+                ->where('school_id', $schoolId)
+                ->where('teaching_schedule_period_id', $selectedPeriod->id)
+                ->orderBy('day')
+                ->orderBy('start_time')
+                ->get()
+            : collect();
 
         $grouped = $schedules->groupBy('teacher.name');
 
-        return view('teaching-schedules.school-schedules', compact('school', 'grouped'));
+        return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod'));
     }
 
     /**
@@ -509,16 +602,21 @@ class TeachingScheduleController extends Controller
         $school = Madrasah::findOrFail($schoolId);
         $selectedDate = $request->get('date', today()->format('Y-m-d'));
         $selectedDate = \Carbon\Carbon::parse($selectedDate);
+        $periods = $this->schedulePeriodsForSchool($schoolId);
+        $selectedPeriod = $this->resolveSelectedPeriod($schoolId, $request->integer('period_id'));
 
         // Get selected day: if explicitly set, use it; otherwise use the day of the selected date
         $selectedDay = $request->get('day', $selectedDate->locale('id')->dayName);
 
         // Get all schedules for the school with attendance info for selected date
-        $schedules = TeachingSchedule::with(['teacher', 'teachingAttendances' => function($query) use ($selectedDate) {
-            $query->where('tanggal', $selectedDate);
-        }])
-            ->where('school_id', $schoolId)
-            ->get();
+        $schedules = $selectedPeriod
+            ? TeachingSchedule::with(['teacher', 'period', 'teachingAttendances' => function($query) use ($selectedDate) {
+                $query->where('tanggal', $selectedDate);
+            }])
+                ->where('school_id', $schoolId)
+                ->where('teaching_schedule_period_id', $selectedPeriod->id)
+                ->get()
+            : collect();
 
         // Group by day and class, and add attendance status
         $classesByDay = collect();
@@ -542,7 +640,7 @@ class TeachingScheduleController extends Controller
         // Filter to only show selected day
         $classesByDay = $classesByDay->only([$selectedDay]);
 
-        return view('teaching-schedules.school-classes', compact('school', 'classesByDay', 'selectedDate', 'selectedDay'));
+        return view('teaching-schedules.school-classes', compact('school', 'classesByDay', 'selectedDate', 'selectedDay', 'periods', 'selectedPeriod'));
     }
 
     /**
@@ -570,5 +668,59 @@ class TeachingScheduleController extends Controller
         $schoolsByKabupaten = $schools->groupBy('kabupaten');
 
         return response()->json($schoolsByKabupaten);
+    }
+
+    private function schedulePeriodsForSchool(int|string|null $schoolId)
+    {
+        if (!$schoolId) {
+            return collect();
+        }
+
+        return TeachingSchedulePeriod::query()
+            ->where('school_id', $schoolId)
+            ->orderByDesc('end_date')
+            ->orderByDesc('start_date')
+            ->get();
+    }
+
+    private function resolveSelectedPeriod(int|string|null $schoolId, int|string|null $periodId = null, bool $fallbackToCurrent = true): ?TeachingSchedulePeriod
+    {
+        if (!$schoolId) {
+            return null;
+        }
+
+        if ($periodId) {
+            $selected = TeachingSchedulePeriod::query()
+                ->where('school_id', $schoolId)
+                ->whereKey($periodId)
+                ->first();
+
+            if ($selected) {
+                return $selected;
+            }
+        }
+
+        if (!$fallbackToCurrent) {
+            return null;
+        }
+
+        return TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'))
+            ?? TeachingSchedulePeriod::latestForSchool($schoolId);
+    }
+
+    private function findPeriodForSchool(int $schoolId, int $periodId): TeachingSchedulePeriod
+    {
+        $period = TeachingSchedulePeriod::query()
+            ->where('school_id', $schoolId)
+            ->whereKey($periodId)
+            ->first();
+
+        if (!$period) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_period_id' => 'Periode jadwal mengajar tidak valid untuk sekolah yang dipilih.',
+            ]);
+        }
+
+        return $period;
     }
 }

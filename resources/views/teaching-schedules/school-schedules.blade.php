@@ -158,6 +158,15 @@
                 <div class="col">
                     <h4 class="card-title mb-1">Jadwal Mengajar {{ $school->name }}</h4>
                     <p class="text-muted mb-2">Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}</p>
+                    @if(!empty($selectedPeriod))
+                    <div class="text-muted small mb-2">
+                        <i class="bx bx-calendar-event me-1"></i>
+                        <strong>{{ $selectedPeriod->title }}</strong> |
+                        {{ $selectedPeriod->semester_label }} |
+                        {{ $selectedPeriod->school_year }} |
+                        Berlaku {{ $selectedPeriod->date_range_label }}
+                    </div>
+                    @endif
                     <div class="d-flex flex-wrap gap-2">
                         <span class="badge bg-light text-dark border">Total guru: {{ $totalTeachers }}</span>
                         <span class="badge bg-light text-dark border">Total jadwal: {{ $totalSchedules }}</span>
@@ -172,11 +181,20 @@
                         @endif
 
                         @if(Auth::user()->role !== 'tenaga_pendidik')
-                        <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary rounded-pill px-3">
+                        <a href="{{ route('teaching-schedules.create', ['school_id' => $school->id, 'period_id' => optional($selectedPeriod)->id]) }}" class="btn btn-primary rounded-pill px-3">
                             <i class="bx bx-plus me-1"></i>Tambah Jadwal
                         </a>
                         @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
-                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal">
+                        <button type="button" class="btn btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#createPeriodModal">
+                            <i class="bx bx-calendar-plus me-1"></i>Tambah Periode
+                        </button>
+                        @if($selectedPeriod)
+                        <button type="button" class="btn btn-outline-warning rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#editPeriodModal">
+                            <i class="bx bx-edit me-1"></i>Edit Periode
+                        </button>
+                        @endif
+                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal" {{ $selectedPeriod ? '' : 'disabled' }}>
                             <i class="bx bx-upload me-1"></i>Import Jadwal
                         </button>
                         <button
@@ -184,20 +202,49 @@
                             class="btn btn-outline-danger rounded-pill px-3 delete-school-schedules-btn"
                             data-school-id="{{ $school->id }}"
                             data-school-name="{{ $school->name }}"
+                            data-period-id="{{ optional($selectedPeriod)->id }}"
+                            data-period-name="{{ optional($selectedPeriod)->title }}"
                             data-total-schedules="{{ $totalSchedules }}"
-                            {{ $totalSchedules > 0 ? '' : 'disabled' }}
+                            {{ $totalSchedules > 0 && $selectedPeriod ? '' : 'disabled' }}
                         >
-                            <i class="bx bx-trash me-1"></i>Hapus Semua Jadwal
+                            <i class="bx bx-trash me-1"></i>Hapus Jadwal Periode
                         </button>
+                        @endif
                         @endif
                         @endif
 
                         @if(Auth::user()->role === 'super_admin' || Auth::user()->role === 'admin' || (Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah'))
-                        <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info rounded-pill px-3">
+                        <a href="{{ route('teaching-schedules.school-classes', ['schoolId' => $school->id, 'period_id' => optional($selectedPeriod)->id]) }}" class="btn btn-info rounded-pill px-3">
                             <i class="bx bx-group me-1"></i>Lihat Kelas
                         </a>
                         @endif
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card summary-card mb-0">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <div class="text-muted small mb-1">Periode Jadwal Mengajar</div>
+                    <div class="fw-semibold">
+                        {{ $selectedPeriod ? $selectedPeriod->summary_label : 'Belum ada periode jadwal mengajar' }}
+                    </div>
+                    @if($selectedPeriod)
+                    <div class="text-muted small mt-1">Masa berlaku: {{ $selectedPeriod->date_range_label }}</div>
+                    @endif
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    @forelse($periods as $period)
+                        <a href="{{ route('teaching-schedules.school-schedules', ['schoolId' => $school->id, 'period_id' => $period->id]) }}"
+                           class="btn btn-sm {{ optional($selectedPeriod)->id === $period->id ? 'btn-primary' : 'btn-outline-primary' }}">
+                            {{ $period->semester_label }} {{ $period->school_year }}
+                        </a>
+                    @empty
+                        <span class="text-muted small">Belum ada periode tersimpan.</span>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -335,6 +382,102 @@
     @endif
 </div>
 
+@if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
+<div class="modal fade" id="createPeriodModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('teaching-schedule-periods.store') }}" method="POST" class="modal-content">
+            @csrf
+            <input type="hidden" name="school_id" value="{{ $school->id }}">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Periode Jadwal Mengajar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Judul</label>
+                    <input type="text" name="title" class="form-control" value="{{ old('title', 'Jadwal Mengajar') }}" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Semester</label>
+                        <select name="semester" class="form-select" required>
+                            <option value="ganjil" @selected(old('semester') === 'ganjil')>Semester Ganjil</option>
+                            <option value="genap" @selected(old('semester') === 'genap')>Semester Genap</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tahun Pelajaran</label>
+                        <input type="text" name="school_year" class="form-control" placeholder="2026/2027" value="{{ old('school_year') }}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mulai Berlaku</label>
+                        <input type="date" name="start_date" class="form-control" value="{{ old('start_date') }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Selesai Berlaku</label>
+                        <input type="date" name="end_date" class="form-control" value="{{ old('end_date') }}" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan Periode</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if($selectedPeriod)
+<div class="modal fade" id="editPeriodModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('teaching-schedule-periods.update', $selectedPeriod->id) }}" method="POST" class="modal-content">
+            @csrf
+            @method('PUT')
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Periode Jadwal Mengajar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Judul</label>
+                    <input type="text" name="title" class="form-control" value="{{ old('title', $selectedPeriod->title) }}" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Semester</label>
+                        <select name="semester" class="form-select" required>
+                            <option value="ganjil" @selected(old('semester', $selectedPeriod->semester) === 'ganjil')>Semester Ganjil</option>
+                            <option value="genap" @selected(old('semester', $selectedPeriod->semester) === 'genap')>Semester Genap</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tahun Pelajaran</label>
+                        <input type="text" name="school_year" class="form-control" value="{{ old('school_year', $selectedPeriod->school_year) }}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mulai Berlaku</label>
+                        <input type="date" name="start_date" class="form-control" value="{{ old('start_date', optional($selectedPeriod->start_date)->toDateString()) }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Selesai Berlaku</label>
+                        <input type="date" name="end_date" class="form-control" value="{{ old('end_date', optional($selectedPeriod->end_date)->toDateString()) }}" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Update Periode</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+@endif
+
 <!-- Import Modal -->
 <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -459,6 +602,12 @@
                             <div class="card-body">
                                 <form action="{{ route('teaching-schedules.process-import') }}" method="POST" enctype="multipart/form-data" id="importForm">
                                     @csrf
+                                    <input type="hidden" name="school_id" value="{{ $school->id }}">
+                                    <input type="hidden" name="teaching_schedule_period_id" value="{{ optional($selectedPeriod)->id }}">
+                                    <div class="mb-3">
+                                        <label class="form-label">Periode Tujuan</label>
+                                        <input type="text" class="form-control" value="{{ $selectedPeriod ? $selectedPeriod->summary_label . ' | ' . $selectedPeriod->date_range_label : 'Pilih periode terlebih dahulu' }}" readonly>
+                                    </div>
                                     <div class="mb-3">
                                         <label for="file" class="form-label">Pilih File Import</label>
                                         <input type="file" class="form-control" id="file" name="file" accept=".csv,.xlsx,.xls" required>
@@ -567,16 +716,18 @@ $(document).ready(function() {
     $('.delete-school-schedules-btn').on('click', function() {
         var schoolId = $(this).data('school-id');
         var schoolName = $(this).data('school-name');
+        var periodId = $(this).data('period-id');
+        var periodName = $(this).data('period-name');
         var totalSchedules = $(this).data('total-schedules');
 
         Swal.fire({
-            title: 'Hapus semua jadwal?',
-            html: 'Seluruh <strong>' + totalSchedules + ' jadwal</strong> untuk <strong>' + schoolName + '</strong> akan dihapus permanen.',
+            title: 'Hapus jadwal periode ini?',
+            html: 'Seluruh <strong>' + totalSchedules + ' jadwal</strong> untuk <strong>' + schoolName + '</strong> pada periode <strong>' + periodName + '</strong> akan dihapus permanen.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, hapus semua',
+            confirmButtonText: 'Ya, hapus periode ini',
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -586,6 +737,7 @@ $(document).ready(function() {
                 });
                 form.append('<input type="hidden" name="_token" value="{{ csrf_token() }}">');
                 form.append('<input type="hidden" name="_method" value="DELETE">');
+                form.append('<input type="hidden" name="period_id" value="' + periodId + '">');
                 $('body').append(form);
                 form.submit();
             }

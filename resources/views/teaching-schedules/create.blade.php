@@ -50,7 +50,7 @@
                                 <select name="school_id" id="school_id" class="form-control" required>
                                     <option value="">Pilih Sekolah</option>
                                     @foreach($schools as $school)
-                                    <option value="{{ $school->id }}" {{ Auth::user()->role === 'admin' && Auth::user()->madrasah_id == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
+                                    <option value="{{ $school->id }}" {{ (int) old('school_id', $selectedSchoolId ?? (Auth::user()->role === 'admin' ? Auth::user()->madrasah_id : null)) === (int) $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -73,6 +73,23 @@
                                         @endforeach
                                     @endif
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label for="teaching_schedule_period_id" class="form-label">Periode Jadwal <span class="text-danger">*</span></label>
+                                <select name="teaching_schedule_period_id" id="teaching_schedule_period_id" class="form-control" required>
+                                    <option value="">Pilih periode jadwal</option>
+                                    @foreach($periods as $period)
+                                    <option value="{{ $period->id }}" {{ (int) old('teaching_schedule_period_id', optional($selectedPeriod)->id) === (int) $period->id ? 'selected' : '' }}>
+                                        {{ $period->title }} | {{ $period->semester_label }} | {{ $period->school_year }} | {{ $period->date_range_label }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Jadwal baru disimpan ke periode yang dipilih, sedangkan jadwal periode lama tetap tersimpan sebagai histori.</small>
                             </div>
                         </div>
                     </div>
@@ -216,27 +233,69 @@ function removeSchedule(button) {
     }
 }
 
-document.getElementById('loadTeachersBtn').addEventListener('click', function() {
-    var schoolSelect = document.getElementById('school_id');
-    var schoolId = schoolSelect.value;
-    var teacherSelect = document.getElementById('teacher_id');
+var loadTeachersBtn = document.getElementById('loadTeachersBtn');
+if (loadTeachersBtn) {
+    loadTeachersBtn.addEventListener('click', function() {
+        var schoolSelect = document.getElementById('school_id');
+        var schoolId = schoolSelect.value;
+        var teacherSelect = document.getElementById('teacher_id');
 
-    if (schoolId) {
-        fetch('{{ route("teaching-schedules.get-teachers", ":schoolId") }}'.replace(':schoolId', schoolId))
-            .then(response => response.json())
-            .then(data => {
-                teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
-                data.forEach(teacher => {
-                    teacherSelect.innerHTML += '<option value="' + teacher.id + '">' + teacher.name + '</option>';
+        if (schoolId) {
+            fetch('{{ route("teaching-schedules.get-teachers", ":schoolId") }}'.replace(':schoolId', schoolId))
+                .then(response => response.json())
+                .then(data => {
+                    teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
+                    data.forEach(teacher => {
+                        teacherSelect.innerHTML += '<option value="' + teacher.id + '">' + teacher.name + '</option>';
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
                 });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
-            });
-    } else {
-        teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
+        } else {
+            teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
+        }
+    });
+}
+
+function loadPeriodsBySchool(schoolId) {
+    var periodSelect = document.getElementById('teaching_schedule_period_id');
+    if (!periodSelect) {
+        return;
     }
+
+    if (!schoolId) {
+        periodSelect.innerHTML = '<option value="">Pilih periode jadwal</option>';
+        return;
+    }
+
+    fetch('{{ route("teaching-schedules.get-periods", ":schoolId") }}'.replace(':schoolId', schoolId))
+        .then(response => response.json())
+        .then(data => {
+            const selected = '{{ old("teaching_schedule_period_id", optional($selectedPeriod)->id) }}';
+            periodSelect.innerHTML = '<option value="">Pilih periode jadwal</option>';
+            data.forEach(period => {
+                const option = document.createElement('option');
+                option.value = period.id;
+                option.textContent = period.summary_label + ' | ' + period.date_range_label;
+                if (String(period.id) === String(selected)) {
+                    option.selected = true;
+                }
+                periodSelect.appendChild(option);
+            });
+        })
+        .catch(() => {
+            periodSelect.innerHTML = '<option value="">Pilih periode jadwal</option>';
+        });
+}
+
+document.getElementById('school_id').addEventListener('change', function() {
+    loadPeriodsBySchool(this.value);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadPeriodsBySchool(document.getElementById('school_id').value);
 });
 </script>
 @endsection

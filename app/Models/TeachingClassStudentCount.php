@@ -11,6 +11,7 @@ class TeachingClassStudentCount extends Model
 
     protected $fillable = [
         'school_id',
+        'teaching_schedule_period_id',
         'class_name',
         'total_students',
         'created_by',
@@ -20,6 +21,11 @@ class TeachingClassStudentCount extends Model
     public function school()
     {
         return $this->belongsTo(Madrasah::class, 'school_id');
+    }
+
+    public function period()
+    {
+        return $this->belongsTo(TeachingSchedulePeriod::class, 'teaching_schedule_period_id');
     }
 
     public function creator()

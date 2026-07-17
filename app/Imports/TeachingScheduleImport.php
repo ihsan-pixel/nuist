@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\TeachingSchedule;
+use App\Models\TeachingSchedulePeriod;
 use App\Models\User;
 use App\Models\Madrasah;
 use Illuminate\Support\Facades\Log;
@@ -12,11 +13,13 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class TeachingScheduleImport implements ToModel, WithHeadingRow
 {
     protected $createdBy;
+    protected $period;
     protected $errors = [];
 
-    public function __construct($createdBy)
+    public function __construct($createdBy, TeachingSchedulePeriod $period)
     {
         $this->createdBy = $createdBy;
+        $this->period = $period;
     }
 
     /**
@@ -55,6 +58,10 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
                 throw new \Exception("Kode SCOD Madrasah '{$row['school_scod']}' tidak ditemukan");
             }
 
+            if ((int) $madrasah->id !== (int) $this->period->school_id) {
+                throw new \Exception("Kode SCOD Madrasah '{$row['school_scod']}' tidak sesuai dengan periode jadwal yang dipilih");
+            }
+
             // Validate teacher_nuist_id exists and is tenaga_pendidik
             $teacher = User::where('nuist_id', $row['teacher_nuist_id'])->where('role', 'tenaga_pendidik')->first();
             if (!$teacher) {
@@ -72,6 +79,7 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
 
             // Check teacher schedule overlap
             $teacherOverlap = TeachingSchedule::where('teacher_id', $teacher->id)
+                ->where('teaching_schedule_period_id', $this->period->id)
                 ->where('day', $row['day'])
                 ->where(function ($query) use ($row) {
                     $query->where('start_time', '<', $row['end_time'])
@@ -86,6 +94,7 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
             // Check class schedule overlap (skip for madrasah ID 8 and 9)
             if (!in_array($madrasah->id, [8, 9])) {
                 $classOverlap = TeachingSchedule::where('school_id', $madrasah->id)
+                    ->where('teaching_schedule_period_id', $this->period->id)
                     ->where('class_name', $row['class_name'])
                     ->where('day', $row['day'])
                     ->where(function ($query) use ($row) {
@@ -103,6 +112,7 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
 
             return new TeachingSchedule([
                 'school_id' => $madrasah->id,
+                'teaching_schedule_period_id' => $this->period->id,
                 'teacher_id' => $teacher->id,
                 'day' => $row['day'],
                 'subject' => $row['subject'],

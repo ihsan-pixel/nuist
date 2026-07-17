@@ -11,6 +11,7 @@ use App\Models\Izin;
 use App\Models\Presensi;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
+use App\Models\TeachingSchedulePeriod;
 use App\Models\User;
 use App\Services\AcademicCalendarEventService;
 use App\Services\AttendanceObligationService;
@@ -135,6 +136,10 @@ class LaporanController extends \App\Http\Controllers\Controller
         // Always use today's date, ignore any date param to show only current day data
         $selectedDate = Carbon::today('Asia/Jakarta');
         $todayName = $selectedDate->locale('id')->dayName;
+        $activePeriod = $user->madrasah_id
+            ? (TeachingSchedulePeriod::activeForSchool($user->madrasah_id, $selectedDate)
+                ?? TeachingSchedulePeriod::latestForSchool($user->madrasah_id))
+            : null;
 
         ApprovedIzinSyncService::syncApprovedIzinPresensiForUserDate($user, $selectedDate);
 
@@ -159,6 +164,11 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         // Filter by current day's name (case insensitive)
         $query->whereRaw('LOWER(day) = ?', [strtolower($todayName)]);
+        $query->when(
+            $activePeriod,
+            fn ($builder) => $builder->where('teaching_schedule_period_id', $activePeriod->id),
+            fn ($builder) => $builder->whereRaw('1 = 0')
+        );
 
         $schedules = $query->orderBy('start_time')->get();
 
@@ -178,7 +188,7 @@ class LaporanController extends \App\Http\Controllers\Controller
 
         $today = $selectedDate->toDateString();
 
-        return view('mobile.teaching-attendances', compact('today', 'schedules', 'approvedIzinPresensi', 'approvedIzinNote'));
+        return view('mobile.teaching-attendances', compact('today', 'schedules', 'approvedIzinPresensi', 'approvedIzinNote', 'activePeriod'));
     }
 
     private function attachClassStudentCounts($schedules): void
@@ -194,21 +204,28 @@ class LaporanController extends \App\Http\Controllers\Controller
             return;
         }
 
+        $periodIds = $schedules->pluck('teaching_schedule_period_id')->filter()->unique()->values();
+
+        if ($periodIds->isEmpty()) {
+            return;
+        }
+
         $counts = TeachingClassStudentCount::whereIn('school_id', $schoolIds)
+            ->whereIn('teaching_schedule_period_id', $periodIds)
             ->whereIn('class_name', $classNames)
             ->get()
-            ->keyBy(fn ($count) => $this->classStudentCountKey($count->school_id, $count->class_name));
+            ->keyBy(fn ($count) => $this->classStudentCountKey($count->school_id, $count->teaching_schedule_period_id, $count->class_name));
 
         $schedules->each(function ($schedule) use ($counts) {
             $schedule->class_student_count = $counts->get(
-                $this->classStudentCountKey($schedule->school_id, $schedule->class_name)
+                $this->classStudentCountKey($schedule->school_id, $schedule->teaching_schedule_period_id, $schedule->class_name)
             );
         });
     }
 
-    private function classStudentCountKey($schoolId, $className): string
+    private function classStudentCountKey($schoolId, $periodId, $className): string
     {
-        return $schoolId . '|' . strtolower(trim((string) $className));
+        return $schoolId . '|' . $periodId . '|' . strtolower(trim((string) $className));
     }
 
     private function buildAttendancePercentageReportData(Request $request, User $user): array

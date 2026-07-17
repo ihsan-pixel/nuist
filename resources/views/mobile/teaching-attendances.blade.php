@@ -9,6 +9,11 @@
         <div class="text-center mb-4">
             <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Jurnal Mengajar</h5>
             <small class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
+            @if(!empty($activePeriod))
+                <div class="text-muted mt-1" style="font-size: 11px;">
+                    {{ $activePeriod->title }} | {{ $activePeriod->semester_label }} | {{ $activePeriod->school_year }}
+                </div>
+            @endif
         </div>
         <div class="realtime-clock-card mb-3">
             {{-- <div class="clock-label">

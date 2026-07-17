@@ -149,6 +149,11 @@ class Madrasah extends Model
         return $this->hasMany(TeachingSchedule::class, 'school_id');
     }
 
+    public function teachingSchedulePeriods()
+    {
+        return $this->hasMany(TeachingSchedulePeriod::class, 'school_id');
+    }
+
     // Relasi: satu madrasah punya banyak teaching attendances melalui teaching schedules
     public function teachingAttendances()
     {

@@ -62,6 +62,15 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Periode Jadwal</label>
+                                <input type="text" class="form-control" value="{{ $schedule->period ? $schedule->period->summary_label . ' | ' . $schedule->period->date_range_label : 'Periode belum ditentukan' }}" readonly>
+                                <input type="hidden" name="teaching_schedule_period_id" value="{{ $schedule->teaching_schedule_period_id }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label for="day" class="form-label">Hari <span class="text-danger">*</span></label>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingClassStudentCount;
 use App\Models\TeachingSchedule;
+use App\Models\TeachingSchedulePeriod;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Notification;
@@ -33,6 +34,10 @@ class TeachingAttendanceController extends Controller
 
         $today = Carbon::now('Asia/Jakarta')->toDateString();
         $dayOfWeek = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
+        $activePeriod = $user->madrasah_id
+            ? (TeachingSchedulePeriod::activeForSchool($user->madrasah_id, $today)
+                ?? TeachingSchedulePeriod::latestForSchool($user->madrasah_id))
+            : null;
 
         $approvedIzinPresensi = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today)
             ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $today);
@@ -48,6 +53,11 @@ class TeachingAttendanceController extends Controller
         $schedules = TeachingSchedule::with(['school', 'teacher'])
             ->where('teacher_id', $user->id)
             ->whereRaw('LOWER(day) = ?', [strtolower($dayOfWeek)])
+            ->when(
+                $activePeriod,
+                fn ($query) => $query->where('teaching_schedule_period_id', $activePeriod->id),
+                fn ($query) => $query->whereRaw('1 = 0')
+            )
             ->orderBy('start_time')
             ->get();
 
@@ -68,7 +78,7 @@ class TeachingAttendanceController extends Controller
 
         $this->attachClassStudentCounts($schedules);
 
-        return view('teaching-attendances.index', compact('schedules', 'today', 'approvedIzinPresensi', 'approvedIzinNote'));
+        return view('teaching-attendances.index', compact('schedules', 'today', 'approvedIzinPresensi', 'approvedIzinNote', 'activePeriod'));
     }
 
     public function store(Request $request)
@@ -102,7 +112,7 @@ class TeachingAttendanceController extends Controller
         }
 
         // Get the schedule
-        $schedule = TeachingSchedule::with('school')->findOrFail($request->teaching_schedule_id);
+        $schedule = TeachingSchedule::with(['school', 'period'])->findOrFail($request->teaching_schedule_id);
 
         // Check if the schedule belongs to the user
         if ($schedule->teacher_id !== $user->id) {
@@ -119,6 +129,13 @@ class TeachingAttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.'
+            ], 400);
+        }
+
+        if (!$this->schedulePeriodMatchesDate($schedule, Carbon::today('Asia/Jakarta'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jadwal mengajar ini tidak berada pada periode yang sedang berjalan.'
             ], 400);
         }
 
@@ -200,6 +217,7 @@ class TeachingAttendanceController extends Controller
         }
 
         $classStudentCount = TeachingClassStudentCount::where('school_id', $schedule->school_id)
+            ->where('teaching_schedule_period_id', $schedule->teaching_schedule_period_id)
             ->where('class_name', trim((string) $schedule->class_name))
             ->first();
 
@@ -241,6 +259,7 @@ class TeachingAttendanceController extends Controller
             if (!$classStudentCount) {
                 TeachingClassStudentCount::create([
                     'school_id' => $schedule->school_id,
+                    'teaching_schedule_period_id' => $schedule->teaching_schedule_period_id,
                     'class_name' => trim((string) $schedule->class_name),
                     'total_students' => $classTotalStudents,
                     'created_by' => $user->id,
@@ -318,7 +337,7 @@ class TeachingAttendanceController extends Controller
         $user = Auth::user();
 
         // Get the schedule
-        $schedule = TeachingSchedule::with('school')->findOrFail($request->teaching_schedule_id);
+        $schedule = TeachingSchedule::with(['school', 'period'])->findOrFail($request->teaching_schedule_id);
 
         // Check if the schedule belongs to the user
         if ($schedule->teacher_id !== $user->id) {
@@ -334,6 +353,13 @@ class TeachingAttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Presensi mengajar hanya dapat dilakukan untuk jadwal hari ini.'
+            ], 400);
+        }
+
+        if (!$this->schedulePeriodMatchesDate($schedule, Carbon::today('Asia/Jakarta'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jadwal mengajar ini tidak berada pada periode yang sedang berjalan.'
             ], 400);
         }
 
@@ -394,21 +420,40 @@ class TeachingAttendanceController extends Controller
             return;
         }
 
+        $periodIds = $schedules->pluck('teaching_schedule_period_id')->filter()->unique()->values();
+
+        if ($periodIds->isEmpty()) {
+            return;
+        }
+
         $counts = TeachingClassStudentCount::whereIn('school_id', $schoolIds)
+            ->whereIn('teaching_schedule_period_id', $periodIds)
             ->whereIn('class_name', $classNames)
             ->get()
-            ->keyBy(fn ($count) => $this->classStudentCountKey($count->school_id, $count->class_name));
+            ->keyBy(fn ($count) => $this->classStudentCountKey($count->school_id, $count->teaching_schedule_period_id, $count->class_name));
 
         $schedules->each(function ($schedule) use ($counts) {
             $schedule->class_student_count = $counts->get(
-                $this->classStudentCountKey($schedule->school_id, $schedule->class_name)
+                $this->classStudentCountKey($schedule->school_id, $schedule->teaching_schedule_period_id, $schedule->class_name)
             );
         });
     }
 
-    private function classStudentCountKey($schoolId, $className): string
+    private function classStudentCountKey($schoolId, $periodId, $className): string
     {
-        return $schoolId . '|' . strtolower(trim((string) $className));
+        return $schoolId . '|' . $periodId . '|' . strtolower(trim((string) $className));
+    }
+
+    private function schedulePeriodMatchesDate(TeachingSchedule $schedule, Carbon $date): bool
+    {
+        if (!$schedule->period || !$schedule->period->start_date || !$schedule->period->end_date) {
+            return false;
+        }
+
+        $dateValue = $date->toDateString();
+
+        return $schedule->period->start_date->toDateString() <= $dateValue
+            && $schedule->period->end_date->toDateString() >= $dateValue;
     }
 
     /**

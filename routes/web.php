@@ -1457,6 +1457,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin,admin,pengurus,tenaga_pendidik'])->group(function () {
         Route::resource('teaching-schedules', App\Http\Controllers\TeachingScheduleController::class);
         Route::get('teaching-schedules/get-teachers/{schoolId}', [App\Http\Controllers\TeachingScheduleController::class, 'getTeachersBySchool'])->name('teaching-schedules.get-teachers');
+        Route::get('teaching-schedules/get-periods/{schoolId}', [App\Http\Controllers\TeachingScheduleController::class, 'getPeriodsBySchool'])->name('teaching-schedules.get-periods');
         Route::get('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'import'])->name('teaching-schedules.import');
         Route::post('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'processImport'])->name('teaching-schedules.process-import');
         // Super admin and admin specific routes
@@ -1469,6 +1470,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::resource('academic-calendar-events', AcademicCalendarEventController::class)->except(['show']);
         Route::resource('picket-schedule-periods', PicketScheduleController::class)->except(['show']);
+        Route::post('teaching-schedule-periods', [App\Http\Controllers\TeachingSchedulePeriodController::class, 'store'])->name('teaching-schedule-periods.store');
+        Route::put('teaching-schedule-periods/{teachingSchedulePeriod}', [App\Http\Controllers\TeachingSchedulePeriodController::class, 'update'])->name('teaching-schedule-periods.update');
     });
 
     // Teaching Attendances Routes
