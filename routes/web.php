@@ -308,6 +308,149 @@ Route::domain('mgmp.nuist.id')->group(function () {
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| Finance subdomain
+|--------------------------------------------------------------------------
+|
+| Host alias for the existing finance modules. This subdomain combines the
+| current UPPM area, operator SPP management, and SPP siswa pages using the
+| same controllers, middleware, and views. Existing routes on the primary
+| host remain unchanged.
+|
+*/
+Route::domain('keuangan.nuist.id')->group(function () {
+    $financeHomeRedirect = function () {
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
+        $user = Auth::user();
+        $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
+
+        if ($normalizedRole === 'admin_spp') {
+            return redirect('/spp-siswa/dashboard');
+        }
+
+        if (in_array($normalizedRole, ['super_admin', 'pengurus'], true)) {
+            return redirect('/uppm');
+        }
+
+        return redirect()->away(rtrim((string) config('app.url'), '/') . '/dashboard');
+    };
+
+    Route::get('/', $financeHomeRedirect);
+
+    Route::middleware(['guest'])->group(function () {
+        Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
+        Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'])
+            ->middleware('throttle:6,1');
+        Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
+        Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail']);
+        Route::get('/password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm']);
+        Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset']);
+
+        Route::get('/login/operator-spp', [App\Http\Controllers\Auth\LoginController::class, 'showSppOperatorLoginForm']);
+        Route::post('/login/operator-spp', [App\Http\Controllers\Auth\LoginController::class, 'loginSppOperator'])
+            ->middleware('throttle:6,1');
+
+        Route::get('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerForm']);
+        Route::get('/register/operator-spp/lookup-school', [App\Http\Controllers\SppOperatorController::class, 'lookupSchool']);
+        Route::post('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerStore'])
+            ->middleware('throttle:6,1');
+    });
+
+    Route::get('/uppm/pembayaran/check-tagihan', [App\Http\Controllers\PembayaranController::class, 'checkTagihan']);
+
+    Route::middleware(['auth'])->group(function () use ($financeHomeRedirect) {
+        Route::get('/dashboard', $financeHomeRedirect);
+
+        Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+            ->middleware('throttle:10,1');
+        Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])
+            ->middleware('throttle:5,1')
+            ->whereNumber('id');
+
+        Route::prefix('masterdata')->middleware(['role:super_admin'])->group(function () {
+            Route::get('/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'index']);
+            Route::post('/operator-spp/{registration}/approve', [App\Http\Controllers\SppOperatorController::class, 'approve']);
+            Route::post('/operator-spp/{registration}/reject', [App\Http\Controllers\SppOperatorController::class, 'reject']);
+            Route::put('/operator-spp/accounts/{user}', [App\Http\Controllers\SppOperatorController::class, 'updateAccount']);
+            Route::patch('/operator-spp/accounts/{user}/status', [App\Http\Controllers\SppOperatorController::class, 'updateAccountStatus']);
+        });
+
+        Route::prefix('data-sekolah')->middleware(['role:super_admin,admin,admin_spp,pengurus'])->group(function () {
+            Route::get('/siswa', [App\Http\Controllers\DataSekolahController::class, 'siswa']);
+            Route::get('/guru', [App\Http\Controllers\DataSekolahController::class, 'guru']);
+            Route::post('/update-siswa/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateSiswa']);
+            Route::post('/update-guru/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateGuru']);
+            Route::get('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'index']);
+            Route::get('/data-siswa/export-upload-summary', [App\Http\Controllers\DataSiswaController::class, 'exportUploadSummary']);
+            Route::get('/data-siswa/export-complete', [App\Http\Controllers\DataSiswaController::class, 'exportComplete']);
+            Route::post('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'store']);
+            Route::put('/data-siswa/bulk-update', [App\Http\Controllers\DataSiswaController::class, 'bulkUpdate']);
+            Route::put('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'update']);
+            Route::delete('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'destroy']);
+            Route::post('/data-siswa/import', [App\Http\Controllers\DataSiswaController::class, 'import']);
+            Route::get('/data-siswa/template', [App\Http\Controllers\DataSiswaController::class, 'template']);
+        });
+
+        Route::prefix('spp-siswa')->middleware(['role:super_admin,admin_spp,pengurus'])->group(function () {
+            Route::get('/dashboard', [App\Http\Controllers\SppSiswaController::class, 'dashboard']);
+            Route::get('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'tagihan']);
+            Route::post('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'storeTagihan']);
+            Route::post('/tagihan/bulk', [App\Http\Controllers\SppSiswaController::class, 'storeBulkTagihan']);
+            Route::post('/tagihan/import', [App\Http\Controllers\SppSiswaController::class, 'importTagihan']);
+            Route::get('/tagihan/template', [App\Http\Controllers\SppSiswaController::class, 'templateTagihan']);
+            Route::delete('/tagihan/{bill}', [App\Http\Controllers\SppSiswaController::class, 'destroyTagihan']);
+            Route::post('/tagihan/{bill}/generate-bni-va', [App\Http\Controllers\SppSiswaPaymentController::class, 'generateBniVa']);
+            Route::get('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'transaksi']);
+            Route::post('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'storeTransaksi']);
+            Route::get('/laporan', [App\Http\Controllers\SppSiswaController::class, 'laporan']);
+            Route::get('/pengaturan', [App\Http\Controllers\SppSiswaController::class, 'pengaturan']);
+            Route::post('/pengaturan', [App\Http\Controllers\SppSiswaController::class, 'storePengaturan']);
+            Route::put('/pengaturan/{setting}', [App\Http\Controllers\SppSiswaController::class, 'updatePengaturan']);
+        });
+
+        Route::prefix('uppm')->middleware(['role:super_admin,pengurus'])->group(function () {
+            Route::get('/', [App\Http\Controllers\UppmController::class, 'index']);
+            Route::get('/data-sekolah', [App\Http\Controllers\UppmController::class, 'dataSekolah']);
+            Route::get('/perhitungan-iuran', [App\Http\Controllers\UppmController::class, 'perhitunganIuran']);
+            Route::get('/tagihan', [App\Http\Controllers\UppmController::class, 'tagihan']);
+            Route::get('/invoice', [App\Http\Controllers\UppmController::class, 'invoice']);
+            Route::get('/invoice/download', [App\Http\Controllers\UppmController::class, 'downloadInvoice']);
+            Route::get('/pengaturan', [App\Http\Controllers\UppmController::class, 'pengaturan']);
+            Route::post('/pengaturan', [App\Http\Controllers\UppmController::class, 'storePengaturan']);
+            Route::put('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'updatePengaturan']);
+            Route::delete('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'destroyPengaturan']);
+            Route::post('/store-tagihan', [App\Http\Controllers\UppmController::class, 'storeTagihan']);
+
+            Route::get('/pembayaran', [App\Http\Controllers\PembayaranController::class, 'index']);
+            Route::get('/pembayaran/{madrasah_id}', [App\Http\Controllers\PembayaranController::class, 'detail']);
+            Route::post('/pembayaran/cash', [App\Http\Controllers\PembayaranController::class, 'pembayaranCash']);
+            Route::post('/pembayaran/midtrans', [App\Http\Controllers\PembayaranController::class, 'pembayaranMidtrans']);
+        });
+
+        Route::post('/uppm/pembayaran/midtrans/result', [App\Http\Controllers\PembayaranController::class, 'paymentResult'])
+            ->middleware(['role:super_admin,pengurus', 'throttle:10,1']);
+        Route::post('/uppm/pembayaran/success', [App\Http\Controllers\PembayaranController::class, 'paymentSuccess'])
+            ->middleware(['role:super_admin,pengurus', 'throttle:10,1']);
+        Route::post('/uppm/pembayaran/check-status', [App\Http\Controllers\PembayaranController::class, 'checkPaymentStatus'])
+            ->middleware(['role:super_admin,pengurus', 'throttle:10,1']);
+    });
+
+    Route::fallback(function (\Illuminate\Http\Request $request) {
+        $primaryBaseUrl = rtrim((string) config('app.url'), '/');
+        $target = $primaryBaseUrl . $request->getRequestUri();
+
+        if (in_array($request->method(), ['GET', 'HEAD'], true)) {
+            return redirect()->away($target);
+        }
+
+        abort(404);
+    });
+});
+
 // Account Setting Routes
 Route::get('/account/login', [App\Http\Controllers\AccountSettingController::class, 'login'])
     ->middleware(['guest'])
