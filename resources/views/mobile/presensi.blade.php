@@ -734,6 +734,10 @@
             display: none;
         }
 
+        .selfie-fullscreen-mode .selfie-modal-subtitle {
+            display: none;
+        }
+
         .selfie-modal-body {
             padding: 0 18px 16px;
             overflow-y: auto;
@@ -968,6 +972,10 @@
             display: none;
         }
 
+        .selfie-fullscreen-mode .selfie-status-banner {
+            display: none;
+        }
+
         .face-scan-mode .selfie-stage {
             min-height: 100vh;
             max-height: none;
@@ -996,6 +1004,11 @@
         .face-scan-mode .selfie-placeholder i,
         .face-scan-mode .selfie-placeholder strong,
         .face-scan-mode .selfie-placeholder span {
+            display: none;
+        }
+
+        .selfie-fullscreen-mode .selfie-placeholder strong,
+        .selfie-fullscreen-mode .selfie-placeholder span {
             display: none;
         }
 
@@ -1406,6 +1419,10 @@
         }
 
         .face-scan-mode .selfie-stage-copy {
+            display: none;
+        }
+
+        .selfie-fullscreen-mode .selfie-stage-copy {
             display: none;
         }
 
