@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Mobile\Jadwal;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use App\Models\TeachingSchedule;
 use App\Models\TeachingSchedulePeriod;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class JadwalController extends \App\Http\Controllers\Controller
 {
@@ -18,16 +18,7 @@ class JadwalController extends \App\Http\Controllers\Controller
         $activePeriod = $schoolId
             ? TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'))
             : null;
-        $periods = $schoolId
-            ? TeachingSchedulePeriod::query()
-                ->where('school_id', $schoolId)
-                ->orderByDesc('end_date')
-                ->orderByDesc('start_date')
-                ->get()
-            : collect();
-        $selectedPeriod = $schoolId
-            ? $this->resolveSelectedPeriod($schoolId, $request->integer('period_id'))
-            : null;
+        $selectedPeriod = $activePeriod;
 
         // Allow all tenaga_pendidik to access jadwal
         if ($user->role !== 'tenaga_pendidik') {
@@ -57,35 +48,15 @@ class JadwalController extends \App\Http\Controllers\Controller
         $schedules = $baseSchedules->groupBy('day');
         $classes = $baseSchedules->pluck('class_name')->filter()->unique()->sort()->values();
         $subjects = $baseSchedules->pluck('subject')->filter()->unique()->sort()->values();
-        $canManageSelectedPeriod = $selectedPeriod && $activePeriod
-            ? (int) $selectedPeriod->id === (int) $activePeriod->id
-            : false;
+        $canManageSelectedPeriod = (bool) $activePeriod;
 
         return view('mobile.jadwal', compact(
             'schedules',
             'classes',
             'subjects',
-            'periods',
             'selectedPeriod',
             'activePeriod',
             'canManageSelectedPeriod',
         ));
-    }
-
-    private function resolveSelectedPeriod(int $schoolId, ?int $periodId = null): ?TeachingSchedulePeriod
-    {
-        if ($periodId) {
-            $selected = TeachingSchedulePeriod::query()
-                ->where('school_id', $schoolId)
-                ->whereKey($periodId)
-                ->first();
-
-            if ($selected) {
-                return $selected;
-            }
-        }
-
-        return TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'))
-            ?? TeachingSchedulePeriod::latestForSchool($schoolId);
     }
 }

@@ -401,29 +401,9 @@
         </div>
         @endif
 
-        @if($selectedPeriod)
-        <div class="alert alert-info border-0 rounded-3 mb-3" style="background: rgba(13, 110, 253, 0.08); color: #0d6efd; border-radius: 12px; padding: 10px;">
-            <i class="bx bx-calendar-event me-1"></i>Berlaku {{ $selectedPeriod->date_range_label }}
-        </div>
-        @endif
-
         @if(!$activePeriod)
         <div class="alert alert-warning border-0 rounded-3 mb-3" style="background: rgba(255, 193, 7, 0.14); color: #8a6d03; border-radius: 12px; padding: 10px;">
             <i class="bx bx-info-circle me-1"></i>Belum ada periode jadwal aktif per {{ now('Asia/Jakarta')->translatedFormat('d M Y') }}. Guru belum bisa input jadwal mandiri.
-        </div>
-        @elseif(!$canManageSelectedPeriod)
-        <div class="alert alert-warning border-0 rounded-3 mb-3" style="background: rgba(255, 193, 7, 0.14); color: #8a6d03; border-radius: 12px; padding: 10px;">
-            <i class="bx bx-info-circle me-1"></i>Input dan edit jadwal mandiri hanya tersedia pada periode aktif: {{ $activePeriod->summary_label }}.
-        </div>
-        @endif
-
-        @if($periods->isNotEmpty())
-        <div class="d-flex flex-wrap gap-2 mb-3">
-            @foreach($periods as $period)
-                <a class="btn btn-sm {{ optional($selectedPeriod)->id === $period->id ? 'btn-primary' : 'btn-outline-primary' }}" href="{{ route('mobile.jadwal', ['period_id' => $period->id]) }}">
-                    {{ $period->semester_label }} {{ $period->school_year }}
-                </a>
-            @endforeach
         </div>
         @endif
 
