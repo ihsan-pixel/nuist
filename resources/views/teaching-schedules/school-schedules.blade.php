@@ -197,18 +197,6 @@
                         <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal" {{ $selectedPeriod ? '' : 'disabled' }}>
                             <i class="bx bx-upload me-1"></i>Import Jadwal
                         </button>
-                        <button
-                            type="button"
-                            class="btn btn-outline-danger rounded-pill px-3 delete-school-schedules-btn"
-                            data-school-id="{{ $school->id }}"
-                            data-school-name="{{ $school->name }}"
-                            data-period-id="{{ optional($selectedPeriod)->id }}"
-                            data-period-name="{{ optional($selectedPeriod)->title }}"
-                            data-total-schedules="{{ $totalSchedules }}"
-                            {{ $totalSchedules > 0 && $selectedPeriod ? '' : 'disabled' }}
-                        >
-                            <i class="bx bx-trash me-1"></i>Hapus Jadwal Periode
-                        </button>
                         @endif
                         @endif
                         @endif
@@ -713,36 +701,6 @@ $(document).ready(function() {
         });
     });
 
-    $('.delete-school-schedules-btn').on('click', function() {
-        var schoolId = $(this).data('school-id');
-        var schoolName = $(this).data('school-name');
-        var periodId = $(this).data('period-id');
-        var periodName = $(this).data('period-name');
-        var totalSchedules = $(this).data('total-schedules');
-
-        Swal.fire({
-            title: 'Hapus jadwal periode ini?',
-            html: 'Seluruh <strong>' + totalSchedules + ' jadwal</strong> untuk <strong>' + schoolName + '</strong> pada periode <strong>' + periodName + '</strong> akan dihapus permanen.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, hapus periode ini',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                var form = $('<form>', {
-                    'method': 'POST',
-                    'action': '{{ route("teaching-schedules.destroy-school-schedules", ":schoolId") }}'.replace(':schoolId', schoolId)
-                });
-                form.append('<input type="hidden" name="_token" value="{{ csrf_token() }}">');
-                form.append('<input type="hidden" name="_method" value="DELETE">');
-                form.append('<input type="hidden" name="period_id" value="' + periodId + '">');
-                $('body').append(form);
-                form.submit();
-            }
-        });
-    });
 });
 </script>
 @endsection
