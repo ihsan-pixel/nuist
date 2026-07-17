@@ -18,6 +18,12 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 @endsection
 
 @section('content')
+@php
+    $isSpmbHost = request()->getHost() === 'spmb.nuist.id';
+    $loginAction = $isSpmbHost ? url('/login') : route('login');
+    $forgotPasswordUrl = $isSpmbHost ? url('/password/reset') : route('mobile.password.request');
+    $backUrl = $isSpmbHost ? url('/') : route('landing');
+@endphp
 <div class="login-container">
     <div class="login-wrapper">
         <!-- Form Section -->
@@ -27,7 +33,9 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <img src="{{ asset('images/logo1.png') }}" alt="Logo" class="logo">
                 </div>
                 <h1 class="login-title">LOGIN</h1>
-                <p class="login-subtitle">Welcome back! Please sign in to your account.</p>
+                <p class="login-subtitle">
+                    {{ $isSpmbHost ? 'Login Admin Sekolah untuk mengelola dashboard SPMB sekolah Anda.' : 'Welcome back! Please sign in to your account.' }}
+                </p>
 
                 @if (session('status'))
                     <div class="alert alert-success">
@@ -41,7 +49,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     </div>
                 @endif
 
-                <form class="login-form" method="POST" action="{{ route('login') }}">
+                <form class="login-form" method="POST" action="{{ $loginAction }}">
                     @csrf
                     <div class="form-group">
                         <label for="username" class="form-label">Email <span class="text-danger">*</span></label>
@@ -98,12 +106,14 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                 </div> --}}
 
                 <div class="mt-3 text-center">
+                    @unless($isSpmbHost)
                     <p class="mb-0">Don't have an account? <a href="{{ url('register') }}" class="text-primary">Register here</a></p>
-                    <a href="{{ route('mobile.password.request') }}">Forgot password?</a>
+                    @endunless
+                    <a href="{{ $forgotPasswordUrl }}">Forgot password?</a>
                 </div>
 
                 <div class="mt-2 text-center">
-                    <p class="mb-0"><a href="{{ route('landing') }}" class="text-primary">Kembali ke Halaman Utama</a></p>
+                    <p class="mb-0"><a href="{{ $backUrl }}" class="text-primary">{{ $isSpmbHost ? 'Kembali ke Halaman SPMB' : 'Kembali ke Halaman Utama' }}</a></p>
                 </div>
 
                 <div class="footer-text">

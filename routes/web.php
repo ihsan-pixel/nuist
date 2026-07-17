@@ -242,8 +242,56 @@ Route::domain('mgmp.nuist.id')->group(function () {
 
     Route::middleware(['guest'])->group(function () {
         Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
-        Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'])
-            ->middleware('throttle:6,1');
+        Route::post('/login', function (\Illuminate\Http\Request $request) {
+            $credentials = $request->validate([
+                'email' => ['required', 'string'],
+                'password' => ['required', 'string'],
+            ]);
+
+            if (!\Illuminate\Support\Facades\Auth::attempt($credentials, $request->boolean('remember'))) {
+                return back()
+                    ->withErrors(['email' => 'Email atau password tidak sesuai.'])
+                    ->withInput($request->only('email'));
+            }
+
+            $request->session()->regenerate();
+            $request->session()->regenerateToken();
+
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
+
+            if ($normalizedRole !== 'admin') {
+                \Illuminate\Support\Facades\Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()
+                    ->withErrors(['email' => 'Login SPMB hanya untuk akun Admin sekolah.'])
+                    ->withInput($request->only('email'));
+            }
+
+            if (isset($user->is_active) && ! $user->is_active) {
+                \Illuminate\Support\Facades\Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()
+                    ->withErrors(['email' => 'Akun Anda saat ini dinonaktifkan.'])
+                    ->withInput($request->only('email'));
+            }
+
+            if ((int) ($user->madrasah_id ?? 0) <= 0 || ! $user->sekolah) {
+                \Illuminate\Support\Facades\Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()
+                    ->withErrors(['email' => 'Akun admin ini belum terhubung ke sekolah.'])
+                    ->withInput($request->only('email'));
+            }
+
+            return redirect('/ppdb/sekolah/dashboard');
+        })->middleware('throttle:6,1');
         Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
         Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail']);
         Route::get('/password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm']);
