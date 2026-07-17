@@ -25,7 +25,7 @@ class TeachingSchedulePeriodController extends Controller
             $validated['end_date']
         );
 
-        TeachingSchedulePeriod::create([
+        $period = TeachingSchedulePeriod::create([
             'school_id' => $validated['school_id'],
             'title' => $validated['title'],
             'school_year' => $validated['school_year'],
@@ -36,7 +36,12 @@ class TeachingSchedulePeriodController extends Controller
             'updated_by' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Periode jadwal mengajar berhasil ditambahkan.');
+        return redirect()
+            ->route('teaching-schedules.school-schedules', [
+                'schoolId' => $period->school_id,
+                'period_id' => $period->id,
+            ])
+            ->with('success', 'Periode jadwal mengajar berhasil ditambahkan.');
     }
 
     public function update(Request $request, TeachingSchedulePeriod $teachingSchedulePeriod)
@@ -60,7 +65,12 @@ class TeachingSchedulePeriodController extends Controller
             'updated_by' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Periode jadwal mengajar berhasil diperbarui.');
+        return redirect()
+            ->route('teaching-schedules.school-schedules', [
+                'schoolId' => $teachingSchedulePeriod->school_id,
+                'period_id' => $teachingSchedulePeriod->id,
+            ])
+            ->with('success', 'Periode jadwal mengajar berhasil diperbarui.');
     }
 
     private function validatePayload(Request $request, ?int $lockedSchoolId = null): array
