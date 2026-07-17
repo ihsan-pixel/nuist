@@ -10,6 +10,11 @@ return new class extends Migration
 {
     private const SCHEDULE_PERIOD_FK = 'teaching_schedules_period_fk';
     private const CLASS_COUNT_PERIOD_FK = 'teaching_class_count_period_fk';
+    private const CLASS_COUNT_SCHOOL_IDX = 'teaching_class_counts_school_idx';
+    private const CLASS_COUNT_PERIOD_UNIQUE = 'teaching_class_students_period_unique';
+    private const CLASS_COUNT_LEGACY_UNIQUE = 'teaching_class_students_unique';
+    private const SCHEDULE_PERIOD_DAY_IDX = 'teaching_schedules_school_period_day_idx';
+    private const PERIOD_DATE_IDX = 'teaching_schedule_periods_school_dates_idx';
 
     public function up(): void
     {
@@ -26,7 +31,7 @@ return new class extends Migration
                 $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
                 $table->timestamps();
 
-                $table->index(['school_id', 'start_date', 'end_date'], 'teaching_schedule_periods_school_dates_idx');
+                $table->index(['school_id', 'start_date', 'end_date'], self::PERIOD_DATE_IDX);
             });
         }
 
@@ -41,10 +46,7 @@ return new class extends Migration
                     ->on('teaching_schedule_periods')
                     ->nullOnDelete();
 
-                $table->index(
-                    ['school_id', 'teaching_schedule_period_id', 'day'],
-                    'teaching_schedules_school_period_day_idx'
-                );
+                $table->index(['school_id', 'teaching_schedule_period_id', 'day'], self::SCHEDULE_PERIOD_DAY_IDX);
             });
         }
 
@@ -62,16 +64,26 @@ return new class extends Migration
                 });
             }
 
-            Schema::table('teaching_class_student_counts', function (Blueprint $table) {
-                $table->dropUnique('teaching_class_students_unique');
-            });
+            if (!$this->indexExists('teaching_class_student_counts', self::CLASS_COUNT_SCHOOL_IDX)) {
+                Schema::table('teaching_class_student_counts', function (Blueprint $table) {
+                    $table->index('school_id', self::CLASS_COUNT_SCHOOL_IDX);
+                });
+            }
 
-            Schema::table('teaching_class_student_counts', function (Blueprint $table) {
-                $table->unique(
-                    ['school_id', 'teaching_schedule_period_id', 'class_name'],
-                    'teaching_class_students_period_unique'
-                );
-            });
+            if ($this->indexExists('teaching_class_student_counts', self::CLASS_COUNT_LEGACY_UNIQUE)) {
+                Schema::table('teaching_class_student_counts', function (Blueprint $table) {
+                    $table->dropUnique(self::CLASS_COUNT_LEGACY_UNIQUE);
+                });
+            }
+
+            if (!$this->indexExists('teaching_class_student_counts', self::CLASS_COUNT_PERIOD_UNIQUE)) {
+                Schema::table('teaching_class_student_counts', function (Blueprint $table) {
+                    $table->unique(
+                        ['school_id', 'teaching_schedule_period_id', 'class_name'],
+                        self::CLASS_COUNT_PERIOD_UNIQUE
+                    );
+                });
+            }
         }
 
         $this->backfillExistingSchedulesAndClassCounts();
@@ -80,9 +92,11 @@ return new class extends Migration
     public function down(): void
     {
         if (Schema::hasTable('teaching_class_student_counts')) {
-            Schema::table('teaching_class_student_counts', function (Blueprint $table) {
-                $table->dropUnique('teaching_class_students_period_unique');
-            });
+            if ($this->indexExists('teaching_class_student_counts', self::CLASS_COUNT_PERIOD_UNIQUE)) {
+                Schema::table('teaching_class_student_counts', function (Blueprint $table) {
+                    $table->dropUnique(self::CLASS_COUNT_PERIOD_UNIQUE);
+                });
+            }
 
             if (Schema::hasColumn('teaching_class_student_counts', 'teaching_schedule_period_id')) {
                 Schema::table('teaching_class_student_counts', function (Blueprint $table) {
@@ -91,14 +105,22 @@ return new class extends Migration
                 });
             }
 
-            Schema::table('teaching_class_student_counts', function (Blueprint $table) {
-                $table->unique(['school_id', 'class_name'], 'teaching_class_students_unique');
-            });
+            if ($this->indexExists('teaching_class_student_counts', self::CLASS_COUNT_SCHOOL_IDX)) {
+                Schema::table('teaching_class_student_counts', function (Blueprint $table) {
+                    $table->dropIndex(self::CLASS_COUNT_SCHOOL_IDX);
+                });
+            }
+
+            if (!$this->indexExists('teaching_class_student_counts', self::CLASS_COUNT_LEGACY_UNIQUE)) {
+                Schema::table('teaching_class_student_counts', function (Blueprint $table) {
+                    $table->unique(['school_id', 'class_name'], self::CLASS_COUNT_LEGACY_UNIQUE);
+                });
+            }
         }
 
         if (Schema::hasTable('teaching_schedules') && Schema::hasColumn('teaching_schedules', 'teaching_schedule_period_id')) {
             Schema::table('teaching_schedules', function (Blueprint $table) {
-                $table->dropIndex('teaching_schedules_school_period_day_idx');
+                $table->dropIndex(self::SCHEDULE_PERIOD_DAY_IDX);
                 $table->dropForeign(self::SCHEDULE_PERIOD_FK);
                 $table->dropColumn('teaching_schedule_period_id');
             });
@@ -180,5 +202,14 @@ return new class extends Migration
                 ->whereNull('teaching_schedule_period_id')
                 ->update(['teaching_schedule_period_id' => $periodId]);
         }
+    }
+
+    private function indexExists(string $tableName, string $indexName): bool
+    {
+        return DB::table('information_schema.statistics')
+            ->where('table_schema', DB::getDatabaseName())
+            ->where('table_name', $tableName)
+            ->where('index_name', $indexName)
+            ->exists();
     }
 };
