@@ -306,9 +306,6 @@
                             </option>
                             @endforeach
                         </select>
-                        <div class="field-note mt-2">
-                            Jadwal baru akan disimpan ke periode yang dipilih, sedangkan jadwal periode sebelumnya tetap tersimpan sebagai histori.
-                        </div>
                     </div>
                 </div>
 
