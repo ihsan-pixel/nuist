@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    private const SCHEDULE_PERIOD_FK = 'teaching_schedules_period_fk';
+    private const CLASS_COUNT_PERIOD_FK = 'teaching_class_count_period_fk';
+
     public function up(): void
     {
         if (!Schema::hasTable('teaching_schedule_periods')) {
@@ -31,8 +34,11 @@ return new class extends Migration
             Schema::table('teaching_schedules', function (Blueprint $table) {
                 $table->foreignId('teaching_schedule_period_id')
                     ->nullable()
-                    ->after('school_id')
-                    ->constrained('teaching_schedule_periods')
+                    ->after('school_id');
+
+                $table->foreign('teaching_schedule_period_id', self::SCHEDULE_PERIOD_FK)
+                    ->references('id')
+                    ->on('teaching_schedule_periods')
                     ->nullOnDelete();
 
                 $table->index(
@@ -47,8 +53,11 @@ return new class extends Migration
                 Schema::table('teaching_class_student_counts', function (Blueprint $table) {
                     $table->foreignId('teaching_schedule_period_id')
                         ->nullable()
-                        ->after('school_id')
-                        ->constrained('teaching_schedule_periods')
+                        ->after('school_id');
+
+                    $table->foreign('teaching_schedule_period_id', self::CLASS_COUNT_PERIOD_FK)
+                        ->references('id')
+                        ->on('teaching_schedule_periods')
                         ->nullOnDelete();
                 });
             }
@@ -77,7 +86,8 @@ return new class extends Migration
 
             if (Schema::hasColumn('teaching_class_student_counts', 'teaching_schedule_period_id')) {
                 Schema::table('teaching_class_student_counts', function (Blueprint $table) {
-                    $table->dropConstrainedForeignId('teaching_schedule_period_id');
+                    $table->dropForeign(self::CLASS_COUNT_PERIOD_FK);
+                    $table->dropColumn('teaching_schedule_period_id');
                 });
             }
 
@@ -89,7 +99,8 @@ return new class extends Migration
         if (Schema::hasTable('teaching_schedules') && Schema::hasColumn('teaching_schedules', 'teaching_schedule_period_id')) {
             Schema::table('teaching_schedules', function (Blueprint $table) {
                 $table->dropIndex('teaching_schedules_school_period_day_idx');
-                $table->dropConstrainedForeignId('teaching_schedule_period_id');
+                $table->dropForeign(self::SCHEDULE_PERIOD_FK);
+                $table->dropColumn('teaching_schedule_period_id');
             });
         }
 
