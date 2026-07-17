@@ -281,6 +281,89 @@
     border-radius: 999px;
 }
 
+.schedule-modal {
+    border: 1px solid #e7edf5;
+    border-radius: 1.35rem;
+    overflow: hidden;
+    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.16);
+}
+
+.schedule-modal-header {
+    border-bottom: 1px solid #edf2f7;
+    background:
+        radial-gradient(circle at top right, rgba(13, 110, 253, 0.14), transparent 30%),
+        linear-gradient(135deg, #ffffff 0%, #f7faff 55%, #eef5ff 100%);
+}
+
+.schedule-modal-title {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.modal-panel {
+    border: 1px solid #e8eef7;
+    border-radius: 1.05rem;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
+}
+
+.modal-panel-header {
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid #edf2f7;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.modal-panel-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.modal-note {
+    border: 1px solid #dbe8ff;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #f7fbff 0%, #eef5ff 100%);
+    color: #475569;
+}
+
+.modal-note h6 {
+    color: #0d6efd;
+    font-weight: 700;
+}
+
+.modal-note-warning {
+    border-color: #fde3bf;
+    background: linear-gradient(135deg, #fffaf2 0%, #fff3df 100%);
+}
+
+.modal-note-warning h6 {
+    color: #b45309;
+}
+
+.import-table {
+    border-color: #e6edf6;
+}
+
+.import-table thead th {
+    background: #f8fbff;
+    color: #334155;
+    font-weight: 700;
+}
+
+.upload-panel {
+    border: 1px solid rgba(13, 110, 253, 0.18);
+}
+
+.upload-panel .modal-panel-header {
+    background: linear-gradient(135deg, #0d6efd 0%, #3f8cff 100%);
+    color: #fff;
+    border-bottom: none;
+}
+
+.upload-panel .modal-panel-title {
+    color: #fff;
+}
+
 @media (max-width: 767.98px) {
     .hero-mark {
         width: 60px;
@@ -792,13 +875,16 @@
 
 @if($canImportSchedules)
 <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="importModalLabel">Import Jadwal Mengajar</h5>
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content schedule-modal border-0">
+            <div class="modal-header schedule-modal-header px-4 py-3">
+                <div>
+                    <div class="text-muted small mb-1">Import Data Periode</div>
+                    <h5 class="modal-title schedule-modal-title mb-0" id="importModalLabel">Import Jadwal Mengajar</h5>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
@@ -825,101 +911,123 @@
                 </div>
                 @endif
 
-                <div class="row">
-                    <div class="col-md-8">
-                        <h5>Panduan Import Jadwal Mengajar</h5>
-                        <div class="alert alert-info">
-                            <h6><i class="bx bx-info-circle"></i> Instruksi:</h6>
-                            <ol>
-                                <li>Unduh template file Excel dengan mengklik tombol "Unduh Template".</li>
-                                <li>Isi data jadwal sesuai format pada template.</li>
-                                <li>Simpan kembali file dalam format Excel.</li>
-                                <li>Upload file ke periode yang sedang dipilih.</li>
-                            </ol>
-                        </div>
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="modal-panel h-100">
+                            <div class="modal-panel-header">
+                                <div class="modal-panel-title">
+                                    <i class="bx bx-book-open me-2 text-primary"></i>Panduan Import Jadwal Mengajar
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="modal-note p-3 mb-4">
+                                    <h6 class="mb-2"><i class="bx bx-info-circle me-1"></i>Instruksi</h6>
+                                    <ol class="mb-0 ps-3">
+                                        <li>Unduh template file Excel dengan mengklik tombol "Unduh Template".</li>
+                                        <li>Isi data jadwal sesuai format pada template.</li>
+                                        <li>Simpan kembali file dalam format Excel.</li>
+                                        <li>Upload file ke periode yang sedang dipilih.</li>
+                                    </ol>
+                                </div>
 
-                        <table class="table table-bordered table-sm">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Kolom</th>
-                                    <th>Tipe</th>
-                                    <th>Keterangan</th>
-                                    <th>Wajib</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><code>school_scod</code></td>
-                                    <td>Angka</td>
-                                    <td>Kode SCOD madrasah</td>
-                                    <td><span class="badge bg-danger">Ya</span></td>
-                                </tr>
-                                <tr>
-                                    <td><code>teacher_nuist_id</code></td>
-                                    <td>Angka</td>
-                                    <td>NUist ID guru</td>
-                                    <td><span class="badge bg-danger">Ya</span></td>
-                                </tr>
-                                <tr>
-                                    <td><code>day</code></td>
-                                    <td>Teks</td>
-                                    <td>Senin sampai Sabtu</td>
-                                    <td><span class="badge bg-danger">Ya</span></td>
-                                </tr>
-                                <tr>
-                                    <td><code>subject</code></td>
-                                    <td>Teks</td>
-                                    <td>Mata pelajaran</td>
-                                    <td><span class="badge bg-danger">Ya</span></td>
-                                </tr>
-                                <tr>
-                                    <td><code>class_name</code></td>
-                                    <td>Teks</td>
-                                    <td>Nama kelas</td>
-                                    <td><span class="badge bg-danger">Ya</span></td>
-                                </tr>
-                                <tr>
-                                    <td><code>start_time</code></td>
-                                    <td>Jam</td>
-                                    <td>Format HH:MM</td>
-                                    <td><span class="badge bg-danger">Ya</span></td>
-                                </tr>
-                                <tr>
-                                    <td><code>end_time</code></td>
-                                    <td>Jam</td>
-                                    <td>Format HH:MM</td>
-                                    <td><span class="badge bg-danger">Ya</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                <div class="modal-panel-title mb-3">Format Data</div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm align-middle import-table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Kolom</th>
+                                                <th>Tipe</th>
+                                                <th>Keterangan</th>
+                                                <th>Wajib</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>school_scod</code></td>
+                                                <td>Angka</td>
+                                                <td>Kode SCOD madrasah</td>
+                                                <td><span class="badge bg-danger">Ya</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>teacher_nuist_id</code></td>
+                                                <td>Angka</td>
+                                                <td>NUist ID guru</td>
+                                                <td><span class="badge bg-danger">Ya</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>day</code></td>
+                                                <td>Teks</td>
+                                                <td>Senin sampai Sabtu</td>
+                                                <td><span class="badge bg-danger">Ya</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>subject</code></td>
+                                                <td>Teks</td>
+                                                <td>Mata pelajaran</td>
+                                                <td><span class="badge bg-danger">Ya</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>class_name</code></td>
+                                                <td>Teks</td>
+                                                <td>Nama kelas</td>
+                                                <td><span class="badge bg-danger">Ya</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>start_time</code></td>
+                                                <td>Jam</td>
+                                                <td>Format HH:MM</td>
+                                                <td><span class="badge bg-danger">Ya</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>end_time</code></td>
+                                                <td>Jam</td>
+                                                <td>Format HH:MM</td>
+                                                <td><span class="badge bg-danger">Ya</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="modal-note modal-note-warning p-3 mt-4">
+                                    <h6 class="mb-2"><i class="bx bx-error-circle me-1"></i>Catatan</h6>
+                                    <ul class="mb-0 ps-3">
+                                        <li>Pastikan SCOD dan NUist ID guru sudah benar.</li>
+                                        <li>Jam selesai harus lebih besar dari jam mulai.</li>
+                                        <li>Validasi bentrok jadwal tetap dijalankan saat import.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="card border-primary">
-                            <div class="card-header bg-primary text-white">
-                                <h6 class="mb-0"><i class="bx bx-upload"></i> Upload File</h6>
+                    <div class="col-lg-5">
+                        <div class="modal-panel upload-panel">
+                            <div class="modal-panel-header">
+                                <div class="modal-panel-title">
+                                    <i class="bx bx-upload me-2"></i>Upload File
+                                </div>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body p-4">
                                 <form action="{{ route('teaching-schedules.process-import') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="school_id" value="{{ $school->id }}">
                                     <input type="hidden" name="teaching_schedule_period_id" value="{{ optional($selectedPeriod)->id }}">
                                     <div class="mb-3">
-                                        <label class="form-label">Periode Tujuan</label>
-                                        <input type="text" class="form-control" value="{{ $selectedPeriod ? $selectedPeriod->summary_label . ' | ' . $selectedPeriod->date_range_label : 'Pilih periode terlebih dahulu' }}" readonly>
+                                        <label class="form-label fw-semibold">Periode Tujuan</label>
+                                        <input type="text" class="form-control field-control" value="{{ $selectedPeriod ? $selectedPeriod->summary_label . ' | ' . $selectedPeriod->date_range_label : 'Pilih periode terlebih dahulu' }}" readonly>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="file" class="form-label">Pilih File Import</label>
-                                        <input type="file" class="form-control" id="file" name="file" accept=".csv,.xlsx,.xls" required>
-                                        <div class="form-text">Format: CSV, Excel (.xlsx, .xls) - Maksimal 10MB</div>
+                                        <label for="file" class="form-label fw-semibold">Pilih File Import</label>
+                                        <input type="file" class="form-control field-control" id="file" name="file" accept=".csv,.xlsx,.xls" required>
+                                        <div class="form-text mt-2">Format: CSV, Excel (.xlsx, .xls) - Maksimal 10MB</div>
                                     </div>
 
                                     <div class="d-grid gap-2">
-                                        <button type="submit" class="btn btn-primary" @disabled(!$selectedPeriod)>
-                                            <i class="bx bx-upload"></i> Import Data
+                                        <button type="submit" class="btn btn-primary btn-pill py-2" @disabled(!$selectedPeriod)>
+                                            <i class="bx bx-upload me-1"></i>Import Data
                                         </button>
-                                        <a href="{{ asset('template/teaching_schedule_import_template.xlsx') }}" class="btn btn-outline-secondary" download>
-                                            <i class="bx bx-download"></i> Unduh Template
+                                        <a href="{{ asset('template/teaching_schedule_import_template.xlsx') }}" class="btn btn-outline-secondary btn-pill py-2" download>
+                                            <i class="bx bx-download me-1"></i>Unduh Template
                                         </a>
                                     </div>
                                 </form>
