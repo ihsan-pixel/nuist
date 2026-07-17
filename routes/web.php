@@ -41,6 +41,172 @@ use App\Http\Controllers\PPDB\{
 |
 */
 
+/*
+|--------------------------------------------------------------------------
+| Sprint 1: Admin sekolah subdomain
+|--------------------------------------------------------------------------
+|
+| This host is intentionally limited to the existing admin dashboard area.
+| Old routes on the primary host remain unchanged. Anything outside the
+| Sprint 1 allowlist falls back to the primary host so excluded modules
+| such as Presensi, PPDB, MGMP, and Payment stay on their current host.
+|
+*/
+Route::domain('sekolah.nuist.id')->group(function () {
+    Route::get('/', function () {
+        return redirect('/dashboard');
+    });
+
+    Route::get('/storage/{path}', function (string $path) {
+        $normalizedPath = ltrim($path, '/');
+
+        if ($normalizedPath === '' || str_contains($normalizedPath, '..')) {
+            abort(404);
+        }
+
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+        if (! $disk->exists($normalizedPath)) {
+            abort(404);
+        }
+
+        return response()->file($disk->path($normalizedPath), [
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    })->where('path', '.*');
+
+    Route::middleware(['guest'])->group(function () {
+        Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
+        Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'])
+            ->middleware('throttle:6,1');
+        Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'showRegistrationForm']);
+        Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'register']);
+        Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
+        Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail']);
+        Route::get('/password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm']);
+        Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset']);
+    });
+
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+            ->middleware('throttle:10,1');
+
+        Route::get('/email/verify', [App\Http\Controllers\Auth\VerificationController::class, 'show'])
+            ->name('verification.notice.sekolah');
+        Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])
+            ->middleware('signed')
+            ->name('verification.verify.sekolah');
+        Route::post('/email/resend', [App\Http\Controllers\Auth\VerificationController::class, 'resend'])
+            ->name('verification.resend.sekolah');
+        Route::get('/password/confirm', [App\Http\Controllers\Auth\ConfirmPasswordController::class, 'showConfirmForm']);
+        Route::post('/password/confirm', [App\Http\Controllers\Auth\ConfirmPasswordController::class, 'confirm']);
+
+        Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])
+            ->middleware('throttle:5,1')
+            ->whereNumber('id');
+
+        Route::get('/dashboard', [DashboardController::class, 'index']);
+
+        Route::middleware(['role:super_admin,admin,pengurus'])->prefix('masterdata')->group(function () {
+            Route::get('/admin', [AdminController::class, 'index']);
+            Route::post('/admin/store', [AdminController::class, 'store']);
+            Route::post('/admin/import', [AdminController::class, 'import']);
+            Route::put('/admin/update/{id}', [AdminController::class, 'update']);
+            Route::delete('/admin/{admin}', [AdminController::class, 'destroy'])
+                ->whereNumber('admin');
+
+            Route::get('/madrasah', [MadrasahController::class, 'index']);
+            Route::post('/madrasah/store', [MadrasahController::class, 'store']);
+            Route::put('/madrasah/update/{id}', [MadrasahController::class, 'update']);
+            Route::delete('/madrasah/destroy/{id}', [MadrasahController::class, 'destroy']);
+            Route::post('/madrasah/import', [MadrasahController::class, 'import']);
+
+            Route::get('/tenaga-pendidik', [TenagaPendidikController::class, 'index']);
+            Route::post('/tenaga-pendidik/store', [TenagaPendidikController::class, 'store']);
+            Route::put('/tenaga-pendidik/update/{id}', [TenagaPendidikController::class, 'update']);
+            Route::delete('/tenaga-pendidik/destroy/{id}', [TenagaPendidikController::class, 'destroy']);
+            Route::post('/tenaga-pendidik/import', [TenagaPendidikController::class, 'import']);
+
+            Route::get('/jumlah-siswa-kelas', [TeachingClassStudentCountController::class, 'index']);
+            Route::post('/jumlah-siswa-kelas', [TeachingClassStudentCountController::class, 'store']);
+            Route::put('/jumlah-siswa-kelas/{classStudentCount}', [TeachingClassStudentCountController::class, 'update']);
+        });
+
+        Route::middleware(['role:super_admin,admin,pengurus,tenaga_pendidik'])->group(function () {
+            Route::get('teaching-schedules', [TeachingScheduleController::class, 'index']);
+            Route::get('teaching-schedules/create', [TeachingScheduleController::class, 'create']);
+            Route::post('teaching-schedules', [TeachingScheduleController::class, 'store']);
+            Route::get('teaching-schedules/{teaching_schedule}/edit', [TeachingScheduleController::class, 'edit']);
+            Route::put('teaching-schedules/{teaching_schedule}', [TeachingScheduleController::class, 'update']);
+            Route::delete('teaching-schedules/{teaching_schedule}', [TeachingScheduleController::class, 'destroy']);
+            Route::get('teaching-schedules/get-teachers/{schoolId}', [TeachingScheduleController::class, 'getTeachersBySchool']);
+            Route::get('teaching-schedules/import', [TeachingScheduleController::class, 'import']);
+            Route::post('teaching-schedules/import', [TeachingScheduleController::class, 'processImport']);
+            Route::get('teaching-schedules/school/{schoolId}/schedules', [TeachingScheduleController::class, 'showSchoolSchedules']);
+            Route::delete('teaching-schedules/school/{schoolId}/schedules', [TeachingScheduleController::class, 'destroySchoolSchedules']);
+            Route::get('teaching-schedules/school/{schoolId}/classes', [TeachingScheduleController::class, 'showSchoolClasses']);
+            Route::post('teaching-schedules/filter', [TeachingScheduleController::class, 'filter']);
+        });
+
+        Route::middleware(['role:super_admin,admin'])->group(function () {
+            Route::get('academic-calendar-events', [AcademicCalendarEventController::class, 'index']);
+            Route::get('academic-calendar-events/create', [AcademicCalendarEventController::class, 'create']);
+            Route::post('academic-calendar-events', [AcademicCalendarEventController::class, 'store']);
+            Route::get('academic-calendar-events/{academic_calendar_event}/edit', [AcademicCalendarEventController::class, 'edit']);
+            Route::put('academic-calendar-events/{academic_calendar_event}', [AcademicCalendarEventController::class, 'update']);
+            Route::delete('academic-calendar-events/{academic_calendar_event}', [AcademicCalendarEventController::class, 'destroy']);
+
+            Route::get('picket-schedule-periods', [PicketScheduleController::class, 'index']);
+            Route::get('picket-schedule-periods/create', [PicketScheduleController::class, 'create']);
+            Route::post('picket-schedule-periods', [PicketScheduleController::class, 'store']);
+            Route::get('picket-schedule-periods/{picket_schedule_period}/edit', [PicketScheduleController::class, 'edit']);
+            Route::put('picket-schedule-periods/{picket_schedule_period}', [PicketScheduleController::class, 'update']);
+            Route::delete('picket-schedule-periods/{picket_schedule_period}', [PicketScheduleController::class, 'destroy']);
+        });
+
+        Route::prefix('sk-yayasan')->name('sekolah.sk-yayasan.')->group(function () {
+            Route::get('/dokumen/{document}/download', [SkYayasanController::class, 'downloadDocument'])->name('documents.download');
+            Route::get('/import-batches/{batch}/attachments/{type}', [SkYayasanController::class, 'downloadImportBatchAttachment'])->name('import-batches.attachments.download');
+
+            Route::middleware(['role:admin'])->group(function () {
+                Route::get('/perpanjangan', [SkYayasanController::class, 'schoolIndex'])->name('sekolah.index');
+                Route::post('/perpanjangan', [SkYayasanController::class, 'storeSchoolSubmission'])->name('sekolah.store');
+                Route::patch('/perpanjangan/import-batches/{batch}', [SkYayasanController::class, 'updateRejectedSchoolSubmission'])->name('sekolah.import-batches.update');
+                Route::patch('/perpanjangan/import-batches/{batch}/rows', [SkYayasanController::class, 'updateSchoolImportBatchRows'])->name('sekolah.import-batches.rows.update');
+                Route::get('/perpanjangan/template-import', [SkYayasanController::class, 'schoolImportTemplate'])->name('sekolah.template-import');
+                Route::post('/perpanjangan/import', [SkYayasanController::class, 'importSchoolUsers'])->name('sekolah.import');
+            });
+        });
+
+        Route::prefix('data-sekolah')->middleware(['role:super_admin,admin,admin_spp,pengurus'])->group(function () {
+            Route::get('/siswa', [App\Http\Controllers\DataSekolahController::class, 'siswa']);
+            Route::get('/guru', [App\Http\Controllers\DataSekolahController::class, 'guru']);
+            Route::post('/update-siswa/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateSiswa']);
+            Route::post('/update-guru/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateGuru']);
+            Route::get('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'index']);
+            Route::get('/data-siswa/export-upload-summary', [App\Http\Controllers\DataSiswaController::class, 'exportUploadSummary']);
+            Route::get('/data-siswa/export-complete', [App\Http\Controllers\DataSiswaController::class, 'exportComplete']);
+            Route::post('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'store']);
+            Route::put('/data-siswa/bulk-update', [App\Http\Controllers\DataSiswaController::class, 'bulkUpdate']);
+            Route::put('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'update']);
+            Route::delete('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'destroy']);
+            Route::post('/data-siswa/import', [App\Http\Controllers\DataSiswaController::class, 'import']);
+            Route::get('/data-siswa/template', [App\Http\Controllers\DataSiswaController::class, 'template']);
+        });
+    });
+
+    Route::fallback(function (\Illuminate\Http\Request $request) {
+        $primaryBaseUrl = rtrim((string) config('app.url'), '/');
+        $target = $primaryBaseUrl . $request->getRequestUri();
+
+        if (in_array($request->method(), ['GET', 'HEAD'], true)) {
+            return redirect()->away($target);
+        }
+
+        abort(404);
+    });
+});
+
 // Account Setting Routes
 Route::get('/account/login', [App\Http\Controllers\AccountSettingController::class, 'login'])
     ->middleware(['guest'])
