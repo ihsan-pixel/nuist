@@ -599,7 +599,6 @@
             display: flex;
         }
 
-        .selfie-modal.selfie-fullscreen-modal,
         .selfie-modal.face-scan-modal {
             padding: 0;
             align-items: stretch;
@@ -610,10 +609,10 @@
         .selfie-modal-dialog {
             position: relative;
             width: min(100%, 420px);
-            max-height: calc(100vh - 24px);
-            min-height: min(780px, calc(100vh - 24px));
+            max-height: min(92vh, 760px);
+            min-height: 0;
             background: #000;
-            border-radius: 32px;
+            border-radius: 24px;
             overflow: hidden;
             box-shadow: 0 28px 60px rgba(0, 0, 0, 0.42);
             display: flex;
@@ -621,7 +620,6 @@
             border: 1px solid rgba(148, 163, 184, 0.16);
         }
 
-        .selfie-fullscreen-mode.selfie-modal-dialog,
         .face-scan-mode.selfie-modal-dialog {
             width: 100vw;
             max-width: 100vw;
@@ -635,26 +633,34 @@
 
         .selfie-modal-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             gap: 10px;
-            padding: 18px 18px 10px;
+            padding: 18px 18px 12px;
             border-bottom: none;
         }
 
         .selfie-modal-title {
-            font-size: 0;
+            font-size: 17px;
+            line-height: 1.25;
+            font-weight: 700;
+            color: #f8fafc;
             margin: 0;
         }
 
         .selfie-modal-subtitle {
-            display: none;
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: rgba(226, 232, 240, 0.74);
         }
 
         .selfie-modal-actions {
             display: inline-flex;
             align-items: center;
             gap: 0;
+            margin-left: auto;
         }
 
         .selfie-modal-close {
@@ -694,7 +700,6 @@
             display: none !important;
         }
 
-        .selfie-fullscreen-mode .selfie-modal-header,
         .face-scan-mode .selfie-modal-header {
             position: absolute;
             top: 0;
@@ -706,19 +711,14 @@
             min-height: 56px;
         }
 
-        .selfie-fullscreen-mode .selfie-modal-close,
         .face-scan-mode .selfie-modal-close {
             position: absolute;
             top: 18px;
             left: 16px;
             z-index: 6;
-        }
-
-        .selfie-fullscreen-mode .selfie-modal-close {
             color: #fff;
         }
 
-        .selfie-fullscreen-mode .selfie-modal-actions,
         .face-scan-mode .selfie-modal-actions {
             position: absolute;
             top: 18px;
@@ -726,20 +726,29 @@
             z-index: 6;
         }
 
+        .face-scan-mode .selfie-modal-title {
+            font-size: 0;
+        }
+
+        .face-scan-mode .selfie-modal-subtitle {
+            display: none;
+        }
+
         .selfie-modal-body {
-            padding: 6px 18px 18px;
+            padding: 0 18px 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
             flex: 1;
+            gap: 14px;
         }
 
-        .selfie-fullscreen-mode .selfie-modal-body,
         .face-scan-mode .selfie-modal-body {
             padding: 0;
             overflow: hidden;
             align-items: stretch;
+            gap: 0;
         }
 
         .face-scan-onboarding {
@@ -921,7 +930,7 @@
             color: rgba(226, 232, 240, 0.68);
             text-align: center;
             font-size: 12px;
-            margin-top: 12px;
+            margin-top: 0;
         }
 
         .selfie-status-banner span {
@@ -930,8 +939,9 @@
             justify-content: center;
             min-height: 42px;
             padding: 10px 16px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.14);
+            width: 100%;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.5);
             color: rgba(255, 255, 255, 0.94);
             line-height: 1.4;
             backdrop-filter: blur(14px);
@@ -941,46 +951,51 @@
             position: relative;
             width: 100%;
             overflow: hidden;
-            background: transparent;
-            border: 0;
-            min-height: 540px;
-            padding: 12px 0 0;
+            background: #020617;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 24px;
+            min-height: 0;
+            aspect-ratio: 3 / 4;
+            max-height: min(56vh, 520px);
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
         }
 
-        .selfie-fullscreen-mode .selfie-status-banner,
         .face-scan-mode .selfie-status-banner {
             display: none;
         }
 
-        .selfie-fullscreen-mode .selfie-stage,
         .face-scan-mode .selfie-stage {
             min-height: 100vh;
+            max-height: none;
+            aspect-ratio: auto;
+            border-radius: 0;
+            border: 0;
             padding: 0;
         }
 
         .selfie-camera-layer {
             position: relative;
             width: 100%;
-            min-height: 540px;
+            min-height: 0;
+            height: 100%;
             z-index: 0;
         }
 
-        .selfie-fullscreen-mode .selfie-camera-layer,
         .face-scan-mode .selfie-camera-layer {
             min-height: 100vh;
         }
 
-        .selfie-fullscreen-mode .selfie-placeholder {
+        .face-scan-mode .selfie-placeholder {
             background: #000;
         }
 
-        .selfie-fullscreen-mode .selfie-placeholder i,
-        .selfie-fullscreen-mode .selfie-placeholder strong,
-        .selfie-fullscreen-mode .selfie-placeholder span {
+        .face-scan-mode .selfie-placeholder i,
+        .face-scan-mode .selfie-placeholder strong,
+        .face-scan-mode .selfie-placeholder span {
             display: none;
         }
 
@@ -1385,12 +1400,11 @@
             right: 0;
             bottom: 0;
             z-index: 3;
-            padding: 0 8px 120px;
+            padding: 0 12px 18px;
             display: flex;
             justify-content: center;
         }
 
-        .selfie-fullscreen-mode .selfie-stage-copy,
         .face-scan-mode .selfie-stage-copy {
             display: none;
         }
@@ -1457,16 +1471,14 @@
         }
 
         .selfie-modal-footer {
-            padding: 16px 18px 22px;
+            padding: 0 18px 18px;
             border-top: none;
             display: grid;
             grid-template-columns: 1fr;
             gap: 10px;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(17, 24, 39, 0.36) 100%);
-            backdrop-filter: blur(18px);
+            background: transparent;
         }
 
-        .selfie-fullscreen-mode .selfie-modal-footer,
         .face-scan-mode .selfie-modal-footer {
             position: absolute;
             left: 16px;
@@ -1479,8 +1491,8 @@
             gap: 12px;
         }
 
-        .selfie-fullscreen-mode .selfie-footer-title,
-        .selfie-fullscreen-mode .selfie-progress-meter,
+        .selfie-footer-title,
+        .selfie-progress-meter,
         .face-scan-mode .selfie-footer-title,
         .face-scan-mode .selfie-progress-meter {
             display: none;
