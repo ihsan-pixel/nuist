@@ -2752,6 +2752,8 @@ window.addEventListener('load', function() {
     // Face scan variables
     let selfieStream = null;
     let selfieCaptured = false;
+    let pendingSelfieData = '';
+    let earlyCheckoutConfirmed = false;
     let presensiSubmitInFlight = false;
     let presensiFinalAlertShown = false;
     const selfieModal = document.getElementById('selfie-modal');
@@ -2880,6 +2882,35 @@ window.addEventListener('load', function() {
         }
         statusElement.className = 'selfie-status-banner';
         statusElement.innerHTML = `<span>${message}</span>`;
+    }
+
+    async function confirmEarlyCheckoutIfNeeded() {
+        if (!isPresensiKeluar || !pulangStartSeconds || earlyCheckoutConfirmed) {
+            return true;
+        }
+
+        const now = new Date();
+        const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+        if (nowSeconds >= pulangStartSeconds) {
+            return true;
+        }
+
+        const res = await showFormalAlert({
+            title: 'Konfirmasi Presensi Pulang',
+            text: 'Anda akan melakukan presensi pulang sebelum waktu yang ditetapkan. Lanjutkan proses presensi?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Lanjutkan',
+            cancelButtonText: 'Batal'
+        });
+
+        if (res?.isConfirmed) {
+            earlyCheckoutConfirmed = true;
+            return true;
+        }
+
+        return false;
     }
 
     function isRetryableFaceScanError(message = '') {
@@ -3428,6 +3459,8 @@ window.addEventListener('load', function() {
 
         stopSelfieStream();
         selfieCaptured = false;
+        pendingSelfieData = '';
+        earlyCheckoutConfirmed = false;
         faceVerificationResult = null;
         faceScanAutoStarted = false;
         faceScanOnboardingAccepted = !faceScanRequired;
@@ -3657,6 +3690,11 @@ window.addEventListener('load', function() {
             hideFaceScanRetryButton();
         }
 
+        if (!faceScanRequired && selfieCaptured && pendingSelfieData.length >= 100) {
+            setSelfieStatus('Selfie sudah siap. Tekan Kirim Presensi untuk lanjut.');
+            return;
+        }
+
         if (captureBtn) {
             captureBtn.disabled = true;
             captureBtn.innerHTML = faceScanRequired
@@ -3720,6 +3758,7 @@ window.addEventListener('load', function() {
             if (selfieDataInput) {
                 selfieDataInput.value = faceVerificationResult.captured_image;
             }
+            pendingSelfieData = faceVerificationResult.captured_image;
             if (faceDescriptorInput) {
                 faceDescriptorInput.value = faceVerificationResult.face_descriptor ? JSON.stringify(faceVerificationResult.face_descriptor) : '';
             }
@@ -3881,7 +3920,15 @@ window.addEventListener('load', function() {
         }
 
         try {
+            const earlyCheckoutAllowed = await confirmEarlyCheckoutIfNeeded();
+            if (!earlyCheckoutAllowed) {
+                return;
+            }
+
             openSelfieModal();
+            if (isPresensiKeluar && pulangStartSeconds) {
+                earlyCheckoutConfirmed = true;
+            }
             if (faceScanRequired) {
                 return;
             }
@@ -3925,26 +3972,13 @@ window.addEventListener('load', function() {
         const latestLocationState = syncLatestLocationState();
         const presensiMode = isPresensiKeluar ? 'keluar' : 'masuk';
 
-        // If this action is a checkout and current time is before pulangStart, ask for confirmation
-        if (isPresensiKeluar && pulangStartSeconds) {
-            const now = new Date();
-            const nowSeconds = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
-            if (nowSeconds < pulangStartSeconds) {
-                const res = await showFormalAlert({
-                    title: 'Konfirmasi Presensi Pulang',
-                    text: 'Anda akan melakukan presensi pulang sebelum waktu yang ditetapkan. Lanjutkan proses presensi?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Lanjutkan',
-                    cancelButtonText: 'Batal'
-                });
-                if (!res.isConfirmed) {
-                    presensiSubmitInFlight = false;
-                    submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
-                    return; // user cancelled early checkout
-                }
-            }
+        const earlyCheckoutAllowed = await confirmEarlyCheckoutIfNeeded();
+        if (!earlyCheckoutAllowed) {
+            presensiSubmitInFlight = false;
+            submitButton.prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
+            return;
         }
+
         if (!latestLocationState.latitude || !latestLocationState.longitude) {
             showFormalErrorAlert(
                 'Lokasi Belum Siap',
@@ -3955,7 +3989,7 @@ window.addEventListener('load', function() {
             return;
         }
 
-        const selfieDataValue = document.getElementById('selfie-data').value;
+        const selfieDataValue = pendingSelfieData || document.getElementById('selfie-data').value;
         const faceDescriptorValue = document.getElementById('face-descriptor').value;
         const livenessScoreValue = document.getElementById('liveness-score').value;
         const livenessChallengesValue = document.getElementById('liveness-challenges').value;
