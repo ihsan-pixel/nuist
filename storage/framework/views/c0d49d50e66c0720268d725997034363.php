@@ -16,6 +16,12 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
+<?php
+    $isSpmbHost = request()->getHost() === 'spmb.nuist.id';
+    $loginAction = $isSpmbHost ? url('/login') : route('login');
+    $forgotPasswordUrl = $isSpmbHost ? url('/password/reset') : route('mobile.password.request');
+    $backUrl = $isSpmbHost ? url('/') : route('landing');
+?>
 <div class="login-container">
     <div class="login-wrapper">
         <!-- Form Section -->
@@ -25,7 +31,10 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" class="logo">
                 </div>
                 <h1 class="login-title">LOGIN</h1>
-                <p class="login-subtitle">Welcome back! Please sign in to your account.</p>
+                <p class="login-subtitle">
+                    <?php echo e($isSpmbHost ? 'Login Admin Sekolah untuk mengelola dashboard SPMB sekolah Anda.' : 'Welcome back! Please sign in to your account.'); ?>
+
+                </p>
 
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?>
                     <div class="alert alert-success">
@@ -41,7 +50,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <form class="login-form" method="POST" action="<?php echo e(route('login')); ?>">
+                <form class="login-form" method="POST" action="<?php echo e($loginAction); ?>">
                     <?php echo csrf_field(); ?>
                     <div class="form-group">
                         <label for="username" class="form-label">Email <span class="text-danger">*</span></label>
@@ -119,12 +128,14 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                 
 
                 <div class="mt-3 text-center">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if (! ($isSpmbHost)): ?>
                     <p class="mb-0">Don't have an account? <a href="<?php echo e(url('register')); ?>" class="text-primary">Register here</a></p>
-                    <a href="<?php echo e(route('mobile.password.request')); ?>">Forgot password?</a>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <a href="<?php echo e($forgotPasswordUrl); ?>">Forgot password?</a>
                 </div>
 
                 <div class="mt-2 text-center">
-                    <p class="mb-0"><a href="<?php echo e(route('landing')); ?>" class="text-primary">Kembali ke Halaman Utama</a></p>
+                    <p class="mb-0"><a href="<?php echo e($backUrl); ?>" class="text-primary"><?php echo e($isSpmbHost ? 'Kembali ke Halaman SPMB' : 'Kembali ke Halaman Utama'); ?></a></p>
                 </div>
 
                 <div class="footer-text">

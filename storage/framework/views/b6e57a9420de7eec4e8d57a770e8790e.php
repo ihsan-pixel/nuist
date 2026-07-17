@@ -85,10 +85,13 @@
                 </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$isAdmin): ?>
-                <form method="GET" action="<?php echo e(route('class-student-counts.index')); ?>" class="row g-2 align-items-end mb-3">
-                    <div class="col-md-5">
-                        <label class="form-label">Filter Madrasah/Sekolah</label>
+            <form method="GET" action="<?php echo e(route('class-student-counts.index')); ?>" class="row g-2 align-items-end mb-3">
+                <div class="col-md-5">
+                    <label class="form-label">Filter Madrasah/Sekolah</label>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isAdmin && $defaultSchool): ?>
+                        <input type="hidden" name="school_id" value="<?php echo e($defaultSchool->id); ?>">
+                        <input type="text" class="form-control" value="<?php echo e($defaultSchool->name); ?>" disabled>
+                    <?php else: ?>
                         <select name="school_id" class="form-select">
                             <option value="">Semua Madrasah/Sekolah</option>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $school): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
@@ -98,18 +101,41 @@
                                 </option>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                         </select>
-                    </div>
-                    <div class="col-md-auto">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bx bx-filter-alt"></i> Filter
-                        </button>
-                    </div>
-                    <div class="col-md-auto">
-                        <a href="<?php echo e(route('class-student-counts.index')); ?>" class="btn btn-outline-secondary">
-                            Reset
-                        </a>
-                    </div>
-                </form>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Filter Periode</label>
+                    <select name="period_id" class="form-select">
+                        <option value="">Pilih periode</option>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <option value="<?php echo e($period->id); ?>" <?php if(optional($selectedPeriod)->id === $period->id): echo 'selected'; endif; ?>>
+                                <?php echo e($period->semester_label); ?> <?php echo e($period->school_year); ?> | <?php echo e($period->date_range_label); ?>
+
+                            </option>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                    </select>
+                </div>
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-filter-alt"></i> Filter
+                    </button>
+                </div>
+                <div class="col-md-auto">
+                    <a href="<?php echo e(route('class-student-counts.index')); ?>" class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+                </div>
+            </form>
+
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selectedPeriod): ?>
+                <div class="alert alert-info">
+                    <strong><?php echo e($selectedPeriod->title); ?></strong><br>
+                    <small><?php echo e($selectedPeriod->semester_label); ?> | <?php echo e($selectedPeriod->school_year); ?> | Berlaku <?php echo e($selectedPeriod->date_range_label); ?></small>
+                </div>
+            <?php elseif($selectedSchoolId): ?>
+                <div class="alert alert-warning">
+                    Pilih atau buat periode jadwal mengajar terlebih dahulu agar data jumlah siswa per kelas dapat dikelola per tahun ajaran.
+                </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <div class="table-responsive">
@@ -202,6 +228,7 @@
                                             <?php echo method_field('PUT'); ?>
                                         <?php else: ?>
                                             <input type="hidden" name="school_id" value="<?php echo e($row['school_id']); ?>">
+                                            <input type="hidden" name="teaching_schedule_period_id" value="<?php echo e(optional($selectedPeriod)->id); ?>">
                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                         <div class="modal-content">
@@ -265,6 +292,7 @@
                     <div class="modal-body">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isAdmin && $defaultSchool): ?>
                             <input type="hidden" name="school_id" value="<?php echo e($defaultSchool->id); ?>">
+                            <input type="hidden" name="teaching_schedule_period_id" value="<?php echo e(optional($selectedPeriod)->id); ?>">
                             <div class="mb-3">
                                 <label class="form-label">Madrasah/Sekolah</label>
                                 <input type="text" class="form-control" value="<?php echo e($defaultSchool->name); ?>" disabled>
@@ -277,6 +305,18 @@
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $school): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                         <option value="<?php echo e($school->id); ?>" <?php if((int) old('school_id', $defaultSchool->id ?? null) === (int) $school->id): echo 'selected'; endif; ?>>
                                             <?php echo e($school->name); ?>
+
+                                        </option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Periode Jadwal</label>
+                                <select name="teaching_schedule_period_id" class="form-select" required>
+                                    <option value="">Pilih periode</option>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $periods; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <option value="<?php echo e($period->id); ?>" <?php if((int) old('teaching_schedule_period_id', optional($selectedPeriod)->id) === (int) $period->id): echo 'selected'; endif; ?>>
+                                            <?php echo e($period->semester_label); ?> <?php echo e($period->school_year); ?> | <?php echo e($period->date_range_label); ?>
 
                                         </option>
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>

@@ -368,6 +368,8 @@
     <?php
         $user = auth()->user();
         $userRole = $user ? $user->role : '';
+        $currentHost = request()->getHost();
+        $isTeacherMobileAliasHost = $currentHost === 'presensi.nuist.id';
 
         if ($userRole === 'pengurus') {
             // Routes for pengurus mobile navigation
@@ -394,6 +396,19 @@
             $showNav = request()->routeIs('mobile.dps.*');
         } else {
             $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
+            $teacherMobilePathPatterns = [
+                'mobile/dashboard',
+                'mobile/presensi',
+                'mobile/data-presensi',
+                'mobile/selfie-presensi',
+                'mobile/riwayat-presensi',
+                'mobile/riwayat-presensi/*',
+                'mobile/jadwal',
+                'mobile/jadwal/*',
+                'mobile/teaching-attendances',
+                'mobile/profile',
+                'mobile/ubah-akun',
+            ];
             $showNav = false;
             foreach ($menuRoutes as $route) {
                 if (request()->routeIs($route)) {
@@ -401,7 +416,27 @@
                     break;
                 }
             }
+            if (! $showNav && $isTeacherMobileAliasHost) {
+                foreach ($teacherMobilePathPatterns as $pattern) {
+                    if (request()->is($pattern)) {
+                        $showNav = true;
+                        break;
+                    }
+                }
+            }
         }
+
+        $teacherDashboardUrl = $isTeacherMobileAliasHost ? '/mobile/dashboard' : route('mobile.dashboard');
+        $teacherJadwalUrl = $isTeacherMobileAliasHost ? '/mobile/jadwal' : route('mobile.jadwal');
+        $teacherPresensiUrl = $isTeacherMobileAliasHost ? '/mobile/presensi' : route('mobile.presensi');
+        $teacherTeachingAttendanceUrl = $isTeacherMobileAliasHost ? '/mobile/teaching-attendances' : route('mobile.teaching-attendances');
+        $teacherProfileUrl = $isTeacherMobileAliasHost ? '/mobile/profile' : route('mobile.profile');
+
+        $isTeacherDashboardActive = request()->routeIs('mobile.dashboard') || ($isTeacherMobileAliasHost && request()->is('mobile/dashboard'));
+        $isTeacherJadwalActive = request()->routeIs('mobile.jadwal*') || ($isTeacherMobileAliasHost && request()->is('mobile/jadwal*'));
+        $isTeacherPresensiActive = request()->routeIs('mobile.presensi*') || ($isTeacherMobileAliasHost && (request()->is('mobile/presensi') || request()->is('mobile/data-presensi') || request()->is('mobile/selfie-presensi')));
+        $isTeacherTeachingAttendanceActive = request()->routeIs('mobile.teaching-attendances*') || ($isTeacherMobileAliasHost && request()->is('mobile/teaching-attendances'));
+        $isTeacherProfileActive = request()->routeIs('mobile.profile') || ($isTeacherMobileAliasHost && (request()->is('mobile/profile') || request()->is('mobile/ubah-akun')));
     ?>
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showNav): ?>
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'pengurus'): ?>
@@ -463,11 +498,11 @@
     <!-- Navigation for Tenaga Pendidik -->
     <nav class="mobile-nav d-md-none custom-bottom-nav">
         <div class="nav-container">
-            <a href="<?php echo e(route('mobile.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dashboard') ? 'active' : ''); ?>">
+            <a href="<?php echo e($teacherDashboardUrl); ?>" class="nav-link <?php echo e($isTeacherDashboardActive ? 'active' : ''); ?>">
                 <i class="bx bx-home"></i>
                 <span>Home</span>
             </a>
-            <a href="<?php echo e(route('mobile.jadwal')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.jadwal*') ? 'active' : ''); ?>">
+            <a href="<?php echo e($teacherJadwalUrl); ?>" class="nav-link <?php echo e($isTeacherJadwalActive ? 'active' : ''); ?>">
                 <i class="bx bx-history"></i>
                 <span>Jadwal</span>
             </a>
@@ -477,16 +512,16 @@
             </a>
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
-                <a href="<?php echo e(route('mobile.presensi')); ?>" class="center-action">
+                <a href="<?php echo e($teacherPresensiUrl); ?>" class="center-action <?php echo e($isTeacherPresensiActive ? 'active' : ''); ?>">
                     <i class="bx bx-scan"></i>
                 </a>
             </div>
 
-            <a href="<?php echo e(route('mobile.teaching-attendances')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.teaching-attendances*') ? 'active' : ''); ?>">
+            <a href="<?php echo e($teacherTeachingAttendanceUrl); ?>" class="nav-link <?php echo e($isTeacherTeachingAttendanceActive ? 'active' : ''); ?>">
                 <i class="bx bx-bar-chart"></i>
                 <span>Mengajar</span>
             </a>
-            <a href="<?php echo e(route('mobile.profile')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.profile') ? 'active' : ''); ?>">
+            <a href="<?php echo e($teacherProfileUrl); ?>" class="nav-link <?php echo e($isTeacherProfileActive ? 'active' : ''); ?>">
                 <i class="bx bx-user"></i>
                 <span>Profile</span>
             </a>

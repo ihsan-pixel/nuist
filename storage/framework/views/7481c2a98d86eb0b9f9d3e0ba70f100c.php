@@ -12,6 +12,13 @@
                 <div class="alert alert-success"><?php echo e(session('success')); ?></div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($selectedPeriod)): ?>
+                <div class="alert alert-info">
+                    <strong><?php echo e($selectedPeriod->title); ?></strong><br>
+                    <small><?php echo e($selectedPeriod->semester_label); ?> | <?php echo e($selectedPeriod->school_year); ?> | <?php echo e($selectedPeriod->date_range_label); ?></small>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                 <?php
                 $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                 ?>

@@ -355,7 +355,8 @@
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('import_errors')): ?>
                 <div class="alert alert-danger">
-                    <strong>Import gagal dengan <?php echo e(count(session('import_errors'))); ?> error(s):</strong>
+                    <strong>Import dibatalkan karena ditemukan <?php echo e(count(session('import_errors'))); ?> masalah.</strong>
+                    <div class="small mt-1">Tidak ada data yang disimpan. Periksa baris yang disebutkan di bawah, benahi file Excel, lalu import ulang.</div>
                     <ul class="mt-2 mb-0">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = session('import_errors'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <li><?php echo e($error); ?></li>
@@ -384,6 +385,7 @@
                                 <li>Isi data jadwal mengajar sesuai dengan format yang telah ditentukan.</li>
                                 <li>Simpan file dalam format Excel (.xlsx/.xls).</li>
                                 <li>Upload file yang telah diisi menggunakan form di bawah ini.</li>
+                                <li>Jika ada bentrok atau format salah, seluruh import akan ditolak agar data tidak tersimpan separuh.</li>
                             </ol>
                         </div>
 
@@ -413,7 +415,7 @@
                                 <tr>
                                     <td><code>day</code></td>
                                     <td>Teks</td>
-                                    <td>Hari: Senin, Selasa, Rabu, Kamis, Jumat, Sabtu</td>
+                                    <td>Hari: Senin, Selasa, Rabu, Kamis, Jumat, Sabtu. Huruf besar-kecil bebas, spasi awal/akhir tetap diterima</td>
                                     <td><span class="badge bg-danger">Ya</span></td>
                                 </tr>
                                 <tr>
@@ -430,14 +432,14 @@
                                 </tr>
                                 <tr>
                                     <td><code>start_time</code></td>
-                                    <td>Jam (HH:MM)</td>
-                                    <td>Jam mulai mengajar (contoh: 08:00)</td>
+                                    <td>Jam</td>
+                                    <td>Jam mulai mengajar. Mendukung 08:00, 08.00, 08,00, 0800, atau cell waktu Excel</td>
                                     <td><span class="badge bg-danger">Ya</span></td>
                                 </tr>
                                 <tr>
                                     <td><code>end_time</code></td>
-                                    <td>Jam (HH:MM)</td>
-                                    <td>Jam selesai mengajar (contoh: 09:00)</td>
+                                    <td>Jam</td>
+                                    <td>Jam selesai mengajar. Mendukung 09:00, 09.00, 09,00, 0900, atau cell waktu Excel</td>
                                     <td><span class="badge bg-danger">Ya</span></td>
                                 </tr>
                             </tbody>
@@ -448,8 +450,8 @@
                             <ul>
                                 <li>Pastikan Kode SCOD Madrasah dan NUist ID Guru sudah terdaftar dalam sistem.</li>
                                 <li>Jam selesai harus lebih besar dari jam mulai.</li>
-                                <li>Sistem akan mengecek konflik jadwal otomatis (guru yang sama pada hari dan jam yang sama).</li>
-                                <li>Data yang tidak valid akan dilewati dengan pesan error.</li>
+                                <li>Sistem akan mengecek konflik jadwal guru dan kelas secara otomatis.</li>
+                                <li>Jika ada baris yang bentrok atau format salah, seluruh import dibatalkan dan tidak ada data yang disimpan.</li>
                             </ul>
                         </div>
                     </div>
@@ -525,7 +527,7 @@ $(document).ready(function() {
         Swal.fire({
             icon: 'error',
             title: 'Import Gagal',
-            html: '<div style="text-align: left; white-space: pre-line;">' + errorList + '</div>',
+            html: '<div style="text-align:left;margin-bottom:10px;">Import dibatalkan. Tidak ada data yang disimpan.</div><div style="text-align: left; white-space: pre-line;">' + errorList + '</div>',
             confirmButtonText: 'Tutup'
         });
     <?php endif; ?>

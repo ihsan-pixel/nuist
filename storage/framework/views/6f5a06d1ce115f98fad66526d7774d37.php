@@ -380,6 +380,166 @@
         color: #98a2b3;
     }
 
+    .subdomain-showcase {
+        margin-bottom: 30px;
+        padding: 36px;
+        border-radius: 28px;
+        background:
+            radial-gradient(circle at top right, rgba(237, 167, 17, 0.16), transparent 28%),
+            linear-gradient(135deg, #ffffff, #f6fbf8);
+        border: 1px solid rgba(0, 75, 76, 0.08);
+        box-shadow: 0 18px 40px rgba(0, 75, 76, 0.08);
+    }
+
+    .subdomain-showcase-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .subdomain-showcase-head h3 {
+        margin-bottom: 10px;
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .subdomain-showcase-head p {
+        max-width: 720px;
+        margin-bottom: 0;
+    }
+
+    .subdomain-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 92px;
+        min-height: 92px;
+        padding: 18px;
+        border-radius: 28px;
+        background: #004b4c;
+        color: #ffffff;
+        text-align: center;
+        box-shadow: 0 18px 30px rgba(0, 75, 76, 0.18);
+    }
+
+    .subdomain-count strong {
+        display: block;
+        font-size: 32px;
+        line-height: 1;
+    }
+
+    .subdomain-count span {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.84;
+    }
+
+    .subdomain-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .subdomain-card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 24px;
+        border-radius: 22px;
+        background: #ffffff;
+        border: 1px solid rgba(0, 75, 76, 0.08);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .subdomain-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(21, 128, 61, 0.24);
+        box-shadow: 0 18px 34px rgba(0, 75, 76, 0.12);
+    }
+
+    .subdomain-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .subdomain-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 54px;
+        height: 54px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(0, 75, 76, 0.1), rgba(21, 128, 61, 0.14));
+        color: #004b4c;
+        font-size: 24px;
+    }
+
+    .subdomain-status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: rgba(22, 163, 74, 0.1);
+        color: #166534;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .subdomain-card h4 {
+        margin-bottom: 4px;
+        color: #004b4c;
+        font-size: 22px;
+        line-height: 1.2;
+    }
+
+    .subdomain-domain {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #f5f9f7;
+        color: #166534;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+
+    .subdomain-audience {
+        color: #004b4c;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .subdomain-card p {
+        margin-bottom: 0;
+        color: #6b7280;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .subdomain-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        color: #0f766e;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
     .animate {
         opacity: 0;
         transform: translateY(30px);
@@ -420,6 +580,20 @@
             grid-template-columns: 1fr;
         }
 
+        .subdomain-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .subdomain-showcase {
+            margin: 0 10px 24px;
+            padding: 24px;
+        }
+
+        .subdomain-showcase-head {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
         .produk-intro {
             margin-bottom: 36px;
         }
@@ -446,8 +620,15 @@
     }
 
     @media (max-width: 1200px) {
+        .subdomain-grid,
         .produk-list {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .subdomain-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -465,24 +646,25 @@
 
                 <div class="produk-metrics animate fade-up delay-1">
                     <div class="produk-metric">
-                        <strong><?php echo e(collect($productGroups)->sum(fn ($group) => count($group['products']))); ?></strong>
+                        <strong><?php echo e(collect($productGroups)->sum(fn ($group) => count($group['products'])) + count($subdomainProducts)); ?></strong>
                         <span>Total produk dan layanan</span>
                     </div>
                     <div class="produk-metric">
-                        <strong><?php echo e(collect($productGroups)->sum(fn ($group) => collect($group['products'])->where('status', 'LIVE')->count())); ?></strong>
+                        <strong><?php echo e(collect($productGroups)->sum(fn ($group) => collect($group['products'])->where('status', 'LIVE')->count()) + collect($subdomainProducts)->where('status', 'LIVE')->count()); ?></strong>
                         <span>Produk live dan siap digunakan</span>
                     </div>
                     <div class="produk-metric">
-                        <strong><?php echo e(count($productGroups)); ?></strong>
-                        <span>Kelompok kategori produk</span>
+                        <strong><?php echo e(count($subdomainProducts)); ?></strong>
+                        <span>Subdomain aktif tersedia</span>
                     </div>
                 </div>
 
                 <div class="produk-anchor-wrap animate fade-up delay-2">
                     <ul class="produk-anchor-list">
-                        <li><a href="<?php echo e(route('landing.produk')); ?>#group-1">Platform Utama</a></li>
-                        <li><a href="<?php echo e(route('landing.produk')); ?>#group-2">Layanan Pendidikan</a></li>
-                        <li><a href="<?php echo e(route('landing.produk')); ?>#group-3">Operasional &amp; Pengembangan</a></li>
+                        <li><a href="<?php echo e(route('landing.produk')); ?>#subdomain-aktif">Subdomain Aktif</a></li>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $productGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                            <li><a href="<?php echo e(route('landing.produk')); ?>#group-<?php echo e($index + 1); ?>"><?php echo e($group['title']); ?></a></li>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     </ul>
                 </div>
             </div>
@@ -491,6 +673,49 @@
 
     <section id="produk-content" class="produk-content">
         <div class="container">
+            <section class="subdomain-showcase animate fade-up" id="subdomain-aktif">
+                <div class="subdomain-showcase-head">
+                    <div>
+                        <span class="produk-group-kicker">Akses Langsung</span>
+                        <h3>Seluruh Subdomain NUIST</h3>
+                        <p>Berikut seluruh subdomain aktif yang saat ini tersedia dalam ekosistem NUIST. Setiap subdomain memakai project Laravel yang sama, tetapi memiliki fokus akses dan pengalaman penggunaan yang berbeda.</p>
+                    </div>
+                    <div class="subdomain-count">
+                        <div>
+                            <strong><?php echo e(count($subdomainProducts)); ?></strong>
+                            <span>Subdomain</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subdomain-grid">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $subdomainProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subdomainProduct): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                        <article class="subdomain-card">
+                            <div class="subdomain-card-head">
+                                <span class="subdomain-icon">
+                                    <i class='bx <?php echo e($subdomainProduct['icon']); ?>'></i>
+                                </span>
+                                <span class="subdomain-status"><?php echo e($subdomainProduct['status']); ?></span>
+                            </div>
+
+                            <div>
+                                <h4><?php echo e($subdomainProduct['name']); ?></h4>
+                                <span class="subdomain-domain"><?php echo e($subdomainProduct['domain']); ?></span>
+                            </div>
+
+                            <span class="subdomain-audience"><?php echo e($subdomainProduct['audience']); ?></span>
+                            <p><?php echo e($subdomainProduct['description']); ?></p>
+
+                            <a href="<?php echo e($subdomainProduct['url']); ?>" target="_blank" rel="noopener noreferrer" class="subdomain-link">
+                                Buka <?php echo e($subdomainProduct['domain']); ?>
+
+                                <i class='bx bx-up-right-arrow-alt'></i>
+                            </a>
+                        </article>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                </div>
+            </section>
+
             <div class="produk-group-grid">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $productGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                     <section class="produk-group-card animate fade-up" id="group-<?php echo e($index + 1); ?>">

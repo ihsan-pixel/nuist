@@ -86,6 +86,12 @@
                     <div class="col">
                         <h4 class="card-title mb-1">Presensi Mengajar Hari Ini</h4>
                         <p class="text-muted mb-0"><?php echo e(\Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY')); ?></p>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($activePeriod)): ?>
+                            <small class="text-muted d-block mt-1">
+                                <?php echo e($activePeriod->title); ?> | <?php echo e($activePeriod->semester_label); ?> | <?php echo e($activePeriod->school_year); ?> | <?php echo e($activePeriod->date_range_label); ?>
+
+                            </small>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <div class="col-auto">
                         <div class="text-end">

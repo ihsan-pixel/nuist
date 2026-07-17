@@ -19,7 +19,23 @@
 
             <ul class="nav-menu" id="landing-nav-menu">
                 <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}" data-nav-ajax="true">Beranda</a></li>
-                <li><a href="{{ route('landing.produk') }}" class="{{ request()->routeIs('landing.produk') ? 'active' : '' }}" data-nav-ajax="true">Produk</a></li>
+                <li class="nav-dropdown">
+                    <details class="nav-dropdown-details">
+                        <summary class="{{ request()->routeIs('landing.produk') ? 'active' : '' }}">
+                            <span>Produk</span>
+                            <i class='bx bx-chevron-down'></i>
+                        </summary>
+                        <div class="nav-submenu">
+                            <a href="{{ route('landing.produk') }}" class="{{ request()->routeIs('landing.produk') ? 'active' : '' }}" data-nav-ajax="true">Semua Produk</a>
+                            @foreach(($subdomainProducts ?? []) as $subdomainProduct)
+                                <a href="{{ $subdomainProduct['url'] }}" target="_blank" rel="noopener noreferrer">
+                                    <span>{{ $subdomainProduct['name'] }}</span>
+                                    <small>{{ $subdomainProduct['domain'] }}</small>
+                                </a>
+                            @endforeach
+                        </div>
+                    </details>
+                </li>
                 <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}" data-nav-ajax="true">Sekolah</a></li>
                 <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}" data-nav-ajax="true">Tentang</a></li>
                 <li><a href="{{ route('landing.kontak') }}" class="{{ request()->routeIs('landing.kontak') ? 'active' : '' }}" data-nav-ajax="true">Kontak</a></li>

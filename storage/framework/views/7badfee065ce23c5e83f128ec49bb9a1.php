@@ -2,10 +2,16 @@
 <?php $__env->startSection('subtitle', 'Jadwal Mengajar Saya'); ?>
 
 <?php $__env->startSection('content'); ?>
+<?php
+    $canManageSelectedPeriod = (bool) ($canManageSelectedPeriod ?? false);
+?>
 <div class="container py-3" style="max-width: 600px; margin: auto;">
     <div class="text-center mb-4">
         <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Jadwal Mengajar</h5>
-        <small class="text-muted" style="font-size: 12px;">Minggu Ini</small>
+        <small class="text-muted" style="font-size: 12px;">
+            <?php echo e($selectedPeriod ? $selectedPeriod->title . ' | ' . $selectedPeriod->semester_label . ' | ' . $selectedPeriod->school_year : 'Belum ada periode aktif'); ?>
+
+        </small>
     </div>
     <style>
         body {
@@ -396,9 +402,25 @@
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <a class="btn btn-success w-100 mb-3" href="<?php echo e(route('mobile.jadwal.create')); ?>">
-            <i class="bx bx-plus me-1"></i> Tambah Jadwal Mengajar
-        </a>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$activePeriod): ?>
+        <div class="alert alert-warning border-0 rounded-3 mb-3" style="background: rgba(255, 193, 7, 0.14); color: #8a6d03; border-radius: 12px; padding: 10px;">
+            <i class="bx bx-info-circle me-1"></i>Belum ada periode jadwal aktif per <?php echo e(now('Asia/Jakarta')->translatedFormat('d M Y')); ?>. Guru belum bisa input jadwal mandiri.
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canManageSelectedPeriod): ?>
+            <a class="btn btn-success w-100 mb-3" href="<?php echo e(route('mobile.jadwal.create', ['period_id' => optional($activePeriod)->id])); ?>">
+                <i class="bx bx-plus me-1"></i> Tambah Jadwal Mengajar
+            </a>
+        <?php elseif($activePeriod): ?>
+            <button class="btn btn-outline-secondary w-100 mb-3" type="button" disabled>
+                <i class="bx bx-lock-alt me-1"></i> Tambah Jadwal Hanya di Periode Aktif
+            </button>
+        <?php else: ?>
+            <button class="btn btn-outline-secondary w-100 mb-3" type="button" disabled>
+                <i class="bx bx-calendar-x me-1"></i> Belum Ada Periode Aktif
+            </button>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <!-- Day Indicator -->
         <div class="day-indicator">
@@ -438,7 +460,7 @@
 
                                 </div>
                             </div>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->teacher_id === auth()->id()): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->teacher_id === auth()->id() && $canManageSelectedPeriod): ?>
                                 <a class="btn btn-sm btn-outline-secondary" href="<?php echo e(route('mobile.jadwal.edit', $schedule->id)); ?>" style="white-space:nowrap;">
                                     <i class="bx bx-edit-alt"></i>
                                 </a>

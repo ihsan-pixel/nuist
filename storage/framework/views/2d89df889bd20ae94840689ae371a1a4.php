@@ -7,6 +7,12 @@
         <div class="text-center mb-4">
             <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Jurnal Mengajar</h5>
             <small class="text-muted" style="font-size: 12px;"><?php echo e(\Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY')); ?></small>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($activePeriod)): ?>
+                <div class="text-muted mt-1" style="font-size: 11px;">
+                    <?php echo e($activePeriod->title); ?> | <?php echo e($activePeriod->semester_label); ?> | <?php echo e($activePeriod->school_year); ?>
+
+                </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
         <div class="realtime-clock-card mb-3">
             

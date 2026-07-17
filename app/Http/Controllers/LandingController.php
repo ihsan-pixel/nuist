@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Mail;
 
 class LandingController extends Controller
 {
+    public function __construct()
+    {
+        view()->share('subdomainProducts', $this->subdomainProducts());
+    }
+
     /**
      * Show the landing page.
      *
@@ -52,6 +57,7 @@ class LandingController extends Controller
     public function produk()
     {
         $yayasan = Yayasan::find(1);
+        $subdomainProducts = $this->subdomainProducts();
 
         $productGroups = [
             [
@@ -79,7 +85,7 @@ class LandingController extends Controller
                         'status' => 'LIVE',
                         'icon' => 'bx-line-chart',
                         'description' => 'Pemantauan data madrasah, performa pengisian, dan ringkasan operasional untuk pengurus dan pengambil keputusan.',
-                        'link' => route('mobile.login'),
+                        'link' => 'https://admin.nuist.id',
                         'accent' => 'amber',
                     ],
                 ],
@@ -101,7 +107,7 @@ class LandingController extends Controller
                         'status' => 'LIVE',
                         'icon' => 'bx-group',
                         'description' => 'Ruang kolaborasi guru untuk berbagi materi, program, agenda, dan penguatan komunitas belajar.',
-                        'link' => route('mgmp.public'),
+                        'link' => 'https://mgmp.nuist.id',
                         'accent' => 'violet',
                     ],
                     [
@@ -109,7 +115,7 @@ class LandingController extends Controller
                         'status' => 'LIVE',
                         'icon' => 'bx-calendar-check',
                         'description' => 'Panel khusus administrator untuk monitoring kehadiran, rekap, dan pengelolaan kepatuhan presensi tenaga pendidik.',
-                        'link' => route('login'),
+                        'link' => 'https://presensi.nuist.id',
                         'accent' => 'rose',
                     ],
                 ],
@@ -131,7 +137,7 @@ class LandingController extends Controller
                         'status' => 'LIVE',
                         'icon' => 'bx-wallet',
                         'description' => 'Monitoring tagihan, pembayaran, dan operasional SPP siswa untuk mendukung ketertiban pembiayaan pendidikan.',
-                        'link' => route('spp-operator.register'),
+                        'link' => 'https://keuangan.nuist.id',
                         'accent' => 'orange',
                     ],
                     [
@@ -146,7 +152,7 @@ class LandingController extends Controller
             ],
         ];
 
-        return view('landing.produk', compact('yayasan', 'productGroups'));
+        return view('landing.produk', compact('yayasan', 'productGroups', 'subdomainProducts'));
     }
 
     /**
@@ -339,5 +345,65 @@ class LandingController extends Controller
         }
 
         return redirect()->back()->with('error', 'Tidak ada penerima pesan. Silakan coba lagi nanti.');
+    }
+
+    private function subdomainProducts(): array
+    {
+        return [
+            [
+                'name' => 'Dashboard Sekolah',
+                'domain' => 'sekolah.nuist.id',
+                'url' => 'https://sekolah.nuist.id',
+                'icon' => 'bx-building-house',
+                'audience' => 'Admin Sekolah',
+                'description' => 'Akses dashboard utama admin sekolah dengan modul operasional sekolah yang sudah berjalan di NUIST.',
+                'status' => 'LIVE',
+            ],
+            [
+                'name' => 'MGMP',
+                'domain' => 'mgmp.nuist.id',
+                'url' => 'https://mgmp.nuist.id',
+                'icon' => 'bx-group',
+                'audience' => 'Guru & Komunitas MGMP',
+                'description' => 'Subdomain khusus kolaborasi MGMP untuk agenda, data anggota, dan aktivitas komunitas belajar.',
+                'status' => 'LIVE',
+            ],
+            [
+                'name' => 'Keuangan',
+                'domain' => 'keuangan.nuist.id',
+                'url' => 'https://keuangan.nuist.id',
+                'icon' => 'bx-wallet-alt',
+                'audience' => 'UPPM & Operator SPP',
+                'description' => 'Akses layanan keuangan untuk pengelolaan SPP siswa dan operasional pembiayaan sekolah.',
+                'status' => 'LIVE',
+            ],
+            [
+                'name' => 'Dashboard Super Admin',
+                'domain' => 'admin.nuist.id',
+                'url' => 'https://admin.nuist.id',
+                'icon' => 'bx-shield-quarter',
+                'audience' => 'Super Admin',
+                'description' => 'Subdomain khusus super admin untuk monitoring lintas modul dan pengelolaan akses tingkat pusat.',
+                'status' => 'LIVE',
+            ],
+            [
+                'name' => 'SPMB / PPDB',
+                'domain' => 'spmb.nuist.id',
+                'url' => 'https://spmb.nuist.id',
+                'icon' => 'bx-user-plus',
+                'audience' => 'Admin Sekolah',
+                'description' => 'Portal pendaftaran peserta didik baru dengan dashboard PPDB sekolah dan halaman publik pendaftaran.',
+                'status' => 'LIVE',
+            ],
+            [
+                'name' => 'Presensi Mobile',
+                'domain' => 'presensi.nuist.id',
+                'url' => 'https://presensi.nuist.id',
+                'icon' => 'bx-mobile',
+                'audience' => 'Tenaga Pendidik',
+                'description' => 'Akses mobile penuh untuk presensi tenaga pendidik, dashboard mobile, dan alur kerja kehadiran.',
+                'status' => 'LIVE',
+            ],
+        ];
     }
 }

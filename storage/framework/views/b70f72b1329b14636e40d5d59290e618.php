@@ -6,9 +6,9 @@
         <div class="d-flex align-items-center justify-content-between px-2 py-2">
             <div>
                 <div class="fw-semibold"><?php echo e($isEditing ? 'Edit Jadwal Mengajar' : 'Tambah Jadwal Mengajar'); ?></div>
-                <div class="text-muted small">Pilih kelas dari daftar atau ketik kelas baru</div>
+                <div class="text-muted small">Input mandiri hanya untuk periode aktif saat ini</div>
             </div>
-            <a class="btn btn-sm btn-outline-secondary" href="<?php echo e(route('mobile.jadwal')); ?>">
+            <a class="btn btn-sm btn-outline-secondary" href="<?php echo e(route('mobile.jadwal', ['period_id' => optional($selectedPeriod)->id])); ?>">
                 <i class="bx bx-arrow-back"></i>
             </a>
         </div>
@@ -35,8 +35,21 @@
             <?php echo method_field('PUT'); ?>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selectedPeriod): ?>
+            <input type="hidden" name="period_id" value="<?php echo e($selectedPeriod->id); ?>">
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
         <div class="card mb-3">
             <div class="card-body">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selectedPeriod): ?>
+                    <div class="alert alert-info mb-3">
+                        <div class="fw-semibold"><?php echo e($selectedPeriod->title); ?></div>
+                        <div class="small"><?php echo e($selectedPeriod->semester_label); ?> | <?php echo e($selectedPeriod->school_year); ?></div>
+                        <div class="small">Berlaku <?php echo e($selectedPeriod->date_range_label); ?></div>
+                        <div class="small mt-1">Jadwal guru akan disimpan pada periode aktif ini dan bentrok jadwal akan ditolak otomatis.</div>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                 <?php
                     $subjectValue = old('subject', optional($schedule)->subject ?? '');
                     $classValue = old('class_name', optional($schedule)->class_name ?? '');
