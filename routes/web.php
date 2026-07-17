@@ -451,6 +451,768 @@ Route::domain('keuangan.nuist.id')->group(function () {
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| Super admin subdomain
+|--------------------------------------------------------------------------
+|
+| Host alias for the existing super admin portal. This keeps the current
+| controllers, middleware, and views intact while exposing the main
+| super_admin menus on admin.nuist.id. Existing routes on the primary host
+| remain unchanged.
+|
+*/
+Route::domain('admin.nuist.id')->group(function () {
+    $superAdminHomeRedirect = function () {
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
+        $user = Auth::user();
+        $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
+
+        if ($normalizedRole === 'super_admin') {
+            return redirect('/dashboard');
+        }
+
+        return redirect()->away(rtrim((string) config('app.url'), '/') . '/dashboard');
+    };
+
+    Route::get('/', $superAdminHomeRedirect);
+
+    Route::get('/csrf-token', function () {
+        return response()->json(['token' => csrf_token()]);
+    });
+
+    Route::middleware(['guest'])->group(function () {
+        Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
+        Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'])
+            ->middleware('throttle:6,1');
+        Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
+        Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail']);
+        Route::get('/password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm']);
+        Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset']);
+    });
+
+    Route::middleware(['auth'])->group(function () use ($superAdminHomeRedirect) {
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->middleware('role:super_admin');
+        Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+            ->middleware('throttle:10,1');
+        Route::get('/email/verify', [App\Http\Controllers\Auth\VerificationController::class, 'show']);
+        Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])
+            ->middleware('signed');
+        Route::post('/email/resend', [App\Http\Controllers\Auth\VerificationController::class, 'resend'])
+            ->middleware('throttle:6,1');
+        Route::get('/password/confirm', [App\Http\Controllers\Auth\ConfirmPasswordController::class, 'showConfirmForm']);
+        Route::post('/password/confirm', [App\Http\Controllers\Auth\ConfirmPasswordController::class, 'confirm']);
+        Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])
+            ->middleware('throttle:5,1')
+            ->whereNumber('id');
+        Route::post('/clear-cache', function () {
+            try {
+                \Artisan::call('cache:clear');
+                \Artisan::call('config:clear');
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cache berhasil dibersihkan',
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membersihkan cache: ' . $e->getMessage(),
+                ], 500);
+            }
+        })->middleware(['role:super_admin', 'throttle:5,1']);
+
+        Route::middleware(['role:super_admin'])->group(function () {
+            Route::get('/dashboard', [DashboardController::class, 'index']);
+
+            Route::get('/teaching-progress', [App\Http\Controllers\TeachingProgressController::class, 'index']);
+            Route::get('/teaching-progress/madrasah/{madrasahId}/teachers', [App\Http\Controllers\TeachingProgressController::class, 'getMadrasahTeachers']);
+
+            Route::get('/development-history', [DevelopmentHistoryController::class, 'index']);
+            Route::get('/development-history/sync', [DevelopmentHistoryController::class, 'syncMigrations']);
+            Route::get('/development-history/export/{format}', [DevelopmentHistoryController::class, 'export']);
+            Route::post('/admin/run-commit-tracking', [DevelopmentHistoryController::class, 'runCommitTracking']);
+            Route::post('/admin/regenerate-documentation', [DevelopmentHistoryController::class, 'regenerateDocumentation']);
+            Route::get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'index']);
+
+            Route::get('/fake-location', [App\Http\Controllers\FakeLocationController::class, 'index']);
+            Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index']);
+
+            Route::get('/app-settings', [App\Http\Controllers\AppSettingsController::class, 'index']);
+            Route::put('/app-settings', [App\Http\Controllers\AppSettingsController::class, 'update']);
+            Route::post('/app-settings/update-version', [App\Http\Controllers\AppSettingsController::class, 'updateVersion']);
+            Route::post('/app-settings/check-updates', [App\Http\Controllers\AppSettingsController::class, 'checkForUpdates'])
+                ->middleware('throttle:5,1');
+            Route::post('/app-settings/turn-off-debug', [App\Http\Controllers\AppSettingsController::class, 'turnOffDebug']);
+
+            Route::get('/presensi-admin/settings', [PresensiAdminController::class, 'settings']);
+            Route::post('/presensi-admin/settings', [PresensiAdminController::class, 'updateSettings']);
+            Route::get('/presensi-admin/kiosk-devices', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'index']);
+            Route::post('/presensi-admin/kiosk-devices', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'store']);
+            Route::delete('/presensi-admin/kiosk-devices/{device}', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'destroy']);
+            Route::patch('/presensi-admin/kiosk-devices/{device}/toggle', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'toggle']);
+            Route::post('/presensi-admin/kiosk-devices/{device}/sync-ip', [App\Http\Controllers\Admin\AttendanceKioskDeviceController::class, 'syncCurrentIp']);
+            Route::get('/presensi-admin', [PresensiAdminController::class, 'index']);
+            Route::get('/presensi-admin/data', [PresensiAdminController::class, 'getData']);
+            Route::get('/presensi-admin/summary', [PresensiAdminController::class, 'getSummary']);
+            Route::get('/presensi-admin/detail/{userId}', [PresensiAdminController::class, 'getDetail']);
+            Route::get('/presensi-admin/madrasah-detail/{madrasahId}', [PresensiAdminController::class, 'getMadrasahDetail']);
+            Route::get('/presensi-admin/madrasah/{madrasahId}', [PresensiAdminController::class, 'showMadrasahDetail']);
+            Route::get('/presensi-admin/export', [PresensiAdminController::class, 'export']);
+            Route::get('/presensi-admin/export-madrasah/{madrasahId}', [PresensiAdminController::class, 'exportMadrasah']);
+            Route::get('/presensi-admin/export-excel', [PresensiAdminController::class, 'exportExcel']);
+            Route::get('/admin/presensi_admin/laporan-mingguan', [PresensiAdminController::class, 'laporanMingguan']);
+            Route::get('/presensi/rekap/pdf/{madrasahId}/{bulan}', [PresensiController::class, 'pdfRekap']);
+
+            Route::resource('teaching-schedules', App\Http\Controllers\TeachingScheduleController::class);
+            Route::get('teaching-schedules/get-teachers/{schoolId}', [App\Http\Controllers\TeachingScheduleController::class, 'getTeachersBySchool']);
+            Route::get('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'import']);
+            Route::post('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'processImport']);
+            Route::get('teaching-schedules/school/{schoolId}/schedules', [App\Http\Controllers\TeachingScheduleController::class, 'showSchoolSchedules']);
+            Route::delete('teaching-schedules/school/{schoolId}/schedules', [App\Http\Controllers\TeachingScheduleController::class, 'destroySchoolSchedules']);
+            Route::get('teaching-schedules/school/{schoolId}/classes', [App\Http\Controllers\TeachingScheduleController::class, 'showSchoolClasses']);
+            Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter']);
+
+            Route::resource('academic-calendar-events', AcademicCalendarEventController::class)->except(['show']);
+            Route::resource('picket-schedule-periods', PicketScheduleController::class)->except(['show']);
+
+            Route::prefix('masterdata')->group(function () {
+                Route::get('/admin', [AdminController::class, 'index']);
+                Route::post('/admin/store', [AdminController::class, 'store']);
+                Route::post('/admin/import', [AdminController::class, 'import']);
+                Route::put('/admin/update/{id}', [AdminController::class, 'update']);
+                Route::delete('/admin/{admin}', [AdminController::class, 'destroy'])->whereNumber('admin');
+
+                Route::get('/pengurus', [App\Http\Controllers\PengurusController::class, 'index']);
+                Route::post('/pengurus/store', [App\Http\Controllers\PengurusController::class, 'store']);
+                Route::put('/pengurus/update/{id}', [App\Http\Controllers\PengurusController::class, 'update']);
+                Route::delete('/pengurus/{pengurus}', [App\Http\Controllers\PengurusController::class, 'destroy']);
+
+                Route::get('/yayasan', [App\Http\Controllers\YayasanController::class, 'index']);
+                Route::post('/yayasan/store', [App\Http\Controllers\YayasanController::class, 'store']);
+                Route::put('/yayasan/update/{id}', [App\Http\Controllers\YayasanController::class, 'update']);
+                Route::delete('/yayasan/destroy/{id}', [App\Http\Controllers\YayasanController::class, 'destroy']);
+
+                Route::get('/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'index']);
+                Route::post('/operator-spp/{registration}/approve', [App\Http\Controllers\SppOperatorController::class, 'approve']);
+                Route::post('/operator-spp/{registration}/reject', [App\Http\Controllers\SppOperatorController::class, 'reject']);
+                Route::put('/operator-spp/accounts/{user}', [App\Http\Controllers\SppOperatorController::class, 'updateAccount']);
+                Route::patch('/operator-spp/accounts/{user}/status', [App\Http\Controllers\SppOperatorController::class, 'updateAccountStatus']);
+
+                Route::get('/dps', [DpsController::class, 'index']);
+                Route::get('/dps/create', [DpsController::class, 'create']);
+                Route::post('/dps', [DpsController::class, 'store']);
+                Route::post('/dps/import', [DpsController::class, 'import']);
+                Route::get('/dps/import-credentials/{token}', [DpsController::class, 'downloadCredentials']);
+                Route::get('/dps/accounts/export', [DpsController::class, 'exportAccounts']);
+                Route::get('/dps/{madrasah}', [DpsController::class, 'show']);
+                Route::get('/dps/member/{member}/edit', [DpsController::class, 'edit']);
+                Route::put('/dps/member/{member}', [DpsController::class, 'update']);
+                Route::delete('/dps/member/{member}', [DpsController::class, 'destroy']);
+
+                Route::get('/madrasah', [MadrasahController::class, 'index']);
+                Route::post('/madrasah/store', [MadrasahController::class, 'store']);
+                Route::put('/madrasah/update/{id}', [MadrasahController::class, 'update']);
+                Route::delete('/madrasah/destroy/{id}', [MadrasahController::class, 'destroy']);
+                Route::post('/madrasah/import', [MadrasahController::class, 'import']);
+                Route::get('/madrasah/profile', [MadrasahController::class, 'profile']);
+                Route::get('/madrasah/{id}/detail', [MadrasahController::class, 'detail']);
+
+                Route::get('/tenaga-pendidik', [TenagaPendidikController::class, 'index']);
+                Route::post('/tenaga-pendidik/store', [TenagaPendidikController::class, 'store']);
+                Route::put('/tenaga-pendidik/update/{id}', [TenagaPendidikController::class, 'update']);
+                Route::delete('/tenaga-pendidik/destroy/{id}', [TenagaPendidikController::class, 'destroy']);
+                Route::post('/tenaga-pendidik/import', [TenagaPendidikController::class, 'import']);
+
+                Route::get('/jumlah-siswa-kelas', [TeachingClassStudentCountController::class, 'index']);
+                Route::post('/jumlah-siswa-kelas', [TeachingClassStudentCountController::class, 'store']);
+                Route::put('/jumlah-siswa-kelas/{classStudentCount}', [TeachingClassStudentCountController::class, 'update']);
+
+                Route::get('/status-kepegawaian', [StatusKepegawaianController::class, 'index']);
+                Route::post('/status-kepegawaian/store', [StatusKepegawaianController::class, 'store']);
+                Route::put('/status-kepegawaian/update/{id}', [StatusKepegawaianController::class, 'update']);
+                Route::delete('/status-kepegawaian/destroy/{id}', [StatusKepegawaianController::class, 'destroy']);
+                Route::post('/status-kepegawaian/import', [StatusKepegawaianController::class, 'import']);
+
+                Route::get('/tahun-pelajaran', [App\Http\Controllers\TahunPelajaranController::class, 'index']);
+                Route::post('/tahun-pelajaran/store', [App\Http\Controllers\TahunPelajaranController::class, 'store']);
+                Route::put('/tahun-pelajaran/update/{id}', [App\Http\Controllers\TahunPelajaranController::class, 'update']);
+                Route::delete('/tahun-pelajaran/destroy/{id}', [App\Http\Controllers\TahunPelajaranController::class, 'destroy']);
+                Route::post('/tahun-pelajaran/import', [App\Http\Controllers\TahunPelajaranController::class, 'import']);
+            });
+
+            Route::prefix('admin-masterdata')->group(function () {
+                Route::get('/data-madrasah', [App\Http\Controllers\DataMadrasahController::class, 'index']);
+                Route::get('/data-madrasah/export', [App\Http\Controllers\DataMadrasahController::class, 'export']);
+
+                Route::get('/broadcast-numbers', [App\Http\Controllers\BroadcastNumberController::class, 'index']);
+                Route::post('/broadcast-numbers/store', [App\Http\Controllers\BroadcastNumberController::class, 'store']);
+                Route::put('/broadcast-numbers/update/{id}', [App\Http\Controllers\BroadcastNumberController::class, 'update']);
+                Route::delete('/broadcast-numbers/destroy/{id}', [App\Http\Controllers\BroadcastNumberController::class, 'destroy']);
+                Route::post('/broadcast-numbers/send-broadcast', [App\Http\Controllers\BroadcastNumberController::class, 'sendBroadcast']);
+                Route::post('/broadcast-numbers/test-connection', [App\Http\Controllers\BroadcastNumberController::class, 'testConnection']);
+            });
+
+            Route::prefix('sk-yayasan')->group(function () {
+                Route::get('/dokumen/{document}/download', [SkYayasanController::class, 'downloadDocument']);
+                Route::get('/import-batches/{batch}/attachments/{type}', [SkYayasanController::class, 'downloadImportBatchAttachment']);
+                Route::get('/dashboard', [SkYayasanController::class, 'dashboard']);
+                Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan']);
+                Route::get('/pengajuan/export-sekolah-summary', [SkYayasanController::class, 'exportSchoolSubmissionSummary']);
+                Route::patch('/pengajuan/{submission}/status', [SkYayasanController::class, 'updateSubmissionStatus']);
+                Route::patch('/import-batches/{batch}/rows', [SkYayasanController::class, 'updateImportBatchRows']);
+                Route::patch('/import-batches/{batch}/review', [SkYayasanController::class, 'reviewImportBatch']);
+                Route::delete('/import-batches/{batch}', [SkYayasanController::class, 'destroyImportBatch']);
+                Route::get('/template', [SkYayasanController::class, 'templateIndex']);
+                Route::post('/template', [SkYayasanController::class, 'storeTemplate']);
+                Route::post('/template/{template}/duplicate', [SkYayasanController::class, 'duplicateTemplate']);
+                Route::match(['post', 'put'], '/template/preview-pdf', [SkYayasanController::class, 'previewTemplatePdf']);
+                Route::put('/template/{template}', [SkYayasanController::class, 'updateTemplate']);
+                Route::delete('/template/{template}', [SkYayasanController::class, 'destroyTemplate']);
+                Route::get('/generate', [SkYayasanController::class, 'generateIndex']);
+                Route::patch('/generate/settings', [SkYayasanController::class, 'updateGenerateSettings']);
+                Route::post('/generate/regenerate-all', [SkYayasanController::class, 'regenerateAllDocuments']);
+                Route::patch('/generate/lock-all', [SkYayasanController::class, 'lockAllDocumentNumbers']);
+                Route::get('/generate/sekolah/{madrasah}', [SkYayasanController::class, 'generateSchoolIndex']);
+                Route::patch('/generate/sekolah/{madrasah}/submission-letter', [SkYayasanController::class, 'updateGenerateSchoolSubmissionLetter']);
+                Route::patch('/generate/sekolah/{madrasah}/lock-number', [SkYayasanController::class, 'lockSchoolDocumentNumbers']);
+                Route::post('/generate/sekolah/{madrasah}/pdf', [SkYayasanController::class, 'generateSchoolPdf']);
+                Route::post('/generate', [SkYayasanController::class, 'generateDocument']);
+                Route::patch('/generate/{document}/publish', [SkYayasanController::class, 'publishDocument']);
+            });
+
+            Route::prefix('admin')->group(function () {
+                Route::get('/pending-registrations', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'index']);
+                Route::post('/pending-registrations/{id}/approve', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'approve']);
+                Route::post('/pending-registrations/{id}/reject', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'reject']);
+                Route::get('/laporan-akhir-tahun', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'index']);
+                Route::get('/laporan-akhir-tahun/pdf/{id}', [App\Http\Controllers\Admin\LaporanAkhirTahunAdminController::class, 'pdf']);
+                Route::get('/simfoni', [App\Http\Controllers\Admin\SimfoniAdminController::class, 'index']);
+                Route::get('/simfoni/pdf/{id}', [App\Http\Controllers\Admin\SimfoniAdminController::class, 'pdfSimfoni']);
+                Route::get('/mgmp-dashboard', [App\Http\Controllers\MGMPController::class, 'superAdminDashboard']);
+                Route::get('/create-mgmp-user', [App\Http\Controllers\MGMPController::class, 'createMgmpUser']);
+                Route::post('/create-mgmp-user', [App\Http\Controllers\MGMPController::class, 'storeMgmpUser']);
+                Route::get('/mgmp-reset-uploads', [App\Http\Controllers\MGMPController::class, 'superAdminResetUploads']);
+            });
+
+            Route::prefix('data-sekolah')->group(function () {
+                Route::get('/siswa', [App\Http\Controllers\DataSekolahController::class, 'siswa']);
+                Route::get('/guru', [App\Http\Controllers\DataSekolahController::class, 'guru']);
+                Route::post('/update-siswa/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateSiswa']);
+                Route::post('/update-guru/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateGuru']);
+                Route::get('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'index']);
+                Route::get('/data-siswa/export-upload-summary', [App\Http\Controllers\DataSiswaController::class, 'exportUploadSummary']);
+                Route::get('/data-siswa/export-complete', [App\Http\Controllers\DataSiswaController::class, 'exportComplete']);
+                Route::post('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'store']);
+                Route::put('/data-siswa/bulk-update', [App\Http\Controllers\DataSiswaController::class, 'bulkUpdate']);
+                Route::put('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'update']);
+                Route::delete('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'destroy']);
+                Route::post('/data-siswa/import', [App\Http\Controllers\DataSiswaController::class, 'import']);
+                Route::get('/data-siswa/template', [App\Http\Controllers\DataSiswaController::class, 'template']);
+            });
+
+            Route::prefix('spp-siswa')->group(function () {
+                Route::get('/dashboard', [App\Http\Controllers\SppSiswaController::class, 'dashboard']);
+                Route::get('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'tagihan']);
+                Route::post('/tagihan', [App\Http\Controllers\SppSiswaController::class, 'storeTagihan']);
+                Route::post('/tagihan/bulk', [App\Http\Controllers\SppSiswaController::class, 'storeBulkTagihan']);
+                Route::post('/tagihan/import', [App\Http\Controllers\SppSiswaController::class, 'importTagihan']);
+                Route::get('/tagihan/template', [App\Http\Controllers\SppSiswaController::class, 'templateTagihan']);
+                Route::delete('/tagihan/{bill}', [App\Http\Controllers\SppSiswaController::class, 'destroyTagihan']);
+                Route::post('/tagihan/{bill}/generate-bni-va', [App\Http\Controllers\SppSiswaPaymentController::class, 'generateBniVa']);
+                Route::get('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'transaksi']);
+                Route::post('/transaksi', [App\Http\Controllers\SppSiswaController::class, 'storeTransaksi']);
+                Route::get('/laporan', [App\Http\Controllers\SppSiswaController::class, 'laporan']);
+                Route::get('/pengaturan', [App\Http\Controllers\SppSiswaController::class, 'pengaturan']);
+                Route::post('/pengaturan', [App\Http\Controllers\SppSiswaController::class, 'storePengaturan']);
+                Route::put('/pengaturan/{setting}', [App\Http\Controllers\SppSiswaController::class, 'updatePengaturan']);
+            });
+
+            Route::get('/uppm/pembayaran/check-tagihan', [App\Http\Controllers\PembayaranController::class, 'checkTagihan']);
+            Route::prefix('uppm')->group(function () {
+                Route::get('/', [App\Http\Controllers\UppmController::class, 'index']);
+                Route::get('/data-sekolah', [App\Http\Controllers\UppmController::class, 'dataSekolah']);
+                Route::get('/perhitungan-iuran', [App\Http\Controllers\UppmController::class, 'perhitunganIuran']);
+                Route::get('/tagihan', [App\Http\Controllers\UppmController::class, 'tagihan']);
+                Route::get('/invoice', [App\Http\Controllers\UppmController::class, 'invoice']);
+                Route::get('/invoice/download', [App\Http\Controllers\UppmController::class, 'downloadInvoice']);
+                Route::get('/pengaturan', [App\Http\Controllers\UppmController::class, 'pengaturan']);
+                Route::post('/pengaturan', [App\Http\Controllers\UppmController::class, 'storePengaturan']);
+                Route::put('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'updatePengaturan']);
+                Route::delete('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'destroyPengaturan']);
+                Route::post('/store-tagihan', [App\Http\Controllers\UppmController::class, 'storeTagihan']);
+                Route::get('/pembayaran', [App\Http\Controllers\PembayaranController::class, 'index']);
+                Route::get('/pembayaran/{madrasah_id}', [App\Http\Controllers\PembayaranController::class, 'detail']);
+                Route::post('/pembayaran/cash', [App\Http\Controllers\PembayaranController::class, 'pembayaranCash']);
+                Route::post('/pembayaran/midtrans', [App\Http\Controllers\PembayaranController::class, 'pembayaranMidtrans']);
+                Route::post('/pembayaran/midtrans/result', [App\Http\Controllers\PembayaranController::class, 'paymentResult'])
+                    ->middleware('throttle:10,1');
+                Route::post('/pembayaran/success', [App\Http\Controllers\PembayaranController::class, 'paymentSuccess'])
+                    ->middleware('throttle:10,1');
+                Route::post('/pembayaran/check-status', [App\Http\Controllers\PembayaranController::class, 'checkPaymentStatus'])
+                    ->middleware('throttle:10,1');
+            });
+
+            Route::get('/mgmp', [App\Http\Controllers\MGMPController::class, 'index']);
+            Route::prefix('mgmp')->group(function () {
+                Route::get('/', [App\Http\Controllers\MGMPController::class, 'index']);
+                Route::get('/dashboard', [App\Http\Controllers\MGMPController::class, 'dashboard']);
+                Route::get('/data-anggota', [App\Http\Controllers\MGMPController::class, 'dataAnggota']);
+                Route::get('/data-mgmp', [App\Http\Controllers\MGMPController::class, 'manage']);
+                Route::get('/laporan', [App\Http\Controllers\MGMPController::class, 'laporan']);
+                Route::post('/laporan', [App\Http\Controllers\MGMPController::class, 'storeLaporan']);
+                Route::put('/laporan/{report}', [App\Http\Controllers\MGMPController::class, 'updateLaporan']);
+                Route::post('/laporan/{report}/cancel', [App\Http\Controllers\MGMPController::class, 'cancelLaporan']);
+                Route::post('/', [App\Http\Controllers\MGMPController::class, 'store']);
+                Route::put('/{id}', [App\Http\Controllers\MGMPController::class, 'update']);
+                Route::delete('/{id}', [App\Http\Controllers\MGMPController::class, 'destroy']);
+                Route::post('/import', [App\Http\Controllers\MGMPController::class, 'import']);
+                Route::post('/store-member', [App\Http\Controllers\MGMPController::class, 'storeMember']);
+                Route::delete('/members/{member}', [App\Http\Controllers\MGMPController::class, 'destroyMember']);
+                Route::get('/academica', [App\Http\Controllers\MGMPController::class, 'academica']);
+                Route::post('/academica/upload', [App\Http\Controllers\MGMPController::class, 'uploadAcademica']);
+                Route::post('/academica/reset-update', [App\Http\Controllers\MGMPController::class, 'storeAcademicaResetUpdate'])
+                    ->middleware('throttle:10,1');
+                Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])
+                    ->middleware('throttle:10,1');
+                Route::get('/kegiatan/{report}/presensi', [App\Http\Controllers\MGMPController::class, 'presensiKegiatan']);
+                Route::post('/kegiatan/{report}/presensi', [App\Http\Controllers\MGMPController::class, 'storePresensiKegiatan']);
+            });
+
+            Route::prefix('ppdb')->group(function () {
+                Route::get('/', [PPDBController::class, 'index']);
+                Route::get('/lp/dashboard', [AdminLPController::class, 'index']);
+                Route::get('/lp/edit/{id}', [AdminLPController::class, 'edit']);
+                Route::put('/lp/update/{id}', [AdminLPController::class, 'update']);
+                Route::get('/lp/ppdb-settings/{id}', [AdminLPController::class, 'ppdbSettings']);
+                Route::put('/lp/ppdb-settings/{id}', [AdminLPController::class, 'updatePPDBSettings']);
+                Route::post('/lp/jalur/{id}', [AdminLPController::class, 'storeJalur']);
+                Route::put('/lp/jalur/{jalurId}', [AdminLPController::class, 'updateJalur']);
+                Route::delete('/lp/jalur/{jalurId}', [AdminLPController::class, 'deleteJalur']);
+                Route::get('/lp/pendaftar/{slug}', [AdminLPController::class, 'pendaftar']);
+                Route::get('/lp/pendaftar/{madrasahId}/check', [AdminLPController::class, 'checkPendaftar']);
+                Route::get('/lp/pendaftar/{madrasahId}/export', [AdminLPController::class, 'export']);
+                Route::get('/lp/pendaftar-detail/{id}', [AdminLPController::class, 'showPendaftarDetail']);
+                Route::post('/lp/pendaftar/{id}/update-status', [AdminLPController::class, 'updateStatus']);
+                Route::get('/admin/detail/{pendaftar}', [AdminLPController::class, 'detail']);
+                Route::post('/admin/upload-berkas', [AdminLPController::class, 'uploadBerkas']);
+                Route::get('/settings', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsIndex']);
+                Route::get('/settings/edit/{id}', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsEdit']);
+                Route::put('/settings/update/{id}', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsUpdate']);
+            });
+        });
+
+        Route::get('/dashboard', $superAdminHomeRedirect);
+    });
+
+    Route::fallback(function (\Illuminate\Http\Request $request) {
+        $primaryBaseUrl = rtrim((string) config('app.url'), '/');
+        $target = $primaryBaseUrl . $request->getRequestUri();
+
+        if (in_array($request->method(), ['GET', 'HEAD'], true)) {
+            return redirect()->away($target);
+        }
+
+        abort(404);
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| SPMB / PPDB subdomain
+|--------------------------------------------------------------------------
+|
+| Host alias for the existing PPDB module. Public PPDB pages are exposed on
+| the root host, while the existing /ppdb-prefixed admin routes remain
+| available for compatibility with current links and route generation.
+|
+*/
+Route::domain('spmb.nuist.id')->group(function () {
+    $ppdbDashboardRedirect = function () {
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
+        $user = Auth::user();
+        $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
+
+        if ($normalizedRole === 'admin') {
+            return redirect('/ppdb/sekolah/dashboard');
+        }
+
+        if (in_array($normalizedRole, ['super_admin', 'pengurus'], true)) {
+            return redirect('/ppdb/lp/dashboard');
+        }
+
+        return redirect()->away(rtrim((string) config('app.url'), '/') . '/dashboard');
+    };
+
+    Route::get('/', [PPDBController::class, 'index']);
+
+    Route::middleware(['guest'])->group(function () {
+        Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
+        Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'])
+            ->middleware('throttle:6,1');
+        Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
+        Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail']);
+        Route::get('/password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm']);
+        Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset']);
+    });
+
+    Route::middleware(['auth'])->group(function () use ($ppdbDashboardRedirect) {
+        Route::get('/dashboard', $ppdbDashboardRedirect);
+        Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+            ->middleware('throttle:10,1');
+        Route::get('/email/verify', [App\Http\Controllers\Auth\VerificationController::class, 'show']);
+        Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])
+            ->middleware('signed');
+        Route::post('/email/resend', [App\Http\Controllers\Auth\VerificationController::class, 'resend'])
+            ->middleware('throttle:6,1');
+        Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])
+            ->middleware('throttle:5,1')
+            ->whereNumber('id');
+
+        Route::middleware(['role:admin'])->prefix('ppdb/sekolah')->group(function () {
+            Route::get('/dashboard', [AdminSekolahController::class, 'index']);
+            Route::get('/pendaftar', [AdminSekolahController::class, 'pendaftar']);
+            Route::get('/verifikasi', [AdminSekolahController::class, 'verifikasi']);
+            Route::get('/seleksi', [AdminSekolahController::class, 'seleksi']);
+            Route::get('/export', [AdminSekolahController::class, 'export']);
+        });
+
+        Route::middleware(['role:super_admin,admin'])->prefix('ppdb/lp')->group(function () {
+            Route::get('/dashboard', [AdminLPController::class, 'index']);
+            Route::get('/edit/{id}', [AdminLPController::class, 'edit']);
+            Route::put('/update/{id}', [AdminLPController::class, 'update']);
+            Route::get('/ppdb-settings/{id}', [AdminLPController::class, 'ppdbSettings']);
+            Route::put('/ppdb-settings/{id}', [AdminLPController::class, 'updatePPDBSettings']);
+            Route::post('/jalur/{id}', [AdminLPController::class, 'storeJalur']);
+            Route::put('/jalur/{jalurId}', [AdminLPController::class, 'updateJalur']);
+            Route::delete('/jalur/{jalurId}', [AdminLPController::class, 'deleteJalur']);
+            Route::get('/pendaftar/{slug}', [AdminLPController::class, 'pendaftar']);
+            Route::get('/pendaftar/{madrasahId}/check', [AdminLPController::class, 'checkPendaftar']);
+            Route::get('/pendaftar/{madrasahId}/export', [AdminLPController::class, 'export']);
+            Route::get('/pendaftar-detail/{id}', [AdminLPController::class, 'showPendaftarDetail']);
+            Route::post('/pendaftar/{id}/update-status', [AdminLPController::class, 'updateStatus']);
+        });
+
+        Route::middleware(['role:super_admin'])->prefix('ppdb/admin')->group(function () {
+            Route::get('/detail/{pendaftar}', [AdminLPController::class, 'detail']);
+            Route::post('/upload-berkas', [AdminLPController::class, 'uploadBerkas']);
+        });
+
+        Route::middleware(['role:super_admin'])->prefix('ppdb/settings')->group(function () {
+            Route::get('/', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsIndex']);
+            Route::get('/edit/{id}', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsEdit']);
+            Route::put('/update/{id}', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsUpdate']);
+        });
+    });
+
+    Route::prefix('ppdb')->group(function () {
+        Route::get('/', [PPDBController::class, 'index']);
+        Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])
+            ->middleware('guest');
+        Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])
+            ->middleware(['guest', 'throttle:6,1']);
+        Route::post('/verify-otp/{pendaftarId}', [PendaftarController::class, 'verifyOTP'])
+            ->middleware(['guest', 'throttle:6,1'])
+            ->whereNumber('pendaftarId');
+        Route::put('/update-data/{pendaftar}', [PendaftarController::class, 'updateData'])
+            ->middleware(['guest', 'throttle:6,1'])
+            ->whereNumber('pendaftar');
+        Route::get('/check-nisn/{nisn}', [PendaftarController::class, 'checkNISN']);
+        Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])
+            ->middleware('guest');
+        Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])
+            ->middleware(['guest', 'throttle:6,1']);
+        Route::get('/{slug}', [PPDBController::class, 'showSekolah']);
+    });
+
+    Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])
+        ->middleware('guest');
+    Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])
+        ->middleware(['guest', 'throttle:6,1']);
+    Route::post('/verify-otp/{pendaftarId}', [PendaftarController::class, 'verifyOTP'])
+        ->middleware(['guest', 'throttle:6,1'])
+        ->whereNumber('pendaftarId');
+    Route::put('/update-data/{pendaftar}', [PendaftarController::class, 'updateData'])
+        ->middleware(['guest', 'throttle:6,1'])
+        ->whereNumber('pendaftar');
+    Route::get('/check-nisn/{nisn}', [PendaftarController::class, 'checkNISN']);
+    Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])
+        ->middleware('guest');
+    Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])
+        ->middleware(['guest', 'throttle:6,1']);
+    Route::get('/{slug}', [PPDBController::class, 'showSekolah']);
+
+    Route::fallback(function (\Illuminate\Http\Request $request) {
+        $primaryBaseUrl = rtrim((string) config('app.url'), '/');
+        $target = $primaryBaseUrl . $request->getRequestUri();
+
+        if (in_array($request->method(), ['GET', 'HEAD'], true)) {
+            return redirect()->away($target);
+        }
+
+        abort(404);
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Teacher mobile / presensi subdomain
+|--------------------------------------------------------------------------
+|
+| Host alias for the existing tenaga_pendidik mobile experience. The domain
+| intentionally serves the mobile login and mobile teacher routes only.
+|
+*/
+Route::domain('presensi.nuist.id')->group(function () {
+    $teacherMobileHomeRedirect = function () {
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
+        $user = Auth::user();
+        $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
+
+        if ($normalizedRole === 'tenaga_pendidik') {
+            return redirect('/mobile/dashboard');
+        }
+
+        Auth::logout();
+        request()->session()?->invalidate();
+        request()->session()?->regenerateToken();
+
+        return redirect('/login')->withErrors([
+            'email' => 'Akun tidak memiliki akses presensi mobile.',
+        ]);
+    };
+
+    Route::get('/', $teacherMobileHomeRedirect);
+    Route::get('/mobile/login', function () {
+        return view('mobile.login');
+    })->middleware(['guest']);
+    Route::get('/login', function () {
+        return view('mobile.login');
+    })->middleware(['guest']);
+    Route::get('/mobile/register', function () {
+        $madrasahs = \App\Models\Madrasah::orderBy('scod')->get();
+
+        return view('mobile.register', compact('madrasahs'));
+    })->middleware(['guest']);
+
+    Route::post('/login', function (\Illuminate\Http\Request $request) {
+        $credentials = $request->validate([
+            'email' => 'required|string',
+            'password' => 'required',
+        ]);
+
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withErrors(['email' => 'Email atau password salah'])
+                ->withInput($request->only('email'));
+        }
+
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+        $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
+
+        if ($normalizedRole !== 'tenaga_pendidik' || (isset($user->is_active) && !$user->is_active)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/login')
+                ->withErrors(['email' => 'Akun tidak memiliki akses presensi mobile.'])
+                ->withInput($request->only('email'));
+        }
+
+        return redirect('/mobile/dashboard');
+    })->middleware(['guest', 'throttle:6,1']);
+
+    Route::post('/mobile/login', function (\Illuminate\Http\Request $request) {
+        $credentials = $request->validate([
+            'email' => 'required|string',
+            'password' => 'required',
+        ]);
+
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            return redirect('/mobile/login')
+                ->withErrors(['email' => 'Email atau password salah'])
+                ->withInput($request->only('email'));
+        }
+
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+        $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
+
+        if ($normalizedRole !== 'tenaga_pendidik' || (isset($user->is_active) && !$user->is_active)) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/mobile/login')
+                ->withErrors(['email' => 'Akun tidak memiliki akses presensi mobile.'])
+                ->withInput($request->only('email'));
+        }
+
+        return redirect('/mobile/dashboard');
+    })->middleware(['guest', 'throttle:6,1']);
+
+    Route::get('/mobile/forgot-password', function () {
+        return view('mobile.forgot-password-v2');
+    })->middleware(['guest']);
+    Route::post('/mobile/forgot-password', function (\Illuminate\Http\Request $request) {
+        $request->validate(['email' => 'required|email']);
+
+        $status = \Illuminate\Support\Facades\Password::sendResetLink($request->only('email'));
+
+        if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
+            return back()->with('status', __($status));
+        }
+
+        return back()->withErrors(['email' => __($status)]);
+    })->middleware(['guest', 'throttle:6,1']);
+    Route::get('/mobile/reset-password/{token}', function ($token) {
+        return view('mobile.reset-password', ['token' => $token, 'email' => request()->query('email')]);
+    })->middleware(['guest']);
+    Route::post('/mobile/reset-password', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $status = \Illuminate\Support\Facades\Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->password = \Illuminate\Support\Facades\Hash::make($password);
+                $user->setRememberToken(\Illuminate\Support\Str::random(60));
+                $user->save();
+            }
+        );
+
+        if ($status === \Illuminate\Support\Facades\Password::PASSWORD_RESET) {
+            return redirect('/mobile/login')->with('status', __($status));
+        }
+
+        return back()->withErrors(['email' => [__($status)]]);
+    })->middleware(['guest', 'throttle:6,1']);
+
+    Route::middleware(['auth', 'role:tenaga_pendidik'])->group(function () {
+        Route::get('/dashboard', function () {
+            return redirect('/mobile/dashboard');
+        });
+        Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+            ->middleware('throttle:10,1');
+        Route::get('/csrf-token', function () {
+            return response()->json(['token' => csrf_token()]);
+        });
+        Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])
+            ->middleware('throttle:5,1')
+            ->whereNumber('id');
+
+        Route::get('/teaching-attendances', [App\Http\Controllers\TeachingAttendanceController::class, 'index']);
+        Route::post('/teaching-attendances', [App\Http\Controllers\TeachingAttendanceController::class, 'store']);
+        Route::post('/teaching-attendances/check-location', [App\Http\Controllers\TeachingAttendanceController::class, 'checkLocation']);
+
+        Route::prefix('mobile')->group(function () {
+            Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard']);
+            Route::get('/dashboard/calendar-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getCalendarData']);
+            Route::get('/dashboard/stats-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getStatsData']);
+
+            Route::get('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi']);
+            Route::get('/data-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi']);
+            Route::post('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi']);
+            Route::get('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi']);
+            Route::post('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi']);
+            Route::get('/riwayat-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensi']);
+            Route::get('/riwayat-presensi/download', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'downloadRekapPresensi']);
+            Route::get('/riwayat-presensi-alpha', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensiAlpha']);
+
+            Route::get('/face-enrollment', function () {
+                return view('mobile.face-enrollment');
+            });
+            Route::post('/face-enroll', [App\Http\Controllers\Api\FaceController::class, 'enroll']);
+            Route::post('/face-verify', [App\Http\Controllers\Api\FaceController::class, 'verify'])
+                ->middleware('throttle:20,1');
+
+            Route::get('/jadwal', [App\Http\Controllers\Mobile\Jadwal\JadwalController::class, 'jadwal']);
+            Route::get('/data-jadwal', [App\Http\Controllers\Mobile\Jadwal\JadwalController::class, 'jadwal']);
+            Route::get('/jadwal/create', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'create']);
+            Route::post('/jadwal', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'store']);
+            Route::get('/jadwal/{schedule}/edit', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'edit']);
+            Route::put('/jadwal/{schedule}', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'update']);
+            Route::delete('/jadwal/{schedule}', [App\Http\Controllers\Mobile\Jadwal\TeachingScheduleManageController::class, 'destroy']);
+
+            Route::get('/profile', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'profile']);
+            Route::post('/profile/update-profile', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updateProfile']);
+            Route::post('/profile/update-avatar', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updateAvatar']);
+            Route::post('/profile/update-password', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updatePassword'])
+                ->middleware('throttle:5,1');
+            Route::get('/ubah-akun', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'ubahAkun']);
+
+            Route::post('/izin', [App\Http\Controllers\Mobile\Izin\IzinController::class, 'storeIzin']);
+            Route::get('/izin', [App\Http\Controllers\Mobile\Izin\IzinController::class, 'izin']);
+            Route::get('/kelola-izin', [App\Http\Controllers\Mobile\Izin\IzinController::class, 'kelolaIzin']);
+
+            Route::get('/laporan', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporan']);
+            Route::get('/laporan/persentase-kehadiran', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporanPersentaseKehadiran']);
+            Route::get('/laporan/persentase-kehadiran/download', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'downloadPersentaseKehadiranPdf']);
+            Route::get('/laporan/mengajar', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporanMengajar']);
+            Route::get('/teaching-attendances', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'teachingAttendances']);
+
+            Route::resource('laporan-akhir-tahun', App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class);
+
+            Route::get('/talenta', [App\Http\Controllers\Mobile\TalentaController::class, 'index']);
+            Route::get('/talenta/create', [App\Http\Controllers\Mobile\TalentaController::class, 'create']);
+            Route::post('/talenta', [App\Http\Controllers\Mobile\TalentaController::class, 'store']);
+            Route::get('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'show']);
+            Route::get('/talenta/{talenta}/edit', [App\Http\Controllers\Mobile\TalentaController::class, 'edit']);
+            Route::put('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'update']);
+            Route::delete('/talenta/{talenta}', [App\Http\Controllers\Mobile\TalentaController::class, 'destroy']);
+            Route::get('/talenta/file/{filename}', [App\Http\Controllers\Mobile\TalentaController::class, 'lihatFile']);
+
+            Route::get('/monitor-presensi', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorPresensi']);
+            Route::get('/monitor-map', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorMap']);
+            Route::get('/monitor-jadwal-mengajar', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorJadwalMengajar']);
+            Route::get('/academic-calendar-approvals', [AcademicCalendarEventController::class, 'principalIndex']);
+            Route::post('/academic-calendar-approvals/approve-all', [AcademicCalendarEventController::class, 'principalApproveAll']);
+            Route::post('/academic-calendar-approvals/{academic_calendar_event}/approve', [AcademicCalendarEventController::class, 'principalApprove']);
+            Route::post('/academic-calendar-approvals/{academic_calendar_event}/reject', [AcademicCalendarEventController::class, 'principalReject']);
+            Route::get('/picket-schedules', [PicketScheduleController::class, 'mobileIndex']);
+            Route::post('/picket-schedules/{picket_schedule_period}/submit', [PicketScheduleController::class, 'mobileSubmit']);
+            Route::post('/academic-calendar-approvals/picket-submissions/{picket_schedule_submission}/approve', [PicketScheduleController::class, 'principalApprove']);
+            Route::post('/academic-calendar-approvals/picket-submissions/{picket_schedule_submission}/reject', [PicketScheduleController::class, 'principalReject']);
+
+            Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+            Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+            Route::post('/notifications/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+            Route::get('/notifications/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount']);
+
+            Route::get('/simfoni', [App\Http\Controllers\Mobile\Simfoni\SimfoniController::class, 'show']);
+            Route::post('/simfoni', [App\Http\Controllers\Mobile\Simfoni\SimfoniController::class, 'store']);
+        });
+    });
+
+    Route::fallback(function (\Illuminate\Http\Request $request) {
+        $primaryBaseUrl = rtrim((string) config('app.url'), '/');
+        $target = $primaryBaseUrl . $request->getRequestUri();
+
+        if (in_array($request->method(), ['GET', 'HEAD'], true)) {
+            return redirect()->away($target);
+        }
+
+        abort(404);
+    });
+});
+
 // Account Setting Routes
 Route::get('/account/login', [App\Http\Controllers\AccountSettingController::class, 'login'])
     ->middleware(['guest'])
