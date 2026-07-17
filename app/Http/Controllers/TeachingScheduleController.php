@@ -541,8 +541,12 @@ class TeachingScheduleController extends Controller
             $errors = $import->getErrors();
 
             if (!empty($errors)) {
-                $errorMessage = 'Import gagal dengan ' . count($errors) . ' error(s):\n' . implode('\n', $errors);
-                return redirect()->back()->with('import_errors', $errors)->with('error', $errorMessage)->withInput();
+                $errorMessage = 'Import dibatalkan. Tidak ada jadwal yang disimpan karena ditemukan ' . count($errors) . ' masalah. Periksa baris yang bentrok atau format jam yang belum sesuai, lalu unggah ulang file.';
+
+                return redirect()->back()
+                    ->with('import_errors', $errors)
+                    ->with('error', $errorMessage)
+                    ->withInput();
             }
 
             return redirect()

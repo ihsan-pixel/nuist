@@ -893,7 +893,8 @@
                 @endif
                 @if(session('import_errors'))
                 <div class="alert alert-danger">
-                    <strong>Import gagal dengan {{ count(session('import_errors')) }} error(s):</strong>
+                    <strong>Import dibatalkan karena ditemukan {{ count(session('import_errors')) }} masalah.</strong>
+                    <div class="small mt-1">Tidak ada data yang disimpan. Periksa baris yang disebutkan di bawah, benahi file Excel, lalu import ulang.</div>
                     <ul class="mt-2 mb-0">
                         @foreach(session('import_errors') as $error)
                         <li>{{ $error }}</li>
@@ -927,6 +928,7 @@
                                         <li>Isi data jadwal sesuai format pada template.</li>
                                         <li>Simpan kembali file dalam format Excel.</li>
                                         <li>Upload file ke periode yang sedang dipilih.</li>
+                                        <li>Jika ada bentrok atau format salah, seluruh import akan ditolak agar data periode tetap konsisten.</li>
                                     </ol>
                                 </div>
 
@@ -975,13 +977,13 @@
                                             <tr>
                                                 <td><code>start_time</code></td>
                                                 <td>Jam</td>
-                                                <td>Format HH:MM</td>
+                                                <td>Mendukung 09:00, 09.00, 09,00, 0900, atau cell waktu Excel</td>
                                                 <td><span class="badge bg-danger">Ya</span></td>
                                             </tr>
                                             <tr>
                                                 <td><code>end_time</code></td>
                                                 <td>Jam</td>
-                                                <td>Format HH:MM</td>
+                                                <td>Mendukung 10:00, 10.00, 10,00, 1000, atau cell waktu Excel</td>
                                                 <td><span class="badge bg-danger">Ya</span></td>
                                             </tr>
                                         </tbody>
@@ -993,7 +995,8 @@
                                     <ul class="mb-0 ps-3">
                                         <li>Pastikan SCOD dan NUist ID guru sudah benar.</li>
                                         <li>Jam selesai harus lebih besar dari jam mulai.</li>
-                                        <li>Validasi bentrok jadwal tetap dijalankan saat import.</li>
+                                        <li>Validasi bentrok jadwal guru dan kelas tetap dijalankan saat import.</li>
+                                        <li>Jika ada satu saja baris yang bentrok atau tidak valid, seluruh import dibatalkan dan tidak ada data yang disimpan.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -1081,7 +1084,7 @@ $(document).ready(function() {
     Swal.fire({
         icon: 'error',
         title: 'Import Gagal',
-        html: '<div style="text-align:left;">' + @json(collect(session('import_errors'))->implode('<br>')) + '</div>',
+        html: '<div style="text-align:left;margin-bottom:10px;">Import dibatalkan. Tidak ada data yang disimpan.</div><div style="text-align:left;">' + @json(collect(session('import_errors'))->implode('<br>')) + '</div>',
         confirmButtonText: 'Tutup'
     });
     @endif
