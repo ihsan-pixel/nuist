@@ -3514,8 +3514,8 @@ window.addEventListener('load', function() {
                     : 'Posisikan wajah lalu ikuti arahan singkat untuk presensi masuk.';
             } else {
                 selfieModalSubtitle.textContent = isPresensiKeluar
-                    ? 'Ambil selfie untuk presensi keluar, lalu kirim.'
-                    : 'Ambil selfie untuk presensi masuk, lalu kirim.';
+                 //   ? 'Ambil selfie untuk presensi keluar, lalu kirim.'
+                 //   : 'Ambil selfie untuk presensi masuk, lalu kirim.';
             }
         }
 
@@ -3647,7 +3647,7 @@ window.addEventListener('load', function() {
                 await waitForVideoPlaybackReady(video);
                 await video.play();
                 await waitForVideoFrame(video);
-                updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
+                //updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
             }
             video.style.display = 'block';
 
