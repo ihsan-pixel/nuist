@@ -959,7 +959,7 @@
                                             <tr>
                                                 <td><code>day</code></td>
                                                 <td>Teks</td>
-                                                <td>Senin sampai Sabtu</td>
+                                                <td>Senin sampai Sabtu. Huruf besar-kecil bebas, spasi awal/akhir tetap diterima</td>
                                                 <td><span class="badge bg-danger">Ya</span></td>
                                             </tr>
                                             <tr>

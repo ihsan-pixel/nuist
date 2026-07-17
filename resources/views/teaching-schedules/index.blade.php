@@ -412,7 +412,7 @@
                                 <tr>
                                     <td><code>day</code></td>
                                     <td>Teks</td>
-                                    <td>Hari: Senin, Selasa, Rabu, Kamis, Jumat, Sabtu</td>
+                                    <td>Hari: Senin, Selasa, Rabu, Kamis, Jumat, Sabtu. Huruf besar-kecil bebas, spasi awal/akhir tetap diterima</td>
                                     <td><span class="badge bg-danger">Ya</span></td>
                                 </tr>
                                 <tr>

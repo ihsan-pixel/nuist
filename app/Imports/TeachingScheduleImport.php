@@ -133,10 +133,11 @@ class TeachingScheduleImport implements ToCollection, WithHeadingRow
             }
         }
 
-        $day = trim((string) $row['day']);
-        if (!in_array($day, self::ALLOWED_DAYS, true)) {
+        $rawDay = (string) $row['day'];
+        $day = $this->normalizeDayValue($rawDay);
+        if ($day === null) {
             throw new \RuntimeException(
-                "Baris {$rowNumber}: hari '{$day}' tidak valid. Gunakan salah satu dari " . implode(', ', self::ALLOWED_DAYS) . '.'
+                "Baris {$rowNumber}: hari '" . trim($rawDay) . "' tidak valid. Gunakan salah satu dari " . implode(', ', self::ALLOWED_DAYS) . '.'
             );
         }
 
@@ -390,6 +391,27 @@ class TeachingScheduleImport implements ToCollection, WithHeadingRow
         }
 
         return sprintf('%02d:%02d', $hour, $minute);
+    }
+
+    private function normalizeDayValue(string $value): ?string
+    {
+        $normalized = preg_replace('/\s+/u', ' ', trim($value));
+        if ($normalized === null || $normalized === '') {
+            return null;
+        }
+
+        $lookup = [
+            'senin' => 'Senin',
+            'selasa' => 'Selasa',
+            'rabu' => 'Rabu',
+            'kamis' => 'Kamis',
+            'jumat' => 'Jumat',
+            'sabtu' => 'Sabtu',
+        ];
+
+        $key = mb_strtolower($normalized);
+
+        return $lookup[$key] ?? null;
     }
 
     private function valueIsEmpty(mixed $value): bool
