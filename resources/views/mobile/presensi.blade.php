@@ -3678,7 +3678,7 @@ window.addEventListener('load', function() {
                 captureBtn.style.display = 'block';
                 captureBtn.disabled = false;
                 captureBtn.innerHTML = '<i class="bx bx-camera me-1"></i>Ambil Foto';
-                setSelfieStatus('Kamera siap digunakan untuk selfie presensi.');
+                //setSelfieStatus('Kamera siap digunakan untuk selfie presensi.');
             }
 
         } catch (error) {
@@ -4013,8 +4013,8 @@ window.addEventListener('load', function() {
             showFormalErrorAlert(
                 faceScanRequired ? 'Scan Wajah Belum Lengkap' : 'Selfie Belum Lengkap',
                 faceScanRequired
-                    ? 'Silakan selesaikan scan wajah terlebih dahulu sebelum mengirim presensi.'
-                    : 'Silakan ambil selfie terlebih dahulu sebelum mengirim presensi.'
+                //    ? 'Silakan selesaikan scan wajah terlebih dahulu sebelum mengirim presensi.'
+                //   : 'Silakan ambil selfie terlebih dahulu sebelum mengirim presensi.'
             );
             return;
         }
