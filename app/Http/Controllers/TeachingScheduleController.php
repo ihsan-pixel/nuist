@@ -52,6 +52,7 @@ class TeachingScheduleController extends Controller
                 $school = Madrasah::findOrFail($user->madrasah_id);
                 $periods = $this->schedulePeriodsForSchool($school->id);
                 $selectedPeriod = $this->resolveSelectedPeriod($school->id, $selectedPeriodId, false);
+                $currentPeriod = $this->currentPeriodForSchool($school->id);
                 $schedules = $selectedPeriod
                     ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
                         ->where('school_id', $school->id)
@@ -62,7 +63,7 @@ class TeachingScheduleController extends Controller
                     : collect();
                 $grouped = $schedules->groupBy('teacher.name');
 
-                return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod'));
+                return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod', 'currentPeriod'));
             } else {
                 $schoolId = $user->madrasah_id;
                 $periods = $this->schedulePeriodsForSchool($schoolId);
@@ -130,6 +131,7 @@ class TeachingScheduleController extends Controller
             $school = Madrasah::findOrFail($user->madrasah_id);
             $periods = $this->schedulePeriodsForSchool($school->id);
             $selectedPeriod = $this->resolveSelectedPeriod($school->id, $selectedPeriodId, false);
+            $currentPeriod = $this->currentPeriodForSchool($school->id);
             $schedules = $selectedPeriod
                 ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
                     ->where('school_id', $user->madrasah_id)
@@ -140,7 +142,7 @@ class TeachingScheduleController extends Controller
                 : collect();
             $grouped = $schedules->groupBy('teacher.name');
 
-            return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod'));
+            return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod', 'currentPeriod'));
         }
     }
 
@@ -569,6 +571,7 @@ class TeachingScheduleController extends Controller
         $school = Madrasah::findOrFail($schoolId);
         $periods = $this->schedulePeriodsForSchool($schoolId);
         $selectedPeriod = $this->resolveSelectedPeriod($schoolId, $request->integer('period_id'), false);
+        $currentPeriod = $this->currentPeriodForSchool($schoolId);
         $schedules = $selectedPeriod
             ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
                 ->where('school_id', $schoolId)
@@ -580,7 +583,7 @@ class TeachingScheduleController extends Controller
 
         $grouped = $schedules->groupBy('teacher.name');
 
-        return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod'));
+        return view('teaching-schedules.school-schedules', compact('school', 'grouped', 'periods', 'selectedPeriod', 'currentPeriod'));
     }
 
     /**
@@ -722,5 +725,14 @@ class TeachingScheduleController extends Controller
         }
 
         return $period;
+    }
+
+    private function currentPeriodForSchool(int|string|null $schoolId): ?TeachingSchedulePeriod
+    {
+        if (!$schoolId) {
+            return null;
+        }
+
+        return TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'));
     }
 }

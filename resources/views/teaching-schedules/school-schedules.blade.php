@@ -123,6 +123,16 @@
     box-shadow: 0 16px 30px rgba(13, 110, 253, 0.09);
 }
 
+.period-tile.current-period {
+    border-color: rgba(25, 135, 84, 0.28);
+    box-shadow: 0 16px 34px rgba(25, 135, 84, 0.08);
+}
+
+.period-tile.current-period.active {
+    background: linear-gradient(135deg, #f3fbf7 0%, #e8f7ee 100%);
+    border-color: rgba(25, 135, 84, 0.34);
+}
+
 .period-tile-title {
     font-weight: 700;
     color: #0f172a;
@@ -400,6 +410,12 @@
                     <div class="summary-meta mt-1">
                         {{ $selectedPeriod ? 'Masa berlaku ' . $selectedPeriod->date_range_label : 'Data jadwal tidak langsung ditampilkan agar halaman tetap ringan dan fokus.' }}
                     </div>
+                    @if($currentPeriod)
+                    <div class="summary-meta mt-2">
+                        <i class="bx bx-check-circle me-1 text-success"></i>
+                        Periode aktif hari ini: {{ $currentPeriod->summary_label }} ({{ $currentPeriod->date_range_label }})
+                    </div>
+                    @endif
                 </div>
                 <div class="col-lg-6">
                     <label for="periodSwitcher" class="form-label text-muted small mb-1">Pilih Periode</label>
@@ -416,9 +432,13 @@
 
             <div class="period-grid mt-4">
                 @forelse($periods as $period)
+                @php
+                    $isSelectedPeriod = optional($selectedPeriod)->id === $period->id;
+                    $isCurrentPeriod = optional($currentPeriod)->id === $period->id;
+                @endphp
                 <button
                     type="button"
-                    class="period-tile period-tile-button {{ optional($selectedPeriod)->id === $period->id ? 'active' : '' }}"
+                    class="period-tile period-tile-button {{ $isSelectedPeriod ? 'active' : '' }} {{ $isCurrentPeriod ? 'current-period' : '' }}"
                     data-period-id="{{ $period->id }}"
                 >
                     <div class="d-flex justify-content-between align-items-start gap-2">
@@ -426,9 +446,14 @@
                             <div class="period-tile-title">{{ $period->title }}</div>
                             <div class="period-tile-meta mt-1">{{ $period->semester_label }} | {{ $period->school_year }}</div>
                         </div>
-                        @if(optional($selectedPeriod)->id === $period->id)
-                        <span class="badge bg-primary">Aktif</span>
-                        @endif
+                        <div class="d-flex flex-column align-items-end gap-1">
+                            @if($isCurrentPeriod)
+                            <span class="badge bg-success">Aktif Hari Ini</span>
+                            @endif
+                            @if($isSelectedPeriod)
+                            <span class="badge bg-primary">Dipilih</span>
+                            @endif
+                        </div>
                     </div>
                     <div class="period-tile-meta mt-3">
                         <i class="bx bx-calendar-event me-1"></i>{{ $period->date_range_label }}
@@ -457,12 +482,20 @@
             @if($periods->isNotEmpty())
             <div class="period-grid text-start">
                 @foreach($periods as $period)
+                @php
+                    $isCurrentPeriod = optional($currentPeriod)->id === $period->id;
+                @endphp
                 <button
                     type="button"
-                    class="period-tile period-tile-button"
+                    class="period-tile period-tile-button {{ $isCurrentPeriod ? 'current-period' : '' }}"
                     data-period-id="{{ $period->id }}"
                 >
-                    <div class="period-tile-title">{{ $period->title }}</div>
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div class="period-tile-title">{{ $period->title }}</div>
+                        @if($isCurrentPeriod)
+                        <span class="badge bg-success">Aktif Hari Ini</span>
+                        @endif
+                    </div>
                     <div class="period-tile-meta mt-1">{{ $period->semester_label }} | {{ $period->school_year }}</div>
                     <div class="period-tile-meta mt-3">
                         <i class="bx bx-time-five me-1"></i>{{ $period->date_range_label }}
@@ -494,6 +527,17 @@
                     <div class="summary-meta mt-1">
                         Berlaku {{ $selectedPeriod->date_range_label }}
                     </div>
+                    @if($currentPeriod && $currentPeriod->id !== $selectedPeriod->id)
+                    <div class="summary-meta mt-2">
+                        <i class="bx bx-info-circle me-1 text-warning"></i>
+                        Periode aktif hari ini adalah {{ $currentPeriod->summary_label }}.
+                    </div>
+                    @elseif($currentPeriod && $currentPeriod->id === $selectedPeriod->id)
+                    <div class="summary-meta mt-2">
+                        <i class="bx bx-check-circle me-1 text-success"></i>
+                        Periode ini sedang aktif pada hari ini.
+                    </div>
+                    @endif
                 </div>
                 @if($canManagePeriods)
                 <div class="col-lg-4 text-lg-end">
