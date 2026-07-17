@@ -8,7 +8,7 @@
         <div class="d-flex align-items-center justify-content-between px-2 py-2">
             <div>
                 <div class="fw-semibold">{{ $isEditing ? 'Edit Jadwal Mengajar' : 'Tambah Jadwal Mengajar' }}</div>
-                <div class="text-muted small">Pilih kelas dari daftar atau ketik kelas baru</div>
+                <div class="text-muted small">Input mandiri hanya untuk periode aktif saat ini</div>
             </div>
             <a class="btn btn-sm btn-outline-secondary" href="{{ route('mobile.jadwal', ['period_id' => optional($selectedPeriod)->id]) }}">
                 <i class="bx bx-arrow-back"></i>
@@ -48,6 +48,7 @@
                         <div class="fw-semibold">{{ $selectedPeriod->title }}</div>
                         <div class="small">{{ $selectedPeriod->semester_label }} | {{ $selectedPeriod->school_year }}</div>
                         <div class="small">Berlaku {{ $selectedPeriod->date_range_label }}</div>
+                        <div class="small mt-1">Jadwal guru akan disimpan pada periode aktif ini dan bentrok jadwal akan ditolak otomatis.</div>
                     </div>
                 @endif
 

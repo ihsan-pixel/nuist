@@ -237,9 +237,13 @@ class TeacherAppController extends Controller
         $user = $this->resolveTeacher($request);
         $schoolId = $user->madrasah_id;
         $periods = $schoolId ? $this->schedulePeriodsForSchool($schoolId) : collect();
+        $activePeriod = $schoolId ? $this->currentSchedulePeriodForSchool($schoolId) : null;
         $selectedPeriod = $schoolId
             ? $this->resolveSchedulePeriod($schoolId, $request->integer('period_id'))
             : null;
+        $canManageSelectedPeriod = $selectedPeriod && $activePeriod
+            ? (int) $selectedPeriod->id === (int) $activePeriod->id
+            : false;
 
         $schedules = $selectedPeriod
             ? TeachingSchedule::query()
@@ -255,8 +259,10 @@ class TeacherAppController extends Controller
             'message' => 'OK',
             'data' => [
                 'items' => $schedules->map(fn (TeachingSchedule $schedule) => $this->serializeSchedule($schedule))->values(),
-                'can_manage' => (bool) $user->madrasah_id,
+                'can_manage' => (bool) $canManageSelectedPeriod,
+                'can_manage_selected_period' => (bool) $canManageSelectedPeriod,
                 'selected_period' => $this->serializeSchedulePeriod($selectedPeriod),
+                'active_period' => $this->serializeSchedulePeriod($activePeriod),
                 'periods' => $periods->map(fn (TeachingSchedulePeriod $period) => $this->serializeSchedulePeriod($period))->values(),
             ],
         ]);
@@ -274,16 +280,18 @@ class TeacherAppController extends Controller
         }
 
         $periods = $this->schedulePeriodsForSchool($schoolId);
-        $selectedPeriod = $this->resolveSchedulePeriod($schoolId, $request->integer('period_id'));
+        $activePeriod = $this->currentSchedulePeriodForSchool($schoolId);
 
         return response()->json([
             'message' => 'OK',
             'data' => [
                 'days' => self::SCHEDULE_DAYS,
                 'new_value' => self::SCHEDULE_NEW_VALUE,
-                'subjects' => $selectedPeriod ? $this->getScheduleSubjects($schoolId, $selectedPeriod->id)->values() : collect(),
-                'classes' => $selectedPeriod ? $this->getScheduleClasses($schoolId, $selectedPeriod->id)->values() : collect(),
-                'selected_period' => $this->serializeSchedulePeriod($selectedPeriod),
+                'subjects' => $activePeriod ? $this->getScheduleSubjects($schoolId, $activePeriod->id)->values() : collect(),
+                'classes' => $activePeriod ? $this->getScheduleClasses($schoolId, $activePeriod->id)->values() : collect(),
+                'selected_period' => $this->serializeSchedulePeriod($activePeriod),
+                'active_period' => $this->serializeSchedulePeriod($activePeriod),
+                'can_manage' => (bool) $activePeriod,
                 'periods' => $periods->map(fn (TeachingSchedulePeriod $period) => $this->serializeSchedulePeriod($period))->values(),
             ],
         ]);
@@ -301,10 +309,7 @@ class TeacherAppController extends Controller
         }
 
         $validated = $this->validateSchedulePayload($request);
-        $requestedPeriodId = $request->integer('teaching_schedule_period_id');
-        $period = $requestedPeriodId
-            ? $this->findSchedulePeriodForSchool($schoolId, $requestedPeriodId)
-            : $this->resolveSchedulePeriod($schoolId);
+        $period = $this->currentSchedulePeriodForSchool($schoolId);
 
         if (!$period) {
             throw ValidationException::withMessages([
@@ -312,7 +317,8 @@ class TeacherAppController extends Controller
             ]);
         }
 
-        $this->ensureScheduleDoesNotOverlap($user, $validated, $period->id);
+        $this->ensureScheduleUsesActivePeriod($period, $request->integer('teaching_schedule_period_id'));
+        $this->ensureScheduleDoesNotOverlap($user, $validated, $period->id, (int) $schoolId);
 
         $schedule = TeachingSchedule::create([
             'school_id' => $schoolId,
@@ -340,10 +346,8 @@ class TeacherAppController extends Controller
         abort_unless($schedule->teacher_id === $user->id, 403);
 
         $validated = $this->validateSchedulePayload($request);
-        $requestedPeriodId = $request->integer('teaching_schedule_period_id');
-        $period = $requestedPeriodId
-            ? $this->findSchedulePeriodForSchool((int) $schedule->school_id, $requestedPeriodId)
-            : ($schedule->period ?: $this->resolveSchedulePeriod((int) $schedule->school_id));
+        $schoolId = (int) ($schedule->school_id ?: $user->madrasah_id);
+        $period = $this->currentSchedulePeriodForSchool($schoolId);
 
         if (!$period) {
             throw ValidationException::withMessages([
@@ -351,7 +355,15 @@ class TeacherAppController extends Controller
             ]);
         }
 
-        $this->ensureScheduleDoesNotOverlap($user, $validated, $period->id, $schedule->id);
+        $this->ensureScheduleUsesActivePeriod($period, $request->integer('teaching_schedule_period_id'));
+
+        if ((int) $schedule->teaching_schedule_period_id !== (int) $period->id) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_period_id' => 'Jadwal ini berada di luar periode aktif saat ini, sehingga tidak bisa diubah dari aplikasi.',
+            ]);
+        }
+
+        $this->ensureScheduleDoesNotOverlap($user, $validated, $period->id, $schoolId, $schedule->id);
 
         $schedule->update([
             'teaching_schedule_period_id' => $period->id,
@@ -376,6 +388,14 @@ class TeacherAppController extends Controller
     {
         $user = $this->resolveTeacher($request);
         abort_unless($schedule->teacher_id === $user->id, 403);
+        $schoolId = (int) ($schedule->school_id ?: $user->madrasah_id);
+        $activePeriod = $this->currentSchedulePeriodForSchool($schoolId);
+
+        if (!$activePeriod || (int) $schedule->teaching_schedule_period_id !== (int) $activePeriod->id) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_period_id' => 'Jadwal ini berada di luar periode aktif saat ini, sehingga tidak bisa dihapus dari aplikasi.',
+            ]);
+        }
 
         $schedule->delete();
 
@@ -1871,9 +1891,10 @@ class TeacherAppController extends Controller
         return $validated;
     }
 
-    private function ensureScheduleDoesNotOverlap(User $user, array $validated, int $periodId, ?int $exceptId = null): void
+    private function ensureScheduleDoesNotOverlap(User $user, array $validated, int $periodId, int $schoolId, ?int $exceptId = null): void
     {
-        $query = TeachingSchedule::query()
+        $teacherOverlap = TeachingSchedule::query()
+            ->with('teacher:id,name')
             ->where('teacher_id', $user->id)
             ->where('teaching_schedule_period_id', $periodId)
             ->where('day', $validated['day'])
@@ -1883,12 +1904,41 @@ class TeacherAppController extends Controller
             });
 
         if ($exceptId !== null) {
-            $query->where('id', '!=', $exceptId);
+            $teacherOverlap->where('id', '!=', $exceptId);
         }
 
-        if ($query->exists()) {
+        $teacherOverlap = $teacherOverlap->first();
+
+        if ($teacherOverlap) {
             throw ValidationException::withMessages([
-                'overlap' => 'Jadwal bentrok dengan jadwal Anda sendiri pada hari yang sama.',
+                'overlap' => $this->teacherScheduleOverlapMessage($teacherOverlap, $validated['day']),
+            ]);
+        }
+
+        if (in_array((int) $schoolId, [8, 9], true)) {
+            return;
+        }
+
+        $classOverlap = TeachingSchedule::query()
+            ->with('teacher:id,name')
+            ->where('school_id', $schoolId)
+            ->where('teaching_schedule_period_id', $periodId)
+            ->where('class_name', $validated['class_name'])
+            ->where('day', $validated['day'])
+            ->where(function ($builder) use ($validated) {
+                $builder->where('start_time', '<', $validated['end_time'])
+                    ->where('end_time', '>', $validated['start_time']);
+            });
+
+        if ($exceptId !== null) {
+            $classOverlap->where('id', '!=', $exceptId);
+        }
+
+        $classOverlap = $classOverlap->first();
+
+        if ($classOverlap) {
+            throw ValidationException::withMessages([
+                'overlap' => $this->classScheduleOverlapMessage($classOverlap, $validated['day']),
             ]);
         }
     }
@@ -2113,6 +2163,15 @@ class TeacherAppController extends Controller
             ->get();
     }
 
+    private function currentSchedulePeriodForSchool(int|string|null $schoolId): ?TeachingSchedulePeriod
+    {
+        if (!$schoolId) {
+            return null;
+        }
+
+        return TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'));
+    }
+
     private function resolveSchedulePeriod(
         int|string|null $schoolId,
         ?int $periodId = null,
@@ -2156,6 +2215,42 @@ class TeacherAppController extends Controller
         }
 
         return $period;
+    }
+
+    private function ensureScheduleUsesActivePeriod(TeachingSchedulePeriod $activePeriod, ?int $requestedPeriodId = null): void
+    {
+        if ($requestedPeriodId && (int) $requestedPeriodId !== (int) $activePeriod->id) {
+            throw ValidationException::withMessages([
+                'teaching_schedule_period_id' => 'Guru hanya bisa input jadwal mandiri pada periode yang sedang aktif saat ini.',
+            ]);
+        }
+    }
+
+    private function teacherScheduleOverlapMessage(TeachingSchedule $overlap, string $day): string
+    {
+        return sprintf(
+            'Jadwal bentrok dengan jadwal Anda sendiri: %s kelas %s pada hari %s jam %s-%s.',
+            trim((string) $overlap->subject),
+            trim((string) $overlap->class_name),
+            $day,
+            $this->formatTime($overlap->start_time),
+            $this->formatTime($overlap->end_time),
+        );
+    }
+
+    private function classScheduleOverlapMessage(TeachingSchedule $overlap, string $day): string
+    {
+        $teacherName = trim((string) optional($overlap->teacher)->name);
+
+        return sprintf(
+            'Jadwal bentrok pada kelas %s: %s dengan %s pada hari %s jam %s-%s.',
+            trim((string) $overlap->class_name),
+            trim((string) $overlap->subject),
+            $teacherName !== '' ? 'guru '.$teacherName : 'guru lain',
+            $day,
+            $this->formatTime($overlap->start_time),
+            $this->formatTime($overlap->end_time),
+        );
     }
 
     private function serializeSchedulePeriod(?TeachingSchedulePeriod $period): ?array

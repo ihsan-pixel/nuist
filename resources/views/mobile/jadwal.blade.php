@@ -4,6 +4,9 @@
 @section('subtitle', 'Jadwal Mengajar Saya')
 
 @section('content')
+@php
+    $canManageSelectedPeriod = (bool) ($canManageSelectedPeriod ?? false);
+@endphp
 <div class="container py-3" style="max-width: 600px; margin: auto;">
     <div class="text-center mb-4">
         <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Jadwal Mengajar</h5>
@@ -404,6 +407,16 @@
         </div>
         @endif
 
+        @if(!$activePeriod)
+        <div class="alert alert-warning border-0 rounded-3 mb-3" style="background: rgba(255, 193, 7, 0.14); color: #8a6d03; border-radius: 12px; padding: 10px;">
+            <i class="bx bx-info-circle me-1"></i>Belum ada periode jadwal aktif per {{ now('Asia/Jakarta')->translatedFormat('d M Y') }}. Guru belum bisa input jadwal mandiri.
+        </div>
+        @elseif(!$canManageSelectedPeriod)
+        <div class="alert alert-warning border-0 rounded-3 mb-3" style="background: rgba(255, 193, 7, 0.14); color: #8a6d03; border-radius: 12px; padding: 10px;">
+            <i class="bx bx-info-circle me-1"></i>Input dan edit jadwal mandiri hanya tersedia pada periode aktif: {{ $activePeriod->summary_label }}.
+        </div>
+        @endif
+
         @if($periods->isNotEmpty())
         <div class="d-flex flex-wrap gap-2 mb-3">
             @foreach($periods as $period)
@@ -414,9 +427,19 @@
         </div>
         @endif
 
-        <a class="btn btn-success w-100 mb-3" href="{{ route('mobile.jadwal.create', ['period_id' => optional($selectedPeriod)->id]) }}">
-            <i class="bx bx-plus me-1"></i> Tambah Jadwal Mengajar
-        </a>
+        @if($canManageSelectedPeriod)
+            <a class="btn btn-success w-100 mb-3" href="{{ route('mobile.jadwal.create', ['period_id' => optional($activePeriod)->id]) }}">
+                <i class="bx bx-plus me-1"></i> Tambah Jadwal Mengajar
+            </a>
+        @elseif($activePeriod)
+            <button class="btn btn-outline-secondary w-100 mb-3" type="button" disabled>
+                <i class="bx bx-lock-alt me-1"></i> Tambah Jadwal Hanya di Periode Aktif
+            </button>
+        @else
+            <button class="btn btn-outline-secondary w-100 mb-3" type="button" disabled>
+                <i class="bx bx-calendar-x me-1"></i> Belum Ada Periode Aktif
+            </button>
+        @endif
 
         <!-- Day Indicator -->
         <div class="day-indicator">
@@ -456,7 +479,7 @@
                                     {{ Str::limit($schedule->school->name ?? 'N/A', 100) }}
                                 </div>
                             </div>
-                            @if($schedule->teacher_id === auth()->id())
+                            @if($schedule->teacher_id === auth()->id() && $canManageSelectedPeriod)
                                 <a class="btn btn-sm btn-outline-secondary" href="{{ route('mobile.jadwal.edit', $schedule->id) }}" style="white-space:nowrap;">
                                     <i class="bx bx-edit-alt"></i>
                                 </a>

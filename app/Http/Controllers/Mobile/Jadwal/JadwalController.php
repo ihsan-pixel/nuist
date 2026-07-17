@@ -15,6 +15,9 @@ class JadwalController extends \App\Http\Controllers\Controller
     {
         $user = Auth::user();
         $schoolId = $user->madrasah_id;
+        $activePeriod = $schoolId
+            ? TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'))
+            : null;
         $periods = $schoolId
             ? TeachingSchedulePeriod::query()
                 ->where('school_id', $schoolId)
@@ -54,8 +57,19 @@ class JadwalController extends \App\Http\Controllers\Controller
         $schedules = $baseSchedules->groupBy('day');
         $classes = $baseSchedules->pluck('class_name')->filter()->unique()->sort()->values();
         $subjects = $baseSchedules->pluck('subject')->filter()->unique()->sort()->values();
+        $canManageSelectedPeriod = $selectedPeriod && $activePeriod
+            ? (int) $selectedPeriod->id === (int) $activePeriod->id
+            : false;
 
-        return view('mobile.jadwal', compact('schedules', 'classes', 'subjects', 'periods', 'selectedPeriod'));
+        return view('mobile.jadwal', compact(
+            'schedules',
+            'classes',
+            'subjects',
+            'periods',
+            'selectedPeriod',
+            'activePeriod',
+            'canManageSelectedPeriod',
+        ));
     }
 
     private function resolveSelectedPeriod(int $schoolId, ?int $periodId = null): ?TeachingSchedulePeriod

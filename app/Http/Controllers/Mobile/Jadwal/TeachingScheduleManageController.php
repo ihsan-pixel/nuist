@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mobile\Jadwal;
 use App\Http\Controllers\Controller;
 use App\Models\TeachingSchedule;
 use App\Models\TeachingSchedulePeriod;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -24,20 +25,21 @@ class TeachingScheduleManageController extends Controller
             return redirect()->route('mobile.jadwal')->with('error', 'Akun Anda belum terhubung ke madrasah, sehingga tidak bisa membuat jadwal.');
         }
 
-        $selectedPeriod = $this->resolveSelectedPeriod($schoolId, request()->integer('period_id'));
-        if (!$selectedPeriod) {
+        $activePeriod = $this->activePeriodForSchool($schoolId);
+        if (!$activePeriod) {
             return redirect()->route('mobile.jadwal')->with('error', 'Periode jadwal mengajar belum tersedia. Hubungi admin sekolah.');
         }
 
-        $classes = $this->getSchoolClassOptions($schoolId, $selectedPeriod->id);
-        $subjects = $this->getSchoolSubjectOptions($schoolId, $selectedPeriod->id);
+        $classes = $this->getSchoolClassOptions($schoolId, $activePeriod->id);
+        $subjects = $this->getSchoolSubjectOptions($schoolId, $activePeriod->id);
 
         return view('mobile.jadwal-form', [
             'isEditing' => false,
             'schedule' => null,
             'classes' => $classes,
             'subjects' => $subjects,
-            'selectedPeriod' => $selectedPeriod,
+            'selectedPeriod' => $activePeriod,
+            'activePeriod' => $activePeriod,
         ]);
     }
 
@@ -50,12 +52,13 @@ class TeachingScheduleManageController extends Controller
             return redirect()->route('mobile.jadwal')->with('error', 'Akun Anda belum terhubung ke madrasah, sehingga tidak bisa membuat jadwal.');
         }
 
-        $selectedPeriod = $this->resolveSelectedPeriod($schoolId, $request->integer('period_id'));
-        if (!$selectedPeriod) {
+        $activePeriod = $this->activePeriodForSchool($schoolId);
+        if (!$activePeriod) {
             throw ValidationException::withMessages([
                 'period_id' => 'Periode jadwal mengajar belum tersedia.',
             ]);
         }
+        $this->ensureRequestUsesActivePeriod($activePeriod, $request->integer('period_id'));
 
         $validated = $request->validate([
             'day' => ['required', Rule::in(self::DAYS)],
@@ -88,24 +91,45 @@ class TeachingScheduleManageController extends Controller
 
         // Check overlap for teacher schedule (same teacher, same day, overlapping time)
         $teacherOverlap = TeachingSchedule::query()
+            ->with('teacher:id,name')
             ->where('teacher_id', $user->id)
-            ->where('teaching_schedule_period_id', $selectedPeriod->id)
+            ->where('teaching_schedule_period_id', $activePeriod->id)
             ->where('day', $validated['day'])
             ->where(function ($query) use ($validated) {
                 $query->where('start_time', '<', $validated['end_time'])
                     ->where('end_time', '>', $validated['start_time']);
             })
-            ->exists();
+            ->first();
 
         if ($teacherOverlap) {
             return back()
-                ->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal Anda sendiri pada hari yang sama.'])
+                ->withErrors(['overlap' => $this->teacherOverlapMessage($teacherOverlap, $validated['day'])])
                 ->withInput();
+        }
+
+        if (!in_array((int) $schoolId, [8, 9], true)) {
+            $classOverlap = TeachingSchedule::query()
+                ->with('teacher:id,name')
+                ->where('school_id', $schoolId)
+                ->where('teaching_schedule_period_id', $activePeriod->id)
+                ->where('class_name', $validated['class_name'])
+                ->where('day', $validated['day'])
+                ->where(function ($query) use ($validated) {
+                    $query->where('start_time', '<', $validated['end_time'])
+                        ->where('end_time', '>', $validated['start_time']);
+                })
+                ->first();
+
+            if ($classOverlap) {
+                return back()
+                    ->withErrors(['overlap' => $this->classOverlapMessage($classOverlap, $validated['day'])])
+                    ->withInput();
+            }
         }
 
         TeachingSchedule::create([
             'school_id' => $schoolId,
-            'teaching_schedule_period_id' => $selectedPeriod->id,
+            'teaching_schedule_period_id' => $activePeriod->id,
             'teacher_id' => $user->id,
             'day' => $validated['day'],
             'subject' => $validated['subject'],
@@ -115,7 +139,7 @@ class TeachingScheduleManageController extends Controller
             'created_by' => $user->id,
         ]);
 
-        return redirect()->route('mobile.jadwal', ['period_id' => $selectedPeriod->id])->with('success', 'Jadwal mengajar berhasil ditambahkan.');
+        return redirect()->route('mobile.jadwal', ['period_id' => $activePeriod->id])->with('success', 'Jadwal mengajar berhasil ditambahkan.');
     }
 
     public function edit(TeachingSchedule $schedule)
@@ -127,16 +151,25 @@ class TeachingScheduleManageController extends Controller
         }
 
         $schoolId = $schedule->school_id;
-        $selectedPeriod = $schedule->period;
-        $classes = $schoolId && $selectedPeriod ? $this->getSchoolClassOptions($schoolId, $selectedPeriod->id) : collect();
-        $subjects = $schoolId && $selectedPeriod ? $this->getSchoolSubjectOptions($schoolId, $selectedPeriod->id) : collect();
+        $activePeriod = $this->activePeriodForSchool($schoolId);
+        if (!$activePeriod) {
+            return redirect()->route('mobile.jadwal')->with('error', 'Periode jadwal mengajar aktif tidak tersedia.');
+        }
+
+        if ((int) $schedule->teaching_schedule_period_id !== (int) $activePeriod->id) {
+            return redirect()->route('mobile.jadwal', ['period_id' => $schedule->teaching_schedule_period_id])->with('error', 'Jadwal ini berada di luar periode aktif, sehingga tidak bisa diubah dari mobile.');
+        }
+
+        $classes = $this->getSchoolClassOptions($schoolId, $activePeriod->id);
+        $subjects = $this->getSchoolSubjectOptions($schoolId, $activePeriod->id);
 
         return view('mobile.jadwal-form', [
             'isEditing' => true,
             'schedule' => $schedule,
             'classes' => $classes,
             'subjects' => $subjects,
-            'selectedPeriod' => $selectedPeriod,
+            'selectedPeriod' => $activePeriod,
+            'activePeriod' => $activePeriod,
         ]);
     }
 
@@ -152,11 +185,16 @@ class TeachingScheduleManageController extends Controller
         if (!$schoolId) {
             return redirect()->route('mobile.jadwal')->with('error', 'Data sekolah pada jadwal tidak ditemukan, sehingga tidak bisa mengubah jadwal.');
         }
-        $selectedPeriod = $schedule->period ?: $this->resolveSelectedPeriod($schoolId, $request->integer('period_id'));
-        if (!$selectedPeriod) {
+        $activePeriod = $this->activePeriodForSchool($schoolId);
+        if (!$activePeriod) {
             throw ValidationException::withMessages([
                 'period_id' => 'Periode jadwal mengajar pada data ini tidak ditemukan.',
             ]);
+        }
+        $this->ensureRequestUsesActivePeriod($activePeriod, $request->integer('period_id'));
+
+        if ((int) $schedule->teaching_schedule_period_id !== (int) $activePeriod->id) {
+            return redirect()->route('mobile.jadwal', ['period_id' => $schedule->teaching_schedule_period_id])->with('error', 'Jadwal ini berada di luar periode aktif, sehingga tidak bisa diubah dari mobile.');
         }
 
         $validated = $request->validate([
@@ -190,20 +228,42 @@ class TeachingScheduleManageController extends Controller
 
         // Check overlap, excluding current
         $teacherOverlap = TeachingSchedule::query()
+            ->with('teacher:id,name')
             ->where('teacher_id', $user->id)
-            ->where('teaching_schedule_period_id', $selectedPeriod->id)
+            ->where('teaching_schedule_period_id', $activePeriod->id)
             ->where('day', $validated['day'])
             ->where('id', '!=', $schedule->id)
             ->where(function ($query) use ($validated) {
                 $query->where('start_time', '<', $validated['end_time'])
                     ->where('end_time', '>', $validated['start_time']);
             })
-            ->exists();
+            ->first();
 
         if ($teacherOverlap) {
             return back()
-                ->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal Anda sendiri pada hari yang sama.'])
+                ->withErrors(['overlap' => $this->teacherOverlapMessage($teacherOverlap, $validated['day'])])
                 ->withInput();
+        }
+
+        if (!in_array((int) $schoolId, [8, 9], true)) {
+            $classOverlap = TeachingSchedule::query()
+                ->with('teacher:id,name')
+                ->where('school_id', $schoolId)
+                ->where('teaching_schedule_period_id', $activePeriod->id)
+                ->where('class_name', $validated['class_name'])
+                ->where('day', $validated['day'])
+                ->where('id', '!=', $schedule->id)
+                ->where(function ($query) use ($validated) {
+                    $query->where('start_time', '<', $validated['end_time'])
+                        ->where('end_time', '>', $validated['start_time']);
+                })
+                ->first();
+
+            if ($classOverlap) {
+                return back()
+                    ->withErrors(['overlap' => $this->classOverlapMessage($classOverlap, $validated['day'])])
+                    ->withInput();
+            }
         }
 
         $schedule->update([
@@ -214,7 +274,7 @@ class TeachingScheduleManageController extends Controller
             'end_time' => $validated['end_time'],
         ]);
 
-        return redirect()->route('mobile.jadwal', ['period_id' => $selectedPeriod->id])->with('success', 'Jadwal mengajar berhasil diperbarui.');
+        return redirect()->route('mobile.jadwal', ['period_id' => $activePeriod->id])->with('success', 'Jadwal mengajar berhasil diperbarui.');
     }
 
     public function destroy(TeachingSchedule $schedule)
@@ -225,9 +285,14 @@ class TeachingScheduleManageController extends Controller
             abort(403);
         }
 
+        $activePeriod = $this->activePeriodForSchool($schedule->school_id ?: $user->madrasah_id);
+        if (!$activePeriod || (int) $schedule->teaching_schedule_period_id !== (int) $activePeriod->id) {
+            return redirect()->route('mobile.jadwal', ['period_id' => $schedule->teaching_schedule_period_id])->with('error', 'Jadwal ini berada di luar periode aktif, sehingga tidak bisa dihapus dari mobile.');
+        }
+
         $schedule->delete();
 
-        return redirect()->route('mobile.jadwal', ['period_id' => $schedule->teaching_schedule_period_id])->with('success', 'Jadwal mengajar berhasil dihapus.');
+        return redirect()->route('mobile.jadwal', ['period_id' => $activePeriod->id])->with('success', 'Jadwal mengajar berhasil dihapus.');
     }
 
     private function getSchoolClassOptions(int|string $schoolId, int|string $periodId)
@@ -271,5 +336,50 @@ class TeachingScheduleManageController extends Controller
 
         return TeachingSchedulePeriod::activeForSchool($schoolId)
             ?? TeachingSchedulePeriod::latestForSchool($schoolId);
+    }
+
+    private function activePeriodForSchool(int|string|null $schoolId): ?TeachingSchedulePeriod
+    {
+        if (!$schoolId) {
+            return null;
+        }
+
+        return TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'));
+    }
+
+    private function ensureRequestUsesActivePeriod(TeachingSchedulePeriod $activePeriod, ?int $requestedPeriodId = null): void
+    {
+        if ($requestedPeriodId && (int) $requestedPeriodId !== (int) $activePeriod->id) {
+            throw ValidationException::withMessages([
+                'period_id' => 'Guru hanya bisa menginput jadwal mandiri pada periode yang sedang aktif saat ini.',
+            ]);
+        }
+    }
+
+    private function teacherOverlapMessage(TeachingSchedule $overlap, string $day): string
+    {
+        return sprintf(
+            'Jadwal bentrok dengan jadwal Anda sendiri: %s kelas %s pada hari %s jam %s-%s.',
+            trim((string) $overlap->subject),
+            trim((string) $overlap->class_name),
+            $day,
+            substr((string) $overlap->start_time, 0, 5),
+            substr((string) $overlap->end_time, 0, 5),
+        );
+    }
+
+    private function classOverlapMessage(TeachingSchedule $overlap, string $day): string
+    {
+        $teacherName = trim((string) optional($overlap->teacher)->name);
+
+        return sprintf(
+            'Jadwal bentrok pada kelas %s: %s dengan %s pada hari %s jam %s-%s.',
+            trim((string) $overlap->class_name),
+            trim((string) $overlap->subject),
+            $teacherName !== '' ? 'guru '.$teacherName : 'guru lain',
+            $day,
+            substr((string) $overlap->start_time, 0, 5),
+            substr((string) $overlap->end_time, 0, 5),
+        );
     }
 }
