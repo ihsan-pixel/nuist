@@ -12,6 +12,22 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class AdminSekolahController extends Controller
 {
+    private function resolveCurrentPpdbSetting($sekolah): PPDBSetting
+    {
+        $tahun = now()->year;
+
+        return PPDBSetting::firstOrCreate(
+            [
+                'sekolah_id' => $sekolah->id,
+                'tahun' => $tahun,
+            ],
+            [
+                'slug' => Str::slug($sekolah->name . '-' . $sekolah->id . '-' . $tahun),
+                'nama_sekolah' => $sekolah->name,
+            ]
+        );
+    }
+
     /**
      * Dashboard admin sekolah
      * Menampilkan statistik pendaftar
@@ -25,13 +41,7 @@ class AdminSekolahController extends Controller
             return redirect()->back()->with('error', 'Sekolah tidak ditemukan untuk akun Anda');
         }
 
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $sekolah->id)
-            ->where('tahun', now()->year)
-            ->first();
-
-        if (!$ppdbSetting) {
-            return redirect()->back()->with('error', 'PPDB tidak ditemukan untuk sekolah Anda');
-        }
+        $ppdbSetting = $this->resolveCurrentPpdbSetting($sekolah);
 
         $statistik = [
             'total_pendaftar' => $ppdbSetting->pendaftars()->count(),
@@ -56,13 +66,7 @@ class AdminSekolahController extends Controller
             return redirect()->back()->with('error', 'Sekolah tidak ditemukan');
         }
 
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $sekolah->id)
-            ->where('tahun', now()->year)
-            ->first();
-
-        if (!$ppdbSetting) {
-            return redirect()->back()->with('error', 'PPDB tidak ditemukan');
-        }
+        $ppdbSetting = $this->resolveCurrentPpdbSetting($sekolah);
 
         $pendaftars = $ppdbSetting->pendaftars()
             ->where('status', 'pending')
@@ -119,13 +123,7 @@ class AdminSekolahController extends Controller
             return redirect()->back()->with('error', 'Sekolah tidak ditemukan');
         }
 
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $sekolah->id)
-            ->where('tahun', now()->year)
-            ->first();
-
-        if (!$ppdbSetting) {
-            return redirect()->back()->with('error', 'PPDB tidak ditemukan');
-        }
+        $ppdbSetting = $this->resolveCurrentPpdbSetting($sekolah);
 
         $pendaftars = $ppdbSetting->pendaftars()
             ->where('status', 'verifikasi')
@@ -185,18 +183,7 @@ class AdminSekolahController extends Controller
             return redirect()->route('ppdb.lp.dashboard')->with('info', 'Sekolah tidak ditemukan untuk akun Anda. Silakan hubungi administrator.');
         }
 
-        // Get or create PPDB setting for current year
-        $tahun = now()->year;
-        $ppdbSetting = PPDBSetting::firstOrCreate(
-            [
-                'sekolah_id' => $sekolah->id,
-                'tahun' => $tahun
-            ],
-            [
-                'slug' => Str::slug($sekolah->name . '-' . $sekolah->id . '-' . $tahun),
-                'nama_sekolah' => $sekolah->name
-            ]
-        );
+        $ppdbSetting = $this->resolveCurrentPpdbSetting($sekolah);
 
         $pendaftars = $ppdbSetting->pendaftars()
             ->with('ppdbJalur')
@@ -242,13 +229,7 @@ class AdminSekolahController extends Controller
             return redirect()->back()->with('error', 'Sekolah tidak ditemukan');
         }
 
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $sekolah->id)
-            ->where('tahun', now()->year)
-            ->first();
-
-        if (!$ppdbSetting) {
-            return redirect()->back()->with('error', 'PPDB tidak ditemukan');
-        }
+        $ppdbSetting = $this->resolveCurrentPpdbSetting($sekolah);
 
         $pendaftars = $ppdbSetting->pendaftars()->get();
 
