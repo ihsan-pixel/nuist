@@ -52,28 +52,28 @@ use App\Http\Controllers\PPDB\{
 | such as Presensi, PPDB, MGMP, and Payment stay on their current host.
 |
 */
+Route::get('/storage/{path}', function (string $path) {
+    $normalizedPath = ltrim($path, '/');
+
+    if ($normalizedPath === '' || str_contains($normalizedPath, '..')) {
+        abort(404);
+    }
+
+    $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+    if (! $disk->exists($normalizedPath)) {
+        abort(404);
+    }
+
+    return response()->file($disk->path($normalizedPath), [
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*');
+
 Route::domain('sekolah.nuist.id')->group(function () {
     Route::get('/', function () {
         return redirect('/dashboard');
     });
-
-    Route::get('/storage/{path}', function (string $path) {
-        $normalizedPath = ltrim($path, '/');
-
-        if ($normalizedPath === '' || str_contains($normalizedPath, '..')) {
-            abort(404);
-        }
-
-        $disk = \Illuminate\Support\Facades\Storage::disk('public');
-
-        if (! $disk->exists($normalizedPath)) {
-            abort(404);
-        }
-
-        return response()->file($disk->path($normalizedPath), [
-            'Cache-Control' => 'public, max-age=31536000',
-        ]);
-    })->where('path', '.*');
 
     Route::middleware(['guest'])->group(function () {
         Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
