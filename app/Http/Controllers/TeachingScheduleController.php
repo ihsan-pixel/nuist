@@ -51,7 +51,7 @@ class TeachingScheduleController extends Controller
             if ($user->ketugasan === 'kepala madrasah/sekolah') {
                 $school = Madrasah::findOrFail($user->madrasah_id);
                 $periods = $this->schedulePeriodsForSchool($school->id);
-                $selectedPeriod = $this->resolveSelectedPeriod($school->id, $selectedPeriodId);
+                $selectedPeriod = $this->resolveSelectedPeriod($school->id, $selectedPeriodId, false);
                 $schedules = $selectedPeriod
                     ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
                         ->where('school_id', $school->id)
@@ -129,7 +129,7 @@ class TeachingScheduleController extends Controller
         } else {
             $school = Madrasah::findOrFail($user->madrasah_id);
             $periods = $this->schedulePeriodsForSchool($school->id);
-            $selectedPeriod = $this->resolveSelectedPeriod($school->id, $selectedPeriodId);
+            $selectedPeriod = $this->resolveSelectedPeriod($school->id, $selectedPeriodId, false);
             $schedules = $selectedPeriod
                 ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
                     ->where('school_id', $user->madrasah_id)
@@ -568,7 +568,7 @@ class TeachingScheduleController extends Controller
 
         $school = Madrasah::findOrFail($schoolId);
         $periods = $this->schedulePeriodsForSchool($schoolId);
-        $selectedPeriod = $this->resolveSelectedPeriod($schoolId, $request->integer('period_id'));
+        $selectedPeriod = $this->resolveSelectedPeriod($schoolId, $request->integer('period_id'), false);
         $schedules = $selectedPeriod
             ? TeachingSchedule::with(['teacher', 'school', 'creator', 'period'])
                 ->where('school_id', $schoolId)
