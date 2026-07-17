@@ -188,11 +188,6 @@
                         <button type="button" class="btn btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#createPeriodModal">
                             <i class="bx bx-calendar-plus me-1"></i>Tambah Periode
                         </button>
-                        @if($selectedPeriod)
-                        <button type="button" class="btn btn-outline-warning rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#editPeriodModal">
-                            <i class="bx bx-edit me-1"></i>Edit Periode
-                        </button>
-                        @endif
                         @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
                         <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal" {{ $selectedPeriod ? '' : 'disabled' }}>
                             <i class="bx bx-upload me-1"></i>Import Jadwal
@@ -214,8 +209,8 @@
 
     <div class="card summary-card mb-0">
         <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                <div>
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                <div class="flex-grow-1">
                     <div class="text-muted small mb-1">Periode Jadwal Mengajar</div>
                     <div class="fw-semibold">
                         {{ $selectedPeriod ? $selectedPeriod->summary_label : 'Belum ada periode jadwal mengajar' }}
@@ -223,8 +218,15 @@
                     @if($selectedPeriod)
                     <div class="text-muted small mt-1">Masa berlaku: {{ $selectedPeriod->date_range_label }}</div>
                     @endif
+                    @if($selectedPeriod && (Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin'))
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editPeriodModal">
+                            <i class="bx bx-edit me-1"></i>Edit Periode Ini
+                        </button>
+                    </div>
+                    @endif
                 </div>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="d-flex flex-wrap justify-content-lg-end gap-2">
                     @forelse($periods as $period)
                         <a href="{{ route('teaching-schedules.school-schedules', ['schoolId' => $school->id, 'period_id' => $period->id]) }}"
                            class="btn btn-sm {{ optional($selectedPeriod)->id === $period->id ? 'btn-primary' : 'btn-outline-primary' }}">
