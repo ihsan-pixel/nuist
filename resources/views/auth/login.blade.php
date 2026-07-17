@@ -19,13 +19,10 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 @section('content')
 @php
-    $host = request()->getHost();
     $isSpmbHost = request()->getHost() === 'spmb.nuist.id';
-    $isSekolahHost = $host === 'sekolah.nuist.id';
-    $isSubdomainWebLogin = in_array($host, ['spmb.nuist.id', 'sekolah.nuist.id'], true);
-    $loginAction = $isSubdomainWebLogin ? url('/login') : route('login');
-    $forgotPasswordUrl = $isSubdomainWebLogin ? url('/password/reset') : route('mobile.password.request');
-    $backUrl = $isSubdomainWebLogin ? url('/') : route('landing');
+    $loginAction = $isSpmbHost ? url('/login') : route('login');
+    $forgotPasswordUrl = $isSpmbHost ? url('/password/reset') : route('mobile.password.request');
+    $backUrl = $isSpmbHost ? url('/') : route('landing');
 @endphp
 <div class="login-container">
     <div class="login-wrapper">
@@ -37,7 +34,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                 </div>
                 <h1 class="login-title">LOGIN</h1>
                 <p class="login-subtitle">
-                    {{ $isSpmbHost ? 'Login Admin Sekolah untuk mengelola dashboard SPMB sekolah Anda.' : ($isSekolahHost ? 'Login Admin Sekolah untuk mengakses dashboard sekolah Anda.' : 'Welcome back! Please sign in to your account.') }}
+                    {{ $isSpmbHost ? 'Login Admin Sekolah untuk mengelola dashboard SPMB sekolah Anda.' : 'Welcome back! Please sign in to your account.' }}
                 </p>
 
                 @if (session('status'))
@@ -109,14 +106,14 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                 </div> --}}
 
                 <div class="mt-3 text-center">
-                    @unless($isSubdomainWebLogin)
+                    @unless($isSpmbHost)
                     <p class="mb-0">Don't have an account? <a href="{{ url('register') }}" class="text-primary">Register here</a></p>
                     @endunless
                     <a href="{{ $forgotPasswordUrl }}">Forgot password?</a>
                 </div>
 
                 <div class="mt-2 text-center">
-                    <p class="mb-0"><a href="{{ $backUrl }}" class="text-primary">{{ $isSpmbHost ? 'Kembali ke Halaman SPMB' : ($isSekolahHost ? 'Kembali ke Dashboard Sekolah' : 'Kembali ke Halaman Utama') }}</a></p>
+                    <p class="mb-0"><a href="{{ $backUrl }}" class="text-primary">{{ $isSpmbHost ? 'Kembali ke Halaman SPMB' : 'Kembali ke Halaman Utama' }}</a></p>
                 </div>
 
                 <div class="footer-text">
