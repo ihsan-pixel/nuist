@@ -568,7 +568,12 @@ Route::domain('admin.nuist.id')->group(function () {
             Route::get('/admin/presensi_admin/laporan-mingguan', [PresensiAdminController::class, 'laporanMingguan']);
             Route::get('/presensi/rekap/pdf/{madrasahId}/{bulan}', [PresensiController::class, 'pdfRekap']);
 
-            Route::resource('teaching-schedules', App\Http\Controllers\TeachingScheduleController::class);
+            Route::get('teaching-schedules', [App\Http\Controllers\TeachingScheduleController::class, 'index']);
+            Route::get('teaching-schedules/create', [App\Http\Controllers\TeachingScheduleController::class, 'create']);
+            Route::post('teaching-schedules', [App\Http\Controllers\TeachingScheduleController::class, 'store']);
+            Route::get('teaching-schedules/{teaching_schedule}/edit', [App\Http\Controllers\TeachingScheduleController::class, 'edit']);
+            Route::put('teaching-schedules/{teaching_schedule}', [App\Http\Controllers\TeachingScheduleController::class, 'update']);
+            Route::delete('teaching-schedules/{teaching_schedule}', [App\Http\Controllers\TeachingScheduleController::class, 'destroy']);
             Route::get('teaching-schedules/get-teachers/{schoolId}', [App\Http\Controllers\TeachingScheduleController::class, 'getTeachersBySchool']);
             Route::get('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'import']);
             Route::post('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'processImport']);
@@ -577,8 +582,19 @@ Route::domain('admin.nuist.id')->group(function () {
             Route::get('teaching-schedules/school/{schoolId}/classes', [App\Http\Controllers\TeachingScheduleController::class, 'showSchoolClasses']);
             Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter']);
 
-            Route::resource('academic-calendar-events', AcademicCalendarEventController::class)->except(['show']);
-            Route::resource('picket-schedule-periods', PicketScheduleController::class)->except(['show']);
+            Route::get('academic-calendar-events', [AcademicCalendarEventController::class, 'index']);
+            Route::get('academic-calendar-events/create', [AcademicCalendarEventController::class, 'create']);
+            Route::post('academic-calendar-events', [AcademicCalendarEventController::class, 'store']);
+            Route::get('academic-calendar-events/{academic_calendar_event}/edit', [AcademicCalendarEventController::class, 'edit']);
+            Route::put('academic-calendar-events/{academic_calendar_event}', [AcademicCalendarEventController::class, 'update']);
+            Route::delete('academic-calendar-events/{academic_calendar_event}', [AcademicCalendarEventController::class, 'destroy']);
+
+            Route::get('picket-schedule-periods', [PicketScheduleController::class, 'index']);
+            Route::get('picket-schedule-periods/create', [PicketScheduleController::class, 'create']);
+            Route::post('picket-schedule-periods', [PicketScheduleController::class, 'store']);
+            Route::get('picket-schedule-periods/{picket_schedule_period}/edit', [PicketScheduleController::class, 'edit']);
+            Route::put('picket-schedule-periods/{picket_schedule_period}', [PicketScheduleController::class, 'update']);
+            Route::delete('picket-schedule-periods/{picket_schedule_period}', [PicketScheduleController::class, 'destroy']);
 
             Route::prefix('masterdata')->group(function () {
                 Route::get('/admin', [AdminController::class, 'index']);
@@ -1168,7 +1184,14 @@ Route::domain('presensi.nuist.id')->group(function () {
             Route::get('/laporan/mengajar', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporanMengajar']);
             Route::get('/teaching-attendances', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'teachingAttendances']);
 
-            Route::resource('laporan-akhir-tahun', App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class);
+            Route::get('laporan-akhir-tahun', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'index']);
+            Route::get('laporan-akhir-tahun/create', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'create']);
+            Route::post('laporan-akhir-tahun', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'store']);
+            Route::get('laporan-akhir-tahun/{laporan_akhir_tahun}', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'show']);
+            Route::get('laporan-akhir-tahun/{laporan_akhir_tahun}/edit', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'edit']);
+            Route::put('laporan-akhir-tahun/{laporan_akhir_tahun}', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'update']);
+            Route::patch('laporan-akhir-tahun/{laporan_akhir_tahun}', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'update']);
+            Route::delete('laporan-akhir-tahun/{laporan_akhir_tahun}', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'destroy']);
 
             Route::get('/talenta', [App\Http\Controllers\Mobile\TalentaController::class, 'index']);
             Route::get('/talenta/create', [App\Http\Controllers\Mobile\TalentaController::class, 'create']);
