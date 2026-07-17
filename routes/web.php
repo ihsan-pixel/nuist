@@ -70,6 +70,24 @@ Route::get('/storage/{path}', function (string $path) {
     ]);
 })->where('path', '.*');
 
+Route::get('/uploads/{path}', function (string $path) {
+    $normalizedPath = ltrim($path, '/');
+
+    if ($normalizedPath === '' || str_contains($normalizedPath, '..')) {
+        abort(404);
+    }
+
+    $absolutePath = public_path('uploads/' . $normalizedPath);
+
+    if (!is_file($absolutePath)) {
+        abort(404);
+    }
+
+    return response()->file($absolutePath, [
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*');
+
 Route::domain('sekolah.nuist.id')->group(function () {
     Route::get('/', function () {
         return redirect('/dashboard');
@@ -192,6 +210,89 @@ Route::domain('sekolah.nuist.id')->group(function () {
             Route::delete('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'destroy']);
             Route::post('/data-siswa/import', [App\Http\Controllers\DataSiswaController::class, 'import']);
             Route::get('/data-siswa/template', [App\Http\Controllers\DataSiswaController::class, 'template']);
+        });
+    });
+
+    Route::fallback(function (\Illuminate\Http\Request $request) {
+        $primaryBaseUrl = rtrim((string) config('app.url'), '/');
+        $target = $primaryBaseUrl . $request->getRequestUri();
+
+        if (in_array($request->method(), ['GET', 'HEAD'], true)) {
+            return redirect()->away($target);
+        }
+
+        abort(404);
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| MGMP subdomain
+|--------------------------------------------------------------------------
+|
+| Host alias for the existing MGMP module. Existing /mgmp routes on the
+| primary host remain unchanged. The subdomain only exposes MGMP-related
+| pages and redirects everything else back to the primary host.
+|
+*/
+Route::domain('mgmp.nuist.id')->group(function () {
+    Route::get('/', [App\Http\Controllers\MGMPController::class, 'index']);
+    Route::get('/dashboard', [App\Http\Controllers\MGMPController::class, 'dashboard'])
+        ->middleware(['auth', 'role:super_admin,admin,pengurus,mgmp']);
+
+    Route::middleware(['guest'])->group(function () {
+        Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm']);
+        Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login'])
+            ->middleware('throttle:6,1');
+        Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
+        Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail']);
+        Route::get('/password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm']);
+        Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset']);
+    });
+
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+            ->middleware('throttle:10,1');
+        Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])
+            ->middleware('throttle:5,1')
+            ->whereNumber('id');
+
+        Route::get('/foto/mgmp-attendance/{attendance}', [App\Http\Controllers\FotoController::class, 'showMgmpAttendance'])
+            ->name('foto.mgmp_attendance.domain');
+
+        Route::middleware(['role:super_admin'])->group(function () {
+            Route::get('/admin/mgmp-dashboard', [App\Http\Controllers\MGMPController::class, 'superAdminDashboard']);
+            Route::get('/admin/create-mgmp-user', [App\Http\Controllers\MGMPController::class, 'createMgmpUser']);
+            Route::post('/admin/create-mgmp-user', [App\Http\Controllers\MGMPController::class, 'storeMgmpUser']);
+            Route::get('/admin/mgmp-reset-uploads', [App\Http\Controllers\MGMPController::class, 'superAdminResetUploads']);
+        });
+
+        Route::middleware(['role:super_admin,admin,pengurus,mgmp'])->prefix('mgmp')->group(function () {
+            Route::get('/', [App\Http\Controllers\MGMPController::class, 'index']);
+            Route::get('/dashboard', [App\Http\Controllers\MGMPController::class, 'dashboard']);
+            Route::get('/data-anggota', [App\Http\Controllers\MGMPController::class, 'dataAnggota']);
+            Route::get('/data-mgmp', [App\Http\Controllers\MGMPController::class, 'manage']);
+            Route::get('/laporan', [App\Http\Controllers\MGMPController::class, 'laporan']);
+            Route::post('/laporan', [App\Http\Controllers\MGMPController::class, 'storeLaporan']);
+            Route::put('/laporan/{report}', [App\Http\Controllers\MGMPController::class, 'updateLaporan']);
+            Route::post('/laporan/{report}/cancel', [App\Http\Controllers\MGMPController::class, 'cancelLaporan']);
+            Route::post('/', [App\Http\Controllers\MGMPController::class, 'store']);
+            Route::put('/{id}', [App\Http\Controllers\MGMPController::class, 'update']);
+            Route::delete('/{id}', [App\Http\Controllers\MGMPController::class, 'destroy']);
+            Route::post('/import', [App\Http\Controllers\MGMPController::class, 'import']);
+            Route::post('/store-member', [App\Http\Controllers\MGMPController::class, 'storeMember']);
+            Route::delete('/members/{member}', [App\Http\Controllers\MGMPController::class, 'destroyMember']);
+            Route::get('/academica', [App\Http\Controllers\MGMPController::class, 'academica']);
+            Route::post('/academica/upload', [App\Http\Controllers\MGMPController::class, 'uploadAcademica']);
+            Route::post('/academica/reset-update', [App\Http\Controllers\MGMPController::class, 'storeAcademicaResetUpdate'])
+                ->middleware(['throttle:10,1']);
+            Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])
+                ->middleware(['throttle:10,1']);
+        });
+
+        Route::middleware(['role:super_admin,admin,pengurus,mgmp,tenaga_pendidik'])->prefix('mgmp')->group(function () {
+            Route::get('/kegiatan/{report}/presensi', [App\Http\Controllers\MGMPController::class, 'presensiKegiatan']);
+            Route::post('/kegiatan/{report}/presensi', [App\Http\Controllers\MGMPController::class, 'storePresensiKegiatan']);
         });
     });
 
