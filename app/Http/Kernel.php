@@ -66,6 +66,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'sekolah.admin.subdomain' => \App\Http\Middleware\EnsureSekolahAdminSubdomainAccess::class,
         'github.webhook' => \App\Http\Middleware\VerifyGithubWebhookSignature::class,
         'midtrans.callback' => \App\Http\Middleware\VerifyMidtransCallbackSignature::class,
         'bni-va.callback' => \App\Http\Middleware\VerifyBniVaCallbackToken::class,
