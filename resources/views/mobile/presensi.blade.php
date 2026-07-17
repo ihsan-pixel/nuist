@@ -2810,6 +2810,69 @@ window.addEventListener('load', function() {
         throw new Error('Kamera belum siap mengambil foto. Tunggu sebentar lalu coba lagi.');
     }
 
+    async function waitForVideoPlaybackReady(video, timeoutMs = 5000) {
+        if (!video) {
+            throw new Error('Kamera tidak tersedia.');
+        }
+
+        const isReady = () => (
+            Number(video.videoWidth) > 0
+            && Number(video.videoHeight) > 0
+            && Number(video.readyState) >= 1
+        );
+
+        if (isReady()) {
+            return;
+        }
+
+        await new Promise((resolve, reject) => {
+            let settled = false;
+            let pollTimer = null;
+            let timeoutTimer = null;
+
+            const cleanup = () => {
+                ['loadedmetadata', 'loadeddata', 'canplay', 'playing'].forEach((eventName) => {
+                    video.removeEventListener(eventName, handleReady);
+                });
+
+                if (pollTimer !== null) {
+                    window.clearInterval(pollTimer);
+                }
+
+                if (timeoutTimer !== null) {
+                    window.clearTimeout(timeoutTimer);
+                }
+            };
+
+            const finish = (callback) => {
+                if (settled) {
+                    return;
+                }
+
+                settled = true;
+                cleanup();
+                callback();
+            };
+
+            const handleReady = () => {
+                if (isReady()) {
+                    finish(resolve);
+                }
+            };
+
+            ['loadedmetadata', 'loadeddata', 'canplay', 'playing'].forEach((eventName) => {
+                video.addEventListener(eventName, handleReady);
+            });
+
+            pollTimer = window.setInterval(handleReady, 120);
+            timeoutTimer = window.setTimeout(() => {
+                finish(() => reject(new Error('Kamera belum siap. Tutup lalu buka lagi kamera selfie.')));
+            }, timeoutMs);
+
+            handleReady();
+        });
+    }
+
     function setSelfieStatus(message, type = 'info', title = null) {
         const statusElement = document.getElementById('selfie-status');
         if (!statusElement) {
@@ -3336,11 +3399,11 @@ window.addEventListener('load', function() {
             canvas.style.display = 'none';
         }
         if (captureBtn) {
-            captureBtn.style.display = faceScanRequired ? 'none' : 'none';
-            captureBtn.disabled = false;
+            captureBtn.style.display = faceScanRequired ? 'none' : 'block';
+            captureBtn.disabled = !faceScanRequired;
             captureBtn.innerHTML = faceScanRequired
                 ? '<i class="bx bx-scan me-1"></i>Mulai Scan'
-                : '<i class="bx bx-camera me-1"></i>Ambil Foto';
+                : '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
         }
         if (submitBtn) {
             submitBtn.style.display = 'none';
@@ -3524,6 +3587,8 @@ window.addEventListener('load', function() {
                 await faceScanner.loadModels();
                 await faceScanner.initializeCamera(video);
             } else {
+                captureBtn.disabled = true;
+                captureBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: 'user',
@@ -3534,9 +3599,7 @@ window.addEventListener('load', function() {
                 });
                 selfieStream = stream;
                 video.srcObject = stream;
-                await new Promise((resolve) => {
-                    video.onloadedmetadata = () => resolve(true);
-                });
+                await waitForVideoPlaybackReady(video);
                 await video.play();
                 await waitForVideoFrame(video);
                 updateFaceInstruction('Kamera siap. Tekan Ambil Foto untuk menyimpan selfie presensi.');
@@ -3568,6 +3631,8 @@ window.addEventListener('load', function() {
                 }
             } else {
                 captureBtn.style.display = 'block';
+                captureBtn.disabled = false;
+                captureBtn.innerHTML = '<i class="bx bx-camera me-1"></i>Ambil Foto';
                 setSelfieStatus('Kamera siap digunakan untuk selfie presensi.');
             }
 
