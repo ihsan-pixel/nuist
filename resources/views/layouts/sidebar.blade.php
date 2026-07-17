@@ -12,12 +12,56 @@
                     $userRole = auth()->user()
                         ? preg_replace('/\s+/', '_', trim(strtolower((string) auth()->user()->role)))
                         : '';
+                    $isSpmbAdminHost = request()->getHost() === 'spmb.nuist.id' && $userRole === 'admin';
                     $dashboardRoles = ['super_admin', 'admin'];
                     $masterDataRoles = ['super_admin', 'admin'];
                     $showDashboardMenu = in_array($userRole, $dashboardRoles);
                     $showMasterDataMenu = in_array($userRole, $masterDataRoles);
                     \Log::info('Sidebar MasterData userRole: [' . $userRole . '], showDashboardMenu: ' . ($showDashboardMenu ? 'true' : 'false') . ', showMasterDataMenu: ' . ($showMasterDataMenu ? 'true' : 'false'));
-                    @endphp
+                @endphp
+                @if($isSpmbAdminHost)
+                <li class="menu-title">PPDB</li>
+
+                @php
+                    $tahun = now()->year;
+                    $ppdbSetting = \App\Models\PPDBSetting::where('sekolah_id', auth()->user()->madrasah_id)
+                        ->where('tahun', $tahun)
+                        ->first();
+
+                    if ($ppdbSetting) {
+                        $spmbSlug = $ppdbSetting->slug;
+                    } else {
+                        $madrasah = \App\Models\Madrasah::find(auth()->user()->madrasah_id);
+                        $madrasahName = $madrasah ? $madrasah->name : 'madrasah-' . auth()->user()->madrasah_id;
+                        $spmbSlug = \Illuminate\Support\Str::slug($madrasahName . '-' . auth()->user()->madrasah_id . '-' . $tahun);
+                    }
+                @endphp
+
+                <li>
+                    <a href="{{ url('/dashboard') }}" class="waves-effect">
+                        <i class="bx bx-home-circle"></i>
+                        <span>Dashboard PPDB</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url('/ppdb/lp/pendaftar/' . $spmbSlug) }}" class="waves-effect">
+                        <i class="bx bx-file"></i>
+                        <span>Pendaftar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url('/ppdb/lp/ppdb-settings/' . auth()->user()->madrasah_id) }}" class="waves-effect">
+                        <i class="bx bx-cog"></i>
+                        <span>Pengaturan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url('/ppdb/lp/edit/' . auth()->user()->madrasah_id) }}" class="waves-effect">
+                        <i class="bx bx-edit"></i>
+                        <span>Edit Profile PPDB</span>
+                    </a>
+                </li>
+                @else
                 @if($showDashboardMenu)
                 <li class="menu-title" key="t-menu">@lang('translation.Menu')</li>
 
@@ -573,6 +617,7 @@
                         <span>Kegiatan MGMP</span>
                     </a>
                 </li>
+                @endif
                 @endif
 
             </ul>

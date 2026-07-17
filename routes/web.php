@@ -896,7 +896,9 @@ Route::domain('admin.nuist.id')->group(function () {
 |
 */
 Route::domain('spmb.nuist.id')->group(function () {
-    $ppdbDashboardRedirect = function () {
+    $spmbSchoolHome = '/dashboard';
+
+    $ensureSpmbAdmin = function () {
         if (!Auth::check()) {
             return redirect('/login');
         }
@@ -904,17 +906,30 @@ Route::domain('spmb.nuist.id')->group(function () {
         $user = Auth::user();
         $normalizedRole = preg_replace('/\s+/', '_', trim(strtolower((string) ($user->role ?? '')))) ?? '';
 
-        if ($normalizedRole === 'admin') {
-            return redirect('/ppdb/sekolah/dashboard');
+        if (
+            $normalizedRole !== 'admin'
+            || (isset($user->is_active) && ! $user->is_active)
+            || (int) ($user->madrasah_id ?? 0) <= 0
+            || ! $user->sekolah
+        ) {
+            Auth::logout();
+            request()->session()?->invalidate();
+            request()->session()?->regenerateToken();
+
+            return redirect('/login')->withErrors([
+                'email' => 'Login SPMB hanya untuk akun Admin sekolah yang aktif dan terhubung ke sekolah.',
+            ]);
         }
 
-        Auth::logout();
-        request()->session()?->invalidate();
-        request()->session()?->regenerateToken();
+        return null;
+    };
 
-        return redirect('/login')->withErrors([
-            'email' => 'Login SPMB hanya untuk akun Admin sekolah.',
-        ]);
+    $runSpmbController = function (string $controller, string $method, array $parameters = []) use ($ensureSpmbAdmin) {
+        if ($response = $ensureSpmbAdmin()) {
+            return $response;
+        }
+
+        return app()->call([app($controller), $method], $parameters);
     };
 
     Route::get('/', [PPDBController::class, 'index']);
@@ -969,7 +984,7 @@ Route::domain('spmb.nuist.id')->group(function () {
                     ->withInput($request->only('email'));
             }
 
-            return redirect('/ppdb/sekolah/dashboard');
+            return redirect('/dashboard');
         })->middleware('throttle:6,1');
         Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm']);
         Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail']);
@@ -977,8 +992,10 @@ Route::domain('spmb.nuist.id')->group(function () {
         Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset']);
     });
 
-    Route::middleware(['auth'])->group(function () use ($ppdbDashboardRedirect) {
-        Route::get('/dashboard', $ppdbDashboardRedirect);
+    Route::middleware(['auth'])->group(function () use ($runSpmbController) {
+        Route::get('/dashboard', function () use ($runSpmbController) {
+            return $runSpmbController(AdminSekolahController::class, 'index');
+        });
         Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
             ->middleware('throttle:10,1');
         Route::get('/email/verify', [App\Http\Controllers\Auth\VerificationController::class, 'show']);
@@ -990,39 +1007,52 @@ Route::domain('spmb.nuist.id')->group(function () {
             ->middleware('throttle:5,1')
             ->whereNumber('id');
 
-        Route::middleware(['role:admin'])->prefix('ppdb/sekolah')->group(function () {
-            Route::get('/dashboard', [AdminSekolahController::class, 'index']);
-            Route::get('/pendaftar', [AdminSekolahController::class, 'pendaftar']);
-            Route::get('/verifikasi', [AdminSekolahController::class, 'verifikasi']);
-            Route::get('/seleksi', [AdminSekolahController::class, 'seleksi']);
-            Route::get('/export', [AdminSekolahController::class, 'export']);
+        Route::prefix('ppdb/sekolah')->group(function () use ($runSpmbController) {
+            Route::get('/dashboard', function () use ($runSpmbController) {
+                return $runSpmbController(AdminSekolahController::class, 'index');
+            });
+            Route::get('/pendaftar', function () use ($runSpmbController) {
+                return $runSpmbController(AdminSekolahController::class, 'pendaftar');
+            });
+            Route::get('/verifikasi', function () use ($runSpmbController) {
+                return $runSpmbController(AdminSekolahController::class, 'verifikasi');
+            });
+            Route::get('/seleksi', function () use ($runSpmbController) {
+                return $runSpmbController(AdminSekolahController::class, 'seleksi');
+            });
+            Route::get('/export', function () use ($runSpmbController) {
+                return $runSpmbController(AdminSekolahController::class, 'export');
+            });
         });
 
-        Route::middleware(['role:super_admin,admin'])->prefix('ppdb/lp')->group(function () {
-            Route::get('/dashboard', [AdminLPController::class, 'index']);
-            Route::get('/edit/{id}', [AdminLPController::class, 'edit']);
-            Route::put('/update/{id}', [AdminLPController::class, 'update']);
-            Route::get('/ppdb-settings/{id}', [AdminLPController::class, 'ppdbSettings']);
-            Route::put('/ppdb-settings/{id}', [AdminLPController::class, 'updatePPDBSettings']);
-            Route::post('/jalur/{id}', [AdminLPController::class, 'storeJalur']);
-            Route::put('/jalur/{jalurId}', [AdminLPController::class, 'updateJalur']);
-            Route::delete('/jalur/{jalurId}', [AdminLPController::class, 'deleteJalur']);
-            Route::get('/pendaftar/{slug}', [AdminLPController::class, 'pendaftar']);
-            Route::get('/pendaftar/{madrasahId}/check', [AdminLPController::class, 'checkPendaftar']);
-            Route::get('/pendaftar/{madrasahId}/export', [AdminLPController::class, 'export']);
-            Route::get('/pendaftar-detail/{id}', [AdminLPController::class, 'showPendaftarDetail']);
-            Route::post('/pendaftar/{id}/update-status', [AdminLPController::class, 'updateStatus']);
-        });
-
-        Route::middleware(['role:super_admin'])->prefix('ppdb/admin')->group(function () {
-            Route::get('/detail/{pendaftar}', [AdminLPController::class, 'detail']);
-            Route::post('/upload-berkas', [AdminLPController::class, 'uploadBerkas']);
-        });
-
-        Route::middleware(['role:super_admin'])->prefix('ppdb/settings')->group(function () {
-            Route::get('/', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsIndex']);
-            Route::get('/edit/{id}', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsEdit']);
-            Route::put('/update/{id}', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsUpdate']);
+        Route::prefix('ppdb/lp')->group(function () use ($runSpmbController) {
+            Route::get('/edit/{id}', function ($id) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'edit', ['id' => $id]);
+            });
+            Route::put('/update/{id}', function (\Illuminate\Http\Request $request, $id) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'update', ['request' => $request, 'sekolahId' => $id]);
+            });
+            Route::get('/ppdb-settings/{id}', function ($id) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'ppdbSettings', ['id' => $id]);
+            });
+            Route::put('/ppdb-settings/{id}', function (\Illuminate\Http\Request $request, $id) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'updatePPDBSettings', ['request' => $request, 'id' => $id]);
+            });
+            Route::get('/pendaftar/{slug}', function ($slug) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'pendaftar', ['slug' => $slug]);
+            });
+            Route::get('/pendaftar/{madrasahId}/check', function ($madrasahId) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'checkPendaftar', ['madrasahId' => $madrasahId]);
+            });
+            Route::get('/pendaftar/{madrasahId}/export', function ($madrasahId) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'export', ['madrasahId' => $madrasahId]);
+            });
+            Route::get('/pendaftar-detail/{id}', function ($id) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'showPendaftarDetail', ['id' => $id]);
+            });
+            Route::post('/pendaftar/{id}/update-status', function (\Illuminate\Http\Request $request, $id) use ($runSpmbController) {
+                return $runSpmbController(AdminLPController::class, 'updateStatus', ['request' => $request, 'id' => $id]);
+            });
         });
     });
 
