@@ -2155,6 +2155,13 @@ class SkYayasanController extends Controller
             $submission->employee?->ketugasan,
         ])));
 
+        return $this->detectEmploymentTypeFromText($source);
+    }
+
+    private function detectEmploymentTypeFromText(string $source): ?string
+    {
+        $source = $this->normalizeTemplateText($source);
+
         foreach (['gty', 'pty', 'gtt', 'ptt'] as $type) {
             if ($this->containsTemplateWord($source, $type)) {
                 return $type;
@@ -2949,11 +2956,13 @@ class SkYayasanController extends Controller
             $importRow?->source_tmt_pertama,
             $employee?->tmt
         );
+        $employmentType = $this->detectEmploymentType($submission)
+            ?? $this->detectEmploymentTypeFromText((string) $importRow?->source_keterangan);
         $generatedPerformanceScore = $this->resolveGeneratedSkPerformanceScore(
             $employee,
             $importRow?->source_penilaian_kinerja,
             $employeeSkData?->penilaian_kinerja,
-            $this->detectEmploymentType($submission)
+            $employmentType
         );
         $formattedTenure = $this->formatTenureFromTmt(
             $importRow?->source_tmt_pertama,
