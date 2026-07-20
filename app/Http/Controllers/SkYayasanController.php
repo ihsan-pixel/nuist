@@ -3431,6 +3431,21 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         $body = preg_replace_callback(
+            '/\.sk-green-line\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/margin(?:-[a-z]+)?\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-green-line { ' . trim($styles . ' margin: 0 0 8px 0;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
             '/\.sk-decision\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/margin(?:-[a-z]+)?\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];

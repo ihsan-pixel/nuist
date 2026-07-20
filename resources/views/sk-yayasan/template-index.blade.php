@@ -106,7 +106,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 0 0 20px 0;
+    margin: 0 0 8px 0;
 }
 .sk-green-line-thin {
     background: #2f6f45;
@@ -1614,7 +1614,7 @@ HTML;
 }
 .sk-email-link { color: #1d4ed8; }
 .sk-green-line {
-    margin: 0 0 20px 0;
+    margin: 0 0 8px 0;
 }
 
 .sk-green-line-thin {
