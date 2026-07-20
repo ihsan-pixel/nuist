@@ -3334,7 +3334,37 @@ class SkYayasanController extends Controller
 
         $body = preg_replace(
             '/\.sk-label\s*\{\s*width\s*:\s*\d+px\s*;\s*\}/u',
-            '.sk-label { width: 164px; }',
+            '.sk-label { width: 128px; }',
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-content-cell\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/padding-left\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-content-cell { ' . trim($styles . ' padding-left: 3px;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-colon\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/width\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-colon { ' . trim($styles . ' width: 5px;') . ' }';
+            },
             $body
         ) ?? $body;
 
