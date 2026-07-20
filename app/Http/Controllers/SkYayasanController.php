@@ -1663,6 +1663,12 @@ class SkYayasanController extends Controller
                 return;
             }
 
+            if (str_contains($variantPath, 'Cambria.ttc')) {
+                $this->flushSkYayasanCambriaFontCache($installedFonts, $fontsFile, $fontDir);
+
+                return;
+            }
+
             $fontBasePath = basename($variantPath) === $variantPath
                 ? $fontDir . DIRECTORY_SEPARATOR . $variantPath
                 : $variantPath;
@@ -3495,6 +3501,7 @@ class SkYayasanController extends Controller
             '.sk-signature-role { display: block; padding-top: 14px; }',
             '.sk-email-link { color: #1d4ed8; }',
             '.sk-green-line ~ * { font-family: Cambria !important; }',
+            '.sk-title, .sk-number, .sk-subject, .sk-table, .sk-table td, .sk-person-table, .sk-person-table td, .sk-decision, .sk-signature, .sk-signature *, .sk-copy, .sk-copy * { font-family: Cambria !important; }',
             '.sk-logo-box img, .sk-logo-image { display: block; height: 108px !important; margin-top: 0 !important; max-width: 180px; object-fit: contain; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {

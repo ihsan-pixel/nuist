@@ -111,6 +111,20 @@
 .sk-green-line ~ * {
     font-family: Cambria !important;
 }
+.sk-title,
+.sk-number,
+.sk-subject,
+.sk-table,
+.sk-table td,
+.sk-person-table,
+.sk-person-table td,
+.sk-decision,
+.sk-signature,
+.sk-signature *,
+.sk-copy,
+.sk-copy * {
+    font-family: Cambria !important;
+}
 .sk-green-line-thin {
     background: #2f6f45;
     height: 1px;
@@ -1620,6 +1634,18 @@ HTML;
     margin: 0 0 8px 0;
 }
 .sk-green-line ~ * { font-family: Cambria !important; }
+.sk-title,
+.sk-number,
+.sk-subject,
+.sk-table,
+.sk-table td,
+.sk-person-table,
+.sk-person-table td,
+.sk-decision,
+.sk-signature,
+.sk-signature *,
+.sk-copy,
+.sk-copy * { font-family: Cambria !important; }
 
 .sk-green-line-thin {
     border-top: 1px solid #2f6f45;

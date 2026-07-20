@@ -1,5 +1,5 @@
 @php
-    $cambriaRegularPath = str_replace('\\', '/', resource_path('fonts/sk-yayasan/Cambria.ttc'));
+    $cambriaRegularPath = str_replace('\\', '/', resource_path('fonts/sk-yayasan/Cambria.ttf'));
     $cambriaBoldPath = str_replace('\\', '/', resource_path('fonts/sk-yayasan/Cambriab.ttf'));
     $cambriaItalicPath = str_replace('\\', '/', resource_path('fonts/sk-yayasan/Cambriai.ttf'));
     $cambriaBoldItalicPath = str_replace('\\', '/', resource_path('fonts/sk-yayasan/Cambriaz.ttf'));
@@ -8,7 +8,7 @@
     font-family: 'Cambria';
     font-style: normal;
     font-weight: 400;
-    src: url('{{ $cambriaRegularPath }}') format('collection');
+    src: url('{{ $cambriaRegularPath }}') format('truetype');
 }
 
 @font-face {
