@@ -1577,14 +1577,10 @@ HTML;
                 .map((item) => `${nl2br(item)}<br>`)
                 .join('');
 
-            const menimbangSecondRow = config.menimbangContent2Text?.trim()
-                ? `
-        <tr class="sk-menimbang-row sk-menimbang-extra-row">
-            <td class="sk-label"></td>
-            <td class="sk-colon"></td>
-            <td class="sk-content-cell sk-menimbang-content" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContent2Text)}</td>
-        </tr>`
-                : '';
+            const menimbangContentMarkup = [
+                config.menimbangContentText,
+                config.menimbangContent2Text,
+            ].filter((item) => String(item ?? '').trim()).map((item) => nl2br(item)).join('<br>');
 
             return `
 <style>
@@ -1734,9 +1730,8 @@ HTML;
         <tr class="sk-menimbang-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">${escapeHtml(config.menimbangLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell sk-menimbang-content" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContentText)}</td>
+            <td class="sk-content-cell sk-menimbang-content" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${menimbangContentMarkup}</td>
         </tr>
-        ${menimbangSecondRow}
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">${escapeHtml(config.mengingatLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">:</td>

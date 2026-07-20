@@ -3963,6 +3963,8 @@ HTML;
         }
 
         $lastNonEmptyLabel = null;
+        $menimbangContentCell = null;
+        $rowsToRemove = [];
 
         foreach ($rows as $row) {
             $cells = [];
@@ -3986,12 +3988,19 @@ HTML;
             if ($labelText === 'Menimbang') {
                 $rowClassNames[] = 'sk-menimbang-row';
                 $classNames[] = 'sk-menimbang-content';
+                $menimbangContentCell = $contentCell;
             }
 
-            if ($labelText === '' && $lastNonEmptyLabel === 'Menimbang') {
-                $rowClassNames[] = 'sk-menimbang-row';
-                $rowClassNames[] = 'sk-menimbang-extra-row';
-                $classNames[] = 'sk-menimbang-content';
+            if ($labelText === '' && $lastNonEmptyLabel === 'Menimbang' && $menimbangContentCell instanceof \DOMElement) {
+                $menimbangContentCell->appendChild($document->createElement('br'));
+
+                while ($contentCell->firstChild) {
+                    $menimbangContentCell->appendChild($contentCell->firstChild);
+                }
+
+                $rowsToRemove[] = $row;
+
+                continue;
             }
 
             if ($labelText === 'Kedua' && !in_array('sk-kedua-content', $classNames, true)) {
@@ -4012,6 +4021,12 @@ HTML;
 
             if ($labelText !== '') {
                 $lastNonEmptyLabel = $labelText;
+            }
+        }
+
+        foreach ($rowsToRemove as $rowToRemove) {
+            if ($rowToRemove instanceof \DOMNode && $rowToRemove->parentNode) {
+                $rowToRemove->parentNode->removeChild($rowToRemove);
             }
         }
 
