@@ -3349,7 +3349,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                $lineHeight = $hasLineHeight ? '' : ' line-height: 1.08;';
+                $lineHeight = $hasLineHeight ? '' : ' line-height: 1;';
 
                 return '.sk-content-cell { ' . trim($styles . $lineHeight . ' padding-left: 3px;') . ' }';
             },
@@ -3367,7 +3367,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                $lineHeight = $hasLineHeight ? '' : ' line-height: 1.08;';
+                $lineHeight = $hasLineHeight ? '' : ' line-height: 1;';
 
                 return '.sk-person-table td { ' . trim($styles . $lineHeight) . ' }';
             },
