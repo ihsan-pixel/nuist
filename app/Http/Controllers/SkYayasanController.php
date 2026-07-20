@@ -3455,7 +3455,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-decision { ' . trim($styles . ' margin: 10px 0 9px 0;') . ' }';
+                return '.sk-decision { ' . trim($styles . ' margin: 4px 0 4px 0;') . ' }';
             },
             $body
         ) ?? $body;
