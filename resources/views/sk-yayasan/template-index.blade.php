@@ -94,7 +94,7 @@
 }
 .sk-org-meta {
     color: #000;
-    font-family: Cambria;
+    font-family: Arial, sans-serif;
     font-size: 10.5pt;
     line-height: 1;
     padding: 4px 8px 0 8px;
@@ -107,6 +107,9 @@
     flex-direction: column;
     gap: 2px;
     margin: 0 0 8px 0;
+}
+.sk-green-line ~ * {
+    font-family: Cambria !important;
 }
 .sk-green-line-thin {
     background: #2f6f45;
@@ -1608,7 +1611,7 @@ HTML;
 }
 .sk-org-meta {
     color: #000;
-    font-family: Cambria;
+    font-family: Arial, sans-serif;
     line-height: 1;
     padding: 4px 8px 0 8px;
 }
@@ -1616,6 +1619,7 @@ HTML;
 .sk-green-line {
     margin: 0 0 8px 0;
 }
+.sk-green-line ~ * { font-family: Cambria !important; }
 
 .sk-green-line-thin {
     border-top: 1px solid #2f6f45;
