@@ -203,7 +203,9 @@
     margin: 0;
     padding-left: 0;
 }
-.sk-kedua-content,
+.sk-kedua-content {
+    line-height: 1;
+}
 .sk-ketiga-content {
     line-height: 1.32;
 }
@@ -1685,7 +1687,8 @@ HTML;
 .sk-person-value { padding-left: 8px; }
 .sk-mengingat-list { margin: 0; padding-left: 22px; }
 .sk-mengingat-list li { margin: 0; padding-left: 0; }
-.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }
+.sk-kedua-content { line-height: 1; }
+.sk-ketiga-content { line-height: 1.32; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-role { display: block; padding-top: 14px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
