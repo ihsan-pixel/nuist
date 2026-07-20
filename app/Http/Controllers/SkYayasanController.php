@@ -3342,13 +3342,34 @@ class SkYayasanController extends Controller
             '/\.sk-content-cell\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/padding-left\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $hasLineHeight = preg_match('/line-height\s*:/u', $styles) === 1;
                 $styles = trim($styles);
 
                 if ($styles !== '' && !str_ends_with($styles, ';')) {
                     $styles .= ';';
                 }
 
-                return '.sk-content-cell { ' . trim($styles . ' padding-left: 3px;') . ' }';
+                $lineHeight = $hasLineHeight ? '' : ' line-height: 1.08;';
+
+                return '.sk-content-cell { ' . trim($styles . $lineHeight . ' padding-left: 3px;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-person-table\s+td\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = $matches[1];
+                $hasLineHeight = preg_match('/line-height\s*:/u', $styles) === 1;
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                $lineHeight = $hasLineHeight ? '' : ' line-height: 1.08;';
+
+                return '.sk-person-table td { ' . trim($styles . $lineHeight) . ' }';
             },
             $body
         ) ?? $body;
