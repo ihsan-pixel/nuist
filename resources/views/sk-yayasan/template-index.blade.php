@@ -31,15 +31,15 @@
 }
 .sk-letterhead {
     border-collapse: collapse;
-    margin: 0 auto 4px auto;
+    margin: 0 auto 0 auto;
     width: 100%;
 }
 .sk-letterhead td {
     vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 4px 24px 7px 44px;
-    width: 108px;
+    padding: 0 24px 1px 44px;
+    width: 100px;
 }
 .sk-letterhead-text {
     padding-left: 26px;
@@ -51,15 +51,15 @@
     font-weight: 700;
     height: auto;
     margin-left: 6px;
-    margin-top: 6px;
+    margin-top: 0;
     text-align: center;
-    width: 92px;
+    width: 86px;
 }
 .sk-logo-box img {
     display: block;
-    height: 108px !important;
+    height: 100px !important;
     margin-top: 0 !important;
-    max-width: 180px;
+    max-width: 166px;
     object-fit: contain;
 }
 .sk-logo-mark {
@@ -1599,11 +1599,11 @@ HTML;
 }
 .sk-letterhead {
     border-collapse: collapse;
-    margin: 0 auto 4px auto;
+    margin: 0 auto 0 auto;
     width: 100%;
 }
 .sk-letterhead td { vertical-align: top; }
-.sk-logo-cell { padding: 4px 24px 7px 44px; width: 108px; }
+.sk-logo-cell { padding: 0 24px 1px 44px; width: 100px; }
 .sk-letterhead-text { padding-left: 26px; }
 .sk-logo-box {
     align-items: center;
@@ -1615,11 +1615,11 @@ HTML;
     height: auto;
     justify-content: flex-start;
     margin-left: 6px;
-    margin-top: 6px;
+    margin-top: 0;
     text-align: center;
-    width: 92px;
+    width: 86px;
 }
-.sk-logo-box img, .sk-logo-image { display: block; height: 108px !important; margin-top: 0 !important; max-width: 180px; object-fit: contain; }
+.sk-logo-box img, .sk-logo-image { display: block; height: 100px !important; margin-top: 0 !important; max-width: 166px; object-fit: contain; }
 .sk-org-title {
     color: #000;
     font-family: Cambria;

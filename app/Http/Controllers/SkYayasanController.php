@@ -3405,6 +3405,21 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         $body = preg_replace_callback(
+            '/\.sk-letterhead\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/margin\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-letterhead { ' . trim($styles . ' margin: 0 auto 0 auto;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
             '/\.sk-logo-cell\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
@@ -3415,7 +3430,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-cell { ' . trim($styles . ' padding: 4px 24px 7px 44px; width: 108px;') . ' }';
+                return '.sk-logo-cell { ' . trim($styles . ' padding: 0 24px 1px 44px; width: 100px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3434,7 +3449,24 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 6px; margin-top: 6px; width: 92px; justify-content: flex-start;') . ' }';
+                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 6px; margin-top: 0; width: 86px; justify-content: flex-start;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-logo-box\s+img(?:\s*,\s*\.sk-logo-image)?\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/max-width\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = preg_replace('/margin-top\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-logo-box img, .sk-logo-image { ' . trim($styles . ' height: 100px !important; margin-top: 0 !important; max-width: 166px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3571,7 +3603,7 @@ class SkYayasanController extends Controller
             '.sk-email-link { color: #1d4ed8; }',
             '.sk-green-line ~ * { font-family: Cambria !important; }',
             '.sk-title, .sk-number, .sk-subject, .sk-table, .sk-table td, .sk-person-table, .sk-person-table td, .sk-decision, .sk-signature, .sk-signature *, .sk-copy, .sk-copy * { font-family: Cambria !important; }',
-            '.sk-logo-box img, .sk-logo-image { display: block; height: 108px !important; margin-top: 0 !important; max-width: 180px; object-fit: contain; }',
+            '.sk-logo-box img, .sk-logo-image { display: block; height: 100px !important; margin-top: 0 !important; max-width: 166px; object-fit: contain; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
                 $body = str_replace('</style>', $requiredStyle . "\n</style>", $body);
