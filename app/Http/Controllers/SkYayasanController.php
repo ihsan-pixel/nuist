@@ -3419,13 +3419,14 @@ class SkYayasanController extends Controller
             '/\.sk-org-meta\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/font-family\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = trim($styles);
 
                 if ($styles !== '' && !str_ends_with($styles, ';')) {
                     $styles .= ';';
                 }
 
-                return '.sk-org-meta { ' . trim($styles . ' line-height: 1;') . ' }';
+                return '.sk-org-meta { ' . trim($styles . ' font-family: Cambria; line-height: 1;') . ' }';
             },
             $body
         ) ?? $body;

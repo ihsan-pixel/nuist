@@ -94,7 +94,7 @@
 }
 .sk-org-meta {
     color: #000;
-    font-family: Arial, sans-serif;
+    font-family: Cambria;
     font-size: 10.5pt;
     line-height: 1;
     padding: 4px 8px 0 8px;
@@ -1608,7 +1608,7 @@ HTML;
 }
 .sk-org-meta {
     color: #000;
-    font-family: Arial, sans-serif;
+    font-family: Cambria;
     line-height: 1;
     padding: 4px 8px 0 8px;
 }
