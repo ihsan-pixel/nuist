@@ -3547,6 +3547,8 @@ class SkYayasanController extends Controller
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
+            '.sk-menimbang-row td { padding-bottom: 0; }',
+            '.sk-menimbang-content { line-height: 1; }',
             '.sk-kedua-content { line-height: 1; }',
             '.sk-ketiga-content { line-height: 1.32; }',
             '.sk-person-value { padding-left: 8px; }',
@@ -3898,6 +3900,8 @@ HTML;
             return $body;
         }
 
+        $lastNonEmptyLabel = null;
+
         foreach ($rows as $row) {
             $cells = [];
 
@@ -3913,8 +3917,20 @@ HTML;
 
             $labelText = trim(preg_replace('/\s+/u', ' ', $cells[0]->textContent ?? ''));
             $contentCell = $cells[count($cells) - 1];
+            $rowClassNames = preg_split('/\s+/u', trim((string) $row->getAttribute('class')), -1, PREG_SPLIT_NO_EMPTY) ?: [];
             $existingClass = trim((string) $contentCell->getAttribute('class'));
             $classNames = preg_split('/\s+/u', $existingClass, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+            if ($labelText === 'Menimbang') {
+                $rowClassNames[] = 'sk-menimbang-row';
+                $classNames[] = 'sk-menimbang-content';
+            }
+
+            if ($labelText === '' && $lastNonEmptyLabel === 'Menimbang') {
+                $rowClassNames[] = 'sk-menimbang-row';
+                $rowClassNames[] = 'sk-menimbang-extra-row';
+                $classNames[] = 'sk-menimbang-content';
+            }
 
             if ($labelText === 'Kedua' && !in_array('sk-kedua-content', $classNames, true)) {
                 $classNames[] = 'sk-kedua-content';
@@ -3926,6 +3942,14 @@ HTML;
 
             if (!empty($classNames)) {
                 $contentCell->setAttribute('class', implode(' ', array_values(array_unique($classNames))));
+            }
+
+            if (!empty($rowClassNames)) {
+                $row->setAttribute('class', implode(' ', array_values(array_unique($rowClassNames))));
+            }
+
+            if ($labelText !== '') {
+                $lastNonEmptyLabel = $labelText;
             }
         }
 

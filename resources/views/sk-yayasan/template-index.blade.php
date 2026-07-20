@@ -155,11 +155,17 @@
     padding: 0 4px 4px 0;
     vertical-align: top;
 }
+.sk-menimbang-row td {
+    padding-bottom: 0;
+}
 .sk-content-cell {
     line-height: 1;
     padding-left: 3px;
     text-align: justify;
     text-justify: inter-word;
+}
+.sk-menimbang-content {
+    line-height: 1;
 }
 .sk-label {
     width: 128px;
@@ -286,10 +292,10 @@
     <p class="sk-subject">Ketua Lembaga Pendidikan Ma'arif NU PWNU DIY</p>
 
     <table class="sk-table">
-        <tr>
+        <tr class="sk-menimbang-row">
             <td class="sk-label">Menimbang</td>
             <td class="sk-colon">:</td>
-            <td class="sk-content-cell">Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
+            <td class="sk-content-cell sk-menimbang-content">Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
         </tr>
         <tr>
             <td class="sk-label">Mengingat</td>
@@ -1573,10 +1579,10 @@ HTML;
 
             const menimbangSecondRow = config.menimbangContent2Text?.trim()
                 ? `
-        <tr>
+        <tr class="sk-menimbang-row sk-menimbang-extra-row">
             <td class="sk-label"></td>
             <td class="sk-colon"></td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContent2Text)}</td>
+            <td class="sk-content-cell sk-menimbang-content" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContent2Text)}</td>
         </tr>`
                 : '';
 
@@ -1675,7 +1681,9 @@ HTML;
 .sk-table, .sk-person-table { border-collapse: collapse; }
 .sk-table { width: 98%; }
 .sk-table td { padding: 0 4px 4px 0; vertical-align: top; }
+.sk-menimbang-row td { padding-bottom: 0; }
 .sk-content-cell { line-height: 1; padding-left: 3px; text-align: justify; text-justify: inter-word; }
+.sk-menimbang-content { line-height: 1; }
 .sk-label { width: 128px; }
 .sk-colon { text-align: center; width: 5px; }
 .sk-decision { font-weight: 700; margin: 4px 0 4px 0; text-align: center; }
@@ -1723,10 +1731,10 @@ HTML;
     <p class="sk-subject" style="font-size:${safeFontSize(config.subjectFontSize)}pt;">${nl2br(config.subjectText)}</p>
 
     <table class="sk-table">
-        <tr>
+        <tr class="sk-menimbang-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">${escapeHtml(config.menimbangLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContentText)}</td>
+            <td class="sk-content-cell sk-menimbang-content" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContentText)}</td>
         </tr>
         ${menimbangSecondRow}
         <tr>
