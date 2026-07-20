@@ -2952,7 +2952,8 @@ class SkYayasanController extends Controller
         $generatedPerformanceScore = $this->resolveGeneratedSkPerformanceScore(
             $employee,
             $importRow?->source_penilaian_kinerja,
-            $employeeSkData?->penilaian_kinerja
+            $employeeSkData?->penilaian_kinerja,
+            $this->detectEmploymentType($submission)
         );
         $formattedTenure = $this->formatTenureFromTmt(
             $importRow?->source_tmt_pertama,
@@ -3041,8 +3042,16 @@ class SkYayasanController extends Controller
             ->all();
     }
 
-    private function resolveGeneratedSkPerformanceScore(?User $employee, mixed $submittedValue, mixed $fallbackValue = null): string
-    {
+    private function resolveGeneratedSkPerformanceScore(
+        ?User $employee,
+        mixed $submittedValue,
+        mixed $fallbackValue = null,
+        ?string $employmentType = null
+    ): string {
+        if (in_array($employmentType, ['pty', 'ptt'], true)) {
+            return $this->formatGeneratedSkPerformanceScore($submittedValue ?? $fallbackValue);
+        }
+
         if ($this->employeeParticipatesInMgmpAcademica($employee)) {
             return $this->formatGeneratedSkPerformanceScore($submittedValue ?? $fallbackValue);
         }
