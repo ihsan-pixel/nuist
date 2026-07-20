@@ -3339,6 +3339,21 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         $body = preg_replace_callback(
+            '/\.sk-table\s+td\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-table td { ' . trim($styles . ' padding: 0 4px 1px 0;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
             '/\.sk-content-cell\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/padding-left\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
@@ -3550,7 +3565,7 @@ class SkYayasanController extends Controller
             '.sk-menimbang-row td { padding-bottom: 0; }',
             '.sk-menimbang-content { line-height: 1; }',
             '.sk-kedua-content { line-height: 1; }',
-            '.sk-ketiga-content { line-height: 1.32; }',
+            '.sk-ketiga-content { line-height: 1; }',
             '.sk-person-value { padding-left: 8px; }',
             '.sk-signature-role { display: block; padding-top: 14px; }',
             '.sk-email-link { color: #1d4ed8; }',

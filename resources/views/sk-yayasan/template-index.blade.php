@@ -152,7 +152,7 @@
     width: 98%;
 }
 .sk-table td {
-    padding: 0 4px 4px 0;
+    padding: 0 4px 1px 0;
     vertical-align: top;
 }
 .sk-menimbang-row td {
@@ -213,7 +213,7 @@
     line-height: 1;
 }
 .sk-ketiga-content {
-    line-height: 1.32;
+    line-height: 1;
 }
 .sk-signature {
     line-height: 1.02;
@@ -1680,7 +1680,7 @@ HTML;
 .sk-subject { font-weight: 700; margin: 0 0 9px 0; }
 .sk-table, .sk-person-table { border-collapse: collapse; }
 .sk-table { width: 98%; }
-.sk-table td { padding: 0 4px 4px 0; vertical-align: top; }
+.sk-table td { padding: 0 4px 1px 0; vertical-align: top; }
 .sk-menimbang-row td { padding-bottom: 0; }
 .sk-content-cell { line-height: 1; padding-left: 3px; text-align: justify; text-justify: inter-word; }
 .sk-menimbang-content { line-height: 1; }
@@ -1696,7 +1696,7 @@ HTML;
 .sk-mengingat-list { margin: 0; padding-left: 22px; }
 .sk-mengingat-list li { margin: 0; padding-left: 0; }
 .sk-kedua-content { line-height: 1; }
-.sk-ketiga-content { line-height: 1.32; }
+.sk-ketiga-content { line-height: 1; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-role { display: block; padding-top: 14px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
