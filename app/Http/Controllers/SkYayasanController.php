@@ -3544,7 +3544,22 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-green-line { ' . trim($styles . ' margin: 0 0 8px 0;') . ' }';
+                return '.sk-green-line { ' . trim($styles . ' margin: 0 0 2px 0;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-number\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/margin(?:-[a-z]+)?\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-number { ' . trim($styles . ' margin-bottom: 3px;') . ' }';
             },
             $body
         ) ?? $body;

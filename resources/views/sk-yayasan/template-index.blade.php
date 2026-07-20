@@ -106,7 +106,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 0 0 8px 0;
+    margin: 0 0 2px 0;
 }
 .sk-green-line ~ * {
     font-family: Cambria !important;
@@ -140,7 +140,7 @@
     text-transform: uppercase;
 }
 .sk-number {
-    margin-bottom: 11px;
+    margin-bottom: 3px;
     text-align: center;
 }
 .sk-subject {
@@ -1642,7 +1642,7 @@ HTML;
 }
 .sk-email-link { color: #1d4ed8; }
 .sk-green-line {
-    margin: 0 0 8px 0;
+    margin: 0 0 2px 0;
 }
 .sk-green-line ~ * { font-family: Cambria !important; }
 .sk-title,
@@ -1676,7 +1676,7 @@ HTML;
     text-decoration: underline;
     text-transform: uppercase;
 }
-.sk-number { margin-bottom: 11px; text-align: center; }
+.sk-number { margin-bottom: 3px; text-align: center; }
 .sk-subject { font-weight: 700; margin: 0 0 9px 0; }
 .sk-table, .sk-person-table { border-collapse: collapse; }
 .sk-table { width: 98%; }
