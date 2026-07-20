@@ -166,6 +166,8 @@
 }
 .sk-menimbang-content {
     line-height: 1;
+    text-align: justify;
+    text-justify: inter-word;
 }
 .sk-label {
     width: 112px;
@@ -1679,7 +1681,7 @@ HTML;
 .sk-table td { padding: 0 4px 1px 0; vertical-align: top; }
 .sk-menimbang-row td { padding-bottom: 0; }
 .sk-content-cell { line-height: 1; padding-left: 3px; text-align: justify; text-justify: inter-word; }
-.sk-menimbang-content { line-height: 1; }
+.sk-menimbang-content { line-height: 1; text-align: justify; text-justify: inter-word; }
 .sk-label { width: 112px; }
 .sk-colon { text-align: center; width: 5px; }
 .sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }

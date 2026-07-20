@@ -3610,7 +3610,7 @@ class SkYayasanController extends Controller
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-menimbang-row td { padding-bottom: 0; }',
-            '.sk-menimbang-content { line-height: 1; }',
+            '.sk-menimbang-content { line-height: 1; text-align: justify; text-justify: inter-word; }',
             '.sk-kedua-content { line-height: 1; }',
             '.sk-ketiga-content { line-height: 1; }',
             '.sk-person-value { padding-left: 8px; }',
