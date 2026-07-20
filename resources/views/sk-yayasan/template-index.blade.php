@@ -167,6 +167,15 @@
 .sk-menimbang-content {
     line-height: 1;
     text-align: justify;
+    text-align-last: justify;
+    text-justify: inter-word;
+}
+.sk-menimbang-item {
+    display: block;
+    line-height: 1;
+    margin: 0;
+    text-align: justify;
+    text-align-last: justify;
     text-justify: inter-word;
 }
 .sk-label {
@@ -1582,7 +1591,7 @@ HTML;
             const menimbangContentMarkup = [
                 config.menimbangContentText,
                 config.menimbangContent2Text,
-            ].filter((item) => String(item ?? '').trim()).map((item) => nl2br(item)).join('<br>');
+            ].filter((item) => String(item ?? '').trim()).map((item) => `<div class="sk-menimbang-item">${nl2br(item)}</div>`).join('');
 
             return `
 <style>
@@ -1681,7 +1690,8 @@ HTML;
 .sk-table td { padding: 0 4px 1px 0; vertical-align: top; }
 .sk-menimbang-row td { padding-bottom: 0; }
 .sk-content-cell { line-height: 1; padding-left: 3px; text-align: justify; text-justify: inter-word; }
-.sk-menimbang-content { line-height: 1; text-align: justify; text-justify: inter-word; }
+.sk-menimbang-content { line-height: 1; text-align: justify; text-align-last: justify; text-justify: inter-word; }
+.sk-menimbang-item { display: block; line-height: 1; margin: 0; text-align: justify; text-align-last: justify; text-justify: inter-word; }
 .sk-label { width: 112px; }
 .sk-colon { text-align: center; width: 5px; }
 .sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }
