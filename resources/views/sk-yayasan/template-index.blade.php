@@ -81,7 +81,7 @@
     font-family: Cambria;
     font-size: 24pt;
     font-weight: 700;
-    line-height: 0.96;
+    line-height: 0.88;
     padding: 0 8px;
 }
 .sk-org-subtitle {
@@ -89,14 +89,14 @@
     font-family: Cambria;
     font-size: 17pt;
     font-weight: 700;
-    line-height: 0.95;
+    line-height: 0.86;
     padding: 0 8px;
 }
 .sk-org-meta {
     color: #000;
     font-family: Arial, sans-serif;
     font-size: 10.5pt;
-    line-height: 1.2;
+    line-height: 1;
     padding: 4px 8px 0 8px;
 }
 .sk-email-link {
@@ -1596,20 +1596,20 @@ HTML;
     color: #000;
     font-family: Cambria;
     font-weight: 700;
-    line-height: 0.96;
+    line-height: 0.88;
     padding: 0 8px;
 }
 .sk-org-subtitle {
     color: #000;
     font-family: Cambria;
     font-weight: 700;
-    line-height: 0.95;
+    line-height: 0.86;
     padding: 0 8px;
 }
 .sk-org-meta {
     color: #000;
     font-family: Arial, sans-serif;
-    line-height: 1.2;
+    line-height: 1;
     padding: 4px 8px 0 8px;
 }
 .sk-email-link { color: #1d4ed8; }

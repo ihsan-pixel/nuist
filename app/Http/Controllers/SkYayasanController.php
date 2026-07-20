@@ -2966,6 +2966,7 @@ class SkYayasanController extends Controller
 
             return '-';
         };
+        $formattedDegree = $this->formatDegreePlaceholder($pick($importRow?->source_gelar, $employee?->gelar));
 
         $base = [
             '{{nomor_sk}}' => $overrides['nomor_sk'] ?? '-',
@@ -2974,7 +2975,7 @@ class SkYayasanController extends Controller
             '{{alamat_yayasan}}' => $yayasan?->alamat ?? '-',
             '{{nama_sekolah}}' => $madrasah->name ?? '-',
             '{{nama_pegawai}}' => $formattedName,
-            '{{gelar}}' => $pick($importRow?->source_gelar, $employee->gelar),
+            '{{gelar}}' => $formattedDegree,
             '{{tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
             '{{tanggal_lahir}}' => $formattedBirthDate,
             '{{nip_maarif}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nip_maarif, $employee->nip)),
@@ -3009,7 +3010,7 @@ class SkYayasanController extends Controller
             '{{catatan_penerbitan}}' => $overrides['catatan_penerbitan'] ?? '-',
             '{{excel_no}}' => $pick($importRow?->excel_no),
             '{{source_nama}}' => $formattedName,
-            '{{source_gelar}}' => $pick($importRow?->source_gelar, $employee->gelar),
+            '{{source_gelar}}' => $formattedDegree,
             '{{source_tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
             '{{source_tanggal_lahir}}' => $formattedBirthDate,
             '{{source_nip_maarif}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nip_maarif, $employee->nip)),
@@ -3175,7 +3176,8 @@ class SkYayasanController extends Controller
             return $name;
         }
 
-        $nameWithoutDegree = preg_replace('/,\s*' . preg_quote($degree, '/') . '$/i', '', $name) ?: $name;
+        $degreeWithoutTrailingPeriod = rtrim($degree, '.');
+        $nameWithoutDegree = preg_replace('/,\s*' . preg_quote($degreeWithoutTrailingPeriod, '/') . '\.?$/iu', '', $name) ?: $name;
 
         return trim($nameWithoutDegree) . ', ' . $degree;
     }
@@ -3195,7 +3197,18 @@ class SkYayasanController extends Controller
     {
         $string = trim((string) $value);
 
-        return $string === '' || $string === '-' || $string === '?' ? null : $string;
+        if ($string === '' || $string === '-' || $string === '?') {
+            return null;
+        }
+
+        return str_ends_with($string, '.') ? $string : $string . '.';
+    }
+
+    private function formatDegreePlaceholder(string $value): string
+    {
+        $degree = $this->normalizeDegree($value);
+
+        return $degree ?? '-';
     }
 
     private function formatIndonesianDate(mixed ...$values): string
@@ -3381,7 +3394,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-org-title { ' . trim($styles . ' line-height: 0.96; padding: 0 8px;') . ' }';
+                return '.sk-org-title { ' . trim($styles . ' line-height: 0.88; padding: 0 8px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3397,7 +3410,22 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-org-subtitle { ' . trim($styles . ' line-height: 0.95; padding: 0 8px;') . ' }';
+                return '.sk-org-subtitle { ' . trim($styles . ' line-height: 0.86; padding: 0 8px;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-org-meta\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-org-meta { ' . trim($styles . ' line-height: 1;') . ' }';
             },
             $body
         ) ?? $body;
