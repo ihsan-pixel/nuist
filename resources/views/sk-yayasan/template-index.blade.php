@@ -176,7 +176,7 @@
 }
 .sk-decision {
     font-weight: 700;
-    margin: 4px 0 4px 0;
+    margin: 2px 0 0 0;
     text-align: center;
 }
 .sk-person-table {
@@ -1682,7 +1682,7 @@ HTML;
 .sk-menimbang-content { line-height: 1; }
 .sk-label { width: 128px; }
 .sk-colon { text-align: center; width: 5px; }
-.sk-decision { font-weight: 700; margin: 4px 0 4px 0; text-align: center; }
+.sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }
 .sk-person-table { margin: 7px 0 9px 0; width: 100%; }
 .sk-person-table td { line-height: 1; padding: 0 1px 2px 0; vertical-align: top; }
 .sk-person-no { width: 24px; }
