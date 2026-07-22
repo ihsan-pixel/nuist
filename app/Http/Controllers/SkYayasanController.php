@@ -3579,7 +3579,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-green-line { ' . trim($styles . ' margin: 0 4mm 1.5mm 0;') . ' }';
+                return '.sk-green-line { ' . trim($styles . ' margin: 1mm 4mm 1.5mm 0;') . ' }';
             },
             $body
         ) ?? $body;

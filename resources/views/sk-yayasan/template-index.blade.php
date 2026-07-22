@@ -127,7 +127,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 0 4mm 1.5mm 0;
+    margin: 1mm 4mm 1.5mm 0;
 }
 .sk-green-line ~ * {
     font-family: Cambria !important;
