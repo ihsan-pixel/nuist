@@ -221,7 +221,7 @@
 }
 .sk-kesatu-intro {
     display: block;
-    padding-bottom: 2mm;
+    padding-bottom: 3mm;
 }
 .sk-kesatu-closing {
     display: block;

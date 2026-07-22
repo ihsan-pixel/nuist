@@ -3650,7 +3650,7 @@ class SkYayasanController extends Controller
             '.sk-org-subtitle:empty { display: none; }',
             '.sk-org-subtitle + .sk-org-meta { margin-top: 3mm; }',
             '.sk-org-meta { padding: 0 8px; }',
-            '.sk-kesatu-intro { display: block; padding-bottom: 2mm; }',
+            '.sk-kesatu-intro { display: block; padding-bottom: 3mm; }',
             '.sk-kesatu-closing { display: block; padding-top: 1.2mm; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
