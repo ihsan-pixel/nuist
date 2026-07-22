@@ -86,14 +86,14 @@
 }
 .sk-org-title-line {
     display: block;
-    line-height: 0.78;
+    line-height: 0.5;
     margin: 0;
 }
 .sk-org-title-line + .sk-org-title-line {
-    margin-top: -3.2mm;
+    margin-top: 0;
 }
 .sk-org-title-last {
-    margin-top: -4.8mm;
+    margin-top: 0;
 }
 .sk-org-subtitle {
     color: #000;
@@ -104,7 +104,7 @@
     padding: 0 8px;
 }
 .sk-org-title + .sk-org-subtitle {
-    margin-top: -2.4mm;
+    margin-top: 0.5mm;
 }
 .sk-org-meta {
     color: #000;
