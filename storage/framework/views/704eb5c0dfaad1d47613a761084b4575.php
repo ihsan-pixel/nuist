@@ -112,10 +112,10 @@
                     <div class="sky-inline-note sky-inline-note-info mb-0">
                         <div class="fw-semibold mb-1">Placeholder utama template</div>
                         <div class="small">
-                            <code><?php echo e('{{nama_pegawai); ?>' }}</code>,
-                            <code><?php echo e('{{nama_sekolah); ?>' }}</code>,
-                            <code><?php echo e('{{status_kepegawaian); ?>' }}</code>,
-                            <code><?php echo e('{{tanggal_terbit); ?>' }}</code>.
+                            <code>&#123;&#123;nama_pegawai&#125;&#125;</code>,
+                            <code>&#123;&#123;nama_sekolah&#125;&#125;</code>,
+                            <code>&#123;&#123;status_kepegawaian&#125;&#125;</code>,
+                            <code>&#123;&#123;tanggal_terbit&#125;&#125;</code>.
                         </div>
                     </div>
                 </div>
