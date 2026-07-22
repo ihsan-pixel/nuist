@@ -107,12 +107,18 @@
 .sk-org-title + .sk-org-subtitle {
     margin-top: 0.3mm;
 }
+.sk-org-subtitle:empty {
+    display: none;
+}
+.sk-org-subtitle + .sk-org-meta {
+    margin-top: 1mm;
+}
 .sk-org-meta {
     color: #000;
     font-family: Arial, sans-serif;
     font-size: 10.5pt;
     line-height: 1;
-    padding: 4px 8px 0 8px;
+    padding: 0 8px;
 }
 .sk-email-link {
     color: #1d4ed8;
