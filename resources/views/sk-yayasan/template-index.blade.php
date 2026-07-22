@@ -39,7 +39,7 @@
 }
 .sk-logo-cell {
     padding: 0 24px 1px 44px;
-    width: 108px;
+    width: 112px;
 }
 .sk-letterhead-text {
     padding-left: 26px;
@@ -53,13 +53,13 @@
     margin-left: 6px;
     margin-top: 2mm;
     text-align: center;
-    width: 94px;
+    width: 98px;
 }
 .sk-logo-box img {
     display: block;
-    height: 108px !important;
+    height: 114px !important;
     margin-top: 0 !important;
-    max-width: 176px;
+    max-width: 184px;
     object-fit: contain;
 }
 .sk-logo-mark {

@@ -3449,7 +3449,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-cell { ' . trim($styles . ' padding: 0 24px 1px 44px; width: 108px;') . ' }';
+                return '.sk-logo-cell { ' . trim($styles . ' padding: 0 24px 1px 44px; width: 112px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3468,7 +3468,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 6px; margin-top: 2mm; width: 94px; justify-content: flex-start;') . ' }';
+                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 6px; margin-top: 2mm; width: 98px; justify-content: flex-start;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3485,7 +3485,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-box img, .sk-logo-image { ' . trim($styles . ' height: 108px !important; margin-top: 0 !important; max-width: 176px;') . ' }';
+                return '.sk-logo-box img, .sk-logo-image { ' . trim($styles . ' height: 114px !important; margin-top: 0 !important; max-width: 184px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3649,7 +3649,7 @@ class SkYayasanController extends Controller
             '.sk-email-link { color: #1d4ed8; }',
             '.sk-green-line ~ * { font-family: Cambria !important; }',
             '.sk-title, .sk-number, .sk-subject, .sk-table, .sk-table td, .sk-person-table, .sk-person-table td, .sk-decision, .sk-signature, .sk-signature *, .sk-copy, .sk-copy * { font-family: Cambria !important; }',
-            '.sk-logo-box img, .sk-logo-image { display: block; height: 108px !important; margin-top: 0 !important; max-width: 176px; object-fit: contain; }',
+            '.sk-logo-box img, .sk-logo-image { display: block; height: 114px !important; margin-top: 0 !important; max-width: 184px; object-fit: contain; }',
         ] as $requiredStyle) {
             if (!str_contains($body, $requiredStyle)) {
                 $body = str_replace('</style>', $requiredStyle . "\n</style>", $body);
