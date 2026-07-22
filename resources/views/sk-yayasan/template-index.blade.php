@@ -111,7 +111,7 @@
     display: none;
 }
 .sk-org-subtitle + .sk-org-meta {
-    margin-top: 1mm;
+    margin-top: 1.3mm;
 }
 .sk-org-meta {
     color: #000;
