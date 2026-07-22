@@ -270,6 +270,7 @@
 .sk-decision-row .sk-content-cell,
 .sk-decision-row .sk-kedua-content,
 .sk-decision-row .sk-ketiga-content {
+    line-height: 0.9;
     padding-top: 0.8mm;
     text-align: justify;
     text-align-last: auto;

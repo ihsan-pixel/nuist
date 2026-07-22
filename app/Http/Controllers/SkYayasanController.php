@@ -3654,7 +3654,7 @@ class SkYayasanController extends Controller
             '.sk-reference-row td { padding-bottom: 0; vertical-align: baseline; }',
             '.sk-reference-row .sk-content-cell > *, .sk-decision-row .sk-content-cell > * { margin-top: 0; margin-bottom: 0; }',
             '.sk-reference-row .sk-content-cell, .sk-reference-row .sk-menimbang-content, .sk-reference-row .sk-menimbang-item { line-height: 0.9; padding-top: 0.8mm; text-align: justify; text-align-last: auto; text-justify: inter-word; }',
-            '.sk-decision-row .sk-content-cell, .sk-decision-row .sk-kedua-content, .sk-decision-row .sk-ketiga-content { padding-top: 0.8mm; text-align: justify; text-align-last: auto; text-justify: inter-word; }',
+            '.sk-decision-row .sk-content-cell, .sk-decision-row .sk-kedua-content, .sk-decision-row .sk-ketiga-content { line-height: 0.9; padding-top: 0.8mm; text-align: justify; text-align-last: auto; text-justify: inter-word; }',
             '.sk-decision-row td { padding-bottom: 1mm; }',
             '.sk-menimbang-row td { padding-bottom: 0; }',
             '.sk-menimbang-content { line-height: 1; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }',
