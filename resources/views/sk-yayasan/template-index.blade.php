@@ -266,6 +266,14 @@
     text-align-last: auto;
     text-justify: inter-word;
 }
+.sk-decision-row .sk-content-cell,
+.sk-decision-row .sk-kedua-content,
+.sk-decision-row .sk-ketiga-content {
+    padding-top: 0.8mm;
+    text-align: justify;
+    text-align-last: auto;
+    text-justify: inter-word;
+}
 .sk-signature {
     line-height: 1.02;
     margin-left: auto;
