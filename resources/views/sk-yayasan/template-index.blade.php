@@ -87,7 +87,7 @@
 }
 .sk-org-title-line {
     display: block;
-    line-height: 0.25;
+    line-height: 0.2;
     margin: 0;
 }
 .sk-org-title-line + .sk-org-title-line {
