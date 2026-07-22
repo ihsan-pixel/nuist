@@ -81,13 +81,15 @@
     font-family: Cambria;
     font-size: 24pt;
     font-weight: 700;
-    line-height: 0.8;
     margin: 0 0 1.5mm 0;
     padding: 0 8px;
 }
-.sk-org-title-last {
+.sk-org-title-line {
     display: block;
-    margin-top: -2.2mm;
+    line-height: 0.8;
+}
+.sk-org-title-last {
+    margin-top: -2.8mm;
 }
 .sk-org-subtitle {
     color: #000;
@@ -293,9 +295,9 @@
             </td>
             <td class="sk-letterhead-text">
                 <div class="sk-org-title">
-                    PENGURUS WILAYAH NAHDLATUL ULAMA<br>
-                    DAERAH ISTIMEWA YOGYAKARTA<br>
-                    <span class="sk-org-title-last">LEMBAGA PENDIDIKAN MA'ARIF</span>
+                    <span class="sk-org-title-line">PENGURUS WILAYAH NAHDLATUL ULAMA</span>
+                    <span class="sk-org-title-line">DAERAH ISTIMEWA YOGYAKARTA</span>
+                    <span class="sk-org-title-line sk-org-title-last">LEMBAGA PENDIDIKAN MA'ARIF</span>
                 </div>
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 1</div>
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 2</div>

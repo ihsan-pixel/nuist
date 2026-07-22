@@ -3518,7 +3518,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-org-title { ' . trim($styles . ' line-height: 0.8; margin: 0 0 1.5mm 0; padding: 0 8px;') . ' }';
+                return '.sk-org-title { ' . trim($styles . ' margin: 0 0 1.5mm 0; padding: 0 8px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3627,7 +3627,8 @@ class SkYayasanController extends Controller
             '.sk-footer-table td { vertical-align: bottom; }',
             '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
-            '.sk-org-title-last { display: block; margin-top: -2.2mm; }',
+            '.sk-org-title-line { display: block; line-height: 0.8; }',
+            '.sk-org-title-last { margin-top: -2.8mm; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-reference-row td { padding-bottom: 0; }',
@@ -3748,7 +3749,7 @@ class SkYayasanController extends Controller
 
     private function normalizeStructuredTemplateOrgTitleLayout(string $body): string
     {
-        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-org-title-last')) {
+        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-org-title-line')) {
             return $body;
         }
 
@@ -3805,16 +3806,19 @@ class SkYayasanController extends Controller
                 $titleBlock->removeChild($titleBlock->firstChild);
             }
 
-            foreach ($segments as $index => $segmentNodes) {
+            foreach ($segments as $segmentNodes) {
+                $line = $document->createElement('span');
+                $line->setAttribute('class', 'sk-org-title-line');
+
                 foreach ($segmentNodes as $segmentNode) {
-                    $titleBlock->appendChild($document->importNode($segmentNode, true));
+                    $line->appendChild($document->importNode($segmentNode, true));
                 }
 
-                $titleBlock->appendChild($document->createElement('br'));
+                $titleBlock->appendChild($line);
             }
 
             $lastLine = $document->createElement('span');
-            $lastLine->setAttribute('class', 'sk-org-title-last');
+            $lastLine->setAttribute('class', 'sk-org-title-line sk-org-title-last');
 
             foreach ($lastSegment as $segmentNode) {
                 $lastLine->appendChild($document->importNode($segmentNode, true));
