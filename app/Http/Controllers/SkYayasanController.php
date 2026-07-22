@@ -3628,7 +3628,7 @@ class SkYayasanController extends Controller
             '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
             '.sk-org-title-line { display: block; line-height: 0.8; }',
-            '.sk-org-title-last { margin-top: -2.8mm; }',
+            '.sk-org-title-last { margin-top: -4.2mm; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-reference-row td { padding-bottom: 0; }',
