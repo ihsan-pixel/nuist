@@ -3594,7 +3594,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-number { ' . trim($styles . ' margin: 0 0 1.5mm 0;') . ' }';
+                return '.sk-number { ' . trim($styles . ' line-height: 1; margin: -0.6mm 0 1.5mm 0;') . ' }';
             },
             $body
         ) ?? $body;

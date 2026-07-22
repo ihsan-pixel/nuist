@@ -161,7 +161,8 @@
     text-transform: uppercase;
 }
 .sk-number {
-    margin: 0 0 1.5mm 0;
+    line-height: 1;
+    margin: -0.6mm 0 1.5mm 0;
     text-align: center;
 }
 .sk-subject {
