@@ -262,9 +262,9 @@
 .sk-reference-row .sk-menimbang-content,
 .sk-reference-row .sk-menimbang-item {
     padding-top: 0.8mm;
-    text-align: left;
-    text-align-last: left;
-    text-justify: auto;
+    text-align: justify;
+    text-align-last: auto;
+    text-justify: inter-word;
 }
 .sk-signature {
     line-height: 1.02;

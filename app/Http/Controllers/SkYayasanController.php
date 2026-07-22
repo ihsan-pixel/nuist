@@ -3653,7 +3653,7 @@ class SkYayasanController extends Controller
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-reference-row td { padding-bottom: 0; vertical-align: baseline; }',
             '.sk-reference-row .sk-content-cell > *, .sk-decision-row .sk-content-cell > * { margin-top: 0; margin-bottom: 0; }',
-            '.sk-reference-row .sk-content-cell, .sk-reference-row .sk-menimbang-content, .sk-reference-row .sk-menimbang-item { padding-top: 0.8mm; text-align: left; text-align-last: left; text-justify: auto; }',
+            '.sk-reference-row .sk-content-cell, .sk-reference-row .sk-menimbang-content, .sk-reference-row .sk-menimbang-item { padding-top: 0.8mm; text-align: justify; text-align-last: auto; text-justify: inter-word; }',
             '.sk-decision-row td { padding-bottom: 1mm; }',
             '.sk-menimbang-row td { padding-bottom: 0; }',
             '.sk-menimbang-content { line-height: 1; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }',
