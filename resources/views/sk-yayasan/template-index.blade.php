@@ -51,7 +51,7 @@
     font-weight: 700;
     height: auto;
     margin-left: 6px;
-    margin-top: 0;
+    margin-top: 2mm;
     text-align: center;
     width: 94px;
 }

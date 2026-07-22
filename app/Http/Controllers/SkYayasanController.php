@@ -3468,7 +3468,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 6px; margin-top: 0; width: 94px; justify-content: flex-start;') . ' }';
+                return '.sk-logo-box { ' . trim($styles . ' height: auto; margin-left: 6px; margin-top: 2mm; width: 94px; justify-content: flex-start;') . ' }';
             },
             $body
         ) ?? $body;
