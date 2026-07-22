@@ -82,6 +82,7 @@
     font-size: 24pt;
     font-weight: 700;
     line-height: 0.88;
+    margin: 0 0 1.5mm 0;
     padding: 0 8px;
 }
 .sk-org-subtitle {
@@ -106,7 +107,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 0 0 2px 0;
+    margin: 0 0 1.5mm 0;
 }
 .sk-green-line ~ * {
     font-family: Cambria !important;
@@ -140,7 +141,7 @@
     text-transform: uppercase;
 }
 .sk-number {
-    margin-bottom: 3px;
+    margin: 0 0 1.5mm 0;
     text-align: center;
 }
 .sk-subject {
@@ -155,7 +156,7 @@
     padding: 0 4px 1px 0;
     vertical-align: top;
 }
-.sk-menimbang-row td {
+.sk-reference-row td {
     padding-bottom: 0;
 }
 .sk-content-cell {
@@ -227,6 +228,14 @@
 }
 .sk-ketiga-content {
     line-height: 1;
+}
+.sk-decision-row td {
+    padding-bottom: 1mm;
+}
+.sk-reference-row .sk-content-cell > *,
+.sk-decision-row .sk-content-cell > * {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 .sk-signature {
     line-height: 1.02;
@@ -305,12 +314,12 @@
     <p class="sk-subject">Ketua Lembaga Pendidikan Ma'arif NU PWNU DIY</p>
 
     <table class="sk-table">
-        <tr class="sk-menimbang-row">
+        <tr class="sk-reference-row sk-menimbang-row">
             <td class="sk-label">Menimbang</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell sk-menimbang-content">Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
         </tr>
-        <tr>
+        <tr class="sk-reference-row">
             <td class="sk-label">Mengingat</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
@@ -322,7 +331,7 @@
                 </ol>
             </td>
         </tr>
-        <tr>
+        <tr class="sk-reference-row">
             <td class="sk-label">Memperhatikan</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</td>
@@ -332,12 +341,12 @@
     <div class="sk-decision">MEMUTUSKAN</div>
 
     <table class="sk-table">
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label">Menetapkan</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell"></td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label">Kesatu</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
@@ -357,12 +366,12 @@
                 diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.
             </td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label">Kedua</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell sk-kedua-content">Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label">Ketiga</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell sk-ketiga-content">Asli Surat Keputusan ini diberikan kepada yang bersangkutan.</td>

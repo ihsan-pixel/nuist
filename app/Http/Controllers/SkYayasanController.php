@@ -3509,6 +3509,7 @@ class SkYayasanController extends Controller
             '/\.sk-org-title\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/margin(?:-[a-z]+)?\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = trim($styles);
 
@@ -3516,7 +3517,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-org-title { ' . trim($styles . ' line-height: 0.88; padding: 0 8px;') . ' }';
+                return '.sk-org-title { ' . trim($styles . ' line-height: 0.88; margin: 0 0 1.5mm 0; padding: 0 8px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3562,7 +3563,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-green-line { ' . trim($styles . ' margin: 0 0 2px 0;') . ' }';
+                return '.sk-green-line { ' . trim($styles . ' margin: 0 0 1.5mm 0;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3577,7 +3578,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-number { ' . trim($styles . ' margin-bottom: 3px;') . ' }';
+                return '.sk-number { ' . trim($styles . ' margin: 0 0 1.5mm 0;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3627,6 +3628,9 @@ class SkYayasanController extends Controller
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
+            '.sk-reference-row td { padding-bottom: 0; }',
+            '.sk-reference-row .sk-content-cell > *, .sk-decision-row .sk-content-cell > * { margin-top: 0; margin-bottom: 0; }',
+            '.sk-decision-row td { padding-bottom: 1mm; }',
             '.sk-menimbang-row td { padding-bottom: 0; }',
             '.sk-menimbang-content { line-height: 1; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }',
             '.sk-menimbang-item { display: block; line-height: 1; margin: 0; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }',
@@ -4006,8 +4010,17 @@ HTML;
 
             if ($labelText === 'Menimbang') {
                 $rowClassNames[] = 'sk-menimbang-row';
+                $rowClassNames[] = 'sk-reference-row';
                 $classNames[] = 'sk-menimbang-content';
                 $menimbangContentCell = $contentCell;
+            }
+
+            if (in_array($labelText, ['Mengingat', 'Memperhatikan'], true)) {
+                $rowClassNames[] = 'sk-reference-row';
+            }
+
+            if (in_array($labelText, ['Menetapkan', 'Kesatu', 'Kedua', 'Ketiga'], true)) {
+                $rowClassNames[] = 'sk-decision-row';
             }
 
             if ($labelText === '' && $lastNonEmptyLabel === 'Menimbang' && $menimbangContentCell instanceof \DOMElement) {
