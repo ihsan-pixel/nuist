@@ -81,7 +81,7 @@
     font-family: Cambria;
     font-size: 24pt;
     font-weight: 700;
-    margin: 0 0 1.5mm 0;
+    margin: 0 0 0.3mm 0;
     padding: 0 8px;
 }
 .sk-org-title-line {
@@ -102,6 +102,9 @@
     font-weight: 700;
     line-height: 0.86;
     padding: 0 8px;
+}
+.sk-org-title + .sk-org-subtitle {
+    margin-top: -2.4mm;
 }
 .sk-org-meta {
     color: #000;

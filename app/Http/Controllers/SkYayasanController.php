@@ -3518,7 +3518,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-org-title { ' . trim($styles . ' margin: 0 0 1.5mm 0; padding: 0 8px;') . ' }';
+                return '.sk-org-title { ' . trim($styles . ' margin: 0 0 0.3mm 0; padding: 0 8px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3630,6 +3630,7 @@ class SkYayasanController extends Controller
             '.sk-org-title-line { display: block; line-height: 0.78; margin: 0; }',
             '.sk-org-title-line + .sk-org-title-line { margin-top: -3.2mm; }',
             '.sk-org-title-last { margin-top: -4.8mm; }',
+            '.sk-org-title + .sk-org-subtitle { margin-top: -2.4mm; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-reference-row td { padding-bottom: 0; }',
