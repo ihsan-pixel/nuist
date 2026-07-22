@@ -41,6 +41,12 @@
         </div>
     </div>
 
+    @if($dashboardWarning)
+        <div class="sky-inline-note sky-inline-note-warning mb-3">
+            <strong>Data dashboard terbatas:</strong> {{ $dashboardWarning }}
+        </div>
+    @endif
+
     <div class="row g-3 mb-3">
         @foreach($cards as $card)
             <div class="col-xl-3 col-md-6">

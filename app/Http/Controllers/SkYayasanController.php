@@ -38,48 +38,63 @@ class SkYayasanController extends Controller
     {
         $this->ensureSuperAdmin();
 
-        $statusCounts = SkYayasanRequest::query()
-            ->selectRaw('current_status, COUNT(*) as total')
-            ->groupBy('current_status')
-            ->pluck('total', 'current_status');
+        if (!$this->skYayasanDashboardSupported()) {
+            return view('sk-yayasan.dashboard', $this->emptySkYayasanDashboardPayload(
+                'Data dashboard SK Yayasan belum tersedia karena tabel atau kolom pendukung belum lengkap.'
+            ));
+        }
 
-        $documentCounts = SkYayasanDocument::query()
-            ->selectRaw('status, COUNT(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
+        try {
+            $statusCounts = SkYayasanRequest::query()
+                ->selectRaw('current_status, COUNT(*) as total')
+                ->groupBy('current_status')
+                ->pluck('total', 'current_status');
 
-        $latestRequests = SkYayasanRequest::query()
-            ->with(['madrasah', 'employee', 'template'])
-            ->latest('submitted_at')
-            ->take(8)
-            ->get();
+            $documentCounts = SkYayasanDocument::query()
+                ->selectRaw('status, COUNT(*) as total')
+                ->groupBy('status')
+                ->pluck('total', 'status');
 
-        $schoolSummaries = Madrasah::query()
-            ->withCount([
-                'skYayasanRequests as total_pengajuan_sk' => fn ($query) => $query->where('request_type', 'perpanjangan'),
-                'skYayasanRequests as total_pengajuan_pending' => fn ($query) => $query->whereIn('current_status', ['submitted', 'reviewed']),
-                'skYayasanRequests as total_sk_terbit' => fn ($query) => $query->where('current_status', 'published'),
-            ])
-            ->havingRaw('total_pengajuan_sk > 0')
-            ->orderByDesc('total_pengajuan_pending')
-            ->orderByDesc('total_sk_terbit')
-            ->take(10)
-            ->get();
+            $latestRequests = SkYayasanRequest::query()
+                ->with(['madrasah', 'employee', 'template'])
+                ->latest('submitted_at')
+                ->take(8)
+                ->get();
 
-        return view('sk-yayasan.dashboard', [
-            'statusCounts' => $statusCounts,
-            'documentCounts' => $documentCounts,
-            'latestRequests' => $latestRequests,
-            'schoolSummaries' => $schoolSummaries,
-            'pendingImportBatches' => SkYayasanImportBatch::query()->where('status', 'pending_review')->count(),
-            'rejectedImportBatches' => SkYayasanImportBatch::query()->where('status', 'rejected')->count(),
-            'activeTemplates' => SkYayasanTemplate::query()->where('is_active', true)->count(),
-            'publishedThisMonth' => SkYayasanDocument::query()
-                ->where('status', 'published')
-                ->whereMonth('published_at', now()->month)
-                ->whereYear('published_at', now()->year)
-                ->count(),
-        ]);
+            $schoolSummaries = Madrasah::query()
+                ->withCount([
+                    'skYayasanRequests as total_pengajuan_sk' => fn ($query) => $query->where('request_type', 'perpanjangan'),
+                    'skYayasanRequests as total_pengajuan_pending' => fn ($query) => $query->whereIn('current_status', ['submitted', 'reviewed']),
+                    'skYayasanRequests as total_sk_terbit' => fn ($query) => $query->where('current_status', 'published'),
+                ])
+                ->havingRaw('total_pengajuan_sk > 0')
+                ->orderByDesc('total_pengajuan_pending')
+                ->orderByDesc('total_sk_terbit')
+                ->take(10)
+                ->get();
+
+            return view('sk-yayasan.dashboard', [
+                'statusCounts' => $statusCounts,
+                'documentCounts' => $documentCounts,
+                'latestRequests' => $latestRequests,
+                'schoolSummaries' => $schoolSummaries,
+                'pendingImportBatches' => SkYayasanImportBatch::query()->where('status', 'pending_review')->count(),
+                'rejectedImportBatches' => SkYayasanImportBatch::query()->where('status', 'rejected')->count(),
+                'activeTemplates' => SkYayasanTemplate::query()->where('is_active', true)->count(),
+                'publishedThisMonth' => SkYayasanDocument::query()
+                    ->where('status', 'published')
+                    ->whereMonth('published_at', now()->month)
+                    ->whereYear('published_at', now()->year)
+                    ->count(),
+                'dashboardWarning' => null,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return view('sk-yayasan.dashboard', $this->emptySkYayasanDashboardPayload(
+                'Data dashboard SK Yayasan sementara tidak dapat dimuat. Detail error sudah dicatat di log aplikasi.'
+            ));
+        }
     }
 
     public function schoolIndex(Request $request): View
@@ -2023,6 +2038,60 @@ class SkYayasanController extends Controller
         }
 
         return $supported;
+    }
+
+    private function skYayasanDashboardSupported(): bool
+    {
+        static $supported = null;
+
+        if ($supported === null) {
+            $supported =
+                Schema::hasTable('madrasahs')
+                && Schema::hasTable('users')
+                && $this->skYayasanTableHasColumns('sk_yayasan_requests', [
+                    'madrasah_id',
+                    'employee_id',
+                    'template_id',
+                    'request_type',
+                    'current_status',
+                    'submitted_at',
+                ])
+                && $this->skYayasanTableHasColumns('sk_yayasan_documents', [
+                    'request_id',
+                    'template_id',
+                    'status',
+                    'published_at',
+                ])
+                && $this->skYayasanTableHasColumns('sk_yayasan_import_batches', [
+                    'status',
+                ])
+                && $this->skYayasanTableHasColumns('sk_yayasan_templates', [
+                    'name',
+                    'is_active',
+                ]);
+        }
+
+        return $supported;
+    }
+
+    private function skYayasanTableHasColumns(string $table, array $columns): bool
+    {
+        return Schema::hasTable($table) && Schema::hasColumns($table, $columns);
+    }
+
+    private function emptySkYayasanDashboardPayload(?string $warning = null): array
+    {
+        return [
+            'statusCounts' => collect(),
+            'documentCounts' => collect(),
+            'latestRequests' => collect(),
+            'schoolSummaries' => collect(),
+            'pendingImportBatches' => 0,
+            'rejectedImportBatches' => 0,
+            'activeTemplates' => 0,
+            'publishedThisMonth' => 0,
+            'dashboardWarning' => $warning,
+        ];
     }
 
     private function resolveSchoolCopyRecipients(Madrasah $madrasah): array

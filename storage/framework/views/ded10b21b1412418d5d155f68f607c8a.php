@@ -29,15 +29,15 @@
 }
 .sk-letterhead {
     border-collapse: collapse;
-    margin: 0 auto 4px auto;
+    margin: 0 auto 0 auto;
     width: 100%;
 }
 .sk-letterhead td {
     vertical-align: top;
 }
 .sk-logo-cell {
-    padding: 4px 24px 7px 44px;
-    width: 108px;
+    padding: 0 24px 1px 44px;
+    width: 112px;
 }
 .sk-letterhead-text {
     padding-left: 26px;
@@ -49,15 +49,15 @@
     font-weight: 700;
     height: auto;
     margin-left: 6px;
-    margin-top: 6px;
+    margin-top: 2mm;
     text-align: center;
-    width: 92px;
+    width: 98px;
 }
 .sk-logo-box img {
     display: block;
-    height: 108px !important;
+    height: 114px !important;
     margin-top: 0 !important;
-    max-width: 180px;
+    max-width: 184px;
     object-fit: contain;
 }
 .sk-logo-mark {
@@ -79,23 +79,44 @@
     font-family: Cambria;
     font-size: 24pt;
     font-weight: 700;
-    line-height: 0.96;
+    line-height: 1;
+    margin: 0 0 0.3mm 0;
     padding: 0 8px;
+}
+.sk-org-title-line {
+    display: block;
+    line-height: 0.2;
+    margin: 0;
+}
+.sk-org-title-line + .sk-org-title-line {
+    margin-top: 0;
+}
+.sk-org-title-last {
+    margin-top: 0;
 }
 .sk-org-subtitle {
     color: #000;
     font-family: Cambria;
     font-size: 17pt;
     font-weight: 700;
-    line-height: 0.95;
+    line-height: 0.86;
     padding: 0 8px;
+}
+.sk-org-title + .sk-org-subtitle {
+    margin-top: 0.3mm;
+}
+.sk-org-subtitle:empty {
+    display: none;
+}
+.sk-org-subtitle + .sk-org-meta {
+    margin-top: 3mm;
 }
 .sk-org-meta {
     color: #000;
     font-family: Arial, sans-serif;
     font-size: 10.5pt;
-    line-height: 1.2;
-    padding: 4px 8px 0 8px;
+    line-height: 1;
+    padding: 0 8px;
 }
 .sk-email-link {
     color: #1d4ed8;
@@ -104,7 +125,24 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 0 0 20px 0;
+    margin: 1mm 4mm 1.5mm 0;
+}
+.sk-green-line ~ * {
+    font-family: Cambria !important;
+}
+.sk-title,
+.sk-number,
+.sk-subject,
+.sk-table,
+.sk-table td,
+.sk-person-table,
+.sk-person-table td,
+.sk-decision,
+.sk-signature,
+.sk-signature *,
+.sk-copy,
+.sk-copy * {
+    font-family: Cambria !important;
 }
 .sk-green-line-thin {
     background: #2f6f45;
@@ -121,7 +159,8 @@
     text-transform: uppercase;
 }
 .sk-number {
-    margin-bottom: 11px;
+    line-height: 1;
+    margin: -0.6mm 0 1.5mm 0;
     text-align: center;
 }
 .sk-subject {
@@ -133,32 +172,63 @@
     width: 98%;
 }
 .sk-table td {
-    padding: 0 4px 4px 0;
+    padding: 0 4px 1px 0;
     vertical-align: top;
 }
+.sk-reference-row td {
+    padding-bottom: 0;
+    vertical-align: baseline;
+}
 .sk-content-cell {
+    line-height: 1;
+    padding-left: 3px;
     text-align: justify;
     text-justify: inter-word;
 }
+.sk-menimbang-content {
+    line-height: 1;
+    text-align: justify;
+    text-align-last: justify;
+    text-justify: inter-word;
+    white-space: pre-wrap;
+}
+.sk-menimbang-item {
+    display: block;
+    line-height: 1;
+    margin: 0;
+    text-align: justify;
+    text-align-last: justify;
+    text-justify: inter-word;
+    white-space: pre-wrap;
+}
 .sk-label {
-    width: 164px;
+    width: 112px;
 }
 .sk-colon {
     text-align: center;
-    width: 9px;
+    width: 5px;
 }
 .sk-decision {
     font-weight: 700;
-    margin: 10px 0 9px 0;
+    margin: 2px 0 0 0;
     text-align: center;
 }
 .sk-person-table {
     border-collapse: collapse;
-    margin: 7px 0 9px 0;
+    margin: 0;
     width: 100%;
 }
+.sk-kesatu-intro {
+    display: block;
+    padding-bottom: 3mm;
+}
+.sk-kesatu-closing {
+    display: block;
+    padding-top: 1.2mm;
+}
 .sk-person-table td {
-    padding: 0 1px 2px 0;
+    line-height: 0.75;
+    padding: 0 1px 0 0;
     vertical-align: top;
 }
 .sk-person-no {
@@ -181,9 +251,37 @@
     margin: 0;
     padding-left: 0;
 }
-.sk-kedua-content,
+.sk-kedua-content {
+    line-height: 1;
+}
 .sk-ketiga-content {
-    line-height: 1.32;
+    line-height: 1;
+}
+.sk-decision-row td {
+    padding-bottom: 1mm;
+}
+.sk-reference-row .sk-content-cell > *,
+.sk-decision-row .sk-content-cell > * {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.sk-reference-row .sk-content-cell,
+.sk-reference-row .sk-menimbang-content,
+.sk-reference-row .sk-menimbang-item {
+    line-height: 0.9;
+    padding-top: 0.8mm;
+    text-align: justify;
+    text-align-last: auto;
+    text-justify: inter-word;
+}
+.sk-decision-row .sk-content-cell,
+.sk-decision-row .sk-kedua-content,
+.sk-decision-row .sk-ketiga-content {
+    line-height: 0.9;
+    padding-top: 0.8mm;
+    text-align: justify;
+    text-align-last: auto;
+    text-justify: inter-word;
 }
 .sk-signature {
     line-height: 1.02;
@@ -216,6 +314,7 @@
     width: 290px;
 }
 .sk-copy {
+    line-height: 0.9;
     margin: 0;
     padding-left: 0;
     text-align: left;
@@ -237,9 +336,9 @@
             </td>
             <td class="sk-letterhead-text">
                 <div class="sk-org-title">
-                    PENGURUS WILAYAH NAHDLATUL ULAMA<br>
-                    DAERAH ISTIMEWA YOGYAKARTA<br>
-                    LEMBAGA PENDIDIKAN MA'ARIF
+                    <span class="sk-org-title-line">PENGURUS WILAYAH NAHDLATUL ULAMA</span>
+                    <span class="sk-org-title-line">DAERAH ISTIMEWA YOGYAKARTA</span>
+                    <span class="sk-org-title-line sk-org-title-last">LEMBAGA PENDIDIKAN MA'ARIF</span>
                 </div>
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 1</div>
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 2</div>
@@ -262,12 +361,12 @@
     <p class="sk-subject">Ketua Lembaga Pendidikan Ma'arif NU PWNU DIY</p>
 
     <table class="sk-table">
-        <tr>
+        <tr class="sk-reference-row sk-menimbang-row">
             <td class="sk-label">Menimbang</td>
             <td class="sk-colon">:</td>
-            <td class="sk-content-cell">Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
+            <td class="sk-content-cell sk-menimbang-content">Bahwa demi memantapkan pelaksanaan tugas guru dan tenaga kependidikan di @{{nama_sekolah}}, dipandang perlu mengatur perihal kepegawaian.</td>
         </tr>
-        <tr>
+        <tr class="sk-reference-row">
             <td class="sk-label">Mengingat</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
@@ -279,7 +378,7 @@
                 </ol>
             </td>
         </tr>
-        <tr>
+        <tr class="sk-reference-row">
             <td class="sk-label">Memperhatikan</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</td>
@@ -289,16 +388,16 @@
     <div class="sk-decision">MEMUTUSKAN</div>
 
     <table class="sk-table">
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label">Menetapkan</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell"></td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label">Kesatu</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
-                Guru Tetap Yayasan tersebut di bawah ini:
+                <div class="sk-kesatu-intro">Guru Tetap Yayasan tersebut di bawah ini:</div>
                 <table class="sk-person-table">
                     <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nama_pegawai}}</td></tr>
                     <tr><td class="sk-person-no">2.</td><td class="sk-person-label">Tempat, tanggal lahir</td><td class="sk-colon">:</td><td class="sk-person-value">@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
@@ -311,15 +410,15 @@
                     <tr><td class="sk-person-no">9.</td><td class="sk-person-label">Masa kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{masa_kerja}}</td></tr>
                     <tr><td class="sk-person-no">10.</td><td class="sk-person-label">Penilaian perilaku kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{penilaian_kinerja}}</td></tr>
                 </table>
-                diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.
+                <div class="sk-kesatu-closing">diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.</div>
             </td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label">Kedua</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell sk-kedua-content">Keputusan ini berlaku terhitung mulai tanggal @{{tanggal_mulai}} sampai dengan @{{tanggal_selesai}}. Apabila di kemudian hari terdapat kekeliruan di dalamnya akan diadakan perbaikan dan perhitungan kembali sebagaimana mestinya.</td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label">Ketiga</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell sk-ketiga-content">Asli Surat Keputusan ini diberikan kepada yang bersangkutan.</td>
@@ -1406,6 +1505,12 @@ HTML;
             return escapeHtml(value).replace(/\n/g, '<br>');
         }
 
+        function nl2brPreserveSpaces(value) {
+            return escapeHtml(value)
+                .replace(/ {2,}/g, (spaces) => '&nbsp;'.repeat(spaces.length))
+                .replace(/\n/g, '<br>');
+        }
+
         function formatOrgMetaText(value) {
             return nl2br(value)
                 .replace(
@@ -1548,14 +1653,10 @@ HTML;
                 .map((item) => `${nl2br(item)}<br>`)
                 .join('');
 
-            const menimbangSecondRow = config.menimbangContent2Text?.trim()
-                ? `
-        <tr>
-            <td class="sk-label"></td>
-            <td class="sk-colon"></td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContent2Text)}</td>
-        </tr>`
-                : '';
+            const menimbangContentMarkup = [
+                config.menimbangContentText,
+                config.menimbangContent2Text,
+            ].filter((item) => String(item ?? '').trim()).map((item) => `<div class="sk-menimbang-item">${nl2brPreserveSpaces(item)}</div>`).join('');
 
             return `
 <style>
@@ -1570,11 +1671,11 @@ HTML;
 }
 .sk-letterhead {
     border-collapse: collapse;
-    margin: 0 auto 4px auto;
+    margin: 0 auto 0 auto;
     width: 100%;
 }
 .sk-letterhead td { vertical-align: top; }
-.sk-logo-cell { padding: 4px 24px 7px 44px; width: 108px; }
+.sk-logo-cell { padding: 0 24px 1px 44px; width: 100px; }
 .sk-letterhead-text { padding-left: 26px; }
 .sk-logo-box {
     align-items: center;
@@ -1586,35 +1687,48 @@ HTML;
     height: auto;
     justify-content: flex-start;
     margin-left: 6px;
-    margin-top: 6px;
+    margin-top: 0;
     text-align: center;
-    width: 92px;
+    width: 86px;
 }
-.sk-logo-box img, .sk-logo-image { display: block; height: 108px !important; margin-top: 0 !important; max-width: 180px; object-fit: contain; }
+.sk-logo-box img, .sk-logo-image { display: block; height: 100px !important; margin-top: 0 !important; max-width: 166px; object-fit: contain; }
 .sk-org-title {
     color: #000;
     font-family: Cambria;
     font-weight: 700;
-    line-height: 0.96;
+    line-height: 0.88;
     padding: 0 8px;
 }
 .sk-org-subtitle {
     color: #000;
     font-family: Cambria;
     font-weight: 700;
-    line-height: 0.95;
+    line-height: 0.86;
     padding: 0 8px;
 }
 .sk-org-meta {
     color: #000;
     font-family: Arial, sans-serif;
-    line-height: 1.2;
+    line-height: 1;
     padding: 4px 8px 0 8px;
 }
 .sk-email-link { color: #1d4ed8; }
 .sk-green-line {
-    margin: 0 0 20px 0;
+    margin: 0 0 2px 0;
 }
+.sk-green-line ~ * { font-family: Cambria !important; }
+.sk-title,
+.sk-number,
+.sk-subject,
+.sk-table,
+.sk-table td,
+.sk-person-table,
+.sk-person-table td,
+.sk-decision,
+.sk-signature,
+.sk-signature *,
+.sk-copy,
+.sk-copy * { font-family: Cambria !important; }
 
 .sk-green-line-thin {
     border-top: 1px solid #2f6f45;
@@ -1634,24 +1748,28 @@ HTML;
     text-decoration: underline;
     text-transform: uppercase;
 }
-.sk-number { margin-bottom: 11px; text-align: center; }
+.sk-number { margin-bottom: 3px; text-align: center; }
 .sk-subject { font-weight: 700; margin: 0 0 9px 0; }
 .sk-table, .sk-person-table { border-collapse: collapse; }
 .sk-table { width: 98%; }
-.sk-table td { padding: 0 4px 4px 0; vertical-align: top; }
-.sk-content-cell { padding-left: 7px; text-align: justify; text-justify: inter-word; }
-.sk-label { width: 164px; }
-.sk-colon { text-align: center; width: 9px; }
-.sk-decision { font-weight: 700; margin: 10px 0 9px 0; text-align: center; }
+.sk-table td { padding: 0 4px 1px 0; vertical-align: top; }
+.sk-menimbang-row td { padding-bottom: 0; }
+.sk-content-cell { line-height: 1; padding-left: 3px; text-align: justify; text-justify: inter-word; }
+.sk-menimbang-content { line-height: 1; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }
+.sk-menimbang-item { display: block; line-height: 1; margin: 0; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }
+.sk-label { width: 112px; }
+.sk-colon { text-align: center; width: 5px; }
+.sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }
 .sk-person-table { margin: 7px 0 9px 0; width: 100%; }
-.sk-person-table td { padding: 0 1px 2px 0; vertical-align: top; }
+.sk-person-table td { line-height: 1; padding: 0 1px 2px 0; vertical-align: top; }
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
 .sk-person-value { padding-left: 8px; }
 .sk-mengingat-list { margin: 0; padding-left: 22px; }
 .sk-mengingat-list li { margin: 0; padding-left: 0; }
-.sk-kedua-content, .sk-ketiga-content { line-height: 1.32; }
+.sk-kedua-content { line-height: 1; }
+.sk-ketiga-content { line-height: 1; }
 .sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
 .sk-signature-role { display: block; padding-top: 14px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
@@ -1686,12 +1804,11 @@ HTML;
     <p class="sk-subject" style="font-size:${safeFontSize(config.subjectFontSize)}pt;">${nl2br(config.subjectText)}</p>
 
     <table class="sk-table">
-        <tr>
+        <tr class="sk-menimbang-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">${escapeHtml(config.menimbangLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${nl2br(config.menimbangContentText)}</td>
+            <td class="sk-content-cell sk-menimbang-content" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${menimbangContentMarkup}</td>
         </tr>
-        ${menimbangSecondRow}
         <tr>
             <td class="sk-label" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">${escapeHtml(config.mengingatLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">:</td>
