@@ -85,6 +85,10 @@
     margin: 0 0 1.5mm 0;
     padding: 0 8px;
 }
+.sk-org-title-last {
+    display: block;
+    margin-top: -1.4mm;
+}
 .sk-org-subtitle {
     color: #000;
     font-family: Cambria;
@@ -291,7 +295,7 @@
                 <div class="sk-org-title">
                     PENGURUS WILAYAH NAHDLATUL ULAMA<br>
                     DAERAH ISTIMEWA YOGYAKARTA<br>
-                    LEMBAGA PENDIDIKAN MA'ARIF
+                    <span class="sk-org-title-last">LEMBAGA PENDIDIKAN MA'ARIF</span>
                 </div>
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 1</div>
                 <div class="sk-org-subtitle">JUDUL INSTANSI TAMBAHAN 2</div>

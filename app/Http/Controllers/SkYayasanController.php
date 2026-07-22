@@ -3304,6 +3304,7 @@ class SkYayasanController extends Controller
     {
         $body = $this->normalizeStructuredTemplatePlaceholders($body);
         $body = $this->normalizeStructuredTemplateStyles($body, $templateContext);
+        $body = $this->normalizeStructuredTemplateOrgTitleLayout($body);
         $body = $this->normalizeStructuredTemplateContactEmailLayout($body);
         $body = $this->normalizeStructuredTemplateMengingatLayout($body);
         $body = $this->normalizeStructuredTemplateDecisionContentLayout($body);
@@ -3626,6 +3627,7 @@ class SkYayasanController extends Controller
             '.sk-footer-table td { vertical-align: bottom; }',
             '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
             '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
+            '.sk-org-title-last { display: block; margin-top: -1.4mm; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-reference-row td { padding-bottom: 0; }',
@@ -3725,6 +3727,100 @@ class SkYayasanController extends Controller
                     }
                 }
             }
+        }
+
+        $root = $document->getElementById('sk-root');
+        $output = '';
+
+        if ($root) {
+            foreach ($root->childNodes as $childNode) {
+                $output .= $document->saveHTML($childNode);
+            }
+        } else {
+            $output = $body;
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        return $output;
+    }
+
+    private function normalizeStructuredTemplateOrgTitleLayout(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"') || str_contains($body, 'sk-org-title-last')) {
+            return $body;
+        }
+
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $body . '</div>';
+
+        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        $xpath = new \DOMXPath($document);
+        $titleBlocks = $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " sk-org-title ")]');
+
+        if ($titleBlocks === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        foreach ($titleBlocks as $titleBlock) {
+            if (!$titleBlock instanceof \DOMElement) {
+                continue;
+            }
+
+            $segments = [];
+            $currentSegment = [];
+
+            foreach (iterator_to_array($titleBlock->childNodes) as $childNode) {
+                if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'br') {
+                    $segments[] = $currentSegment;
+                    $currentSegment = [];
+                    continue;
+                }
+
+                $currentSegment[] = $childNode->cloneNode(true);
+            }
+
+            if (!empty($currentSegment)) {
+                $segments[] = $currentSegment;
+            }
+
+            if (count($segments) < 2) {
+                continue;
+            }
+
+            $lastSegment = array_pop($segments);
+
+            while ($titleBlock->firstChild) {
+                $titleBlock->removeChild($titleBlock->firstChild);
+            }
+
+            foreach ($segments as $index => $segmentNodes) {
+                foreach ($segmentNodes as $segmentNode) {
+                    $titleBlock->appendChild($document->importNode($segmentNode, true));
+                }
+
+                $titleBlock->appendChild($document->createElement('br'));
+            }
+
+            $lastLine = $document->createElement('span');
+            $lastLine->setAttribute('class', 'sk-org-title-last');
+
+            foreach ($lastSegment as $segmentNode) {
+                $lastLine->appendChild($document->importNode($segmentNode, true));
+            }
+
+            $titleBlock->appendChild($lastLine);
         }
 
         $root = $document->getElementById('sk-root');
