@@ -86,7 +86,7 @@
 }
 .sk-org-title-line {
     display: block;
-    line-height: 0.5;
+    line-height: 0.3;
     margin: 0;
 }
 .sk-org-title-line + .sk-org-title-line {
@@ -104,7 +104,7 @@
     padding: 0 8px;
 }
 .sk-org-title + .sk-org-subtitle {
-    margin-top: 0.5mm;
+    margin-top: 0.3mm;
 }
 .sk-org-meta {
     color: #000;
