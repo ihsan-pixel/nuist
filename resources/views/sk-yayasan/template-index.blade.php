@@ -221,11 +221,11 @@
 }
 .sk-kesatu-intro {
     display: block;
-    margin-bottom: 1mm;
+    padding-bottom: 1.2mm;
 }
 .sk-kesatu-closing {
     display: block;
-    margin-top: 1mm;
+    padding-top: 1.2mm;
 }
 .sk-person-table td {
     line-height: 0.75;
