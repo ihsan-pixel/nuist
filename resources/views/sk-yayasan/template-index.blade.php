@@ -178,6 +178,7 @@
 }
 .sk-reference-row td {
     padding-bottom: 0;
+    vertical-align: baseline;
 }
 .sk-content-cell {
     line-height: 1;
@@ -256,6 +257,13 @@
 .sk-decision-row .sk-content-cell > * {
     margin-top: 0;
     margin-bottom: 0;
+}
+.sk-reference-row .sk-content-cell,
+.sk-reference-row .sk-menimbang-content,
+.sk-reference-row .sk-menimbang-item {
+    text-align: left;
+    text-align-last: left;
+    text-justify: auto;
 }
 .sk-signature {
     line-height: 1.02;
