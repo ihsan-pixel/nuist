@@ -3401,7 +3401,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                $lineHeight = $hasLineHeight ? '' : ' line-height: 1;';
+                $lineHeight = $hasLineHeight ? '' : ' line-height: 0.85;';
 
                 return '.sk-person-table td { ' . trim($styles . $lineHeight . ' padding: 0 1px 0 0;') . ' }';
             },

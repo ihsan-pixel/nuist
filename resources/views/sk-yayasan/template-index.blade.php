@@ -219,7 +219,7 @@
     width: 100%;
 }
 .sk-person-table td {
-    line-height: 1;
+    line-height: 0.85;
     padding: 0 1px 0 0;
     vertical-align: top;
 }
