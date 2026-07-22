@@ -3616,14 +3616,15 @@ class SkYayasanController extends Controller
 
         $replacements = [
             '/\.sk-copy\s*\{([^}]*)\}/u' => static function (array $matches): string {
-                $styles = preg_replace('/margin(?:-[a-z]+)?\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/margin(?:-[a-z]+)?\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = trim($styles);
 
                 if ($styles !== '' && !str_ends_with($styles, ';')) {
                     $styles .= ';';
                 }
 
-                return '.sk-copy { ' . trim($styles . ' margin: 0;') . ' }';
+                return '.sk-copy { ' . trim($styles . ' line-height: 0.9; margin: 0;') . ' }';
             },
         ];
 

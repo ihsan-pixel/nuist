@@ -307,6 +307,7 @@
     width: 290px;
 }
 .sk-copy {
+    line-height: 0.9;
     margin: 0;
     padding-left: 0;
     text-align: left;
