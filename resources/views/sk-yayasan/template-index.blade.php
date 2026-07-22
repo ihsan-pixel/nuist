@@ -215,7 +215,7 @@
 }
 .sk-person-table {
     border-collapse: collapse;
-    margin: 7px 0 9px 0;
+    margin: 11px 0 9px 0;
     width: 100%;
 }
 .sk-person-table td {

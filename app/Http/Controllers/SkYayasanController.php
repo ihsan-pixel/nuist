@@ -3391,6 +3391,21 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         $body = preg_replace_callback(
+            '/\.sk-person-table\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/margin\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-person-table { ' . trim($styles . ' margin: 11px 0 9px 0;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
             '/\.sk-person-table\s+td\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
