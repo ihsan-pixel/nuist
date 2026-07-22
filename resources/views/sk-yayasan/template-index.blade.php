@@ -81,7 +81,7 @@
     font-family: Cambria;
     font-size: 24pt;
     font-weight: 700;
-    line-height: 0.88;
+    line-height: 0.8;
     margin: 0 0 1.5mm 0;
     padding: 0 8px;
 }
