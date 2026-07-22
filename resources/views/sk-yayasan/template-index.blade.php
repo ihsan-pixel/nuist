@@ -87,7 +87,7 @@
 }
 .sk-org-title-last {
     display: block;
-    margin-top: -1.4mm;
+    margin-top: -2.2mm;
 }
 .sk-org-subtitle {
     color: #000;
