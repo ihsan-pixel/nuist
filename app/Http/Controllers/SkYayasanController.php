@@ -3518,7 +3518,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-org-title { ' . trim($styles . ' line-height: 0.3; margin: 0 0 0.3mm 0; padding: 0 8px;') . ' }';
+                return '.sk-org-title { ' . trim($styles . ' line-height: 1; margin: 0 0 0.3mm 0; padding: 0 8px;') . ' }';
             },
             $body
         ) ?? $body;
