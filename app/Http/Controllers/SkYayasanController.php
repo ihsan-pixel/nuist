@@ -3400,7 +3400,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-person-table { ' . trim($styles . ' margin: 1mm 0;') . ' }';
+                return '.sk-person-table { ' . trim($styles . ' margin: 0;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3650,6 +3650,8 @@ class SkYayasanController extends Controller
             '.sk-org-subtitle:empty { display: none; }',
             '.sk-org-subtitle + .sk-org-meta { margin-top: 3mm; }',
             '.sk-org-meta { padding: 0 8px; }',
+            '.sk-kesatu-intro { display: block; margin-bottom: 1mm; }',
+            '.sk-kesatu-closing { display: block; margin-top: 1mm; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-reference-row td { padding-bottom: 0; vertical-align: baseline; }',
@@ -4164,6 +4166,86 @@ HTML;
 
             if ($labelText === 'Ketiga' && !in_array('sk-ketiga-content', $classNames, true)) {
                 $classNames[] = 'sk-ketiga-content';
+            }
+
+            if ($labelText === 'Kesatu' && !$this->bodyContainsClassMarkup($body, 'sk-kesatu-intro')) {
+                $contentNodes = iterator_to_array($contentCell->childNodes);
+                $personTable = null;
+
+                foreach ($contentNodes as $contentNode) {
+                    if (
+                        $contentNode instanceof \DOMElement
+                        && strtolower($contentNode->tagName) === 'table'
+                        && str_contains(' ' . $contentNode->getAttribute('class') . ' ', ' sk-person-table ')
+                    ) {
+                        $personTable = $contentNode;
+                        break;
+                    }
+                }
+
+                if ($personTable instanceof \DOMElement) {
+                    $introNodes = [];
+                    $closingNodes = [];
+                    $passedPersonTable = false;
+
+                    foreach ($contentNodes as $contentNode) {
+                        if ($contentNode === $personTable) {
+                            $passedPersonTable = true;
+                            continue;
+                        }
+
+                        if (!$passedPersonTable) {
+                            $introNodes[] = $contentNode;
+                            continue;
+                        }
+
+                        $closingNodes[] = $contentNode;
+                    }
+
+                    $introText = trim(preg_replace('/\s+/u', ' ', implode('', array_map(
+                        static fn ($node): string => $node instanceof \DOMNode ? $node->textContent : '',
+                        $introNodes
+                    ))));
+
+                    if ($introText !== '') {
+                        $introWrapper = $document->createElement('div');
+                        $introWrapper->setAttribute('class', 'sk-kesatu-intro');
+
+                        foreach ($introNodes as $introNode) {
+                            $introWrapper->appendChild($introNode->cloneNode(true));
+                        }
+
+                        foreach ($introNodes as $introNode) {
+                            if ($introNode->parentNode === $contentCell) {
+                                $contentCell->removeChild($introNode);
+                            }
+                        }
+
+                        $contentCell->insertBefore($introWrapper, $personTable);
+                    }
+
+                    $closingText = trim(preg_replace('/\s+/u', ' ', implode('', array_map(
+                        static fn ($node): string => $node instanceof \DOMNode ? $node->textContent : '',
+                        $closingNodes
+                    ))));
+
+                    if ($closingText !== '') {
+                        $closingWrapper = $document->createElement('div');
+                        $closingWrapper->setAttribute('class', 'sk-kesatu-closing');
+
+                        foreach ($closingNodes as $closingNode) {
+                            $closingWrapper->appendChild($closingNode->cloneNode(true));
+                        }
+
+                        foreach ($closingNodes as $closingNode) {
+                            if ($closingNode->parentNode === $contentCell) {
+                                $contentCell->removeChild($closingNode);
+                            }
+                        }
+
+                        $contentCell->appendChild($closingWrapper);
+                    }
+                }
             }
 
             if (!empty($classNames)) {

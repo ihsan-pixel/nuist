@@ -216,8 +216,16 @@
 }
 .sk-person-table {
     border-collapse: collapse;
-    margin: 1mm 0;
+    margin: 0;
     width: 100%;
+}
+.sk-kesatu-intro {
+    display: block;
+    margin-bottom: 1mm;
+}
+.sk-kesatu-closing {
+    display: block;
+    margin-top: 1mm;
 }
 .sk-person-table td {
     line-height: 0.75;
@@ -390,7 +398,7 @@
             <td class="sk-label">Kesatu</td>
             <td class="sk-colon">:</td>
             <td class="sk-content-cell">
-                Guru Tetap Yayasan tersebut di bawah ini:
+                <div class="sk-kesatu-intro">Guru Tetap Yayasan tersebut di bawah ini:</div>
                 <table class="sk-person-table">
                     <tr><td class="sk-person-no">1.</td><td class="sk-person-label">Nama</td><td class="sk-colon">:</td><td class="sk-person-value">@{{nama_pegawai}}</td></tr>
                     <tr><td class="sk-person-no">2.</td><td class="sk-person-label">Tempat, tanggal lahir</td><td class="sk-colon">:</td><td class="sk-person-value">@{{tempat_lahir}}, @{{tanggal_lahir}}</td></tr>
@@ -403,7 +411,7 @@
                     <tr><td class="sk-person-no">9.</td><td class="sk-person-label">Masa kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{masa_kerja}}</td></tr>
                     <tr><td class="sk-person-no">10.</td><td class="sk-person-label">Penilaian perilaku kerja</td><td class="sk-colon">:</td><td class="sk-person-value">@{{penilaian_kinerja}}</td></tr>
                 </table>
-                diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.
+                <div class="sk-kesatu-closing">diangkat kembali sebagai <strong>@{{status_kepegawaian}}</strong> tahun pelajaran @{{tahun_sk}}/@{{tahun_sk_berikutnya}}, mata pelajaran @{{mapel_tugas_yang_diampu}}; dan kepadanya diberikan Gaji Pokok serta tunjangan lain yang berlaku di @{{nama_sekolah}}.</div>
             </td>
         </tr>
         <tr class="sk-decision-row">
