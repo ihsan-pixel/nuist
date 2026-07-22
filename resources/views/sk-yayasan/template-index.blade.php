@@ -261,6 +261,7 @@
 .sk-reference-row .sk-content-cell,
 .sk-reference-row .sk-menimbang-content,
 .sk-reference-row .sk-menimbang-item {
+    line-height: 0.9;
     padding-top: 0.8mm;
     text-align: justify;
     text-align-last: auto;
