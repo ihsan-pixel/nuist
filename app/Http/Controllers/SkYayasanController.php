@@ -3400,7 +3400,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-person-table { ' . trim($styles . ' margin: 11px 0 9px 0;') . ' }';
+                return '.sk-person-table { ' . trim($styles . ' margin: 14px 0 12px 0;') . ' }';
             },
             $body
         ) ?? $body;
