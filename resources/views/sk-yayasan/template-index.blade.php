@@ -220,7 +220,7 @@
 }
 .sk-person-table td {
     line-height: 1;
-    padding: 0 1px 2px 0;
+    padding: 0 1px 0 0;
     vertical-align: top;
 }
 .sk-person-no {

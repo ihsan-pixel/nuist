@@ -3393,7 +3393,7 @@ class SkYayasanController extends Controller
         $body = preg_replace_callback(
             '/\.sk-person-table\s+td\s*\{([^}]*)\}/u',
             static function (array $matches): string {
-                $styles = $matches[1];
+                $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
                 $hasLineHeight = preg_match('/line-height\s*:/u', $styles) === 1;
                 $styles = trim($styles);
 
@@ -3403,7 +3403,7 @@ class SkYayasanController extends Controller
 
                 $lineHeight = $hasLineHeight ? '' : ' line-height: 1;';
 
-                return '.sk-person-table td { ' . trim($styles . $lineHeight) . ' }';
+                return '.sk-person-table td { ' . trim($styles . $lineHeight . ' padding: 0 1px 0 0;') . ' }';
             },
             $body
         ) ?? $body;
