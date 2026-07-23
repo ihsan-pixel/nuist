@@ -249,7 +249,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($appointmentRows as $appointmentIndex => $appointmentData)
+                                    @php($appointmentNumber = 1)
+                                    @foreach($appointmentRows as $appointmentData)
                                         @php
                                             $rowKey = data_get($appointmentData, 'teacher_id');
                                             $formId = 'appointment-nipm-sync-' . $rowKey;
@@ -268,7 +269,7 @@
                                             $isReadonly = $nipmSynced || $selectedMode === 'existing';
                                         @endphp
                                         <tr>
-                                            <td>{{ $appointmentIndex + 1 }}</td>
+                                            <td>{{ $appointmentNumber }}</td>
                                             <td>{{ $submissionYear }}</td>
                                             <td>{{ $schoolScod }}</td>
                                             <td>{{ $schoolName }}</td>
@@ -319,6 +320,7 @@
                                                 </button>
                                             </td>
                                         </tr>
+                                        @php($appointmentNumber++)
                                     @endforeach
                                 </tbody>
                             </table>
