@@ -483,7 +483,6 @@
                                         <th>Data Diupload</th>
                                         <th>Status</th>
                                         <th>Catatan Review</th>
-                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -552,22 +551,6 @@
                                                 </div>
                                             </td>
                                             <td>{{ $batch->review_notes ?? $firstRequest?->review_notes ?? '-' }}</td>
-                                            <td>
-                                                @if($publishedRequests->isNotEmpty())
-                                                    <div class="d-flex flex-wrap gap-2">
-                                                        @foreach($publishedRequests->take(2) as $publishedRequest)
-                                                            <a href="{{ route('sk-yayasan.documents.download', $publishedRequest->document) }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                                                SK {{ \Illuminate\Support\Str::limit($publishedRequest->employee?->name ?? 'Pegawai', 14) }}
-                                                            </a>
-                                                        @endforeach
-                                                        @if($publishedRequests->count() > 2)
-                                                            <span class="text-muted small align-self-center">+{{ $publishedRequests->count() - 2 }} SK lainnya</span>
-                                                        @endif
-                                                    </div>
-                                                @else
-                                                    <span class="text-muted small">Menunggu proses Yayasan</span>
-                                                @endif
-                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
