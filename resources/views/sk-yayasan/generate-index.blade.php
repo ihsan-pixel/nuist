@@ -217,6 +217,57 @@
 
             </div>
         </div>
+
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <div class="sky-panel-label mb-1">Data Guru Pengangkatan</div>
+                            <h6 class="mb-0">Daftar pengajuan dengan keterangan Pengangkatan PTY dan Pengangkatan GTY</h6>
+                        </div>
+                        <span class="sky-chip">{{ $appointmentRequests->count() }} pengajuan</span>
+                    </div>
+
+                    @if($appointmentRequests->isNotEmpty())
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>SCOD</th>
+                                        <th>Nama Sekolah</th>
+                                        <th>Nama Guru</th>
+                                        <th>Keterangan</th>
+                                        <th>No. Pengajuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($appointmentRequests as $row)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $row['school_scod'] }}</td>
+                                            <td>{{ $row['school_name'] }}</td>
+                                            <td>{{ $row['teacher_name'] }}</td>
+                                            <td>
+                                                <span class="badge bg-info-subtle text-info">{{ $row['keterangan'] }}</span>
+                                            </td>
+                                            <td>{{ $row['request_number'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="sky-empty-state py-5">
+                            <i class="bx bx-table"></i>
+                            <strong>Belum ada data pengangkatan PTY/GTY</strong>
+                            <small>Data akan muncul di sini jika ada pengajuan tersinkronisasi dengan keterangan Pengangkatan PTY atau Pengangkatan GTY.</small>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

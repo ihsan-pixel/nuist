@@ -1113,6 +1113,7 @@ class SkYayasanController extends Controller
             'uppmValidationPeriodLabel' => $uppmValidationPeriodLabel,
             'uppmBlockedSchoolCount' => max($syncedSchoolCount - $schools->count(), 0),
             'syncedSchoolCount' => $syncedSchoolCount,
+            'appointmentRequests' => $this->buildGenerateAppointmentRequestsTable($schools),
         ]);
     }
 
@@ -1920,6 +1921,76 @@ class SkYayasanController extends Controller
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
             ->orderBy('name');
+    }
+
+    private function buildGenerateAppointmentRequestsTable(Collection $schools): Collection
+    {
+        $schoolOrder = $schools->values()->pluck('id')->mapWithKeys(
+            fn ($schoolId, int $index) => [(int) $schoolId => $index]
+        );
+
+        if ($schoolOrder->isEmpty()) {
+            return collect();
+        }
+
+        $requests = SkYayasanRequest::query()
+            ->with([
+                'madrasah:id,name,scod,kabupaten',
+                'employee:id,name',
+            ])
+            ->whereIn('madrasah_id', $schoolOrder->keys()->all())
+            ->where('current_status', '!=', 'rejected')
+            ->whereHas('importBatch', fn (Builder $query) => $query->where('status', 'synced'))
+            ->get([
+                'id',
+                'madrasah_id',
+                'employee_id',
+                'import_batch_id',
+                'request_number',
+                'submitted_at',
+            ]);
+
+        $batchIds = $requests->pluck('import_batch_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $rowsByBatch = $batchIds->isEmpty()
+            ? collect()
+            : SkYayasanImportRow::query()
+                ->whereIn('batch_id', $batchIds)
+                ->get(['batch_id', 'matched_user_id', 'source_keterangan'])
+                ->groupBy('batch_id');
+
+        return $requests
+            ->map(function (SkYayasanRequest $request) use ($rowsByBatch, $schoolOrder) {
+                $matchedRow = collect($rowsByBatch->get($request->import_batch_id, []))
+                    ->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $request->employee_id);
+
+                $keterangan = $this->normalizeSkYayasanKeteranganLabel($matchedRow?->source_keterangan);
+
+                if (!in_array($keterangan, ['Pengangkatan GTY', 'Pengangkatan PTY'], true)) {
+                    return null;
+                }
+
+                return [
+                    'school_id' => (int) $request->madrasah_id,
+                    'school_order' => (int) ($schoolOrder->get((int) $request->madrasah_id) ?? PHP_INT_MAX),
+                    'school_name' => $request->madrasah?->name ?? '-',
+                    'school_scod' => $request->madrasah?->scod ?: '-',
+                    'teacher_name' => $request->employee?->name ?? '-',
+                    'request_number' => $request->request_number ?: '-',
+                    'keterangan' => $keterangan,
+                    'submitted_at' => $request->submitted_at,
+                ];
+            })
+            ->filter()
+            ->sortBy([
+                ['school_order', 'asc'],
+                ['keterangan', 'asc'],
+                ['teacher_name', 'asc'],
+            ])
+            ->values();
     }
 
     private function assignTemporaryDocumentNumbers(Collection $documents): void
