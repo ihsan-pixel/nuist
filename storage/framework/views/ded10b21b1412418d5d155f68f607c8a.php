@@ -125,7 +125,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    margin: 1mm 4mm 1.5mm 0;
+    margin: 1mm 0 1.5mm 0;
 }
 .sk-green-line ~ * {
     font-family: Cambria !important;
@@ -169,7 +169,7 @@
 }
 .sk-table {
     border-collapse: collapse;
-    width: 98%;
+    width: 100%;
 }
 .sk-table td {
     padding: 0 4px 1px 0;
@@ -206,7 +206,7 @@
 }
 .sk-colon {
     text-align: center;
-    width: 5px;
+    width: 14px;
 }
 .sk-decision {
     font-weight: 700;
@@ -227,7 +227,7 @@
     padding-top: 1.2mm;
 }
 .sk-person-table td {
-    line-height: 0.75;
+    line-height: 0.9;
     padding: 0 1px 0 0;
     vertical-align: top;
 }
@@ -287,7 +287,7 @@
     line-height: 1.02;
     margin-left: auto;
     margin-top: 0;
-    width: 290px;
+    width: 260px;
 }
 .sk-signature-role {
     display: block;
@@ -311,7 +311,7 @@
 }
 .sk-footer-signature-cell {
     vertical-align: top;
-    width: 290px;
+    width: 260px;
 }
 .sk-copy {
     line-height: 0.9;
@@ -1714,7 +1714,7 @@ HTML;
 }
 .sk-email-link { color: #1d4ed8; }
 .sk-green-line {
-    margin: 0 0 2px 0;
+    margin: 1mm 0 1.5mm 0;
 }
 .sk-green-line ~ * { font-family: Cambria !important; }
 .sk-title,
@@ -1751,17 +1751,17 @@ HTML;
 .sk-number { margin-bottom: 3px; text-align: center; }
 .sk-subject { font-weight: 700; margin: 0 0 9px 0; }
 .sk-table, .sk-person-table { border-collapse: collapse; }
-.sk-table { width: 98%; }
+.sk-table { width: 100%; }
 .sk-table td { padding: 0 4px 1px 0; vertical-align: top; }
 .sk-menimbang-row td { padding-bottom: 0; }
 .sk-content-cell { line-height: 1; padding-left: 3px; text-align: justify; text-justify: inter-word; }
 .sk-menimbang-content { line-height: 1; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }
 .sk-menimbang-item { display: block; line-height: 1; margin: 0; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }
 .sk-label { width: 112px; }
-.sk-colon { text-align: center; width: 5px; }
+.sk-colon { text-align: center; width: 14px; }
 .sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }
 .sk-person-table { margin: 7px 0 9px 0; width: 100%; }
-.sk-person-table td { line-height: 1; padding: 0 1px 2px 0; vertical-align: top; }
+.sk-person-table td { line-height: 0.9; padding: 0 1px 0 0; vertical-align: top; }
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
@@ -1770,7 +1770,7 @@ HTML;
 .sk-mengingat-list li { margin: 0; padding-left: 0; }
 .sk-kedua-content { line-height: 1; }
 .sk-ketiga-content { line-height: 1; }
-.sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 290px; }
+.sk-signature { line-height: 1.02; margin-left: auto; margin-top: 0; width: 260px; }
 .sk-signature-role { display: block; padding-top: 14px; }
 .sk-signature-name { font-weight: 700; margin-top: 0; text-decoration: underline; }
 .sk-copy { margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; text-align: left; width: 100%; max-width: 100%; }
@@ -1809,12 +1809,12 @@ HTML;
             <td class="sk-colon" style="font-size:${safeFontSize(config.menimbangLabelFontSize)}pt;">:</td>
             <td class="sk-content-cell sk-menimbang-content" style="font-size:${safeFontSize(config.menimbangContentFontSize)}pt;">${menimbangContentMarkup}</td>
         </tr>
-        <tr>
+        <tr class="sk-reference-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">${escapeHtml(config.mengingatLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.mengingatLabelFontSize)}pt;">:</td>
             <td class="sk-content-cell" style="font-size:${safeFontSize(config.mengingatContentFontSize)}pt;">${mengingatMarkup}</td>
         </tr>
-        <tr>
+        <tr class="sk-reference-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">${escapeHtml(config.memperhatikanLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">:</td>
             <td class="sk-content-cell" style="font-size:${safeFontSize(config.memperhatikanContentFontSize)}pt;">${nl2br(config.memperhatikanContentText)}</td>
@@ -1824,12 +1824,12 @@ HTML;
     <div class="sk-decision" style="font-size:${safeFontSize(config.decisionFontSize)}pt;">${escapeHtml(config.decisionText)}</div>
 
     <table class="sk-table">
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.menetapkanLabelFontSize)}pt;">${escapeHtml(config.menetapkanLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.menetapkanLabelFontSize)}pt;">:</td>
             <td class="sk-content-cell"></td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.kesatuLabelFontSize)}pt;">${escapeHtml(config.kesatuLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.kesatuLabelFontSize)}pt;">:</td>
             <td class="sk-content-cell" style="font-size:${safeFontSize(config.kesatuIntroFontSize)}pt;">
@@ -1838,12 +1838,12 @@ HTML;
                 ${formatRichText(config.kesatuClosingText)}
             </td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.keduaLabelFontSize)}pt;">${escapeHtml(config.keduaLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.keduaLabelFontSize)}pt;">:</td>
             <td class="sk-content-cell sk-kedua-content" style="font-size:${safeFontSize(config.keduaContentFontSize)}pt;">${nl2br(config.keduaContentText)}</td>
         </tr>
-        <tr>
+        <tr class="sk-decision-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.ketigaLabelFontSize)}pt;">${escapeHtml(config.ketigaLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.ketigaLabelFontSize)}pt;">:</td>
             <td class="sk-content-cell sk-ketiga-content" style="font-size:${safeFontSize(config.ketigaContentFontSize)}pt;">${nl2br(config.ketigaContentText)}</td>

@@ -3845,13 +3845,31 @@ class SkYayasanController extends Controller
             '/\.sk-person-table\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/margin\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/border-spacing\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = trim($styles);
 
                 if ($styles !== '' && !str_ends_with($styles, ';')) {
                     $styles .= ';';
                 }
 
-                return '.sk-person-table { ' . trim($styles . ' margin: 0;') . ' }';
+                return '.sk-person-table { ' . trim($styles . ' border-spacing: 0; margin: 0;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
+            '/\.sk-person-table\s+tr\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = preg_replace('/margin\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-person-table tr { ' . trim($styles . ' line-height: 0.72; margin: 0; padding: 0;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3867,7 +3885,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-person-table td { ' . trim($styles . ' line-height: 0.9; padding: 0 1px 0 0;') . ' }';
+                return '.sk-person-table td { ' . trim($styles . ' line-height: 0.72; padding: 0 1px 0 0;') . ' }';
             },
             $body
         ) ?? $body;
@@ -4108,6 +4126,7 @@ class SkYayasanController extends Controller
             '.sk-org-meta { padding: 0 8px; }',
             '.sk-kesatu-intro { display: block; padding-bottom: 3mm; }',
             '.sk-kesatu-closing { display: block; padding-top: 1.2mm; }',
+            '.sk-person-table tr { line-height: 0.72; margin: 0; padding: 0; }',
             '.sk-mengingat-list { margin: 0; padding-left: 22px; }',
             '.sk-mengingat-list li { margin: 0; padding-left: 0; }',
             '.sk-reference-row td { padding-bottom: 0; vertical-align: baseline; }',
