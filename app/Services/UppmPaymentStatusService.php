@@ -45,9 +45,9 @@ class UppmPaymentStatusService
     public function resolveSkPaymentRequirement(?string $issuedDate = null): array
     {
         $date = $issuedDate ? Carbon::parse($issuedDate) : now();
-        $periodKey = (int) $date->month <= 6
-            ? UppmPaymentUpdate::PERIOD_JAN_JUN
-            : UppmPaymentUpdate::PERIOD_JUL_DES;
+        // Untuk antrean generate SK, syarat minimal pembayaran selalu semester 1
+        // pada tahun yang sama dengan tahun SK.
+        $periodKey = UppmPaymentUpdate::PERIOD_JAN_JUN;
 
         return [
             'year' => (int) $date->year,
