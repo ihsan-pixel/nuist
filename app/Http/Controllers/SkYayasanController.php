@@ -1076,16 +1076,18 @@ class SkYayasanController extends Controller
         $schools = $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey)
             ->withCount($schoolCounts)
             ->get();
+        $submissionLetterReferences = $this->buildSchoolSubmissionLetterReferences($schools);
 
         $readyLockRanges = $numberLockSupported
             ? $this->buildSchoolReadyLockRanges($schools)
             : [];
 
-        $schools->transform(function (Madrasah $school) use ($numberLockSupported, $readyLockRanges) {
+        $schools->transform(function (Madrasah $school) use ($numberLockSupported, $readyLockRanges, $submissionLetterReferences) {
             $school->core_data = $this->buildSchoolSkCoreData(
                 $school,
                 null
             );
+            $school->submission_letter_reference = $submissionLetterReferences[$school->id] ?? null;
             $school->locked_documents_count = $numberLockSupported
                 ? (int) ($school->locked_documents_count ?? 0)
                 : 0;
@@ -1951,6 +1953,44 @@ class SkYayasanController extends Controller
             'copy_recipient_1' => $copyRecipients['copy_recipient_1'],
             'copy_recipient_2' => $copyRecipients['copy_recipient_2'],
         ];
+    }
+
+    private function buildSchoolSubmissionLetterReferences(Collection $schools): array
+    {
+        $schoolIds = $schools->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->values();
+
+        if ($schoolIds->isEmpty()) {
+            return [];
+        }
+
+        return SkYayasanRequest::query()
+            ->whereIn('madrasah_id', $schoolIds->all())
+            ->whereHas('importBatch', fn (Builder $query) => $query->where('status', 'synced'))
+            ->orderBy('madrasah_id')
+            ->orderByRaw('CASE WHEN submission_letter_number IS NULL OR submission_letter_number = "" THEN 1 ELSE 0 END')
+            ->orderByRaw('CASE WHEN submission_letter_date IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('id')
+            ->get([
+                'id',
+                'madrasah_id',
+                'submission_letter_number',
+                'submission_letter_date',
+            ])
+            ->groupBy('madrasah_id')
+            ->map(function (Collection $requests): array {
+                $reference = $requests->first(function (SkYayasanRequest $request) {
+                    return filled($request->submission_letter_number) || $request->submission_letter_date !== null;
+                }) ?? $requests->first();
+
+                return [
+                    'submission_letter_number' => $reference?->submission_letter_number,
+                    'submission_letter_date' => $reference?->submission_letter_date,
+                ];
+            })
+            ->all();
     }
 
     private function latestSchoolGeneratedDocument(int $madrasahId): ?SkYayasanDocument

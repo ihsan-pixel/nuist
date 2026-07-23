@@ -135,7 +135,7 @@
                                         <th>SCOD</th>
                                         <th>Antrean</th>
                                         <th>Status Nomor SK</th>
-                                        <th>Tembusan Otomatis</th>
+                                        <th>Nomor Surat Pengajuan</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -180,10 +180,7 @@
                                                     <div class="text-muted">Belum ada dokumen yang digenerate</div>
                                                 @endif
                                             </td>
-                                            <td class="small">
-                                                <div>{{ $coreData['copy_recipient_1'] ?? '-' }}</div>
-                                                <div class="text-muted mt-1">{{ $coreData['copy_recipient_2'] ?? '-' }}</div>
-                                            </td>
+                                            <td class="small">{{ $school->submission_letter_reference['submission_letter_number'] ?? '-' }}</td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-primary">
