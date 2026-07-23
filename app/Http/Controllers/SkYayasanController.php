@@ -807,6 +807,13 @@ class SkYayasanController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $submissionAppointmentAlerts = $this->buildSubmissionAppointmentAlerts($submissions->getCollection());
+        $submissions->getCollection()->transform(function (SkYayasanRequest $submission) use ($submissionAppointmentAlerts) {
+            $submission->appointment_alert = $submissionAppointmentAlerts[$submission->id] ?? null;
+
+            return $submission;
+        });
+
         $importBatchQuery = SkYayasanImportBatch::query()
             ->with(['madrasah', 'uploader', 'reviewer', 'rows'])
             ->withCount('requests');
@@ -1991,6 +1998,72 @@ class SkYayasanController extends Controller
                 ];
             })
             ->all();
+    }
+
+    private function buildSubmissionAppointmentAlerts(Collection $submissions): array
+    {
+        if ($submissions->isEmpty()) {
+            return [];
+        }
+
+        $batchIds = $submissions->pluck('import_batch_id')
+            ->filter()
+            ->unique()
+            ->values();
+        $employeeIds = $submissions->pluck('employee_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($batchIds->isEmpty() || $employeeIds->isEmpty()) {
+            return [];
+        }
+
+        $rowsByBatch = SkYayasanImportRow::query()
+            ->whereIn('batch_id', $batchIds->all())
+            ->whereIn('matched_user_id', $employeeIds->all())
+            ->get([
+                'batch_id',
+                'matched_user_id',
+                'source_keterangan',
+                'source_tmt_pertama',
+            ])
+            ->groupBy('batch_id');
+
+        $alerts = [];
+
+        foreach ($submissions as $submission) {
+            if (!$submission instanceof SkYayasanRequest) {
+                continue;
+            }
+
+            $matchedRow = collect($rowsByBatch->get($submission->import_batch_id, []))
+                ->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $submission->employee_id);
+
+            $keterangan = $this->normalizeSkYayasanKeteranganLabel($matchedRow?->source_keterangan);
+            if (!in_array($keterangan, ['Pengangkatan GTY', 'Pengangkatan PTY'], true)) {
+                continue;
+            }
+
+            $tmtDate = $this->parseFlexibleDate($matchedRow?->source_tmt_pertama ?: $submission->employee?->tmt);
+            if ($tmtDate === null) {
+                continue;
+            }
+
+            $isTwoYearsOrMore = $tmtDate->copy()->addYears(2)->startOfDay()->lessThanOrEqualTo(now()->startOfDay());
+            if ($isTwoYearsOrMore) {
+                continue;
+            }
+
+            $alerts[$submission->id] = [
+                'keterangan' => $keterangan,
+                'tmt_date' => $tmtDate,
+                'tmt_label' => $this->formatIndonesianDate($tmtDate),
+                'tenure_label' => $this->formatTenureFromTmt($tmtDate, null, now()),
+            ];
+        }
+
+        return $alerts;
     }
 
     private function latestSchoolGeneratedDocument(int $madrasahId): ?SkYayasanDocument

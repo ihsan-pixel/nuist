@@ -1103,6 +1103,14 @@
                                 <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="ms-2" target="_blank" rel="noopener">Penilaian Perilaku</a>
                             </div>
                         @endif
+                        @if($submission->appointment_alert)
+                            <div class="sky-inline-note sky-inline-note-danger mt-3">
+                                <strong>Perlu perhatian:</strong>
+                                {{ $submission->appointment_alert['keterangan'] }} ini memiliki masa kerja kurang dari 2 tahun.
+                                TMT: {{ $submission->appointment_alert['tmt_label'] ?? '-' }}.
+                                Masa kerja saat ini: {{ $submission->appointment_alert['tenure_label'] ?? '-' }}.
+                            </div>
+                        @endif
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select name="current_status" class="form-select" required>
