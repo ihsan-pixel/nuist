@@ -235,7 +235,6 @@
                                             <th>Nama Sekolah</th>
                                             <th>SCOD</th>
                                             <th>Antrean</th>
-                                            <th>Status UPPM</th>
                                             <th>Status Nomor SK</th>
                                             <th>Nomor Surat Pengajuan</th>
                                             <th>Aksi</th>
@@ -262,16 +261,6 @@
                                                     <span class="badge bg-warning-subtle text-warning">
                                                         {{ number_format($school->generate_requests_count) }} pengajuan
                                                     </span>
-                                                </td>
-                                                <td class="small">
-                                                    <div class="fw-semibold text-danger">{{ $school->uppm_summary['status_label'] ?? 'Belum Lunas' }}</div>
-                                                    @if(($school->uppm_summary['period_target_nominal'] ?? 0) > 0)
-                                                        <div class="text-muted mt-1">
-                                                            {{ number_format((float) ($school->uppm_summary['period_total_paid'] ?? 0), 0, ',', '.') }}
-                                                            /
-                                                            {{ number_format((float) ($school->uppm_summary['period_target_nominal'] ?? 0), 0, ',', '.') }}
-                                                        </div>
-                                                    @endif
                                                 </td>
                                                 <td class="small">
                                                     @if(!$numberLockSupported)
