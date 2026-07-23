@@ -3581,6 +3581,9 @@ class SkYayasanController extends Controller
             return '-';
         };
         $formattedDegree = $this->formatDegreePlaceholder($pick($importRow?->source_gelar, $employee?->gelar));
+        $formattedEducation = $this->normalizeSarjanawiyataTamansiswaEducation(
+            $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir)
+        );
 
         $base = [
             '{{nomor_sk}}' => $overrides['nomor_sk'] ?? '-',
@@ -3597,7 +3600,7 @@ class SkYayasanController extends Controller
             '{{nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
             '{{tmt_pertama}}' => $formattedTmt,
             '{{masa_kerja}}' => $formattedTenure,
-            '{{pendidikan_terakhir}}' => $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir),
+            '{{pendidikan_terakhir}}' => $formattedEducation,
             '{{tahun_lulus}}' => $pick($importRow?->source_tahun_lulus, $employee->tahun_lulus),
             '{{program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
             '{{mapel_tugas_yang_diampu}}' => $pick($importRow?->source_mapel_tugas, $employee->mengajar),
@@ -3632,7 +3635,7 @@ class SkYayasanController extends Controller
             '{{source_nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
             '{{source_tmt_pertama}}' => $formattedTmt,
             '{{source_masa_kerja}}' => $formattedTenure,
-            '{{source_pendidikan_terakhir}}' => $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir),
+            '{{source_pendidikan_terakhir}}' => $formattedEducation,
             '{{source_tahun_lulus}}' => $pick($importRow?->source_tahun_lulus, $employee->tahun_lulus),
             '{{source_program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
             '{{source_mapel_tugas}}' => $pick($importRow?->source_mapel_tugas, $employee->mengajar),
@@ -3773,6 +3776,27 @@ class SkYayasanController extends Controller
         }
 
         return $string === '' ? '-' : $string;
+    }
+
+    private function normalizeSarjanawiyataTamansiswaEducation(mixed $value): string
+    {
+        $string = $this->sanitizeTemplatePlaceholderValue($value, false);
+
+        if ($string === '-') {
+            return $string;
+        }
+
+        if (! preg_match('/\b(?:universitas|univ\.?)\s+sarjanawiyata\s+tamansiswa\b/iu', $string)) {
+            return $string;
+        }
+
+        $normalized = preg_replace(
+            '/\b(?:universitas|univ\.?)\s+sarjanawiyata\s+tamansiswa\b.*$/iu',
+            'Univ. Sarjanawiyata Tamansiswa',
+            $string
+        ) ?? $string;
+
+        return trim($normalized, " \t\n\r\0\x0B,;");
     }
 
     private function normalizeMissingValueMarkers(string $value): string
