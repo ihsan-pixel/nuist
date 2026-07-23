@@ -3794,6 +3794,21 @@ class SkYayasanController extends Controller
         ) ?? $body;
 
         $body = preg_replace_callback(
+            '/\.sk-table\s*\{([^}]*)\}/u',
+            static function (array $matches): string {
+                $styles = preg_replace('/width\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
+                $styles = trim($styles);
+
+                if ($styles !== '' && !str_ends_with($styles, ';')) {
+                    $styles .= ';';
+                }
+
+                return '.sk-table { ' . trim($styles . ' width: 100%;') . ' }';
+            },
+            $body
+        ) ?? $body;
+
+        $body = preg_replace_callback(
             '/\.sk-table\s+td\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
@@ -3869,7 +3884,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-colon { ' . trim($styles . ' width: 5px;') . ' }';
+                return '.sk-colon { ' . trim($styles . ' width: 14px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -3946,13 +3961,14 @@ class SkYayasanController extends Controller
             static function (array $matches): string {
                 $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
                 $styles = preg_replace('/margin-top\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
+                $styles = preg_replace('/width\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = trim($styles);
 
                 if ($styles !== '' && !str_ends_with($styles, ';')) {
                     $styles .= ';';
                 }
 
-                return '.sk-signature { ' . trim($styles . ' line-height: 1.02; margin-top: 0;') . ' }';
+                return '.sk-signature { ' . trim($styles . ' line-height: 1.02; margin-top: 0; width: 260px;') . ' }';
             },
             $body
         ) ?? $body;
@@ -4015,7 +4031,7 @@ class SkYayasanController extends Controller
                     $styles .= ';';
                 }
 
-                return '.sk-green-line { ' . trim($styles . ' margin: 1mm 4mm 1.5mm 0;') . ' }';
+                return '.sk-green-line { ' . trim($styles . ' margin: 1mm 0 1.5mm 0;') . ' }';
             },
             $body
         ) ?? $body;
@@ -4074,11 +4090,17 @@ class SkYayasanController extends Controller
             $body
         ) ?? $body;
 
+        $body = preg_replace(
+            '/\.sk-footer-signature-cell\s*\{[^}]*\}/u',
+            '.sk-footer-signature-cell { vertical-align: top; width: 260px; }',
+            $body
+        ) ?? $body;
+
         foreach ([
             '.sk-footer-table { border-collapse: collapse; margin-top: 20px; width: 100%; }',
             '.sk-footer-table td { vertical-align: bottom; }',
             '.sk-footer-copy-cell { padding: ' . $copyCellPadding . '; }',
-            '.sk-footer-signature-cell { vertical-align: top; width: 290px; }',
+            '.sk-footer-signature-cell { vertical-align: top; width: 260px; }',
             '.sk-org-title-line { display: block; line-height: 0.2; margin: 0; }',
             '.sk-org-title-line + .sk-org-title-line { margin-top: 0; }',
             '.sk-org-title-last { margin-top: 0; }',
