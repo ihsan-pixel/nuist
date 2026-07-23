@@ -1144,6 +1144,70 @@ class SkYayasanController extends Controller
         return back()->with('success', 'Data pokok SK global berhasil diperbarui.');
     }
 
+    public function syncGenerateAppointmentNipm(Request $request): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests();
+
+        $validated = $request->validate([
+            'rows' => ['required', 'array', 'min:1'],
+            'rows.*.teacher_id' => ['required', 'integer'],
+            'rows.*.nipm' => ['nullable', 'regex:/^\d{20}$/'],
+        ], [
+            'rows.*.nipm.regex' => 'NIPM harus berisi tepat 20 digit angka.',
+        ]);
+
+        $globalSkSettings = $this->getGlobalSkSettings();
+        $uppmPaymentStatusService = app(UppmPaymentStatusService::class);
+        $uppmPaymentRequirement = $uppmPaymentStatusService->resolveSkPaymentRequirement($globalSkSettings['issued_date'] ?? null);
+        $uppmValidationYear = (int) $uppmPaymentRequirement['year'];
+        $uppmValidationPeriodKey = (string) $uppmPaymentRequirement['period_key'];
+
+        $schools = $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey)->get();
+        $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($schools)
+            ->keyBy(fn (array $row) => (int) $row['teacher_id']);
+
+        $updates = [];
+
+        foreach ($validated['rows'] as $row) {
+            $teacherId = (int) $row['teacher_id'];
+            $nipm = preg_replace('/\D+/u', '', (string) ($row['nipm'] ?? '')) ?? '';
+
+            if (!$appointmentRequests->has($teacherId)) {
+                continue;
+            }
+
+            $appointmentRow = $appointmentRequests->get($teacherId);
+
+            if (($appointmentRow['nipm_synced'] ?? false) === true || $nipm === '') {
+                continue;
+            }
+
+            $expectedScod = $this->normalizeNipmSchoolScod($appointmentRow['school_scod'] ?? null);
+            if (substr($nipm, 14, 3) !== $expectedScod) {
+                return back()->withErrors([
+                    'rows' => 'Ada NIPM yang tidak sesuai dengan SCOD sekolah guru terkait.',
+                ]);
+            }
+
+            $updates[$teacherId] = $nipm;
+        }
+
+        if (empty($updates)) {
+            return back()->with('info', 'Tidak ada NIPM baru yang perlu disinkronkan.');
+        }
+
+        DB::transaction(function () use ($updates) {
+            foreach ($updates as $teacherId => $nipm) {
+                User::query()
+                    ->whereKey($teacherId)
+                    ->update(['nip' => $nipm]);
+            }
+        });
+
+        return back()->with('success', count($updates) . ' NIPM berhasil disinkronkan ke database.');
+    }
+
     public function generateSchoolIndex(Madrasah $madrasah): View
     {
         $this->ensureSuperAdmin();
@@ -2013,6 +2077,7 @@ class SkYayasanController extends Controller
                     'existing_nipm' => $request->employee?->nip,
                     'birth_date' => $matchedRow?->source_tanggal_lahir ?: $request->employee?->tanggal_lahir,
                     'tmt_date' => $matchedRow?->source_tmt_pertama ?: $request->employee?->tmt,
+                    'submission_year' => optional($request->submitted_at)->format('Y') ?: '-',
                     'submitted_at' => $request->submitted_at,
                 ];
             })
@@ -2029,7 +2094,7 @@ class SkYayasanController extends Controller
 
                 if (isset($assignedNipmByEmployee[$teacherId])) {
                     $row['nipm_value'] = $assignedNipmByEmployee[$teacherId]['value'];
-                    $row['nipm_note'] = $assignedNipmByEmployee[$teacherId]['note'];
+                    $row['nipm_synced'] = (bool) ($assignedNipmByEmployee[$teacherId]['synced'] ?? false);
 
                     return $row;
                 }
@@ -2040,12 +2105,12 @@ class SkYayasanController extends Controller
                 if ($existingNipm !== null && $existingSequence !== null) {
                     $result = [
                         'value' => $existingNipm,
-                        'note' => 'Menggunakan NIPM yang sudah ada.',
+                        'synced' => true,
                     ];
 
                     $assignedNipmByEmployee[$teacherId] = $result;
                     $row['nipm_value'] = $result['value'];
-                    $row['nipm_note'] = $result['note'];
+                    $row['nipm_synced'] = $result['synced'];
 
                     return $row;
                 }
@@ -2056,12 +2121,12 @@ class SkYayasanController extends Controller
                 if ($birthDate === null || $tmtDate === null) {
                     $result = [
                         'value' => '',
-                        'note' => 'Lengkapi tanggal lahir dan TMT agar NIPM bisa dihitung otomatis.',
+                        'synced' => false,
                     ];
 
                     $assignedNipmByEmployee[$teacherId] = $result;
                     $row['nipm_value'] = $result['value'];
-                    $row['nipm_note'] = $result['note'];
+                    $row['nipm_synced'] = $result['synced'];
 
                     return $row;
                 }
@@ -2071,12 +2136,12 @@ class SkYayasanController extends Controller
 
                 $result = [
                     'value' => $birthDate->format('Ymd') . $tmtDate->format('Ym') . $normalizedScod . str_pad((string) $nextSequence, 3, '0', STR_PAD_LEFT),
-                    'note' => sprintf('Nomor urut sekolah otomatis %s.', str_pad((string) $nextSequence, 3, '0', STR_PAD_LEFT)),
+                    'synced' => false,
                 ];
 
                 $assignedNipmByEmployee[$teacherId] = $result;
                 $row['nipm_value'] = $result['value'];
-                $row['nipm_note'] = $result['note'];
+                $row['nipm_synced'] = $result['synced'];
 
                 return $row;
             })

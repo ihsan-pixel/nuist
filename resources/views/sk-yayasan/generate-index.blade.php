@@ -226,45 +226,64 @@
                             <div class="sky-panel-label mb-1">Data Guru Pengangkatan</div>
                             <h6 class="mb-0">Daftar pengajuan dengan keterangan Pengangkatan PTY dan Pengangkatan GTY</h6>
                         </div>
-                        <span class="sky-chip">{{ $appointmentRequests->count() }} pengajuan</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="sky-chip">{{ $appointmentRequests->count() }} pengajuan</span>
+                            <span class="sky-chip">{{ $appointmentRequests->where('nipm_synced', false)->count() }} belum sinkron</span>
+                        </div>
                     </div>
 
                     @if($appointmentRequests->isNotEmpty())
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>SCOD</th>
-                                        <th>Nama Sekolah</th>
-                                        <th>Nama Guru</th>
-                                        <th>Keterangan</th>
-                                        <th>NIPM Otomatis</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($appointmentRequests as $row)
+                        <form method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}">
+                            @csrf
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $row['school_scod'] }}</td>
-                                            <td>{{ $row['school_name'] }}</td>
-                                            <td>{{ $row['teacher_name'] }}</td>
-                                            <td>
-                                                <span class="badge bg-info-subtle text-info">{{ $row['keterangan'] }}</span>
-                                            </td>
-                                            <td style="min-width: 280px;">
-                                                <input type="text"
-                                                       class="form-control form-control-sm"
-                                                       value="{{ $row['nipm_value'] }}"
-                                                       placeholder="NIPM otomatis"
-                                                       inputmode="numeric">
-                                                <small class="text-muted d-block mt-1">{{ $row['nipm_note'] }}</small>
-                                            </td>
+                                            <th>No</th>
+                                            <th>Tahun Pengajuan SK</th>
+                                            <th>SCOD</th>
+                                            <th>Nama Sekolah</th>
+                                            <th>Nama Guru</th>
+                                            <th>Keterangan</th>
+                                            <th>NIPM Otomatis</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($appointmentRequests as $row)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $row['submission_year'] }}</td>
+                                                <td>{{ $row['school_scod'] }}</td>
+                                                <td>{{ $row['school_name'] }}</td>
+                                                <td>{{ $row['teacher_name'] }}</td>
+                                                <td>
+                                                    <span class="badge bg-info-subtle text-info">{{ $row['keterangan'] }}</span>
+                                                </td>
+                                                <td style="min-width: 280px;">
+                                                    <input type="hidden"
+                                                           name="rows[{{ $loop->index }}][teacher_id]"
+                                                           value="{{ $row['teacher_id'] }}">
+                                                    <input type="text"
+                                                           name="rows[{{ $loop->index }}][nipm]"
+                                                           class="form-control form-control-sm"
+                                                           value="{{ $row['nipm_value'] }}"
+                                                           placeholder="NIPM otomatis"
+                                                           inputmode="numeric"
+                                                           @readonly($row['nipm_synced'])>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="submit"
+                                        class="btn btn-primary"
+                                        @disabled($appointmentRequests->where('nipm_synced', false)->count() === 0)>
+                                    Sinkron
+                                </button>
+                            </div>
+                        </form>
                     @else
                         <div class="sky-empty-state py-5">
                             <i class="bx bx-table"></i>

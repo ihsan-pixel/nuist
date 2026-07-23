@@ -2010,6 +2010,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::delete('/template/{template}', [SkYayasanController::class, 'destroyTemplate'])->name('template.destroy');
         Route::get('/generate', [SkYayasanController::class, 'generateIndex'])->name('generate.index');
         Route::patch('/generate/settings', [SkYayasanController::class, 'updateGenerateSettings'])->name('generate.settings.update');
+        Route::post('/generate/appointment-nipm-sync', [SkYayasanController::class, 'syncGenerateAppointmentNipm'])->name('generate.appointment-nipm-sync');
         Route::post('/generate/regenerate-all', [SkYayasanController::class, 'regenerateAllDocuments'])->name('generate.regenerate-all');
         Route::patch('/generate/lock-all', [SkYayasanController::class, 'lockAllDocumentNumbers'])->name('generate.lock-all');
         Route::get('/generate/sekolah/{madrasah}', [SkYayasanController::class, 'generateSchoolIndex'])->name('generate.school');
