@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\SkYayasanSchoolSubmissionSummaryExport;
 use App\Exports\SkYayasanUserImportTemplateExport;
-use App\Models\AcademicaProposal;
+use App\Models\AcademicaResetUpdate;
 use App\Models\AppSetting;
 use App\Models\Madrasah;
 use App\Models\MgmpMember;
@@ -3659,7 +3659,7 @@ class SkYayasanController extends Controller
             return $this->formatGeneratedSkPerformanceScore($submittedValue ?? $fallbackValue);
         }
 
-        if ($this->employeeParticipatesInMgmpAcademica($employee)) {
+        if ($this->employeeParticipatesInMgmpResetUploads($employee)) {
             return $this->formatGeneratedSkPerformanceScore($submittedValue ?? $fallbackValue);
         }
 
@@ -3708,7 +3708,7 @@ class SkYayasanController extends Controller
         return $digitsOnly;
     }
 
-    private function employeeParticipatesInMgmpAcademica(?User $employee): bool
+    private function employeeParticipatesInMgmpResetUploads(?User $employee): bool
     {
         static $cache = [];
 
@@ -3735,8 +3735,8 @@ class SkYayasanController extends Controller
             return $cache[$employeeId] = false;
         }
 
-        return $cache[$employeeId] = AcademicaProposal::query()
-            ->whereIn('user_id', $ownerIds->all())
+        return $cache[$employeeId] = AcademicaResetUpdate::query()
+            ->whereHas('proposal', fn (Builder $query) => $query->whereIn('user_id', $ownerIds->all()))
             ->exists();
     }
 
