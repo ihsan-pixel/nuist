@@ -224,7 +224,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Data Guru Pengangkatan</div>
-                            <h6 class="mb-0">Daftar pengajuan dengan keterangan Pengangkatan PTY dan Pengangkatan GTY</h6>
+                            <h6 class="mb-0">Daftar pengajuan dengan keterangan Pengangkatan PTY dan Pengangkatan GTY dengan TMT 2 tahun ke atas</h6>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="sky-chip">{{ $appointmentRequests->count() }} pengajuan</span>
@@ -321,6 +321,115 @@
                             <i class="bx bx-table"></i>
                             <strong>Belum ada data pengangkatan PTY/GTY</strong>
                             <small>Data akan muncul di sini jika ada pengajuan tersinkronisasi dengan keterangan Pengangkatan PTY atau Pengangkatan GTY.</small>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <div class="sky-panel-label mb-1">Data Guru Pengangkatan</div>
+                            <h6 class="mb-0">Daftar pengajuan dengan TMT di bawah 2 tahun</h6>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="sky-chip">{{ $appointmentRequestsUnderTwoYears->count() }} pengajuan</span>
+                            <span class="sky-chip">{{ $appointmentRequestsUnderTwoYears->where('nipm_synced', false)->count() }} belum sinkron</span>
+                        </div>
+                    </div>
+
+                    @php($appointmentRowsUnderTwoYears = $appointmentRequestsUnderTwoYears->values())
+                    @if($appointmentRequestsUnderTwoYears->isNotEmpty())
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tahun Pengajuan SK</th>
+                                        <th>SCOD</th>
+                                        <th>Nama Sekolah</th>
+                                        <th>Nama Guru</th>
+                                        <th>Keterangan</th>
+                                        <th>NIPM Otomatis</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($appointmentRowsUnderTwoYears as $appointmentData)
+                                        @php($teacherId = data_get($appointmentData, 'teacher_id'))
+                                        @php($nipmSynced = (bool) data_get($appointmentData, 'nipm_synced', false))
+                                        @php($selectedMode = $nipmSynced ? 'system' : old('rows.' . $teacherId . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')))
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ data_get($appointmentData, 'submission_year', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'school_scod', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
+                                            <td>
+                                                <span class="badge bg-warning-subtle text-warning">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
+                                            </td>
+                                            <td style="min-width: 280px;">
+                                                <form id="appointment-nipm-sync-under-two-years-{{ $teacherId }}" method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}" class="d-none">
+                                                    @csrf
+                                                </form>
+                                                <input type="hidden"
+                                                       form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                       name="rows[{{ $teacherId }}][teacher_id]"
+                                                       value="{{ $teacherId }}">
+                                                @if(!$nipmSynced && data_get($appointmentData, 'has_nipm_source_choice', false))
+                                                    <select name="rows[{{ data_get($appointmentData, 'teacher_id') }}][nipm_mode]"
+                                                            form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                            class="form-select form-select-sm mb-2 js-nipm-mode"
+                                                            data-existing-nipm="{{ data_get($appointmentData, 'existing_nipm_value', '') }}"
+                                                            data-system-nipm="{{ data_get($appointmentData, 'system_nipm_value', '') }}">
+                                                        <option value="existing" @selected($selectedMode === 'existing')>Gunakan NIPM yang ada</option>
+                                                        <option value="system" @selected($selectedMode === 'system')>Gunakan NIPM sistem</option>
+                                                    </select>
+                                                @else
+                                                    <input type="hidden"
+                                                           form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                           name="rows[{{ $teacherId }}][nipm_mode]"
+                                                           value="{{ $nipmSynced ? 'system' : $selectedMode }}">
+                                                @endif
+                                                <input type="text"
+                                                       form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                       name="rows[{{ $teacherId }}][nipm]"
+                                                       class="form-control form-control-sm js-nipm-input"
+                                                       value="{{ old('rows.' . $teacherId . '.nipm', data_get($appointmentData, 'nipm_value', '')) }}"
+                                                       placeholder="NIPM otomatis"
+                                                       inputmode="numeric"
+                                                       data-existing-nipm="{{ data_get($appointmentData, 'existing_nipm_value', '') }}"
+                                                       data-system-nipm="{{ data_get($appointmentData, 'system_nipm_value', '') }}"
+                                                       @readonly($nipmSynced || $selectedMode === 'existing')>
+                                            </td>
+                                            <td style="width: 140px;">
+                                                @if($nipmSynced)
+                                                    <button type="submit"
+                                                            form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                            class="btn btn-sm btn-outline-primary w-100">
+                                                        Sinkron Ulang
+                                                    </button>
+                                                @else
+                                                    <button type="submit"
+                                                            form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                            class="btn btn-sm btn-primary w-100">
+                                                        Sinkron
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="sky-empty-state py-5">
+                            <i class="bx bx-table"></i>
+                            <strong>Belum ada data guru pengangkatan dengan TMT di bawah 2 tahun</strong>
+                            <small>Jika ada pengajuan Pengangkatan PTY atau GTY dengan TMT kurang dari 2 tahun, datanya akan tampil di sini.</small>
                         </div>
                     @endif
                 </div>

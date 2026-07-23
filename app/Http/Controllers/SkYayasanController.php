@@ -1097,6 +1097,8 @@ class SkYayasanController extends Controller
 
         $eligibleSchoolIds = $schools->pluck('id')->map(fn ($id) => (int) $id)->all();
 
+        $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($schools);
+
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
             'totalRequestsCount' => empty($eligibleSchoolIds)
@@ -1113,7 +1115,8 @@ class SkYayasanController extends Controller
             'uppmValidationPeriodLabel' => $uppmValidationPeriodLabel,
             'uppmBlockedSchoolCount' => max($syncedSchoolCount - $schools->count(), 0),
             'syncedSchoolCount' => $syncedSchoolCount,
-            'appointmentRequests' => $this->buildGenerateAppointmentRequestsTable($schools),
+            'appointmentRequests' => $appointmentRequests->where('tmt_is_two_years_or_more', true)->values(),
+            'appointmentRequestsUnderTwoYears' => $appointmentRequests->where('tmt_is_two_years_or_more', false)->values(),
         ]);
     }
 
@@ -2132,9 +2135,12 @@ class SkYayasanController extends Controller
                     $row['default_nipm_mode'] = $result['mode'];
                     $row['existing_nipm_value'] = $result['existing_value'];
                     $row['system_nipm_value'] = $result['system_value'];
+                    $row['tmt_is_two_years_or_more'] = false;
 
                     return $row;
                 }
+
+                $row['tmt_is_two_years_or_more'] = $tmtDate->copy()->addYears(2)->startOfDay()->lessThanOrEqualTo(now()->startOfDay());
 
                 $nextSequence = $this->nextReasonableNipmSequence($usedSequencesBySchool[$schoolId] ?? []);
                 $usedSequencesBySchool[$schoolId][$nextSequence] = true;
