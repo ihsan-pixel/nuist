@@ -1083,26 +1083,25 @@ class SkYayasanController extends Controller
         $schools = $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey)
             ->withCount($schoolCounts)
             ->get();
-        $submissionLetterReferences = $this->buildSchoolSubmissionLetterReferences($schools);
+        $schools = $this->prepareGenerateQueueSchools(
+            $schools,
+            $numberLockSupported
+        );
 
-        $readyLockRanges = $numberLockSupported
-            ? $this->buildSchoolReadyLockRanges($schools)
-            : [];
+        $blockedSchools = collect();
+        if ($uppmValidationEnabled) {
+            $blockedSchools = $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey, false)
+                ->whereNotIn('id', $schools->pluck('id')->all())
+                ->withCount($schoolCounts)
+                ->get();
 
-        $schools->transform(function (Madrasah $school) use ($numberLockSupported, $readyLockRanges, $submissionLetterReferences) {
-            $school->core_data = $this->buildSchoolSkCoreData(
-                $school,
-                null
+            $blockedSchools = $this->prepareGenerateQueueSchools(
+                $blockedSchools,
+                $numberLockSupported,
+                $uppmPaymentStatusService->summariesForYear($blockedSchools, $uppmValidationYear),
+                $uppmValidationPeriodKey
             );
-            $school->submission_letter_reference = $submissionLetterReferences[$school->id] ?? null;
-            $school->locked_documents_count = $numberLockSupported
-                ? (int) ($school->locked_documents_count ?? 0)
-                : 0;
-            $school->ready_lock_range = $readyLockRanges[$school->id]['range'] ?? null;
-            $school->ready_lock_count = (int) ($readyLockRanges[$school->id]['count'] ?? 0);
-
-            return $school;
-        });
+        }
 
         $eligibleSchoolIds = $schools->pluck('id')->map(fn ($id) => (int) $id)->all();
 
@@ -1110,6 +1109,7 @@ class SkYayasanController extends Controller
 
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
+            'blockedSchools' => $blockedSchools,
             'totalRequestsCount' => empty($eligibleSchoolIds)
                 ? 0
                 : SkYayasanRequest::query()
@@ -1122,7 +1122,7 @@ class SkYayasanController extends Controller
             'uppmValidationEnabled' => $uppmValidationEnabled,
             'uppmValidationYear' => $uppmValidationYear,
             'uppmValidationPeriodLabel' => $uppmValidationPeriodLabel,
-            'uppmBlockedSchoolCount' => max($syncedSchoolCount - $schools->count(), 0),
+            'uppmBlockedSchoolCount' => $blockedSchools->count(),
             'syncedSchoolCount' => $syncedSchoolCount,
             'appointmentRequests' => $appointmentRequests->where('tmt_is_two_years_or_more', true)->values(),
             'appointmentRequestsUnderTwoYears' => $appointmentRequests->where('tmt_is_two_years_or_more', false)->values(),
@@ -2000,6 +2000,55 @@ class SkYayasanController extends Controller
             ->all();
     }
 
+    private function prepareGenerateQueueSchools(
+        Collection $schools,
+        bool $numberLockSupported,
+        ?Collection $uppmSummaries = null,
+        ?string $uppmValidationPeriodKey = null
+    ): Collection {
+        if ($schools->isEmpty()) {
+            return $schools->values();
+        }
+
+        $submissionLetterReferences = $this->buildSchoolSubmissionLetterReferences($schools);
+        $readyLockRanges = $numberLockSupported
+            ? $this->buildSchoolReadyLockRanges($schools)
+            : [];
+
+        return $schools->transform(function (Madrasah $school) use (
+            $numberLockSupported,
+            $readyLockRanges,
+            $submissionLetterReferences,
+            $uppmSummaries,
+            $uppmValidationPeriodKey
+        ) {
+            $school->core_data = $this->buildSchoolSkCoreData(
+                $school,
+                null
+            );
+            $school->submission_letter_reference = $submissionLetterReferences[$school->id] ?? null;
+            $school->locked_documents_count = $numberLockSupported
+                ? (int) ($school->locked_documents_count ?? 0)
+                : 0;
+            $school->ready_lock_range = $readyLockRanges[$school->id]['range'] ?? null;
+            $school->ready_lock_count = (int) ($readyLockRanges[$school->id]['count'] ?? 0);
+
+            if ($uppmSummaries instanceof Collection) {
+                $summary = $uppmSummaries->get((int) $school->id, []);
+                $periodSummary = $uppmValidationPeriodKey ? ($summary['period_summaries'][$uppmValidationPeriodKey] ?? null) : null;
+                $school->uppm_summary = [
+                    'status_label' => $summary['status_label'] ?? 'Belum Lunas',
+                    'remaining' => (float) ($summary['remaining'] ?? 0),
+                    'period_is_lunas' => (bool) ($periodSummary['is_lunas'] ?? false),
+                    'period_total_paid' => (float) ($periodSummary['total_paid'] ?? 0),
+                    'period_target_nominal' => (float) ($periodSummary['target_nominal'] ?? 0),
+                ];
+            }
+
+            return $school;
+        })->values();
+    }
+
     private function buildSubmissionAppointmentAlerts(Collection $submissions): array
     {
         if ($submissions->isEmpty()) {
@@ -2082,7 +2131,11 @@ class SkYayasanController extends Controller
             ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasah->id));
     }
 
-    private function generateQueueSchoolsQuery(?int $uppmValidationYear = null, ?string $uppmValidationPeriodKey = null): Builder
+    private function generateQueueSchoolsQuery(
+        ?int $uppmValidationYear = null,
+        ?string $uppmValidationPeriodKey = null,
+        bool $applyPaymentGate = true
+    ): Builder
     {
         $baseQuery = Madrasah::query()
             ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'));
@@ -2094,7 +2147,7 @@ class SkYayasanController extends Controller
             $uppmValidationPeriodKey = (string) $paymentRequirement['period_key'];
         }
 
-        if ($uppmPaymentStatusService->shouldEnforceSkGenerateGate($uppmValidationYear)) {
+        if ($applyPaymentGate && $uppmPaymentStatusService->shouldEnforceSkGenerateGate($uppmValidationYear)) {
             $eligibleSchoolIds = $uppmPaymentStatusService->eligibleSchoolIdsForPeriod(
                 $baseQuery->pluck('id'),
                 $uppmValidationYear,

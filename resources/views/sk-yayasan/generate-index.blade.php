@@ -33,7 +33,7 @@
         <div class="alert alert-info border-0 shadow-sm">
             Antrean generate saat ini hanya menampilkan sekolah yang sudah <strong>lunas UPPM periode {{ $uppmValidationPeriodLabel }} tahun {{ $uppmValidationYear }}</strong>.
             @if($uppmBlockedSchoolCount > 0)
-                <span class="d-block mt-1">{{ number_format($uppmBlockedSchoolCount) }} sekolah tersinkron belum muncul di antrean karena status UPPM-nya belum lunas.</span>
+                <span class="d-block mt-1">{{ number_format($uppmBlockedSchoolCount) }} sekolah tersinkron yang belum lunas ditampilkan pada div terpisah di bawah dan tetap bisa diproses generate dari sana.</span>
             @endif
         </div>
     @endif
@@ -214,6 +214,117 @@
 
             </div>
         </div>
+
+        @if($uppmValidationEnabled)
+            <div class="col-12">
+                <div class="card border-warning-subtle">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <div class="sky-panel-label mb-1">Antrean Generate Belum Lunas</div>
+                                <h6 class="mb-0">Sekolah sudah mengajukan, tetapi status UPPM periode {{ $uppmValidationPeriodLabel }} belum lunas</h6>
+                            </div>
+                            <span class="sky-chip">{{ $blockedSchools->count() }} sekolah</span>
+                        </div>
+
+                        @if($blockedSchools->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Sekolah</th>
+                                            <th>SCOD</th>
+                                            <th>Antrean</th>
+                                            <th>Status UPPM</th>
+                                            <th>Status Nomor SK</th>
+                                            <th>Nomor Surat Pengajuan</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($blockedSchools as $school)
+                                            @php($generatedDocumentsCount = (int) ($school->generated_documents_count ?? 0))
+                                            @php($lockedDocumentsCount = (int) ($school->locked_documents_count ?? 0))
+                                            @php($readyLockCount = (int) ($school->ready_lock_count ?? 0))
+                                            @php($readyLockRange = $school->ready_lock_range)
+                                            @php($allGeneratedLocked = $generatedDocumentsCount > 0 && $generatedDocumentsCount === $lockedDocumentsCount)
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-semibold">
+                                                        <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="text-decoration-none">
+                                                            {{ $school->name }}
+                                                        </a>
+                                                    </div>
+                                                    <small class="text-muted">{{ $school->kabupaten ?? 'Kabupaten belum diisi' }}</small>
+                                                </td>
+                                                <td>{{ $school->scod ?? '-' }}</td>
+                                                <td>
+                                                    <span class="badge bg-warning-subtle text-warning">
+                                                        {{ number_format($school->generate_requests_count) }} pengajuan
+                                                    </span>
+                                                </td>
+                                                <td class="small">
+                                                    <div class="fw-semibold text-danger">{{ $school->uppm_summary['status_label'] ?? 'Belum Lunas' }}</div>
+                                                    @if(($school->uppm_summary['period_target_nominal'] ?? 0) > 0)
+                                                        <div class="text-muted mt-1">
+                                                            {{ number_format((float) ($school->uppm_summary['period_total_paid'] ?? 0), 0, ',', '.') }}
+                                                            /
+                                                            {{ number_format((float) ($school->uppm_summary['period_target_nominal'] ?? 0), 0, ',', '.') }}
+                                                        </div>
+                                                    @endif
+                                                </td>
+                                                <td class="small">
+                                                    @if(!$numberLockSupported)
+                                                        <div class="text-muted">Fitur lock menunggu migration database</div>
+                                                    @elseif($generatedDocumentsCount > 0)
+                                                        <div class="fw-semibold text-dark">{{ $lockedDocumentsCount }}/{{ $generatedDocumentsCount }} nomor terkunci</div>
+                                                        <div class="text-muted mt-1">
+                                                            {{ $allGeneratedLocked ? 'Semua draft/generate sekolah ini sudah final.' : 'Nomor yang sudah dikunci tidak akan berubah saat generate ulang.' }}
+                                                        </div>
+                                                        @if($readyLockCount > 0 && $readyLockRange)
+                                                            <div class="mt-1">
+                                                                <span class="fw-semibold text-dark">Rentang siap dikunci (urut SCOD):</span>
+                                                                <span class="text-muted">{{ $readyLockRange }}</span>
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        <div class="text-muted">Belum ada dokumen yang digenerate</div>
+                                                    @endif
+                                                </td>
+                                                <td class="small">{{ $school->submission_letter_reference['submission_letter_number'] ?? '-' }}</td>
+                                                <td>
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-warning">
+                                                            Lihat Pengajuan
+                                                        </a>
+                                                        <form method="POST" action="{{ route('sk-yayasan.generate.school.lock-number', $school) }}">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-dark"
+                                                                    @disabled(!$numberLockSupported || $generatedDocumentsCount === 0 || $allGeneratedLocked)
+                                                                    onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci akan tetap dipakai dan tidak akan diubah saat generate ulang.')">
+                                                                Kunci Nomor SK
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="sky-empty-state py-5">
+                                <i class="bx bx-check-shield"></i>
+                                <strong>Semua sekolah tersinkron pada periode ini sudah lunas</strong>
+                                <small>Tidak ada antrean generate terpisah untuk sekolah belum lunas.</small>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <div class="col-12">
             <div class="card">
