@@ -1181,10 +1181,6 @@ class SkYayasanController extends Controller
 
             $appointmentRow = $appointmentRequests->get($teacherId);
 
-            if (($appointmentRow['nipm_synced'] ?? false) === true) {
-                continue;
-            }
-
             if (($appointmentRow['has_nipm_source_choice'] ?? false) === true && $selectedMode === 'existing') {
                 continue;
             }

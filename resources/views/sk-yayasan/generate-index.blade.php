@@ -294,12 +294,15 @@
                                                        inputmode="numeric"
                                                        data-existing-nipm="{{ data_get($appointmentData, 'existing_nipm_value', '') }}"
                                                        data-system-nipm="{{ data_get($appointmentData, 'system_nipm_value', '') }}"
-                                                       @readonly($nipmSynced || $selectedMode === 'existing')
-                                                       @disabled($nipmSynced)>
+                                                       @readonly($nipmSynced || $selectedMode === 'existing')>
                                             </td>
                                             <td style="width: 140px;">
                                                 @if($nipmSynced)
-                                                    <span class="badge bg-success-subtle text-success w-100 py-2">Tersinkron</span>
+                                                    <button type="submit"
+                                                            form="appointment-nipm-sync-{{ $teacherId }}"
+                                                            class="btn btn-sm btn-outline-primary w-100">
+                                                        Sinkron Ulang
+                                                    </button>
                                                 @else
                                                     <button type="submit"
                                                             form="appointment-nipm-sync-{{ $teacherId }}"
