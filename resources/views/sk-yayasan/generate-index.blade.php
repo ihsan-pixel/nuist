@@ -239,7 +239,7 @@
                                         <th>Nama Sekolah</th>
                                         <th>Nama Guru</th>
                                         <th>Keterangan</th>
-                                        <th>No. Pengajuan</th>
+                                        <th>NIPM Otomatis</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -252,7 +252,14 @@
                                             <td>
                                                 <span class="badge bg-info-subtle text-info">{{ $row['keterangan'] }}</span>
                                             </td>
-                                            <td>{{ $row['request_number'] }}</td>
+                                            <td style="min-width: 280px;">
+                                                <input type="text"
+                                                       class="form-control form-control-sm"
+                                                       value="{{ $row['nipm_value'] }}"
+                                                       placeholder="NIPM otomatis"
+                                                       inputmode="numeric">
+                                                <small class="text-muted d-block mt-1">{{ $row['nipm_note'] }}</small>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

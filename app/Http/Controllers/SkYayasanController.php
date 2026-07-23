@@ -1936,7 +1936,7 @@ class SkYayasanController extends Controller
         $requests = SkYayasanRequest::query()
             ->with([
                 'madrasah:id,name,scod,kabupaten',
-                'employee:id,name',
+                'employee:id,name,nip,tanggal_lahir,tmt',
             ])
             ->whereIn('madrasah_id', $schoolOrder->keys()->all())
             ->where('current_status', '!=', 'rejected')
@@ -1959,8 +1959,37 @@ class SkYayasanController extends Controller
             ? collect()
             : SkYayasanImportRow::query()
                 ->whereIn('batch_id', $batchIds)
-                ->get(['batch_id', 'matched_user_id', 'source_keterangan'])
+                ->get([
+                    'batch_id',
+                    'matched_user_id',
+                    'source_keterangan',
+                    'source_tanggal_lahir',
+                    'source_tmt_pertama',
+                ])
                 ->groupBy('batch_id');
+
+        $schoolScods = $schools->mapWithKeys(
+            fn (Madrasah $school) => [(int) $school->id => $this->normalizeNipmSchoolScod($school->scod)]
+        );
+
+        $usedSequencesBySchool = [];
+        $existingTeachers = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->whereIn('madrasah_id', $schoolOrder->keys()->all())
+            ->get(['id', 'madrasah_id', 'nip']);
+
+        foreach ($existingTeachers as $teacher) {
+            $schoolId = (int) $teacher->madrasah_id;
+            $sequence = $this->extractNipmSequence($teacher->nip, $schoolScods->get($schoolId));
+
+            if ($sequence === null) {
+                continue;
+            }
+
+            $usedSequencesBySchool[$schoolId][$sequence] = true;
+        }
+
+        $assignedNipmByEmployee = [];
 
         return $requests
             ->map(function (SkYayasanRequest $request) use ($rowsByBatch, $schoolOrder) {
@@ -1978,9 +2007,12 @@ class SkYayasanController extends Controller
                     'school_order' => (int) ($schoolOrder->get((int) $request->madrasah_id) ?? PHP_INT_MAX),
                     'school_name' => $request->madrasah?->name ?? '-',
                     'school_scod' => $request->madrasah?->scod ?: '-',
+                    'teacher_id' => (int) $request->employee_id,
                     'teacher_name' => $request->employee?->name ?? '-',
-                    'request_number' => $request->request_number ?: '-',
                     'keterangan' => $keterangan,
+                    'existing_nipm' => $request->employee?->nip,
+                    'birth_date' => $matchedRow?->source_tanggal_lahir ?: $request->employee?->tanggal_lahir,
+                    'tmt_date' => $matchedRow?->source_tmt_pertama ?: $request->employee?->tmt,
                     'submitted_at' => $request->submitted_at,
                 ];
             })
@@ -1990,7 +2022,111 @@ class SkYayasanController extends Controller
                 ['keterangan', 'asc'],
                 ['teacher_name', 'asc'],
             ])
+            ->map(function (array $row) use (&$usedSequencesBySchool, &$assignedNipmByEmployee, $schoolScods) {
+                $teacherId = (int) $row['teacher_id'];
+                $schoolId = (int) $row['school_id'];
+                $normalizedScod = $schoolScods->get($schoolId, '000');
+
+                if (isset($assignedNipmByEmployee[$teacherId])) {
+                    $row['nipm_value'] = $assignedNipmByEmployee[$teacherId]['value'];
+                    $row['nipm_note'] = $assignedNipmByEmployee[$teacherId]['note'];
+
+                    return $row;
+                }
+
+                $existingNipm = $this->normalizeNipmValue($row['existing_nipm']);
+                $existingSequence = $this->extractNipmSequence($existingNipm, $normalizedScod);
+
+                if ($existingNipm !== null && $existingSequence !== null) {
+                    $result = [
+                        'value' => $existingNipm,
+                        'note' => 'Menggunakan NIPM yang sudah ada.',
+                    ];
+
+                    $assignedNipmByEmployee[$teacherId] = $result;
+                    $row['nipm_value'] = $result['value'];
+                    $row['nipm_note'] = $result['note'];
+
+                    return $row;
+                }
+
+                $birthDate = $this->parseFlexibleDate($row['birth_date']);
+                $tmtDate = $this->parseFlexibleDate($row['tmt_date']);
+
+                if ($birthDate === null || $tmtDate === null) {
+                    $result = [
+                        'value' => '',
+                        'note' => 'Lengkapi tanggal lahir dan TMT agar NIPM bisa dihitung otomatis.',
+                    ];
+
+                    $assignedNipmByEmployee[$teacherId] = $result;
+                    $row['nipm_value'] = $result['value'];
+                    $row['nipm_note'] = $result['note'];
+
+                    return $row;
+                }
+
+                $nextSequence = $this->nextAvailableNipmSequence($usedSequencesBySchool[$schoolId] ?? []);
+                $usedSequencesBySchool[$schoolId][$nextSequence] = true;
+
+                $result = [
+                    'value' => $birthDate->format('Ymd') . $tmtDate->format('Ym') . $normalizedScod . str_pad((string) $nextSequence, 3, '0', STR_PAD_LEFT),
+                    'note' => sprintf('Nomor urut sekolah otomatis %s.', str_pad((string) $nextSequence, 3, '0', STR_PAD_LEFT)),
+                ];
+
+                $assignedNipmByEmployee[$teacherId] = $result;
+                $row['nipm_value'] = $result['value'];
+                $row['nipm_note'] = $result['note'];
+
+                return $row;
+            })
             ->values();
+    }
+
+    private function normalizeNipmSchoolScod(mixed $scod): string
+    {
+        $digits = preg_replace('/\D+/u', '', trim((string) $scod)) ?? '';
+
+        if ($digits === '') {
+            return '000';
+        }
+
+        return str_pad(substr($digits, -3), 3, '0', STR_PAD_LEFT);
+    }
+
+    private function normalizeNipmValue(mixed $value): ?string
+    {
+        $digits = preg_replace('/\D+/u', '', trim((string) $value)) ?? '';
+
+        return strlen($digits) === 20 ? $digits : null;
+    }
+
+    private function extractNipmSequence(mixed $value, ?string $expectedScod = null): ?int
+    {
+        $nipm = $this->normalizeNipmValue($value);
+
+        if ($nipm === null) {
+            return null;
+        }
+
+        if ($expectedScod !== null && substr($nipm, 14, 3) !== $expectedScod) {
+            return null;
+        }
+
+        $sequence = (int) substr($nipm, 17, 3);
+
+        return $sequence > 0 ? $sequence : null;
+    }
+
+    private function nextAvailableNipmSequence(array $usedSequences): int
+    {
+        $sequence = 1;
+
+        while (isset($usedSequences[$sequence])) {
+            $sequence++;
+        }
+
+        return $sequence;
     }
 
     private function assignTemporaryDocumentNumbers(Collection $documents): void
