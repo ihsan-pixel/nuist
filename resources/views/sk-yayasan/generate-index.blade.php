@@ -252,7 +252,7 @@
                                     @foreach($appointmentRows as $appointmentData)
                                         @php($teacherId = data_get($appointmentData, 'teacher_id'))
                                         @php($nipmSynced = (bool) data_get($appointmentData, 'nipm_synced', false))
-                                        @php($selectedMode = old('rows.' . $teacherId . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')))
+                                        @php($selectedMode = $nipmSynced ? 'system' : old('rows.' . $teacherId . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')))
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ data_get($appointmentData, 'submission_year', '-') }}</td>
@@ -283,7 +283,7 @@
                                                     <input type="hidden"
                                                            form="appointment-nipm-sync-{{ $teacherId }}"
                                                            name="rows[{{ $teacherId }}][nipm_mode]"
-                                                           value="{{ $selectedMode }}">
+                                                           value="{{ $nipmSynced ? 'system' : $selectedMode }}">
                                                 @endif
                                                 <input type="text"
                                                        form="appointment-nipm-sync-{{ $teacherId }}"
