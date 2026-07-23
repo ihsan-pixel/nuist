@@ -1064,13 +1064,16 @@ class SkYayasanController extends Controller
         }
 
         $uppmPaymentStatusService = app(UppmPaymentStatusService::class);
-        $uppmValidationYear = $uppmPaymentStatusService->resolveDefaultYear();
+        $uppmPaymentRequirement = $uppmPaymentStatusService->resolveSkPaymentRequirement($globalSkSettings['issued_date'] ?? null);
+        $uppmValidationYear = (int) $uppmPaymentRequirement['year'];
+        $uppmValidationPeriodKey = (string) $uppmPaymentRequirement['period_key'];
+        $uppmValidationPeriodLabel = (string) $uppmPaymentRequirement['period_label'];
         $uppmValidationEnabled = $uppmPaymentStatusService->shouldEnforceSkGenerateGate($uppmValidationYear);
         $syncedSchoolCount = Madrasah::query()
             ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'))
             ->count();
 
-        $schools = $this->generateQueueSchoolsQuery()
+        $schools = $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey)
             ->withCount($schoolCounts)
             ->get();
 
@@ -1107,6 +1110,7 @@ class SkYayasanController extends Controller
             'numberLockSupported' => $numberLockSupported,
             'uppmValidationEnabled' => $uppmValidationEnabled,
             'uppmValidationYear' => $uppmValidationYear,
+            'uppmValidationPeriodLabel' => $uppmValidationPeriodLabel,
             'uppmBlockedSchoolCount' => max($syncedSchoolCount - $schools->count(), 0),
             'syncedSchoolCount' => $syncedSchoolCount,
         ]);
@@ -1891,16 +1895,24 @@ class SkYayasanController extends Controller
             ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasah->id));
     }
 
-    private function generateQueueSchoolsQuery(): Builder
+    private function generateQueueSchoolsQuery(?int $uppmValidationYear = null, ?string $uppmValidationPeriodKey = null): Builder
     {
         $baseQuery = Madrasah::query()
             ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'));
 
         $uppmPaymentStatusService = app(UppmPaymentStatusService::class);
-        $uppmValidationYear = $uppmPaymentStatusService->resolveDefaultYear();
+        if ($uppmValidationYear === null || $uppmValidationPeriodKey === null) {
+            $paymentRequirement = $uppmPaymentStatusService->resolveSkPaymentRequirement($this->getGlobalSkSettings()['issued_date'] ?? null);
+            $uppmValidationYear = (int) $paymentRequirement['year'];
+            $uppmValidationPeriodKey = (string) $paymentRequirement['period_key'];
+        }
 
         if ($uppmPaymentStatusService->shouldEnforceSkGenerateGate($uppmValidationYear)) {
-            $eligibleSchoolIds = $uppmPaymentStatusService->eligibleSchoolIdsForYear($baseQuery->pluck('id'), $uppmValidationYear);
+            $eligibleSchoolIds = $uppmPaymentStatusService->eligibleSchoolIdsForPeriod(
+                $baseQuery->pluck('id'),
+                $uppmValidationYear,
+                $uppmValidationPeriodKey
+            );
             $baseQuery->whereKey($eligibleSchoolIds->all());
         }
 

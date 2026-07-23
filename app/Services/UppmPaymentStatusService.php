@@ -8,6 +8,7 @@ use App\Models\Tagihan;
 use App\Models\UppmPaymentUpdate;
 use App\Models\UppmSetting;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
 
 class UppmPaymentStatusService
@@ -41,12 +42,41 @@ class UppmPaymentStatusService
             || UppmPaymentUpdate::query()->where('tahun_anggaran', $tahunAnggaran)->exists();
     }
 
+    public function resolveSkPaymentRequirement(?string $issuedDate = null): array
+    {
+        $date = $issuedDate ? Carbon::parse($issuedDate) : now();
+        $periodKey = (int) $date->month <= 6
+            ? UppmPaymentUpdate::PERIOD_JAN_JUN
+            : UppmPaymentUpdate::PERIOD_JUL_DES;
+
+        return [
+            'year' => (int) $date->year,
+            'period_key' => $periodKey,
+            'period_label' => UppmPaymentUpdate::PERIOD_LABELS[$periodKey] ?? $periodKey,
+        ];
+    }
+
     public function eligibleSchoolIdsForYear(Collection $schoolIds, int $tahunAnggaran): Collection
     {
         $summaries = $this->summariesForYear($schoolIds, $tahunAnggaran);
 
         return $summaries
             ->filter(fn (array $summary) => $summary['is_lunas'])
+            ->keys()
+            ->map(fn ($schoolId) => (int) $schoolId)
+            ->values();
+    }
+
+    public function eligibleSchoolIdsForPeriod(Collection $schoolIds, int $tahunAnggaran, string $paymentPeriod): Collection
+    {
+        $summaries = $this->summariesForYear($schoolIds, $tahunAnggaran);
+
+        return $summaries
+            ->filter(function (array $summary) use ($paymentPeriod) {
+                $periodSummary = $summary['period_summaries'][$paymentPeriod] ?? null;
+
+                return (bool) ($periodSummary['is_lunas'] ?? false);
+            })
             ->keys()
             ->map(fn ($schoolId) => (int) $schoolId)
             ->values();
@@ -111,6 +141,24 @@ class UppmPaymentStatusService
             $hasTarget = $targetNominal > 0;
             $latestPaymentDate = $payments->max('transfer_date');
             $isLunas = $hasTarget ? $totalPaid >= $targetNominal : $totalPaid > 0;
+            $periodTargetNominal = $hasTarget ? ($targetNominal / 2) : 0;
+            $periodSummaries = collect(UppmPaymentUpdate::PERIOD_LABELS)->mapWithKeys(function (string $label, string $periodKey) use ($payments, $periodTargetNominal) {
+                $periodPayments = $payments->where('payment_period', $periodKey)->values();
+                $periodTotalPaid = (float) $periodPayments->sum(fn (UppmPaymentUpdate $payment) => (float) $payment->amount);
+                $isPeriodLunas = $periodTargetNominal > 0
+                    ? $periodTotalPaid >= $periodTargetNominal
+                    : $periodTotalPaid > 0;
+
+                return [
+                    $periodKey => [
+                        'label' => $label,
+                        'payments' => $periodPayments,
+                        'total_paid' => $periodTotalPaid,
+                        'target_nominal' => $periodTargetNominal,
+                        'is_lunas' => $isPeriodLunas,
+                    ],
+                ];
+            });
 
             $status = 'belum_lunas';
             if ($isLunas) {
@@ -131,6 +179,7 @@ class UppmPaymentStatusService
                     'latest_payment_date' => $latestPaymentDate,
                     'payments' => $payments,
                     'payments_by_period' => $payments->groupBy('payment_period'),
+                    'period_summaries' => $periodSummaries,
                     'tagihan' => $tagihan,
                 ],
             ];
@@ -249,6 +298,7 @@ class UppmPaymentStatusService
             'latest_payment_date' => null,
             'payments' => collect(),
             'payments_by_period' => collect(),
+            'period_summaries' => collect(),
             'tagihan' => null,
         ];
     }

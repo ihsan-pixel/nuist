@@ -31,7 +31,7 @@
 
     @if($uppmValidationEnabled)
         <div class="alert alert-info border-0 shadow-sm">
-            Antrean generate saat ini hanya menampilkan sekolah yang sudah <strong>lunas UPPM tahun anggaran {{ $uppmValidationYear }}</strong>.
+            Antrean generate saat ini hanya menampilkan sekolah yang sudah <strong>lunas UPPM periode {{ $uppmValidationPeriodLabel }} tahun {{ $uppmValidationYear }}</strong>.
             @if($uppmBlockedSchoolCount > 0)
                 <span class="d-block mt-1">{{ number_format($uppmBlockedSchoolCount) }} sekolah tersinkron belum muncul di antrean karena status UPPM-nya belum lunas.</span>
             @endif
