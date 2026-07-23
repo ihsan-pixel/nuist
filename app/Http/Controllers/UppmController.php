@@ -296,7 +296,7 @@ class UppmController extends Controller
 
     public function updateUppm(Request $request, UppmPaymentStatusService $paymentStatusService)
     {
-        $tahun = $request->integer('tahun') ?: $paymentStatusService->resolveDefaultYear();
+        $tahun = $request->integer('tahun') ?: (int) now()->year;
 
         $madrasahs = Madrasah::query()
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
