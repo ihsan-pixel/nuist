@@ -1,15 +1,13 @@
-@extends('layouts.master')
+<?php $__env->startSection('title'); ?>Generate SK Yayasan <?php $__env->stopSection(); ?>
 
-@section('title')Generate SK Yayasan @endsection
+<?php $__env->startSection('content'); ?>
+<?php $__env->startComponent('components.breadcrumb'); ?>
+    <?php $__env->slot('li_1'); ?> SK Yayasan <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Generate SK Yayasan <?php $__env->endSlot(); ?>
+<?php echo $__env->renderComponent(); ?>
 
-@section('content')
-@component('components.breadcrumb')
-    @slot('li_1') SK Yayasan @endslot
-    @slot('title') Generate SK Yayasan @endslot
-@endcomponent
-
-@include('sk-yayasan.partials.ui-styles')
-@include('sk-yayasan.partials.sweet-alert')
+<?php echo $__env->make('sk-yayasan.partials.ui-styles', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php echo $__env->make('sk-yayasan.partials.sweet-alert', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <div class="sky-page">
     <div class="sky-hero-strip mb-4">
@@ -22,21 +20,21 @@
                     </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $schools->count() }} sekolah</span>
-                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $syncedBatchCount }} batch tersinkron</span>
-                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white">{{ $totalRequestsCount }} pengajuan</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($schools->count()); ?> sekolah</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($syncedBatchCount); ?> batch tersinkron</span>
+                <span class="sky-chip bg-white bg-opacity-10 border-0 text-white"><?php echo e($totalRequestsCount); ?> pengajuan</span>
             </div>
         </div>
     </div>
 
-    @if($uppmValidationEnabled)
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($uppmValidationEnabled): ?>
         <div class="alert alert-info border-0 shadow-sm">
-            Antrean generate saat ini hanya menampilkan sekolah yang sudah <strong>lunas UPPM periode {{ $uppmValidationPeriodLabel }} tahun {{ $uppmValidationYear }}</strong>.
-            @if($uppmBlockedSchoolCount > 0)
-                <span class="d-block mt-1">{{ number_format($uppmBlockedSchoolCount) }} sekolah tersinkron belum muncul di antrean karena status UPPM-nya belum lunas.</span>
-            @endif
+            Antrean generate saat ini hanya menampilkan sekolah yang sudah <strong>lunas UPPM periode <?php echo e($uppmValidationPeriodLabel); ?> tahun <?php echo e($uppmValidationYear); ?></strong>.
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($uppmBlockedSchoolCount > 0): ?>
+                <span class="d-block mt-1"><?php echo e(number_format($uppmBlockedSchoolCount)); ?> sekolah tersinkron belum muncul di antrean karena status UPPM-nya belum lunas.</span>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
-    @endif
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <div class="card mb-3">
         <div class="card-body">
@@ -48,38 +46,38 @@
                 <span class="sky-chip">Global untuk seluruh antrean generate</span>
             </div>
 
-            <form method="POST" action="{{ route('sk-yayasan.generate.settings.update') }}">
-                @csrf
-                @method('PATCH')
+            <form method="POST" action="<?php echo e(route('sk-yayasan.generate.settings.update')); ?>">
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('PATCH'); ?>
                 <div class="row g-3">
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label">Tahun Penerbitan SK</label>
-                        <input type="text" name="sk_yayasan_school_year" class="form-control" value="{{ old('sk_yayasan_school_year', $globalSkSettings['school_year']) }}" required>
+                        <input type="text" name="sk_yayasan_school_year" class="form-control" value="<?php echo e(old('sk_yayasan_school_year', $globalSkSettings['school_year'])); ?>" required>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label">Nomor SK Mulai</label>
-                        <input type="number" name="sk_yayasan_number_start" class="form-control" min="1" value="{{ old('sk_yayasan_number_start', $globalSkSettings['number_start']) }}" required>
+                        <input type="number" name="sk_yayasan_number_start" class="form-control" min="1" value="<?php echo e(old('sk_yayasan_number_start', $globalSkSettings['number_start'])); ?>" required>
                         <small class="text-muted">Contoh `1565` akan menghasilkan `1565/SK.02/LPM.DIY/VI/2026`.</small>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label">Nama Ketua Yayasan</label>
-                        <input type="text" name="sk_yayasan_signer_name" class="form-control" value="{{ old('sk_yayasan_signer_name', $globalSkSettings['signer_name']) }}" required>
+                        <input type="text" name="sk_yayasan_signer_name" class="form-control" value="<?php echo e(old('sk_yayasan_signer_name', $globalSkSettings['signer_name'])); ?>" required>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label">Jabatan Penandatangan</label>
-                        <input type="text" name="sk_yayasan_signer_position" class="form-control" value="{{ old('sk_yayasan_signer_position', $globalSkSettings['signer_position']) }}">
+                        <input type="text" name="sk_yayasan_signer_position" class="form-control" value="<?php echo e(old('sk_yayasan_signer_position', $globalSkSettings['signer_position'])); ?>">
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label">Ditetapkan Di</label>
-                        <input type="text" name="sk_yayasan_established_at" class="form-control" value="{{ old('sk_yayasan_established_at', $globalSkSettings['established_at']) }}" required>
+                        <input type="text" name="sk_yayasan_established_at" class="form-control" value="<?php echo e(old('sk_yayasan_established_at', $globalSkSettings['established_at'])); ?>" required>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label">Pada Tanggal Penetapan</label>
-                        <input type="date" name="sk_yayasan_issued_date" class="form-control" value="{{ old('sk_yayasan_issued_date', $globalSkSettings['issued_date']) }}" required>
+                        <input type="date" name="sk_yayasan_issued_date" class="form-control" value="<?php echo e(old('sk_yayasan_issued_date', $globalSkSettings['issued_date'])); ?>" required>
                     </div>
                     <div class="col-lg-6">
                         <label class="form-label">Format Nomor SK</label>
-                        <input type="text" name="sk_yayasan_number_format_suffix" class="form-control" value="{{ old('sk_yayasan_number_format_suffix', $globalSkSettings['number_format_suffix']) }}" required>
+                        <input type="text" name="sk_yayasan_number_format_suffix" class="form-control" value="<?php echo e(old('sk_yayasan_number_format_suffix', $globalSkSettings['number_format_suffix'])); ?>" required>
                         <small class="text-muted">Bagian depan nomor akan diisi otomatis dari `Nomor SK Mulai` dan berlanjut global untuk semua guru.</small>
                     </div>
                 </div>
@@ -91,21 +89,21 @@
                 </div>
             </form>
             <div class="d-flex justify-content-end flex-wrap gap-2 mt-2">
-                <form method="POST" action="{{ route('sk-yayasan.generate.lock-all') }}">
-                    @csrf
-                    @method('PATCH')
+                <form method="POST" action="<?php echo e(route('sk-yayasan.generate.lock-all')); ?>">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PATCH'); ?>
                     <button type="submit"
                             class="btn btn-outline-dark"
-                            @disabled(!$numberLockSupported || $schools->isEmpty())
+                            <?php if(!$numberLockSupported || $schools->isEmpty()): echo 'disabled'; endif; ?>
                             onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate pada seluruh antrean sekolah? Nomor yang sudah dikunci tidak akan bisa berubah saat generate ulang.')">
                         Kunci All
                     </button>
                 </form>
-                <form method="POST" action="{{ route('sk-yayasan.generate.regenerate-all') }}">
-                    @csrf
+                <form method="POST" action="<?php echo e(route('sk-yayasan.generate.regenerate-all')); ?>">
+                    <?php echo csrf_field(); ?>
                     <button type="submit"
                             class="btn btn-outline-primary"
-                            @disabled($schools->isEmpty())
+                            <?php if($schools->isEmpty()): echo 'disabled'; endif; ?>
                             onclick="return confirm('Generate ulang semua sekolah akan menyusun ulang nomor SK sesuai urutan SCOD. Nomor yang sudah dikunci tidak akan diubah. Lanjutkan?')">
                         Generate Ulang All
                     </button>
@@ -123,10 +121,10 @@
                             <div class="sky-panel-label mb-1">Antrean Sekolah</div>
                             <h6 class="mb-0">Klik sekolah untuk membuka daftar pengajuan tersinkronisasi</h6>
                         </div>
-                        <span class="sky-chip">{{ $schools->count() }} sekolah dari {{ $syncedSchoolCount }} sekolah tersinkron</span>
+                        <span class="sky-chip"><?php echo e($schools->count()); ?> sekolah dari <?php echo e($syncedSchoolCount); ?> sekolah tersinkron</span>
                     </div>
 
-                    @if($schools->count() > 0)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schools->count() > 0): ?>
                         <div class="table-responsive">
                             <table class="table align-middle">
                                 <thead>
@@ -140,8 +138,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($schools as $school)
-                                        @php($coreData = $school->core_data ?? [])
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $schools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $school): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                        <?php($coreData = $school->core_data ?? [])
                                         @php($generatedDocumentsCount = (int) ($school->generated_documents_count ?? 0))
                                         @php($lockedDocumentsCount = (int) ($school->locked_documents_count ?? 0))
                                         @php($readyLockCount = (int) ($school->ready_lock_count ?? 0))
@@ -248,77 +246,77 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($appointmentRequests as $appointmentRow)
+                                    @foreach($appointmentRequests as $row)
                                         @php
-                                            $rowKey = $appointmentRow['teacher_id'];
+                                            $rowKey = $row['teacher_id'];
                                             $formId = 'appointment-nipm-sync-' . $rowKey;
-                                            $selectedMode = old("rows.{$rowKey}.nipm_mode", $appointmentRow['default_nipm_mode'] ?? 'system');
-                                            $inputValue = old("rows.{$rowKey}.nipm", $appointmentRow['nipm_value']);
-                                            $isReadonly = $appointmentRow['nipm_synced'] || $selectedMode === 'existing';
-                                        @endphp
+                                            $selectedMode = old("rows.{$rowKey}.nipm_mode", $row['default_nipm_mode'] ?? 'system');
+                                            $inputValue = old("rows.{$rowKey}.nipm", $row['nipm_value']);
+                                            $isReadonly = $row['nipm_synced'] || $selectedMode === 'existing';
+                                        ?>
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $appointmentRow['submission_year'] }}</td>
-                                            <td>{{ $appointmentRow['school_scod'] }}</td>
-                                            <td>{{ $appointmentRow['school_name'] }}</td>
-                                            <td>{{ $appointmentRow['teacher_name'] }}</td>
+                                            <td><?php echo e($loop->iteration); ?></td>
+                                            <td><?php echo e($row['submission_year']); ?></td>
+                                            <td><?php echo e($row['school_scod']); ?></td>
+                                            <td><?php echo e($row['school_name']); ?></td>
+                                            <td><?php echo e($row['teacher_name']); ?></td>
                                             <td>
-                                                <span class="badge bg-info-subtle text-info">{{ $appointmentRow['keterangan'] }}</span>
+                                                <span class="badge bg-info-subtle text-info"><?php echo e($row['keterangan']); ?></span>
                                             </td>
                                             <td style="min-width: 280px;">
-                                                <form id="{{ $formId }}" method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}" class="d-none">
-                                                    @csrf
+                                                <form id="<?php echo e($formId); ?>" method="POST" action="<?php echo e(route('sk-yayasan.generate.appointment-nipm-sync')); ?>" class="d-none">
+                                                    <?php echo csrf_field(); ?>
                                                 </form>
                                                 <input type="hidden"
-                                                       form="{{ $formId }}"
-                                                       name="rows[{{ $rowKey }}][teacher_id]"
-                                                       value="{{ $appointmentRow['teacher_id'] }}">
-                                                @if($appointmentRow['has_nipm_source_choice'])
-                                                    <select name="rows[{{ $rowKey }}][nipm_mode]"
-                                                            form="{{ $formId }}"
+                                                       form="<?php echo e($formId); ?>"
+                                                       name="rows[<?php echo e($rowKey); ?>][teacher_id]"
+                                                       value="<?php echo e($row['teacher_id']); ?>">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($row['has_nipm_source_choice']): ?>
+                                                    <select name="rows[<?php echo e($rowKey); ?>][nipm_mode]"
+                                                            form="<?php echo e($formId); ?>"
                                                             class="form-select form-select-sm mb-2 js-nipm-mode"
-                                                            data-existing-nipm="{{ $appointmentRow['existing_nipm_value'] }}"
-                                                            data-system-nipm="{{ $appointmentRow['system_nipm_value'] }}">
-                                                        <option value="existing" @selected($selectedMode === 'existing')>Gunakan NIPM yang ada</option>
-                                                        <option value="system" @selected($selectedMode === 'system')>Gunakan NIPM sistem</option>
+                                                            data-existing-nipm="<?php echo e($row['existing_nipm_value']); ?>"
+                                                            data-system-nipm="<?php echo e($row['system_nipm_value']); ?>">
+                                                        <option value="existing" <?php if($selectedMode === 'existing'): echo 'selected'; endif; ?>>Gunakan NIPM yang ada</option>
+                                                        <option value="system" <?php if($selectedMode === 'system'): echo 'selected'; endif; ?>>Gunakan NIPM sistem</option>
                                                     </select>
-                                                @else
+                                                <?php else: ?>
                                                     <input type="hidden"
-                                                           form="{{ $formId }}"
-                                                           name="rows[{{ $rowKey }}][nipm_mode]"
-                                                           value="{{ $selectedMode }}">
-                                                @endif
+                                                           form="<?php echo e($formId); ?>"
+                                                           name="rows[<?php echo e($rowKey); ?>][nipm_mode]"
+                                                           value="<?php echo e($selectedMode); ?>">
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <input type="text"
-                                                       form="{{ $formId }}"
-                                                       name="rows[{{ $rowKey }}][nipm]"
+                                                       form="<?php echo e($formId); ?>"
+                                                       name="rows[<?php echo e($rowKey); ?>][nipm]"
                                                        class="form-control form-control-sm js-nipm-input"
-                                                       value="{{ $inputValue }}"
+                                                       value="<?php echo e($inputValue); ?>"
                                                        placeholder="NIPM otomatis"
                                                        inputmode="numeric"
-                                                       data-existing-nipm="{{ $appointmentRow['existing_nipm_value'] }}"
-                                                       data-system-nipm="{{ $appointmentRow['system_nipm_value'] }}"
-                                                       @readonly($isReadonly)>
+                                                       data-existing-nipm="<?php echo e($row['existing_nipm_value']); ?>"
+                                                       data-system-nipm="<?php echo e($row['system_nipm_value']); ?>"
+                                                       <?php if($isReadonly): echo 'readonly'; endif; ?>>
                                             </td>
                                             <td style="width: 140px;">
                                                 <button type="submit"
-                                                        form="{{ $formId }}"
+                                                        form="<?php echo e($formId); ?>"
                                                         class="btn btn-sm btn-primary w-100"
-                                                        @disabled($appointmentRow['nipm_synced'])>
+                                                        <?php if($row['nipm_synced']): echo 'disabled'; endif; ?>>
                                                     Sinkron
                                                 </button>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
-                    @else
+                    <?php else: ?>
                         <div class="sky-empty-state py-5">
                             <i class="bx bx-table"></i>
                             <strong>Belum ada data pengangkatan PTY/GTY</strong>
                             <small>Data akan muncul di sini jika ada pengajuan tersinkronisasi dengan keterangan Pengangkatan PTY atau Pengangkatan GTY.</small>
                         </div>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -345,4 +343,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/sk-yayasan/generate-index.blade.php ENDPATH**/ ?>
