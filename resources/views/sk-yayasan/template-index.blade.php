@@ -229,7 +229,7 @@
     padding-top: 1.2mm;
 }
 .sk-person-table td {
-    line-height: 0.75;
+    line-height: 0.68;
     padding: 0 1px 0 0;
     vertical-align: top;
 }
@@ -1762,7 +1762,7 @@ HTML;
 .sk-colon { text-align: center; width: 14px; }
 .sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }
 .sk-person-table { margin: 7px 0 9px 0; width: 100%; }
-.sk-person-table td { line-height: 1; padding: 0 1px 2px 0; vertical-align: top; }
+.sk-person-table td { line-height: 0.68; padding: 0 1px 0 0; vertical-align: top; }
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
