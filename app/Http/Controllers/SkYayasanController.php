@@ -2066,7 +2066,7 @@ class SkYayasanController extends Controller
                     return $row;
                 }
 
-                $nextSequence = $this->nextAvailableNipmSequence($usedSequencesBySchool[$schoolId] ?? []);
+                $nextSequence = $this->nextReasonableNipmSequence($usedSequencesBySchool[$schoolId] ?? []);
                 $usedSequencesBySchool[$schoolId][$nextSequence] = true;
 
                 $result = [
@@ -2118,15 +2118,29 @@ class SkYayasanController extends Controller
         return $sequence > 0 ? $sequence : null;
     }
 
-    private function nextAvailableNipmSequence(array $usedSequences): int
+    private function nextReasonableNipmSequence(array $usedSequences): int
     {
-        $sequence = 1;
-
-        while (isset($usedSequences[$sequence])) {
-            $sequence++;
+        if (empty($usedSequences)) {
+            return 1;
         }
 
-        return $sequence;
+        $sequences = array_keys($usedSequences);
+        sort($sequences, SORT_NUMERIC);
+
+        $lastReasonableSequence = (int) $sequences[0];
+        $outlierGapThreshold = 50;
+
+        foreach (array_slice($sequences, 1) as $sequence) {
+            $sequence = (int) $sequence;
+
+            if (($sequence - $lastReasonableSequence) > $outlierGapThreshold) {
+                break;
+            }
+
+            $lastReasonableSequence = $sequence;
+        }
+
+        return $lastReasonableSequence + 1;
     }
 
     private function assignTemporaryDocumentNumbers(Collection $documents): void
