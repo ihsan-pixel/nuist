@@ -14,8 +14,8 @@ class UppmPaymentUpdate extends Model
     public const PERIOD_JUL_DES = 'jul_des';
 
     public const PERIOD_LABELS = [
-        self::PERIOD_JAN_JUN => 'Jan-Jun',
-        self::PERIOD_JUL_DES => 'Jul-Des',
+        self::PERIOD_JAN_JUN => 'Januari - Juni',
+        self::PERIOD_JUL_DES => 'Juli - Desember',
     ];
 
     protected $fillable = [

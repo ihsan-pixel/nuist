@@ -357,7 +357,7 @@
             <div class="uppm-section-head">
                 <div>
                     <div class="uppm-section-title">Rekap Pembayaran Tahun {{ $tahun }}</div>
-                    <p class="uppm-section-copy">Ringkasan per sekolah untuk periode `Jan-Jun` dan `Jul-Des`.</p>
+                    <p class="uppm-section-copy">Ringkasan per sekolah untuk periode `Januari - Juni` dan `Juli - Desember`.</p>
                 </div>
                 <div class="uppm-chip">{{ number_format($summaryRows->count()) }} sekolah</div>
             </div>
@@ -368,8 +368,8 @@
                         <tr>
                             <th>No</th>
                             <th>Sekolah</th>
-                            <th>Jan-Jun</th>
-                            <th>Jul-Des</th>
+                            <th>Januari - Juni</th>
+                            <th>Juli - Desember</th>
                             <th>Total</th>
                             <th>Tagihan</th>
                             <th>Sisa</th>
