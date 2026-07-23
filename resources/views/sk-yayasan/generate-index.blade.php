@@ -249,78 +249,59 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php($appointmentNumber = 1)
                                     @foreach($appointmentRows as $appointmentData)
-                                        @php
-                                            $rowKey = data_get($appointmentData, 'teacher_id');
-                                            $formId = 'appointment-nipm-sync-' . $rowKey;
-                                            $submissionYear = data_get($appointmentData, 'submission_year', '-');
-                                            $schoolScod = data_get($appointmentData, 'school_scod', '-');
-                                            $schoolName = data_get($appointmentData, 'school_name', '-');
-                                            $teacherName = data_get($appointmentData, 'teacher_name', '-');
-                                            $keterangan = data_get($appointmentData, 'keterangan', '-');
-                                            $teacherId = data_get($appointmentData, 'teacher_id');
-                                            $hasSourceChoice = (bool) data_get($appointmentData, 'has_nipm_source_choice', false);
-                                            $existingNipmValue = data_get($appointmentData, 'existing_nipm_value', '');
-                                            $systemNipmValue = data_get($appointmentData, 'system_nipm_value', '');
-                                            $nipmSynced = (bool) data_get($appointmentData, 'nipm_synced', false);
-                                            $selectedMode = old("rows.{$rowKey}.nipm_mode", data_get($appointmentData, 'default_nipm_mode', 'system'));
-                                            $inputValue = old("rows.{$rowKey}.nipm", data_get($appointmentData, 'nipm_value', ''));
-                                            $isReadonly = $nipmSynced || $selectedMode === 'existing';
-                                        @endphp
                                         <tr>
-                                            <td>{{ $appointmentNumber }}</td>
-                                            <td>{{ $submissionYear }}</td>
-                                            <td>{{ $schoolScod }}</td>
-                                            <td>{{ $schoolName }}</td>
-                                            <td>{{ $teacherName }}</td>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ data_get($appointmentData, 'submission_year', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'school_scod', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
                                             <td>
-                                                <span class="badge bg-info-subtle text-info">{{ $keterangan }}</span>
+                                                <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
                                             </td>
                                             <td style="min-width: 280px;">
-                                                <form id="{{ $formId }}" method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}" class="d-none">
+                                                <form id="appointment-nipm-sync-{{ data_get($appointmentData, 'teacher_id') }}" method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}" class="d-none">
                                                     @csrf
                                                 </form>
                                                 <input type="hidden"
-                                                       form="{{ $formId }}"
-                                                       name="rows[{{ $rowKey }}][teacher_id]"
-                                                       value="{{ $teacherId }}">
-                                                @if($hasSourceChoice)
-                                                    <select name="rows[{{ $rowKey }}][nipm_mode]"
-                                                            form="{{ $formId }}"
+                                                       form="appointment-nipm-sync-{{ data_get($appointmentData, 'teacher_id') }}"
+                                                       name="rows[{{ data_get($appointmentData, 'teacher_id') }}][teacher_id]"
+                                                       value="{{ data_get($appointmentData, 'teacher_id') }}">
+                                                @if(data_get($appointmentData, 'has_nipm_source_choice', false))
+                                                    <select name="rows[{{ data_get($appointmentData, 'teacher_id') }}][nipm_mode]"
+                                                            form="appointment-nipm-sync-{{ data_get($appointmentData, 'teacher_id') }}"
                                                             class="form-select form-select-sm mb-2 js-nipm-mode"
-                                                            data-existing-nipm="{{ $existingNipmValue }}"
-                                                            data-system-nipm="{{ $systemNipmValue }}">
-                                                        <option value="existing" @selected($selectedMode === 'existing')>Gunakan NIPM yang ada</option>
-                                                        <option value="system" @selected($selectedMode === 'system')>Gunakan NIPM sistem</option>
+                                                            data-existing-nipm="{{ data_get($appointmentData, 'existing_nipm_value', '') }}"
+                                                            data-system-nipm="{{ data_get($appointmentData, 'system_nipm_value', '') }}">
+                                                        <option value="existing" @selected(old('rows.' . data_get($appointmentData, 'teacher_id') . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')) === 'existing')>Gunakan NIPM yang ada</option>
+                                                        <option value="system" @selected(old('rows.' . data_get($appointmentData, 'teacher_id') . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')) === 'system')>Gunakan NIPM sistem</option>
                                                     </select>
                                                 @else
                                                     <input type="hidden"
-                                                           form="{{ $formId }}"
-                                                           name="rows[{{ $rowKey }}][nipm_mode]"
-                                                           value="{{ $selectedMode }}">
+                                                           form="appointment-nipm-sync-{{ data_get($appointmentData, 'teacher_id') }}"
+                                                           name="rows[{{ data_get($appointmentData, 'teacher_id') }}][nipm_mode]"
+                                                           value="{{ old('rows.' . data_get($appointmentData, 'teacher_id') . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')) }}">
                                                 @endif
                                                 <input type="text"
-                                                       form="{{ $formId }}"
-                                                       name="rows[{{ $rowKey }}][nipm]"
+                                                       form="appointment-nipm-sync-{{ data_get($appointmentData, 'teacher_id') }}"
+                                                       name="rows[{{ data_get($appointmentData, 'teacher_id') }}][nipm]"
                                                        class="form-control form-control-sm js-nipm-input"
-                                                       value="{{ $inputValue }}"
+                                                       value="{{ old('rows.' . data_get($appointmentData, 'teacher_id') . '.nipm', data_get($appointmentData, 'nipm_value', '')) }}"
                                                        placeholder="NIPM otomatis"
                                                        inputmode="numeric"
-                                                       data-existing-nipm="{{ $existingNipmValue }}"
-                                                       data-system-nipm="{{ $systemNipmValue }}"
-                                                       @readonly($isReadonly)>
+                                                       data-existing-nipm="{{ data_get($appointmentData, 'existing_nipm_value', '') }}"
+                                                       data-system-nipm="{{ data_get($appointmentData, 'system_nipm_value', '') }}"
+                                                       @readonly(data_get($appointmentData, 'nipm_synced', false) || old('rows.' . data_get($appointmentData, 'teacher_id') . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')) === 'existing')>
                                             </td>
                                             <td style="width: 140px;">
                                                 <button type="submit"
-                                                        form="{{ $formId }}"
+                                                        form="appointment-nipm-sync-{{ data_get($appointmentData, 'teacher_id') }}"
                                                         class="btn btn-sm btn-primary w-100"
-                                                        @disabled($nipmSynced)>
+                                                        @disabled(data_get($appointmentData, 'nipm_synced', false))>
                                                     Sinkron
                                                 </button>
                                             </td>
                                         </tr>
-                                        @php($appointmentNumber++)
                                     @endforeach
                                 </tbody>
                             </table>
