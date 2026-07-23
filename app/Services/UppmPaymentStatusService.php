@@ -8,9 +8,12 @@ use App\Models\Tagihan;
 use App\Models\UppmPaymentUpdate;
 use App\Models\UppmSetting;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class UppmPaymentStatusService
 {
+    private ?array $tagihanColumns = null;
+
     public function resolveDefaultYear(): int
     {
         return (int) (
@@ -151,25 +154,52 @@ class UppmPaymentStatusService
             return $tagihan;
         }
 
-        if (!$tagihan->exists && empty($tagihan->jenis_tagihan)) {
-            $tagihan->jenis_tagihan = 'uppm';
+        $attributes = [];
+
+        if (!$tagihan->exists && $this->tagihanHasColumn('jenis_tagihan') && empty($tagihan->jenis_tagihan)) {
+            $attributes['jenis_tagihan'] = 'uppm';
         }
 
-        if (!$tagihan->keterangan) {
-            $tagihan->keterangan = 'Disinkronkan dari menu Update UPPM.';
+        if ($this->tagihanHasColumn('keterangan') && !$tagihan->keterangan) {
+            $attributes['keterangan'] = 'Disinkronkan dari menu Update UPPM.';
         }
 
-        $tagihan->nominal = $summary['target_nominal'];
-        $tagihan->nominal_dibayar = $summary['total_paid'];
-        $tagihan->status = $summary['status'];
-        $tagihan->jatuh_tempo = $setting?->jatuh_tempo;
-        $tagihan->tanggal_pembayaran = $summary['is_lunas']
-            ? $summary['latest_payment_date']
-            : null;
+        if ($this->tagihanHasColumn('nominal')) {
+            $attributes['nominal'] = $summary['target_nominal'];
+        }
+
+        if ($this->tagihanHasColumn('nominal_dibayar')) {
+            $attributes['nominal_dibayar'] = $summary['total_paid'];
+        }
+
+        if ($this->tagihanHasColumn('status')) {
+            $attributes['status'] = $summary['status'];
+        }
+
+        if ($this->tagihanHasColumn('jatuh_tempo')) {
+            $attributes['jatuh_tempo'] = $setting?->jatuh_tempo;
+        }
+
+        if ($this->tagihanHasColumn('tanggal_pembayaran')) {
+            $attributes['tanggal_pembayaran'] = $summary['is_lunas']
+                ? $summary['latest_payment_date']
+                : null;
+        }
+
+        $tagihan->fill($attributes);
 
         $tagihan->save();
 
         return $tagihan;
+    }
+
+    private function tagihanHasColumn(string $column): bool
+    {
+        if ($this->tagihanColumns === null) {
+            $this->tagihanColumns = Schema::getColumnListing((new Tagihan())->getTable());
+        }
+
+        return in_array($column, $this->tagihanColumns, true);
     }
 
     private function resolveTargetNominal($schoolData, $setting, ?Tagihan $tagihan): float
