@@ -233,57 +233,85 @@
                     </div>
 
                     @if($appointmentRequests->isNotEmpty())
-                        <form method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}">
-                            @csrf
-                            <div class="table-responsive">
-                                <table class="table align-middle">
-                                    <thead>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tahun Pengajuan SK</th>
+                                        <th>SCOD</th>
+                                        <th>Nama Sekolah</th>
+                                        <th>Nama Guru</th>
+                                        <th>Keterangan</th>
+                                        <th>NIPM Otomatis</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($appointmentRequests as $row)
+                                        @php
+                                            $rowKey = $row['teacher_id'];
+                                            $formId = 'appointment-nipm-sync-' . $rowKey;
+                                            $selectedMode = old("rows.{$rowKey}.nipm_mode", $row['default_nipm_mode'] ?? 'system');
+                                            $inputValue = old("rows.{$rowKey}.nipm", $row['nipm_value']);
+                                            $isReadonly = $row['nipm_synced'] || $selectedMode === 'existing';
+                                        @endphp
                                         <tr>
-                                            <th>No</th>
-                                            <th>Tahun Pengajuan SK</th>
-                                            <th>SCOD</th>
-                                            <th>Nama Sekolah</th>
-                                            <th>Nama Guru</th>
-                                            <th>Keterangan</th>
-                                            <th>NIPM Otomatis</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($appointmentRequests as $row)
-                                            <tr>
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $row['submission_year'] }}</td>
-                                                <td>{{ $row['school_scod'] }}</td>
-                                                <td>{{ $row['school_name'] }}</td>
-                                                <td>{{ $row['teacher_name'] }}</td>
-                                                <td>
-                                                    <span class="badge bg-info-subtle text-info">{{ $row['keterangan'] }}</span>
-                                                </td>
-                                                <td style="min-width: 280px;">
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $row['submission_year'] }}</td>
+                                            <td>{{ $row['school_scod'] }}</td>
+                                            <td>{{ $row['school_name'] }}</td>
+                                            <td>{{ $row['teacher_name'] }}</td>
+                                            <td>
+                                                <span class="badge bg-info-subtle text-info">{{ $row['keterangan'] }}</span>
+                                            </td>
+                                            <td style="min-width: 280px;">
+                                                <form id="{{ $formId }}" method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}" class="d-none">
+                                                    @csrf
+                                                </form>
+                                                <input type="hidden"
+                                                       form="{{ $formId }}"
+                                                       name="rows[{{ $rowKey }}][teacher_id]"
+                                                       value="{{ $row['teacher_id'] }}">
+                                                @if($row['has_nipm_source_choice'])
+                                                    <select name="rows[{{ $rowKey }}][nipm_mode]"
+                                                            form="{{ $formId }}"
+                                                            class="form-select form-select-sm mb-2 js-nipm-mode"
+                                                            data-existing-nipm="{{ $row['existing_nipm_value'] }}"
+                                                            data-system-nipm="{{ $row['system_nipm_value'] }}">
+                                                        <option value="existing" @selected($selectedMode === 'existing')>Gunakan NIPM yang ada</option>
+                                                        <option value="system" @selected($selectedMode === 'system')>Gunakan NIPM sistem</option>
+                                                    </select>
+                                                @else
                                                     <input type="hidden"
-                                                           name="rows[{{ $loop->index }}][teacher_id]"
-                                                           value="{{ $row['teacher_id'] }}">
-                                                    <input type="text"
-                                                           name="rows[{{ $loop->index }}][nipm]"
-                                                           class="form-control form-control-sm"
-                                                           value="{{ $row['nipm_value'] }}"
-                                                           placeholder="NIPM otomatis"
-                                                           inputmode="numeric"
-                                                           @readonly($row['nipm_synced'])>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="d-flex justify-content-end mt-3">
-                                <button type="submit"
-                                        class="btn btn-primary"
-                                        @disabled($appointmentRequests->where('nipm_synced', false)->count() === 0)>
-                                    Sinkron
-                                </button>
-                            </div>
-                        </form>
+                                                           form="{{ $formId }}"
+                                                           name="rows[{{ $rowKey }}][nipm_mode]"
+                                                           value="{{ $selectedMode }}">
+                                                @endif
+                                                <input type="text"
+                                                       form="{{ $formId }}"
+                                                       name="rows[{{ $rowKey }}][nipm]"
+                                                       class="form-control form-control-sm js-nipm-input"
+                                                       value="{{ $inputValue }}"
+                                                       placeholder="NIPM otomatis"
+                                                       inputmode="numeric"
+                                                       data-existing-nipm="{{ $row['existing_nipm_value'] }}"
+                                                       data-system-nipm="{{ $row['system_nipm_value'] }}"
+                                                       @readonly($isReadonly)>
+                                            </td>
+                                            <td style="width: 140px;">
+                                                <button type="submit"
+                                                        form="{{ $formId }}"
+                                                        class="btn btn-sm btn-primary w-100"
+                                                        @disabled($row['nipm_synced'])>
+                                                    Sinkron
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @else
                         <div class="sky-empty-state py-5">
                             <i class="bx bx-table"></i>
@@ -296,4 +324,25 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.js-nipm-mode').forEach(function (select) {
+        var input = select.parentElement.querySelector('.js-nipm-input');
+        if (!input) {
+            return;
+        }
+
+        var applyMode = function () {
+            var useExisting = select.value === 'existing';
+            input.value = useExisting
+                ? (select.dataset.existingNipm || '')
+                : (select.dataset.systemNipm || '');
+            input.readOnly = useExisting;
+        };
+
+        select.addEventListener('change', applyMode);
+        applyMode();
+    });
+});
+</script>
 @endsection

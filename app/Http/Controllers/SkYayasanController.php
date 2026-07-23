@@ -1152,6 +1152,7 @@ class SkYayasanController extends Controller
         $validated = $request->validate([
             'rows' => ['required', 'array', 'min:1'],
             'rows.*.teacher_id' => ['required', 'integer'],
+            'rows.*.nipm_mode' => ['nullable', 'in:existing,system'],
             'rows.*.nipm' => ['nullable', 'regex:/^\d{20}$/'],
         ], [
             'rows.*.nipm.regex' => 'NIPM harus berisi tepat 20 digit angka.',
@@ -1171,6 +1172,7 @@ class SkYayasanController extends Controller
 
         foreach ($validated['rows'] as $row) {
             $teacherId = (int) $row['teacher_id'];
+            $selectedMode = (string) ($row['nipm_mode'] ?? 'system');
             $nipm = preg_replace('/\D+/u', '', (string) ($row['nipm'] ?? '')) ?? '';
 
             if (!$appointmentRequests->has($teacherId)) {
@@ -1179,7 +1181,15 @@ class SkYayasanController extends Controller
 
             $appointmentRow = $appointmentRequests->get($teacherId);
 
-            if (($appointmentRow['nipm_synced'] ?? false) === true || $nipm === '') {
+            if (($appointmentRow['nipm_synced'] ?? false) === true) {
+                continue;
+            }
+
+            if (($appointmentRow['has_nipm_source_choice'] ?? false) === true && $selectedMode === 'existing') {
+                continue;
+            }
+
+            if ($nipm === '') {
                 continue;
             }
 
@@ -2095,25 +2105,16 @@ class SkYayasanController extends Controller
                 if (isset($assignedNipmByEmployee[$teacherId])) {
                     $row['nipm_value'] = $assignedNipmByEmployee[$teacherId]['value'];
                     $row['nipm_synced'] = (bool) ($assignedNipmByEmployee[$teacherId]['synced'] ?? false);
+                    $row['has_nipm_source_choice'] = (bool) ($assignedNipmByEmployee[$teacherId]['has_choice'] ?? false);
+                    $row['default_nipm_mode'] = $assignedNipmByEmployee[$teacherId]['mode'] ?? 'system';
+                    $row['existing_nipm_value'] = $assignedNipmByEmployee[$teacherId]['existing_value'] ?? '';
+                    $row['system_nipm_value'] = $assignedNipmByEmployee[$teacherId]['system_value'] ?? $row['nipm_value'];
 
                     return $row;
                 }
 
                 $existingNipm = $this->normalizeNipmValue($row['existing_nipm']);
                 $existingSequence = $this->extractNipmSequence($existingNipm, $normalizedScod);
-
-                if ($existingNipm !== null && $existingSequence !== null) {
-                    $result = [
-                        'value' => $existingNipm,
-                        'synced' => true,
-                    ];
-
-                    $assignedNipmByEmployee[$teacherId] = $result;
-                    $row['nipm_value'] = $result['value'];
-                    $row['nipm_synced'] = $result['synced'];
-
-                    return $row;
-                }
 
                 $birthDate = $this->parseFlexibleDate($row['birth_date']);
                 $tmtDate = $this->parseFlexibleDate($row['tmt_date']);
@@ -2122,26 +2123,65 @@ class SkYayasanController extends Controller
                     $result = [
                         'value' => '',
                         'synced' => false,
+                        'has_choice' => false,
+                        'mode' => 'system',
+                        'existing_value' => $existingNipm ?? '',
+                        'system_value' => '',
                     ];
 
                     $assignedNipmByEmployee[$teacherId] = $result;
                     $row['nipm_value'] = $result['value'];
                     $row['nipm_synced'] = $result['synced'];
+                    $row['has_nipm_source_choice'] = $result['has_choice'];
+                    $row['default_nipm_mode'] = $result['mode'];
+                    $row['existing_nipm_value'] = $result['existing_value'];
+                    $row['system_nipm_value'] = $result['system_value'];
 
                     return $row;
                 }
 
                 $nextSequence = $this->nextReasonableNipmSequence($usedSequencesBySchool[$schoolId] ?? []);
                 $usedSequencesBySchool[$schoolId][$nextSequence] = true;
+                $systemGeneratedNipm = $birthDate->format('Ymd') . $tmtDate->format('Ym') . $normalizedScod . str_pad((string) $nextSequence, 3, '0', STR_PAD_LEFT);
+
+                if ($existingNipm !== null && $existingSequence !== null) {
+                    $hasChoice = $existingNipm !== $systemGeneratedNipm;
+                    $result = [
+                        'value' => $hasChoice ? $existingNipm : $systemGeneratedNipm,
+                        'synced' => !$hasChoice,
+                        'has_choice' => $hasChoice,
+                        'mode' => $hasChoice ? 'existing' : 'system',
+                        'existing_value' => $existingNipm,
+                        'system_value' => $systemGeneratedNipm,
+                    ];
+
+                    $assignedNipmByEmployee[$teacherId] = $result;
+                    $row['nipm_value'] = $result['value'];
+                    $row['nipm_synced'] = $result['synced'];
+                    $row['has_nipm_source_choice'] = $result['has_choice'];
+                    $row['default_nipm_mode'] = $result['mode'];
+                    $row['existing_nipm_value'] = $result['existing_value'];
+                    $row['system_nipm_value'] = $result['system_value'];
+
+                    return $row;
+                }
 
                 $result = [
-                    'value' => $birthDate->format('Ymd') . $tmtDate->format('Ym') . $normalizedScod . str_pad((string) $nextSequence, 3, '0', STR_PAD_LEFT),
+                    'value' => $systemGeneratedNipm,
                     'synced' => false,
+                    'has_choice' => false,
+                    'mode' => 'system',
+                    'existing_value' => '',
+                    'system_value' => $systemGeneratedNipm,
                 ];
 
                 $assignedNipmByEmployee[$teacherId] = $result;
                 $row['nipm_value'] = $result['value'];
                 $row['nipm_synced'] = $result['synced'];
+                $row['has_nipm_source_choice'] = $result['has_choice'];
+                $row['default_nipm_mode'] = $result['mode'];
+                $row['existing_nipm_value'] = $result['existing_value'];
+                $row['system_nipm_value'] = $result['system_value'];
 
                 return $row;
             })
