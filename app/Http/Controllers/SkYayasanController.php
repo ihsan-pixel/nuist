@@ -15,6 +15,7 @@ use App\Models\SkYayasanRequest;
 use App\Models\SkYayasanTemplate;
 use App\Models\User;
 use App\Models\Yayasan;
+use App\Services\UppmPaymentStatusService;
 use App\Support\SkYayasanImportSynchronizer;
 use Closure;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -1062,12 +1063,15 @@ class SkYayasanController extends Controller
                 ->whereHas('document', fn (Builder $documentQuery) => $documentQuery->whereNotNull('number_locked_at'));
         }
 
-        $schools = Madrasah::query()
+        $uppmPaymentStatusService = app(UppmPaymentStatusService::class);
+        $uppmValidationYear = $uppmPaymentStatusService->resolveDefaultYear();
+        $uppmValidationEnabled = $uppmPaymentStatusService->shouldEnforceSkGenerateGate($uppmValidationYear);
+        $syncedSchoolCount = Madrasah::query()
             ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'))
+            ->count();
+
+        $schools = $this->generateQueueSchoolsQuery()
             ->withCount($schoolCounts)
-            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
-            ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
-            ->orderBy('name')
             ->get();
 
         $readyLockRanges = $numberLockSupported
@@ -1088,14 +1092,23 @@ class SkYayasanController extends Controller
             return $school;
         });
 
+        $eligibleSchoolIds = $schools->pluck('id')->map(fn ($id) => (int) $id)->all();
+
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
-            'totalRequestsCount' => SkYayasanRequest::query()
-                ->whereHas('importBatch', fn (Builder $query) => $query->where('status', 'synced'))
-                ->count(),
+            'totalRequestsCount' => empty($eligibleSchoolIds)
+                ? 0
+                : SkYayasanRequest::query()
+                    ->whereHas('importBatch', fn (Builder $query) => $query->where('status', 'synced'))
+                    ->whereIn('madrasah_id', $eligibleSchoolIds)
+                    ->count(),
             'syncedBatchCount' => SkYayasanImportBatch::query()->where('status', 'synced')->count(),
             'globalSkSettings' => $globalSkSettings,
             'numberLockSupported' => $numberLockSupported,
+            'uppmValidationEnabled' => $uppmValidationEnabled,
+            'uppmValidationYear' => $uppmValidationYear,
+            'uppmBlockedSchoolCount' => max($syncedSchoolCount - $schools->count(), 0),
+            'syncedSchoolCount' => $syncedSchoolCount,
         ]);
     }
 
@@ -1880,8 +1893,18 @@ class SkYayasanController extends Controller
 
     private function generateQueueSchoolsQuery(): Builder
     {
-        return Madrasah::query()
-            ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'))
+        $baseQuery = Madrasah::query()
+            ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->where('status', 'synced'));
+
+        $uppmPaymentStatusService = app(UppmPaymentStatusService::class);
+        $uppmValidationYear = $uppmPaymentStatusService->resolveDefaultYear();
+
+        if ($uppmPaymentStatusService->shouldEnforceSkGenerateGate($uppmValidationYear)) {
+            $eligibleSchoolIds = $uppmPaymentStatusService->eligibleSchoolIdsForYear($baseQuery->pluck('id'), $uppmValidationYear);
+            $baseQuery->whereKey($eligibleSchoolIds->all());
+        }
+
+        return $baseQuery
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
             ->orderBy('name');

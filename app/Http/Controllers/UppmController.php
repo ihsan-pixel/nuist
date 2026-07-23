@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\UppmSetting;
 use App\Models\UppmSchoolData;
+use App\Models\UppmPaymentUpdate;
 use App\Models\Madrasah;
 use App\Models\DataSekolah;
 use App\Models\Tagihan;
+use App\Services\UppmPaymentStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class UppmController extends Controller
@@ -289,6 +292,110 @@ class UppmController extends Controller
     {
         $settings = UppmSetting::orderBy('tahun_anggaran', 'desc')->get();
         return view('uppm.pengaturan', compact('settings'));
+    }
+
+    public function updateUppm(Request $request, UppmPaymentStatusService $paymentStatusService)
+    {
+        $tahun = $request->integer('tahun') ?: $paymentStatusService->resolveDefaultYear();
+
+        $madrasahs = Madrasah::query()
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
+            ->orderBy('name')
+            ->get(['id', 'name', 'kabupaten', 'scod']);
+
+        $summaries = $paymentStatusService->summariesForYear($madrasahs, $tahun);
+        $paymentUpdates = UppmPaymentUpdate::query()
+            ->with('madrasah:id,name,scod')
+            ->where('tahun_anggaran', $tahun)
+            ->orderByDesc('transfer_date')
+            ->orderByDesc('id')
+            ->get();
+
+        $summaryRows = $madrasahs->map(function (Madrasah $madrasah) use ($summaries) {
+            return [
+                'madrasah' => $madrasah,
+                'summary' => $summaries->get($madrasah->id, []),
+            ];
+        });
+
+        $yearOptions = $paymentStatusService->availableYears();
+        $lunasCount = $summaryRows->filter(fn (array $row) => (bool) ($row['summary']['is_lunas'] ?? false))->count();
+        $partialCount = $summaryRows->filter(fn (array $row) => ($row['summary']['status'] ?? null) === 'sebagian')->count();
+        $totalPaid = $summaryRows->sum(fn (array $row) => (float) ($row['summary']['total_paid'] ?? 0));
+        $totalTarget = $summaryRows->sum(fn (array $row) => (float) ($row['summary']['target_nominal'] ?? 0));
+
+        return view('uppm.update-uppm', [
+            'tahun' => $tahun,
+            'yearOptions' => $yearOptions,
+            'madrasahs' => $madrasahs,
+            'summaryRows' => $summaryRows,
+            'paymentUpdates' => $paymentUpdates,
+            'periodOptions' => UppmPaymentUpdate::PERIOD_LABELS,
+            'lunasCount' => $lunasCount,
+            'partialCount' => $partialCount,
+            'totalPaid' => $totalPaid,
+            'totalTarget' => $totalTarget,
+        ]);
+    }
+
+    public function storeUpdateUppm(Request $request, UppmPaymentStatusService $paymentStatusService)
+    {
+        $validated = $request->validate([
+            'madrasah_id' => ['required', 'integer', 'exists:madrasahs,id'],
+            'tahun_anggaran' => ['required', 'integer', 'min:2020', 'max:' . (now()->year + 1)],
+            'payment_period' => ['required', Rule::in(array_keys(UppmPaymentUpdate::PERIOD_LABELS))],
+            'transfer_date' => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'note' => ['nullable', 'string'],
+        ]);
+
+        UppmPaymentUpdate::create($validated);
+        $paymentStatusService->syncTagihanForSchoolYear((int) $validated['madrasah_id'], (int) $validated['tahun_anggaran']);
+
+        return redirect()
+            ->route('uppm.update-uppm', ['tahun' => $validated['tahun_anggaran']])
+            ->with('success', 'Update pembayaran UPPM berhasil ditambahkan.');
+    }
+
+    public function updateUpdateUppm(Request $request, UppmPaymentUpdate $uppmPaymentUpdate, UppmPaymentStatusService $paymentStatusService)
+    {
+        $validated = $request->validate([
+            'madrasah_id' => ['required', 'integer', 'exists:madrasahs,id'],
+            'tahun_anggaran' => ['required', 'integer', 'min:2020', 'max:' . (now()->year + 1)],
+            'payment_period' => ['required', Rule::in(array_keys(UppmPaymentUpdate::PERIOD_LABELS))],
+            'transfer_date' => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'note' => ['nullable', 'string'],
+        ]);
+
+        $oldMadrasahId = (int) $uppmPaymentUpdate->madrasah_id;
+        $oldTahunAnggaran = (int) $uppmPaymentUpdate->tahun_anggaran;
+
+        $uppmPaymentUpdate->update($validated);
+
+        $paymentStatusService->syncTagihanForSchoolYear((int) $validated['madrasah_id'], (int) $validated['tahun_anggaran']);
+
+        if ($oldMadrasahId !== (int) $validated['madrasah_id'] || $oldTahunAnggaran !== (int) $validated['tahun_anggaran']) {
+            $paymentStatusService->syncTagihanForSchoolYear($oldMadrasahId, $oldTahunAnggaran);
+        }
+
+        return redirect()
+            ->route('uppm.update-uppm', ['tahun' => $validated['tahun_anggaran']])
+            ->with('success', 'Update pembayaran UPPM berhasil diperbarui.');
+    }
+
+    public function destroyUpdateUppm(UppmPaymentUpdate $uppmPaymentUpdate, UppmPaymentStatusService $paymentStatusService)
+    {
+        $madrasahId = (int) $uppmPaymentUpdate->madrasah_id;
+        $tahunAnggaran = (int) $uppmPaymentUpdate->tahun_anggaran;
+
+        $uppmPaymentUpdate->delete();
+        $paymentStatusService->syncTagihanForSchoolYear($madrasahId, $tahunAnggaran);
+
+        return redirect()
+            ->route('uppm.update-uppm', ['tahun' => $tahunAnggaran])
+            ->with('success', 'Update pembayaran UPPM berhasil dihapus.');
     }
 
     public function storePengaturan(Request $request)

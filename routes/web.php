@@ -2151,6 +2151,13 @@ Route::middleware(['auth', 'role:super_admin,pengurus'])->prefix('uppm')->name('
     Route::post('/pembayaran/midtrans', [App\Http\Controllers\PembayaranController::class, 'pembayaranMidtrans'])->name('pembayaran.midtrans');
 });
 
+Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->group(function () {
+    Route::get('/update-uppm', [App\Http\Controllers\UppmController::class, 'updateUppm'])->name('update-uppm');
+    Route::post('/update-uppm', [App\Http\Controllers\UppmController::class, 'storeUpdateUppm'])->name('update-uppm.store');
+    Route::put('/update-uppm/{uppmPaymentUpdate}', [App\Http\Controllers\UppmController::class, 'updateUpdateUppm'])->name('update-uppm.update');
+    Route::delete('/update-uppm/{uppmPaymentUpdate}', [App\Http\Controllers\UppmController::class, 'destroyUpdateUppm'])->name('update-uppm.destroy');
+});
+
 // Instrument Talenta Routes
 Route::prefix('instumen-talenta')->name('instumen-talenta.')->middleware(['auth'])->group(function () {
     Route::get('/', [App\Http\Controllers\InstumenTalentaController::class, 'index'])->name('index');

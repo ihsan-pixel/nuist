@@ -29,6 +29,15 @@
         </div>
     </div>
 
+    @if($uppmValidationEnabled)
+        <div class="alert alert-info border-0 shadow-sm">
+            Antrean generate saat ini hanya menampilkan sekolah yang sudah <strong>lunas UPPM tahun anggaran {{ $uppmValidationYear }}</strong>.
+            @if($uppmBlockedSchoolCount > 0)
+                <span class="d-block mt-1">{{ number_format($uppmBlockedSchoolCount) }} sekolah tersinkron belum muncul di antrean karena status UPPM-nya belum lunas.</span>
+            @endif
+        </div>
+    @endif
+
     <div class="card mb-3">
         <div class="card-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -114,7 +123,7 @@
                             <div class="sky-panel-label mb-1">Antrean Sekolah</div>
                             <h6 class="mb-0">Klik sekolah untuk membuka daftar pengajuan tersinkronisasi</h6>
                         </div>
-                        <span class="sky-chip">{{ $schools->count() }} sekolah dari {{ $syncedBatchCount }} batch tersinkron</span>
+                        <span class="sky-chip">{{ $schools->count() }} sekolah dari {{ $syncedSchoolCount }} sekolah tersinkron</span>
                     </div>
 
                     @if($schools->count() > 0)
