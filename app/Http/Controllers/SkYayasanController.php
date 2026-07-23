@@ -3860,16 +3860,14 @@ class SkYayasanController extends Controller
             '/\.sk-person-table\s+td\s*\{([^}]*)\}/u',
             static function (array $matches): string {
                 $styles = preg_replace('/padding\s*:\s*[^;]+;?/u', '', $matches[1]) ?? $matches[1];
-                $hasLineHeight = preg_match('/line-height\s*:/u', $styles) === 1;
+                $styles = preg_replace('/line-height\s*:\s*[^;]+;?/u', '', $styles) ?? $styles;
                 $styles = trim($styles);
 
                 if ($styles !== '' && !str_ends_with($styles, ';')) {
                     $styles .= ';';
                 }
 
-                $lineHeight = $hasLineHeight ? '' : ' line-height: 0.68;';
-
-                return '.sk-person-table td { ' . trim($styles . $lineHeight . ' padding: 0 1px 0 0;') . ' }';
+                return '.sk-person-table td { ' . trim($styles . ' line-height: 0.9; padding: 0 1px 0 0;') . ' }';
             },
             $body
         ) ?? $body;
