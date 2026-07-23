@@ -3207,7 +3207,11 @@ class SkYayasanController extends Controller
 
         $digitsOnly = preg_replace('/\D+/u', '', $sanitized) ?? '';
 
-        return $digitsOnly !== '' ? $digitsOnly : '-';
+        if ($digitsOnly === '' || preg_match('/^0+$/', $digitsOnly) === 1) {
+            return '-';
+        }
+
+        return $digitsOnly;
     }
 
     private function employeeParticipatesInMgmpAcademica(?User $employee): bool
