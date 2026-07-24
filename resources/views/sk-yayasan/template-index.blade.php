@@ -221,7 +221,7 @@
 }
 .sk-decision {
     font-weight: 700;
-    margin: 2px 0 0 0;
+    margin: 8px 0 0 0;
     text-align: center;
 }
 .sk-person-table {
@@ -1782,7 +1782,7 @@ HTML;
 .sk-colon { text-align: center; width: 14px; }
 .sk-reference-row .sk-label, .sk-decision-row .sk-label { width: 98px; }
 .sk-reference-row .sk-colon, .sk-decision-row .sk-colon { text-align: left; width: 6px; }
-.sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }
+.sk-decision { font-weight: 700; margin: 8px 0 0 0; text-align: center; }
 .sk-person-table { border-spacing: 0; margin: 7px 0 9px 0; width: 100%; }
 .sk-person-table tr { line-height: 0.72; margin: 0; padding: 0; }
 .sk-person-table td { line-height: 0.72; padding: 0 1px 0 0; vertical-align: top; }
