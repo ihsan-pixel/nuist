@@ -3965,6 +3965,7 @@ class SkYayasanController extends Controller
         $body = $this->normalizeStructuredTemplateOrgTitleLayout($body);
         $body = $this->normalizeStructuredTemplateContactEmailLayout($body);
         $body = $this->normalizeStructuredTemplateMengingatLayout($body);
+        $body = $this->normalizeStructuredTemplateMengingatItemPrefixes($body);
         $body = $this->normalizeStructuredTemplateDecisionContentLayout($body);
         $body = $this->normalizeStructuredTemplateFooterLayout($body);
         $body = $this->normalizeStructuredTemplateSignatureSpacing($body);
@@ -4721,6 +4722,67 @@ class SkYayasanController extends Controller
             }
 
             $contentCell->appendChild($mengingatList);
+        }
+
+        $root = $document->getElementById('sk-root');
+        $output = '';
+
+        if ($root) {
+            foreach ($root->childNodes as $childNode) {
+                $output .= $document->saveHTML($childNode);
+            }
+        } else {
+            $output = $body;
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        return $output;
+    }
+
+    private function normalizeStructuredTemplateMengingatItemPrefixes(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"') || !str_contains($body, 'sk-mengingat-list')) {
+            return $body;
+        }
+
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $body . '</div>';
+
+        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        $xpath = new \DOMXPath($document);
+        $items = $xpath->query('//ol[contains(concat(" ", normalize-space(@class), " "), " sk-mengingat-list ")]/li');
+
+        if ($items === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        foreach ($items as $item) {
+            $text = trim(preg_replace('/\s+/u', ' ', $item->textContent ?? ''));
+
+            if ($text === '') {
+                continue;
+            }
+
+            $normalized = preg_replace('/^\s*\d+[\.\)]\s*/u', '', $text) ?: $text;
+            $normalized = preg_replace('/^[^\pL\pN]+/u', '', $normalized) ?: $normalized;
+
+            while ($item->firstChild) {
+                $item->removeChild($item->firstChild);
+            }
+
+            $item->appendChild($document->createTextNode($normalized));
         }
 
         $root = $document->getElementById('sk-root');
