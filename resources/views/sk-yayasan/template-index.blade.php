@@ -1577,7 +1577,7 @@ HTML;
         function stripLeadingListMarker(value) {
             return String(value ?? '')
                 .replace(/^\s*\d+[\.\)]\s*/u, '')
-                .replace(/^[\s\-?•:]+/u, '')
+                .replace(/^[\s\-?•:�\uFEFF\u00A0]+/u, '')
                 .trim();
         }
 
