@@ -212,12 +212,12 @@
 }
 .sk-reference-row .sk-label,
 .sk-decision-row .sk-label {
-    width: 104px;
+    width: 98px;
 }
 .sk-reference-row .sk-colon,
 .sk-decision-row .sk-colon {
     text-align: left;
-    width: 8px;
+    width: 6px;
 }
 .sk-decision {
     font-weight: 700;
@@ -1777,8 +1777,8 @@ HTML;
 .sk-menimbang-item { display: block; line-height: 1; margin: 0; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }
 .sk-label { width: 112px; }
 .sk-colon { text-align: center; width: 14px; }
-.sk-reference-row .sk-label, .sk-decision-row .sk-label { width: 104px; }
-.sk-reference-row .sk-colon, .sk-decision-row .sk-colon { text-align: left; width: 8px; }
+.sk-reference-row .sk-label, .sk-decision-row .sk-label { width: 98px; }
+.sk-reference-row .sk-colon, .sk-decision-row .sk-colon { text-align: left; width: 6px; }
 .sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }
 .sk-person-table { border-spacing: 0; margin: 7px 0 9px 0; width: 100%; }
 .sk-person-table tr { line-height: 0.72; margin: 0; padding: 0; }
