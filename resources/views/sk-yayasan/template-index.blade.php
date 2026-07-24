@@ -20,7 +20,7 @@
     );
     $defaultSkBody = <<<'HTML'
 <style>
-@page { margin: 6mm 16mm 5mm 16mm; }
+@page { margin: 6mm 12mm 5mm 12mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
@@ -1678,7 +1678,7 @@ HTML;
 
             return `
 <style>
-@page { margin: 6mm 16mm 5mm 16mm; }
+@page { margin: 6mm 12mm 5mm 12mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;

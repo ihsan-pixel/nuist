@@ -4005,6 +4005,12 @@ class SkYayasanController extends Controller
             return $body;
         }
 
+        $body = preg_replace(
+            '/@page\s*\{\s*margin\s*:\s*[^;]+;\s*\}/u',
+            '@page { margin: 6mm 12mm 5mm 12mm; }',
+            $body
+        ) ?? $body;
+
         $copyCellPadding = $this->templateNeedsWideCopyGap($templateContext)
             ? '54px 14px 0 0'
             : '0 14px 0 0';
