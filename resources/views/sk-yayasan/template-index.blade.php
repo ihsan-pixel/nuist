@@ -599,6 +599,7 @@ HTML;
         'mengingat2Text' => 'Permendikbud Nomor 25 Tahun 2024;',
         'mengingat3Text' => "Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;",
         'mengingat4Text' => "Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.",
+        'mengingat5Text' => '',
         'mengingatContentFontSize' => 13.5,
         'memperhatikanLabelText' => 'Memperhatikan',
         'memperhatikanLabelFontSize' => 13.5,
@@ -690,6 +691,7 @@ HTML;
                 ['key' => 'mengingat2Text', 'label' => 'Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '2.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'mengingat3Text', 'label' => 'Mengingat 3', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '3.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'mengingat4Text', 'label' => 'Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '4.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'mengingat5Text', 'label' => 'Mengingat 5', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '5.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'memperhatikanLabelText', 'label' => 'Label Memperhatikan', 'type' => 'text', 'fontKey' => 'memperhatikanLabelFontSize'],
                 ['key' => 'memperhatikanContentText', 'label' => 'Isi Memperhatikan', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'memperhatikanContentFontSize'],
             ],
@@ -1570,7 +1572,7 @@ HTML;
         function normalizeStructuredConfig(config) {
             const normalized = { ...config };
 
-            ['mengingat1Text', 'mengingat2Text', 'mengingat3Text', 'mengingat4Text'].forEach((key) => {
+            ['mengingat1Text', 'mengingat2Text', 'mengingat3Text', 'mengingat4Text', 'mengingat5Text'].forEach((key) => {
                 if (Object.prototype.hasOwnProperty.call(normalized, key)) {
                     normalized[key] = stripLeadingListMarker(normalized[key]);
                 }
@@ -1644,7 +1646,7 @@ HTML;
                     </tr>
                 `).join('');
 
-            const mengingatItems = [1, 2, 3, 4]
+            const mengingatItems = [1, 2, 3, 4, 5]
                 .map((index) => stripLeadingListMarker(config[`mengingat${index}Text`]))
                 .filter(Boolean)
                 .map((item) => `<li>${nl2br(item)}</li>`)
