@@ -3584,6 +3584,9 @@ class SkYayasanController extends Controller
         $formattedEducation = $this->normalizeSarjanawiyataTamansiswaEducation(
             $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir)
         );
+        $formattedBirthPlace = $this->formatBirthPlacePlaceholder(
+            $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir)
+        );
 
         $base = [
             '{{nomor_sk}}' => $overrides['nomor_sk'] ?? '-',
@@ -3593,7 +3596,7 @@ class SkYayasanController extends Controller
             '{{nama_sekolah}}' => $madrasah->name ?? '-',
             '{{nama_pegawai}}' => $formattedName,
             '{{gelar}}' => $formattedDegree,
-            '{{tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
+            '{{tempat_lahir}}' => $formattedBirthPlace,
             '{{tanggal_lahir}}' => $formattedBirthDate,
             '{{nip_maarif}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nip_maarif, $employee->nip)),
             '{{nuptk}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nuptk, $employee->nuptk)),
@@ -3628,7 +3631,7 @@ class SkYayasanController extends Controller
             '{{excel_no}}' => $pick($importRow?->excel_no),
             '{{source_nama}}' => $formattedName,
             '{{source_gelar}}' => $formattedDegree,
-            '{{source_tempat_lahir}}' => $pick($importRow?->source_tempat_lahir, $employee->tempat_lahir),
+            '{{source_tempat_lahir}}' => $formattedBirthPlace,
             '{{source_tanggal_lahir}}' => $formattedBirthDate,
             '{{source_nip_maarif}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nip_maarif, $employee->nip)),
             '{{source_nuptk}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nuptk, $employee->nuptk)),
@@ -3877,6 +3880,17 @@ class SkYayasanController extends Controller
         $degree = $this->normalizeDegree($value);
 
         return $degree ?? '-';
+    }
+
+    private function formatBirthPlacePlaceholder(mixed $value): string
+    {
+        $string = $this->sanitizeTemplatePlaceholderValue($value, false);
+
+        if ($string === '-') {
+            return '-';
+        }
+
+        return mb_convert_case(mb_strtolower($string), MB_CASE_TITLE, 'UTF-8');
     }
 
     private function formatIndonesianDate(mixed ...$values): string
