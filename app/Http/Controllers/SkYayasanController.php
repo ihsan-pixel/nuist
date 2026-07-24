@@ -4007,7 +4007,7 @@ class SkYayasanController extends Controller
 
         $body = preg_replace(
             '/@page\s*\{\s*margin\s*:\s*[^;]+;\s*\}/u',
-            '@page { margin: 6mm 12mm 5mm 12mm; }',
+            '@page { margin: 6mm 14mm 5mm 14mm; }',
             $body
         ) ?? $body;
 
