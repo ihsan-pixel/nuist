@@ -1575,7 +1575,10 @@ HTML;
         }
 
         function stripLeadingListMarker(value) {
-            return String(value ?? '').replace(/^\s*\d+[\.\)]\s*/u, '').trim();
+            return String(value ?? '')
+                .replace(/^\s*\d+[\.\)]\s*/u, '')
+                .replace(/^[\s\-?•:]+/u, '')
+                .trim();
         }
 
         function normalizeStructuredConfig(config) {

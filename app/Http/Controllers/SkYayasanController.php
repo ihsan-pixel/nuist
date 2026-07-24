@@ -4713,6 +4713,7 @@ class SkYayasanController extends Controller
                 }
 
                 $contentText = preg_replace('/^\s*\d+[\.\)]\s*/u', '', $plainText) ?: $plainText;
+                $contentText = preg_replace('/^[\s\-\?•:]+/u', '', $contentText) ?: $contentText;
 
                 $listItem = $document->createElement('li');
                 $listItem->appendChild($document->createTextNode($contentText));
