@@ -3597,7 +3597,7 @@ class SkYayasanController extends Controller
             '{{tanggal_lahir}}' => $formattedBirthDate,
             '{{nip_maarif}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nip_maarif, $employee->nip)),
             '{{nuptk}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nuptk, $employee->nuptk)),
-            '{{nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
+            '{{nomor_kartanu}}' => $this->formatKartanuValue($pick($importRow?->source_nomor_kartanu, $employee->kartanu)),
             '{{tmt_pertama}}' => $formattedTmt,
             '{{masa_kerja}}' => $formattedTenure,
             '{{pendidikan_terakhir}}' => $formattedEducation,
@@ -3632,7 +3632,7 @@ class SkYayasanController extends Controller
             '{{source_tanggal_lahir}}' => $formattedBirthDate,
             '{{source_nip_maarif}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nip_maarif, $employee->nip)),
             '{{source_nuptk}}' => $this->formatNumericIdentityValue($pick($importRow?->source_nuptk, $employee->nuptk)),
-            '{{source_nomor_kartanu}}' => $pick($importRow?->source_nomor_kartanu, $employee->kartanu),
+            '{{source_nomor_kartanu}}' => $this->formatKartanuValue($pick($importRow?->source_nomor_kartanu, $employee->kartanu)),
             '{{source_tmt_pertama}}' => $formattedTmt,
             '{{source_masa_kerja}}' => $formattedTenure,
             '{{source_pendidikan_terakhir}}' => $formattedEducation,
@@ -3709,6 +3709,24 @@ class SkYayasanController extends Controller
         }
 
         return $digitsOnly;
+    }
+
+    private function formatKartanuValue(mixed $value): string
+    {
+        $sanitized = $this->sanitizeTemplatePlaceholderValue($value, false);
+
+        if ($sanitized === '-') {
+            return '-';
+        }
+
+        $digitsOnly = preg_replace('/\D+/u', '', $sanitized) ?? '';
+        $lettersOnly = preg_replace('/[^A-Za-z]+/u', '', $sanitized) ?? '';
+
+        if ($lettersOnly === '' && $digitsOnly !== '' && preg_match('/^0+$/', $digitsOnly) === 1) {
+            return '-';
+        }
+
+        return $sanitized;
     }
 
     private function employeeParticipatesInMgmpResetUploads(?User $employee): bool
