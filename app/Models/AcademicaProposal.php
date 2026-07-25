@@ -18,6 +18,7 @@ class AcademicaProposal extends Model
         'path',
         'mime',
         'article_filename',
+        'article_title',
         'article_path',
         'article_mime',
     ];

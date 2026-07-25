@@ -278,7 +278,7 @@
                                 </td>
                                 <td style="min-width: 220px;">
                                     @if($update->proposal_article_path)
-                                        <div class="fw-semibold mb-2">{{ \Illuminate\Support\Str::limit($update->proposal_article_filename, 28) }}</div>
+                                        <div class="fw-semibold mb-2">{{ \Illuminate\Support\Str::limit($update->proposal_article_title ?? $update->proposal_article_filename, 28) }}</div>
                                         <a href="{{ url('/uploads/' . $update->proposal_article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                             <i class="mdi mdi-file-pdf-box me-1"></i> Lihat Artikel
                                         </a>

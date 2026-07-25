@@ -32,7 +32,7 @@
         || $errors->has('progress_note')
         || $errors->has('attachments')
         || $errors->has('attachments.*');
-    $showArticleModal = $errors->has('article_file');
+    $showArticleModal = $errors->has('article_title') || $errors->has('article_file');
 @endphp
 @component('components.breadcrumb')
     @slot('li_1') MGMP @endslot
@@ -154,7 +154,7 @@
             <div class="col-lg-4">
                 <div class="academica-summary-card">
                     <span class="academica-summary-label">Artikel PDF</span>
-                    <strong>{{ $academicaSummary['article_uploaded'] ? ($userProposal->article_filename ?? 'Artikel tersedia') : 'Belum ada artikel PDF' }}</strong>
+                    <strong>{{ $academicaSummary['article_uploaded'] ? ($academicaSummary['article_title'] ?? $userProposal->article_filename ?? 'Artikel tersedia') : 'Belum ada artikel PDF' }}</strong>
                     <small>{{ $canUploadArticle ? 'Artikel PDF dapat dikelola lewat modal upload.' : 'Artikel aktif setelah minimal satu laporan update riset tersimpan.' }}</small>
                 </div>
             </div>
@@ -408,11 +408,11 @@
                                 <div class="grow">
                                     <span class="academica-summary-label mb-2 d-inline-block">Status Artikel</span>
                                     <div class="fw-semibold text-dark mb-1">
-                                        {{ $userProposal->article_filename ? 'Artikel saat ini' : 'Belum ada artikel PDF' }}
+                                        {{ $userProposal->article_path ? 'Artikel saat ini' : 'Belum ada artikel PDF' }}
                                     </div>
                                     @if($userProposal->article_path)
                                         <small class="text-muted d-block mb-3">
-                                            {{ $userProposal->article_filename }}
+                                            {{ $userProposal->article_title ?? $userProposal->article_filename }}
                                         </small>
                                         <div class="d-flex flex-wrap gap-2">
                                             <a href="{{ url('/uploads/' . $userProposal->article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
@@ -572,6 +572,12 @@
             <div class="modal-body">
                 <form method="POST" action="{{ route('mgmp.academica.article-upload') }}" enctype="multipart/form-data" id="articleUploadFormModal">
                     @csrf
+                    <div class="mb-3">
+                        <label for="article_title_modal" class="form-label">Judul artikel</label>
+                        <input type="text" name="article_title" id="article_title_modal" class="form-control" value="{{ old('article_title', $userProposal?->article_title) }}" placeholder="Contoh: Strategi Pembelajaran Diferensiatif di MGMP" required>
+                        <small class="text-muted d-block mt-1">Judul ini akan ditampilkan sebagai identitas artikel pada halaman MGMP dan admin.</small>
+                        @error('article_title') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                    </div>
                     <div class="mb-3">
                         <label for="article_file_modal" class="form-label">Pilih file artikel PDF</label>
                         <input type="file" name="article_file" id="article_file_modal" class="form-control" accept=".pdf,application/pdf" required>

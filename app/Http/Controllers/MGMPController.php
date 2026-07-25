@@ -724,6 +724,7 @@ class MGMPController extends Controller
             'article_uploaded' => (bool) ($userProposal?->article_path),
             'latest_progress' => $latestResetUpdate?->progress_percent,
             'latest_update_at' => $latestResetUpdate?->updated_at ?? $latestResetUpdate?->created_at,
+            'article_title' => $userProposal?->article_title,
         ];
 
         return view('mgmp.academica', compact(
@@ -877,7 +878,7 @@ class MGMPController extends Controller
             ->with([
                 'files',
                 'user:id,name,email',
-                'proposal:id,user_id,filename,path,article_filename,article_path,created_at,updated_at',
+                'proposal:id,user_id,filename,path,article_filename,article_title,article_path,created_at,updated_at',
                 'proposal.user:id,name,email',
             ])
             ->orderByDesc('created_at')
@@ -902,6 +903,7 @@ class MGMPController extends Controller
                 'proposal_filename' => $proposal?->filename,
                 'proposal_path' => $proposal?->path,
                 'proposal_article_filename' => $proposal?->article_filename,
+                'proposal_article_title' => $proposal?->article_title,
                 'proposal_article_path' => $proposal?->article_path,
                 'proposal_uploaded_at' => $proposal?->created_at,
                 'proposal_owner_id' => $proposalOwner?->id,
@@ -1108,6 +1110,7 @@ class MGMPController extends Controller
     public function uploadAcademicaArticle(Request $request)
     {
         $request->validate([
+            'article_title' => 'required|string|max:255',
             'article_file' => 'required|file|mimes:pdf|max:10240',
         ]);
 
@@ -1144,6 +1147,7 @@ class MGMPController extends Controller
 
         $proposal->update([
             'article_filename' => $articleFile->getClientOriginalName(),
+            'article_title' => $request->article_title,
             'article_path' => 'academica_articles/' . $storedFilename,
             'article_mime' => $articleFile->getClientMimeType(),
         ]);
