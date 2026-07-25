@@ -715,8 +715,25 @@ class MGMPController extends Controller
                 ->get()
             : collect();
         $canUploadArticle = $userProposal && $resetUpdates->isNotEmpty();
+        $totalResetAttachments = $resetUpdates->sum(fn (AcademicaResetUpdate $update) => $update->files->count());
+        $latestResetUpdate = $resetUpdates->first();
+        $academicaSummary = [
+            'proposal_uploaded' => $userHasUploaded,
+            'total_updates' => $resetUpdates->count(),
+            'total_attachments' => $totalResetAttachments,
+            'article_uploaded' => (bool) ($userProposal?->article_path),
+            'latest_progress' => $latestResetUpdate?->progress_percent,
+            'latest_update_at' => $latestResetUpdate?->updated_at ?? $latestResetUpdate?->created_at,
+        ];
 
-        return view('mgmp.academica', compact('proposals', 'userHasUploaded', 'userProposal', 'resetUpdates', 'canUploadArticle'));
+        return view('mgmp.academica', compact(
+            'proposals',
+            'userHasUploaded',
+            'userProposal',
+            'resetUpdates',
+            'canUploadArticle',
+            'academicaSummary'
+        ));
     }
 
     /**

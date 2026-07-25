@@ -26,6 +26,14 @@
 @endphp
 
 @if($isAllowed)
+@php
+    $showResetUpdateModal = $errors->has('title')
+        || $errors->has('progress_percent')
+        || $errors->has('progress_note')
+        || $errors->has('attachments')
+        || $errors->has('attachments.*');
+    $showArticleModal = $errors->has('article_file');
+@endphp
 @component('components.breadcrumb')
     @slot('li_1') MGMP @endslot
     @slot('title') Academica @endslot
@@ -42,6 +50,109 @@
             <p class="mb-0 text-white-50">Unggah dan pantau proposal akademik anggota MGMP.</p>
         </div>
         <span class="mgmp-chip bg-white text-success">{{ $proposals->count() }} proposal</span>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card mgmp-stat-card p-3 h-100">
+            <div class="d-flex align-items-center">
+                <div class="mgmp-icon-bubble me-3">
+                    <i class="bx {{ $academicaSummary['proposal_uploaded'] ? 'bx-file' : 'bx-file-blank' }}"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Proposal Utama</div>
+                    <div class="h6 mb-0">{{ $academicaSummary['proposal_uploaded'] ? 'Sudah diupload' : 'Belum ada' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card mgmp-stat-card p-3 h-100">
+            <div class="d-flex align-items-center">
+                <div class="mgmp-icon-bubble me-3">
+                    <i class="bx bx-task"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Laporan Terkumpul</div>
+                    <div class="h4 mb-0">{{ $academicaSummary['total_updates'] ?? 0 }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card mgmp-stat-card p-3 h-100">
+            <div class="d-flex align-items-center">
+                <div class="mgmp-icon-bubble me-3">
+                    <i class="bx bx-paperclip"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Lampiran Terkumpul</div>
+                    <div class="h4 mb-0">{{ $academicaSummary['total_attachments'] ?? 0 }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card mgmp-stat-card p-3 h-100">
+            <div class="d-flex align-items-center">
+                <div class="mgmp-icon-bubble me-3">
+                    <i class="bx bx-file-find"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Artikel & Progres</div>
+                    <div class="h6 mb-0">
+                        {{ $academicaSummary['article_uploaded'] ? 'Artikel siap' : 'Artikel belum ada' }}
+                    </div>
+                    <small class="text-muted">
+                        {{ isset($academicaSummary['latest_progress']) ? $academicaSummary['latest_progress'] . '% progres terbaru' : 'Belum ada progres' }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mgmp-panel mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <div class="mgmp-kicker text-success mb-2">Informasi</div>
+                <h5 class="mb-1">Data Yang Terkumpul</h5>
+                <p class="text-muted mb-0">
+                    {{ ($academicaSummary['total_updates'] ?? 0) > 0
+                        ? 'Pantau status proposal, jumlah laporan, lampiran, dan kesiapan artikel PDF dari satu tempat.'
+                        : 'Belum banyak data terkumpul. Mulai dari upload proposal lalu lanjutkan laporan update riset.' }}
+                </p>
+            </div>
+            <div class="academica-summary-badge">
+                <strong>{{ $proposals->count() }}</strong>
+                <span>proposal pada sistem</span>
+            </div>
+        </div>
+        <div class="row g-3 mt-1">
+            <div class="col-lg-4">
+                <div class="academica-summary-card">
+                    <span class="academica-summary-label">Proposal aktif</span>
+                    <strong>{{ $userProposal?->filename ?? 'Belum ada proposal utama' }}</strong>
+                    <small>{{ $userProposal ? 'Update terakhir ' . $userProposal->updated_at->format('d M Y H:i') : 'Upload proposal utama untuk memulai alur Academica.' }}</small>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="academica-summary-card">
+                    <span class="academica-summary-label">Laporan update riset</span>
+                    <strong>{{ $academicaSummary['total_updates'] ?? 0 }} laporan tersimpan</strong>
+                    <small>{{ $academicaSummary['latest_update_at'] ? 'Aktivitas terakhir ' . $academicaSummary['latest_update_at']->format('d M Y H:i') : 'Belum ada laporan update riset yang dikirim.' }}</small>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="academica-summary-card">
+                    <span class="academica-summary-label">Artikel PDF</span>
+                    <strong>{{ $academicaSummary['article_uploaded'] ? ($userProposal->article_filename ?? 'Artikel tersedia') : 'Belum ada artikel PDF' }}</strong>
+                    <small>{{ $canUploadArticle ? 'Artikel PDF dapat dikelola lewat modal upload.' : 'Artikel aktif setelah minimal satu laporan update riset tersimpan.' }}</small>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -172,73 +283,21 @@
             <div class="row g-4">
                 <div class="col-lg-5">
                     <div class="p-3 rounded-3 border bg-light h-100">
-                        <h6 class="mb-3">Form Laporan Update Riset</h6>
-                        <form method="POST" action="{{ route('mgmp.academica.reset-update.store') }}" enctype="multipart/form-data">
-                            @csrf
-                            <div class="mb-3">
-                                <label for="reset_title" class="form-label">Judul Progres</label>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    id="reset_title"
-                                    class="form-control"
-                                    value="{{ old('title') }}"
-                                    placeholder="Contoh: Progress penyusunan"
-                                    required
-                                >
-                                @error('title') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="mgmp-icon-bubble">
+                                <i class="bx bx-task"></i>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="progress_percent" class="form-label">Progres pengerjaan (%)</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    name="progress_percent"
-                                    id="progress_percent"
-                                    class="form-control"
-                                    value="{{ old('progress_percent', 0) }}"
-                                    required
-                                >
-                                @error('progress_percent') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                            <div class="grow">
+                                <h6 class="mb-2">Upload Laporan Dalam Modal</h6>
+                                <p class="text-muted mb-3">Form upload laporan update riset dipindahkan ke modal agar tampilan halaman lebih bersih dan fokus pada riwayat data.</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#resetUpdateModal">
+                                        <i class="bx bx-plus-circle"></i> Tambah Laporan Update
+                                    </button>
+                                    <span class="mgmp-chip">{{ $academicaSummary['total_updates'] ?? 0 }} laporan</span>
+                                </div>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="progress_note" class="form-label">Keterangan progres</label>
-                                <textarea
-                                    name="progress_note"
-                                    id="progress_note"
-                                    rows="4"
-                                    class="form-control"
-                                    placeholder="Jelaskan sudah sampai tahap mana reset dikerjakan, kendala, atau target berikutnya."
-                                    required
-                                >{{ old('progress_note') }}</textarea>
-                                @error('progress_note') <div class="text-danger mt-1">{{ $message }}</div> @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="reset_attachments" class="form-label">Lampiran pendukung</label>
-                                <input
-                                    type="file"
-                                    name="attachments[]"
-                                    id="reset_attachments"
-                                    class="form-control"
-                                    multiple
-                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip"
-                                >
-                                <small class="text-muted d-block mt-1">
-                                    Boleh upload lebih dari satu file. Format umum dokumen/gambar, maksimal 10 MB per file.
-                                </small>
-                                <small class="text-muted d-block mt-1" id="resetAttachmentInfo"></small>
-                                @error('attachments') <div class="text-danger mt-1">{{ $message }}</div> @enderror
-                                @error('attachments.*') <div class="text-danger mt-1">{{ $message }}</div> @enderror
-                            </div>
-
-                            <button class="btn btn-primary">
-                                <i class="bx bx-save"></i> Simpan Update Riset
-                            </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
 
@@ -348,30 +407,19 @@
 
                     <div class="col-lg-7">
                         <div class="p-3 rounded-3 border bg-light h-100">
-                            <h6 class="mb-3">{{ $userProposal->article_path ? 'Ganti Artikel PDF' : 'Form Upload Artikel PDF' }}</h6>
-                            <form method="POST" action="{{ route('mgmp.academica.article-upload') }}" enctype="multipart/form-data">
-                                @csrf
-                                <div class="mb-3">
-                                    <label for="article_file" class="form-label">Pilih file artikel PDF</label>
-                                    <input
-                                        type="file"
-                                        name="article_file"
-                                        id="article_file"
-                                        class="form-control"
-                                        accept=".pdf,application/pdf"
-                                        required
-                                    >
-                                    <small class="text-muted d-block mt-1">
-                                        Gunakan file PDF artikel final atau draft terbaru. Maksimal 10 MB.
-                                    </small>
-                                    <small class="text-muted d-block mt-1" id="articleFileInfo"></small>
-                                    @error('article_file') <div class="text-danger mt-1">{{ $message }}</div> @enderror
-                                </div>
-                                <button class="btn btn-primary">
+                            <h6 class="mb-2">{{ $userProposal->article_path ? 'Kelola Artikel PDF' : 'Upload Artikel Dalam Modal' }}</h6>
+                            <p class="text-muted mb-3">Upload artikel PDF sekarang ditampilkan melalui modal agar area konten utama tetap rapi.</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#articleUploadModal">
                                     <i class="bx bx-upload"></i>
                                     {{ $userProposal->article_path ? 'Perbarui Artikel PDF' : 'Upload Artikel PDF' }}
                                 </button>
-                            </form>
+                                @if($userProposal->article_path)
+                                    <a href="{{ url('/uploads/' . $userProposal->article_path) }}" target="_blank" class="btn btn-outline-primary">
+                                        <i class="bx bx-show"></i> Lihat Artikel
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -436,6 +484,90 @@
 </div> --}}
 </div>
 
+<div class="modal fade" id="resetUpdateModal" tabindex="-1" aria-labelledby="resetUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1" id="resetUpdateModalLabel">Upload Laporan Update Riset</h5>
+                    <small class="text-muted">Isi progres terbaru dan lampiran pendukung dalam satu modal.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ route('mgmp.academica.reset-update.store') }}" enctype="multipart/form-data" id="resetUpdateFormModal">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="reset_title_modal" class="form-label">Judul Progres</label>
+                        <input type="text" name="title" id="reset_title_modal" class="form-control" value="{{ old('title') }}" placeholder="Contoh: Progress penyusunan" required>
+                        @error('title') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="progress_percent_modal" class="form-label">Progres pengerjaan (%)</label>
+                        <input type="number" min="0" max="100" name="progress_percent" id="progress_percent_modal" class="form-control" value="{{ old('progress_percent', 0) }}" required>
+                        @error('progress_percent') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="progress_note_modal" class="form-label">Keterangan progres</label>
+                        <textarea name="progress_note" id="progress_note_modal" rows="4" class="form-control" placeholder="Jelaskan sudah sampai tahap mana reset dikerjakan, kendala, atau target berikutnya." required>{{ old('progress_note') }}</textarea>
+                        @error('progress_note') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reset_attachments_modal" class="form-label">Lampiran pendukung</label>
+                        <input type="file" name="attachments[]" id="reset_attachments_modal" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip">
+                        <small class="text-muted d-block mt-1">Boleh upload lebih dari satu file. Format umum dokumen/gambar, maksimal 10 MB per file.</small>
+                        <small class="text-muted d-block mt-1" id="resetAttachmentInfo"></small>
+                        @error('attachments') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                        @error('attachments.*') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="submit" form="resetUpdateFormModal" class="btn btn-primary">
+                    <i class="bx bx-save"></i> Simpan Update Riset
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="articleUploadModal" tabindex="-1" aria-labelledby="articleUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1" id="articleUploadModalLabel">Upload Artikel PDF</h5>
+                    <small class="text-muted">Kelola artikel PDF secara terpisah tanpa memenuhi area halaman utama.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ route('mgmp.academica.article-upload') }}" enctype="multipart/form-data" id="articleUploadFormModal">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="article_file_modal" class="form-label">Pilih file artikel PDF</label>
+                        <input type="file" name="article_file" id="article_file_modal" class="form-control" accept=".pdf,application/pdf" required>
+                        <small class="text-muted d-block mt-1">Gunakan file PDF artikel final atau draft terbaru. Maksimal 10 MB.</small>
+                        <small class="text-muted d-block mt-1" id="articleFileInfo"></small>
+                        @error('article_file') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="submit" form="articleUploadFormModal" class="btn btn-primary">
+                    <i class="bx bx-upload"></i>
+                    {{ $userProposal?->article_path ? 'Perbarui Artikel PDF' : 'Upload Artikel PDF' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @else
 <div class="alert alert-danger text-center">
     <h4>Akses Ditolak</h4>
@@ -458,18 +590,19 @@
 <script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
 <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function () {
-    $('#article_file').on('change', function () {
+    $('#article_file_modal').on('change', function () {
         const fileName = this.files && this.files[0] ? this.files[0].name : '';
         $('#articleFileInfo').text(fileName ? 'File artikel dipilih: ' + fileName : '');
     });
 
-    $('#reset_attachments').on('change', function () {
+    $('#reset_attachments_modal').on('change', function () {
         const count = this.files ? this.files.length : 0;
         $('#resetAttachmentInfo').text(count > 0 ? count + ' file dipilih.' : '');
     });
@@ -508,10 +641,76 @@ $(document).ready(function () {
 
     table.buttons().container()
         .appendTo('#datatable-academica_wrapper .col-md-6:eq(0)');
+
+    const shouldOpenResetModal = @json($showResetUpdateModal);
+    const shouldOpenArticleModal = @json($showArticleModal);
+
+    if (shouldOpenResetModal) {
+        const resetModalEl = document.getElementById('resetUpdateModal');
+        if (resetModalEl) {
+            bootstrap.Modal.getOrCreateInstance(resetModalEl).show();
+        }
+    }
+
+    if (shouldOpenArticleModal) {
+        const articleModalEl = document.getElementById('articleUploadModal');
+        if (articleModalEl) {
+            bootstrap.Modal.getOrCreateInstance(articleModalEl).show();
+        }
+    }
 });
 </script>
 
 <style>
+    .academica-summary-badge {
+        align-items: flex-end;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .academica-summary-badge strong {
+        color: var(--mgmp-teal);
+        font-size: 28px;
+        line-height: 1;
+    }
+
+    .academica-summary-badge span {
+        color: var(--mgmp-muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .academica-summary-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f7fbf8 100%);
+        border: 1px solid #e5eee9;
+        border-radius: 16px;
+        display: grid;
+        gap: 6px;
+        height: 100%;
+        padding: 16px;
+    }
+
+    .academica-summary-label {
+        color: var(--mgmp-green);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .academica-summary-card strong {
+        color: var(--mgmp-ink);
+        font-size: 16px;
+    }
+
+    .academica-summary-card small {
+        color: var(--mgmp-muted);
+        line-height: 1.5;
+    }
+
     .academica-form-panel.is-collapsed {
         display: none;
     }
