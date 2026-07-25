@@ -8,8 +8,8 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('academica_reset_updates', function (Blueprint $table) {
-            $table->string('article_filename')->nullable()->after('progress_note');
+        Schema::table('academica_proposals', function (Blueprint $table) {
+            $table->string('article_filename')->nullable()->after('mime');
             $table->string('article_path')->nullable()->after('article_filename');
             $table->string('article_mime')->nullable()->after('article_path');
         });
@@ -17,7 +17,7 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::table('academica_reset_updates', function (Blueprint $table) {
+        Schema::table('academica_proposals', function (Blueprint $table) {
             $table->dropColumn(['article_filename', 'article_path', 'article_mime']);
         });
     }

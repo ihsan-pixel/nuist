@@ -714,8 +714,9 @@ class MGMPController extends Controller
                 ->orderByDesc('created_at')
                 ->get()
             : collect();
+        $canUploadArticle = $userProposal && $resetUpdates->isNotEmpty();
 
-        return view('mgmp.academica', compact('proposals', 'userHasUploaded', 'userProposal', 'resetUpdates'));
+        return view('mgmp.academica', compact('proposals', 'userHasUploaded', 'userProposal', 'resetUpdates', 'canUploadArticle'));
     }
 
     /**
@@ -859,7 +860,7 @@ class MGMPController extends Controller
             ->with([
                 'files',
                 'user:id,name,email',
-                'proposal:id,user_id,filename,path,created_at,updated_at',
+                'proposal:id,user_id,filename,path,article_filename,article_path,created_at,updated_at',
                 'proposal.user:id,name,email',
             ])
             ->orderByDesc('created_at')
@@ -876,8 +877,6 @@ class MGMPController extends Controller
                 'title' => $update->title,
                 'progress_percent' => (int) $update->progress_percent,
                 'progress_note' => $update->progress_note,
-                'article_filename' => $update->article_filename,
-                'article_path' => $update->article_path,
                 'created_at' => $update->created_at,
                 'updated_at' => $update->updated_at,
                 'files' => $update->files,
@@ -885,6 +884,8 @@ class MGMPController extends Controller
                 'proposal_id' => $proposal?->id,
                 'proposal_filename' => $proposal?->filename,
                 'proposal_path' => $proposal?->path,
+                'proposal_article_filename' => $proposal?->article_filename,
+                'proposal_article_path' => $proposal?->article_path,
                 'proposal_uploaded_at' => $proposal?->created_at,
                 'proposal_owner_id' => $proposalOwner?->id,
                 'proposal_owner_name' => $proposalOwner?->name ?? $uploader?->name ?? 'User tidak ditemukan',
@@ -924,7 +925,12 @@ class MGMPController extends Controller
             'total_updates' => $resetInsights->count(),
             'mgmp_with_updates' => $resetInsights->pluck('mgmp_group_id')->filter()->unique()->count(),
             'total_attachments' => $resetInsights->sum('files_count'),
-            'total_articles' => $resetInsights->filter(fn ($update) => !empty($update->article_path))->count(),
+            'total_articles' => $resetInsights
+                ->filter(fn ($update) => !empty($update->proposal_article_path))
+                ->pluck('proposal_id')
+                ->filter()
+                ->unique()
+                ->count(),
             'completed_updates' => $resetInsights->where('progress_percent', '>=', 100)->count(),
             'average_progress' => $resetInsights->count() > 0
                 ? number_format($resetInsights->avg('progress_percent'), 1)
@@ -1034,7 +1040,6 @@ class MGMPController extends Controller
             'title' => 'required|string|max:255',
             'progress_percent' => 'required|integer|min:0|max:100',
             'progress_note' => 'required|string',
-            'article_file' => 'nullable|file|mimes:pdf|max:10240',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx,ppt,pptx,zip|max:10240',
         ]);
@@ -1055,28 +1060,6 @@ class MGMPController extends Controller
         ]);
 
         $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? public_path();
-
-        if ($request->hasFile('article_file')) {
-            $articleFile = $request->file('article_file');
-            $articleDestinationPath = $documentRoot . '/uploads/academica_reset_articles';
-
-            if (!file_exists($articleDestinationPath)) {
-                mkdir($articleDestinationPath, 0755, true);
-            }
-
-            $articleStoredFilename = time()
-                . '_' . $resetUpdate->id
-                . '_article_'
-                . preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $articleFile->getClientOriginalName());
-
-            $articleFile->move($articleDestinationPath, $articleStoredFilename);
-
-            $resetUpdate->update([
-                'article_filename' => $articleFile->getClientOriginalName(),
-                'article_path' => 'academica_reset_articles/' . $articleStoredFilename,
-                'article_mime' => $articleFile->getClientMimeType(),
-            ]);
-        }
 
         if ($request->hasFile('attachments')) {
             $destinationPath = $documentRoot . '/uploads/academica_reset_updates';
@@ -1103,6 +1086,56 @@ class MGMPController extends Controller
         }
 
         return redirect()->back()->with('success', 'Update reset berhasil disimpan.');
+    }
+
+    public function uploadAcademicaArticle(Request $request)
+    {
+        $request->validate([
+            'article_file' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        $user = auth()->user();
+        $proposal = AcademicaProposal::where('user_id', $user->id)->first();
+
+        if (!$proposal) {
+            return redirect()->back()->with('error', 'Upload proposal utama terlebih dahulu sebelum mengunggah artikel.');
+        }
+
+        $hasResetUpdate = AcademicaResetUpdate::where('academica_proposal_id', $proposal->id)->exists();
+        if (!$hasResetUpdate) {
+            return redirect()->back()->with('error', 'Artikel PDF hanya bisa diunggah setelah Anda mengajukan laporan update riset.');
+        }
+
+        $articleFile = $request->file('article_file');
+        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? public_path();
+        $destinationPath = $documentRoot . '/uploads/academica_articles';
+
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+
+        $storedFilename = time()
+            . '_' . $proposal->id
+            . '_article_'
+            . preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $articleFile->getClientOriginalName());
+
+        $articleFile->move($destinationPath, $storedFilename);
+
+        $oldFilePath = $proposal->article_path
+            ? $documentRoot . '/uploads/' . ltrim($proposal->article_path, '/')
+            : null;
+
+        $proposal->update([
+            'article_filename' => $articleFile->getClientOriginalName(),
+            'article_path' => 'academica_articles/' . $storedFilename,
+            'article_mime' => $articleFile->getClientMimeType(),
+        ]);
+
+        if ($oldFilePath && file_exists($oldFilePath) && $oldFilePath !== $destinationPath . '/' . $storedFilename) {
+            @unlink($oldFilePath);
+        }
+
+        return redirect()->back()->with('success', 'Artikel PDF berhasil diupload.');
     }
 
     /**

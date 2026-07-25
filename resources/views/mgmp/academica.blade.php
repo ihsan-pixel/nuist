@@ -218,22 +218,6 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="article_file" class="form-label">File artikel (PDF)</label>
-                                <input
-                                    type="file"
-                                    name="article_file"
-                                    id="article_file"
-                                    class="form-control"
-                                    accept=".pdf,application/pdf"
-                                >
-                                <small class="text-muted d-block mt-1">
-                                    Upload artikel versi PDF jika sudah tersedia. Maksimal 10 MB.
-                                </small>
-                                <small class="text-muted d-block mt-1" id="articleFileInfo"></small>
-                                @error('article_file') <div class="text-danger mt-1">{{ $message }}</div> @enderror
-                            </div>
-
-                            <div class="mb-3">
                                 <label for="reset_attachments" class="form-label">Lampiran pendukung</label>
                                 <input
                                     type="file"
@@ -289,20 +273,6 @@
 
                                     <p class="text-muted mb-3">{{ $update->progress_note }}</p>
 
-                                    @if($update->article_path)
-                                        <div class="academica-article-box mb-3">
-                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                                <div>
-                                                    <div class="fw-semibold text-dark mb-1">Artikel PDF</div>
-                                                    <small class="text-muted">{{ $update->article_filename ?? 'Artikel riset' }}</small>
-                                                </div>
-                                                <a href="{{ url('/uploads/' . $update->article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                    <i class="bx bx-file me-1"></i> Lihat Artikel
-                                                </a>
-                                            </div>
-                                        </div>
-                                    @endif
-
                                     @if($update->files->isNotEmpty())
                                         <div class="d-flex flex-wrap gap-2">
                                             @foreach($update->files as $file)
@@ -329,6 +299,90 @@
         @else
             <div class="alert alert-warning mb-0">
                 <i class="bx bx-info-circle me-2"></i>Upload proposal utama terlebih dahulu. Setelah itu barulah Anda bisa menambahkan update riset dan lampiran progres.
+            </div>
+        @endif
+    </div>
+</div>
+
+<div class="card mgmp-panel mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div>
+                <h5 class="mb-1">Upload Artikel PDF</h5>
+                <p class="text-muted mb-0">Panel terpisah untuk unggah artikel PDF. Fitur ini hanya tersedia setelah laporan update riset pertama dikirim.</p>
+            </div>
+            <span class="mgmp-chip">{{ $canUploadArticle ? 'Aktif' : 'Menunggu update riset' }}</span>
+        </div>
+
+        @if($userHasUploaded && $userProposal)
+            @if($canUploadArticle)
+                <div class="row g-4 align-items-start">
+                    <div class="col-lg-5">
+                        <div class="academica-article-box h-100">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="mgmp-icon-bubble">
+                                    <i class="bx bx-file"></i>
+                                </div>
+                                <div class="grow">
+                                    <div class="fw-semibold text-dark mb-1">
+                                        {{ $userProposal->article_filename ? 'Artikel saat ini' : 'Belum ada artikel PDF' }}
+                                    </div>
+                                    @if($userProposal->article_path)
+                                        <small class="text-muted d-block mb-3">
+                                            {{ $userProposal->article_filename }}
+                                        </small>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a href="{{ url('/uploads/' . $userProposal->article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="bx bx-show me-1"></i> Lihat Artikel
+                                            </a>
+                                        </div>
+                                    @else
+                                        <small class="text-muted d-block">
+                                            Artikel PDF belum diupload. Anda sekarang sudah bisa menambahkan file artikel secara terpisah.
+                                        </small>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="p-3 rounded-3 border bg-light h-100">
+                            <h6 class="mb-3">{{ $userProposal->article_path ? 'Ganti Artikel PDF' : 'Form Upload Artikel PDF' }}</h6>
+                            <form method="POST" action="{{ route('mgmp.academica.article-upload') }}" enctype="multipart/form-data">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="article_file" class="form-label">Pilih file artikel PDF</label>
+                                    <input
+                                        type="file"
+                                        name="article_file"
+                                        id="article_file"
+                                        class="form-control"
+                                        accept=".pdf,application/pdf"
+                                        required
+                                    >
+                                    <small class="text-muted d-block mt-1">
+                                        Gunakan file PDF artikel final atau draft terbaru. Maksimal 10 MB.
+                                    </small>
+                                    <small class="text-muted d-block mt-1" id="articleFileInfo"></small>
+                                    @error('article_file') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                                </div>
+                                <button class="btn btn-primary">
+                                    <i class="bx bx-upload"></i>
+                                    {{ $userProposal->article_path ? 'Perbarui Artikel PDF' : 'Upload Artikel PDF' }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="alert alert-info mb-0">
+                    <i class="bx bx-info-circle me-2"></i>Fitur upload artikel PDF akan aktif setelah Anda mengirim minimal satu laporan update riset.
+                </div>
+            @endif
+        @else
+            <div class="alert alert-warning mb-0">
+                <i class="bx bx-info-circle me-2"></i>Upload proposal utama terlebih dahulu. Setelah itu kirim update riset, lalu panel upload artikel PDF akan aktif.
             </div>
         @endif
     </div>
@@ -482,7 +536,7 @@ $(document).ready(function () {
         background: linear-gradient(180deg, #fefcf4 0%, #f8fbf7 100%);
         border: 1px solid #e6ebd7;
         border-radius: 14px;
-        padding: 14px;
+        padding: 16px;
     }
 
     .academica-progress-track {

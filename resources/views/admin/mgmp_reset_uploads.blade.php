@@ -182,7 +182,7 @@
                                             <span>{{ $update->members_count }} anggota</span>
                                             <span>{{ $update->reports_count }} kegiatan</span>
                                             <span>{{ $update->files_count }} lampiran</span>
-                                            <span>{{ $update->article_path ? 'Artikel tersedia' : 'Tanpa artikel' }}</span>
+                                            <span>{{ $update->proposal_article_path ? 'Artikel tersedia' : 'Tanpa artikel' }}</span>
                                         </div>
                                         <div class="d-flex flex-wrap gap-2">
                                             @if($update->proposal_path)
@@ -190,8 +190,8 @@
                                                     <i class="mdi mdi-file-document-outline me-1"></i> Proposal
                                                 </a>
                                             @endif
-                                            @if($update->article_path)
-                                                <a href="{{ url('/uploads/' . $update->article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            @if($update->proposal_article_path)
+                                                <a href="{{ url('/uploads/' . $update->proposal_article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                                     <i class="mdi mdi-file-pdf-box me-1"></i> Artikel
                                                 </a>
                                             @endif
@@ -277,9 +277,9 @@
                                     </div>
                                 </td>
                                 <td style="min-width: 220px;">
-                                    @if($update->article_path)
-                                        <div class="fw-semibold mb-2">{{ \Illuminate\Support\Str::limit($update->article_filename, 28) }}</div>
-                                        <a href="{{ url('/uploads/' . $update->article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    @if($update->proposal_article_path)
+                                        <div class="fw-semibold mb-2">{{ \Illuminate\Support\Str::limit($update->proposal_article_filename, 28) }}</div>
+                                        <a href="{{ url('/uploads/' . $update->proposal_article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                             <i class="mdi mdi-file-pdf-box me-1"></i> Lihat Artikel
                                         </a>
                                     @else

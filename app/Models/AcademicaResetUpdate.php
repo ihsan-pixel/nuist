@@ -17,9 +17,6 @@ class AcademicaResetUpdate extends Model
         'title',
         'progress_percent',
         'progress_note',
-        'article_filename',
-        'article_path',
-        'article_mime',
     ];
 
     public function proposal()

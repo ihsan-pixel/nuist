@@ -17,6 +17,9 @@ class AcademicaProposal extends Model
         'filename',
         'path',
         'mime',
+        'article_filename',
+        'article_path',
+        'article_mime',
     ];
 
     public function user()
