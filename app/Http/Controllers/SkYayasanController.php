@@ -3985,7 +3985,9 @@ class SkYayasanController extends Controller
         $body = $this->normalizeStructuredTemplateOrgTitleLayout($body);
         $body = $this->normalizeStructuredTemplateContactEmailLayout($body);
         $body = $this->normalizeStructuredTemplateMengingatLayout($body);
+        $body = $this->normalizeStructuredTemplateMemperhatikanLayout($body);
         $body = $this->normalizeStructuredTemplateMengingatItemPrefixes($body);
+        $body = $this->normalizeStructuredTemplateMemperhatikanItemPrefixes($body);
         $body = $this->normalizeStructuredTemplateDecisionContentLayout($body);
         $body = $this->normalizeStructuredTemplateFooterLayout($body);
         $body = $this->normalizeStructuredTemplateSignatureSpacing($body);
@@ -4780,6 +4782,191 @@ class SkYayasanController extends Controller
 
         $xpath = new \DOMXPath($document);
         $items = $xpath->query('//ol[contains(concat(" ", normalize-space(@class), " "), " sk-mengingat-list ")]/li');
+
+        if ($items === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        foreach ($items as $item) {
+            $text = trim(preg_replace('/\s+/u', ' ', $item->textContent ?? ''));
+
+            if ($text === '') {
+                continue;
+            }
+
+            $normalized = preg_replace('/^\s*\d+[\.\)]\s*/u', '', $text) ?: $text;
+            $normalized = preg_replace('/^[^\pL\pN]+/u', '', $normalized) ?: $normalized;
+
+            while ($item->firstChild) {
+                $item->removeChild($item->firstChild);
+            }
+
+            $item->appendChild($document->createTextNode($normalized));
+        }
+
+        $root = $document->getElementById('sk-root');
+        $output = '';
+
+        if ($root) {
+            foreach ($root->childNodes as $childNode) {
+                $output .= $document->saveHTML($childNode);
+            }
+        } else {
+            $output = $body;
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        return $output;
+    }
+
+    private function normalizeStructuredTemplateMemperhatikanLayout(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"')) {
+            return $body;
+        }
+
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $body . '</div>';
+
+        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        $xpath = new \DOMXPath($document);
+        $rows = $xpath->query('//tr[td[contains(concat(" ", normalize-space(@class), " "), " sk-label ")]]');
+
+        if ($rows === false) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        foreach ($rows as $row) {
+            $cells = [];
+
+            foreach ($row->childNodes as $childNode) {
+                if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'td') {
+                    $cells[] = $childNode;
+                }
+            }
+
+            if (count($cells) < 3) {
+                continue;
+            }
+
+            $labelText = trim(preg_replace('/\s+/u', ' ', $cells[0]->textContent ?? ''));
+
+            if ($labelText !== 'Memperhatikan') {
+                continue;
+            }
+
+            $contentCell = $cells[count($cells) - 1];
+
+            if ($xpath->query('.//ol[contains(concat(" ", normalize-space(@class), " "), " sk-mengingat-list ")]', $contentCell)?->length) {
+                continue;
+            }
+
+            $groupedItems = [];
+            $groupedNodes = [];
+            $currentGroup = [];
+
+            foreach (iterator_to_array($contentCell->childNodes) as $childNode) {
+                if ($childNode instanceof \DOMElement && strtolower($childNode->tagName) === 'br') {
+                    $groupedNodes[] = $currentGroup;
+                    $currentGroup = [];
+                    continue;
+                }
+
+                $currentGroup[] = $childNode->cloneNode(true);
+            }
+
+            if (!empty($currentGroup)) {
+                $groupedNodes[] = $currentGroup;
+            }
+
+            foreach ($groupedNodes as $group) {
+                $groupText = '';
+
+                foreach ($group as $node) {
+                    $groupText .= trim($document->saveHTML($node));
+                }
+
+                if (trim(strip_tags($groupText)) !== '') {
+                    $groupedItems[] = $groupText;
+                }
+            }
+
+            while ($contentCell->firstChild) {
+                $contentCell->removeChild($contentCell->firstChild);
+            }
+
+            $memperhatikanList = $document->createElement('ol');
+            $memperhatikanList->setAttribute('class', 'sk-mengingat-list');
+
+            foreach ($groupedItems as $groupText) {
+                $plainText = trim(preg_replace('/\s+/u', ' ', strip_tags($groupText)));
+
+                if ($plainText === '') {
+                    continue;
+                }
+
+                $contentText = preg_replace('/^\s*\d+[\.\)]\s*/u', '', $plainText) ?: $plainText;
+                $contentText = preg_replace('/^[\s\-\?•:\x{FFFD}\x{FEFF}\x{00A0}]+/u', '', $contentText) ?: $contentText;
+
+                $listItem = $document->createElement('li');
+                $listItem->appendChild($document->createTextNode($contentText));
+                $memperhatikanList->appendChild($listItem);
+            }
+
+            $contentCell->appendChild($memperhatikanList);
+        }
+
+        $root = $document->getElementById('sk-root');
+        $output = '';
+
+        if ($root) {
+            foreach ($root->childNodes as $childNode) {
+                $output .= $document->saveHTML($childNode);
+            }
+        } else {
+            $output = $body;
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        return $output;
+    }
+
+    private function normalizeStructuredTemplateMemperhatikanItemPrefixes(string $body): string
+    {
+        if (!str_contains($body, 'data-sk-full-document="1"')) {
+            return $body;
+        }
+
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $wrappedHtml = '<?xml encoding="utf-8" ?><div id="sk-root">' . $body . '</div>';
+
+        if (!$document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previousUseInternalErrors);
+
+            return $body;
+        }
+
+        $xpath = new \DOMXPath($document);
+        $items = $xpath->query('//tr[td[1][contains(normalize-space(.), "Memperhatikan")]]//ol[contains(concat(" ", normalize-space(@class), " "), " sk-mengingat-list ")]/li');
 
         if ($items === false) {
             libxml_clear_errors();

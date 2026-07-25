@@ -398,7 +398,12 @@
         <tr class="sk-reference-row">
             <td class="sk-label">Memperhatikan</td>
             <td class="sk-colon">:</td>
-            <td class="sk-content-cell">Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</td>
+            <td class="sk-content-cell">
+                <ol class="sk-mengingat-list">
+                    <li>Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</li>
+                    <li>Hasil verifikasi data kepegawaian dan kelengkapan berkas dari @{{nama_sekolah}}.</li>
+                </ol>
+            </td>
         </tr>
     </table>
 
@@ -612,6 +617,8 @@ HTML;
         'mengingatContentFontSize' => 13.5,
         'memperhatikanLabelText' => 'Memperhatikan',
         'memperhatikanLabelFontSize' => 13.5,
+        'memperhatikan1Text' => 'Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.',
+        'memperhatikan2Text' => 'Hasil verifikasi data kepegawaian dan kelengkapan berkas dari @{{nama_sekolah}}.',
         'memperhatikanContentText' => 'Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.',
         'memperhatikanContentFontSize' => 13.5,
         'decisionText' => 'MEMUTUSKAN',
@@ -702,7 +709,8 @@ HTML;
                 ['key' => 'mengingat4Text', 'label' => 'Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '4.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'mengingat5Text', 'label' => 'Mengingat 5', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '5.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'memperhatikanLabelText', 'label' => 'Label Memperhatikan', 'type' => 'text', 'fontKey' => 'memperhatikanLabelFontSize'],
-                ['key' => 'memperhatikanContentText', 'label' => 'Isi Memperhatikan', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'memperhatikanContentFontSize'],
+                ['key' => 'memperhatikan1Text', 'label' => 'Memperhatikan 1', 'type' => 'text', 'fontKey' => 'memperhatikanContentFontSize', 'prefix' => '1.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'memperhatikan2Text', 'label' => 'Memperhatikan 2', 'type' => 'text', 'fontKey' => 'memperhatikanContentFontSize', 'prefix' => '2.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
             ],
         ],
         [
@@ -1584,11 +1592,15 @@ HTML;
         function normalizeStructuredConfig(config) {
             const normalized = { ...config };
 
-            ['mengingat1Text', 'mengingat2Text', 'mengingat3Text', 'mengingat4Text', 'mengingat5Text'].forEach((key) => {
+            ['mengingat1Text', 'mengingat2Text', 'mengingat3Text', 'mengingat4Text', 'mengingat5Text', 'memperhatikan1Text', 'memperhatikan2Text'].forEach((key) => {
                 if (Object.prototype.hasOwnProperty.call(normalized, key)) {
                     normalized[key] = stripLeadingListMarker(normalized[key]);
                 }
             });
+
+            if ((!normalized.memperhatikan1Text || !String(normalized.memperhatikan1Text).trim()) && normalized.memperhatikanContentText) {
+                normalized.memperhatikan1Text = stripLeadingListMarker(normalized.memperhatikanContentText);
+            }
 
             return normalized;
         }
@@ -1666,6 +1678,16 @@ HTML;
 
             const mengingatMarkup = mengingatItems
                 ? `<ol class="sk-mengingat-list">${mengingatItems}</ol>`
+                : '';
+
+            const memperhatikanItems = [1, 2]
+                .map((index) => stripLeadingListMarker(config[`memperhatikan${index}Text`]))
+                .filter(Boolean)
+                .map((item) => `<li>${nl2br(item)}</li>`)
+                .join('');
+
+            const memperhatikanMarkup = memperhatikanItems
+                ? `<ol class="sk-mengingat-list">${memperhatikanItems}</ol>`
                 : '';
 
             const copyItems = [1, 2, 3]
@@ -1841,7 +1863,7 @@ HTML;
         <tr class="sk-reference-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">${escapeHtml(config.memperhatikanLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.memperhatikanContentFontSize)}pt;">${nl2br(config.memperhatikanContentText)}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.memperhatikanContentFontSize)}pt;">${memperhatikanMarkup}</td>
         </tr>
     </table>
 
