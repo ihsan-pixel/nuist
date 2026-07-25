@@ -24,7 +24,21 @@ class PendingRegistrationController extends Controller
             ->orderBy('submitted_at', 'desc')
             ->paginate(15);
 
-        return view('admin.pending-registrations.index', compact('pendingRegistrations'));
+        $approvedUsers = User::query()
+            ->with('madrasah')
+            ->whereIn('role', ['pengurus', 'tenaga_pendidik'])
+            ->orderByDesc('created_at')
+            ->limit(12)
+            ->get();
+
+        $stats = [
+            'pending_total' => PendingRegistration::where('status', 'pending')->count(),
+            'approved_total' => User::whereIn('role', ['pengurus', 'tenaga_pendidik'])->count(),
+            'pending_pengurus' => PendingRegistration::where('status', 'pending')->where('role', 'pengurus')->count(),
+            'pending_tenaga_pendidik' => PendingRegistration::where('status', 'pending')->where('role', 'tenaga_pendidik')->count(),
+        ];
+
+        return view('admin.pending-registrations.index', compact('pendingRegistrations', 'approvedUsers', 'stats'));
     }
 
     /**
