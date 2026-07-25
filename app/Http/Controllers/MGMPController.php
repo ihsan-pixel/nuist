@@ -876,6 +876,8 @@ class MGMPController extends Controller
                 'title' => $update->title,
                 'progress_percent' => (int) $update->progress_percent,
                 'progress_note' => $update->progress_note,
+                'article_filename' => $update->article_filename,
+                'article_path' => $update->article_path,
                 'created_at' => $update->created_at,
                 'updated_at' => $update->updated_at,
                 'files' => $update->files,
@@ -922,6 +924,7 @@ class MGMPController extends Controller
             'total_updates' => $resetInsights->count(),
             'mgmp_with_updates' => $resetInsights->pluck('mgmp_group_id')->filter()->unique()->count(),
             'total_attachments' => $resetInsights->sum('files_count'),
+            'total_articles' => $resetInsights->filter(fn ($update) => !empty($update->article_path))->count(),
             'completed_updates' => $resetInsights->where('progress_percent', '>=', 100)->count(),
             'average_progress' => $resetInsights->count() > 0
                 ? number_format($resetInsights->avg('progress_percent'), 1)
@@ -1031,6 +1034,7 @@ class MGMPController extends Controller
             'title' => 'required|string|max:255',
             'progress_percent' => 'required|integer|min:0|max:100',
             'progress_note' => 'required|string',
+            'article_file' => 'nullable|file|mimes:pdf|max:10240',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx,ppt,pptx,zip|max:10240',
         ]);
@@ -1050,8 +1054,31 @@ class MGMPController extends Controller
             'progress_note' => $request->progress_note,
         ]);
 
+        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? public_path();
+
+        if ($request->hasFile('article_file')) {
+            $articleFile = $request->file('article_file');
+            $articleDestinationPath = $documentRoot . '/uploads/academica_reset_articles';
+
+            if (!file_exists($articleDestinationPath)) {
+                mkdir($articleDestinationPath, 0755, true);
+            }
+
+            $articleStoredFilename = time()
+                . '_' . $resetUpdate->id
+                . '_article_'
+                . preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $articleFile->getClientOriginalName());
+
+            $articleFile->move($articleDestinationPath, $articleStoredFilename);
+
+            $resetUpdate->update([
+                'article_filename' => $articleFile->getClientOriginalName(),
+                'article_path' => 'academica_reset_articles/' . $articleStoredFilename,
+                'article_mime' => $articleFile->getClientMimeType(),
+            ]);
+        }
+
         if ($request->hasFile('attachments')) {
-            $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? public_path();
             $destinationPath = $documentRoot . '/uploads/academica_reset_updates';
 
             if (!file_exists($destinationPath)) {

@@ -91,6 +91,21 @@
             <div class="card mgmp-stat-card p-3 h-100">
                 <div class="d-flex align-items-center">
                     <div class="avatar-md me-3">
+                        <div class="avatar-title bg-secondary-subtle text-secondary rounded-circle">
+                            <i class="mdi mdi-file-pdf-box fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Artikel PDF</div>
+                        <div class="h5 mb-0">{{ $monitorSummary['total_articles'] ?? 0 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card mgmp-stat-card p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-md me-3">
                         <div class="avatar-title bg-warning-subtle text-warning rounded-circle">
                             <i class="mdi mdi-chart-donut fs-4"></i>
                         </div>
@@ -167,11 +182,17 @@
                                             <span>{{ $update->members_count }} anggota</span>
                                             <span>{{ $update->reports_count }} kegiatan</span>
                                             <span>{{ $update->files_count }} lampiran</span>
+                                            <span>{{ $update->article_path ? 'Artikel tersedia' : 'Tanpa artikel' }}</span>
                                         </div>
                                         <div class="d-flex flex-wrap gap-2">
                                             @if($update->proposal_path)
                                                 <a href="{{ url('/uploads/' . $update->proposal_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                                     <i class="mdi mdi-file-document-outline me-1"></i> Proposal
+                                                </a>
+                                            @endif
+                                            @if($update->article_path)
+                                                <a href="{{ url('/uploads/' . $update->article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="mdi mdi-file-pdf-box me-1"></i> Artikel
                                                 </a>
                                             @endif
                                             @if($update->files_count > 0)
@@ -215,6 +236,7 @@
                             <th>Pemilik / Pengupload</th>
                             <th>Judul Update</th>
                             <th>Progres</th>
+                            <th>Artikel PDF</th>
                             <th>Lampiran</th>
                             <th>Proposal Utama</th>
                             <th>Catatan</th>
@@ -254,6 +276,16 @@
                                         <div class="academica-progress-bar" style="width: {{ max(0, min(100, (int) $update->progress_percent)) }}%;"></div>
                                     </div>
                                 </td>
+                                <td style="min-width: 220px;">
+                                    @if($update->article_path)
+                                        <div class="fw-semibold mb-2">{{ \Illuminate\Support\Str::limit($update->article_filename, 28) }}</div>
+                                        <a href="{{ url('/uploads/' . $update->article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="mdi mdi-file-pdf-box me-1"></i> Lihat Artikel
+                                        </a>
+                                    @else
+                                        <small class="text-muted">Tidak ada artikel PDF</small>
+                                    @endif
+                                </td>
                                 <td id="{{ 'update-files-' . $update->id }}" style="min-width: 220px;">
                                     @if($update->files->isNotEmpty())
                                         <div class="d-flex flex-wrap gap-2">
@@ -283,7 +315,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9">
+                                <td colspan="10">
                                     <div class="mgmp-empty-state py-5">
                                         <i class="bx bx-data"></i>
                                         <strong>Belum ada data upload reset</strong>

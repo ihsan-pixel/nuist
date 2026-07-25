@@ -218,6 +218,22 @@
                             </div>
 
                             <div class="mb-3">
+                                <label for="article_file" class="form-label">File artikel (PDF)</label>
+                                <input
+                                    type="file"
+                                    name="article_file"
+                                    id="article_file"
+                                    class="form-control"
+                                    accept=".pdf,application/pdf"
+                                >
+                                <small class="text-muted d-block mt-1">
+                                    Upload artikel versi PDF jika sudah tersedia. Maksimal 10 MB.
+                                </small>
+                                <small class="text-muted d-block mt-1" id="articleFileInfo"></small>
+                                @error('article_file') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
                                 <label for="reset_attachments" class="form-label">Lampiran pendukung</label>
                                 <input
                                     type="file"
@@ -272,6 +288,20 @@
                                     </div>
 
                                     <p class="text-muted mb-3">{{ $update->progress_note }}</p>
+
+                                    @if($update->article_path)
+                                        <div class="academica-article-box mb-3">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                                <div>
+                                                    <div class="fw-semibold text-dark mb-1">Artikel PDF</div>
+                                                    <small class="text-muted">{{ $update->article_filename ?? 'Artikel riset' }}</small>
+                                                </div>
+                                                <a href="{{ url('/uploads/' . $update->article_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bx bx-file me-1"></i> Lihat Artikel
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endif
 
                                     @if($update->files->isNotEmpty())
                                         <div class="d-flex flex-wrap gap-2">
@@ -380,6 +410,11 @@
 
 <script>
 $(document).ready(function () {
+    $('#article_file').on('change', function () {
+        const fileName = this.files && this.files[0] ? this.files[0].name : '';
+        $('#articleFileInfo').text(fileName ? 'File artikel dipilih: ' + fileName : '');
+    });
+
     $('#reset_attachments').on('change', function () {
         const count = this.files ? this.files.length : 0;
         $('#resetAttachmentInfo').text(count > 0 ? count + ' file dipilih.' : '');
@@ -441,6 +476,13 @@ $(document).ready(function () {
         border: 1px solid #e5eee9;
         border-radius: 16px;
         padding: 16px;
+    }
+
+    .academica-article-box {
+        background: linear-gradient(180deg, #fefcf4 0%, #f8fbf7 100%);
+        border: 1px solid #e6ebd7;
+        border-radius: 14px;
+        padding: 14px;
     }
 
     .academica-progress-track {
