@@ -49,59 +49,65 @@
             <h4 class="mb-1">Proposal Akademik MGMP</h4>
             <p class="mb-0 text-white-50">Unggah dan pantau proposal akademik anggota MGMP.</p>
         </div>
-        <span class="mgmp-chip bg-white text-success">{{ $proposals->count() }} proposal</span>
+        <div class="d-flex flex-wrap gap-2">
+            <span class="mgmp-chip bg-white text-success">{{ $proposals->count() }} proposal</span>
+            <span class="mgmp-chip bg-white text-success">{{ $academicaSummary['total_updates'] ?? 0 }} laporan</span>
+        </div>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-xl-3 col-md-6">
-        <div class="card mgmp-stat-card p-3 h-100">
-            <div class="d-flex align-items-center">
-                <div class="mgmp-icon-bubble me-3">
+        <div class="card mgmp-stat-card academica-metric-card p-3 h-100">
+            <div class="d-flex align-items-start justify-content-between gap-3">
+                <div class="mgmp-icon-bubble">
                     <i class="bx {{ $academicaSummary['proposal_uploaded'] ? 'bx-file' : 'bx-file-blank' }}"></i>
                 </div>
                 <div>
-                    <div class="text-muted small">Proposal Utama</div>
-                    <div class="h6 mb-0">{{ $academicaSummary['proposal_uploaded'] ? 'Sudah diupload' : 'Belum ada' }}</div>
+                    <div class="academica-metric-label">Proposal Utama</div>
+                    <div class="academica-metric-value">{{ $academicaSummary['proposal_uploaded'] ? 'Tersedia' : 'Kosong' }}</div>
+                    <small class="text-muted">{{ $userProposal ? 'Dokumen utama aktif' : 'Belum ada proposal' }}</small>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
-        <div class="card mgmp-stat-card p-3 h-100">
-            <div class="d-flex align-items-center">
-                <div class="mgmp-icon-bubble me-3">
+        <div class="card mgmp-stat-card academica-metric-card p-3 h-100">
+            <div class="d-flex align-items-start justify-content-between gap-3">
+                <div class="mgmp-icon-bubble">
                     <i class="bx bx-task"></i>
                 </div>
                 <div>
-                    <div class="text-muted small">Laporan Terkumpul</div>
-                    <div class="h4 mb-0">{{ $academicaSummary['total_updates'] ?? 0 }}</div>
+                    <div class="academica-metric-label">Laporan Terkumpul</div>
+                    <div class="academica-metric-number">{{ $academicaSummary['total_updates'] ?? 0 }}</div>
+                    <small class="text-muted">Riwayat progres tersimpan</small>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
-        <div class="card mgmp-stat-card p-3 h-100">
-            <div class="d-flex align-items-center">
-                <div class="mgmp-icon-bubble me-3">
+        <div class="card mgmp-stat-card academica-metric-card p-3 h-100">
+            <div class="d-flex align-items-start justify-content-between gap-3">
+                <div class="mgmp-icon-bubble">
                     <i class="bx bx-paperclip"></i>
                 </div>
                 <div>
-                    <div class="text-muted small">Lampiran Terkumpul</div>
-                    <div class="h4 mb-0">{{ $academicaSummary['total_attachments'] ?? 0 }}</div>
+                    <div class="academica-metric-label">Lampiran Terkumpul</div>
+                    <div class="academica-metric-number">{{ $academicaSummary['total_attachments'] ?? 0 }}</div>
+                    <small class="text-muted">Dokumen pendukung terarsip</small>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
-        <div class="card mgmp-stat-card p-3 h-100">
-            <div class="d-flex align-items-center">
-                <div class="mgmp-icon-bubble me-3">
+        <div class="card mgmp-stat-card academica-metric-card p-3 h-100">
+            <div class="d-flex align-items-start justify-content-between gap-3">
+                <div class="mgmp-icon-bubble">
                     <i class="bx bx-file-find"></i>
                 </div>
                 <div>
-                    <div class="text-muted small">Artikel & Progres</div>
-                    <div class="h6 mb-0">
+                    <div class="academica-metric-label">Artikel & Progres</div>
+                    <div class="academica-metric-value">
                         {{ $academicaSummary['article_uploaded'] ? 'Artikel siap' : 'Artikel belum ada' }}
                     </div>
                     <small class="text-muted">
@@ -115,7 +121,7 @@
 
 <div class="card mgmp-panel mb-4">
     <div class="card-body">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="academica-section-header">
             <div>
                 <div class="mgmp-kicker text-success mb-2">Informasi</div>
                 <h5 class="mb-1">Data Yang Terkumpul</h5>
@@ -130,7 +136,7 @@
                 <span>proposal pada sistem</span>
             </div>
         </div>
-        <div class="row g-3 mt-1">
+        <div class="row g-3 mt-3">
             <div class="col-lg-4">
                 <div class="academica-summary-card">
                     <span class="academica-summary-label">Proposal aktif</span>
@@ -172,23 +178,27 @@
             </div>
         @endif
 
+        <div class="academica-section-header mb-4">
+            <div>
+                <div class="mgmp-kicker text-success mb-2">Proposal</div>
+                <h5 class="mb-1">Dokumen Proposal Utama</h5>
+                <p class="text-muted mb-0">Kelola file proposal utama sebagai basis seluruh aktivitas Academica.</p>
+            </div>
+        </div>
+
         <div class="row g-4 align-items-start">
             <div class="col-lg-5">
-                <h5 class="mb-2">{{ $userHasUploaded ? 'Proposal Anda' : 'Upload Proposal PDF' }}</h5>
-                <p class="text-muted mb-3">
-                    {{ $userHasUploaded ? 'File yang sudah diunggah masih bisa diperbarui dengan file PDF baru.' : 'Unggah proposal akademik dalam format PDF.' }}
-                </p>
-
                 @if($userHasUploaded && $userProposal)
-                    <div class="p-3 rounded-3 border bg-light">
+                    <div class="academica-resource-card">
                         <div class="d-flex align-items-start gap-3">
                             <div class="mgmp-icon-bubble">
                                 <i class="bx bx-file"></i>
                             </div>
                             <div class="grow">
-                                <div class="fw-semibold text-dark">{{ $userProposal->filename }}</div>
-                                <small class="text-muted">Terakhir diperbarui {{ $userProposal->updated_at->format('d M Y H:i') }}</small>
-                                <div class="mt-2">
+                                <div class="academica-resource-title">Proposal aktif</div>
+                                <div class="fw-semibold text-dark mb-1">{{ $userProposal->filename }}</div>
+                                <small class="text-muted d-block">Terakhir diperbarui {{ $userProposal->updated_at->format('d M Y H:i') }}</small>
+                                <div class="d-flex flex-wrap gap-2 mt-3">
                                     <a href="{{ url('/uploads/' . $userProposal->path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                         <i class="bx bx-show"></i> Lihat File
                                     </a>
@@ -200,12 +210,13 @@
                         </div>
                     </div>
                 @else
-                    <div class="p-3 rounded-3 border bg-light">
+                    <div class="academica-resource-card">
                         <div class="d-flex align-items-start gap-3">
                             <div class="mgmp-icon-bubble">
                                 <i class="bx bx-upload"></i>
                             </div>
                             <div class="grow">
+                                <div class="academica-resource-title">Proposal aktif</div>
                                 <div class="fw-semibold text-dark">Belum ada file proposal</div>
                                 <small class="text-muted">Silakan upload proposal pertama Anda dalam format PDF.</small>
                             </div>
@@ -252,13 +263,15 @@
 
                 @if($userHasUploaded)
                     <div class="academica-placeholder-panel" id="academicaReplacePlaceholder">
-                        <div class="p-4 rounded-3 border bg-light h-100 d-flex flex-column justify-content-center">
-                            <h5 class="mb-2">Edit / Ganti Proposal</h5>
-                            <p class="text-muted mb-3">Klik tombol <strong>Edit / Ganti File</strong> di sebelah kiri untuk mengganti file proposal yang sudah diupload.</p>
-                            <div>
+                        <div class="academica-action-card h-100 d-flex flex-column justify-content-center">
+                            <span class="academica-summary-label mb-2">Aksi Cepat</span>
+                            <h5 class="mb-2">Perbarui Proposal</h5>
+                            <p class="text-muted mb-3">Klik tombol edit untuk mengganti file proposal tanpa mengubah susunan data lain di halaman ini.</p>
+                            <div class="d-flex flex-wrap gap-2">
                                 <button type="button" class="btn btn-primary" id="openReplaceProposalFromPlaceholder">
                                     <i class="bx bx-refresh"></i> Ganti File Sekarang
                                 </button>
+                                <span class="mgmp-chip">PDF maksimal 10 MB</span>
                             </div>
                         </div>
                     </div>
@@ -271,10 +284,11 @@
 
 <div class="card mgmp-panel mb-4">
     <div class="card-body">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div class="academica-section-header mb-4">
             <div>
+                <div class="mgmp-kicker text-success mb-2">Riset</div>
                 <h5 class="mb-1">Laporan Update Riset</h5>
-                <p class="text-muted mb-0">Catat progres pengerjaan riset dan unggah beberapa file pendukung dalam satu laporan</p>
+                <p class="text-muted mb-0">Riwayat progres riset dan dokumen pendukung tersusun dalam satu alur kerja.</p>
             </div>
             <span class="mgmp-chip">{{ isset($resetUpdates) ? $resetUpdates->count() : 0 }} update</span>
         </div>
@@ -282,14 +296,15 @@
         @if($userHasUploaded && $userProposal)
             <div class="row g-4">
                 <div class="col-lg-5">
-                    <div class="p-3 rounded-3 border bg-light h-100">
+                    <div class="academica-action-card h-100">
                         <div class="d-flex align-items-start gap-3">
                             <div class="mgmp-icon-bubble">
                                 <i class="bx bx-task"></i>
                             </div>
                             <div class="grow">
-                                <h6 class="mb-2">Upload Laporan Dalam Modal</h6>
-                                <p class="text-muted mb-3">Form upload laporan update riset dipindahkan ke modal agar tampilan halaman lebih bersih dan fokus pada riwayat data.</p>
+                                <span class="academica-summary-label mb-2 d-inline-block">Aksi Utama</span>
+                                <h6 class="mb-2">Tambah Laporan Update</h6>
+                                <p class="text-muted mb-3">Gunakan modal untuk menambah progres baru tanpa membuat halaman utama terasa padat.</p>
                                 <div class="d-flex flex-wrap gap-2">
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#resetUpdateModal">
                                         <i class="bx bx-plus-circle"></i> Tambah Laporan Update
@@ -313,17 +328,21 @@
                         <div class="academica-reset-list">
                             @foreach($resetUpdates as $update)
                                 <div class="academica-reset-card">
-                                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
+                                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
                                         <div>
+                                            <span class="academica-summary-label mb-2 d-inline-block">Laporan Progres</span>
                                             <h6 class="mb-1">{{ $update->title }}</h6>
-                                            <small class="text-muted">
+                                            <small class="text-muted d-block">
                                                 {{ $update->created_at->format('d M Y H:i') }}
                                                 @if($update->updated_at && $update->updated_at->ne($update->created_at))
                                                     • diperbarui {{ $update->updated_at->format('d M Y H:i') }}
                                                 @endif
                                             </small>
                                         </div>
-                                        <span class="badge bg-primary-subtle text-primary">{{ $update->progress_percent }}%</span>
+                                        <div class="academica-progress-pill">
+                                            <strong>{{ $update->progress_percent }}%</strong>
+                                            <span>progres</span>
+                                        </div>
                                     </div>
 
                                     <div class="academica-progress-track mb-3">
@@ -333,12 +352,15 @@
                                     <p class="text-muted mb-3">{{ $update->progress_note }}</p>
 
                                     @if($update->files->isNotEmpty())
-                                        <div class="d-flex flex-wrap gap-2">
+                                        <div class="academica-attachment-wrap">
+                                            <div class="academica-attachment-label">Lampiran</div>
+                                            <div class="d-flex flex-wrap gap-2">
                                             @foreach($update->files as $file)
                                                 <a href="{{ url('/uploads/' . $file->path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                                     <i class="bx bx-paperclip me-1"></i>{{ \Illuminate\Support\Str::limit($file->original_name, 28) }}
                                                 </a>
                                             @endforeach
+                                            </div>
                                         </div>
                                     @else
                                         <small class="text-muted">Tidak ada lampiran pada update ini.</small>
@@ -365,10 +387,11 @@
 
 <div class="card mgmp-panel mb-4">
     <div class="card-body">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div class="academica-section-header mb-4">
             <div>
+                <div class="mgmp-kicker text-success mb-2">Artikel</div>
                 <h5 class="mb-1">Upload Artikel PDF</h5>
-                <p class="text-muted mb-0">Panel terpisah untuk unggah artikel PDF. Fitur ini hanya tersedia setelah laporan update riset pertama dikirim.</p>
+                <p class="text-muted mb-0">Artikel PDF dikelola terpisah setelah alur laporan update riset mulai berjalan.</p>
             </div>
             <span class="mgmp-chip">{{ $canUploadArticle ? 'Aktif' : 'Menunggu update riset' }}</span>
         </div>
@@ -383,6 +406,7 @@
                                     <i class="bx bx-file"></i>
                                 </div>
                                 <div class="grow">
+                                    <span class="academica-summary-label mb-2 d-inline-block">Status Artikel</span>
                                     <div class="fw-semibold text-dark mb-1">
                                         {{ $userProposal->article_filename ? 'Artikel saat ini' : 'Belum ada artikel PDF' }}
                                     </div>
@@ -406,7 +430,7 @@
                     </div>
 
                     <div class="col-lg-7">
-                        <div class="p-3 rounded-3 border bg-light h-100">
+                        <div class="academica-action-card h-100">
                             <h6 class="mb-2">{{ $userProposal->article_path ? 'Kelola Artikel PDF' : 'Upload Artikel Dalam Modal' }}</h6>
                             <p class="text-muted mb-3">Upload artikel PDF sekarang ditampilkan melalui modal agar area konten utama tetap rapi.</p>
                             <div class="d-flex flex-wrap gap-2">
@@ -662,6 +686,42 @@ $(document).ready(function () {
 </script>
 
 <style>
+    .academica-section-header {
+        align-items: flex-start;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: space-between;
+    }
+
+    .academica-metric-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%);
+    }
+
+    .academica-metric-label {
+        color: var(--mgmp-muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .academica-metric-number {
+        color: var(--mgmp-teal);
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1.1;
+        margin: 4px 0;
+    }
+
+    .academica-metric-value {
+        color: var(--mgmp-ink);
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 4px 0;
+    }
+
     .academica-summary-badge {
         align-items: flex-end;
         display: flex;
@@ -711,6 +771,23 @@ $(document).ready(function () {
         line-height: 1.5;
     }
 
+    .academica-resource-card,
+    .academica-action-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%);
+        border: 1px solid #e5eee9;
+        border-radius: 18px;
+        padding: 18px;
+    }
+
+    .academica-resource-title {
+        color: var(--mgmp-green);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+    }
+
     .academica-form-panel.is-collapsed {
         display: none;
     }
@@ -728,6 +805,7 @@ $(document).ready(function () {
         background: linear-gradient(180deg, #ffffff 0%, #f7fbf8 100%);
         border: 1px solid #e5eee9;
         border-radius: 16px;
+        box-shadow: inset 3px 0 0 rgba(14, 133, 73, 0.14);
         padding: 16px;
     }
 
@@ -736,6 +814,46 @@ $(document).ready(function () {
         border: 1px solid #e6ebd7;
         border-radius: 14px;
         padding: 16px;
+    }
+
+    .academica-progress-pill {
+        align-items: flex-end;
+        background: rgba(14, 133, 73, 0.08);
+        border: 1px solid rgba(14, 133, 73, 0.14);
+        border-radius: 14px;
+        display: inline-flex;
+        flex-direction: column;
+        min-width: 86px;
+        padding: 10px 12px;
+    }
+
+    .academica-progress-pill strong {
+        color: var(--mgmp-teal);
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .academica-progress-pill span {
+        color: var(--mgmp-muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        margin-top: 4px;
+        text-transform: uppercase;
+    }
+
+    .academica-attachment-wrap {
+        border-top: 1px dashed #d9e6df;
+        padding-top: 12px;
+    }
+
+    .academica-attachment-label {
+        color: var(--mgmp-muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        margin-bottom: 10px;
+        text-transform: uppercase;
     }
 
     .academica-progress-track {
