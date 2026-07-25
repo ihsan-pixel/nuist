@@ -3946,16 +3946,36 @@ class SkYayasanController extends Controller
 
         if (!$tmtDate || !$issuedDate) {
             $fallback = trim((string) $fallbackTenure);
-            return $fallback !== '' ? $fallback : '-';
+            return $fallback !== '' ? $this->normalizeTenureLabel($fallback) : '-';
         }
 
         if ($tmtDate->greaterThan($issuedDate)) {
-            return '0 tahun 0 bulan';
+            return '00 Tahun 00 Bulan';
         }
 
         $diff = $tmtDate->diff($issuedDate);
 
-        return sprintf('%d tahun %d bulan', $diff->y, $diff->m);
+        return sprintf('%02d Tahun %02d Bulan', $diff->y, $diff->m);
+    }
+
+    private function normalizeTenureLabel(?string $value): string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '-';
+        }
+
+        preg_match('/(\d+)\s*tahun/i', $value, $yearMatches);
+        preg_match('/(\d+)\s*bulan/i', $value, $monthMatches);
+
+        if ($yearMatches || $monthMatches) {
+            $years = isset($yearMatches[1]) ? (int) $yearMatches[1] : 0;
+            $months = isset($monthMatches[1]) ? (int) $monthMatches[1] : 0;
+
+            return sprintf('%02d Tahun %02d Bulan', $years, $months);
+        }
+
+        return $value;
     }
 
     private function renderTemplate(string $body, array $placeholders, array $templateContext = []): string
@@ -5239,7 +5259,7 @@ HTML;
             '{{nuptk}}' => '1234567890123456',
             '{{nomor_kartanu}}' => 'NU.34.02.001',
             '{{tmt_pertama}}' => '01 Juli 2020',
-            '{{masa_kerja}}' => '6 tahun',
+            '{{masa_kerja}}' => '06 Tahun 00 Bulan',
             '{{pendidikan_terakhir}}' => 'S1',
             '{{tahun_lulus}}' => '2015',
             '{{program_studi}}' => 'Pendidikan Teknik Informatika',
