@@ -136,6 +136,7 @@ class TeachingProgressController extends Controller
         $laporanData = [];
         $laporanBulananData = [];
         $teachingRecapData = $this->getTeachingRecapData($request);
+        $schoolProgressData = $this->getSchoolTeachingProgressData($startOfMonth, $effectiveEndOfMonth);
         $weeklyHolidayKeys = $this->getHolidayKeys($startOfWeek, $endOfWeek);
         $weeklyDayMarkers = [];
 
@@ -480,6 +481,7 @@ class TeachingProgressController extends Controller
             'startOfMonth',
             'month',
             'top10Madrasah',
+            'schoolProgressData',
             'teachingRecapData',
             'weeklyDayMarkers'
         ));
@@ -509,6 +511,205 @@ class TeachingProgressController extends Controller
             ->whereDate('tanggal', $date)
             ->where('status', 'hadir')
             ->exists();
+    }
+
+    private function getSchoolTeachingProgressData(Carbon $startDate, Carbon $endDate): array
+    {
+        $kabupatenOrder = [
+            'Kabupaten Bantul',
+            'Kabupaten Gunungkidul',
+            'Kabupaten Kulon Progo',
+            'Kabupaten Sleman',
+            'Kota Yogyakarta',
+        ];
+
+        $madrasahs = Madrasah::query()
+            ->orderByRaw("FIELD(kabupaten, '" . implode("','", $kabupatenOrder) . "')")
+            ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+            ->orderBy('name')
+            ->get(['id', 'name', 'kabupaten', 'scod', 'hari_kbm']);
+
+        $madrasahIds = $madrasahs->pluck('id');
+        $teacherCounts = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->whereIn('madrasah_id', $madrasahIds)
+            ->selectRaw('madrasah_id, COUNT(*) as total')
+            ->groupBy('madrasah_id')
+            ->pluck('total', 'madrasah_id');
+
+        $schedules = TeachingSchedule::query()
+            ->whereIn('school_id', $madrasahIds)
+            ->get(['id', 'school_id', 'teacher_id', 'day']);
+
+        $scheduleCountsBySchoolDay = $schedules
+            ->groupBy('school_id')
+            ->map(function ($schoolSchedules) {
+                return $schoolSchedules->groupBy('day')->map->count();
+            });
+
+        $attendanceRecords = TeachingAttendance::query()
+            ->with([
+                'user:id,name',
+                'teachingSchedule:id,school_id,subject,class_name,start_time,end_time',
+            ])
+            ->whereHas('teachingSchedule', fn ($query) => $query->whereIn('school_id', $madrasahIds))
+            ->whereBetween('tanggal', [$startDate->toDateString(), $endDate->toDateString()])
+            ->orderByDesc('tanggal')
+            ->orderBy('waktu')
+            ->orderByDesc('id')
+            ->get();
+
+        $attendanceBySchool = $attendanceRecords->groupBy(function (TeachingAttendance $attendance) {
+            return (int) optional($attendance->teachingSchedule)->school_id;
+        });
+
+        $holidayKeys = $this->getHolidayKeys($startDate, $endDate);
+        $kabupatenGroups = [];
+        $summary = [
+            'total_schools' => $madrasahs->count(),
+            'schools_with_reports' => 0,
+            'total_reports' => 0,
+            'reported_teachers' => 0,
+            'total_present_students' => 0,
+        ];
+
+        foreach ($madrasahs as $madrasah) {
+            $schoolAttendances = $attendanceBySchool->get($madrasah->id, collect())->values();
+            $scheduledSessions = $this->countScheduledSessionsForSchool(
+                $scheduleCountsBySchoolDay->get($madrasah->id, collect()),
+                $madrasah,
+                $startDate,
+                $endDate,
+                $holidayKeys
+            );
+
+            $dailyReports = $schoolAttendances
+                ->groupBy(fn (TeachingAttendance $attendance) => $attendance->tanggal->toDateString())
+                ->map(function ($dailyAttendances, $date) {
+                    $rows = $dailyAttendances
+                        ->sortBy(function (TeachingAttendance $attendance) {
+                            return sprintf(
+                                '%s-%08d',
+                                (string) ($attendance->waktu ?? '00:00:00'),
+                                (int) $attendance->id
+                            );
+                        })
+                        ->values()
+                        ->map(function (TeachingAttendance $attendance) {
+                            $schedule = $attendance->teachingSchedule;
+                            $statusClass = 'success';
+
+                            if (($attendance->status ?? 'hadir') === 'izin') {
+                                $statusClass = 'warning';
+                            } elseif ($attendance->is_academic_calendar_auto) {
+                                $statusClass = 'info';
+                            }
+
+                            return [
+                                'teacher_name' => $attendance->user?->name ?? '-',
+                                'subject' => trim((string) ($schedule?->subject ?? '')),
+                                'class_name' => trim((string) ($schedule?->class_name ?? '')),
+                                'time' => $this->formatTeachingScheduleTime(
+                                    $schedule?->start_time,
+                                    $schedule?->end_time
+                                ),
+                                'status_label' => $attendance->display_status_label,
+                                'status_class' => $statusClass,
+                                'materi' => trim((string) ($attendance->materi ?? '')) ?: '-',
+                                'student_summary' => $this->formatStudentAttendanceSummary(
+                                    $attendance->present_students,
+                                    $attendance->class_total_students
+                                ),
+                            ];
+                        });
+
+                    return [
+                        'date' => $date,
+                        'date_label' => Carbon::parse($date)->locale('id')->translatedFormat('d F Y'),
+                        'day_label' => Carbon::parse($date)->locale('id')->translatedFormat('l'),
+                        'total_reports' => $dailyAttendances->count(),
+                        'total_teachers' => $dailyAttendances->pluck('user_id')->filter()->unique()->count(),
+                        'total_present_students' => (int) $dailyAttendances->sum(fn (TeachingAttendance $attendance) => (int) ($attendance->present_students ?? 0)),
+                        'rows' => $rows->all(),
+                    ];
+                })
+                ->sortByDesc('date')
+                ->values();
+
+            $reportedTeachers = $schoolAttendances->pluck('user_id')->filter()->unique()->count();
+            $totalPresentStudents = (int) $schoolAttendances->sum(fn (TeachingAttendance $attendance) => (int) ($attendance->present_students ?? 0));
+            $reportCount = $schoolAttendances->count();
+            $latestReportDate = $schoolAttendances->first()?->tanggal;
+
+            $schoolData = [
+                'id' => $madrasah->id,
+                'scod' => $madrasah->scod ?: '-',
+                'name' => $madrasah->name,
+                'kabupaten' => $madrasah->kabupaten,
+                'hari_kbm' => (int) ($madrasah->hari_kbm ?: 0),
+                'total_teachers' => (int) ($teacherCounts->get($madrasah->id) ?? 0),
+                'reported_teachers' => $reportedTeachers,
+                'total_reports' => $reportCount,
+                'total_days_reported' => $dailyReports->count(),
+                'scheduled_sessions' => $scheduledSessions,
+                'progress_percentage' => $scheduledSessions > 0 ? round(($reportCount / $scheduledSessions) * 100, 1) : 0,
+                'total_present_students' => $totalPresentStudents,
+                'latest_report_date' => $latestReportDate?->toDateString(),
+                'latest_report_label' => $latestReportDate
+                    ? $latestReportDate->copy()->locale('id')->translatedFormat('d M Y')
+                    : null,
+                'daily_reports' => $dailyReports->all(),
+            ];
+
+            if ($reportCount > 0) {
+                $summary['schools_with_reports']++;
+            }
+
+            $summary['total_reports'] += $reportCount;
+            $summary['reported_teachers'] += $reportedTeachers;
+            $summary['total_present_students'] += $totalPresentStudents;
+
+            $kabupatenGroups[$madrasah->kabupaten]['kabupaten'] = $madrasah->kabupaten;
+            $kabupatenGroups[$madrasah->kabupaten]['schools'][] = $schoolData;
+        }
+
+        $orderedKabupaten = collect($kabupatenOrder)
+            ->merge(
+                collect($kabupatenGroups)
+                    ->keys()
+                    ->reject(fn ($kabupaten) => in_array($kabupaten, $kabupatenOrder, true))
+                    ->sort()
+                    ->values()
+            )
+            ->values();
+
+        $groupedResults = $orderedKabupaten
+            ->map(function ($kabupaten) use ($kabupatenGroups) {
+                $schools = collect($kabupatenGroups[$kabupaten]['schools'] ?? [])
+                    ->sortBy([
+                        ['total_reports', 'desc'],
+                        ['scod', 'asc'],
+                        ['name', 'asc'],
+                    ])
+                    ->values();
+
+                return [
+                    'kabupaten' => $kabupaten,
+                    'schools' => $schools->all(),
+                    'total_schools' => $schools->count(),
+                    'schools_with_reports' => $schools->where('total_reports', '>', 0)->count(),
+                    'total_reports' => $schools->sum('total_reports'),
+                ];
+            })
+            ->filter(fn ($group) => $group['total_schools'] > 0)
+            ->values()
+            ->all();
+
+        return [
+            'summary' => $summary,
+            'month_label' => $startDate->copy()->locale('id')->translatedFormat('F Y'),
+            'kabupaten_groups' => $groupedResults,
+        ];
     }
 
     private function getTeachingRecapData(Request $request): array
@@ -903,6 +1104,76 @@ class TeachingProgressController extends Controller
         }
 
         return 'tidak_presensi_jurnal';
+    }
+
+    private function countScheduledSessionsForSchool($scheduleDayCounts, Madrasah $madrasah, Carbon $startDate, Carbon $endDate, $holidayKeys): int
+    {
+        if ($scheduleDayCounts->isEmpty() || $endDate->lt($startDate)) {
+            return 0;
+        }
+
+        $total = 0;
+
+        foreach (CarbonPeriod::create($startDate, $endDate) as $date) {
+            $dayOfWeek = $date->dayOfWeek;
+            $isWorkingDay = $madrasah->hari_kbm == 5
+                ? ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::FRIDAY)
+                : ($dayOfWeek >= Carbon::MONDAY && $dayOfWeek <= Carbon::SATURDAY);
+
+            if (!$isWorkingDay || $holidayKeys->has($date->toDateString())) {
+                continue;
+            }
+
+            $teachingDayName = $this->getTeachingDayName($date);
+
+            if (!$teachingDayName) {
+                continue;
+            }
+
+            $total += (int) ($scheduleDayCounts->get($teachingDayName) ?? 0);
+        }
+
+        return $total;
+    }
+
+    private function formatTeachingScheduleTime($startTime, $endTime): string
+    {
+        $start = $this->formatClockValue($startTime);
+        $end = $this->formatClockValue($endTime);
+
+        if ($start && $end) {
+            return $start . ' - ' . $end;
+        }
+
+        return $start ?: ($end ?: '-');
+    }
+
+    private function formatClockValue($value): ?string
+    {
+        $normalized = trim((string) $value);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        return strlen($normalized) >= 5 ? substr($normalized, 0, 5) : $normalized;
+    }
+
+    private function formatStudentAttendanceSummary($presentStudents, $classTotalStudents): string
+    {
+        if (!is_null($presentStudents) && !is_null($classTotalStudents)) {
+            return $presentStudents . '/' . $classTotalStudents;
+        }
+
+        if (!is_null($classTotalStudents)) {
+            return (string) $classTotalStudents;
+        }
+
+        if (!is_null($presentStudents)) {
+            return (string) $presentStudents;
+        }
+
+        return '-';
     }
 
     private function getTeachingDayName(Carbon $date): ?string
