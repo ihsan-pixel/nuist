@@ -570,7 +570,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{ route('mgmp.academica.article-upload') }}" enctype="multipart/form-data" id="articleUploadFormModal">
+                <form method="POST" action="{{ url('/mgmp/academica/article-upload') }}" enctype="multipart/form-data" id="articleUploadFormModal">
                     @csrf
                     <div class="mb-3">
                         <label for="article_title_modal" class="form-label">Judul artikel</label>

@@ -284,6 +284,7 @@ Route::domain('mgmp.nuist.id')->group(function () {
             Route::delete('/members/{member}', [App\Http\Controllers\MGMPController::class, 'destroyMember']);
             Route::get('/academica', [App\Http\Controllers\MGMPController::class, 'academica']);
             Route::post('/academica/upload', [App\Http\Controllers\MGMPController::class, 'uploadAcademica']);
+            Route::post('/academica/article-upload', [App\Http\Controllers\MGMPController::class, 'uploadAcademicaArticle']);
             Route::post('/academica/reset-update', [App\Http\Controllers\MGMPController::class, 'storeAcademicaResetUpdate'])
                 ->middleware(['throttle:10,1']);
             Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])
@@ -839,6 +840,7 @@ Route::domain('admin.nuist.id')->group(function () {
                 Route::delete('/members/{member}', [App\Http\Controllers\MGMPController::class, 'destroyMember']);
                 Route::get('/academica', [App\Http\Controllers\MGMPController::class, 'academica']);
                 Route::post('/academica/upload', [App\Http\Controllers\MGMPController::class, 'uploadAcademica']);
+                Route::post('/academica/article-upload', [App\Http\Controllers\MGMPController::class, 'uploadAcademicaArticle']);
                 Route::post('/academica/reset-update', [App\Http\Controllers\MGMPController::class, 'storeAcademicaResetUpdate'])
                     ->middleware('throttle:10,1');
                 Route::post('/logout', [App\Http\Controllers\MGMPController::class, 'logout'])
