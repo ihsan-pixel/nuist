@@ -76,6 +76,7 @@ class TeachingScheduleImport implements ToCollection, WithHeadingRow
                     'day' => $preparedRow['day'],
                     'subject' => $preparedRow['subject'],
                     'class_name' => $preparedRow['class_name'],
+                    'class_names' => [$preparedRow['class_name']],
                     'start_time' => $preparedRow['start_time'],
                     'end_time' => $preparedRow['end_time'],
                     'created_by' => $this->createdBy,
@@ -217,13 +218,13 @@ class TeachingScheduleImport implements ToCollection, WithHeadingRow
             ->with('teacher:id,name')
             ->where('school_id', $row['school_id'])
             ->where('teaching_schedule_period_id', $this->period->id)
-            ->where('class_name', $row['class_name'])
             ->where('day', $row['day'])
             ->where(function ($query) use ($row) {
                 $query->where('start_time', '<', $row['end_time'])
                     ->where('end_time', '>', $row['start_time']);
             })
-            ->first();
+            ->get()
+            ->first(fn (TeachingSchedule $schedule) => $schedule->overlapsClassNames([$row['class_name']]));
 
         if ($classOverlap) {
             $teacherName = trim((string) optional($classOverlap->teacher)->name);

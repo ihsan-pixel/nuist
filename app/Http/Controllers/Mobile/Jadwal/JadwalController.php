@@ -46,7 +46,12 @@ class JadwalController extends \App\Http\Controllers\Controller
             ->get();
 
         $schedules = $baseSchedules->groupBy('day');
-        $classes = $baseSchedules->pluck('class_name')->filter()->unique()->sort()->values();
+        $classes = $baseSchedules
+            ->flatMap(fn (TeachingSchedule $schedule) => $schedule->resolvedClassNames())
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
         $subjects = $baseSchedules->pluck('subject')->filter()->unique()->sort()->values();
         $canManageSelectedPeriod = (bool) $activePeriod;
 

@@ -54,9 +54,12 @@
 
                 @php
                     $subjectValue = old('subject', optional($schedule)->subject ?? '');
-                    $classValue = old('class_name', optional($schedule)->class_name ?? '');
+                    $selectedClassNames = collect(old('class_names', $schedule ? $schedule->resolvedClassNames() : []))
+                        ->map(fn ($item) => trim((string) $item))
+                        ->filter()
+                        ->values();
+                    $additionalClassNames = old('class_name_new', '');
                     $subjectIsKnown = $subjectValue !== '' && $subjects->contains($subjectValue);
-                    $classIsKnown = $classValue !== '' && $classes->contains($classValue);
                 @endphp
 
                 <div class="mb-3">
@@ -95,23 +98,28 @@
 
                 <div class="mb-3">
                     <label class="form-label mb-1">Kelas</label>
-                    <select class="form-select" name="class_name" id="classSelect" required>
-                        <option value="" @selected($classValue === '')>Pilih kelas</option>
-                        @foreach($classes as $c)
-                            <option value="{{ $c }}" @selected($classValue === (string) $c)>{{ $c }}</option>
-                        @endforeach
-                        <option value="__new__" @selected(!$classIsKnown && $classValue !== '')>Tambah kelas baru...</option>
-                    </select>
-                    <input
-                        type="text"
+                    <input type="hidden" name="class_name" value="">
+                    @if($classes->isNotEmpty())
+                        <div class="border rounded-3 p-3 bg-light">
+                            <div class="small text-muted mb-2">Pilih satu atau beberapa kelas yang digabung dalam jam mengajar ini.</div>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($classes as $c)
+                                    @php $checked = $selectedClassNames->contains((string) $c); @endphp
+                                    <label class="btn btn-sm {{ $checked ? 'btn-success' : 'btn-outline-secondary' }} rounded-pill px-3 class-chip">
+                                        <input type="checkbox" name="class_names[]" value="{{ $c }}" class="d-none class-checkbox" @checked($checked)>
+                                        {{ $c }}
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                    <textarea
                         class="form-control mt-2"
                         name="class_name_new"
-                        id="classNew"
-                        value="{{ old('class_name_new', $classIsKnown ? '' : $classValue) }}"
-                        placeholder="Tulis nama kelas baru"
-                        style="{{ ($classValue === '' || $classIsKnown) ? 'display:none;' : '' }}"
-                    />
-                    <div class="form-text">Daftar kelas & mapel diambil dari jadwal madrasah Anda. Jika belum ada, pilih "Tambah ..." lalu ketik.</div>
+                        rows="2"
+                        placeholder="Tambahkan kelas lain jika perlu, pisahkan dengan koma atau baris baru"
+                    >{{ $additionalClassNames }}</textarea>
+                    <div class="form-text">Daftar kelas diambil dari jadwal madrasah Anda. Anda bisa memilih lebih dari satu kelas sekaligus.</div>
                 </div>
 
                 <div class="row g-2">
@@ -146,27 +154,41 @@
 
     <script>
         (function () {
-            function bindToggle(selectId, newInputId) {
-                const selectEl = document.getElementById(selectId);
-                const newEl = document.getElementById(newInputId);
-                if (!selectEl || !newEl) return;
-
-                const toggle = () => {
-                    if (selectEl.value === '__new__') {
-                        newEl.style.display = '';
-                    } else {
-                        newEl.style.display = 'none';
-                        newEl.value = '';
-                    }
-                };
-
-                selectEl.addEventListener('change', toggle);
-                toggle();
-            }
-
             document.addEventListener('DOMContentLoaded', function () {
-                bindToggle('subjectSelect', 'subjectNew');
-                bindToggle('classSelect', 'classNew');
+                const subjectSelect = document.getElementById('subjectSelect');
+                const subjectNew = document.getElementById('subjectNew');
+                if (subjectSelect && subjectNew) {
+                    const toggleSubject = () => {
+                        if (subjectSelect.value === '__new__') {
+                            subjectNew.style.display = '';
+                        } else {
+                            subjectNew.style.display = 'none';
+                            subjectNew.value = '';
+                        }
+                    };
+                    subjectSelect.addEventListener('change', toggleSubject);
+                    toggleSubject();
+                }
+
+                document.querySelectorAll('.class-chip').forEach((chip) => {
+                    const checkbox = chip.querySelector('.class-checkbox');
+                    if (!checkbox) return;
+
+                    const syncChip = () => {
+                        chip.classList.toggle('btn-success', checkbox.checked);
+                        chip.classList.toggle('btn-outline-secondary', !checkbox.checked);
+                    };
+
+                    chip.addEventListener('click', function (event) {
+                        if (event.target.tagName === 'INPUT') return;
+                        event.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                        syncChip();
+                    });
+
+                    checkbox.addEventListener('change', syncChip);
+                    syncChip();
+                });
             });
         })();
     </script>

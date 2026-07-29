@@ -326,7 +326,8 @@ class TeacherAppController extends Controller
             'teacher_id' => $user->id,
             'day' => $validated['day'],
             'subject' => $validated['subject'],
-            'class_name' => $validated['class_name'],
+            'class_name' => TeachingSchedule::formatClassNames($validated['class_names']),
+            'class_names' => $validated['class_names'],
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
             'created_by' => $user->id,
@@ -369,7 +370,8 @@ class TeacherAppController extends Controller
             'teaching_schedule_period_id' => $period->id,
             'day' => $validated['day'],
             'subject' => $validated['subject'],
-            'class_name' => $validated['class_name'],
+            'class_name' => TeachingSchedule::formatClassNames($validated['class_names']),
+            'class_names' => $validated['class_names'],
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
         ]);
@@ -882,7 +884,8 @@ class TeacherAppController extends Controller
                     return [
                         'id' => $schedule->id,
                         'subject' => $schedule->subject,
-                        'class_name' => $schedule->class_name,
+                        'class_name' => $schedule->classNameLabel(),
+                        'class_names' => $schedule->resolvedClassNames(),
                         'school_name' => $schedule->school?->name,
                         'start_time' => $this->formatTime($schedule->start_time),
                         'end_time' => $this->formatTime($schedule->end_time),
@@ -1040,21 +1043,18 @@ class TeacherAppController extends Controller
             ]);
         }
 
-        $classStudentCount = TeachingClassStudentCount::query()
-            ->where('school_id', $schedule->school_id)
-            ->where('teaching_schedule_period_id', $schedule->teaching_schedule_period_id)
-            ->where('class_name', trim((string) $schedule->class_name))
-            ->first();
+        $classCountSummary = $this->resolveScheduleClassCountSummary($schedule);
+        $classStudentCount = $classCountSummary['record'];
 
-        if (!$classStudentCount && empty($validated['class_total_students'])) {
+        if ($classCountSummary['total_students'] === null && empty($validated['class_total_students'])) {
             throw ValidationException::withMessages([
-                'class_total_students' => 'Jumlah siswa di kelas wajib diisi untuk jadwal ini.',
+                'class_total_students' => 'Jumlah siswa pada kelas terpilih wajib diisi untuk jadwal ini.',
             ]);
         }
 
         $presentStudents = (int) $validated['present_students'];
-        $classTotalStudents = $classStudentCount
-            ? (int) $classStudentCount->total_students
+        $classTotalStudents = $classCountSummary['total_students'] !== null
+            ? (int) $classCountSummary['total_students']
             : (int) $validated['class_total_students'];
 
         if ($presentStudents > $classTotalStudents) {
@@ -1070,6 +1070,7 @@ class TeacherAppController extends Controller
         $attendance = DB::transaction(function () use (
             $classStudentCount,
             $classTotalStudents,
+            $classCountSummary,
             $locationState,
             $presentStudents,
             $request,
@@ -1080,11 +1081,11 @@ class TeacherAppController extends Controller
             $user,
             $validated
         ) {
-            if (!$classStudentCount) {
+            if (!$classStudentCount && count($schedule->resolvedClassNames()) === 1 && empty($classCountSummary['missing_class_names'])) {
                 TeachingClassStudentCount::create([
                     'school_id' => $schedule->school_id,
                     'teaching_schedule_period_id' => $schedule->teaching_schedule_period_id,
-                    'class_name' => trim((string) $schedule->class_name),
+                    'class_name' => $schedule->resolvedClassNames()[0],
                     'total_students' => $classTotalStudents,
                     'created_by' => $user->id,
                     'updated_by' => $user->id,
@@ -1857,14 +1858,16 @@ class TeacherAppController extends Controller
             'day' => ['required', Rule::in(self::SCHEDULE_DAYS)],
             'subject' => ['required', 'string', 'max:255'],
             'subject_new' => ['nullable', 'string', 'max:255'],
-            'class_name' => ['required', 'string', 'max:255'],
-            'class_name_new' => ['nullable', 'string', 'max:255'],
+            'class_name' => ['nullable', 'string', 'max:255'],
+            'class_name_new' => ['nullable', 'string', 'max:1000'],
+            'class_names' => ['nullable', 'array'],
+            'class_names.*' => ['nullable', 'string', 'max:255'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
         ]);
 
         $validated['subject'] = trim((string) $validated['subject']);
-        $validated['class_name'] = trim((string) $validated['class_name']);
+        $validated['class_name'] = trim((string) ($validated['class_name'] ?? ''));
         $validated['subject_new'] = trim((string) ($validated['subject_new'] ?? ''));
         $validated['class_name_new'] = trim((string) ($validated['class_name_new'] ?? ''));
 
@@ -1878,14 +1881,21 @@ class TeacherAppController extends Controller
             $validated['subject'] = $validated['subject_new'];
         }
 
-        if ($validated['class_name'] === self::SCHEDULE_NEW_VALUE) {
-            if ($validated['class_name_new'] === '') {
-                throw ValidationException::withMessages([
-                    'class_name_new' => 'Kelas baru wajib diisi.',
-                ]);
-            }
+        $selectedClasses = $validated['class_names'] ?? [];
+        $manualClasses = null;
 
-            $validated['class_name'] = $validated['class_name_new'];
+        if (($validated['class_name'] ?? '') === self::SCHEDULE_NEW_VALUE || ($validated['class_name_new'] ?? '') !== '') {
+            $manualClasses = $validated['class_name_new'] ?? null;
+        } elseif (($validated['class_name'] ?? '') !== '') {
+            $selectedClasses[] = $validated['class_name'];
+        }
+
+        $validated['class_names'] = TeachingSchedule::normalizeClassNames($selectedClasses, $manualClasses);
+
+        if (empty($validated['class_names'])) {
+            throw ValidationException::withMessages([
+                'class_names' => 'Minimal satu kelas wajib dipilih atau ditulis.',
+            ]);
         }
 
         return $validated;
@@ -1923,7 +1933,6 @@ class TeacherAppController extends Controller
             ->with('teacher:id,name')
             ->where('school_id', $schoolId)
             ->where('teaching_schedule_period_id', $periodId)
-            ->where('class_name', $validated['class_name'])
             ->where('day', $validated['day'])
             ->where(function ($builder) use ($validated) {
                 $builder->where('start_time', '<', $validated['end_time'])
@@ -1934,11 +1943,13 @@ class TeacherAppController extends Controller
             $classOverlap->where('id', '!=', $exceptId);
         }
 
-        $classOverlap = $classOverlap->first();
+        $classOverlap = $classOverlap
+            ->get()
+            ->first(fn (TeachingSchedule $schedule) => $schedule->overlapsClassNames($validated['class_names']));
 
         if ($classOverlap) {
             throw ValidationException::withMessages([
-                'overlap' => $this->classScheduleOverlapMessage($classOverlap, $validated['day']),
+                'overlap' => $this->classScheduleOverlapMessage($classOverlap, $validated['day'], $validated['class_names']),
             ]);
         }
     }
@@ -1948,12 +1959,13 @@ class TeacherAppController extends Controller
         return TeachingSchedule::query()
             ->where('school_id', $schoolId)
             ->where('teaching_schedule_period_id', $periodId)
-            ->whereNotNull('class_name')
-            ->where('class_name', '!=', '')
-            ->select('class_name')
-            ->distinct()
-            ->orderBy('class_name')
-            ->pluck('class_name');
+            ->get(['class_name', 'class_names'])
+            ->flatMap(fn (TeachingSchedule $schedule) => $schedule->resolvedClassNames())
+            ->map(fn ($className) => trim((string) $className))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
     }
 
     private function getScheduleSubjects(int|string $schoolId, int|string $periodId)
@@ -1976,7 +1988,8 @@ class TeacherAppController extends Controller
             'teaching_schedule_period_id' => $schedule->teaching_schedule_period_id,
             'day' => $schedule->day,
             'subject' => $schedule->subject,
-            'class_name' => $schedule->class_name,
+            'class_name' => $schedule->classNameLabel(),
+            'class_names' => $schedule->resolvedClassNames(),
             'school_name' => $schedule->school?->name,
             'start_time' => $this->formatTime($schedule->start_time),
             'end_time' => $this->formatTime($schedule->end_time),
@@ -2008,7 +2021,8 @@ class TeacherAppController extends Controller
     private function attachTeachingClassStudentCounts($schedules): void
     {
         $schoolIds = $schedules->pluck('school_id')->filter()->unique()->values();
-        $classNames = $schedules->pluck('class_name')
+        $classNames = $schedules
+            ->flatMap(fn (TeachingSchedule $schedule) => $schedule->resolvedClassNames())
             ->map(fn ($className) => trim((string) $className))
             ->filter()
             ->unique()
@@ -2026,9 +2040,8 @@ class TeacherAppController extends Controller
             ->keyBy(fn ($count) => $this->teachingClassStudentCountKey($count->school_id, $count->teaching_schedule_period_id, $count->class_name));
 
         $schedules->each(function (TeachingSchedule $schedule) use ($counts) {
-            $schedule->class_student_count = $counts->get(
-                $this->teachingClassStudentCountKey($schedule->school_id, $schedule->teaching_schedule_period_id, $schedule->class_name)
-            );
+            $summary = $this->buildClassCountSummaryForSchedule($schedule, $counts);
+            $schedule->class_student_count = $summary['record'];
         });
     }
 
@@ -2238,19 +2251,86 @@ class TeacherAppController extends Controller
         );
     }
 
-    private function classScheduleOverlapMessage(TeachingSchedule $overlap, string $day): string
+    private function classScheduleOverlapMessage(TeachingSchedule $overlap, string $day, array $incomingClassNames): string
     {
         $teacherName = trim((string) optional($overlap->teacher)->name);
+        $conflictingClasses = collect($overlap->resolvedClassNames())
+            ->filter(function ($item) use ($incomingClassNames) {
+                return collect($incomingClassNames)
+                    ->map(fn ($className) => mb_strtolower(trim((string) $className)))
+                    ->contains(mb_strtolower(trim((string) $item)));
+            })
+            ->values();
 
         return sprintf(
             'Jadwal bentrok pada kelas %s: %s dengan %s pada hari %s jam %s-%s.',
-            trim((string) $overlap->class_name),
+            $conflictingClasses->isNotEmpty() ? $conflictingClasses->implode(', ') : $overlap->classNameLabel(),
             trim((string) $overlap->subject),
             $teacherName !== '' ? 'guru '.$teacherName : 'guru lain',
             $day,
             $this->formatTime($overlap->start_time),
             $this->formatTime($overlap->end_time),
         );
+    }
+
+    private function buildClassCountSummaryForSchedule(TeachingSchedule $schedule, $counts): array
+    {
+        $records = collect($schedule->resolvedClassNames())
+            ->map(function ($className) use ($schedule, $counts) {
+                return $counts->get(
+                    $this->teachingClassStudentCountKey($schedule->school_id, $schedule->teaching_schedule_period_id, $className)
+                );
+            });
+        $missingClassNames = collect($schedule->resolvedClassNames())
+            ->filter(function ($className) use ($schedule, $counts) {
+                return !$counts->has(
+                    $this->teachingClassStudentCountKey($schedule->school_id, $schedule->teaching_schedule_period_id, $className)
+                );
+            })
+            ->values();
+        $hasResolvedClasses = !empty($schedule->resolvedClassNames());
+        $allPresent = $hasResolvedClasses && $missingClassNames->isEmpty() && $records->filter()->isNotEmpty();
+        $totalStudents = $allPresent
+            ? $records->filter()->sum(fn ($record) => (int) ($record->total_students ?? 0))
+            : null;
+
+        return [
+            'record' => $allPresent
+                ? (object) [
+                    'total_students' => $totalStudents,
+                    'is_aggregate' => count($schedule->resolvedClassNames()) > 1,
+                    'class_names' => $schedule->resolvedClassNames(),
+                    'missing_class_names' => [],
+                ]
+                : null,
+            'total_students' => $totalStudents,
+            'missing_class_names' => $missingClassNames->all(),
+        ];
+    }
+
+    private function resolveScheduleClassCountSummary(TeachingSchedule $schedule): array
+    {
+        $classNames = collect($schedule->resolvedClassNames())
+            ->map(fn ($className) => trim((string) $className))
+            ->filter()
+            ->values();
+
+        if ($classNames->isEmpty()) {
+            return [
+                'record' => null,
+                'total_students' => null,
+                'missing_class_names' => [],
+            ];
+        }
+
+        $counts = TeachingClassStudentCount::query()
+            ->where('school_id', $schedule->school_id)
+            ->where('teaching_schedule_period_id', $schedule->teaching_schedule_period_id)
+            ->whereIn('class_name', $classNames->all())
+            ->get()
+            ->keyBy(fn ($count) => $this->teachingClassStudentCountKey($count->school_id, $count->teaching_schedule_period_id, $count->class_name));
+
+        return $this->buildClassCountSummaryForSchedule($schedule, $counts);
     }
 
     private function serializeSchedulePeriod(?TeachingSchedulePeriod $period): ?array

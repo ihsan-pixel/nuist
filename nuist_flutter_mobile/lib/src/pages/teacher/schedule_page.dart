@@ -829,7 +829,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
 
   late String _day;
   late String _subject;
-  late String _className;
+  late Set<String> _selectedClasses;
   bool _submitting = false;
   String? _errorMessage;
 
@@ -856,7 +856,23 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
     super.initState();
     final initial = widget.initialItem ?? const <String, dynamic>{};
     final initialSubject = (initial['subject'] as String?)?.trim();
-    final initialClass = (initial['class_name'] as String?)?.trim();
+    final initialClassNames = ((initial['class_names'] as List?) ?? const [])
+        .whereType<String>()
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
+        .toList();
+    if (initialClassNames.isEmpty) {
+      final initialClass = (initial['class_name'] as String?)?.trim();
+      if (initialClass != null && initialClass.isNotEmpty) {
+        initialClassNames.add(initialClass);
+      }
+    }
+    final initialKnownClasses = initialClassNames
+        .where((item) => _classes.contains(item))
+        .toSet();
+    final initialCustomClasses = initialClassNames
+        .where((item) => !_classes.contains(item))
+        .toList();
 
     _day = (initial['day'] as String?)?.trim().isNotEmpty == true
         ? (initial['day'] as String).trim()
@@ -864,15 +880,13 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
     _subject = initialSubject != null && _subjects.contains(initialSubject)
         ? initialSubject
         : _newValue;
-    _className = initialClass != null && _classes.contains(initialClass)
-        ? initialClass
-        : _newValue;
+    _selectedClasses = initialKnownClasses;
 
     _subjectNewController = TextEditingController(
       text: _subject == _newValue ? (initialSubject ?? '') : '',
     );
     _classNewController = TextEditingController(
-      text: _className == _newValue ? (initialClass ?? '') : '',
+      text: initialCustomClasses.join(', '),
     );
     _startTimeController = TextEditingController(
       text: (initial['start_time'] as String?) ?? '',
@@ -932,10 +946,8 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
         'subject_new': _subject == _newValue
             ? _subjectNewController.text.trim()
             : null,
-        'class_name': _className,
-        'class_name_new': _className == _newValue
-            ? _classNewController.text.trim()
-            : null,
+        'class_names': _selectedClasses.toList()..sort(),
+        'class_name_new': _classNewController.text.trim(),
         'start_time': _startTimeController.text.trim(),
         'end_time': _endTimeController.text.trim(),
       });
@@ -1071,35 +1083,38 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                 const SizedBox(height: 14),
                 const _FieldLabel('Kelas'),
                 const SizedBox(height: 8),
-                _FormDropdown<String>(
-                  value: _className,
-                  items: [
-                    ..._classes,
-                    _newValue,
-                  ],
-                  itemLabel: (item) =>
-                      item == _newValue ? '+ Tambah Kelas Baru' : item,
+                _MultiClassSelector(
+                  classes: _classes,
+                  selectedClasses: _selectedClasses,
                   onChanged: (value) {
-                    if (value == null) {
-                      return;
-                    }
                     setState(() {
-                      _className = value;
+                      _selectedClasses = value;
                     });
                   },
                 ),
-                if (_className == _newValue) ...[
+                const SizedBox(height: 10),
+                _FormTextField(
+                  controller: _classNewController,
+                  hintText: 'Tambahkan kelas lain, pisahkan dengan koma',
+                  validator: (value) {
+                    final hasSelectedClasses = _selectedClasses.isNotEmpty;
+                    final hasCustomClasses =
+                        value != null && value.trim().isNotEmpty;
+                    if (!hasSelectedClasses && !hasCustomClasses) {
+                      return 'Pilih atau tulis minimal satu kelas.';
+                    }
+                    return null;
+                  },
+                ),
+                if (_classes.isNotEmpty) ...[
                   const SizedBox(height: 10),
-                  _FormTextField(
-                    controller: _classNewController,
-                    hintText: 'Tulis nama kelas baru',
-                    validator: (value) {
-                      if (_className == _newValue &&
-                          (value == null || value.trim().isEmpty)) {
-                        return 'Kelas baru wajib diisi.';
-                      }
-                      return null;
-                    },
+                  const Text(
+                    'Anda bisa memilih beberapa kelas sekaligus, lalu menambahkan kelas lain bila belum ada di daftar.',
+                    style: TextStyle(
+                      color: Color(0xFF6D7F7D),
+                      fontSize: 11,
+                      height: 1.35,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 14),
@@ -1296,6 +1311,89 @@ class _FormDropdown<T> extends StatelessWidget {
           )
           .toList(),
       onChanged: onChanged,
+    );
+  }
+}
+
+class _MultiClassSelector extends StatelessWidget {
+  const _MultiClassSelector({
+    required this.classes,
+    required this.selectedClasses,
+    required this.onChanged,
+  });
+
+  final List<String> classes;
+  final Set<String> selectedClasses;
+  final ValueChanged<Set<String>> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    if (classes.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFCFDFC),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE3ECE6)),
+        ),
+        child: const Text(
+          'Belum ada daftar kelas tersedia. Tulis kelas secara manual di bawah.',
+          style: TextStyle(
+            fontSize: 13,
+            color: Color(0xFF6D7F7D),
+            height: 1.4,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFCFDFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE3ECE6)),
+      ),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: classes.map((item) {
+          final selected = selectedClasses.contains(item);
+          return FilterChip(
+            label: Text(item),
+            selected: selected,
+            onSelected: (value) {
+              final next = Set<String>.from(selectedClasses);
+              if (value) {
+                next.add(item);
+              } else {
+                next.remove(item);
+              }
+              onChanged(next);
+            },
+            selectedColor: const Color(0xFFFFE8D0),
+            checkmarkColor: const Color(0xFFA65612),
+            labelStyle: TextStyle(
+              color: selected
+                  ? const Color(0xFFA65612)
+                  : const Color(0xFF3E4A48),
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(999),
+              side: BorderSide(
+                color: selected
+                    ? const Color(0xFFF49637)
+                    : const Color(0xFFE3ECE6),
+              ),
+            ),
+            backgroundColor: Colors.white,
+          );
+        }).toList(),
+      ),
     );
   }
 }

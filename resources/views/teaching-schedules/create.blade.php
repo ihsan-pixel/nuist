@@ -350,8 +350,8 @@
                                             <input type="text" name="schedules[{{ $index }}][0][subject]" id="subject_{{ $index }}_0" class="form-control field-control" placeholder="Contoh: Matematika" value="{{ old("schedules.$index.0.subject") }}">
                                         </div>
                                         <div class="col-lg-3">
-                                            <label for="class_name_{{ $index }}_0" class="form-label field-label">Kelas</label>
-                                            <input type="text" name="schedules[{{ $index }}][0][class_name]" id="class_name_{{ $index }}_0" class="form-control field-control" placeholder="Contoh: VII A" value="{{ old("schedules.$index.0.class_name") }}">
+                                            <label for="class_names_text_{{ $index }}_0" class="form-label field-label">Kelas</label>
+                                            <textarea name="schedules[{{ $index }}][0][class_names_text]" id="class_names_text_{{ $index }}_0" class="form-control field-control" rows="2" placeholder="Contoh: VII A, VII B">{{ old("schedules.$index.0.class_names_text", old("schedules.$index.0.class_name")) }}</textarea>
                                         </div>
                                         <div class="col-lg-2">
                                             <label for="start_time_{{ $index }}_0" class="form-label field-label">Jam Mulai</label>
@@ -458,7 +458,13 @@ function addSchedule(dayIndex) {
     const classCol = document.createElement('div');
     classCol.className = 'col-lg-3';
     classCol.appendChild(createFieldLabel('Kelas'));
-    classCol.appendChild(createInput('text', `schedules[${dayIndex}][${counter}][class_name]`, `class_name_${dayIndex}_${counter}`, 'Contoh: VII A'));
+    const classInput = document.createElement('textarea');
+    classInput.name = `schedules[${dayIndex}][${counter}][class_names_text]`;
+    classInput.id = `class_names_text_${dayIndex}_${counter}`;
+    classInput.className = 'form-control field-control';
+    classInput.rows = 2;
+    classInput.placeholder = 'Contoh: VII A, VII B';
+    classCol.appendChild(classInput);
 
     const startCol = document.createElement('div');
     startCol.className = 'col-lg-2';

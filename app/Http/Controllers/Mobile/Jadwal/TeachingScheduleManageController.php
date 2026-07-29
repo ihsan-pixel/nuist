@@ -64,14 +64,16 @@ class TeachingScheduleManageController extends Controller
             'day' => ['required', Rule::in(self::DAYS)],
             'subject' => ['required', 'string', 'max:255'],
             'subject_new' => ['nullable', 'string', 'max:255'],
-            'class_name' => ['required', 'string', 'max:255'],
-            'class_name_new' => ['nullable', 'string', 'max:255'],
+            'class_name' => ['nullable', 'string', 'max:255'],
+            'class_name_new' => ['nullable', 'string', 'max:1000'],
+            'class_names' => ['nullable', 'array'],
+            'class_names.*' => ['nullable', 'string', 'max:255'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
         ]);
 
         $validated['subject'] = trim((string) $validated['subject']);
-        $validated['class_name'] = trim((string) $validated['class_name']);
+        $validated['class_name'] = trim((string) ($validated['class_name'] ?? ''));
         $validated['subject_new'] = trim((string) ($validated['subject_new'] ?? ''));
         $validated['class_name_new'] = trim((string) ($validated['class_name_new'] ?? ''));
 
@@ -82,11 +84,9 @@ class TeachingScheduleManageController extends Controller
             $validated['subject'] = $validated['subject_new'];
         }
 
-        if ($validated['class_name'] === self::NEW_VALUE) {
-            if ($validated['class_name_new'] === '') {
-                return back()->withErrors(['class_name_new' => 'Kelas baru wajib diisi.'])->withInput();
-            }
-            $validated['class_name'] = $validated['class_name_new'];
+        $classNames = $this->resolveRequestClassNames($validated);
+        if (empty($classNames)) {
+            return back()->withErrors(['class_names' => 'Minimal satu kelas wajib dipilih atau ditulis.'])->withInput();
         }
 
         // Check overlap for teacher schedule (same teacher, same day, overlapping time)
@@ -112,17 +112,17 @@ class TeachingScheduleManageController extends Controller
                 ->with('teacher:id,name')
                 ->where('school_id', $schoolId)
                 ->where('teaching_schedule_period_id', $activePeriod->id)
-                ->where('class_name', $validated['class_name'])
                 ->where('day', $validated['day'])
                 ->where(function ($query) use ($validated) {
                     $query->where('start_time', '<', $validated['end_time'])
                         ->where('end_time', '>', $validated['start_time']);
                 })
-                ->first();
+                ->get()
+                ->first(fn (TeachingSchedule $schedule) => $schedule->overlapsClassNames($classNames));
 
             if ($classOverlap) {
                 return back()
-                    ->withErrors(['overlap' => $this->classOverlapMessage($classOverlap, $validated['day'])])
+                    ->withErrors(['overlap' => $this->classOverlapMessage($classOverlap, $validated['day'], $classNames)])
                     ->withInput();
             }
         }
@@ -133,7 +133,8 @@ class TeachingScheduleManageController extends Controller
             'teacher_id' => $user->id,
             'day' => $validated['day'],
             'subject' => $validated['subject'],
-            'class_name' => $validated['class_name'],
+            'class_name' => TeachingSchedule::formatClassNames($classNames),
+            'class_names' => $classNames,
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
             'created_by' => $user->id,
@@ -201,14 +202,16 @@ class TeachingScheduleManageController extends Controller
             'day' => ['required', Rule::in(self::DAYS)],
             'subject' => ['required', 'string', 'max:255'],
             'subject_new' => ['nullable', 'string', 'max:255'],
-            'class_name' => ['required', 'string', 'max:255'],
-            'class_name_new' => ['nullable', 'string', 'max:255'],
+            'class_name' => ['nullable', 'string', 'max:255'],
+            'class_name_new' => ['nullable', 'string', 'max:1000'],
+            'class_names' => ['nullable', 'array'],
+            'class_names.*' => ['nullable', 'string', 'max:255'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
         ]);
 
         $validated['subject'] = trim((string) $validated['subject']);
-        $validated['class_name'] = trim((string) $validated['class_name']);
+        $validated['class_name'] = trim((string) ($validated['class_name'] ?? ''));
         $validated['subject_new'] = trim((string) ($validated['subject_new'] ?? ''));
         $validated['class_name_new'] = trim((string) ($validated['class_name_new'] ?? ''));
 
@@ -219,11 +222,9 @@ class TeachingScheduleManageController extends Controller
             $validated['subject'] = $validated['subject_new'];
         }
 
-        if ($validated['class_name'] === self::NEW_VALUE) {
-            if ($validated['class_name_new'] === '') {
-                return back()->withErrors(['class_name_new' => 'Kelas baru wajib diisi.'])->withInput();
-            }
-            $validated['class_name'] = $validated['class_name_new'];
+        $classNames = $this->resolveRequestClassNames($validated);
+        if (empty($classNames)) {
+            return back()->withErrors(['class_names' => 'Minimal satu kelas wajib dipilih atau ditulis.'])->withInput();
         }
 
         // Check overlap, excluding current
@@ -250,18 +251,18 @@ class TeachingScheduleManageController extends Controller
                 ->with('teacher:id,name')
                 ->where('school_id', $schoolId)
                 ->where('teaching_schedule_period_id', $activePeriod->id)
-                ->where('class_name', $validated['class_name'])
                 ->where('day', $validated['day'])
                 ->where('id', '!=', $schedule->id)
                 ->where(function ($query) use ($validated) {
                     $query->where('start_time', '<', $validated['end_time'])
                         ->where('end_time', '>', $validated['start_time']);
                 })
-                ->first();
+                ->get()
+                ->first(fn (TeachingSchedule $existingSchedule) => $existingSchedule->overlapsClassNames($classNames));
 
             if ($classOverlap) {
                 return back()
-                    ->withErrors(['overlap' => $this->classOverlapMessage($classOverlap, $validated['day'])])
+                    ->withErrors(['overlap' => $this->classOverlapMessage($classOverlap, $validated['day'], $classNames)])
                     ->withInput();
             }
         }
@@ -269,7 +270,8 @@ class TeachingScheduleManageController extends Controller
         $schedule->update([
             'day' => $validated['day'],
             'subject' => $validated['subject'],
-            'class_name' => $validated['class_name'],
+            'class_name' => TeachingSchedule::formatClassNames($classNames),
+            'class_names' => $classNames,
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
         ]);
@@ -300,12 +302,13 @@ class TeachingScheduleManageController extends Controller
         return TeachingSchedule::query()
             ->where('school_id', $schoolId)
             ->where('teaching_schedule_period_id', $periodId)
-            ->whereNotNull('class_name')
-            ->where('class_name', '!=', '')
-            ->select('class_name')
-            ->distinct()
-            ->orderBy('class_name')
-            ->pluck('class_name');
+            ->get(['class_name', 'class_names'])
+            ->flatMap(fn (TeachingSchedule $schedule) => $schedule->resolvedClassNames())
+            ->map(fn ($className) => trim((string) $className))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
     }
 
     private function getSchoolSubjectOptions(int|string $schoolId, int|string $periodId)
@@ -368,18 +371,39 @@ class TeachingScheduleManageController extends Controller
         );
     }
 
-    private function classOverlapMessage(TeachingSchedule $overlap, string $day): string
+    private function classOverlapMessage(TeachingSchedule $overlap, string $day, array $incomingClassNames): string
     {
         $teacherName = trim((string) optional($overlap->teacher)->name);
+        $conflictingClasses = collect($overlap->resolvedClassNames())
+            ->filter(function ($item) use ($incomingClassNames) {
+                return collect($incomingClassNames)
+                    ->map(fn ($className) => mb_strtolower(trim((string) $className)))
+                    ->contains(mb_strtolower(trim((string) $item)));
+            })
+            ->values();
 
         return sprintf(
             'Jadwal bentrok pada kelas %s: %s dengan %s pada hari %s jam %s-%s.',
-            trim((string) $overlap->class_name),
+            $conflictingClasses->isNotEmpty() ? $conflictingClasses->implode(', ') : $overlap->classNameLabel(),
             trim((string) $overlap->subject),
             $teacherName !== '' ? 'guru '.$teacherName : 'guru lain',
             $day,
             substr((string) $overlap->start_time, 0, 5),
             substr((string) $overlap->end_time, 0, 5),
         );
+    }
+
+    private function resolveRequestClassNames(array $validated): array
+    {
+        $selectedClasses = $validated['class_names'] ?? [];
+        $manualClasses = null;
+
+        if (($validated['class_name'] ?? '') === self::NEW_VALUE || ($validated['class_name_new'] ?? '') !== '') {
+            $manualClasses = $validated['class_name_new'] ?? null;
+        } elseif (($validated['class_name'] ?? '') !== '') {
+            $selectedClasses[] = $validated['class_name'];
+        }
+
+        return TeachingSchedule::normalizeClassNames($selectedClasses, $manualClasses);
     }
 }

@@ -219,6 +219,7 @@ class TeachingScheduleController extends Controller
             'schedules.*.*.day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
             'schedules.*.*.subject' => 'nullable|string|max:255',
             'schedules.*.*.class_name' => 'nullable|string|max:255',
+            'schedules.*.*.class_names_text' => 'nullable|string|max:1000',
             'schedules.*.*.start_time' => 'nullable|date_format:H:i',
             'schedules.*.*.end_time' => 'nullable|date_format:H:i',
         ]);
@@ -252,8 +253,13 @@ class TeachingScheduleController extends Controller
                 continue;
             }
 
+            $classNames = $this->extractClassNamesFromInput(
+                $scheduleData['class_names_text'] ?? null,
+                $scheduleData['class_name'] ?? null,
+            );
+
             // Validate required fields for this schedule
-            if (empty($scheduleData['class_name']) || empty($scheduleData['start_time']) || empty($scheduleData['end_time'])) {
+            if (empty($classNames) || empty($scheduleData['start_time']) || empty($scheduleData['end_time'])) {
                 return back()->withErrors(['incomplete' => 'Semua field harus diisi untuk jadwal yang memiliki mata pelajaran.'])->withInput();
             }
 
@@ -280,16 +286,21 @@ class TeachingScheduleController extends Controller
             if (!in_array($request->school_id, [8, 9])) {
                 $classOverlap = TeachingSchedule::where('school_id', $request->school_id)
                     ->where('teaching_schedule_period_id', $period->id)
-                    ->where('class_name', $scheduleData['class_name'])
                     ->where('day', $scheduleData['day'])
                     ->where(function ($query) use ($scheduleData) {
                         $query->where('start_time', '<', $scheduleData['end_time'])
                               ->where('end_time', '>', $scheduleData['start_time']);
                     })
-                    ->exists();
+                    ->get()
+                    ->first(fn (TeachingSchedule $schedule) => $schedule->overlapsClassNames($classNames));
 
                 if ($classOverlap) {
-                    return back()->withErrors(['class_overlap' => 'Jadwal bentrok dengan jadwal lain pada kelas yang sama di hari ' . $scheduleData['day'] . '.'])->withInput()->with('alert', 'Jam mengajar pada kelas sudah terisi.');
+                    return back()
+                        ->withErrors([
+                            'class_overlap' => $this->buildClassOverlapMessage($classOverlap, $classNames, $scheduleData['day']),
+                        ])
+                        ->withInput()
+                        ->with('alert', 'Jam mengajar pada kelas sudah terisi.');
                 }
             }
 
@@ -299,7 +310,8 @@ class TeachingScheduleController extends Controller
                 'teacher_id' => $request->teacher_id,
                 'day' => $scheduleData['day'],
                 'subject' => $scheduleData['subject'],
-                'class_name' => $scheduleData['class_name'],
+                'class_name' => TeachingSchedule::formatClassNames($classNames),
+                'class_names' => $classNames,
                 'start_time' => $scheduleData['start_time'],
                 'end_time' => $scheduleData['end_time'],
                 'created_by' => $user->id,
@@ -370,7 +382,8 @@ class TeachingScheduleController extends Controller
             'teacher_id' => 'required|exists:users,id',
             'day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
             'subject' => 'required|string|max:255',
-            'class_name' => 'required|string|max:255',
+            'class_name' => 'nullable|string|max:255',
+            'class_names_text' => 'required|string|max:1000',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
@@ -385,6 +398,11 @@ class TeachingScheduleController extends Controller
         }
 
         $period = $this->findPeriodForSchool((int) $request->school_id, (int) $request->teaching_schedule_period_id);
+        $classNames = $this->extractClassNamesFromInput($request->class_names_text, $request->class_name);
+
+        if (empty($classNames)) {
+            return back()->withErrors(['class_names_text' => 'Minimal satu kelas wajib diisi.'])->withInput();
+        }
 
         // Check overlap, excluding current
         $overlap = TeachingSchedule::where('teacher_id', $request->teacher_id)
@@ -405,23 +423,35 @@ class TeachingScheduleController extends Controller
         if (!in_array($request->school_id, [8, 9])) {
             $classOverlap = TeachingSchedule::where('school_id', $request->school_id)
                 ->where('teaching_schedule_period_id', $period->id)
-                ->where('class_name', $request->class_name)
                 ->where('day', $request->day)
                 ->where('id', '!=', $id)
                 ->where(function ($query) use ($request) {
                     $query->where('start_time', '<', $request->end_time)
                           ->where('end_time', '>', $request->start_time);
                 })
-                ->exists();
+                ->get()
+                ->first(fn (TeachingSchedule $existingSchedule) => $existingSchedule->overlapsClassNames($classNames));
 
             if ($classOverlap) {
-                return back()->withErrors(['class_overlap' => 'Jadwal bentrok dengan jadwal lain pada kelas yang sama di hari ' . $request->day . '.'])->withInput();
+                return back()
+                    ->withErrors([
+                        'class_overlap' => $this->buildClassOverlapMessage($classOverlap, $classNames, $request->day),
+                    ])
+                    ->withInput();
             }
         }
 
-        $schedule->update($request->only([
-            'school_id', 'teacher_id', 'day', 'subject', 'class_name', 'start_time', 'end_time', 'teaching_schedule_period_id'
-        ]));
+        $schedule->update([
+            'school_id' => $request->school_id,
+            'teacher_id' => $request->teacher_id,
+            'day' => $request->day,
+            'subject' => $request->subject,
+            'class_name' => TeachingSchedule::formatClassNames($classNames),
+            'class_names' => $classNames,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'teaching_schedule_period_id' => $request->teaching_schedule_period_id,
+        ]);
 
         app(AcademicCalendarEventService::class)->syncSchedule($schedule->fresh());
 
@@ -629,19 +659,25 @@ class TeachingScheduleController extends Controller
         $classesByDay = collect();
         foreach ($schedules as $schedule) {
             $day = $schedule->day;
-            $className = $schedule->class_name;
+            $classNames = $schedule->resolvedClassNames();
+
+            if (empty($classNames)) {
+                $classNames = [$schedule->classNameLabel()];
+            }
 
             if (!isset($classesByDay[$day])) {
                 $classesByDay[$day] = collect();
             }
 
-            if (!isset($classesByDay[$day][$className])) {
-                $classesByDay[$day][$className] = collect();
-            }
-
             // Add attendance status to schedule
             $schedule->has_attendance_today = $schedule->teachingAttendances->isNotEmpty();
-            $classesByDay[$day][$className]->push($schedule);
+            foreach ($classNames as $className) {
+                if (!isset($classesByDay[$day][$className])) {
+                    $classesByDay[$day][$className] = collect();
+                }
+
+                $classesByDay[$day][$className]->push($schedule);
+            }
         }
 
         // Filter to only show selected day
@@ -738,5 +774,35 @@ class TeachingScheduleController extends Controller
         }
 
         return TeachingSchedulePeriod::activeForSchool($schoolId, Carbon::today('Asia/Jakarta'));
+    }
+
+    private function extractClassNamesFromInput(?string $classNamesText = null, ?string $fallbackClassName = null): array
+    {
+        return TeachingSchedule::normalizeClassNames($classNamesText, $fallbackClassName);
+    }
+
+    private function buildClassOverlapMessage(TeachingSchedule $overlap, array $incomingClassNames, string $day): string
+    {
+        $conflictingClasses = collect($overlap->resolvedClassNames())
+            ->map(fn ($item) => mb_strtolower(trim((string) $item)))
+            ->intersect(
+                collect($incomingClassNames)
+                    ->map(fn ($item) => mb_strtolower(trim((string) $item)))
+            )
+            ->values();
+        $matchedLabels = collect($overlap->resolvedClassNames())
+            ->filter(fn ($item) => $conflictingClasses->contains(mb_strtolower(trim((string) $item))))
+            ->values();
+        $teacherName = trim((string) optional($overlap->teacher)->name);
+
+        return sprintf(
+            'Jadwal bentrok pada kelas %s dengan %s%s di hari %s jam %s-%s.',
+            $matchedLabels->isNotEmpty() ? $matchedLabels->implode(', ') : $overlap->classNameLabel(),
+            trim((string) $overlap->subject),
+            $teacherName !== '' ? ' (' . $teacherName . ')' : '',
+            $day,
+            substr((string) $overlap->start_time, 0, 5),
+            substr((string) $overlap->end_time, 0, 5),
+        );
     }
 }

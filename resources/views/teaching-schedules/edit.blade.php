@@ -96,7 +96,9 @@
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label for="class_name" class="form-label">Kelas <span class="text-danger">*</span></label>
-                                <input type="text" name="class_name" id="class_name" class="form-control" value="{{ $schedule->class_name }}" required>
+                                <input type="hidden" name="class_name" value="{{ $schedule->class_name }}">
+                                <textarea name="class_names_text" id="class_name" class="form-control" rows="3" required>{{ old('class_names_text', implode(', ', $schedule->resolvedClassNames())) }}</textarea>
+                                <small class="text-muted">Pisahkan beberapa kelas dengan koma atau baris baru.</small>
                             </div>
                         </div>
                         <div class="col-md-3">

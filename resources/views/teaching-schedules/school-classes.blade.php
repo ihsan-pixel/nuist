@@ -209,7 +209,7 @@
     $dayClasses = $classesByDay->get($selectedDay, collect());
     $allSchedules = $dayClasses->flatten(1);
     $totalClasses = $dayClasses->count();
-    $totalSchedules = $allSchedules->count();
+    $totalSchedules = $allSchedules->pluck('id')->filter()->unique()->count();
     $filledSchedules = $allSchedules->filter(fn ($schedule) => !empty($schedule->teacher_id))->count();
     $attendedSchedules = $allSchedules->filter(fn ($schedule) => $schedule->has_attendance_today)->count();
 @endphp
