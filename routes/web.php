@@ -1865,6 +1865,7 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::get('/jumlah-siswa-kelas', [TeachingClassStudentCountController::class, 'index'])->name('class-student-counts.index');
     Route::post('/jumlah-siswa-kelas', [TeachingClassStudentCountController::class, 'store'])->name('class-student-counts.store');
     Route::put('/jumlah-siswa-kelas/{classStudentCount}', [TeachingClassStudentCountController::class, 'update'])->name('class-student-counts.update');
+    Route::delete('/jumlah-siswa-kelas/{classStudentCount}', [TeachingClassStudentCountController::class, 'destroy'])->name('class-student-counts.destroy');
 
     // Yayasan routes
     Route::get('/yayasan', [App\Http\Controllers\YayasanController::class, 'index'])->name('yayasan.index');

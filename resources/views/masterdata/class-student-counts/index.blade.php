@@ -205,9 +205,20 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-sm {{ $hasSavedCount ? 'btn-warning' : 'btn-primary' }}" data-bs-toggle="modal" data-bs-target="#{{ $modalId }}">
-                                        {{ $hasSavedCount ? 'Edit' : 'Input' }}
-                                    </button>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-sm {{ $hasSavedCount ? 'btn-warning' : 'btn-primary' }}" data-bs-toggle="modal" data-bs-target="#{{ $modalId }}">
+                                            {{ $hasSavedCount ? 'Edit' : 'Input' }}
+                                        </button>
+                                        @if($hasSavedCount)
+                                            <form action="{{ route('class-student-counts.destroy', $row['count_id']) }}" method="POST" onsubmit="return confirm('Hapus data jumlah siswa untuk kelas {{ addslashes($row['class_name']) }}?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
 
@@ -249,6 +260,13 @@
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
+                                                @if($hasSavedCount)
+                                                    <form action="{{ route('class-student-counts.destroy', $row['count_id']) }}" method="POST" class="me-auto" onsubmit="return confirm('Hapus data jumlah siswa untuk kelas {{ addslashes($row['class_name']) }}?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-outline-danger">Hapus</button>
+                                                    </form>
+                                                @endif
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                 <button type="submit" class="btn btn-primary">Simpan</button>
                                             </div>

@@ -154,6 +154,21 @@ class TeachingClassStudentCountController extends Controller
             ->with('success', 'Jumlah siswa kelas berhasil diperbarui.');
     }
 
+    public function destroy(TeachingClassStudentCount $classStudentCount)
+    {
+        $this->authorizeSchool((int) $classStudentCount->school_id);
+
+        $schoolId = (int) $classStudentCount->school_id;
+        $periodId = (int) $classStudentCount->teaching_schedule_period_id;
+        $className = $classStudentCount->class_name;
+
+        $classStudentCount->delete();
+
+        return redirect()
+            ->route('class-student-counts.index', $this->redirectFilter($schoolId, $periodId))
+            ->with('success', 'Data jumlah siswa kelas '.$className.' berhasil dihapus.');
+    }
+
     private function mergeScheduleClasses($rows, int $schoolId, int $periodId, $schoolsById): void
     {
         TeachingSchedule::query()
