@@ -3954,16 +3954,26 @@ class SkYayasanController extends Controller
             ->get();
 
         foreach ($batches as $batch) {
-            $expectedRequestCount = $batch->rows
+            $expectedEmployeeIds = $batch->rows
                 ->filter(fn (SkYayasanImportRow $row) => $row->is_valid && $row->matched_user_id)
-                ->unique(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id)
-                ->count();
+                ->map(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id)
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values();
 
-            if ($expectedRequestCount === 0) {
+            if ($expectedEmployeeIds->isEmpty()) {
                 continue;
             }
 
-            if ($batch->requests->count() >= $expectedRequestCount) {
+            $actualEmployeeIds = $batch->requests
+                ->map(fn (SkYayasanRequest $request) => (int) $request->employee_id)
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values();
+
+            if ($actualEmployeeIds->all() === $expectedEmployeeIds->all()) {
                 continue;
             }
 
