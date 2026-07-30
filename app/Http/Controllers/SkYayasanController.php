@@ -2868,6 +2868,15 @@ class SkYayasanController extends Controller
             }
 
             if ($isTwoYearsOrMore === true) {
+                $isExtensionRequest = $this->containsTemplateWord(
+                    $this->normalizeTemplateText($normalized),
+                    'perpanjangan'
+                );
+
+                if ($isExtensionRequest && !$hasNipm) {
+                    return $normalized;
+                }
+
                 if ($hasNipm) {
                     return $employmentType === 'gty'
                         ? 'Perpanjangan GTY'

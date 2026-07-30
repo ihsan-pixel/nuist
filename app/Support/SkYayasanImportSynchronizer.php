@@ -201,6 +201,14 @@ class SkYayasanImportSynchronizer
             $errors[] = 'Keterangan wajib diisi sesuai salah satu opsi template.';
         }
 
+        if (
+            $user
+            && $this->keteranganRequiresExistingNipm($keterangan)
+            && $this->normalizeNipmValue($user->nip) === null
+        ) {
+            $errors[] = 'Keterangan tidak valid: Perpanjangan GTY/PTY hanya bisa diajukan untuk guru yang sudah memiliki NIPM.';
+        }
+
         $userPayload = array_filter([
             'nuist_id' => $this->nullableString($rowData['nuist_id'] ?? null),
             'name' => $this->nullableString($rowData['nama'] ?? null),
@@ -227,6 +235,12 @@ class SkYayasanImportSynchronizer
             $errors[] = 'Tidak ada data yang bisa disinkronkan.';
         }
 
+        $statusLabel = empty($errors)
+            ? 'Siap upload'
+            : (collect($errors)->contains(fn (string $error) => str_starts_with($error, 'Keterangan tidak valid'))
+                ? 'Keterangan tidak valid'
+                : 'Perlu perbaikan');
+
         return [
             'row_number' => $rowNumber,
             'source_name' => $this->nullableString($rowData['nama'] ?? null) ?? '-',
@@ -237,7 +251,7 @@ class SkYayasanImportSynchronizer
             'errors' => $errors,
             'user_payload' => $userPayload,
             'sk_payload' => $skPayload,
-            'status_label' => empty($errors) ? 'Siap upload' : 'Perlu perbaikan',
+            'status_label' => $statusLabel,
         ];
     }
 
@@ -404,6 +418,18 @@ class SkYayasanImportSynchronizer
         }
 
         return $allowedOptions[$normalized] ?? null;
+    }
+
+    private function keteranganRequiresExistingNipm(?string $keterangan): bool
+    {
+        return in_array($keterangan, ['Perpanjangan GTY', 'Perpanjangan PTY'], true);
+    }
+
+    private function normalizeNipmValue(mixed $value): ?string
+    {
+        $digits = preg_replace('/\D+/u', '', trim((string) $value)) ?? '';
+
+        return strlen($digits) === 20 ? $digits : null;
     }
 
     private function rowIsEmpty(array $row): bool
