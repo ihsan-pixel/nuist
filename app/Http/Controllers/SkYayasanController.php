@@ -1201,6 +1201,7 @@ class SkYayasanController extends Controller
         $validated = $request->validate([
             'rows' => ['required', 'array', 'min:1'],
             'rows.*.teacher_id' => ['required', 'integer'],
+            'rows.*.decision' => ['required', 'in:approve,reject'],
             'rows.*.nipm_mode' => ['nullable', 'in:existing,system'],
             'rows.*.nipm' => ['nullable', 'regex:/^\d{20}$/'],
         ], [
@@ -1217,50 +1218,164 @@ class SkYayasanController extends Controller
         $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($schools)
             ->keyBy(fn (array $row) => (int) $row['teacher_id']);
 
-        $updates = [];
+        $approvedCount = 0;
+        $rejectedCount = 0;
 
-        foreach ($validated['rows'] as $row) {
-            $teacherId = (int) $row['teacher_id'];
-            $selectedMode = (string) ($row['nipm_mode'] ?? 'system');
-            $nipm = preg_replace('/\D+/u', '', (string) ($row['nipm'] ?? '')) ?? '';
+        DB::transaction(function () use ($validated, $appointmentRequests, &$approvedCount, &$rejectedCount) {
+            foreach ($validated['rows'] as $row) {
+                $teacherId = (int) $row['teacher_id'];
 
-            if (!$appointmentRequests->has($teacherId)) {
-                continue;
-            }
+                if (!$appointmentRequests->has($teacherId)) {
+                    continue;
+                }
 
-            $appointmentRow = $appointmentRequests->get($teacherId);
+                $appointmentRow = $appointmentRequests->get($teacherId);
+                $decision = (string) ($row['decision'] ?? 'approve');
 
-            if (($appointmentRow['has_nipm_source_choice'] ?? false) === true && $selectedMode === 'existing') {
-                continue;
-            }
+                if ($decision === 'reject') {
+                    $this->rejectGenerateAppointmentDecision($appointmentRow);
+                    $rejectedCount++;
 
-            if ($nipm === '') {
-                continue;
-            }
+                    continue;
+                }
 
-            $expectedScod = $this->normalizeNipmSchoolScod($appointmentRow['school_scod'] ?? null);
-            if (substr($nipm, 14, 3) !== $expectedScod) {
-                return back()->withErrors([
-                    'rows' => 'Ada NIPM yang tidak sesuai dengan SCOD sekolah guru terkait.',
-                ]);
-            }
+                $selectedMode = (string) ($row['nipm_mode'] ?? 'system');
+                $nipm = preg_replace('/\D+/u', '', (string) ($row['nipm'] ?? '')) ?? '';
 
-            $updates[$teacherId] = $nipm;
-        }
+                if (($appointmentRow['has_nipm_source_choice'] ?? false) === true && $selectedMode === 'existing') {
+                    $nipm = $this->normalizeNipmValue($appointmentRow['existing_nipm_value'] ?? '') ?? '';
+                }
 
-        if (empty($updates)) {
-            return back()->with('info', 'Tidak ada NIPM baru yang perlu disinkronkan.');
-        }
+                if ($nipm === '') {
+                    continue;
+                }
 
-        DB::transaction(function () use ($updates) {
-            foreach ($updates as $teacherId => $nipm) {
-                User::query()
-                    ->whereKey($teacherId)
-                    ->update(['nip' => $nipm]);
+                $expectedScod = $this->normalizeNipmSchoolScod($appointmentRow['school_scod'] ?? null);
+                if (substr($nipm, 14, 3) !== $expectedScod) {
+                    throw ValidationException::withMessages([
+                        'rows' => 'Ada NIPM yang tidak sesuai dengan SCOD sekolah guru terkait.',
+                    ]);
+                }
+
+                $this->approveGenerateAppointmentDecision($appointmentRow, $nipm);
+                $approvedCount++;
             }
         });
 
-        return back()->with('success', count($updates) . ' NIPM berhasil disinkronkan ke database.');
+        if ($approvedCount === 0 && $rejectedCount === 0) {
+            return back()->with('info', 'Tidak ada keputusan pengangkatan yang perlu disimpan.');
+        }
+
+        if ($approvedCount > 0 && $rejectedCount > 0) {
+            return back()->with('success', $approvedCount . ' pengajuan disetujui dan ' . $rejectedCount . ' pengajuan ditolak.');
+        }
+
+        if ($approvedCount > 0) {
+            return back()->with('success', $approvedCount . ' pengajuan disetujui dan NIPM tervalidasi.');
+        }
+
+        return back()->with('success', $rejectedCount . ' pengajuan ditolak dan keterangan diperbarui ke GTT/PTT.');
+    }
+
+    private function approveGenerateAppointmentDecision(array $appointmentRow, string $nipm): void
+    {
+        $row = SkYayasanImportRow::query()
+            ->with('batch')
+            ->find($appointmentRow['import_row_id'] ?? null);
+
+        if (!$row || !$row->batch) {
+            return;
+        }
+
+        $row->update([
+            'source_keterangan' => $appointmentRow['keterangan'] ?? $row->source_keterangan,
+            'source_nip_maarif' => $nipm,
+        ]);
+
+        $this->refreshPersistedImportBatchAnalysis($row->batch);
+        $row->refresh();
+
+        $user = $row->matched_user_id ? User::query()->find($row->matched_user_id) : null;
+        if ($user) {
+            $synchronizer = new SkYayasanImportSynchronizer((int) $row->batch->madrasah_id);
+            $synchronizer->syncRow($user, $row->user_payload ?? [], $row->sk_payload ?? []);
+        }
+
+        $this->synchronizeBatchRequestsFromRows($row->batch);
+    }
+
+    private function rejectGenerateAppointmentDecision(array $appointmentRow): void
+    {
+        $row = SkYayasanImportRow::query()
+            ->with('batch')
+            ->find($appointmentRow['import_row_id'] ?? null);
+
+        if (!$row || !$row->batch) {
+            return;
+        }
+
+        $row->update([
+            'source_keterangan' => $appointmentRow['rejection_keterangan'] ?? $row->source_keterangan,
+            'source_nip_maarif' => null,
+        ]);
+
+        $this->refreshPersistedImportBatchAnalysis($row->batch);
+        $row->refresh();
+
+        $user = $row->matched_user_id ? User::query()->find($row->matched_user_id) : null;
+        if ($user) {
+            $synchronizer = new SkYayasanImportSynchronizer((int) $row->batch->madrasah_id);
+            $userPayload = collect($row->user_payload ?? [])
+                ->except('nip')
+                ->all();
+            $synchronizer->syncRow($user, $userPayload, $row->sk_payload ?? []);
+        }
+
+        $this->synchronizeBatchRequestsFromRows($row->batch);
+    }
+
+    private function refreshPersistedImportBatchAnalysis(SkYayasanImportBatch $batch): void
+    {
+        $batch->load('rows');
+
+        if ($batch->rows->isEmpty()) {
+            return;
+        }
+
+        $report = $this->inspectEditableImportRows(
+            $batch->rows->map(fn (SkYayasanImportRow $row) => $this->editableImportRowPayload($row))->all(),
+            (int) $batch->madrasah_id
+        );
+
+        $analysisByRowNumber = collect($report['rows'])->keyBy(fn (array $row) => (int) ($row['row_number'] ?? 0));
+
+        foreach ($batch->rows as $row) {
+            $analysis = $analysisByRowNumber->get((int) $row->row_number);
+            if (!$analysis) {
+                continue;
+            }
+
+            $row->update([
+                'matched_user_id' => $analysis['user_id'] ?? null,
+                'matched_name' => $analysis['matched_name'] ?? null,
+                'is_valid' => (bool) ($analysis['is_valid'] ?? false),
+                'status_label' => $analysis['status_label'] ?? null,
+                'validation_errors' => $analysis['errors'] ?? [],
+                'user_payload' => $analysis['user_payload'] ?? [],
+                'sk_payload' => $analysis['sk_payload'] ?? [],
+            ]);
+        }
+
+        $batch->update([
+            'total_rows' => count($report['rows']),
+            'valid_rows' => $report['valid_count'],
+            'invalid_rows' => $report['invalid_count'],
+            'headings_valid' => true,
+            'missing_headings' => [],
+            'unexpected_headings' => [],
+            'payload_rows' => $report['rows'],
+            'matched_user_ids' => $report['valid_user_ids'],
+        ]);
     }
 
     public function generateSchoolIndex(Madrasah $madrasah): View
@@ -2259,8 +2374,10 @@ class SkYayasanController extends Controller
             : SkYayasanImportRow::query()
                 ->whereIn('batch_id', $batchIds)
                 ->get([
+                    'id',
                     'batch_id',
                     'matched_user_id',
+                    'source_nip_maarif',
                     'source_keterangan',
                     'source_tanggal_lahir',
                     'source_tmt_pertama',
@@ -2309,6 +2426,9 @@ class SkYayasanController extends Controller
                 }
 
                 return [
+                    'request_id' => (int) $request->id,
+                    'import_batch_id' => (int) $request->import_batch_id,
+                    'import_row_id' => (int) ($matchedRow?->id ?? 0),
                     'school_id' => (int) $request->madrasah_id,
                     'school_order' => (int) ($schoolOrder->get((int) $request->madrasah_id) ?? PHP_INT_MAX),
                     'school_name' => $request->madrasah?->name ?? '-',
@@ -2316,9 +2436,12 @@ class SkYayasanController extends Controller
                     'teacher_id' => (int) $request->employee_id,
                     'teacher_name' => $request->employee?->name ?? '-',
                     'keterangan' => $keterangan,
+                    'rejection_keterangan' => $this->resolveRejectedAppointmentKeterangan($keterangan),
                     'existing_nipm' => $request->employee?->nip,
+                    'source_nipm' => $matchedRow?->source_nip_maarif,
                     'birth_date' => $matchedRow?->source_tanggal_lahir ?: $request->employee?->tanggal_lahir,
                     'tmt_date' => $matchedRow?->source_tmt_pertama ?: $request->employee?->tmt,
+                    'tmt_label' => $this->formatIndonesianDate($matchedRow?->source_tmt_pertama ?: $request->employee?->tmt),
                     'submission_year' => optional($request->submitted_at)->format('Y') ?: '-',
                     'submitted_at' => $request->submitted_at,
                 ];
@@ -2341,6 +2464,8 @@ class SkYayasanController extends Controller
                     $row['default_nipm_mode'] = $assignedNipmByEmployee[$teacherId]['mode'] ?? 'system';
                     $row['existing_nipm_value'] = $assignedNipmByEmployee[$teacherId]['existing_value'] ?? '';
                     $row['system_nipm_value'] = $assignedNipmByEmployee[$teacherId]['system_value'] ?? $row['nipm_value'];
+                    $row['nipm_validated'] = $this->normalizeNipmValue($row['existing_nipm']) !== null
+                        && $this->normalizeNipmValue($row['source_nipm'] ?? null) === $this->normalizeNipmValue($row['existing_nipm']);
 
                     return $row;
                 }
@@ -2369,6 +2494,7 @@ class SkYayasanController extends Controller
                     $row['existing_nipm_value'] = $result['existing_value'];
                     $row['system_nipm_value'] = $result['system_value'];
                     $row['tmt_is_two_years_or_more'] = false;
+                    $row['nipm_validated'] = false;
 
                     return $row;
                 }
@@ -2397,6 +2523,8 @@ class SkYayasanController extends Controller
                     $row['default_nipm_mode'] = $result['mode'];
                     $row['existing_nipm_value'] = $result['existing_value'];
                     $row['system_nipm_value'] = $result['system_value'];
+                    $row['nipm_validated'] = $this->normalizeNipmValue($row['source_nipm'] ?? null) !== null
+                        && $this->normalizeNipmValue($row['source_nipm'] ?? null) === $this->normalizeNipmValue($result['value']);
 
                     return $row;
                 }
@@ -2417,10 +2545,25 @@ class SkYayasanController extends Controller
                 $row['default_nipm_mode'] = $result['mode'];
                 $row['existing_nipm_value'] = $result['existing_value'];
                 $row['system_nipm_value'] = $result['system_value'];
+                $row['nipm_validated'] = $this->normalizeNipmValue($row['source_nipm'] ?? null) !== null
+                    && $this->normalizeNipmValue($row['source_nipm'] ?? null) === $this->normalizeNipmValue($result['value']);
 
                 return $row;
             })
             ->values();
+    }
+
+    private function resolveRejectedAppointmentKeterangan(?string $keterangan): ?string
+    {
+        $normalized = $this->normalizeTemplateText((string) $keterangan);
+        $employmentType = $this->detectEmploymentTypeFromText($normalized);
+        $isExtensionRequest = $this->containsTemplateWord($normalized, 'perpanjangan');
+
+        return match ($employmentType) {
+            'gty' => $isExtensionRequest ? 'Perpanjangan GTT' : 'Pengangkatan GTT',
+            'pty' => $isExtensionRequest ? 'Perpanjangan PTT' : 'Pengangkatan PTT',
+            default => null,
+        };
     }
 
     private function normalizeNipmSchoolScod(mixed $scod): string

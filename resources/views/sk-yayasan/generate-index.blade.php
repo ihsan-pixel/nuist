@@ -325,7 +325,7 @@
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="sky-chip">{{ $appointmentRequests->count() }} pengajuan</span>
-                            <span class="sky-chip">{{ $appointmentRequests->where('nipm_synced', false)->count() }} belum sinkron</span>
+                            <span class="sky-chip">{{ $appointmentRequests->where('nipm_validated', false)->count() }} belum tervalidasi</span>
                         </div>
                     </div>
 
@@ -337,9 +337,9 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Tahun Pengajuan SK</th>
-                                        <th>SCOD</th>
                                         <th>Nama Sekolah</th>
                                         <th>Nama Guru</th>
+                                        <th>TMT Diajukan</th>
                                         <th>Keterangan</th>
                                         <th>NIPM Otomatis</th>
                                         <th>Aksi</th>
@@ -349,20 +349,31 @@
                                     @foreach($appointmentRows as $appointmentData)
                                         @php($teacherId = data_get($appointmentData, 'teacher_id'))
                                         @php($nipmSynced = (bool) data_get($appointmentData, 'nipm_synced', false))
+                                        @php($nipmValidated = (bool) data_get($appointmentData, 'nipm_validated', false))
                                         @php($selectedMode = $nipmSynced ? 'system' : old('rows.' . $teacherId . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')))
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ data_get($appointmentData, 'submission_year', '-') }}</td>
-                                            <td>{{ data_get($appointmentData, 'school_scod', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
                                             <td>
                                                 <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
+                                                @if(data_get($appointmentData, 'rejection_keterangan'))
+                                                    <small class="text-muted d-block mt-1">
+                                                        Jika ditolak: <strong>{{ data_get($appointmentData, 'rejection_keterangan') }}</strong>
+                                                    </small>
+                                                @endif
                                             </td>
                                             <td style="min-width: 280px;">
                                                 <form id="appointment-nipm-sync-{{ $teacherId }}" method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}" class="d-none">
                                                     @csrf
                                                 </form>
+                                                <input type="hidden"
+                                                       id="appointment-decision-{{ $teacherId }}"
+                                                       form="appointment-nipm-sync-{{ $teacherId }}"
+                                                       name="rows[{{ $teacherId }}][decision]"
+                                                       value="approve">
                                                 <input type="hidden"
                                                        form="appointment-nipm-sync-{{ $teacherId }}"
                                                        name="rows[{{ $teacherId }}][teacher_id]"
@@ -385,28 +396,32 @@
                                                 <input type="text"
                                                        form="appointment-nipm-sync-{{ $teacherId }}"
                                                        name="rows[{{ $teacherId }}][nipm]"
-                                                       class="form-control form-control-sm js-nipm-input"
+                                                       class="form-control form-control-sm js-nipm-input {{ $nipmValidated ? 'border-success bg-success-subtle text-success-emphasis' : '' }}"
                                                        value="{{ old('rows.' . $teacherId . '.nipm', data_get($appointmentData, 'nipm_value', '')) }}"
                                                        placeholder="NIPM otomatis"
                                                        inputmode="numeric"
                                                        data-existing-nipm="{{ data_get($appointmentData, 'existing_nipm_value', '') }}"
                                                        data-system-nipm="{{ data_get($appointmentData, 'system_nipm_value', '') }}"
                                                        @readonly($nipmSynced || $selectedMode === 'existing')>
-                                            </td>
-                                            <td style="width: 140px;">
-                                                @if($nipmSynced)
-                                                    <button type="submit"
-                                                            form="appointment-nipm-sync-{{ $teacherId }}"
-                                                            class="btn btn-sm btn-outline-primary w-100">
-                                                        Sinkron Ulang
-                                                    </button>
-                                                @else
-                                                    <button type="submit"
-                                                            form="appointment-nipm-sync-{{ $teacherId }}"
-                                                            class="btn btn-sm btn-primary w-100">
-                                                        Sinkron
-                                                    </button>
+                                                @if($nipmValidated)
+                                                    <small class="text-success d-block mt-1 fw-semibold">NIPM tervalidasi</small>
                                                 @endif
+                                            </td>
+                                            <td style="width: 180px;">
+                                                <div class="d-grid gap-2">
+                                                    <button type="submit"
+                                                            form="appointment-nipm-sync-{{ $teacherId }}"
+                                                            class="btn btn-sm btn-outline-danger w-100"
+                                                            onclick="document.getElementById('appointment-decision-{{ $teacherId }}').value='reject'">
+                                                        Tolak
+                                                    </button>
+                                                    <button type="submit"
+                                                            form="appointment-nipm-sync-{{ $teacherId }}"
+                                                            class="btn btn-sm {{ $nipmValidated ? 'btn-outline-success' : 'btn-primary' }} w-100"
+                                                            onclick="document.getElementById('appointment-decision-{{ $teacherId }}').value='approve'">
+                                                        {{ $nipmValidated ? 'Setujui Ulang' : 'Setujui' }}
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -434,7 +449,7 @@
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="sky-chip">{{ $appointmentRequestsUnderTwoYears->count() }} pengajuan</span>
-                            <span class="sky-chip">{{ $appointmentRequestsUnderTwoYears->where('nipm_synced', false)->count() }} belum sinkron</span>
+                            <span class="sky-chip">{{ $appointmentRequestsUnderTwoYears->where('nipm_validated', false)->count() }} belum tervalidasi</span>
                         </div>
                     </div>
 
@@ -446,9 +461,9 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Tahun Pengajuan SK</th>
-                                        <th>SCOD</th>
                                         <th>Nama Sekolah</th>
                                         <th>Nama Guru</th>
+                                        <th>TMT Diajukan</th>
                                         <th>Keterangan</th>
                                         <th>NIPM Otomatis</th>
                                         <th>Aksi</th>
@@ -458,20 +473,31 @@
                                     @foreach($appointmentRowsUnderTwoYears as $appointmentData)
                                         @php($teacherId = data_get($appointmentData, 'teacher_id'))
                                         @php($nipmSynced = (bool) data_get($appointmentData, 'nipm_synced', false))
+                                        @php($nipmValidated = (bool) data_get($appointmentData, 'nipm_validated', false))
                                         @php($selectedMode = $nipmSynced ? 'system' : old('rows.' . $teacherId . '.nipm_mode', data_get($appointmentData, 'default_nipm_mode', 'system')))
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ data_get($appointmentData, 'submission_year', '-') }}</td>
-                                            <td>{{ data_get($appointmentData, 'school_scod', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
                                             <td>
                                                 <span class="badge bg-warning-subtle text-warning">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
+                                                @if(data_get($appointmentData, 'rejection_keterangan'))
+                                                    <small class="text-muted d-block mt-1">
+                                                        Jika ditolak: <strong>{{ data_get($appointmentData, 'rejection_keterangan') }}</strong>
+                                                    </small>
+                                                @endif
                                             </td>
                                             <td style="min-width: 280px;">
                                                 <form id="appointment-nipm-sync-under-two-years-{{ $teacherId }}" method="POST" action="{{ route('sk-yayasan.generate.appointment-nipm-sync') }}" class="d-none">
                                                     @csrf
                                                 </form>
+                                                <input type="hidden"
+                                                       id="appointment-decision-under-two-years-{{ $teacherId }}"
+                                                       form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                       name="rows[{{ $teacherId }}][decision]"
+                                                       value="approve">
                                                 <input type="hidden"
                                                        form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
                                                        name="rows[{{ $teacherId }}][teacher_id]"
@@ -494,28 +520,32 @@
                                                 <input type="text"
                                                        form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
                                                        name="rows[{{ $teacherId }}][nipm]"
-                                                       class="form-control form-control-sm js-nipm-input"
+                                                       class="form-control form-control-sm js-nipm-input {{ $nipmValidated ? 'border-success bg-success-subtle text-success-emphasis' : '' }}"
                                                        value="{{ old('rows.' . $teacherId . '.nipm', data_get($appointmentData, 'nipm_value', '')) }}"
                                                        placeholder="NIPM otomatis"
                                                        inputmode="numeric"
                                                        data-existing-nipm="{{ data_get($appointmentData, 'existing_nipm_value', '') }}"
                                                        data-system-nipm="{{ data_get($appointmentData, 'system_nipm_value', '') }}"
                                                        @readonly($nipmSynced || $selectedMode === 'existing')>
-                                            </td>
-                                            <td style="width: 140px;">
-                                                @if($nipmSynced)
-                                                    <button type="submit"
-                                                            form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
-                                                            class="btn btn-sm btn-outline-primary w-100">
-                                                        Sinkron Ulang
-                                                    </button>
-                                                @else
-                                                    <button type="submit"
-                                                            form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
-                                                            class="btn btn-sm btn-primary w-100">
-                                                        Sinkron
-                                                    </button>
+                                                @if($nipmValidated)
+                                                    <small class="text-success d-block mt-1 fw-semibold">NIPM tervalidasi</small>
                                                 @endif
+                                            </td>
+                                            <td style="width: 180px;">
+                                                <div class="d-grid gap-2">
+                                                    <button type="submit"
+                                                            form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                            class="btn btn-sm btn-outline-danger w-100"
+                                                            onclick="document.getElementById('appointment-decision-under-two-years-{{ $teacherId }}').value='reject'">
+                                                        Tolak
+                                                    </button>
+                                                    <button type="submit"
+                                                            form="appointment-nipm-sync-under-two-years-{{ $teacherId }}"
+                                                            class="btn btn-sm {{ $nipmValidated ? 'btn-outline-success' : 'btn-primary' }} w-100"
+                                                            onclick="document.getElementById('appointment-decision-under-two-years-{{ $teacherId }}').value='approve'">
+                                                        {{ $nipmValidated ? 'Setujui Ulang' : 'Setujui' }}
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
