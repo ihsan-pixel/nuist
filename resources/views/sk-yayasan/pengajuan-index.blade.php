@@ -1124,9 +1124,14 @@
                             <select name="template_id" class="form-select">
                                 <option value="">Belum dipilih</option>
                                 @foreach($templates as $template)
-                                    <option value="{{ $template->id }}" @selected($submission->template_id == $template->id)>{{ $template->name }}</option>
+                                    <option value="{{ $template->id }}" @selected(($submission->template_id ?? $submission->resolved_template?->id) == $template->id)>{{ $template->name }}</option>
                                 @endforeach
                             </select>
+                            @if(!$submission->template_id && $submission->resolved_template)
+                                <small class="text-muted d-block mt-1">
+                                    Template otomatis mengikuti keterangan pengajuan: <strong>{{ $submission->resolved_template->name }}</strong>
+                                </small>
+                            @endif
                         </div>
                         <div class="mb-0">
                             <label class="form-label">Catatan Review</label>

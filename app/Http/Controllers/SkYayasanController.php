@@ -790,8 +790,19 @@ class SkYayasanController extends Controller
 
         $summaryData = $this->buildSuperAdminPengajuanSummary();
 
+        $activeTemplates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+
         $submissions = SkYayasanRequest::query()
-            ->with(['madrasah', 'employee.statusKepegawaian', 'submitter', 'reviewer', 'template', 'document', 'importBatch'])
+            ->with([
+                'madrasah',
+                'employee.statusKepegawaian',
+                'employee.skYayasanEmployeeData',
+                'submitter',
+                'reviewer',
+                'template',
+                'document.template',
+                'importBatch.rows',
+            ])
             ->when($request->filled('status'), fn ($query) => $query->where('current_status', $request->string('status')->toString()))
             ->when($request->filled('madrasah_id'), fn ($query) => $query->where('madrasah_id', (int) $request->madrasah_id))
             ->when($request->filled('q'), function ($query) use ($request) {
@@ -808,8 +819,10 @@ class SkYayasanController extends Controller
             ->withQueryString();
 
         $submissionAppointmentAlerts = $this->buildSubmissionAppointmentAlerts($submissions->getCollection());
-        $submissions->getCollection()->transform(function (SkYayasanRequest $submission) use ($submissionAppointmentAlerts) {
+        $submissions->getCollection()->transform(function (SkYayasanRequest $submission) use ($submissionAppointmentAlerts, $activeTemplates) {
             $submission->appointment_alert = $submissionAppointmentAlerts[$submission->id] ?? null;
+            $submission->submission_type_label = $this->formatSubmissionTypeLabel($submission);
+            $submission->resolved_template = $this->resolveTemplateForSubmission($submission, $activeTemplates);
 
             return $submission;
         });
@@ -843,7 +856,7 @@ class SkYayasanController extends Controller
             'syncedImportBatchSchoolCount' => $syncedImportBatchSchoolCount,
             'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
             'madrasahs' => Madrasah::query()->orderBy('name')->get(['id', 'name']),
-            'templates' => SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get(),
+            'templates' => $activeTemplates,
             'schoolSubmissionSummaryRows' => $summaryData['rows'],
             'schoolSubmissionSummaryCards' => $summaryData['cards'],
             'keteranganSummaryCounts' => $summaryData['keterangan_counts'],
@@ -2076,6 +2089,7 @@ class SkYayasanController extends Controller
                 'matched_user_id',
                 'source_keterangan',
                 'source_tmt_pertama',
+                'source_masa_kerja',
             ])
             ->groupBy('batch_id');
 
@@ -2089,7 +2103,13 @@ class SkYayasanController extends Controller
             $matchedRow = collect($rowsByBatch->get($submission->import_batch_id, []))
                 ->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $submission->employee_id);
 
-            $keterangan = $this->normalizeSkYayasanKeteranganLabel($matchedRow?->source_keterangan);
+            $keterangan = $this->resolveEffectiveSkYayasanKeteranganLabel(
+                $matchedRow?->source_keterangan,
+                $matchedRow?->source_tmt_pertama,
+                $submission->employee?->tmt,
+                $matchedRow?->source_masa_kerja ?: $submission->employee?->masa_kerja,
+                $submission->employee?->nip
+            );
             if (!in_array($keterangan, ['Pengangkatan GTY', 'Pengangkatan PTY'], true)) {
                 continue;
             }
@@ -2175,7 +2195,7 @@ class SkYayasanController extends Controller
         $requests = SkYayasanRequest::query()
             ->with([
                 'madrasah:id,name,scod,kabupaten',
-                'employee:id,name,nip,tanggal_lahir,tmt',
+                'employee:id,name,nip,tanggal_lahir,tmt,masa_kerja',
             ])
             ->whereIn('madrasah_id', $schoolOrder->keys()->all())
             ->where('current_status', '!=', 'rejected')
@@ -2204,6 +2224,7 @@ class SkYayasanController extends Controller
                     'source_keterangan',
                     'source_tanggal_lahir',
                     'source_tmt_pertama',
+                    'source_masa_kerja',
                 ])
                 ->groupBy('batch_id');
 
@@ -2235,7 +2256,13 @@ class SkYayasanController extends Controller
                 $matchedRow = collect($rowsByBatch->get($request->import_batch_id, []))
                     ->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $request->employee_id);
 
-                $keterangan = $this->normalizeSkYayasanKeteranganLabel($matchedRow?->source_keterangan);
+                $keterangan = $this->resolveEffectiveSkYayasanKeteranganLabel(
+                    $matchedRow?->source_keterangan,
+                    $matchedRow?->source_tmt_pertama,
+                    $request->employee?->tmt,
+                    $matchedRow?->source_masa_kerja ?: $request->employee?->masa_kerja,
+                    $request->employee?->nip
+                );
 
                 if (!in_array($keterangan, ['Pengangkatan GTY', 'Pengangkatan PTY'], true)) {
                     return null;
@@ -2680,6 +2707,11 @@ class SkYayasanController extends Controller
 
     private function formatSubmissionTypeLabel(SkYayasanRequest $submission): string
     {
+        $keteranganLabel = $this->submissionKeteranganLabel($submission);
+        if ($keteranganLabel !== null) {
+            return $keteranganLabel;
+        }
+
         $employmentType = $this->detectEmploymentType($submission);
         $requestType = trim((string) $submission->request_type);
 
@@ -2725,7 +2757,10 @@ class SkYayasanController extends Controller
 
     private function resolveTemplateKey(SkYayasanRequest $submission): ?string
     {
-        $employmentType = $this->detectEmploymentType($submission);
+        $keteranganLabel = $this->submissionKeteranganLabel($submission);
+        $employmentType = $keteranganLabel !== null
+            ? $this->detectEmploymentTypeFromText($keteranganLabel)
+            : $this->detectEmploymentType($submission);
 
         if ($employmentType === null) {
             return null;
@@ -2735,10 +2770,16 @@ class SkYayasanController extends Controller
             return $employmentType;
         }
 
-        $requestText = $this->normalizeTemplateText((string) $submission->request_type);
+        $requestLabel = $keteranganLabel !== null
+            ? $this->normalizeTemplateText($keteranganLabel)
+            : $this->normalizeTemplateText((string) $submission->request_type);
 
-        if ($this->containsTemplateWord($requestText, 'pengangkatan')) {
+        if ($this->containsTemplateWord($requestLabel, 'pengangkatan')) {
             return 'pengangkatan_' . $employmentType;
+        }
+
+        if ($this->containsTemplateWord($requestLabel, 'perpanjangan')) {
+            return $employmentType;
         }
 
         return $employmentType;
@@ -2746,6 +2787,14 @@ class SkYayasanController extends Controller
 
     private function detectEmploymentType(SkYayasanRequest $submission): ?string
     {
+        $keteranganLabel = $this->submissionKeteranganLabel($submission);
+        if ($keteranganLabel !== null) {
+            $detectedFromKeterangan = $this->detectEmploymentTypeFromText($keteranganLabel);
+            if ($detectedFromKeterangan !== null) {
+                return $detectedFromKeterangan;
+            }
+        }
+
         $source = $this->normalizeTemplateText(implode(' ', array_filter([
             $submission->employment_category,
             $submission->request_type,
@@ -2754,6 +2803,127 @@ class SkYayasanController extends Controller
         ])));
 
         return $this->detectEmploymentTypeFromText($source);
+    }
+
+    private function submissionKeteranganLabel(SkYayasanRequest $submission): ?string
+    {
+        $submission->loadMissing([
+            'employee.skYayasanEmployeeData',
+            'importBatch.rows',
+        ]);
+
+        $matchedRow = $this->submissionMatchedImportRow($submission);
+        $rowKeterangan = $this->resolveEffectiveSkYayasanKeteranganLabel(
+            $matchedRow?->source_keterangan,
+            $matchedRow?->source_tmt_pertama,
+            $submission->employee?->tmt,
+            $matchedRow?->source_masa_kerja ?: $submission->employee?->masa_kerja,
+            $submission->employee?->nip
+        );
+        if ($rowKeterangan !== null) {
+            return $rowKeterangan;
+        }
+
+        return $this->resolveEffectiveSkYayasanKeteranganLabel(
+            $submission->employee?->skYayasanEmployeeData?->keterangan,
+            $submission->employee?->tmt,
+            null,
+            $submission->employee?->masa_kerja,
+            $submission->employee?->nip
+        );
+    }
+
+    private function submissionMatchedImportRow(SkYayasanRequest $submission): ?SkYayasanImportRow
+    {
+        return $submission->importBatch?->rows
+            ?->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $submission->employee_id);
+    }
+
+    private function resolveEffectiveSkYayasanKeteranganLabel(
+        ?string $value,
+        mixed $primaryTmt = null,
+        mixed $fallbackTmt = null,
+        mixed $fallbackTenure = null,
+        mixed $existingNipm = null
+    ): ?string {
+        $normalized = $this->normalizeSkYayasanKeteranganLabel($value);
+
+        if ($normalized === null) {
+            return null;
+        }
+
+        $employmentType = $this->detectEmploymentTypeFromText($normalized);
+        if ($employmentType === null) {
+            return $normalized;
+        }
+
+        $isTwoYearsOrMore = $this->skYayasanTenureIsTwoYearsOrMore($primaryTmt, $fallbackTmt, $fallbackTenure);
+        $hasNipm = $this->normalizeNipmValue($existingNipm) !== null;
+
+        if (in_array($employmentType, ['gty', 'pty'], true)) {
+            if ($isTwoYearsOrMore === false) {
+                return $employmentType === 'gty'
+                    ? 'Pengangkatan/Perpanjangan GTT'
+                    : 'Pengangkatan/Perpanjangan PTT';
+            }
+
+            if ($isTwoYearsOrMore === true) {
+                if ($hasNipm) {
+                    return $employmentType === 'gty'
+                        ? 'Perpanjangan GTY'
+                        : 'Perpanjangan PTY';
+                }
+
+                return $employmentType === 'gty'
+                    ? 'Pengangkatan GTY'
+                    : 'Pengangkatan PTY';
+            }
+
+            return $normalized;
+        }
+
+        if (in_array($employmentType, ['gtt', 'ptt'], true) && $isTwoYearsOrMore === true) {
+            if ($hasNipm) {
+                return $employmentType === 'gtt'
+                    ? 'Perpanjangan GTY'
+                    : 'Perpanjangan PTY';
+            }
+
+            return $employmentType === 'gtt'
+                ? 'Pengangkatan GTY'
+                : 'Pengangkatan PTY';
+        }
+
+        return $normalized;
+    }
+
+    private function skYayasanTenureIsTwoYearsOrMore(
+        mixed $primaryTmt = null,
+        mixed $fallbackTmt = null,
+        mixed $fallbackTenure = null
+    ): ?bool {
+        $tmtDate = $this->parseFlexibleDate($primaryTmt) ?? $this->parseFlexibleDate($fallbackTmt);
+
+        if ($tmtDate !== null) {
+            return $tmtDate->copy()->addYears(2)->startOfDay()->lessThanOrEqualTo(now()->startOfDay());
+        }
+
+        $tenure = trim((string) $fallbackTenure);
+        if ($tenure === '') {
+            return null;
+        }
+
+        preg_match('/(\d+)\s*tahun/i', $tenure, $yearMatches);
+        preg_match('/(\d+)\s*bulan/i', $tenure, $monthMatches);
+
+        if (!$yearMatches && !$monthMatches) {
+            return null;
+        }
+
+        $years = isset($yearMatches[1]) ? (int) $yearMatches[1] : 0;
+        $months = isset($monthMatches[1]) ? (int) $monthMatches[1] : 0;
+
+        return $years > 2 || ($years === 2 && $months >= 0);
     }
 
     private function detectEmploymentTypeFromText(string $source): ?string
@@ -2864,6 +3034,7 @@ class SkYayasanController extends Controller
             ->get(['id', 'scod', 'name', 'kabupaten']);
 
         $activeRequests = $this->activeSuperAdminSubmissionQuery()
+            ->with(['employee:id,nip,tmt,masa_kerja'])
             ->get(['id', 'madrasah_id', 'employee_id', 'import_batch_id']);
 
         $activeRequestBatchIds = $activeRequests->pluck('import_batch_id')
@@ -2875,7 +3046,13 @@ class SkYayasanController extends Controller
             ? collect()
             : SkYayasanImportRow::query()
                 ->whereIn('batch_id', $activeRequestBatchIds)
-                ->get(['batch_id', 'matched_user_id', 'source_keterangan'])
+                ->get([
+                    'batch_id',
+                    'matched_user_id',
+                    'source_keterangan',
+                    'source_tmt_pertama',
+                    'source_masa_kerja',
+                ])
                 ->groupBy('batch_id');
 
         $activeBatches = SkYayasanImportBatch::query()
@@ -2963,7 +3140,13 @@ class SkYayasanController extends Controller
             $matchedRow = collect($requestRowsByBatch->get($submission->import_batch_id, []))
                 ->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $submission->employee_id);
 
-            $keteranganLabel = $this->normalizeSkYayasanKeteranganLabel($matchedRow?->source_keterangan)
+            $keteranganLabel = $this->resolveEffectiveSkYayasanKeteranganLabel(
+                $matchedRow?->source_keterangan,
+                $matchedRow?->source_tmt_pertama,
+                $submission->employee?->tmt,
+                $matchedRow?->source_masa_kerja ?: $submission->employee?->masa_kerja,
+                $submission->employee?->nip
+            )
                 ?? $fallbackKeteranganLabel;
 
             if (!array_key_exists($keteranganLabel, $summary['keterangan_counts'])) {
@@ -3554,20 +3737,6 @@ class SkYayasanController extends Controller
             $importRow?->source_tmt_pertama,
             $employee?->tmt
         );
-        $employmentType = $this->detectEmploymentType($submission)
-            ?? $this->detectEmploymentTypeFromText((string) $importRow?->source_keterangan);
-        $generatedPerformanceScore = $this->resolveGeneratedSkPerformanceScore(
-            $employee,
-            $importRow?->source_penilaian_kinerja,
-            $employeeSkData?->penilaian_kinerja,
-            $employmentType
-        );
-        $formattedTenure = $this->formatTenureFromTmt(
-            $importRow?->source_tmt_pertama,
-            $employee?->tmt,
-            $issuedDate,
-            $employee?->masa_kerja
-        );
 
         $pick = function (...$values) {
             foreach ($values as $value) {
@@ -3580,6 +3749,22 @@ class SkYayasanController extends Controller
 
             return '-';
         };
+        $effectiveKeterangan = $this->submissionKeteranganLabel($submission)
+            ?? $pick($importRow?->source_keterangan, $employeeSkData?->keterangan);
+        $employmentType = $this->detectEmploymentType($submission)
+            ?? $this->detectEmploymentTypeFromText((string) $effectiveKeterangan);
+        $generatedPerformanceScore = $this->resolveGeneratedSkPerformanceScore(
+            $employee,
+            $importRow?->source_penilaian_kinerja,
+            $employeeSkData?->penilaian_kinerja,
+            $employmentType
+        );
+        $formattedTenure = $this->formatTenureFromTmt(
+            $importRow?->source_tmt_pertama,
+            $employee?->tmt,
+            $issuedDate,
+            $employee?->masa_kerja
+        );
         $formattedDegree = $this->formatDegreePlaceholder($pick($importRow?->source_gelar, $employee?->gelar));
         $formattedEducation = $this->normalizeSarjanawiyataTamansiswaEducation(
             $pick($importRow?->source_pendidikan_terakhir, $employee->pendidikan_terakhir)
@@ -3608,7 +3793,7 @@ class SkYayasanController extends Controller
             '{{program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
             '{{mapel_tugas_yang_diampu}}' => $pick($importRow?->source_mapel_tugas, $employee->mengajar),
             '{{penilaian_kinerja}}' => $generatedPerformanceScore,
-            '{{keterangan_sk_yayasan}}' => $pick($importRow?->source_keterangan, $employeeSkData?->keterangan),
+            '{{keterangan_sk_yayasan}}' => $effectiveKeterangan,
             '{{jabatan}}' => $employee->ketugasan ?? '-',
             '{{status_kepegawaian}}' => $employee->statusKepegawaian?->name ?? ($submission->employment_category ?? '-'),
             '{{tanggal_mulai}}' => $overrides['tanggal_mulai'] ?? '01 Juli ' . now()->format('Y'),
@@ -3643,7 +3828,7 @@ class SkYayasanController extends Controller
             '{{source_program_studi}}' => $pick($importRow?->source_program_studi, $employee->program_studi),
             '{{source_mapel_tugas}}' => $pick($importRow?->source_mapel_tugas, $employee->mengajar),
             '{{source_penilaian_kinerja}}' => $generatedPerformanceScore,
-            '{{source_keterangan}}' => $pick($importRow?->source_keterangan, $employeeSkData?->keterangan),
+            '{{source_keterangan}}' => $effectiveKeterangan,
         ];
 
         foreach ($overrides as $key => $value) {
