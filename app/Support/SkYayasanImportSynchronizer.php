@@ -202,6 +202,13 @@ class SkYayasanImportSynchronizer
         }
 
         if (
+            $this->keteranganRequiresExistingNipm($keterangan)
+            && !$this->nullableString($rowData['nip_ma_arif'] ?? $rowData['nip_maarif'] ?? null)
+        ) {
+            $errors[] = 'NIPM wajib diisi untuk pengajuan Perpanjangan GTY/PTY.';
+        }
+
+        if (
             $user
             && $this->keteranganRequiresExistingNipm($keterangan)
             && $this->normalizeNipmValue($user->nip) === null

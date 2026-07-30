@@ -585,7 +585,28 @@
             $fields[] = 'source_keterangan';
         }
 
+        if ($errors->contains(fn ($error) => str_contains($error, 'NIPM wajib diisi') || str_contains($error, 'belum memiliki NIPM'))) {
+            $fields[] = 'source_nip_maarif';
+        }
+
         return array_values(array_unique($fields));
+    };
+
+    $resolveNipmImportWarning = function ($row) {
+        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+        $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
+        $nipmValue = trim((string) ($row->source_nip_maarif ?? ''));
+
+        $existingWarning = $errors->first(fn ($error) => str_contains($error, 'NIPM wajib diisi') || str_contains($error, 'belum memiliki NIPM'));
+        if ($existingWarning) {
+            return $existingWarning;
+        }
+
+        if (in_array($keterangan, ['perpanjangan gty', 'perpanjangan pty'], true) && $nipmValue === '') {
+            return 'NIPM wajib diisi untuk pengajuan Perpanjangan GTY/PTY.';
+        }
+
+        return null;
     };
 @endphp
 
@@ -1274,45 +1295,58 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($batch->rows as $row)
-                                            @php
-                                                $rowErrorFields = $resolveImportErrorFields($row);
-                                            @endphp
+                                            @foreach($batch->rows as $row)
+                                                @php
+                                                    $rowErrorFields = $resolveImportErrorFields($row);
+                                                    $nipmWarning = $resolveNipmImportWarning($row);
+                                                @endphp
                                             <tr>
                                                 <td class="sky-row-select-col">
                                                     <input type="checkbox" class="form-check-input" data-row-select>
                                                 </td>
                                                 <input type="hidden" name="rows[{{ $loop->index }}][row_number]" value="{{ $row->row_number }}">
                                                 @foreach($importPreviewColumns as $column)
-                                                    @php
-                                                        $field = $importPreviewFieldMap[$column] ?? null;
-                                                        $value = $field ? data_get($row, $field, '') : '';
-                                                        $value = $value === '-' ? '' : $value;
-                                                        $hasFieldError = $field && in_array($field, $rowErrorFields, true);
-                                                    @endphp
-                                                    <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ $hasFieldError ? 'sky-cell-error' : '' }}">
-                                                        @if($column === 'Keterangan')
-                                                            <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
-                                                                <option value="">Pilih</option>
+                                                        @php
+                                                            $field = $importPreviewFieldMap[$column] ?? null;
+                                                            $value = $field ? data_get($row, $field, '') : '';
+                                                            $value = $value === '-' ? '' : $value;
+                                                            $hasFieldError = $field && in_array($field, $rowErrorFields, true);
+                                                            $hasNipmWarning = $field === 'source_nip_maarif' && $nipmWarning;
+                                                        @endphp
+                                                        <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ ($hasFieldError || $hasNipmWarning) ? 'sky-cell-error' : '' }}">
+                                                            @if($column === 'Keterangan')
+                                                                <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
+                                                                    <option value="">Pilih</option>
                                                                 @foreach($keteranganOptions as $option)
                                                                     <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
                                                                 @endforeach
                                                             </select>
                                                         @else
-                                                            <input type="text"
-                                                                   name="rows[{{ $loop->parent->index }}][{{ $field }}]"
-                                                                   value="{{ $value }}"
-                                                                   class="form-control form-control-sm">
-                                                        @endif
-                                                    </td>
-                                                @endforeach
+                                                                <input type="text"
+                                                                       name="rows[{{ $loop->parent->index }}][{{ $field }}]"
+                                                                       value="{{ $value }}"
+                                                                       class="form-control form-control-sm">
+                                                                @if($hasNipmWarning)
+                                                                    <small class="text-danger d-block mt-1">{{ $nipmWarning }}</small>
+                                                                @endif
+                                                            @endif
+                                                        </td>
+                                                    @endforeach
                                                 <td class="{{ in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : '' }}">{{ $row->matched_name ?? '-' }}</td>
                                                 <td>
                                                     <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
                                                         {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
                                                     </span>
                                                 </td>
-                                                <td class="wrap">{{ !empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap disinkronkan.' }}</td>
+                                                <td class="wrap">
+                                                    @php
+                                                        $rowMessages = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+                                                        if ($nipmWarning && !$rowMessages->contains($nipmWarning)) {
+                                                            $rowMessages->prepend($nipmWarning);
+                                                        }
+                                                    @endphp
+                                                    {{ $rowMessages->isNotEmpty() ? $rowMessages->implode(' ') : 'Data siap disinkronkan.' }}
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
