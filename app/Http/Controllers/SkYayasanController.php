@@ -1143,6 +1143,9 @@ class SkYayasanController extends Controller
         $eligibleSchoolIds = $schools->pluck('id')->map(fn ($id) => (int) $id)->all();
 
         $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($allSyncedSchools);
+        $pendingAppointmentRequests = $appointmentRequests->where('decision_status', 'pending');
+        $approvedAppointmentRequests = $appointmentRequests->where('decision_status', 'approved')->values();
+        $rejectedAppointmentRequests = $appointmentRequests->where('decision_status', 'rejected')->values();
 
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
@@ -1161,8 +1164,10 @@ class SkYayasanController extends Controller
             'uppmValidationPeriodLabel' => $uppmValidationPeriodLabel,
             'uppmBlockedSchoolCount' => $blockedSchools->count(),
             'syncedSchoolCount' => $syncedSchoolCount,
-            'appointmentRequests' => $appointmentRequests->where('tmt_is_two_years_or_more', true)->values(),
-            'appointmentRequestsUnderTwoYears' => $appointmentRequests->where('tmt_is_two_years_or_more', false)->values(),
+            'appointmentRequests' => $pendingAppointmentRequests->where('tmt_is_two_years_or_more', true)->values(),
+            'appointmentRequestsUnderTwoYears' => $pendingAppointmentRequests->where('tmt_is_two_years_or_more', false)->values(),
+            'approvedAppointmentRequests' => $approvedAppointmentRequests,
+            'rejectedAppointmentRequests' => $rejectedAppointmentRequests,
         ]);
     }
 
@@ -1294,6 +1299,13 @@ class SkYayasanController extends Controller
 
         $this->refreshPersistedImportBatchAnalysis($row->batch);
         $row->refresh();
+        $row->update([
+            'sk_payload' => $this->mergeAppointmentDecisionMetadata($row->sk_payload ?? [], [
+                '_appointment_decision' => 'approved',
+                '_appointment_decided_at' => now()->toIso8601String(),
+            ]),
+        ]);
+        $row->refresh();
 
         $user = $row->matched_user_id ? User::query()->find($row->matched_user_id) : null;
         if ($user) {
@@ -1320,6 +1332,13 @@ class SkYayasanController extends Controller
         ]);
 
         $this->refreshPersistedImportBatchAnalysis($row->batch);
+        $row->refresh();
+        $row->update([
+            'sk_payload' => $this->mergeAppointmentDecisionMetadata($row->sk_payload ?? [], [
+                '_appointment_decision' => 'rejected',
+                '_appointment_decided_at' => now()->toIso8601String(),
+            ]),
+        ]);
         $row->refresh();
 
         $user = $row->matched_user_id ? User::query()->find($row->matched_user_id) : null;
@@ -1362,7 +1381,7 @@ class SkYayasanController extends Controller
                 'status_label' => $analysis['status_label'] ?? null,
                 'validation_errors' => $analysis['errors'] ?? [],
                 'user_payload' => $analysis['user_payload'] ?? [],
-                'sk_payload' => $analysis['sk_payload'] ?? [],
+                'sk_payload' => $this->mergeAppointmentDecisionMetadata($analysis['sk_payload'] ?? [], $row->sk_payload ?? []),
             ]);
         }
 
@@ -2382,6 +2401,7 @@ class SkYayasanController extends Controller
                     'source_tanggal_lahir',
                     'source_tmt_pertama',
                     'source_masa_kerja',
+                    'sk_payload',
                 ])
                 ->groupBy('batch_id');
 
@@ -2420,8 +2440,9 @@ class SkYayasanController extends Controller
                     $matchedRow?->source_masa_kerja ?: $request->employee?->masa_kerja,
                     $request->employee?->nip
                 );
+                $decisionStatus = $this->extractAppointmentDecisionStatus($matchedRow?->sk_payload ?? []);
 
-                if (!in_array($keterangan, ['Pengangkatan GTY', 'Pengangkatan PTY'], true)) {
+                if (!$this->shouldIncludeAppointmentRequest($keterangan, $decisionStatus)) {
                     return null;
                 }
 
@@ -2437,6 +2458,7 @@ class SkYayasanController extends Controller
                     'teacher_name' => $request->employee?->name ?? '-',
                     'keterangan' => $keterangan,
                     'rejection_keterangan' => $this->resolveRejectedAppointmentKeterangan($keterangan),
+                    'decision_status' => $decisionStatus,
                     'existing_nipm' => $request->employee?->nip,
                     'source_nipm' => $matchedRow?->source_nip_maarif,
                     'birth_date' => $matchedRow?->source_tanggal_lahir ?: $request->employee?->tanggal_lahir,
@@ -2564,6 +2586,35 @@ class SkYayasanController extends Controller
             'pty' => $isExtensionRequest ? 'Perpanjangan PTT' : 'Pengangkatan PTT',
             default => null,
         };
+    }
+
+    private function shouldIncludeAppointmentRequest(?string $keterangan, string $decisionStatus): bool
+    {
+        if (in_array($decisionStatus, ['approved', 'rejected'], true)) {
+            return true;
+        }
+
+        return in_array($keterangan, ['Pengangkatan GTY', 'Pengangkatan PTY'], true);
+    }
+
+    private function extractAppointmentDecisionStatus(array $skPayload): string
+    {
+        $decision = data_get($skPayload, '_appointment_decision');
+
+        return in_array($decision, ['approved', 'rejected'], true)
+            ? $decision
+            : 'pending';
+    }
+
+    private function mergeAppointmentDecisionMetadata(array $payload, array $existingPayload = []): array
+    {
+        foreach ($existingPayload as $key => $value) {
+            if (str_starts_with((string) $key, '_appointment_') && !array_key_exists($key, $payload)) {
+                $payload[$key] = $value;
+            }
+        }
+
+        return $payload;
     }
 
     private function normalizeNipmSchoolScod(mixed $scod): string

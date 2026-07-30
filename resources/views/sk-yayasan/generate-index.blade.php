@@ -562,6 +562,128 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-12 col-xl-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <div class="sky-panel-label mb-1">Data Sudah Disetujui</div>
+                            <h6 class="mb-0">Daftar guru pengangkatan yang NIPM-nya sudah divalidasi</h6>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="sky-chip">{{ $approvedAppointmentRequests->count() }} data</span>
+                        </div>
+                    </div>
+
+                    @if($approvedAppointmentRequests->isNotEmpty())
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tahun Pengajuan SK</th>
+                                        <th>Nama Sekolah</th>
+                                        <th>Nama Guru</th>
+                                        <th>TMT Diajukan</th>
+                                        <th>Keterangan</th>
+                                        <th>NIPM</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($approvedAppointmentRequests as $appointmentData)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ data_get($appointmentData, 'submission_year', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
+                                            <td>
+                                                <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-semibold">{{ data_get($appointmentData, 'nipm_value', '-') }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success-subtle text-success">Disetujui</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="sky-empty-state py-5">
+                            <i class="bx bx-check-circle"></i>
+                            <strong>Belum ada data yang disetujui</strong>
+                            <small>Guru yang sudah disetujui akan tetap tampil di sini sebagai riwayat validasi NIPM.</small>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <div class="sky-panel-label mb-1">Data Sudah Ditolak</div>
+                            <h6 class="mb-0">Daftar guru pengangkatan yang dialihkan ke keterangan GTT/PTT</h6>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="sky-chip">{{ $rejectedAppointmentRequests->count() }} data</span>
+                        </div>
+                    </div>
+
+                    @if($rejectedAppointmentRequests->isNotEmpty())
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tahun Pengajuan SK</th>
+                                        <th>Nama Sekolah</th>
+                                        <th>Nama Guru</th>
+                                        <th>TMT Diajukan</th>
+                                        <th>Keterangan Pengajuan</th>
+                                        <th>Keterangan Setelah Ditolak</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($rejectedAppointmentRequests as $appointmentData)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ data_get($appointmentData, 'submission_year', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
+                                            <td>
+                                                <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger-subtle text-danger">{{ data_get($appointmentData, 'rejection_keterangan', '-') }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger-subtle text-danger">Ditolak</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="sky-empty-state py-5">
+                            <i class="bx bx-x-circle"></i>
+                            <strong>Belum ada data yang ditolak</strong>
+                            <small>Guru yang ditolak dari antrean pengangkatan akan tetap tampil di sini dengan hasil keterangan GTT/PTT.</small>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script>
