@@ -1126,9 +1126,23 @@ class SkYayasanController extends Controller
             );
         }
 
+        $allSyncedSchools = $this->prepareGenerateQueueSchools(
+            $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey, false)
+                ->withCount($schoolCounts)
+                ->get(),
+            $numberLockSupported,
+            $uppmValidationEnabled
+                ? $uppmPaymentStatusService->summariesForYear(
+                    $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey, false)->get(),
+                    $uppmValidationYear
+                )
+                : null,
+            $uppmValidationEnabled ? $uppmValidationPeriodKey : null
+        );
+
         $eligibleSchoolIds = $schools->pluck('id')->map(fn ($id) => (int) $id)->all();
 
-        $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($schools);
+        $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($allSyncedSchools);
 
         return view('sk-yayasan.generate-index', [
             'schools' => $schools,
@@ -1199,7 +1213,7 @@ class SkYayasanController extends Controller
         $uppmValidationYear = (int) $uppmPaymentRequirement['year'];
         $uppmValidationPeriodKey = (string) $uppmPaymentRequirement['period_key'];
 
-        $schools = $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey)->get();
+        $schools = $this->generateQueueSchoolsQuery($uppmValidationYear, $uppmValidationPeriodKey, false)->get();
         $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($schools)
             ->keyBy(fn (array $row) => (int) $row['teacher_id']);
 
