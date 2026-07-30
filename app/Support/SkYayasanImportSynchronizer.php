@@ -187,11 +187,14 @@ class SkYayasanImportSynchronizer
             $errors[] = 'TMT Pertama tidak valid.';
         }
 
+        $importedNipm = $this->normalizeNipmValue($rowData['nip_ma_arif'] ?? $rowData['nip_maarif'] ?? null);
+        $resolvedExistingNipm = $importedNipm ?? $this->normalizeNipmValue($user?->nip);
+
         $effectiveKeterangan = $this->resolveEffectiveKeteranganOption(
             $keterangan,
             $tmtPertama,
             $user?->tmt,
-            $user?->nip
+            $resolvedExistingNipm
         );
 
         $tahunLulus = $this->parseYearValue($rowData['tahun_lulus'] ?? null);
@@ -218,7 +221,7 @@ class SkYayasanImportSynchronizer
         if (
             $user
             && $this->keteranganRequiresExistingNipm($effectiveKeterangan)
-            && $this->normalizeNipmValue($user->nip) === null
+            && $resolvedExistingNipm === null
         ) {
             $errors[] = 'Keterangan tidak valid: Perpanjangan GTY/PTY hanya bisa diajukan untuk guru yang sudah memiliki NIPM.';
         }
