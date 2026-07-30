@@ -2862,6 +2862,7 @@ class SkYayasanController extends Controller
         }
 
         $isTwoYearsOrMore = $this->skYayasanTenureIsTwoYearsOrMore($primaryTmt, $fallbackTmt, $fallbackTenure);
+        $tmtTenureBand = $this->skYayasanTenureBandFromTmt($primaryTmt, $fallbackTmt);
         $hasNipm = $this->normalizeNipmValue($existingNipm) !== null;
 
         if (in_array($employmentType, ['gty', 'pty'], true)) {
@@ -2876,6 +2877,12 @@ class SkYayasanController extends Controller
                     $this->normalizeTemplateText($normalized),
                     'perpanjangan'
                 );
+
+                if (!$hasNipm && $tmtTenureBand === 'between_2_and_3_years') {
+                    return $employmentType === 'gty'
+                        ? 'Pengangkatan GTY'
+                        : 'Pengangkatan PTY';
+                }
 
                 if ($isExtensionRequest && !$hasNipm) {
                     return $normalized;
@@ -2915,10 +2922,9 @@ class SkYayasanController extends Controller
         mixed $fallbackTmt = null,
         mixed $fallbackTenure = null
     ): ?bool {
-        $tmtDate = $this->parseFlexibleDate($primaryTmt) ?? $this->parseFlexibleDate($fallbackTmt);
-
-        if ($tmtDate !== null) {
-            return $tmtDate->copy()->addYears(2)->startOfDay()->lessThanOrEqualTo(now()->startOfDay());
+        $tmtTenureBand = $this->skYayasanTenureBandFromTmt($primaryTmt, $fallbackTmt);
+        if ($tmtTenureBand !== null) {
+            return $tmtTenureBand !== 'under_2_years';
         }
 
         $tenure = trim((string) $fallbackTenure);
@@ -2937,6 +2943,29 @@ class SkYayasanController extends Controller
         $months = isset($monthMatches[1]) ? (int) $monthMatches[1] : 0;
 
         return $years > 2 || ($years === 2 && $months >= 0);
+    }
+
+    private function skYayasanTenureBandFromTmt(
+        mixed $primaryTmt = null,
+        mixed $fallbackTmt = null
+    ): ?string {
+        $tmtDate = $this->parseFlexibleDate($primaryTmt) ?? $this->parseFlexibleDate($fallbackTmt);
+
+        if ($tmtDate === null) {
+            return null;
+        }
+
+        $today = now()->startOfDay();
+
+        if ($tmtDate->copy()->addYears(3)->startOfDay()->lessThanOrEqualTo($today)) {
+            return 'three_years_or_more';
+        }
+
+        if ($tmtDate->copy()->addYears(2)->startOfDay()->lessThanOrEqualTo($today)) {
+            return 'between_2_and_3_years';
+        }
+
+        return 'under_2_years';
     }
 
     private function detectEmploymentTypeFromText(string $source): ?string

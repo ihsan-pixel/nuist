@@ -187,6 +187,13 @@ class SkYayasanImportSynchronizer
             $errors[] = 'TMT Pertama tidak valid.';
         }
 
+        $effectiveKeterangan = $this->resolveEffectiveKeteranganOption(
+            $keterangan,
+            $tmtPertama,
+            $user?->tmt,
+            $user?->nip
+        );
+
         $tahunLulus = $this->parseYearValue($rowData['tahun_lulus'] ?? null);
         if (($rowData['tahun_lulus'] ?? null) !== null && ($rowData['tahun_lulus'] ?? null) !== '' && $tahunLulus === null) {
             $errors[] = 'Tahun Lulus harus 4 digit.';
@@ -202,7 +209,7 @@ class SkYayasanImportSynchronizer
         }
 
         if (
-            $this->keteranganRequiresExistingNipm($keterangan)
+            $this->keteranganRequiresExistingNipm($effectiveKeterangan)
             && !$this->nullableString($rowData['nip_ma_arif'] ?? $rowData['nip_maarif'] ?? null)
         ) {
             $errors[] = 'NIPM wajib diisi untuk pengajuan Perpanjangan GTY/PTY.';
@@ -210,7 +217,7 @@ class SkYayasanImportSynchronizer
 
         if (
             $user
-            && $this->keteranganRequiresExistingNipm($keterangan)
+            && $this->keteranganRequiresExistingNipm($effectiveKeterangan)
             && $this->normalizeNipmValue($user->nip) === null
         ) {
             $errors[] = 'Keterangan tidak valid: Perpanjangan GTY/PTY hanya bisa diajukan untuk guru yang sudah memiliki NIPM.';
@@ -235,7 +242,7 @@ class SkYayasanImportSynchronizer
 
         $skPayload = array_filter([
             'penilaian_kinerja' => $penilaianKinerja,
-            'keterangan' => $keterangan,
+            'keterangan' => $effectiveKeterangan ?? $keterangan,
         ], fn ($value) => $value !== null && $value !== '');
 
         if (empty($userPayload) && empty($skPayload)) {
@@ -430,6 +437,93 @@ class SkYayasanImportSynchronizer
     private function keteranganRequiresExistingNipm(?string $keterangan): bool
     {
         return in_array($keterangan, ['Perpanjangan GTY', 'Perpanjangan PTY'], true);
+    }
+
+    private function resolveEffectiveKeteranganOption(
+        ?string $keterangan,
+        mixed $primaryTmt = null,
+        mixed $fallbackTmt = null,
+        mixed $existingNipm = null
+    ): ?string {
+        if ($keterangan === null) {
+            return null;
+        }
+
+        $normalized = $this->normalizeKeteranganOption($keterangan);
+        if ($normalized === null) {
+            return null;
+        }
+
+        $employmentType = $this->detectEmploymentTypeFromKeterangan($normalized);
+        if ($employmentType === null) {
+            return $normalized;
+        }
+
+        $tenureBand = $this->tenureBandFromTmt($primaryTmt, $fallbackTmt);
+        $hasNipm = $this->normalizeNipmValue($existingNipm) !== null;
+
+        if (in_array($employmentType, ['gty', 'pty'], true)) {
+            if ($tenureBand === 'under_2_years') {
+                return $employmentType === 'gty'
+                    ? 'Pengangkatan/Perpanjangan GTT'
+                    : 'Pengangkatan/Perpanjangan PTT';
+            }
+
+            if (!$hasNipm && $tenureBand === 'between_2_and_3_years') {
+                return $employmentType === 'gty'
+                    ? 'Pengangkatan GTY'
+                    : 'Pengangkatan PTY';
+            }
+        }
+
+        if (in_array($employmentType, ['gtt', 'ptt'], true) && in_array($tenureBand, ['between_2_and_3_years', 'three_years_or_more'], true)) {
+            if ($hasNipm) {
+                return $employmentType === 'gtt'
+                    ? 'Perpanjangan GTY'
+                    : 'Perpanjangan PTY';
+            }
+
+            return $employmentType === 'gtt'
+                ? 'Pengangkatan GTY'
+                : 'Pengangkatan PTY';
+        }
+
+        return $normalized;
+    }
+
+    private function detectEmploymentTypeFromKeterangan(string $keterangan): ?string
+    {
+        $normalized = Str::lower(trim((string) preg_replace('/\s+/', ' ', $keterangan)));
+
+        foreach (['gty', 'pty', 'gtt', 'ptt'] as $type) {
+            if (preg_match('/\b' . preg_quote($type, '/') . '\b/', $normalized) === 1) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
+    private function tenureBandFromTmt(mixed $primaryTmt = null, mixed $fallbackTmt = null): ?string
+    {
+        $tmtDate = $this->parseDateValue($primaryTmt) ?? $this->parseDateValue($fallbackTmt);
+
+        if ($tmtDate === null) {
+            return null;
+        }
+
+        $tmt = Carbon::parse($tmtDate)->startOfDay();
+        $today = now()->startOfDay();
+
+        if ($tmt->copy()->addYears(3)->lessThanOrEqualTo($today)) {
+            return 'three_years_or_more';
+        }
+
+        if ($tmt->copy()->addYears(2)->lessThanOrEqualTo($today)) {
+            return 'between_2_and_3_years';
+        }
+
+        return 'under_2_years';
     }
 
     private function normalizeNipmValue(mixed $value): ?string
