@@ -31,7 +31,7 @@
         <div class="alert alert-info border-0 shadow-sm">
             Antrean generate saat ini hanya menampilkan sekolah yang sudah <strong>lunas UPPM periode <?php echo e($uppmValidationPeriodLabel); ?> tahun <?php echo e($uppmValidationYear); ?></strong>.
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($uppmBlockedSchoolCount > 0): ?>
-                <span class="d-block mt-1"><?php echo e(number_format($uppmBlockedSchoolCount)); ?> sekolah tersinkron belum muncul di antrean karena status UPPM-nya belum lunas.</span>
+                <span class="d-block mt-1"><?php echo e(number_format($uppmBlockedSchoolCount)); ?> sekolah tersinkron yang belum lunas ditampilkan pada div terpisah di bawah dan tetap bisa diproses generate dari sana.</span>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -133,7 +133,7 @@
                                         <th>SCOD</th>
                                         <th>Antrean</th>
                                         <th>Status Nomor SK</th>
-                                        <th>Tembusan Otomatis</th>
+                                        <th>Nomor Surat Pengajuan</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -180,10 +180,7 @@
                                                     <div class="text-muted">Belum ada dokumen yang digenerate</div>
                                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </td>
-                                            <td class="small">
-                                                <div><?php echo e($coreData['copy_recipient_1'] ?? '-'); ?></div>
-                                                <div class="text-muted mt-1"><?php echo e($coreData['copy_recipient_2'] ?? '-'); ?></div>
-                                            </td>
+                                            <td class="small"><?php echo e($school->submission_letter_reference['submission_letter_number'] ?? '-'); ?></td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     <a href="<?php echo e(route('sk-yayasan.generate.school', $school)); ?>" class="btn btn-sm btn-primary">
@@ -217,6 +214,108 @@
 
             </div>
         </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($uppmValidationEnabled): ?>
+            <div class="col-12">
+                <div class="card border-warning-subtle">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <div class="sky-panel-label mb-1">Antrean Generate Belum Lunas</div>
+                                <h6 class="mb-0">Sekolah sudah mengajukan, tetapi status UPPM periode <?php echo e($uppmValidationPeriodLabel); ?> belum lunas</h6>
+                            </div>
+                            <span class="sky-chip"><?php echo e($blockedSchools->count()); ?> sekolah</span>
+                        </div>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($blockedSchools->count() > 0): ?>
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Sekolah</th>
+                                            <th>SCOD</th>
+                                            <th>Antrean</th>
+                                            <th>Status Nomor SK</th>
+                                            <th>Nomor Surat Pengajuan</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $blockedSchools; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $school): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                            <?php ($generatedDocumentsCount = (int) ($school->generated_documents_count ?? 0)); ?>
+                                            <?php ($lockedDocumentsCount = (int) ($school->locked_documents_count ?? 0)); ?>
+                                            <?php ($readyLockCount = (int) ($school->ready_lock_count ?? 0)); ?>
+                                            <?php ($readyLockRange = $school->ready_lock_range); ?>
+                                            <?php ($allGeneratedLocked = $generatedDocumentsCount > 0 && $generatedDocumentsCount === $lockedDocumentsCount); ?>
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-semibold">
+                                                        <a href="<?php echo e(route('sk-yayasan.generate.school', $school)); ?>" class="text-decoration-none">
+                                                            <?php echo e($school->name); ?>
+
+                                                        </a>
+                                                    </div>
+                                                    <small class="text-muted"><?php echo e($school->kabupaten ?? 'Kabupaten belum diisi'); ?></small>
+                                                </td>
+                                                <td><?php echo e($school->scod ?? '-'); ?></td>
+                                                <td>
+                                                    <span class="badge bg-warning-subtle text-warning">
+                                                        <?php echo e(number_format($school->generate_requests_count)); ?> pengajuan
+                                                    </span>
+                                                </td>
+                                                <td class="small">
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$numberLockSupported): ?>
+                                                        <div class="text-muted">Fitur lock menunggu migration database</div>
+                                                    <?php elseif($generatedDocumentsCount > 0): ?>
+                                                        <div class="fw-semibold text-dark"><?php echo e($lockedDocumentsCount); ?>/<?php echo e($generatedDocumentsCount); ?> nomor terkunci</div>
+                                                        <div class="text-muted mt-1">
+                                                            <?php echo e($allGeneratedLocked ? 'Semua draft/generate sekolah ini sudah final.' : 'Nomor yang sudah dikunci tidak akan berubah saat generate ulang.'); ?>
+
+                                                        </div>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($readyLockCount > 0 && $readyLockRange): ?>
+                                                            <div class="mt-1">
+                                                                <span class="fw-semibold text-dark">Rentang siap dikunci (urut SCOD):</span>
+                                                                <span class="text-muted"><?php echo e($readyLockRange); ?></span>
+                                                            </div>
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                    <?php else: ?>
+                                                        <div class="text-muted">Belum ada dokumen yang digenerate</div>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                </td>
+                                                <td class="small"><?php echo e($school->submission_letter_reference['submission_letter_number'] ?? '-'); ?></td>
+                                                <td>
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        <a href="<?php echo e(route('sk-yayasan.generate.school', $school)); ?>" class="btn btn-sm btn-warning">
+                                                            Lihat Pengajuan
+                                                        </a>
+                                                        <form method="POST" action="<?php echo e(route('sk-yayasan.generate.school.lock-number', $school)); ?>">
+                                                            <?php echo csrf_field(); ?>
+                                                            <?php echo method_field('PATCH'); ?>
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-dark"
+                                                                    <?php if(!$numberLockSupported || $generatedDocumentsCount === 0 || $allGeneratedLocked): echo 'disabled'; endif; ?>
+                                                                    onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci akan tetap dipakai dan tidak akan diubah saat generate ulang.')">
+                                                                Kunci Nomor SK
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <div class="sky-empty-state py-5">
+                                <i class="bx bx-check-shield"></i>
+                                <strong>Semua sekolah tersinkron pada periode ini sudah lunas</strong>
+                                <small>Tidak ada antrean generate terpisah untuk sekolah belum lunas.</small>
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <div class="col-12">
             <div class="card">

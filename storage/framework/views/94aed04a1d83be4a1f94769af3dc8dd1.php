@@ -89,6 +89,21 @@
             <div class="card mgmp-stat-card p-3 h-100">
                 <div class="d-flex align-items-center">
                     <div class="avatar-md me-3">
+                        <div class="avatar-title bg-secondary-subtle text-secondary rounded-circle">
+                            <i class="mdi mdi-file-pdf-box fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Artikel PDF</div>
+                        <div class="h5 mb-0"><?php echo e($monitorSummary['total_articles'] ?? 0); ?></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card mgmp-stat-card p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-md me-3">
                         <div class="avatar-title bg-warning-subtle text-warning rounded-circle">
                             <i class="mdi mdi-chart-donut fs-4"></i>
                         </div>
@@ -165,11 +180,17 @@
                                             <span><?php echo e($update->members_count); ?> anggota</span>
                                             <span><?php echo e($update->reports_count); ?> kegiatan</span>
                                             <span><?php echo e($update->files_count); ?> lampiran</span>
+                                            <span><?php echo e($update->proposal_article_path ? 'Artikel tersedia' : 'Tanpa artikel'); ?></span>
                                         </div>
                                         <div class="d-flex flex-wrap gap-2">
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($update->proposal_path): ?>
                                                 <a href="<?php echo e(url('/uploads/' . $update->proposal_path)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">
                                                     <i class="mdi mdi-file-document-outline me-1"></i> Proposal
+                                                </a>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($update->proposal_article_path): ?>
+                                                <a href="<?php echo e(url('/uploads/' . $update->proposal_article_path)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="mdi mdi-file-pdf-box me-1"></i> Artikel
                                                 </a>
                                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($update->files_count > 0): ?>
@@ -213,6 +234,7 @@
                             <th>Pemilik / Pengupload</th>
                             <th>Judul Update</th>
                             <th>Progres</th>
+                            <th>Artikel PDF</th>
                             <th>Lampiran</th>
                             <th>Proposal Utama</th>
                             <th>Catatan</th>
@@ -252,6 +274,16 @@
                                         <div class="academica-progress-bar" style="width: <?php echo e(max(0, min(100, (int) $update->progress_percent))); ?>%;"></div>
                                     </div>
                                 </td>
+                                <td style="min-width: 220px;">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($update->proposal_article_path): ?>
+                                        <div class="fw-semibold mb-2"><?php echo e(\Illuminate\Support\Str::limit($update->proposal_article_title ?? $update->proposal_article_filename, 28)); ?></div>
+                                        <a href="<?php echo e(url('/uploads/' . $update->proposal_article_path)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="mdi mdi-file-pdf-box me-1"></i> Lihat Artikel
+                                        </a>
+                                    <?php else: ?>
+                                        <small class="text-muted">Tidak ada artikel PDF</small>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </td>
                                 <td id="<?php echo e('update-files-' . $update->id); ?>" style="min-width: 220px;">
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($update->files->isNotEmpty()): ?>
                                         <div class="d-flex flex-wrap gap-2">
@@ -282,7 +314,7 @@
                             </tr>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             <tr>
-                                <td colspan="9">
+                                <td colspan="10">
                                     <div class="mgmp-empty-state py-5">
                                         <i class="bx bx-data"></i>
                                         <strong>Belum ada data upload reset</strong>

@@ -52,9 +52,12 @@
 
                 <?php
                     $subjectValue = old('subject', optional($schedule)->subject ?? '');
-                    $classValue = old('class_name', optional($schedule)->class_name ?? '');
+                    $selectedClassNames = collect(old('class_names', $schedule ? $schedule->resolvedClassNames() : []))
+                        ->map(fn ($item) => trim((string) $item))
+                        ->filter()
+                        ->values();
+                    $additionalClassNames = old('class_name_new', '');
                     $subjectIsKnown = $subjectValue !== '' && $subjects->contains($subjectValue);
-                    $classIsKnown = $classValue !== '' && $classes->contains($classValue);
                 ?>
 
                 <div class="mb-3">
@@ -93,23 +96,29 @@
 
                 <div class="mb-3">
                     <label class="form-label mb-1">Kelas</label>
-                    <select class="form-select" name="class_name" id="classSelect" required>
-                        <option value="" <?php if($classValue === ''): echo 'selected'; endif; ?>>Pilih kelas</option>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                            <option value="<?php echo e($c); ?>" <?php if($classValue === (string) $c): echo 'selected'; endif; ?>><?php echo e($c); ?></option>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
-                        <option value="__new__" <?php if(!$classIsKnown && $classValue !== ''): echo 'selected'; endif; ?>>Tambah kelas baru...</option>
-                    </select>
-                    <input
-                        type="text"
+                    <input type="hidden" name="class_name" value="">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($classes->isNotEmpty()): ?>
+                        <div class="border rounded-3 p-3 bg-light">
+                            <div class="small text-muted mb-2">Pilih satu atau beberapa kelas yang digabung dalam jam mengajar ini.</div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $classes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <?php $checked = $selectedClassNames->contains((string) $c); ?>
+                                    <label class="btn btn-sm <?php echo e($checked ? 'btn-success' : 'btn-outline-secondary'); ?> rounded-pill px-3 class-chip">
+                                        <input type="checkbox" name="class_names[]" value="<?php echo e($c); ?>" class="d-none class-checkbox" <?php if($checked): echo 'checked'; endif; ?>>
+                                        <?php echo e($c); ?>
+
+                                    </label>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <textarea
                         class="form-control mt-2"
                         name="class_name_new"
-                        id="classNew"
-                        value="<?php echo e(old('class_name_new', $classIsKnown ? '' : $classValue)); ?>"
-                        placeholder="Tulis nama kelas baru"
-                        style="<?php echo e(($classValue === '' || $classIsKnown) ? 'display:none;' : ''); ?>"
-                    />
-                    <div class="form-text">Daftar kelas & mapel diambil dari jadwal madrasah Anda. Jika belum ada, pilih "Tambah ..." lalu ketik.</div>
+                        rows="2"
+                        placeholder="Tambahkan kelas lain jika perlu, pisahkan dengan koma atau baris baru"
+                    ><?php echo e($additionalClassNames); ?></textarea>
+                    <div class="form-text">Daftar kelas diambil dari jadwal madrasah Anda. Anda bisa memilih lebih dari satu kelas sekaligus.</div>
                 </div>
 
                 <div class="row g-2">
@@ -145,27 +154,41 @@
 
     <script>
         (function () {
-            function bindToggle(selectId, newInputId) {
-                const selectEl = document.getElementById(selectId);
-                const newEl = document.getElementById(newInputId);
-                if (!selectEl || !newEl) return;
-
-                const toggle = () => {
-                    if (selectEl.value === '__new__') {
-                        newEl.style.display = '';
-                    } else {
-                        newEl.style.display = 'none';
-                        newEl.value = '';
-                    }
-                };
-
-                selectEl.addEventListener('change', toggle);
-                toggle();
-            }
-
             document.addEventListener('DOMContentLoaded', function () {
-                bindToggle('subjectSelect', 'subjectNew');
-                bindToggle('classSelect', 'classNew');
+                const subjectSelect = document.getElementById('subjectSelect');
+                const subjectNew = document.getElementById('subjectNew');
+                if (subjectSelect && subjectNew) {
+                    const toggleSubject = () => {
+                        if (subjectSelect.value === '__new__') {
+                            subjectNew.style.display = '';
+                        } else {
+                            subjectNew.style.display = 'none';
+                            subjectNew.value = '';
+                        }
+                    };
+                    subjectSelect.addEventListener('change', toggleSubject);
+                    toggleSubject();
+                }
+
+                document.querySelectorAll('.class-chip').forEach((chip) => {
+                    const checkbox = chip.querySelector('.class-checkbox');
+                    if (!checkbox) return;
+
+                    const syncChip = () => {
+                        chip.classList.toggle('btn-success', checkbox.checked);
+                        chip.classList.toggle('btn-outline-secondary', !checkbox.checked);
+                    };
+
+                    chip.addEventListener('click', function (event) {
+                        if (event.target.tagName === 'INPUT') return;
+                        event.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                        syncChip();
+                    });
+
+                    checkbox.addEventListener('change', syncChip);
+                    syncChip();
+                });
             });
         })();
     </script>

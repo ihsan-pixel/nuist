@@ -385,7 +385,12 @@
     $totalSchedules = $allSchedules->count();
     $totalTeachers = $allSchedules->pluck('teacher_id')->filter()->unique()->count();
     $totalSubjects = $allSchedules->pluck('subject')->map(fn ($item) => trim((string) $item))->filter()->unique()->count();
-    $totalClasses = $allSchedules->pluck('class_name')->map(fn ($item) => trim((string) $item))->filter()->unique()->count();
+    $totalClasses = $allSchedules
+        ->flatMap(fn ($schedule) => $schedule->resolvedClassNames())
+        ->map(fn ($item) => trim((string) $item))
+        ->filter()
+        ->unique()
+        ->count();
     $baseScheduleUrl = route('teaching-schedules.school-schedules', ['schoolId' => $school->id]);
     $canCreateSchedules = in_array($user->role, ['admin', 'super_admin'], true);
     $canManagePeriods = in_array($user->role, ['admin', 'super_admin'], true);

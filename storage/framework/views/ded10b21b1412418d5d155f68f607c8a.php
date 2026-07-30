@@ -18,7 +18,7 @@
     );
     $defaultSkBody = <<<'HTML'
 <style>
-@page { margin: 6mm 16mm 5mm 16mm; }
+@page { margin: 6mm 15mm 5mm 15mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
@@ -208,13 +208,23 @@
     text-align: center;
     width: 14px;
 }
+.sk-reference-row .sk-label,
+.sk-decision-row .sk-label {
+    width: 98px;
+}
+.sk-reference-row .sk-colon,
+.sk-decision-row .sk-colon {
+    text-align: left;
+    width: 6px;
+}
 .sk-decision {
     font-weight: 700;
-    margin: 2px 0 0 0;
+    margin: 8px 0 0 0;
     text-align: center;
 }
 .sk-person-table {
     border-collapse: collapse;
+    border-spacing: 0;
     margin: 0;
     width: 100%;
 }
@@ -226,8 +236,13 @@
     display: block;
     padding-top: 1.2mm;
 }
+.sk-person-table tr {
+    line-height: 0.72;
+    margin: 0;
+    padding: 0;
+}
 .sk-person-table td {
-    line-height: 0.9;
+    line-height: 0.72;
     padding: 0 1px 0 0;
     vertical-align: top;
 }
@@ -381,7 +396,12 @@
         <tr class="sk-reference-row">
             <td class="sk-label">Memperhatikan</td>
             <td class="sk-colon">:</td>
-            <td class="sk-content-cell">Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</td>
+            <td class="sk-content-cell">
+                <ol class="sk-mengingat-list">
+                    <li>Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.</li>
+                    <li>Hasil verifikasi data kepegawaian dan kelengkapan berkas dari @{{nama_sekolah}}.</li>
+                </ol>
+            </td>
         </tr>
     </table>
 
@@ -462,7 +482,7 @@ HTML;
         '@{{nuptk}}' => '1234567890123456',
         '@{{nomor_kartanu}}' => 'NU.34.02.001',
         '@{{tmt_pertama}}' => '01 Juli 2020',
-        '@{{masa_kerja}}' => '6 tahun',
+        '@{{masa_kerja}}' => '06 Tahun 00 Bulan',
         '@{{pendidikan_terakhir}}' => 'S1',
         '@{{tahun_lulus}}' => '2015',
         '@{{program_studi}}' => 'Pendidikan Teknik Informatika',
@@ -491,7 +511,7 @@ HTML;
         '@{{source_nuptk}}' => '1234567890123456',
         '@{{source_nomor_kartanu}}' => 'NU.34.02.001',
         '@{{source_tmt_pertama}}' => '01 Juli 2020',
-        '@{{source_masa_kerja}}' => '6 tahun',
+        '@{{source_masa_kerja}}' => '06 Tahun 00 Bulan',
         '@{{source_pendidikan_terakhir}}' => 'S1',
         '@{{source_tahun_lulus}}' => '2015',
         '@{{source_program_studi}}' => 'Pendidikan Teknik Informatika',
@@ -591,9 +611,12 @@ HTML;
         'mengingat2Text' => 'Permendikbud Nomor 25 Tahun 2024;',
         'mengingat3Text' => "Pedoman Penyelenggaraan Pendidikan LP Ma'arif NU PWNU DIY Tahun 2024;",
         'mengingat4Text' => "Peraturan Kepegawaian LP Ma'arif NU PWNU DIY Tahun 2024.",
+        'mengingat5Text' => '',
         'mengingatContentFontSize' => 13.5,
         'memperhatikanLabelText' => 'Memperhatikan',
         'memperhatikanLabelFontSize' => 13.5,
+        'memperhatikan1Text' => 'Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.',
+        'memperhatikan2Text' => 'Hasil verifikasi data kepegawaian dan kelengkapan berkas dari @{{nama_sekolah}}.',
         'memperhatikanContentText' => 'Surat Permohonan Penerbitan dan Perpanjangan SK GTY, GTT, PTY dan PTT Kepala @{{nama_sekolah}}.',
         'memperhatikanContentFontSize' => 13.5,
         'decisionText' => 'MEMUTUSKAN',
@@ -682,8 +705,10 @@ HTML;
                 ['key' => 'mengingat2Text', 'label' => 'Mengingat 2', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '2.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'mengingat3Text', 'label' => 'Mengingat 3', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '3.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'mengingat4Text', 'label' => 'Mengingat 4', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '4.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'mengingat5Text', 'label' => 'Mengingat 5', 'type' => 'text', 'fontKey' => 'mengingatContentFontSize', 'prefix' => '5.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
                 ['key' => 'memperhatikanLabelText', 'label' => 'Label Memperhatikan', 'type' => 'text', 'fontKey' => 'memperhatikanLabelFontSize'],
-                ['key' => 'memperhatikanContentText', 'label' => 'Isi Memperhatikan', 'type' => 'textarea', 'rows' => 3, 'fontKey' => 'memperhatikanContentFontSize'],
+                ['key' => 'memperhatikan1Text', 'label' => 'Memperhatikan 1', 'type' => 'text', 'fontKey' => 'memperhatikanContentFontSize', 'prefix' => '1.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
+                ['key' => 'memperhatikan2Text', 'label' => 'Memperhatikan 2', 'type' => 'text', 'fontKey' => 'memperhatikanContentFontSize', 'prefix' => '2.', 'help' => 'Nomor dibuat otomatis. Isi kolom ini cukup teksnya saja.'],
             ],
         ],
         [
@@ -1557,17 +1582,24 @@ HTML;
         }
 
         function stripLeadingListMarker(value) {
-            return String(value ?? '').replace(/^\s*\d+[\.\)]\s*/u, '').trim();
+            return String(value ?? '')
+                .replace(/^\s*\d+[\.\)]\s*/u, '')
+                .replace(/^[\s\-?•:�\uFEFF\u00A0]+/u, '')
+                .trim();
         }
 
         function normalizeStructuredConfig(config) {
             const normalized = { ...config };
 
-            ['mengingat1Text', 'mengingat2Text', 'mengingat3Text', 'mengingat4Text'].forEach((key) => {
+            ['mengingat1Text', 'mengingat2Text', 'mengingat3Text', 'mengingat4Text', 'mengingat5Text', 'memperhatikan1Text', 'memperhatikan2Text'].forEach((key) => {
                 if (Object.prototype.hasOwnProperty.call(normalized, key)) {
                     normalized[key] = stripLeadingListMarker(normalized[key]);
                 }
             });
+
+            if ((!normalized.memperhatikan1Text || !String(normalized.memperhatikan1Text).trim()) && normalized.memperhatikanContentText) {
+                normalized.memperhatikan1Text = stripLeadingListMarker(normalized.memperhatikanContentText);
+            }
 
             return normalized;
         }
@@ -1637,7 +1669,7 @@ HTML;
                     </tr>
                 `).join('');
 
-            const mengingatItems = [1, 2, 3, 4]
+            const mengingatItems = [1, 2, 3, 4, 5]
                 .map((index) => stripLeadingListMarker(config[`mengingat${index}Text`]))
                 .filter(Boolean)
                 .map((item) => `<li>${nl2br(item)}</li>`)
@@ -1645,6 +1677,16 @@ HTML;
 
             const mengingatMarkup = mengingatItems
                 ? `<ol class="sk-mengingat-list">${mengingatItems}</ol>`
+                : '';
+
+            const memperhatikanItems = [1, 2]
+                .map((index) => stripLeadingListMarker(config[`memperhatikan${index}Text`]))
+                .filter(Boolean)
+                .map((item) => `<li>${nl2br(item)}</li>`)
+                .join('');
+
+            const memperhatikanMarkup = memperhatikanItems
+                ? `<ol class="sk-mengingat-list">${memperhatikanItems}</ol>`
                 : '';
 
             const copyItems = [1, 2, 3]
@@ -1660,7 +1702,7 @@ HTML;
 
             return `
 <style>
-@page { margin: 6mm 16mm 5mm 16mm; }
+@page { margin: 6mm 15mm 5mm 15mm; }
 .sk-full-document {
     box-sizing: border-box;
     color: #000;
@@ -1759,9 +1801,12 @@ HTML;
 .sk-menimbang-item { display: block; line-height: 1; margin: 0; text-align: justify; text-align-last: justify; text-justify: inter-word; white-space: pre-wrap; }
 .sk-label { width: 112px; }
 .sk-colon { text-align: center; width: 14px; }
-.sk-decision { font-weight: 700; margin: 2px 0 0 0; text-align: center; }
-.sk-person-table { margin: 7px 0 9px 0; width: 100%; }
-.sk-person-table td { line-height: 0.9; padding: 0 1px 0 0; vertical-align: top; }
+.sk-reference-row .sk-label, .sk-decision-row .sk-label { width: 98px; }
+.sk-reference-row .sk-colon, .sk-decision-row .sk-colon { text-align: left; width: 6px; }
+.sk-decision { font-weight: 700; margin: 8px 0 0 0; text-align: center; }
+.sk-person-table { border-spacing: 0; margin: 7px 0 9px 0; width: 100%; }
+.sk-person-table tr { line-height: 0.72; margin: 0; padding: 0; }
+.sk-person-table td { line-height: 0.72; padding: 0 1px 0 0; vertical-align: top; }
 .sk-person-no { width: 24px; }
 .sk-person-label { width: 160px; }
 .sk-person-table .sk-colon { width: 5px; }
@@ -1817,7 +1862,7 @@ HTML;
         <tr class="sk-reference-row">
             <td class="sk-label" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">${escapeHtml(config.memperhatikanLabelText)}</td>
             <td class="sk-colon" style="font-size:${safeFontSize(config.memperhatikanLabelFontSize)}pt;">:</td>
-            <td class="sk-content-cell" style="font-size:${safeFontSize(config.memperhatikanContentFontSize)}pt;">${nl2br(config.memperhatikanContentText)}</td>
+            <td class="sk-content-cell" style="font-size:${safeFontSize(config.memperhatikanContentFontSize)}pt;">${memperhatikanMarkup}</td>
         </tr>
     </table>
 

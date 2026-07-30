@@ -583,7 +583,28 @@
             $fields[] = 'source_keterangan';
         }
 
+        if ($errors->contains(fn ($error) => str_contains($error, 'NIPM wajib diisi') || str_contains($error, 'belum memiliki NIPM'))) {
+            $fields[] = 'source_nip_maarif';
+        }
+
         return array_values(array_unique($fields));
+    };
+
+    $resolveNipmImportWarning = function ($row) {
+        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+        $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
+        $nipmValue = trim((string) ($row->source_nip_maarif ?? ''));
+
+        $existingWarning = $errors->first(fn ($error) => str_contains($error, 'NIPM wajib diisi') || str_contains($error, 'belum memiliki NIPM'));
+        if ($existingWarning) {
+            return $existingWarning;
+        }
+
+        if (in_array($keterangan, ['perpanjangan gty', 'perpanjangan pty'], true) && $nipmValue === '') {
+            return 'NIPM wajib diisi untuk pengajuan Perpanjangan GTY/PTY.';
+        }
+
+        return null;
     };
 ?>
 
@@ -1103,6 +1124,14 @@
                                 <a href="<?php echo e(route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku'])); ?>" class="ms-2" target="_blank" rel="noopener">Penilaian Perilaku</a>
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->appointment_alert): ?>
+                            <div class="sky-inline-note sky-inline-note-danger mt-3">
+                                <strong>Perlu perhatian:</strong>
+                                <?php echo e($submission->appointment_alert['keterangan']); ?> ini memiliki masa kerja kurang dari 2 tahun.
+                                TMT: <?php echo e($submission->appointment_alert['tmt_label'] ?? '-'); ?>.
+                                Masa kerja saat ini: <?php echo e($submission->appointment_alert['tenure_label'] ?? '-'); ?>.
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select name="current_status" class="form-select" required>
@@ -1116,9 +1145,14 @@
                             <select name="template_id" class="form-select">
                                 <option value="">Belum dipilih</option>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $templates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $template): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                    <option value="<?php echo e($template->id); ?>" <?php if($submission->template_id == $template->id): echo 'selected'; endif; ?>><?php echo e($template->name); ?></option>
+                                    <option value="<?php echo e($template->id); ?>" <?php if(($submission->template_id ?? $submission->resolved_template?->id) == $template->id): echo 'selected'; endif; ?>><?php echo e($template->name); ?></option>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             </select>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$submission->template_id && $submission->resolved_template): ?>
+                                <small class="text-muted d-block mt-1">
+                                    Template otomatis mengikuti keterangan pengajuan: <strong><?php echo e($submission->resolved_template->name); ?></strong>
+                                </small>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                         <div class="mb-0">
                             <label class="form-label">Catatan Review</label>
@@ -1262,38 +1296,43 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $batch->rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                            <?php
-                                                $rowErrorFields = $resolveImportErrorFields($row);
-                                            ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $batch->rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                <?php
+                                                    $rowErrorFields = $resolveImportErrorFields($row);
+                                                    $nipmWarning = $resolveNipmImportWarning($row);
+                                                ?>
                                             <tr>
                                                 <td class="sky-row-select-col">
                                                     <input type="checkbox" class="form-check-input" data-row-select>
                                                 </td>
                                                 <input type="hidden" name="rows[<?php echo e($loop->index); ?>][row_number]" value="<?php echo e($row->row_number); ?>">
                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                                    <?php
-                                                        $field = $importPreviewFieldMap[$column] ?? null;
-                                                        $value = $field ? data_get($row, $field, '') : '';
-                                                        $value = $value === '-' ? '' : $value;
-                                                        $hasFieldError = $field && in_array($field, $rowErrorFields, true);
-                                                    ?>
-                                                    <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?> <?php echo e($hasFieldError ? 'sky-cell-error' : ''); ?>">
-                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($column === 'Keterangan'): ?>
-                                                            <select name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]" class="form-select form-select-sm">
-                                                                <option value="">Pilih</option>
+                                                        <?php
+                                                            $field = $importPreviewFieldMap[$column] ?? null;
+                                                            $value = $field ? data_get($row, $field, '') : '';
+                                                            $value = $value === '-' ? '' : $value;
+                                                            $hasFieldError = $field && in_array($field, $rowErrorFields, true);
+                                                            $hasNipmWarning = $field === 'source_nip_maarif' && $nipmWarning;
+                                                        ?>
+                                                        <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?> <?php echo e(($hasFieldError || $hasNipmWarning) ? 'sky-cell-error' : ''); ?>">
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($column === 'Keterangan'): ?>
+                                                                <select name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]" class="form-select form-select-sm">
+                                                                    <option value="">Pilih</option>
                                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $keteranganOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $option): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                                                     <option value="<?php echo e($option); ?>" <?php if($value === $option): echo 'selected'; endif; ?>><?php echo e($option); ?></option>
                                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                                             </select>
                                                         <?php else: ?>
-                                                            <input type="text"
-                                                                   name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]"
-                                                                   value="<?php echo e($value); ?>"
-                                                                   class="form-control form-control-sm">
-                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                                    </td>
-                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                                <input type="text"
+                                                                       name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]"
+                                                                       value="<?php echo e($value); ?>"
+                                                                       class="form-control form-control-sm">
+                                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasNipmWarning): ?>
+                                                                    <small class="text-danger d-block mt-1"><?php echo e($nipmWarning); ?></small>
+                                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                        </td>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                                 <td class="<?php echo e(in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : ''); ?>"><?php echo e($row->matched_name ?? '-'); ?></td>
                                                 <td>
                                                     <span class="badge bg-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>-subtle text-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>">
@@ -1301,7 +1340,16 @@
 
                                                     </span>
                                                 </td>
-                                                <td class="wrap"><?php echo e(!empty($row->validation_errors) ? implode(' ', $row->validation_errors) : 'Data siap disinkronkan.'); ?></td>
+                                                <td class="wrap">
+                                                    <?php
+                                                        $rowMessages = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+                                                        if ($nipmWarning && !$rowMessages->contains($nipmWarning)) {
+                                                            $rowMessages->prepend($nipmWarning);
+                                                        }
+                                                    ?>
+                                                    <?php echo e($rowMessages->isNotEmpty() ? $rowMessages->implode(' ') : 'Data siap disinkronkan.'); ?>
+
+                                                </td>
                                             </tr>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                     </tbody>

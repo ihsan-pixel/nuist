@@ -156,6 +156,7 @@
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                             <?php
                                 $modalId = 'modalJumlahSiswa' . $loop->iteration;
+                                $deleteFormId = 'deleteJumlahSiswa' . $loop->iteration;
                                 $hasSavedCount = !is_null($row['count_id']);
                                 $inputValue = old('total_students', $row['total_students'] ?? $row['latest_attendance_total']);
                             ?>
@@ -211,10 +212,21 @@
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-sm <?php echo e($hasSavedCount ? 'btn-warning' : 'btn-primary'); ?>" data-bs-toggle="modal" data-bs-target="#<?php echo e($modalId); ?>">
-                                        <?php echo e($hasSavedCount ? 'Edit' : 'Input'); ?>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-sm <?php echo e($hasSavedCount ? 'btn-warning' : 'btn-primary'); ?>" data-bs-toggle="modal" data-bs-target="#<?php echo e($modalId); ?>">
+                                            <?php echo e($hasSavedCount ? 'Edit' : 'Input'); ?>
 
-                                    </button>
+                                        </button>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasSavedCount): ?>
+                                            <form action="<?php echo e(route('class-student-counts.destroy', $row['count_id'])); ?>" method="POST" onsubmit="return confirm('Hapus data jumlah siswa untuk kelas <?php echo e(addslashes($row['class_name'])); ?>?');">
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('DELETE'); ?>
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
 
@@ -256,11 +268,25 @@
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasSavedCount): ?>
+                                                    <button type="submit"
+                                                            form="<?php echo e($deleteFormId); ?>"
+                                                            class="btn btn-outline-danger me-auto"
+                                                            onclick="return confirm('Hapus data jumlah siswa untuk kelas <?php echo e(addslashes($row['class_name'])); ?>?');">
+                                                        Hapus
+                                                    </button>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                 <button type="submit" class="btn btn-primary">Simpan</button>
                                             </div>
                                         </div>
                                     </form>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasSavedCount): ?>
+                                        <form id="<?php echo e($deleteFormId); ?>" action="<?php echo e(route('class-student-counts.destroy', $row['count_id'])); ?>" method="POST" class="d-none">
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
+                                        </form>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                             </div>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
