@@ -340,6 +340,7 @@
                                         <th>Nama Sekolah</th>
                                         <th>Nama Guru</th>
                                         <th>TMT Diajukan</th>
+                                        <th>Masa Kerja</th>
                                         <th>Keterangan</th>
                                         <th>NIPM Otomatis</th>
                                         <th>Aksi</th>
@@ -357,6 +358,7 @@
                                             <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'tenure_label', '-') }}</td>
                                             <td>
                                                 <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
                                                 @if(data_get($appointmentData, 'rejection_keterangan'))
@@ -464,6 +466,7 @@
                                         <th>Nama Sekolah</th>
                                         <th>Nama Guru</th>
                                         <th>TMT Diajukan</th>
+                                        <th>Masa Kerja</th>
                                         <th>Keterangan</th>
                                         <th>NIPM Otomatis</th>
                                         <th>Aksi</th>
@@ -481,6 +484,7 @@
                                             <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'tenure_label', '-') }}</td>
                                             <td>
                                                 <span class="badge bg-warning-subtle text-warning">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
                                                 @if(data_get($appointmentData, 'rejection_keterangan'))
@@ -586,6 +590,7 @@
                                         <th>Nama Sekolah</th>
                                         <th>Nama Guru</th>
                                         <th>TMT Diajukan</th>
+                                        <th>Masa Kerja</th>
                                         <th>Keterangan</th>
                                         <th>NIPM</th>
                                         <th>Status</th>
@@ -599,6 +604,7 @@
                                             <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'tenure_label', '-') }}</td>
                                             <td>
                                                 <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
                                             </td>
@@ -647,6 +653,7 @@
                                         <th>Nama Sekolah</th>
                                         <th>Nama Guru</th>
                                         <th>TMT Diajukan</th>
+                                        <th>Masa Kerja</th>
                                         <th>Keterangan Pengajuan</th>
                                         <th>Keterangan Setelah Ditolak</th>
                                         <th>Status</th>
@@ -660,6 +667,7 @@
                                             <td>{{ data_get($appointmentData, 'school_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'teacher_name', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
+                                            <td>{{ data_get($appointmentData, 'tenure_label', '-') }}</td>
                                             <td>
                                                 <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
                                             </td>

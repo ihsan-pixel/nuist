@@ -2466,6 +2466,11 @@ class SkYayasanController extends Controller
                     'birth_date' => $matchedRow?->source_tanggal_lahir ?: $request->employee?->tanggal_lahir,
                     'tmt_date' => $matchedRow?->source_tmt_pertama ?: $request->employee?->tmt,
                     'tmt_label' => $this->formatIndonesianDate($matchedRow?->source_tmt_pertama ?: $request->employee?->tmt),
+                    'tenure_label' => $this->formatTenureFromTmt(
+                        $matchedRow?->source_tmt_pertama,
+                        $request->employee?->tmt,
+                        now()
+                    ),
                     'submission_year' => optional($request->submitted_at)->format('Y') ?: '-',
                     'submitted_at' => $request->submitted_at,
                 ];

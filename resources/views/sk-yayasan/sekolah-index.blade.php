@@ -167,8 +167,20 @@
         'Keterangan' => 'source_keterangan',
     ];
 
-    $resolveImportErrorFields = function ($row) {
-        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+    $shouldIgnorePerformanceScoreError = function ($row) {
+        $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
+
+        return str_contains($keterangan, 'gtt') || str_contains($keterangan, 'ptt');
+    };
+
+    $resolveImportValidationMessages = function ($row) use ($shouldIgnorePerformanceScoreError) {
+        return collect($row->validation_errors ?? [])
+            ->map(fn ($error) => (string) $error)
+            ->reject(fn ($error) => $shouldIgnorePerformanceScoreError($row) && str_contains($error, 'Penilaian Kinerja'));
+    };
+
+    $resolveImportErrorFields = function ($row) use ($resolveImportValidationMessages) {
+        $errors = $resolveImportValidationMessages($row);
         $fields = [];
         $identifierFields = ['source_nuist_id', 'source_nama', 'source_nip_maarif', 'source_nuptk'];
 
@@ -753,7 +765,7 @@
                                             </td>
                                             <td class="wrap">
                                                 @php
-                                                    $rowMessages = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+                                                    $rowMessages = $resolveImportValidationMessages($row);
                                                     if ($nipmWarning && !$rowMessages->contains($nipmWarning)) {
                                                         $rowMessages->prepend($nipmWarning);
                                                     }
