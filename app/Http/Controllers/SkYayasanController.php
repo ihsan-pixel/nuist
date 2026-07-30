@@ -1313,7 +1313,7 @@ class SkYayasanController extends Controller
             $synchronizer->syncRow($user, $row->user_payload ?? [], $row->sk_payload ?? []);
         }
 
-        $this->synchronizeBatchRequestsFromRows($row->batch);
+        $this->synchronizeBatchRequestsFromRows($row->batch, false);
     }
 
     private function rejectGenerateAppointmentDecision(array $appointmentRow): void
@@ -1350,7 +1350,7 @@ class SkYayasanController extends Controller
             $synchronizer->syncRow($user, $userPayload, $row->sk_payload ?? []);
         }
 
-        $this->synchronizeBatchRequestsFromRows($row->batch);
+        $this->synchronizeBatchRequestsFromRows($row->batch, false);
     }
 
     private function refreshPersistedImportBatchAnalysis(SkYayasanImportBatch $batch): void
@@ -3797,7 +3797,7 @@ class SkYayasanController extends Controller
         })->all();
     }
 
-    private function synchronizeBatchRequestsFromRows(SkYayasanImportBatch $batch): array
+    private function synchronizeBatchRequestsFromRows(SkYayasanImportBatch $batch, bool $pruneMissingRequests = true): array
     {
         $batch->load(['rows', 'requests']);
 
@@ -3813,19 +3813,21 @@ class SkYayasanController extends Controller
 
         $referenceRequest = $batch->requests->sortBy('id')->first();
 
-        $requestsToDelete = $batch->requests
-            ->filter(fn (SkYayasanRequest $request) => !$employeeIds->contains((int) $request->employee_id))
-            ->values();
-
         $deleted = 0;
 
-        if ($requestsToDelete->isNotEmpty()) {
-            $requestIds = $requestsToDelete->pluck('id')->values();
+        if ($pruneMissingRequests) {
+            $requestsToDelete = $batch->requests
+                ->filter(fn (SkYayasanRequest $request) => !$employeeIds->contains((int) $request->employee_id))
+                ->values();
 
-            SkYayasanDocument::query()->whereIn('request_id', $requestIds)->delete();
-            SkYayasanRequest::query()->whereIn('id', $requestIds)->delete();
+            if ($requestsToDelete->isNotEmpty()) {
+                $requestIds = $requestsToDelete->pluck('id')->values();
 
-            $deleted = $requestIds->count();
+                SkYayasanDocument::query()->whereIn('request_id', $requestIds)->delete();
+                SkYayasanRequest::query()->whereIn('id', $requestIds)->delete();
+
+                $deleted = $requestIds->count();
+            }
         }
 
         if ($validRows->isEmpty()) {
