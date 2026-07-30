@@ -2366,44 +2366,40 @@ class SkYayasanController extends Controller
             return collect();
         }
 
-        $requests = SkYayasanRequest::query()
+        $batches = SkYayasanImportBatch::query()
             ->with([
                 'madrasah:id,name,scod,kabupaten',
-                'employee:id,name,nip,tanggal_lahir,tmt,masa_kerja',
+                'rows.matchedUser:id,name,nip,tanggal_lahir,tmt,masa_kerja',
             ])
             ->whereIn('madrasah_id', $schoolOrder->keys()->all())
-            ->where('current_status', '!=', 'rejected')
-            ->whereHas('importBatch', fn (Builder $query) => $query->where('status', 'synced'))
+            ->where('status', 'synced')
             ->get([
                 'id',
                 'madrasah_id',
-                'employee_id',
-                'import_batch_id',
-                'request_number',
-                'submitted_at',
+                'uploaded_at',
+                'synced_at',
             ]);
 
-        $batchIds = $requests->pluck('import_batch_id')
+        $batchIds = $batches->pluck('id')
             ->filter()
             ->unique()
             ->values();
 
-        $rowsByBatch = $batchIds->isEmpty()
+        $requestsByBatchAndEmployee = $batchIds->isEmpty()
             ? collect()
-            : SkYayasanImportRow::query()
-                ->whereIn('batch_id', $batchIds)
+            : SkYayasanRequest::query()
+                ->whereIn('import_batch_id', $batchIds)
+                ->where('current_status', '!=', 'rejected')
                 ->get([
                     'id',
-                    'batch_id',
-                    'matched_user_id',
-                    'source_nip_maarif',
-                    'source_keterangan',
-                    'source_tanggal_lahir',
-                    'source_tmt_pertama',
-                    'source_masa_kerja',
-                    'sk_payload',
+                    'madrasah_id',
+                    'employee_id',
+                    'import_batch_id',
+                    'request_number',
+                    'submitted_at',
+                    'current_status',
                 ])
-                ->groupBy('batch_id');
+                ->keyBy(fn (SkYayasanRequest $request) => ((int) $request->import_batch_id) . ':' . ((int) $request->employee_id));
 
         $schoolScods = $schools->mapWithKeys(
             fn (Madrasah $school) => [(int) $school->id => $this->normalizeNipmSchoolScod($school->scod)]
@@ -2428,56 +2424,64 @@ class SkYayasanController extends Controller
 
         $assignedNipmByEmployee = [];
 
-        return $requests
-            ->map(function (SkYayasanRequest $request) use ($rowsByBatch, $schoolOrder) {
-                $matchedRow = collect($rowsByBatch->get($request->import_batch_id, []))
-                    ->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $request->employee_id);
-                $sourceKeteranganLabel = $this->normalizeSkYayasanKeteranganLabel($matchedRow?->source_keterangan);
+        return $batches
+            ->flatMap(function (SkYayasanImportBatch $batch) use ($requestsByBatchAndEmployee, $schoolOrder) {
+                return $batch->rows
+                    ->filter(fn (SkYayasanImportRow $row) => $row->is_valid && $row->matched_user_id)
+                    ->map(function (SkYayasanImportRow $row) use ($batch, $requestsByBatchAndEmployee, $schoolOrder) {
+                        $teacher = $row->matchedUser;
+                        $employeeId = (int) $row->matched_user_id;
+                        $request = $requestsByBatchAndEmployee->get(((int) $batch->id) . ':' . $employeeId);
+                        $sourceKeteranganLabel = $this->normalizeSkYayasanKeteranganLabel($row->source_keterangan);
 
-                $keterangan = $this->resolveEffectiveSkYayasanKeteranganLabel(
-                    $matchedRow?->source_keterangan,
-                    $matchedRow?->source_tmt_pertama,
-                    $request->employee?->tmt,
-                    $matchedRow?->source_masa_kerja ?: $request->employee?->masa_kerja,
-                    $request->employee?->nip
-                );
-                $decisionStatus = $this->extractAppointmentDecisionStatus($matchedRow?->sk_payload ?? []);
+                        $keterangan = $this->resolveEffectiveSkYayasanKeteranganLabel(
+                            $row->source_keterangan,
+                            $row->source_tmt_pertama,
+                            $teacher?->tmt,
+                            $row->source_masa_kerja ?: $teacher?->masa_kerja,
+                            $teacher?->nip
+                        );
+                        $decisionStatus = $this->extractAppointmentDecisionStatus($row->sk_payload ?? []);
 
-                if (!$this->shouldIncludeAppointmentRequest($keterangan, $sourceKeteranganLabel, $decisionStatus)) {
-                    return null;
-                }
+                        if (!$this->shouldIncludeAppointmentRequest($keterangan, $sourceKeteranganLabel, $decisionStatus)) {
+                            return null;
+                        }
 
-                return [
-                    'request_id' => (int) $request->id,
-                    'import_batch_id' => (int) $request->import_batch_id,
-                    'import_row_id' => (int) ($matchedRow?->id ?? 0),
-                    'school_id' => (int) $request->madrasah_id,
-                    'school_order' => (int) ($schoolOrder->get((int) $request->madrasah_id) ?? PHP_INT_MAX),
-                    'school_name' => $request->madrasah?->name ?? '-',
-                    'school_scod' => $request->madrasah?->scod ?: '-',
-                    'teacher_id' => (int) $request->employee_id,
-                    'teacher_name' => $request->employee?->name ?? '-',
-                    'keterangan' => $keterangan,
-                    'source_keterangan_label' => $sourceKeteranganLabel,
-                    'rejection_keterangan' => $this->resolveRejectedAppointmentKeterangan($keterangan),
-                    'decision_status' => $decisionStatus,
-                    'existing_nipm' => $request->employee?->nip,
-                    'source_nipm' => $matchedRow?->source_nip_maarif,
-                    'birth_date' => $matchedRow?->source_tanggal_lahir ?: $request->employee?->tanggal_lahir,
-                    'tmt_date' => $matchedRow?->source_tmt_pertama ?: $request->employee?->tmt,
-                    'tmt_label' => $this->formatIndonesianDate($matchedRow?->source_tmt_pertama ?: $request->employee?->tmt),
-                    'tenure_label' => $this->formatTenureFromTmt(
-                        $matchedRow?->source_tmt_pertama,
-                        $request->employee?->tmt,
-                        now()
-                    ),
-                    'submission_year' => optional($request->submitted_at)->format('Y') ?: '-',
-                    'submitted_at' => $request->submitted_at,
-                ];
+                        $submittedAt = $request?->submitted_at ?: $batch->uploaded_at ?: $batch->synced_at;
+
+                        return [
+                            'request_id' => (int) ($request?->id ?? 0),
+                            'import_batch_id' => (int) $batch->id,
+                            'import_row_id' => (int) $row->id,
+                            'school_id' => (int) $batch->madrasah_id,
+                            'school_order' => (int) ($schoolOrder->get((int) $batch->madrasah_id) ?? PHP_INT_MAX),
+                            'school_name' => $batch->madrasah?->name ?? '-',
+                            'school_scod' => $batch->madrasah?->scod ?: '-',
+                            'teacher_id' => $employeeId,
+                            'teacher_name' => $teacher?->name ?? $row->matched_name ?? '-',
+                            'keterangan' => $keterangan,
+                            'source_keterangan_label' => $sourceKeteranganLabel,
+                            'rejection_keterangan' => $this->resolveRejectedAppointmentKeterangan($keterangan),
+                            'decision_status' => $decisionStatus,
+                            'existing_nipm' => $teacher?->nip,
+                            'source_nipm' => $row->source_nip_maarif,
+                            'birth_date' => $row->source_tanggal_lahir ?: $teacher?->tanggal_lahir,
+                            'tmt_date' => $row->source_tmt_pertama ?: $teacher?->tmt,
+                            'tmt_label' => $this->formatIndonesianDate($row->source_tmt_pertama ?: $teacher?->tmt),
+                            'tenure_label' => $this->formatTenureFromTmt(
+                                $row->source_tmt_pertama,
+                                $teacher?->tmt,
+                                now()
+                            ),
+                            'submission_year' => $submittedAt ? Carbon::parse($submittedAt)->format('Y') : '-',
+                            'submitted_at' => $submittedAt,
+                        ];
+                    });
             })
             ->filter()
             ->sortBy([
                 ['school_order', 'asc'],
+                ['import_batch_id', 'desc'],
                 ['keterangan', 'asc'],
                 ['teacher_name', 'asc'],
             ])
