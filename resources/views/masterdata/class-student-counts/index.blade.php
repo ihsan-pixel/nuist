@@ -154,6 +154,7 @@
                         @forelse($rows as $row)
                             @php
                                 $modalId = 'modalJumlahSiswa' . $loop->iteration;
+                                $deleteFormId = 'deleteJumlahSiswa' . $loop->iteration;
                                 $hasSavedCount = !is_null($row['count_id']);
                                 $inputValue = old('total_students', $row['total_students'] ?? $row['latest_attendance_total']);
                             @endphp
@@ -261,17 +262,24 @@
                                             </div>
                                             <div class="modal-footer">
                                                 @if($hasSavedCount)
-                                                    <form action="{{ route('class-student-counts.destroy', $row['count_id']) }}" method="POST" class="me-auto" onsubmit="return confirm('Hapus data jumlah siswa untuk kelas {{ addslashes($row['class_name']) }}?');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-outline-danger">Hapus</button>
-                                                    </form>
+                                                    <button type="submit"
+                                                            form="{{ $deleteFormId }}"
+                                                            class="btn btn-outline-danger me-auto"
+                                                            onclick="return confirm('Hapus data jumlah siswa untuk kelas {{ addslashes($row['class_name']) }}?');">
+                                                        Hapus
+                                                    </button>
                                                 @endif
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                 <button type="submit" class="btn btn-primary">Simpan</button>
                                             </div>
                                         </div>
                                     </form>
+                                    @if($hasSavedCount)
+                                        <form id="{{ $deleteFormId }}" action="{{ route('class-student-counts.destroy', $row['count_id']) }}" method="POST" class="d-none">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         @empty
