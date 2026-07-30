@@ -235,6 +235,16 @@
                                             <td>
                                                 @if($submission->resolved_template)
                                                     <div class="fw-semibold">{{ $submission->resolved_template->name }}</div>
+                                                    @if($submission->template_mismatch && $submission->stored_template)
+                                                        <small class="text-warning d-block mt-1">
+                                                            Draft tersimpan sebelumnya memakai template <strong>{{ $submission->stored_template->name }}</strong>.
+                                                            Generate ulang untuk menyamakan dengan keterangan pengajuan saat ini.
+                                                        </small>
+                                                    @elseif($submission->stored_template && $submission->document?->number_locked_at)
+                                                        <small class="text-muted d-block mt-1">
+                                                            Template dokumen terkunci: <strong>{{ $submission->stored_template->name }}</strong>
+                                                        </small>
+                                                    @endif
                                                 @else
                                                     <span class="text-muted">Pilih manual saat generate</span>
                                                 @endif

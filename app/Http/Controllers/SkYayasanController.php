@@ -1949,8 +1949,13 @@ class SkYayasanController extends Controller
 
     private function decorateGenerateSubmission(SkYayasanRequest $submission, Collection $templates): SkYayasanRequest
     {
+        $submission->stored_template = $submission->document?->template
+            ?? $submission->template;
         $submission->submission_type_label = $this->formatSubmissionTypeLabel($submission);
         $submission->resolved_template = $this->resolveTemplateForSubmission($submission, $templates);
+        $submission->template_mismatch = $submission->stored_template
+            && $submission->resolved_template
+            && (int) $submission->stored_template->id !== (int) $submission->resolved_template->id;
 
         return $submission;
     }
@@ -2728,18 +2733,17 @@ class SkYayasanController extends Controller
 
     private function resolveTemplateForSubmission(SkYayasanRequest $submission, Collection $templates): ?SkYayasanTemplate
     {
-        if ($submission->document?->template) {
-            return $submission->document->template;
-        }
-
-        if ($submission->template) {
-            return $submission->template;
-        }
-
         $templateKey = $this->resolveTemplateKey($submission);
 
         if ($templateKey === null) {
-            return null;
+            return $submission->template
+                ?? $submission->document?->template;
+        }
+
+        foreach ([$submission->template, $submission->document?->template] as $candidateTemplate) {
+            if ($candidateTemplate instanceof SkYayasanTemplate && $this->scoreTemplateMatch($candidateTemplate, $templateKey) > 0) {
+                return $candidateTemplate;
+            }
         }
 
         return $templates
