@@ -187,7 +187,8 @@ class SkYayasanImportSynchronizer
             $errors[] = 'TMT Pertama tidak valid.';
         }
 
-        $importedNipm = $this->normalizeNipmValue($rowData['nip_ma_arif'] ?? $rowData['nip_maarif'] ?? null);
+        $importedNipmRaw = $this->nullableString($rowData['nip_ma_arif'] ?? $rowData['nip_maarif'] ?? null);
+        $importedNipm = $this->normalizeNipmValue($importedNipmRaw);
         $resolvedExistingNipm = $importedNipm ?? $this->normalizeNipmValue($user?->nip);
 
         $effectiveKeterangan = $this->resolveEffectiveKeteranganOption(
@@ -211,9 +212,13 @@ class SkYayasanImportSynchronizer
             $errors[] = 'Keterangan wajib diisi sesuai salah satu opsi template.';
         }
 
+        if ($importedNipmRaw !== null && $importedNipm === null) {
+            $errors[] = 'Format NIPM harus 20 digit angka.';
+        }
+
         if (
             $this->keteranganRequiresExistingNipm($effectiveKeterangan)
-            && !$this->nullableString($rowData['nip_ma_arif'] ?? $rowData['nip_maarif'] ?? null)
+            && $importedNipmRaw === null
         ) {
             $errors[] = 'NIPM wajib diisi untuk pengajuan Perpanjangan GTY/PTY.';
         }
@@ -221,6 +226,7 @@ class SkYayasanImportSynchronizer
         if (
             $user
             && $this->keteranganRequiresExistingNipm($effectiveKeterangan)
+            && $importedNipmRaw === null
             && $resolvedExistingNipm === null
         ) {
             $errors[] = 'Keterangan tidak valid: Perpanjangan GTY/PTY hanya bisa diajukan untuk guru yang sudah memiliki NIPM.';
