@@ -2432,6 +2432,7 @@ class SkYayasanController extends Controller
             ->map(function (SkYayasanRequest $request) use ($rowsByBatch, $schoolOrder) {
                 $matchedRow = collect($rowsByBatch->get($request->import_batch_id, []))
                     ->first(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id === (int) $request->employee_id);
+                $sourceKeteranganLabel = $this->normalizeSkYayasanKeteranganLabel($matchedRow?->source_keterangan);
 
                 $keterangan = $this->resolveEffectiveSkYayasanKeteranganLabel(
                     $matchedRow?->source_keterangan,
@@ -2442,7 +2443,7 @@ class SkYayasanController extends Controller
                 );
                 $decisionStatus = $this->extractAppointmentDecisionStatus($matchedRow?->sk_payload ?? []);
 
-                if (!$this->shouldIncludeAppointmentRequest($keterangan, $decisionStatus)) {
+                if (!$this->shouldIncludeAppointmentRequest($keterangan, $sourceKeteranganLabel, $decisionStatus)) {
                     return null;
                 }
 
@@ -2457,6 +2458,7 @@ class SkYayasanController extends Controller
                     'teacher_id' => (int) $request->employee_id,
                     'teacher_name' => $request->employee?->name ?? '-',
                     'keterangan' => $keterangan,
+                    'source_keterangan_label' => $sourceKeteranganLabel,
                     'rejection_keterangan' => $this->resolveRejectedAppointmentKeterangan($keterangan),
                     'decision_status' => $decisionStatus,
                     'existing_nipm' => $request->employee?->nip,
@@ -2488,6 +2490,7 @@ class SkYayasanController extends Controller
                     $row['system_nipm_value'] = $assignedNipmByEmployee[$teacherId]['system_value'] ?? $row['nipm_value'];
                     $row['nipm_validated'] = $this->normalizeNipmValue($row['existing_nipm']) !== null
                         && $this->normalizeNipmValue($row['source_nipm'] ?? null) === $this->normalizeNipmValue($row['existing_nipm']);
+                    $row['decision_status'] = $this->inferAppointmentDecisionStatus($row);
 
                     return $row;
                 }
@@ -2517,6 +2520,7 @@ class SkYayasanController extends Controller
                     $row['system_nipm_value'] = $result['system_value'];
                     $row['tmt_is_two_years_or_more'] = false;
                     $row['nipm_validated'] = false;
+                    $row['decision_status'] = $this->inferAppointmentDecisionStatus($row);
 
                     return $row;
                 }
@@ -2547,6 +2551,7 @@ class SkYayasanController extends Controller
                     $row['system_nipm_value'] = $result['system_value'];
                     $row['nipm_validated'] = $this->normalizeNipmValue($row['source_nipm'] ?? null) !== null
                         && $this->normalizeNipmValue($row['source_nipm'] ?? null) === $this->normalizeNipmValue($result['value']);
+                    $row['decision_status'] = $this->inferAppointmentDecisionStatus($row);
 
                     return $row;
                 }
@@ -2569,6 +2574,7 @@ class SkYayasanController extends Controller
                 $row['system_nipm_value'] = $result['system_value'];
                 $row['nipm_validated'] = $this->normalizeNipmValue($row['source_nipm'] ?? null) !== null
                     && $this->normalizeNipmValue($row['source_nipm'] ?? null) === $this->normalizeNipmValue($result['value']);
+                $row['decision_status'] = $this->inferAppointmentDecisionStatus($row);
 
                 return $row;
             })
@@ -2588,13 +2594,14 @@ class SkYayasanController extends Controller
         };
     }
 
-    private function shouldIncludeAppointmentRequest(?string $keterangan, string $decisionStatus): bool
+    private function shouldIncludeAppointmentRequest(?string $keterangan, ?string $sourceKeteranganLabel, string $decisionStatus): bool
     {
         if (in_array($decisionStatus, ['approved', 'rejected'], true)) {
             return true;
         }
 
-        return in_array($keterangan, ['Pengangkatan GTY', 'Pengangkatan PTY'], true);
+        return in_array($keterangan, ['Pengangkatan GTY', 'Pengangkatan PTY'], true)
+            || in_array($sourceKeteranganLabel, ['Pengangkatan GTY', 'Pengangkatan PTY'], true);
     }
 
     private function extractAppointmentDecisionStatus(array $skPayload): string
@@ -2604,6 +2611,24 @@ class SkYayasanController extends Controller
         return in_array($decision, ['approved', 'rejected'], true)
             ? $decision
             : 'pending';
+    }
+
+    private function inferAppointmentDecisionStatus(array $appointmentRow): string
+    {
+        $decisionStatus = (string) ($appointmentRow['decision_status'] ?? 'pending');
+        if (in_array($decisionStatus, ['approved', 'rejected'], true)) {
+            return $decisionStatus;
+        }
+
+        $sourceKeteranganLabel = $appointmentRow['source_keterangan_label'] ?? null;
+        if (
+            in_array($sourceKeteranganLabel, ['Pengangkatan GTY', 'Pengangkatan PTY'], true)
+            && (bool) ($appointmentRow['nipm_validated'] ?? false)
+        ) {
+            return 'approved';
+        }
+
+        return 'pending';
     }
 
     private function mergeAppointmentDecisionMetadata(array $payload, array $existingPayload = []): array
