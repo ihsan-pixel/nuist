@@ -893,6 +893,7 @@ let currentScheduleId = null;
 let userLocation = null;
 let isLocationValid = false;
 let currentClassTotalStudents = null;
+const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
 const confirmAttendanceBtn = document.getElementById('confirmAttendanceBtn');
 const attendanceMateriInput = document.getElementById('attendanceMateri');
 const classTotalStudentsInput = document.getElementById('classTotalStudents');
@@ -900,6 +901,119 @@ const presentStudentsInput = document.getElementById('presentStudents');
 const classTotalInputGroup = document.getElementById('classTotalInputGroup');
 const classTotalInfo = document.getElementById('classTotalInfo');
 const studentAttendancePreview = document.getElementById('studentAttendancePreview');
+const csrfTokenUrl = '{{ url('/csrf-token') }}';
+
+function getCsrfToken() {
+    return csrfMetaTag?.getAttribute('content') || '';
+}
+
+async function refreshCsrfToken() {
+    const response = await fetch(csrfTokenUrl, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        cache: 'no-store'
+    });
+
+    if (!response.ok) {
+        throw new Error('Gagal memperbarui token keamanan sesi.');
+    }
+
+    const payload = await response.json();
+    if (payload?.token && csrfMetaTag) {
+        csrfMetaTag.setAttribute('content', payload.token);
+    }
+
+    return payload?.token || '';
+}
+
+async function fetchWithCsrf(url, options = {}, allowRetry = true) {
+    const headers = {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(options.headers || {}),
+    };
+    const method = (options.method || 'GET').toUpperCase();
+
+    if (method !== 'GET' && !headers['X-CSRF-TOKEN']) {
+        headers['X-CSRF-TOKEN'] = getCsrfToken();
+    }
+
+    const response = await fetch(url, {
+        credentials: 'same-origin',
+        ...options,
+        headers,
+    });
+
+    if (response.status === 419 && allowRetry) {
+        await refreshCsrfToken();
+        return fetchWithCsrf(url, options, false);
+    }
+
+    return response;
+}
+
+async function parseJsonResponse(response) {
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+        return response.json();
+    }
+
+    const text = await response.text();
+    throw new Error(text || 'Respons server tidak valid.');
+}
+
+function formatGeolocationError(error, phaseLabel = 'lokasi') {
+    const code = error?.code;
+
+    if (code === 1) {
+        return 'Izin lokasi ditolak oleh browser atau perangkat. Aktifkan izin lokasi untuk NUIST lalu coba lagi.';
+    }
+
+    if (code === 2) {
+        return `Lokasi ${phaseLabel} tidak tersedia. Pastikan GPS aktif dan sinyal lokasi stabil.`;
+    }
+
+    if (code === 3) {
+        return `Pengambilan ${phaseLabel} melebihi batas waktu. Coba lagi di area dengan sinyal GPS lebih baik.`;
+    }
+
+    return `Gagal mendapatkan ${phaseLabel}. ${error?.message || 'Silakan coba lagi.'}`;
+}
+
+async function ensureGeolocationAllowed() {
+    if (!navigator.geolocation) {
+        throw new Error('Browser tidak mendukung geolokasi.');
+    }
+
+    if (!navigator.permissions || !navigator.permissions.query) {
+        return;
+    }
+
+    try {
+        const permission = await navigator.permissions.query({ name: 'geolocation' });
+        if (permission.state === 'denied') {
+            throw new Error('Izin lokasi di browser atau perangkat sedang ditolak. Buka pengaturan browser, izinkan akses lokasi, lalu muat ulang halaman.');
+        }
+    } catch (error) {
+        if (error instanceof Error && error.message.includes('Izin lokasi')) {
+            throw error;
+        }
+    }
+}
+
+function getCurrentPositionPromise(options, phaseLabel) {
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+            resolve,
+            (error) => reject(new Error(formatGeolocationError(error, phaseLabel))),
+            options
+        );
+    });
+}
 
 function getStudentAttendanceNumbers() {
     const totalRaw = currentClassTotalStudents || Number(classTotalStudentsInput?.value || 0);
@@ -1012,46 +1126,48 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
         // Error getting location - hide loading, show placeholder
         $('#map-loading').fadeOut(200);
         $('#map-placeholder').fadeIn(200);
-        updateLocationStatus('error', err);
+        updateLocationStatus('error', err?.message || String(err));
     });
 }
 
 function getReadingAndVerify() {
-    return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject('Browser tidak mendukung geolokasi.');
-            return;
+    return (async () => {
+        await ensureGeolocationAllowed();
+
+        const pos1 = await getCurrentPositionPromise(
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+            'lokasi awal'
+        );
+
+        sessionStorage.setItem('reading1_latitude', pos1.coords.latitude);
+        sessionStorage.setItem('reading1_longitude', pos1.coords.longitude);
+        sessionStorage.setItem('reading1_timestamp', Date.now());
+
+        let pos2 = pos1;
+        try {
+            pos2 = await getCurrentPositionPromise(
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 3000 },
+                'lokasi verifikasi'
+            );
+        } catch (error) {
+            console.warn('Fallback ke lokasi awal karena pembacaan kedua gagal.', error);
         }
 
-        // first reading: quick
-        navigator.geolocation.getCurrentPosition((pos1) => {
-            // store reading1
-            sessionStorage.setItem('reading1_latitude', pos1.coords.latitude);
-            sessionStorage.setItem('reading1_longitude', pos1.coords.longitude);
-            sessionStorage.setItem('reading1_timestamp', Date.now());
+        userLocation = { latitude: pos2.coords.latitude, longitude: pos2.coords.longitude };
+        updateMapLocation(userLocation.latitude, userLocation.longitude);
 
-            // second reading for verification
-            navigator.geolocation.getCurrentPosition((pos2) => {
-                userLocation = { latitude: pos2.coords.latitude, longitude: pos2.coords.longitude };
-                // Update map with user location immediately
-                updateMapLocation(userLocation.latitude, userLocation.longitude);
-                // check location in polygon
-                checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
-                    if (isValid) {
-                        updateLocationStatus('success', 'Lokasi berada dalam area sekolah.', true);
-                    } else {
-                        updateLocationStatus('warning', 'Lokasi Anda berada di luar area sekolah.');
-                    }
-                    resolve();
-                }).catch(err => reject('Gagal memverifikasi lokasi: ' + err));
-            }, (err2) => {
-                reject('Gagal mendapatkan lokasi kedua: ' + err2.message);
-            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+        const isValid = await checkLocationInPolygon(
+            userLocation.latitude,
+            userLocation.longitude,
+            currentScheduleId
+        );
 
-        }, (err1) => {
-            reject('Gagal mendapatkan lokasi awal: ' + err1.message);
-        }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
-    });
+        if (isValid) {
+            updateLocationStatus('success', 'Lokasi berada dalam area sekolah.', true);
+        } else {
+            updateLocationStatus('warning', 'Lokasi Anda berada di luar area sekolah.');
+        }
+    })();
 }
 
 function updateLocationStatus(status, message, isSuccess = false) {
@@ -1083,13 +1199,21 @@ function updateLocationStatus(status, message, isSuccess = false) {
 
 function checkLocationInPolygon(lat, lng, scheduleId) {
     return new Promise((resolve, reject) => {
-        fetch('{{ route('teaching-attendances.check-location') }}', {
-            method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        fetchWithCsrf('{{ route('teaching-attendances.check-location') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ latitude: lat, longitude: lng, teaching_schedule_id: scheduleId })
-        }).then(res => res.json()).then(json => {
-            if (json.success) resolve(json.is_within_polygon);
-            else reject(json.message || 'Gagal verifikasi');
-        }).catch(err => reject(err));
+        }).then(async (res) => {
+            const json = await parseJsonResponse(res);
+            if (res.ok && json.success) {
+                resolve(json.is_within_polygon);
+                return;
+            }
+
+            reject(json.message || 'Gagal verifikasi lokasi.');
+        }).catch(err => reject(err?.message || String(err)));
     });
 }
 
@@ -1145,9 +1269,11 @@ document.addEventListener('click', function (e) {
             confirmAttendanceBtn.disabled = true;
             confirmAttendanceBtn.innerHTML = confirmAttendanceBtnLoadingLabel;
 
-            fetch('{{ route('teaching-attendances.store') }}', {
+            fetchWithCsrf('{{ route('teaching-attendances.store') }}', {
                 method: 'POST',
-                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     teaching_schedule_id: currentScheduleId,
                     latitude: userLocation.latitude,
@@ -1158,7 +1284,7 @@ document.addEventListener('click', function (e) {
                     present_students: present
                 })
             }).then(async res => {
-                const json = await res.json();
+                const json = await parseJsonResponse(res);
                 return { ok: res.ok, json };
             }).then(({ ok, json }) => {
                 confirmAttendanceBtn.disabled = false;
