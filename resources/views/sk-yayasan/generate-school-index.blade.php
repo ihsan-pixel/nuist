@@ -432,9 +432,8 @@
                                                     $value = $value === '-' ? '' : $value;
                                                     $hasFieldError = $field && in_array($field, $rowErrorFields, true);
                                                     $hasNipmWarning = $field === 'source_nip_maarif' && $nipmWarning;
-                                                    $isEmptyNipmField = $field === 'source_nip_maarif' && trim((string) $value) === '';
                                                 @endphp
-                                                <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ ($hasFieldError || $hasNipmWarning || $isEmptyNipmField) ? 'sky-cell-error' : '' }}">
+                                                <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ ($hasFieldError || $hasNipmWarning) ? 'sky-cell-error' : '' }}">
                                                     @if($column === 'Keterangan')
                                                         <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
                                                             <option value="">Pilih</option>
@@ -446,7 +445,7 @@
                                                         <input type="text"
                                                                name="rows[{{ $loop->parent->index }}][{{ $field }}]"
                                                                value="{{ $value }}"
-                                                               class="form-control form-control-sm {{ ($hasNipmWarning || $isEmptyNipmField) ? 'is-invalid' : '' }}">
+                                                               class="form-control form-control-sm {{ $hasNipmWarning ? 'is-invalid' : '' }}">
                                                         @if($hasNipmWarning)
                                                             <small class="text-danger d-block mt-1">{{ $nipmWarning }}</small>
                                                         @endif
