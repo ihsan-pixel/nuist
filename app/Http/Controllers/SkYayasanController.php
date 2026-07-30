@@ -3771,7 +3771,7 @@ class SkYayasanController extends Controller
 
         $string = trim((string) $value);
 
-        return $string === '' ? null : $string;
+        return $string === '' || $string === '-' ? null : $string;
     }
 
     private function buildImportBatchRowsPayload(array $rows): array
@@ -3781,23 +3781,23 @@ class SkYayasanController extends Controller
 
             return [
                 'row_number' => $row['row_number'] ?? 0,
-                'excel_no' => $sourceColumns['No'] ?? null,
-                'source_nuist_id' => $sourceColumns['NUIST ID'] ?? null,
-                'source_nama' => $sourceColumns['Nama'] ?? null,
-                'source_gelar' => $sourceColumns['Gelar'] ?? null,
-                'source_tempat_lahir' => $sourceColumns['Tempat Lahir'] ?? null,
-                'source_tanggal_lahir' => $sourceColumns['Tanggal Lahir'] ?? null,
-                'source_nip_maarif' => $sourceColumns["NIP Ma'arif"] ?? null,
-                'source_nuptk' => $sourceColumns['NUPTK'] ?? null,
-                'source_nomor_kartanu' => $sourceColumns['Nomor Kartanu'] ?? null,
-                'source_tmt_pertama' => $sourceColumns['TMT Pertama'] ?? null,
-                'source_masa_kerja' => $sourceColumns['Masa Kerja'] ?? null,
-                'source_pendidikan_terakhir' => $sourceColumns['Pendidikan Terakhir'] ?? null,
-                'source_tahun_lulus' => $sourceColumns['Tahun Lulus'] ?? null,
-                'source_program_studi' => $sourceColumns['Program Studi'] ?? null,
-                'source_mapel_tugas' => $sourceColumns['Mapel/Tugas yang Diampu'] ?? null,
-                'source_penilaian_kinerja' => $sourceColumns['Penilaian Kinerja'] ?? null,
-                'source_keterangan' => $sourceColumns['Keterangan'] ?? null,
+                'excel_no' => $this->nullableImportCell($sourceColumns['No'] ?? null),
+                'source_nuist_id' => $this->nullableImportCell($sourceColumns['NUIST ID'] ?? null),
+                'source_nama' => $this->nullableImportCell($sourceColumns['Nama'] ?? null),
+                'source_gelar' => $this->nullableImportCell($sourceColumns['Gelar'] ?? null),
+                'source_tempat_lahir' => $this->nullableImportCell($sourceColumns['Tempat Lahir'] ?? null),
+                'source_tanggal_lahir' => $this->nullableImportCell($sourceColumns['Tanggal Lahir'] ?? null),
+                'source_nip_maarif' => $this->nullableImportCell($sourceColumns["NIP Ma'arif"] ?? null),
+                'source_nuptk' => $this->nullableImportCell($sourceColumns['NUPTK'] ?? null),
+                'source_nomor_kartanu' => $this->nullableImportCell($sourceColumns['Nomor Kartanu'] ?? null),
+                'source_tmt_pertama' => $this->nullableImportCell($sourceColumns['TMT Pertama'] ?? null),
+                'source_masa_kerja' => $this->nullableImportCell($sourceColumns['Masa Kerja'] ?? null),
+                'source_pendidikan_terakhir' => $this->nullableImportCell($sourceColumns['Pendidikan Terakhir'] ?? null),
+                'source_tahun_lulus' => $this->nullableImportCell($sourceColumns['Tahun Lulus'] ?? null),
+                'source_program_studi' => $this->nullableImportCell($sourceColumns['Program Studi'] ?? null),
+                'source_mapel_tugas' => $this->nullableImportCell($sourceColumns['Mapel/Tugas yang Diampu'] ?? null),
+                'source_penilaian_kinerja' => $this->nullableImportCell($sourceColumns['Penilaian Kinerja'] ?? null),
+                'source_keterangan' => $this->nullableImportCell($sourceColumns['Keterangan'] ?? null),
                 'matched_user_id' => $row['user_id'] ?? null,
                 'matched_name' => $row['matched_name'] ?? null,
                 'is_valid' => $row['is_valid'] ?? false,
