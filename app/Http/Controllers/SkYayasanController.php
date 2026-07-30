@@ -1140,9 +1140,16 @@ class SkYayasanController extends Controller
             $uppmValidationEnabled ? $uppmValidationPeriodKey : null
         );
 
+        $appointmentSourceSchools = Madrasah::query()
+            ->whereHas('skYayasanImportBatches', fn (Builder $query) => $query->whereIn('status', ['pending_review', 'synced']))
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
+            ->orderBy('name')
+            ->get();
+
         $eligibleSchoolIds = $schools->pluck('id')->map(fn ($id) => (int) $id)->all();
 
-        $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($allSyncedSchools);
+        $appointmentRequests = $this->buildGenerateAppointmentRequestsTable($appointmentSourceSchools);
         $pendingAppointmentRequests = $appointmentRequests->where('decision_status', 'pending');
         $approvedAppointmentRequests = $appointmentRequests->where('decision_status', 'approved')->values();
         $rejectedAppointmentRequests = $appointmentRequests->where('decision_status', 'rejected')->values();
@@ -2372,10 +2379,11 @@ class SkYayasanController extends Controller
                 'rows.matchedUser:id,name,nip,tanggal_lahir,tmt,masa_kerja',
             ])
             ->whereIn('madrasah_id', $schoolOrder->keys()->all())
-            ->where('status', 'synced')
+            ->whereIn('status', ['pending_review', 'synced'])
             ->get([
                 'id',
                 'madrasah_id',
+                'status',
                 'uploaded_at',
                 'synced_at',
             ]);
