@@ -3954,6 +3954,11 @@ class SkYayasanController extends Controller
             ->get();
 
         foreach ($batches as $batch) {
+            $this->refreshPersistedImportBatchAnalysis($batch);
+            $batch->unsetRelation('rows');
+            $batch->unsetRelation('requests');
+            $batch->load(['rows', 'requests']);
+
             $expectedEmployeeIds = $batch->rows
                 ->filter(fn (SkYayasanImportRow $row) => $row->is_valid && $row->matched_user_id)
                 ->map(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id)
