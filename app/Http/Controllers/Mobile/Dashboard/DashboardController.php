@@ -9,6 +9,7 @@ use App\Models\Presensi;
 use App\Models\User;
 use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
+use App\Models\TeachingSchedulePeriod;
 use App\Models\AppSetting;
 use App\Models\Holiday;
 use App\Services\AttendanceObligationService;
@@ -115,6 +116,18 @@ class DashboardController extends \App\Http\Controllers\Controller
         return $statuses;
     }
 
+    private function formatScheduleTimeRange(mixed $startTime, mixed $endTime): string
+    {
+        $start = substr((string) $startTime, 0, 5);
+        $end = substr((string) $endTime, 0, 5);
+
+        if ($start !== '' && $end !== '') {
+            return $start . ' - ' . $end;
+        }
+
+        return $start !== '' ? $start : ($end !== '' ? $end : '-');
+    }
+
     // Mobile dashboard for tenaga_pendidik and pengurus
     public function dashboard(Request $request)
     {
@@ -177,10 +190,22 @@ class DashboardController extends \App\Http\Controllers\Controller
             'program_studi' => $user->program_studi ?? '-',
         ];
 
-        // Today's schedules for the teacher
-        $todayName = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
-        $todaySchedules = TeachingSchedule::where('teacher_id', $user->id)
+        $todayDate = $today->copy()->timezone('Asia/Jakarta')->toDateString();
+        $todayName = $today->copy()->locale('id')->dayName; // e.g., 'Senin'
+        $activeTeachingPeriod = $user->madrasah_id
+            ? TeachingSchedulePeriod::activeForSchool($user->madrasah_id, $todayDate)
+            : null;
+
+        // Today's schedules for the teacher, limited to the active schedule period only.
+        $todaySchedules = TeachingSchedule::query()
+            ->with('period')
+            ->where('teacher_id', $user->id)
             ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
+            ->when(
+                $activeTeachingPeriod,
+                fn ($query) => $query->where('teaching_schedule_period_id', $activeTeachingPeriod->id),
+                fn ($query) => $query->whereRaw('1 = 0')
+            )
             ->orderBy('start_time')
             ->get();
 
@@ -188,14 +213,26 @@ class DashboardController extends \App\Http\Controllers\Controller
         $approvedIzinToday = ApprovedIzinSyncService::approvedTeachingJournalRequestForDate($user, $today)
             ?? ExternalTeachingPermissionService::approvedRequestForDate($user, $today);
 
+        $attendanceMap = TeachingAttendance::query()
+            ->whereIn('teaching_schedule_id', $todaySchedules->pluck('id'))
+            ->where('tanggal', $todayDate)
+            ->get()
+            ->keyBy('teaching_schedule_id');
+
         // Add attendance status to each schedule
-        $todaySchedulesWithAttendance = $todaySchedules->map(function ($schedule) use ($today, $approvedIzinToday) {
-            $attendance = TeachingAttendance::where('teaching_schedule_id', $schedule->id)
-                ->where('tanggal', $today->toDateString())
-                ->first();
+        $todaySchedulesWithAttendance = $todaySchedules->map(function (TeachingSchedule $schedule) use ($attendanceMap, $approvedIzinToday) {
+            $attendance = $attendanceMap->get($schedule->id);
             $schedule->attendance_status = $attendance ? 'sudah' : ($approvedIzinToday ? 'izin' : 'belum');
+            $schedule->attendance_status_label = match ($schedule->attendance_status) {
+                'sudah' => 'Presensi Sudah',
+                'izin' => 'Izin Disetujui',
+                default => 'Belum Presensi',
+            };
+            $schedule->class_label = $schedule->classNameLabel();
+            $schedule->time_range = $this->formatScheduleTimeRange($schedule->start_time, $schedule->end_time);
+
             return $schedule;
-        });
+        })->values();
 
         // Create teaching steps for timeline
         $teachingSteps = [];
@@ -205,14 +242,16 @@ class DashboardController extends \App\Http\Controllers\Controller
                 ? 'completed'
                 : ($schedule->attendance_status === 'izin' ? 'excused' : 'pending');
             $teachingSteps[] = [
-                'label' => 'Mengajar ' . $stepNumber,
-                'status' => $status
+                'label' => $schedule->subject ?: ('Mengajar ' . $stepNumber),
+                'subtitle' => trim(collect([
+                    $schedule->class_label,
+                    $schedule->time_range,
+                ])->filter()->implode(' • ')),
+                'status' => $status,
             ];
         }
 
         // Calculate daily performance activities
-        $todayDate = $today->toDateString();
-
         // Check presensi masuk (ada waktu_masuk)
         $presensiMasuk = Presensi::where('user_id', $user->id)
             ->where('tanggal', $todayDate)
@@ -289,7 +328,7 @@ class DashboardController extends \App\Http\Controllers\Controller
             'kehadiranPercent', 'hadir', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance',
             'bannerImage', 'showBanner', 'monthlyPresensi', 'calendarStatuses', 'currentMonth', 'currentYear',
             'hariKbm', 'monthlyHolidays', 'prevMonth', 'prevYear', 'nextMonth', 'nextYear',
-            'presensiMasukStatus', 'presensiKeluarStatus', 'kinerjaPercent', 'teachingSteps'
+            'presensiMasukStatus', 'presensiKeluarStatus', 'kinerjaPercent', 'teachingSteps', 'activeTeachingPeriod'
         ));
     }
 

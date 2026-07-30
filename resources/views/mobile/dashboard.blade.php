@@ -373,8 +373,165 @@ $progressColor = "rgb($red, $green, 0)";
             background: #fff;
             border-radius: 12px;
             padding: 12px;
-            /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
+            border: 1px solid #e9eef3;
             margin-bottom: 12px;
+        }
+
+        .schedule-section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .schedule-section-title {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 700;
+            color: #173a3a;
+        }
+
+        .schedule-section-subtitle {
+            margin: 2px 0 0;
+            font-size: 10px;
+            color: #6b7b84;
+            line-height: 1.45;
+        }
+
+        .schedule-period-pill {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background: #eef8f3;
+            color: #0e8549;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .schedule-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #fffdf8 0%, #fff7ea 100%);
+            border: 1px solid #f3dfba;
+        }
+
+        .schedule-row.is-complete {
+            background: linear-gradient(180deg, #f5fff9 0%, #ecfff4 100%);
+            border-color: #cdeed9;
+        }
+
+        .schedule-row.is-excused {
+            background: linear-gradient(180deg, #f4fbff 0%, #eef8ff 100%);
+            border-color: #cfe4ff;
+        }
+
+        .schedule-row-marker {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+            background: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+        }
+
+        .schedule-row.is-complete .schedule-row-marker {
+            background: #16a34a;
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+        }
+
+        .schedule-row.is-excused .schedule-row-marker {
+            background: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .schedule-row-body {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .schedule-row-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .schedule-row-subject {
+            font-size: 13px;
+            font-weight: 700;
+            color: #163637;
+            line-height: 1.35;
+            margin-bottom: 2px;
+        }
+
+        .schedule-row-class {
+            font-size: 11px;
+            color: #4f6770;
+            line-height: 1.4;
+        }
+
+        .schedule-row-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .schedule-meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            font-size: 10px;
+            color: #455a64;
+            line-height: 1;
+        }
+
+        .schedule-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            white-space: nowrap;
+        }
+
+        .schedule-status-badge.is-complete {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .schedule-status-badge.is-excused {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .schedule-status-badge.is-pending {
+            background: #fef3c7;
+            color: #92400e;
         }
 
         .schedule-grid {
@@ -539,6 +696,13 @@ $progressColor = "rgb($red, $green, 0)";
         .no-schedule p {
             font-size: 12px;
             margin: 0;
+        }
+
+        .no-schedule small {
+            display: block;
+            margin-top: 4px;
+            font-size: 10px;
+            color: #98a6ad;
         }
 
         /* Calendar Styles */
@@ -991,6 +1155,47 @@ $progressColor = "rgb($red, $green, 0)";
             color: #155724;
         }
 
+        .timeline-item-accordion.excused {
+            background: #eef6ff;
+            border-color: #d6e7ff;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .timeline-item-accordion.excused .timeline-icon {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .timeline-item-accordion.excused .timeline-content strong,
+        .timeline-item-accordion.excused .timeline-content small {
+            color: #1d4ed8;
+        }
+
+        .timeline-item-accordion .timeline-pill {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 6px;
+            padding: 3px 7px;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #60717b;
+            font-size: 9px;
+            font-weight: 600;
+            border: 1px solid #e6edf2;
+        }
+
+        .timeline-item-accordion.done .timeline-pill {
+            background: #f6fff8;
+            border-color: #bfe5c9;
+            color: #166534;
+        }
+
+        .timeline-item-accordion.excused .timeline-pill {
+            background: #f8fbff;
+            border-color: #cfe1ff;
+            color: #1d4ed8;
+        }
+
     </style>
 
     <!-- Show banner modal on page load -->
@@ -1127,19 +1332,23 @@ $progressColor = "rgb($red, $green, 0)";
                         <div class="timeline-content">
                             <strong>Presensi Masuk</strong>
                             <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                            <span class="timeline-pill">{{ $presensiMasukStatus === 'sudah' ? 'Aktivitas selesai' : 'Menunggu presensi' }}</span>
                         </div>
                     </div>
 
                     <!-- Presensi Mengajar - tampilkan per jadwal -->
                     @if(count($teachingSteps) > 0)
                         @foreach($teachingSteps as $step)
-                        <div class="timeline-item-accordion {{ in_array($step['status'], ['completed', 'excused']) ? 'done' : '' }}">
+                        <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : ($step['status'] === 'excused' ? 'excused' : '') }}">
                             <div class="timeline-icon">
                                 <i class="bx bx-chalkboard"></i>
                             </div>
                             <div class="timeline-content">
                                 <strong>{{ $step['label'] }}</strong>
                                 <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : ($step['status'] === 'excused' ? 'Izin disetujui' : 'Belum dilakukan') }}</small>
+                                @if(!empty($step['subtitle']))
+                                    <span class="timeline-pill">{{ $step['subtitle'] }}</span>
+                                @endif
                             </div>
                         </div>
                         @endforeach
@@ -1153,6 +1362,7 @@ $progressColor = "rgb($red, $green, 0)";
                         <div class="timeline-content">
                             <strong>Presensi Keluar</strong>
                             <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                            <span class="timeline-pill">{{ $presensiKeluarStatus === 'sudah' ? 'Aktivitas selesai' : 'Menunggu presensi' }}</span>
                         </div>
                     </div>
                 </div>
@@ -1435,26 +1645,55 @@ $progressColor = "rgb($red, $green, 0)";
 
     <small>Jadwal Hari Ini</small>
 
-    <!-- Schedule Section -->
     <div class="schedule-section">
-        {{-- <h6 class="section-title">Jadwal Hari Ini</h6> --}}
+        <div class="schedule-section-header">
+            <div>
+                <h6 class="schedule-section-title">Jadwal Mengajar Aktif Hari Ini</h6>
+                <p class="schedule-section-subtitle">
+                    Hanya jadwal dari periode mengajar yang aktif pada hari ini yang ditampilkan.
+                </p>
+            </div>
+            @if(!empty($activeTeachingPeriod))
+                <span class="schedule-period-pill">
+                    <i class="bx bx-calendar-event"></i>
+                    {{ $activeTeachingPeriod->semester_label }}
+                </span>
+            @endif
+        </div>
+
         @if($todaySchedulesWithAttendance->count() > 0)
-            <div class="schedule-carousel">
+            <div class="schedule-list">
                 @foreach($todaySchedulesWithAttendance as $schedule)
-                    <div class="schedule-card">
-                        <div class="attendance-indicator {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : ($schedule->attendance_status == 'izin' ? 'bg-info' : 'bg-danger') }}"></div>
-                        <div class="schedule-header">
-                            <strong class="d-block">{{ $schedule->subject }}</strong>
-                            <small class="d-block text-dark">{{ $schedule->class_name }}</small>
-                        </div>
-                        <div class="schedule-time">
-                            <small class="d-block text-muted"><i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}</small>
-                        </div>
-                        <div class="schedule-status">
-                            <span class="badge {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : ($schedule->attendance_status == 'izin' ? 'bg-info text-dark' : 'bg-warning') }}">
-                                <i class="bx {{ $schedule->attendance_status == 'sudah' ? 'bx-check-circle' : ($schedule->attendance_status == 'izin' ? 'bx-info-circle' : 'bx-time') }}"></i>
-                                Presensi {{ $schedule->attendance_status == 'sudah' ? 'Sudah' : ($schedule->attendance_status == 'izin' ? 'Izin' : 'Belum') }}
-                            </span>
+                    @php
+                        $statusClass = $schedule->attendance_status === 'sudah'
+                            ? 'is-complete'
+                            : ($schedule->attendance_status === 'izin' ? 'is-excused' : 'is-pending');
+                    @endphp
+                    <div class="schedule-row {{ $statusClass }}">
+                        <div class="schedule-row-marker"></div>
+                        <div class="schedule-row-body">
+                            <div class="schedule-row-top">
+                                <div>
+                                    <div class="schedule-row-subject">{{ $schedule->subject ?: 'Mata pelajaran belum diisi' }}</div>
+                                    <div class="schedule-row-class">{{ $schedule->class_label ?: 'Kelas belum diatur' }}</div>
+                                </div>
+                                <span class="schedule-status-badge {{ $statusClass }}">
+                                    <i class="bx {{ $schedule->attendance_status === 'sudah' ? 'bx-check-circle' : ($schedule->attendance_status === 'izin' ? 'bx-info-circle' : 'bx-time-five') }}"></i>
+                                    {{ $schedule->attendance_status_label }}
+                                </span>
+                            </div>
+                            <div class="schedule-row-meta">
+                                <span class="schedule-meta-chip">
+                                    <i class="bx bx-time-five"></i>
+                                    {{ $schedule->time_range }}
+                                </span>
+                                @if(!empty($schedule->period))
+                                    <span class="schedule-meta-chip">
+                                        <i class="bx bx-calendar"></i>
+                                        {{ $schedule->period->summary_label }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 @endforeach
@@ -1462,7 +1701,10 @@ $progressColor = "rgb($red, $green, 0)";
         @else
             <div class="no-schedule">
                 <i class="bx bx-calendar-x"></i>
-                <p>Tidak ada jadwal mengajar hari ini</p>
+                <p>Tidak ada jadwal mengajar aktif hari ini</p>
+                <small>
+                    {{ !empty($activeTeachingPeriod) ? 'Jadwal untuk hari ini belum tersedia pada periode aktif.' : 'Belum ada periode jadwal mengajar yang aktif pada hari ini.' }}
+                </small>
             </div>
         @endif
     </div>
