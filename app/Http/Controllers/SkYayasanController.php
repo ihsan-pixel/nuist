@@ -156,17 +156,21 @@ class SkYayasanController extends Controller
             ->paginate(10, ['*'], 'history_page')
             ->withQueryString();
 
+        $importBatches = $this->hydrateImportBatchPreviewCollection(
+            SkYayasanImportBatch::query()
+                ->with(['reviewer', 'requests.employee', 'rows'])
+                ->where('madrasah_id', $madrasahId)
+                ->latest('uploaded_at')
+                ->take(8)
+                ->get()
+        );
+
         return view('sk-yayasan.sekolah-index', [
             'submissions' => $submissions,
             'submissionHistoryBatches' => $submissionHistoryBatches,
             'employees' => $employees,
             'statusCounts' => $statusCounts,
-            'importBatches' => SkYayasanImportBatch::query()
-                ->with(['reviewer', 'requests.employee', 'rows'])
-                ->where('madrasah_id', $madrasahId)
-                ->latest('uploaded_at')
-                ->take(8)
-                ->get(),
+            'importBatches' => $importBatches,
             'hasExistingSchoolSubmission' => $latestSchoolSubmissionBatch !== null,
             'latestSchoolSubmissionBatch' => $latestSchoolSubmissionBatch,
             'autoSelectedEmployeeIds' => old('employee_ids', $latestSyncedImport?->matched_user_ids ?? []),
@@ -836,6 +840,9 @@ class SkYayasanController extends Controller
             ->latest('uploaded_at')
             ->paginate(8, ['*'], 'pending_import_page')
             ->withQueryString();
+        $pendingImportBatches->setCollection(
+            $this->hydrateImportBatchPreviewCollection($pendingImportBatches->getCollection())
+        );
 
         $syncedImportBatches = (clone $importBatchQuery)
             ->where('status', 'synced')
@@ -843,6 +850,9 @@ class SkYayasanController extends Controller
             ->latest('uploaded_at')
             ->paginate(8, ['*'], 'synced_import_page')
             ->withQueryString();
+        $syncedImportBatches->setCollection(
+            $this->hydrateImportBatchPreviewCollection($syncedImportBatches->getCollection())
+        );
 
         $syncedImportBatchSchoolCount = SkYayasanImportBatch::query()
             ->where('status', 'synced')
@@ -1304,6 +1314,17 @@ class SkYayasanController extends Controller
             ->filter(fn ($value) => filled($value))
             ->unique()
             ->values();
+
+        $requests->transform(function (SkYayasanRequest $submission) {
+            if ($submission->importBatch) {
+                $submission->setRelation(
+                    'importBatch',
+                    $this->hydrateImportBatchPreview($submission->importBatch)
+                );
+            }
+
+            return $submission;
+        });
 
         return view('sk-yayasan.generate-school-index', [
             'madrasah' => $madrasah,
@@ -3420,6 +3441,75 @@ class SkYayasanController extends Controller
             'invalid_count' => $invalidCount,
             'valid_user_ids' => array_values(array_unique(array_filter($validUserIds))),
             'can_upload' => $validCount > 0 && $invalidCount === 0,
+        ];
+    }
+
+    private function hydrateImportBatchPreviewCollection(Collection $batches): Collection
+    {
+        return $batches->map(fn (SkYayasanImportBatch $batch) => $this->hydrateImportBatchPreview($batch));
+    }
+
+    private function hydrateImportBatchPreview(SkYayasanImportBatch $batch): SkYayasanImportBatch
+    {
+        $batch->loadMissing('rows');
+
+        if ($batch->rows->isEmpty()) {
+            return $batch;
+        }
+
+        $report = $this->inspectEditableImportRows(
+            $batch->rows->map(fn (SkYayasanImportRow $row) => $this->editableImportRowPayload($row))->all(),
+            (int) $batch->madrasah_id
+        );
+
+        $analysisByRowNumber = collect($report['rows'])->keyBy(fn (array $row) => (int) ($row['row_number'] ?? 0));
+        $hydratedRows = $batch->rows->map(function (SkYayasanImportRow $row) use ($analysisByRowNumber) {
+            $analysis = $analysisByRowNumber->get((int) $row->row_number);
+
+            if (!$analysis) {
+                return $row;
+            }
+
+            $row->matched_user_id = $analysis['user_id'] ?? $row->matched_user_id;
+            $row->matched_name = $analysis['matched_name'] ?? $row->matched_name;
+            $row->is_valid = (bool) ($analysis['is_valid'] ?? false);
+            $row->status_label = $analysis['status_label'] ?? $row->status_label;
+            $row->validation_errors = $analysis['errors'] ?? [];
+            $row->user_payload = $analysis['user_payload'] ?? [];
+            $row->sk_payload = $analysis['sk_payload'] ?? [];
+
+            return $row;
+        });
+
+        $batch->setRelation('rows', $hydratedRows);
+        $batch->valid_rows = (int) ($report['valid_count'] ?? $batch->valid_rows);
+        $batch->invalid_rows = (int) ($report['invalid_count'] ?? $batch->invalid_rows);
+        $batch->headings_valid = (bool) ($report['headings_valid'] ?? $batch->headings_valid);
+
+        return $batch;
+    }
+
+    private function editableImportRowPayload(SkYayasanImportRow $row): array
+    {
+        return [
+            'row_number' => $row->row_number,
+            'excel_no' => $this->nullableImportCell($row->excel_no),
+            'source_nuist_id' => $this->nullableImportCell($row->source_nuist_id),
+            'source_nama' => $this->nullableImportCell($row->source_nama),
+            'source_gelar' => $this->nullableImportCell($row->source_gelar),
+            'source_tempat_lahir' => $this->nullableImportCell($row->source_tempat_lahir),
+            'source_tanggal_lahir' => $this->nullableImportCell($row->source_tanggal_lahir),
+            'source_nip_maarif' => $this->nullableImportCell($row->source_nip_maarif),
+            'source_nuptk' => $this->nullableImportCell($row->source_nuptk),
+            'source_nomor_kartanu' => $this->nullableImportCell($row->source_nomor_kartanu),
+            'source_tmt_pertama' => $this->nullableImportCell($row->source_tmt_pertama),
+            'source_masa_kerja' => $this->nullableImportCell($row->source_masa_kerja),
+            'source_pendidikan_terakhir' => $this->nullableImportCell($row->source_pendidikan_terakhir),
+            'source_tahun_lulus' => $this->nullableImportCell($row->source_tahun_lulus),
+            'source_program_studi' => $this->nullableImportCell($row->source_program_studi),
+            'source_mapel_tugas' => $this->nullableImportCell($row->source_mapel_tugas),
+            'source_penilaian_kinerja' => $this->nullableImportCell($row->source_penilaian_kinerja),
+            'source_keterangan' => $this->nullableImportCell($row->source_keterangan),
         ];
     }
 
