@@ -218,6 +218,7 @@
                                 <span class="sky-chip">{{ $lockedDocumentsCount }} nomor terkunci</span>
                             @endif
                             @if($requests->count() > 0)
+                                <span class="text-muted small">Pilih mode rapikan:</span>
                                 <form method="POST"
                                       action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
                                       data-sk-swal-confirm
@@ -235,6 +236,21 @@
                                 <form method="POST"
                                       action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
                                       data-sk-swal-confirm
+                                      data-sk-swal-title="Rapikan memakai nomor kosong global?"
+                                      data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan mencoba memakai gap nomor SK global yang masih kosong untuk sekolah ini."
+                                      data-sk-swal-confirm-text="Ya, pakai nomor kosong"
+                                      data-sk-swal-icon="warning">
+                                    @csrf
+                                    <input type="hidden" name="use_unused_global_numbers" value="1">
+                                    <button type="submit"
+                                            class="btn btn-outline-warning"
+                                            @disabled($generatedDocumentsCount === 0)>
+                                        <i class="bx bx-transfer-alt me-1"></i>Rapikan Pakai Nomor Kosong
+                                    </button>
+                                </form>
+                                <form method="POST"
+                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
+                                      data-sk-swal-confirm
                                       data-sk-swal-title="Rapikan dan kunci ulang nomor SK?"
                                       data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Setelah dirapikan, semua nomor SK sekolah ini akan langsung dikunci kembali."
                                       data-sk-swal-confirm-text="Ya, rapikan & kunci"
@@ -245,6 +261,22 @@
                                             class="btn btn-outline-dark"
                                             @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)>
                                         <i class="bx bx-reset me-1"></i>Rapikan & Kunci Ulang
+                                    </button>
+                                </form>
+                                <form method="POST"
+                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
+                                      data-sk-swal-confirm
+                                      data-sk-swal-title="Rapikan, pakai nomor kosong, lalu kunci ulang?"
+                                      data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan mencoba memakai gap nomor SK global yang kosong, lalu langsung mengunci ulang hasilnya untuk sekolah ini."
+                                      data-sk-swal-confirm-text="Ya, rapikan & kunci"
+                                      data-sk-swal-icon="warning">
+                                    @csrf
+                                    <input type="hidden" name="lock_after" value="1">
+                                    <input type="hidden" name="use_unused_global_numbers" value="1">
+                                    <button type="submit"
+                                            class="btn btn-outline-dark"
+                                            @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)>
+                                        <i class="bx bx-git-merge me-1"></i>Kunci Pakai Nomor Kosong
                                     </button>
                                 </form>
                                 <form method="POST"

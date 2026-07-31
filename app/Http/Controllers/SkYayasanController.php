@@ -1665,9 +1665,11 @@ class SkYayasanController extends Controller
 
         $validated = $request->validate([
             'lock_after' => ['nullable', 'boolean'],
+            'use_unused_global_numbers' => ['nullable', 'boolean'],
         ]);
 
         $lockAfterRenumber = (bool) ($validated['lock_after'] ?? false);
+        $useUnusedGlobalNumbers = (bool) ($validated['use_unused_global_numbers'] ?? false);
 
         if ($lockAfterRenumber && !$this->skYayasanDocumentNumberLockSupported()) {
             return back()->with('error', 'Fitur kunci ulang nomor SK belum aktif karena kolom database belum dimigrasikan.');
@@ -1694,10 +1696,12 @@ class SkYayasanController extends Controller
             return back()->with('error', 'Belum ada nomor SK pada sekolah ini yang bisa dirapikan. Generate dokumen sekolah terlebih dahulu.');
         }
 
-        $preferredStartNumber = max(
-            1,
-            (int) ($existingSequences->min() ?? ($schoolGeneration['core_data']['document_number_start'] ?? 1))
-        );
+        $preferredStartNumber = $useUnusedGlobalNumbers
+            ? max(1, (int) ($this->getGlobalSkSettings()['number_start'] ?? 1))
+            : max(
+                1,
+                (int) ($existingSequences->min() ?? ($schoolGeneration['core_data']['document_number_start'] ?? 1))
+            );
         $preferredNumberFormatSuffix = $payloads->first()['data']['number_format_suffix'] ?? null;
         $issuedDate = $payloads->first()['issued_date'];
         $requestIds = $payloads
@@ -1790,6 +1794,10 @@ class SkYayasanController extends Controller
 
         if ($rangeLabel) {
             $message .= ' Rentang baru: ' . $rangeLabel . '.';
+        }
+
+        if ($useUnusedGlobalNumbers) {
+            $message .= ' Mode yang dipakai: memanfaatkan nomor kosong global yang belum terpakai.';
         }
 
         if ($lockAfterRenumber) {
