@@ -103,9 +103,32 @@ class SkYayasanController extends Controller
     public function numberIndex(Request $request): View
     {
         $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests();
 
         $search = trim((string) $request->query('q', ''));
         $madrasahId = max(0, (int) $request->query('madrasah_id', 0));
+        $globalSkSettings = $this->getGlobalSkSettings();
+        $numberLockSupported = $this->skYayasanDocumentNumberLockSupported();
+
+        $schoolCounts = [
+            'skYayasanImportBatches as synced_batches_count' => fn (Builder $query) => $query->where('status', 'synced'),
+            'skYayasanRequests as generate_requests_count' => fn (Builder $query) => $query
+                ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced')),
+            'skYayasanRequests as generated_documents_count' => fn (Builder $query) => $query
+                ->whereHas('document'),
+        ];
+
+        if ($numberLockSupported) {
+            $schoolCounts['skYayasanRequests as locked_documents_count'] = fn (Builder $query) => $query
+                ->whereHas('document', fn (Builder $documentQuery) => $documentQuery->whereNotNull('number_locked_at'));
+        }
+
+        $schools = $this->prepareGenerateQueueSchools(
+            $this->generateQueueSchoolsQuery(null, null, false)
+                ->withCount($schoolCounts)
+                ->get(),
+            $numberLockSupported
+        );
 
         $documentsQuery = SkYayasanDocument::query()
             ->with([
@@ -168,9 +191,7 @@ class SkYayasanController extends Controller
         });
 
         $schoolOptions = Madrasah::query()
-            ->whereIn('id', SkYayasanRequest::query()
-                ->select('madrasah_id')
-                ->whereHas('document', fn (Builder $query) => $query->whereNotNull('document_number')))
+            ->whereIn('id', $schools->pluck('id')->all())
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderBy('scod')
             ->orderBy('name')
@@ -178,16 +199,22 @@ class SkYayasanController extends Controller
 
         return view('sk-yayasan.number-index', [
             'documents' => $documents,
+            'schools' => $schools,
             'schoolOptions' => $schoolOptions,
             'filters' => [
                 'q' => $search,
                 'madrasah_id' => $madrasahId > 0 ? $madrasahId : null,
             ],
+            'globalSkSettings' => $globalSkSettings,
+            'numberLockSupported' => $numberLockSupported,
             'numberStats' => [
                 'total_documents' => $filteredDocuments->count(),
                 'locked_documents' => $filteredDocuments->filter(fn (SkYayasanDocument $document) => $document->number_locked_at !== null)->count(),
                 'duplicate_number_count' => $duplicateNumberCounts->count(),
                 'duplicate_row_count' => $duplicateNumberCounts->sum(),
+                'school_count' => $schools->count(),
+                'synced_batch_count' => SkYayasanImportBatch::query()->where('status', 'synced')->count(),
+                'total_generate_requests' => (int) $schools->sum(fn (Madrasah $school) => (int) ($school->generate_requests_count ?? 0)),
                 'range_label' => $sequenceNumbers->isEmpty()
                     ? null
                     : ($sequenceNumbers->first() === $sequenceNumbers->last()

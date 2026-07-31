@@ -40,76 +40,19 @@
 
     <div class="card mb-3">
         <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <div>
-                    <div class="sky-panel-label mb-1">Data Pokok SK</div>
-                    <h6 class="mb-0">Metadata global untuk semua sekolah yang sudah tersinkronisasi</h6>
+                    <div class="sky-panel-label mb-1">Pengaturan Nomor Dipindah</div>
+                    <h6 class="mb-1">Manajemen nomor SK sekarang dipusatkan di menu Nomor SK Yayasan</h6>
+                    <p class="text-muted mb-0">
+                        Setting nomor mulai, format nomor, rapikan nomor, hingga kunci nomor per sekolah sekarang dikelola dari satu halaman agar lebih rapi dan tidak tersebar.
+                    </p>
                 </div>
-                <span class="sky-chip">Global untuk seluruh antrean generate</span>
-            </div>
-
-            <form method="POST" action="{{ route('sk-yayasan.generate.settings.update') }}">
-                @csrf
-                @method('PATCH')
-                <div class="row g-3">
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label">Tahun Penerbitan SK</label>
-                        <input type="text" name="sk_yayasan_school_year" class="form-control" value="{{ old('sk_yayasan_school_year', $globalSkSettings['school_year']) }}" required>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label">Nomor SK Mulai</label>
-                        <input type="number" name="sk_yayasan_number_start" class="form-control" min="1" value="{{ old('sk_yayasan_number_start', $globalSkSettings['number_start']) }}" required>
-                        <small class="text-muted">Contoh `1565` akan menghasilkan `1565/SK.02/LPM.DIY/VI/2026`.</small>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label">Nama Ketua Yayasan</label>
-                        <input type="text" name="sk_yayasan_signer_name" class="form-control" value="{{ old('sk_yayasan_signer_name', $globalSkSettings['signer_name']) }}" required>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label">Jabatan Penandatangan</label>
-                        <input type="text" name="sk_yayasan_signer_position" class="form-control" value="{{ old('sk_yayasan_signer_position', $globalSkSettings['signer_position']) }}">
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label">Ditetapkan Di</label>
-                        <input type="text" name="sk_yayasan_established_at" class="form-control" value="{{ old('sk_yayasan_established_at', $globalSkSettings['established_at']) }}" required>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label">Pada Tanggal Penetapan</label>
-                        <input type="date" name="sk_yayasan_issued_date" class="form-control" value="{{ old('sk_yayasan_issued_date', $globalSkSettings['issued_date']) }}" required>
-                    </div>
-                    <div class="col-lg-6">
-                        <label class="form-label">Format Nomor SK</label>
-                        <input type="text" name="sk_yayasan_number_format_suffix" class="form-control" value="{{ old('sk_yayasan_number_format_suffix', $globalSkSettings['number_format_suffix']) }}" required>
-                        <small class="text-muted">Bagian depan nomor akan diisi otomatis dari `Nomor SK Mulai` dan berlanjut global untuk semua guru.</small>
-                    </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ route('sk-yayasan.numbers.index') }}" class="btn btn-primary">
+                        <i class="bx bx-hash me-1"></i>Buka Nomor SK Yayasan
+                    </a>
                 </div>
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
-                    <div class="small text-muted">
-                        Tembusan 1 dan 2 tetap dihitung otomatis per sekolah berdasarkan ID madrasah dan kabupaten. Gunakan antrean sekolah sesuai urutan SCOD agar penomoran global berjalan berurutan.
-                    </div>
-                    <button type="submit" class="btn btn-primary">Simpan Data Pokok SK Global</button>
-                </div>
-            </form>
-            <div class="d-flex justify-content-end flex-wrap gap-2 mt-2">
-                <form method="POST" action="{{ route('sk-yayasan.generate.lock-all') }}">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit"
-                            class="btn btn-outline-dark"
-                            @disabled(!$numberLockSupported || $schools->isEmpty())
-                            onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate pada seluruh antrean sekolah? Nomor yang sudah dikunci tidak akan bisa berubah saat generate ulang.')">
-                        Kunci All
-                    </button>
-                </form>
-                <form method="POST" action="{{ route('sk-yayasan.generate.regenerate-all') }}">
-                    @csrf
-                    <button type="submit"
-                            class="btn btn-outline-primary"
-                            @disabled($schools->isEmpty())
-                            onclick="return confirm('Generate ulang semua sekolah akan menyusun ulang nomor SK sesuai urutan SCOD. Nomor yang sudah dikunci tidak akan diubah. Lanjutkan?')">
-                        Generate Ulang All
-                    </button>
-                </form>
             </div>
         </div>
     </div>
@@ -209,16 +152,9 @@
                                                     <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-primary">
                                                         Lihat Pengajuan
                                                     </a>
-                                                    <form method="POST" action="{{ route('sk-yayasan.generate.school.lock-number', $school) }}">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <button type="submit"
-                                                                class="btn btn-sm btn-outline-dark"
-                                                                @disabled(!$numberLockSupported || $generatedDocumentsCount === 0 || $allGeneratedLocked)
-                                                                onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci akan tetap dipakai dan tidak akan diubah saat generate ulang.')">
-                                                            Kunci Nomor SK
-                                                        </button>
-                                                    </form>
+                                                    <a href="{{ route('sk-yayasan.numbers.index', ['madrasah_id' => $school->id]) }}#document-list" class="btn btn-sm btn-outline-primary">
+                                                        Kelola Nomor
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -332,16 +268,9 @@
                                                         <a href="{{ route('sk-yayasan.generate.school', $school) }}" class="btn btn-sm btn-warning">
                                                             Lihat Pengajuan
                                                         </a>
-                                                        <form method="POST" action="{{ route('sk-yayasan.generate.school.lock-number', $school) }}">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button type="submit"
-                                                                    class="btn btn-sm btn-outline-dark"
-                                                                    @disabled(!$numberLockSupported || $generatedDocumentsCount === 0 || $allGeneratedLocked)
-                                                                    onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci akan tetap dipakai dan tidak akan diubah saat generate ulang.')">
-                                                                Kunci Nomor SK
-                                                            </button>
-                                                        </form>
+                                                        <a href="{{ route('sk-yayasan.numbers.index', ['madrasah_id' => $school->id]) }}#document-list" class="btn btn-sm btn-outline-primary">
+                                                            Kelola Nomor
+                                                        </a>
                                                     </div>
                                                 </td>
                                             </tr>
