@@ -44,6 +44,11 @@
                     form.dataset.skSwalBound = '1';
 
                     form.addEventListener('submit', function (event) {
+                        if (form.dataset.skSwalSubmitting === '1') {
+                            delete form.dataset.skSwalSubmitting;
+                            return;
+                        }
+
                         event.preventDefault();
                         const submitter = event.submitter || null;
                         const source = submitter && submitter.dataset && submitter.dataset.skSwalTitle
@@ -61,6 +66,13 @@
                             cancelButtonColor: '#94a3b8',
                         }).then((result) => {
                             if (result.isConfirmed) {
+                                form.dataset.skSwalSubmitting = '1';
+
+                                if (submitter && typeof form.requestSubmit === 'function') {
+                                    form.requestSubmit(submitter);
+                                    return;
+                                }
+
                                 form.submit();
                             }
                         });
