@@ -204,96 +204,116 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Antrean Generate</div>
                             <h6 class="mb-0">Generate otomatis satu sekolah atau tetap per guru</h6>
                         </div>
-                        <div class="d-flex flex-wrap align-items-center gap-2">
-                            <span class="sky-chip">{{ $requests->count() }} data</span>
-                            @if($generatedDocumentsCount > 0)
-                                <span class="sky-chip">{{ $generatedDocumentsCount }} nomor tergenerate</span>
-                            @endif
-                            @if($lockedDocumentsCount > 0)
-                                <span class="sky-chip">{{ $lockedDocumentsCount }} nomor terkunci</span>
-                            @endif
+                        <div class="sky-action-cluster">
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="sky-chip">{{ $requests->count() }} data</span>
+                                @if($generatedDocumentsCount > 0)
+                                    <span class="sky-chip">{{ $generatedDocumentsCount }} nomor tergenerate</span>
+                                @endif
+                                @if($lockedDocumentsCount > 0)
+                                    <span class="sky-chip">{{ $lockedDocumentsCount }} nomor terkunci</span>
+                                @endif
+                            </div>
                             @if($requests->count() > 0)
-                                <span class="text-muted small">Pilih mode rapikan:</span>
-                                <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
-                                      data-sk-swal-confirm
-                                      data-sk-swal-title="Rapikan nomor SK sekolah ini?"
-                                      data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan menyusun ulang nomor SK sekolah ini mulai dari rentang terendah yang masih tersedia."
-                                      data-sk-swal-confirm-text="Ya, rapikan"
-                                      data-sk-swal-icon="warning">
-                                    @csrf
-                                    <button type="submit"
-                                            class="btn btn-outline-warning"
-                                            @disabled($generatedDocumentsCount === 0)>
-                                        <i class="bx bx-sort-alt-2 me-1"></i>Rapikan Nomor SK
+                                <div class="dropdown">
+                                    <button class="btn action-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bx bx-grid-alt me-1"></i>Aksi Nomor SK
                                     </button>
-                                </form>
-                                <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
-                                      data-sk-swal-confirm
-                                      data-sk-swal-title="Rapikan memakai nomor kosong global?"
-                                      data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan mencoba memakai gap nomor SK global yang masih kosong untuk sekolah ini."
-                                      data-sk-swal-confirm-text="Ya, pakai nomor kosong"
-                                      data-sk-swal-icon="warning">
-                                    @csrf
-                                    <input type="hidden" name="use_unused_global_numbers" value="1">
-                                    <button type="submit"
-                                            class="btn btn-outline-warning"
-                                            @disabled($generatedDocumentsCount === 0)>
-                                        <i class="bx bx-transfer-alt me-1"></i>Rapikan Pakai Nomor Kosong
-                                    </button>
-                                </form>
-                                <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
-                                      data-sk-swal-confirm
-                                      data-sk-swal-title="Rapikan dan kunci ulang nomor SK?"
-                                      data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Setelah dirapikan, semua nomor SK sekolah ini akan langsung dikunci kembali."
-                                      data-sk-swal-confirm-text="Ya, rapikan & kunci"
-                                      data-sk-swal-icon="warning">
-                                    @csrf
-                                    <input type="hidden" name="lock_after" value="1">
-                                    <button type="submit"
-                                            class="btn btn-outline-dark"
-                                            @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)>
-                                        <i class="bx bx-reset me-1"></i>Rapikan & Kunci Ulang
-                                    </button>
-                                </form>
-                                <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
-                                      data-sk-swal-confirm
-                                      data-sk-swal-title="Rapikan, pakai nomor kosong, lalu kunci ulang?"
-                                      data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan mencoba memakai gap nomor SK global yang kosong, lalu langsung mengunci ulang hasilnya untuk sekolah ini."
-                                      data-sk-swal-confirm-text="Ya, rapikan & kunci"
-                                      data-sk-swal-icon="warning">
-                                    @csrf
-                                    <input type="hidden" name="lock_after" value="1">
-                                    <input type="hidden" name="use_unused_global_numbers" value="1">
-                                    <button type="submit"
-                                            class="btn btn-outline-dark"
-                                            @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)>
-                                        <i class="bx bx-git-merge me-1"></i>Kunci Pakai Nomor Kosong
-                                    </button>
-                                </form>
-                                <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.lock-number', $madrasah) }}"
-                                      data-sk-swal-confirm
-                                      data-sk-swal-title="Kunci nomor SK sekolah ini?"
-                                      data-sk-swal-text="Nomor yang sudah dikunci tidak akan berubah saat generate ulang berikutnya."
-                                      data-sk-swal-confirm-text="Ya, kunci"
-                                      data-sk-swal-icon="warning">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit"
-                                            class="btn btn-outline-dark"
-                                            @disabled(!$numberLockSupported || $generatedDocumentsCount === 0)>
-                                        <i class="bx bx-lock-alt me-1"></i>Kunci Nomor SK Sekolah Ini
-                                    </button>
-                                </form>
+                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-modern">
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
+                                                  data-sk-swal-confirm
+                                                  data-sk-swal-title="Rapikan nomor SK sekolah ini?"
+                                                  data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan menyusun ulang nomor SK sekolah ini mulai dari rentang terendah yang masih tersedia."
+                                                  data-sk-swal-confirm-text="Ya, rapikan"
+                                                  data-sk-swal-icon="warning">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="dropdown-item"
+                                                        @disabled($generatedDocumentsCount === 0)>
+                                                    <i class="bx bx-sort-alt-2 me-2 text-warning"></i>Rapikan Nomor SK
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
+                                                  data-sk-swal-confirm
+                                                  data-sk-swal-title="Rapikan memakai nomor kosong global?"
+                                                  data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan mencoba memakai gap nomor SK global yang masih kosong untuk sekolah ini."
+                                                  data-sk-swal-confirm-text="Ya, pakai nomor kosong"
+                                                  data-sk-swal-icon="warning">
+                                                @csrf
+                                                <input type="hidden" name="use_unused_global_numbers" value="1">
+                                                <button type="submit"
+                                                        class="dropdown-item"
+                                                        @disabled($generatedDocumentsCount === 0)>
+                                                    <i class="bx bx-transfer-alt me-2 text-warning"></i>Rapikan Pakai Nomor Kosong
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-2"></li>
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
+                                                  data-sk-swal-confirm
+                                                  data-sk-swal-title="Rapikan dan kunci ulang nomor SK?"
+                                                  data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Setelah dirapikan, semua nomor SK sekolah ini akan langsung dikunci kembali."
+                                                  data-sk-swal-confirm-text="Ya, rapikan & kunci"
+                                                  data-sk-swal-icon="warning">
+                                                @csrf
+                                                <input type="hidden" name="lock_after" value="1">
+                                                <button type="submit"
+                                                        class="dropdown-item"
+                                                        @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)>
+                                                    <i class="bx bx-reset me-2 text-dark"></i>Rapikan & Kunci Ulang
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
+                                                  data-sk-swal-confirm
+                                                  data-sk-swal-title="Rapikan, pakai nomor kosong, lalu kunci ulang?"
+                                                  data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan mencoba memakai gap nomor SK global yang kosong, lalu langsung mengunci ulang hasilnya untuk sekolah ini."
+                                                  data-sk-swal-confirm-text="Ya, rapikan & kunci"
+                                                  data-sk-swal-icon="warning">
+                                                @csrf
+                                                <input type="hidden" name="lock_after" value="1">
+                                                <input type="hidden" name="use_unused_global_numbers" value="1">
+                                                <button type="submit"
+                                                        class="dropdown-item"
+                                                        @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)>
+                                                    <i class="bx bx-git-merge me-2 text-dark"></i>Kunci Pakai Nomor Kosong
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-2"></li>
+                                        <li>
+                                            <form method="POST"
+                                                  action="{{ route('sk-yayasan.generate.school.lock-number', $madrasah) }}"
+                                                  data-sk-swal-confirm
+                                                  data-sk-swal-title="Kunci nomor SK sekolah ini?"
+                                                  data-sk-swal-text="Nomor yang sudah dikunci tidak akan berubah saat generate ulang berikutnya."
+                                                  data-sk-swal-confirm-text="Ya, kunci"
+                                                  data-sk-swal-icon="warning">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="dropdown-item"
+                                                        @disabled(!$numberLockSupported || $generatedDocumentsCount === 0)>
+                                                    <i class="bx bx-lock-alt me-2 text-secondary"></i>Kunci Nomor SK Sekolah Ini
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                                 <form method="POST"
                                       action="{{ route('sk-yayasan.generate.school.pdf', $madrasah) }}"
                                       target="_blank">
@@ -307,13 +327,13 @@
                                     <input type="hidden" name="established_at" value="{{ $coreData['established_at'] }}">
                                     <input type="hidden" name="copy_recipient_1" value="{{ $coreData['copy_recipient_1'] }}">
                                     <input type="hidden" name="copy_recipient_2" value="{{ $coreData['copy_recipient_2'] }}">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn btn-primary btn-pill px-3">
                                         <i class="bx bx-printer me-1"></i>Generate Semua Guru Sekolah Ini
                                     </button>
                                 </form>
                                 @foreach($importBatchModalItems as $batch)
                                     <button type="button"
-                                            class="btn btn-outline-primary"
+                                            class="btn btn-outline-primary btn-pill px-3"
                                             data-bs-toggle="modal"
                                             data-bs-target="#generateImportBatchModal{{ $batch->id }}">
                                         <i class="bx bx-detail me-1"></i>Lihat Data Detail{{ $importBatchModalItems->count() > 1 ? ' Batch ' . $loop->iteration : '' }}
