@@ -1725,6 +1725,7 @@ class SkYayasanController extends Controller
             $preferredStartNumber,
             $preferredNumberFormatSuffix,
             $lockAfterRenumber,
+            $useUnusedGlobalNumbers,
             &$assignedNumbers
         ) {
             if ($documentIds->isNotEmpty() && $this->skYayasanDocumentNumberLockSupported()) {
