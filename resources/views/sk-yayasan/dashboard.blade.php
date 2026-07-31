@@ -217,7 +217,7 @@
                 <div class="sky-empty-state">
                     <i class="bx bx-building-house"></i>
                     <strong>Belum ada sekolah yang mengirim pengajuan</strong>
-                    <small>Rekap akan muncul setelah admin sekolah mulai mengajukan perpanjangan SK.</small>
+                    <small>Rekap akan muncul setelah admin sekolah mulai mengajukan perpanjangan SK</small>
                 </div>
             @endif
         </div>
