@@ -28,6 +28,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Facades\Excel;
@@ -96,6 +98,144 @@ class SkYayasanController extends Controller
                 'Data dashboard SK Yayasan sementara tidak dapat dimuat. Detail error sudah dicatat di log aplikasi.'
             ));
         }
+    }
+
+    public function numberIndex(Request $request): View
+    {
+        $this->ensureSuperAdmin();
+
+        $search = trim((string) $request->query('q', ''));
+        $madrasahId = max(0, (int) $request->query('madrasah_id', 0));
+
+        $documentsQuery = SkYayasanDocument::query()
+            ->with([
+                'request.madrasah:id,name,scod,kabupaten',
+                'request.employee:id,name',
+            ])
+            ->whereNotNull('document_number')
+            ->whereHas('request')
+            ->when($madrasahId > 0, function (Builder $query) use ($madrasahId) {
+                $query->whereHas('request', fn (Builder $requestQuery) => $requestQuery->where('madrasah_id', $madrasahId));
+            })
+            ->when($search !== '', function (Builder $query) use ($search) {
+                $query->where(function (Builder $searchQuery) use ($search) {
+                    $searchQuery->where('document_number', 'like', '%' . $search . '%')
+                        ->orWhereHas('request.employee', fn (Builder $employeeQuery) => $employeeQuery->where('name', 'like', '%' . $search . '%'))
+                        ->orWhereHas('request.madrasah', function (Builder $madrasahQuery) use ($search) {
+                            $madrasahQuery->where('name', 'like', '%' . $search . '%')
+                                ->orWhere('scod', 'like', '%' . $search . '%');
+                        });
+                });
+            });
+
+        $filteredDocuments = (clone $documentsQuery)->get([
+            'id',
+            'request_id',
+            'document_number',
+            'status',
+            'number_locked_at',
+            'meta_payload',
+        ]);
+
+        $duplicateNumberCounts = $filteredDocuments
+            ->pluck('document_number')
+            ->filter(fn (?string $documentNumber) => filled($documentNumber))
+            ->countBy()
+            ->filter(fn (int $count) => $count > 1);
+
+        $sequenceNumbers = $filteredDocuments
+            ->map(fn (SkYayasanDocument $document) => $this->extractDocumentNumberSequence($document->document_number))
+            ->filter(fn (?int $sequence) => $sequence !== null)
+            ->sort()
+            ->values();
+
+        $documents = $documentsQuery
+            ->orderByRaw("
+                CASE
+                    WHEN sk_yayasan_documents.document_number REGEXP '^[0-9]+/' THEN CAST(SUBSTRING_INDEX(sk_yayasan_documents.document_number, '/', 1) AS UNSIGNED)
+                    ELSE 999999999
+                END
+            ")
+            ->orderBy('document_number')
+            ->paginate(50)
+            ->withQueryString();
+
+        $documents->getCollection()->transform(function (SkYayasanDocument $document) use ($duplicateNumberCounts) {
+            $document->sequence_number = $this->extractDocumentNumberSequence($document->document_number);
+            $document->duplicate_total = (int) ($duplicateNumberCounts[$document->document_number] ?? 0);
+
+            return $document;
+        });
+
+        $schoolOptions = Madrasah::query()
+            ->whereIn('id', SkYayasanRequest::query()
+                ->select('madrasah_id')
+                ->whereHas('document', fn (Builder $query) => $query->whereNotNull('document_number')))
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderBy('scod')
+            ->orderBy('name')
+            ->get(['id', 'name', 'scod']);
+
+        return view('sk-yayasan.number-index', [
+            'documents' => $documents,
+            'schoolOptions' => $schoolOptions,
+            'filters' => [
+                'q' => $search,
+                'madrasah_id' => $madrasahId > 0 ? $madrasahId : null,
+            ],
+            'numberStats' => [
+                'total_documents' => $filteredDocuments->count(),
+                'locked_documents' => $filteredDocuments->filter(fn (SkYayasanDocument $document) => $document->number_locked_at !== null)->count(),
+                'duplicate_number_count' => $duplicateNumberCounts->count(),
+                'duplicate_row_count' => $duplicateNumberCounts->sum(),
+                'range_label' => $sequenceNumbers->isEmpty()
+                    ? null
+                    : ($sequenceNumbers->first() === $sequenceNumbers->last()
+                        ? (string) $sequenceNumbers->first()
+                        : ($sequenceNumbers->first() . '-' . $sequenceNumbers->last())),
+            ],
+        ]);
+    }
+
+    public function updateDocumentNumber(Request $request, SkYayasanDocument $document): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+        $document->loadMissing(['request.madrasah', 'request.employee']);
+
+        $validated = $request->validate([
+            'document_number' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('sk_yayasan_documents', 'document_number')->ignore($document->id),
+            ],
+        ]);
+
+        $documentNumber = trim((string) $validated['document_number']);
+
+        if ($this->extractDocumentNumberSequence($documentNumber) === null) {
+            throw ValidationException::withMessages([
+                'document_number' => 'Format nomor SK harus diawali angka lalu tanda /, contoh: 7095/SK.02/LPM.DIY/VII/2026.',
+            ]);
+        }
+
+        if ($documentNumber === (string) $document->document_number) {
+            return back()->with('info', 'Nomor SK tidak berubah.');
+        }
+
+        $metaPayload = $this->normalizeDocumentMetaPayload($document->meta_payload);
+        $metaPayload['number_validation_mode'] = 'manual_super_admin_update';
+        $metaPayload['number_validation_note'] = 'Nomor SK ini sudah tervalidasi melalui penyesuaian manual oleh super admin.';
+        $metaPayload['number_validated_at'] = now()->toIso8601String();
+
+        $oldNumber = $document->document_number;
+
+        $document->update([
+            'document_number' => $documentNumber,
+            'meta_payload' => $metaPayload,
+        ]);
+
+        return back()->with('success', 'Nomor SK berhasil diperbarui dari ' . $oldNumber . ' menjadi ' . $documentNumber . '.');
     }
 
     public function schoolIndex(Request $request): View
@@ -2480,13 +2620,13 @@ class SkYayasanController extends Controller
                 ->unique()
                 ->sort()
                 ->values();
-            $usesUnusedGlobalNumbers = $rows->contains(function ($row) {
-                $metaPayload = is_array($row->meta_payload)
-                    ? $row->meta_payload
-                    : json_decode((string) ($row->meta_payload ?? '[]'), true);
-
+            $decodedMetaPayloads = $rows->map(fn ($row) => $this->normalizeDocumentMetaPayload($row->meta_payload));
+            $usesUnusedGlobalNumbers = $decodedMetaPayloads->contains(function (array $metaPayload) {
                 return ($metaPayload['number_validation_mode'] ?? null) === 'used_unused_global_numbers';
             });
+            $manualValidationNote = $decodedMetaPayloads
+                ->map(fn (array $metaPayload) => trim((string) ($metaPayload['number_validation_note'] ?? '')))
+                ->first(fn (string $note) => $note !== '');
 
             if ($uniqueSequences->isEmpty()) {
                 $summaries[$schoolId] = [
@@ -2537,7 +2677,9 @@ class SkYayasanController extends Controller
                 }
             }
 
-            if ($usesUnusedGlobalNumbers && $isSequential) {
+            if ($duplicateCount === 0 && empty($missingUnusedGlobally) && $manualValidationNote) {
+                $validationNote = $manualValidationNote;
+            } elseif ($usesUnusedGlobalNumbers && $isSequential) {
                 $validationNote = 'Nomor SK ini sudah tervalidasi karena sekolah ini memakai nomor kosong global yang sebelumnya belum terpakai.';
             } elseif ($usesUnusedGlobalNumbers && $isValidatedByOtherSchools) {
                 $validationNote = 'Nomor SK ini sudah tervalidasi. Sekolah ini memakai nomor kosong global, dan nomor sela yang tidak tampil sudah dipakai sekolah lain.';
@@ -2561,6 +2703,17 @@ class SkYayasanController extends Controller
         }
 
         return $summaries;
+    }
+
+    private function normalizeDocumentMetaPayload($metaPayload): array
+    {
+        if (is_array($metaPayload)) {
+            return $metaPayload;
+        }
+
+        $decoded = json_decode((string) ($metaPayload ?? '[]'), true);
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     private function prepareGenerateQueueSchools(
