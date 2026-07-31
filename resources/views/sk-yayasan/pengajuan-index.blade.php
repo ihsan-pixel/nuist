@@ -831,15 +831,6 @@
                                     </thead>
                                     <tbody>
                                         @foreach($syncedImportBatches as $batch)
-                                            @php
-                                                $matchedValidRowsCount = $batch->rows
-                                                    ->filter(fn ($row) => $row->is_valid && $row->matched_user_id)
-                                                    ->unique('matched_user_id')
-                                                    ->count();
-                                                $displaySubmissionCount = $batch->requests_count > 0
-                                                    ? $batch->requests_count
-                                                    : $matchedValidRowsCount;
-                                            @endphp
                                             <tr>
                                                 <td>
                                                     <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
@@ -849,8 +840,14 @@
                                                     <span class="sky-data-secondary">{{ optional($batch->synced_at)->format('d/m/Y H:i') ?? '-' }}</span>
                                                 </td>
                                                 <td>
-                                                    <span class="sky-data-primary">{{ number_format($displaySubmissionCount) }} pengajuan</span>
-                                                    <span class="sky-data-secondary">{{ number_format($batch->valid_rows) }} dari {{ number_format($batch->total_rows) }} baris valid</span>
+                                                    <span class="sky-data-primary">{{ number_format($batch->synced_submission_count ?? 0) }} pengajuan</span>
+                                                    <span class="sky-data-secondary">
+                                                        {{ number_format($batch->valid_rows) }} dari {{ number_format($batch->total_rows) }} baris valid pada file
+                                                        @if(($batch->duplicate_valid_matched_rows_count ?? 0) > 0)
+                                                            • {{ number_format($batch->unique_valid_matched_rows_count ?? 0) }} guru unik
+                                                            • {{ number_format($batch->duplicate_valid_matched_rows_count ?? 0) }} baris valid tergabung
+                                                        @endif
+                                                    </span>
                                                 </td>
                                                 <td class="text-end">
                                                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">

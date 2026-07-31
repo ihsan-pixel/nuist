@@ -4237,6 +4237,10 @@ class SkYayasanController extends Controller
         $batch->loadMissing('rows');
 
         if ($batch->rows->isEmpty()) {
+            $batch->valid_matched_rows_count = 0;
+            $batch->unique_valid_matched_rows_count = 0;
+            $batch->duplicate_valid_matched_rows_count = 0;
+            $batch->synced_submission_count = (int) ($batch->requests_count ?? 0);
             return $batch;
         }
 
@@ -4268,6 +4272,21 @@ class SkYayasanController extends Controller
         $batch->valid_rows = (int) ($report['valid_count'] ?? $batch->valid_rows);
         $batch->invalid_rows = (int) ($report['invalid_count'] ?? $batch->invalid_rows);
         $batch->headings_valid = (bool) ($report['headings_valid'] ?? $batch->headings_valid);
+
+        $validMatchedRows = $hydratedRows
+            ->filter(fn (SkYayasanImportRow $row) => $row->is_valid && $row->matched_user_id)
+            ->values();
+
+        $uniqueValidMatchedRowsCount = $validMatchedRows
+            ->unique(fn (SkYayasanImportRow $row) => (int) $row->matched_user_id)
+            ->count();
+
+        $batch->valid_matched_rows_count = $validMatchedRows->count();
+        $batch->unique_valid_matched_rows_count = $uniqueValidMatchedRowsCount;
+        $batch->duplicate_valid_matched_rows_count = max(0, $validMatchedRows->count() - $uniqueValidMatchedRowsCount);
+        $batch->synced_submission_count = (int) (($batch->requests_count ?? 0) > 0
+            ? $batch->requests_count
+            : $uniqueValidMatchedRowsCount);
 
         return $batch;
     }
