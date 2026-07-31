@@ -4355,6 +4355,8 @@ class SkYayasanController extends Controller
             $template->category,
             $template->document_title,
         ])));
+        $hasPengangkatanWord = $this->containsTemplateWord($haystack, 'pengangkatan');
+        $hasPerpanjanganWord = $this->containsTemplateWord($haystack, 'perpanjangan');
 
         $employmentType = Str::startsWith($templateKey, 'pengangkatan_')
             ? Str::after($templateKey, 'pengangkatan_')
@@ -4364,14 +4366,22 @@ class SkYayasanController extends Controller
             return 0;
         }
 
+        if (in_array($templateKey, ['pengangkatan_gty', 'pengangkatan_pty'], true) && $hasPerpanjanganWord && !$hasPengangkatanWord) {
+            return 0;
+        }
+
+        if (in_array($templateKey, ['gty', 'pty'], true) && $hasPengangkatanWord && !$hasPerpanjanganWord) {
+            return 0;
+        }
+
         $score = 20;
 
         if (in_array($templateKey, ['gty', 'pty'], true)) {
-            $score += $this->containsTemplateWord($haystack, 'pengangkatan') ? -10 : 30;
+            $score += $hasPengangkatanWord ? -10 : 30;
         } elseif (in_array($templateKey, ['pengangkatan_gty', 'pengangkatan_pty'], true)) {
-            $score += $this->containsTemplateWord($haystack, 'pengangkatan') ? 40 : -10;
+            $score += $hasPengangkatanWord ? 40 : -10;
         } else {
-            $score += $this->containsTemplateWord($haystack, 'pengangkatan') ? -5 : 25;
+            $score += $hasPengangkatanWord ? -5 : 25;
         }
 
         if ($this->containsTemplateWord($this->normalizeTemplateText((string) $template->name), $employmentType)) {
