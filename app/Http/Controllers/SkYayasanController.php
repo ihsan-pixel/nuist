@@ -306,7 +306,7 @@ class SkYayasanController extends Controller
         $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
         $payloads = collect();
         $missingTemplates = [];
-        $schoolsWithoutDocuments = [];
+        $schoolsWithoutEligibleRequests = [];
 
         foreach ($selectedSchools as $school) {
             $schoolGeneration = $this->buildSchoolGenerationPayloads($school, $templates, true);
@@ -317,12 +317,10 @@ class SkYayasanController extends Controller
                 }
             }
 
-            $schoolPayloads = $schoolGeneration['payloads']
-                ->filter(fn (array $payload) => $payload['submission']->document !== null)
-                ->values();
+            $schoolPayloads = $schoolGeneration['payloads']->values();
 
             if ($schoolPayloads->isEmpty()) {
-                $schoolsWithoutDocuments[] = $school->name;
+                $schoolsWithoutEligibleRequests[] = $school->name;
                 continue;
             }
 
@@ -334,7 +332,7 @@ class SkYayasanController extends Controller
         }
 
         if ($payloads->isEmpty()) {
-            return back()->with('error', 'Sekolah yang dipilih belum memiliki dokumen SK yang bisa diatur ulang nomornya.');
+            return back()->with('error', 'Sekolah yang dipilih belum memiliki pengajuan yang bisa diberi nomor SK.');
         }
 
         $rangeStart = (int) $validated['range_start'];
@@ -441,8 +439,8 @@ class SkYayasanController extends Controller
 
         $message = $selectedDocumentCount . ' nomor SK berhasil diatur ulang ke rentang ' . $rangeStart . '-' . $rangeEnd . ' untuk ' . $selectedSchools->count() . ' sekolah terpilih.';
 
-        if (!empty($schoolsWithoutDocuments)) {
-            $message .= ' Sekolah tanpa dokumen yang dilewati: ' . implode(', ', array_slice($schoolsWithoutDocuments, 0, 5)) . (count($schoolsWithoutDocuments) > 5 ? ' dan lainnya.' : '') . '.';
+        if (!empty($schoolsWithoutEligibleRequests)) {
+            $message .= ' Sekolah tanpa pengajuan yang bisa diproses: ' . implode(', ', array_slice($schoolsWithoutEligibleRequests, 0, 5)) . (count($schoolsWithoutEligibleRequests) > 5 ? ' dan lainnya.' : '') . '.';
         }
 
         if ($lockAfterRenumber) {
@@ -482,7 +480,7 @@ class SkYayasanController extends Controller
         }
 
         $documents = SkYayasanDocument::query()
-            ->with('request:id,madrasah_id')
+            ->with('request:id,madrasah_id,current_status')
             ->whereNotNull('document_number')
             ->whereHas('request', fn (Builder $query) => $query->whereIn('madrasah_id', $selectedSchoolIds->all()))
             ->get();
@@ -491,25 +489,27 @@ class SkYayasanController extends Controller
             return back()->with('info', 'Sekolah terpilih sudah tidak memiliki nomor SK.');
         }
 
-        DB::transaction(function () use ($documents) {
-            foreach ($documents as $document) {
-                $metaPayload = $this->normalizeDocumentMetaPayload($document->meta_payload);
-                unset(
-                    $metaPayload['number_validation_mode'],
-                    $metaPayload['number_validation_note'],
-                    $metaPayload['number_validated_at']
-                );
+        $publishedDocuments = $documents
+            ->filter(fn (SkYayasanDocument $document) => $document->status === 'published' || $document->request?->current_status === 'published')
+            ->values();
 
-                $document->update([
-                    'document_number' => null,
-                    'number_locked_at' => null,
-                    'number_locked_by' => null,
-                    'meta_payload' => $metaPayload,
-                ]);
-            }
+        if ($publishedDocuments->isNotEmpty()) {
+            $schoolPreview = $publishedDocuments
+                ->map(fn (SkYayasanDocument $document) => $document->request?->madrasah_id)
+                ->filter()
+                ->unique()
+                ->count();
+
+            return back()->with('error', 'Ada dokumen SK yang sudah published pada pilihan sekolah ini. Hapus nomor hanya diizinkan untuk draft yang belum diterbitkan. Sekolah terdampak: ' . $schoolPreview . '.');
+        }
+
+        DB::transaction(function () use ($documents) {
+            SkYayasanDocument::query()
+                ->whereIn('id', $documents->pluck('id')->all())
+                ->delete();
         });
 
-        return back()->with('success', $documents->count() . ' nomor SK berhasil dihapus dari ' . $selectedSchools->count() . ' sekolah terpilih. Sekolah-sekolah tersebut sekarang kosong nomor dan siap diatur ulang rentangnya.');
+        return back()->with('success', $documents->count() . ' nomor SK berhasil dihapus dari ' . $selectedSchools->count() . ' sekolah terpilih. Sekolah-sekolah tersebut sekarang benar-benar kosong nomor dan siap diatur ulang rentangnya.');
     }
 
     public function schoolIndex(Request $request): View
