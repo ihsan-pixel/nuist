@@ -227,6 +227,36 @@
                                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-modern">
                                         <li>
                                             <form method="POST"
+                                                  action="{{ route('sk-yayasan.generate.school.pdf', $madrasah) }}"
+                                                  target="_blank">
+                                                @csrf
+                                                <input type="hidden" name="issued_date" value="{{ $coreData['issued_date'] }}">
+                                                <input type="hidden" name="school_year" value="{{ $coreData['school_year'] }}">
+                                                <input type="hidden" name="document_number_start" value="{{ $coreData['document_number_start'] }}">
+                                                <input type="hidden" name="number_format_suffix" value="{{ $coreData['number_format_suffix'] }}">
+                                                <input type="hidden" name="signer_name" value="{{ $coreData['signer_name'] }}">
+                                                <input type="hidden" name="signer_position" value="{{ $coreData['signer_position'] }}">
+                                                <input type="hidden" name="established_at" value="{{ $coreData['established_at'] }}">
+                                                <input type="hidden" name="copy_recipient_1" value="{{ $coreData['copy_recipient_1'] }}">
+                                                <input type="hidden" name="copy_recipient_2" value="{{ $coreData['copy_recipient_2'] }}">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bx bx-printer me-2 text-primary"></i>Generate Semua Guru Sekolah Ini
+                                                </button>
+                                            </form>
+                                        </li>
+                                        @foreach($importBatchModalItems as $batch)
+                                            <li>
+                                                <button type="button"
+                                                        class="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#generateImportBatchModal{{ $batch->id }}">
+                                                    <i class="bx bx-detail me-2 text-info"></i>Lihat Data Detail{{ $importBatchModalItems->count() > 1 ? ' Batch ' . $loop->iteration : '' }}
+                                                </button>
+                                            </li>
+                                        @endforeach
+                                        <li><hr class="dropdown-divider my-2"></li>
+                                        <li>
+                                            <form method="POST"
                                                   action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
                                                   data-sk-swal-confirm
                                                   data-sk-swal-title="Rapikan nomor SK sekolah ini?"
@@ -314,31 +344,6 @@
                                         </li>
                                     </ul>
                                 </div>
-                                <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.pdf', $madrasah) }}"
-                                      target="_blank">
-                                    @csrf
-                                    <input type="hidden" name="issued_date" value="{{ $coreData['issued_date'] }}">
-                                    <input type="hidden" name="school_year" value="{{ $coreData['school_year'] }}">
-                                    <input type="hidden" name="document_number_start" value="{{ $coreData['document_number_start'] }}">
-                                    <input type="hidden" name="number_format_suffix" value="{{ $coreData['number_format_suffix'] }}">
-                                    <input type="hidden" name="signer_name" value="{{ $coreData['signer_name'] }}">
-                                    <input type="hidden" name="signer_position" value="{{ $coreData['signer_position'] }}">
-                                    <input type="hidden" name="established_at" value="{{ $coreData['established_at'] }}">
-                                    <input type="hidden" name="copy_recipient_1" value="{{ $coreData['copy_recipient_1'] }}">
-                                    <input type="hidden" name="copy_recipient_2" value="{{ $coreData['copy_recipient_2'] }}">
-                                    <button type="submit" class="btn btn-primary btn-pill px-3">
-                                        <i class="bx bx-printer me-1"></i>Generate Semua Guru Sekolah Ini
-                                    </button>
-                                </form>
-                                @foreach($importBatchModalItems as $batch)
-                                    <button type="button"
-                                            class="btn btn-outline-primary btn-pill px-3"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#generateImportBatchModal{{ $batch->id }}">
-                                        <i class="bx bx-detail me-1"></i>Lihat Data Detail{{ $importBatchModalItems->count() > 1 ? ' Batch ' . $loop->iteration : '' }}
-                                    </button>
-                                @endforeach
                             @endif
                         </div>
                     </div>
