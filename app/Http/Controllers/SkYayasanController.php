@@ -113,11 +113,14 @@ class SkYayasanController extends Controller
         $schoolCounts = [
             'skYayasanImportBatches as synced_batches_count' => fn (Builder $query) => $query->where('status', 'synced'),
             'skYayasanRequests as generate_requests_count' => fn (Builder $query) => $query
-                ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced')),
+                ->where(function (Builder $requestQuery) {
+                    $requestQuery->where($this->numberManagementRequestsConstraint())
+                        ->orWhereHas('document');
+                }),
             'skYayasanRequests as generated_documents_count' => fn (Builder $query) => $query
                 ->whereHas('document'),
             'skYayasanRequests as requests_without_number_count' => fn (Builder $query) => $query
-                ->where($this->generateEligibleRequestsConstraint())
+                ->where($this->numberManagementRequestsConstraint())
                 ->doesntHave('document'),
         ];
 
@@ -127,7 +130,7 @@ class SkYayasanController extends Controller
         }
 
         $schools = $this->prepareGenerateQueueSchools(
-            $this->generateQueueSchoolsQuery(null, null, false)
+            $this->numberManagementSchoolsQuery()
                 ->withCount($schoolCounts)
                 ->get(),
             $numberLockSupported
@@ -297,7 +300,7 @@ class SkYayasanController extends Controller
             ->unique()
             ->values();
 
-        $selectedSchools = $this->generateQueueSchoolsQuery(null, null, false)
+        $selectedSchools = $this->numberManagementSchoolsQuery()
             ->whereIn('id', $selectedSchoolIds->all())
             ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
             ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
@@ -305,7 +308,7 @@ class SkYayasanController extends Controller
             ->get();
 
         if ($selectedSchools->isEmpty()) {
-            return back()->with('error', 'Tidak ada sekolah tersinkron yang bisa diatur ulang nomornya.');
+            return back()->with('error', 'Tidak ada sekolah yang bisa diatur ulang nomornya.');
         }
 
         $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
@@ -314,7 +317,7 @@ class SkYayasanController extends Controller
         $schoolsWithoutEligibleRequests = [];
 
         foreach ($selectedSchools as $school) {
-            $schoolGeneration = $this->buildSchoolGenerationPayloads($school, $templates, true);
+            $schoolGeneration = $this->buildSchoolGenerationPayloads($school, $templates, true, true);
 
             if (!empty($schoolGeneration['missing_templates'])) {
                 foreach ($schoolGeneration['missing_templates'] as $missingTemplateLabel) {
@@ -539,7 +542,7 @@ class SkYayasanController extends Controller
             'importBatch.rows',
         ]);
 
-        if (!$this->submissionCanBeGenerated($submission)) {
+        if (!$this->submissionCanBeManagedForNumbers($submission)) {
             return back()->with('error', 'Pengajuan ini belum memenuhi syarat untuk diberi nomor SK.');
         }
 
@@ -2735,6 +2738,13 @@ class SkYayasanController extends Controller
         };
     }
 
+    private function numberManagementRequestsConstraint(): Closure
+    {
+        return function (Builder $query) {
+            $query->whereIn('current_status', ['submitted', 'reviewed', 'approved', 'published']);
+        };
+    }
+
     private function syncedGenerateQueueRequestsConstraint(): Closure
     {
         return function (Builder $query) {
@@ -2749,6 +2759,29 @@ class SkYayasanController extends Controller
                 in_array($submission->current_status, ['submitted', 'reviewed'], true)
                 && $submission->importBatch?->status === 'synced'
             );
+    }
+
+    private function submissionCanBeManagedForNumbers(SkYayasanRequest $submission): bool
+    {
+        return in_array($submission->current_status, ['submitted', 'reviewed', 'approved', 'published'], true);
+    }
+
+    private function numberManagementSchoolsQuery(): Builder
+    {
+        return Madrasah::query()
+            ->where(function (Builder $schoolQuery) {
+                $schoolQuery
+                    ->whereHas('skYayasanRequests', function (Builder $requestQuery) {
+                        $requestQuery->where(function (Builder $innerQuery) {
+                            $innerQuery->where($this->numberManagementRequestsConstraint())
+                                ->orWhereHas('document');
+                        });
+                    })
+                    ->orWhereHas('skYayasanRequests.document');
+            })
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
+            ->orderBy('name');
     }
 
     private function decorateGenerateSubmission(SkYayasanRequest $submission, Collection $templates): SkYayasanRequest
@@ -2798,7 +2831,8 @@ class SkYayasanController extends Controller
     private function buildSchoolGenerationPayloads(
         Madrasah $madrasah,
         Collection $templates,
-        bool $preferExistingDocumentSequence = false
+        bool $preferExistingDocumentSequence = false,
+        bool $allowNumberManagementStatuses = false
     ): array {
         $coreData = $this->buildSchoolSkCoreData($madrasah);
         $issuedDate = Carbon::parse($coreData['issued_date']);
@@ -2812,7 +2846,11 @@ class SkYayasanController extends Controller
                 'importBatch.rows',
             ])
             ->where('madrasah_id', $madrasah->id)
-            ->where($this->generateEligibleRequestsConstraint())
+            ->where(
+                $allowNumberManagementStatuses
+                    ? $this->numberManagementRequestsConstraint()
+                    : $this->generateEligibleRequestsConstraint()
+            )
             ->get();
 
         $sortedRequests = $this->sortGenerateSchoolRequests($requests, $preferExistingDocumentSequence);
@@ -2875,7 +2913,7 @@ class SkYayasanController extends Controller
                 'importBatch.rows',
             ])
             ->whereIn('madrasah_id', $schoolIds->all())
-            ->where($this->generateEligibleRequestsConstraint())
+            ->where($this->numberManagementRequestsConstraint())
             ->doesntHave('document')
             ->get();
 

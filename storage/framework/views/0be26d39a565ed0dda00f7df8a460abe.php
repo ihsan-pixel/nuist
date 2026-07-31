@@ -171,6 +171,7 @@
                     </a>
                     <ul class="sub-menu collapse" id="skYayasanSubmenu">
                         <li><a href="<?php echo e(route('sk-yayasan.dashboard')); ?>">Dashboard SK Yayasan</a></li>
+                        <li><a href="<?php echo e(route('sk-yayasan.numbers.index')); ?>">Nomor SK Yayasan</a></li>
                         <li><a href="<?php echo e(route('sk-yayasan.pengajuan.index')); ?>">Pengajuan SK Yayasan</a></li>
                         <li><a href="<?php echo e(route('sk-yayasan.template.index')); ?>">Template SK Yayasan</a></li>
                         <li><a href="<?php echo e(route('sk-yayasan.generate.index')); ?>">Generate SK Yayasan</a></li>

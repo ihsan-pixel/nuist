@@ -37,9 +37,23 @@
         ->filter()
         ->unique('id')
         ->values();
+    $generatedDocumentsCount = $requests->filter(fn ($submission) => filled($submission->document?->document_number))->count();
+    $lockedDocumentsCount = $requests->filter(fn ($submission) => $submission->document?->number_locked_at !== null)->count();
 
-    $resolveImportErrorFields = function ($row) {
-        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+    $shouldIgnorePerformanceScoreError = function ($row) {
+        $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
+
+        return str_contains($keterangan, 'gtt') || str_contains($keterangan, 'ptt');
+    };
+
+    $resolveImportValidationMessages = function ($row) use ($shouldIgnorePerformanceScoreError) {
+        return collect($row->validation_errors ?? [])
+            ->map(fn ($error) => (string) $error)
+            ->reject(fn ($error) => $shouldIgnorePerformanceScoreError($row) && str_contains($error, 'Penilaian Kinerja'));
+    };
+
+    $resolveImportErrorFields = function ($row) use ($resolveImportValidationMessages) {
+        $errors = $resolveImportValidationMessages($row);
         $fields = [];
         $identifierFields = ['source_nuist_id', 'source_nama', 'source_nip_maarif', 'source_nuptk'];
 
@@ -78,10 +92,31 @@
         $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
         $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
         $nipmValue = trim((string) ($row->source_nip_maarif ?? ''));
+        $tmtValue = trim((string) ($row->source_tmt_pertama ?? ''));
 
         $existingWarning = $errors->first(fn ($error) => str_contains($error, 'NIPM wajib diisi') || str_contains($error, 'belum memiliki NIPM'));
         if ($existingWarning) {
             return $existingWarning;
+        }
+
+        $betweenTwoAndThreeYears = false;
+        if ($tmtValue !== '') {
+            try {
+                $normalizedTmt = str_ireplace(
+                    ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    $tmtValue
+                );
+                $tmtDate = \Illuminate\Support\Carbon::parse($normalizedTmt)->startOfDay();
+                $today = now()->startOfDay();
+                $betweenTwoAndThreeYears = $tmtDate->copy()->addYears(2)->lessThanOrEqualTo($today)
+                    && $tmtDate->copy()->addYears(3)->greaterThan($today);
+            } catch (\Throwable $exception) {
+            }
+        }
+
+        if ($betweenTwoAndThreeYears) {
+            return null;
         }
 
         if (in_array($keterangan, ['perpanjangan gty', 'perpanjangan pty'], true) && $nipmValue === '') {
@@ -195,51 +230,64 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                         <div>
                             <div class="sky-panel-label mb-1">Antrean Generate</div>
                             <h6 class="mb-0">Generate otomatis satu sekolah atau tetap per guru</h6>
                         </div>
-                        <div class="d-flex flex-wrap align-items-center gap-2">
-                            <span class="sky-chip"><?php echo e($requests->count()); ?> data</span>
+                        <div class="sky-action-cluster">
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="sky-chip"><?php echo e($requests->count()); ?> data</span>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($generatedDocumentsCount > 0): ?>
+                                    <span class="sky-chip"><?php echo e($generatedDocumentsCount); ?> nomor tergenerate</span>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($lockedDocumentsCount > 0): ?>
+                                    <span class="sky-chip"><?php echo e($lockedDocumentsCount); ?> nomor terkunci</span>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </div>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($requests->count() > 0): ?>
-                                <form method="POST"
-                                      action="<?php echo e(route('sk-yayasan.generate.school.lock-number', $madrasah)); ?>">
-                                    <?php echo csrf_field(); ?>
-                                    <?php echo method_field('PATCH'); ?>
-                                    <button type="submit"
-                                            class="btn btn-outline-dark"
-                                            <?php if(!$numberLockSupported): echo 'disabled'; endif; ?>
-                                            onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci tidak akan diubah saat generate ulang.')">
-                                        <i class="bx bx-lock-alt me-1"></i>Kunci Nomor SK Sekolah Ini
+                                <div class="dropdown">
+                                    <button class="btn action-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bx bx-grid-alt me-1"></i>Aksi Generate
                                     </button>
-                                </form>
-                                <form method="POST"
-                                      action="<?php echo e(route('sk-yayasan.generate.school.pdf', $madrasah)); ?>"
-                                      target="_blank">
-                                    <?php echo csrf_field(); ?>
-                                    <input type="hidden" name="issued_date" value="<?php echo e($coreData['issued_date']); ?>">
-                                    <input type="hidden" name="school_year" value="<?php echo e($coreData['school_year']); ?>">
-                                    <input type="hidden" name="document_number_start" value="<?php echo e($coreData['document_number_start']); ?>">
-                                    <input type="hidden" name="number_format_suffix" value="<?php echo e($coreData['number_format_suffix']); ?>">
-                                    <input type="hidden" name="signer_name" value="<?php echo e($coreData['signer_name']); ?>">
-                                    <input type="hidden" name="signer_position" value="<?php echo e($coreData['signer_position']); ?>">
-                                    <input type="hidden" name="established_at" value="<?php echo e($coreData['established_at']); ?>">
-                                    <input type="hidden" name="copy_recipient_1" value="<?php echo e($coreData['copy_recipient_1']); ?>">
-                                    <input type="hidden" name="copy_recipient_2" value="<?php echo e($coreData['copy_recipient_2']); ?>">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bx bx-printer me-1"></i>Generate Semua Guru Sekolah Ini
-                                    </button>
-                                </form>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importBatchModalItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                    <button type="button"
-                                            class="btn btn-outline-primary"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#generateImportBatchModal<?php echo e($batch->id); ?>">
-                                        <i class="bx bx-detail me-1"></i>Lihat Data Detail<?php echo e($importBatchModalItems->count() > 1 ? ' Batch ' . $loop->iteration : ''); ?>
+                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-modern">
+                                        <li>
+                                            <form method="POST"
+                                                  action="<?php echo e(route('sk-yayasan.generate.school.pdf', $madrasah)); ?>"
+                                                  target="_blank">
+                                                <?php echo csrf_field(); ?>
+                                                <input type="hidden" name="issued_date" value="<?php echo e($coreData['issued_date']); ?>">
+                                                <input type="hidden" name="school_year" value="<?php echo e($coreData['school_year']); ?>">
+                                                <input type="hidden" name="document_number_start" value="<?php echo e($coreData['document_number_start']); ?>">
+                                                <input type="hidden" name="number_format_suffix" value="<?php echo e($coreData['number_format_suffix']); ?>">
+                                                <input type="hidden" name="signer_name" value="<?php echo e($coreData['signer_name']); ?>">
+                                                <input type="hidden" name="signer_position" value="<?php echo e($coreData['signer_position']); ?>">
+                                                <input type="hidden" name="established_at" value="<?php echo e($coreData['established_at']); ?>">
+                                                <input type="hidden" name="copy_recipient_1" value="<?php echo e($coreData['copy_recipient_1']); ?>">
+                                                <input type="hidden" name="copy_recipient_2" value="<?php echo e($coreData['copy_recipient_2']); ?>">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bx bx-printer me-2 text-primary"></i>Generate Semua Guru Sekolah Ini
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <a href="<?php echo e(route('sk-yayasan.numbers.index', ['madrasah_id' => $madrasah->id])); ?>#document-list" class="dropdown-item">
+                                                <i class="bx bx-hash me-2 text-warning"></i>Kelola Nomor SK Sekolah Ini
+                                            </a>
+                                        </li>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importBatchModalItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                            <li>
+                                                <button type="button"
+                                                        class="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#generateImportBatchModal<?php echo e($batch->id); ?>">
+                                                    <i class="bx bx-detail me-2 text-info"></i>Lihat Data Detail<?php echo e($importBatchModalItems->count() > 1 ? ' Batch ' . $loop->iteration : ''); ?>
 
-                                    </button>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                </button>
+                                            </li>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                    </ul>
+                                </div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
@@ -452,7 +500,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                                         <input type="text"
                                                                name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]"
                                                                value="<?php echo e($value); ?>"
-                                                               class="form-control form-control-sm">
+                                                               class="form-control form-control-sm <?php echo e($hasNipmWarning ? 'is-invalid' : ''); ?>">
                                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasNipmWarning): ?>
                                                             <small class="text-danger d-block mt-1"><?php echo e($nipmWarning); ?></small>
                                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -468,7 +516,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                             </td>
                                             <td class="wrap">
                                                 <?php
-                                                    $rowMessages = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+                                                    $rowMessages = $resolveImportValidationMessages($row);
                                                     if ($nipmWarning && !$rowMessages->contains($nipmWarning)) {
                                                         $rowMessages->prepend($nipmWarning);
                                                     }

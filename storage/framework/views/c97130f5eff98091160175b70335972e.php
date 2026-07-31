@@ -1,4 +1,4 @@
-<?php if (! $__env->hasRenderedOnce('6e5af5ae-1a99-4f7b-bace-b80be1f104f5')): $__env->markAsRenderedOnce('6e5af5ae-1a99-4f7b-bace-b80be1f104f5'); ?>
+<?php if (! $__env->hasRenderedOnce('4dd98284-96ea-4dd3-97f7-2a3e99c161c1')): $__env->markAsRenderedOnce('4dd98284-96ea-4dd3-97f7-2a3e99c161c1'); ?>
     <?php $__env->startPush('scripts'); ?>
         <link rel="stylesheet" href="<?php echo e(asset('build/libs/sweetalert2/sweetalert2.min.css')); ?>">
         <script src="<?php echo e(asset('build/libs/sweetalert2/sweetalert2.min.js')); ?>"></script>
@@ -44,19 +44,35 @@
                     form.dataset.skSwalBound = '1';
 
                     form.addEventListener('submit', function (event) {
+                        if (form.dataset.skSwalSubmitting === '1') {
+                            delete form.dataset.skSwalSubmitting;
+                            return;
+                        }
+
                         event.preventDefault();
+                        const submitter = event.submitter || null;
+                        const source = submitter && submitter.dataset && submitter.dataset.skSwalTitle
+                            ? submitter
+                            : form;
 
                         Swal.fire({
-                            icon: form.dataset.skSwalIcon || 'warning',
-                            title: form.dataset.skSwalTitle || 'Yakin melanjutkan?',
-                            text: form.dataset.skSwalText || 'Tindakan ini tidak bisa dibatalkan.',
+                            icon: source.dataset.skSwalIcon || form.dataset.skSwalIcon || 'warning',
+                            title: source.dataset.skSwalTitle || form.dataset.skSwalTitle || 'Yakin melanjutkan?',
+                            text: source.dataset.skSwalText || form.dataset.skSwalText || 'Tindakan ini tidak bisa dibatalkan.',
                             showCancelButton: true,
-                            confirmButtonText: form.dataset.skSwalConfirmText || 'Ya, lanjutkan',
-                            cancelButtonText: form.dataset.skSwalCancelText || 'Batal',
+                            confirmButtonText: source.dataset.skSwalConfirmText || form.dataset.skSwalConfirmText || 'Ya, lanjutkan',
+                            cancelButtonText: source.dataset.skSwalCancelText || form.dataset.skSwalCancelText || 'Batal',
                             confirmButtonColor: '#0e8549',
                             cancelButtonColor: '#94a3b8',
                         }).then((result) => {
                             if (result.isConfirmed) {
+                                form.dataset.skSwalSubmitting = '1';
+
+                                if (submitter && typeof form.requestSubmit === 'function') {
+                                    form.requestSubmit(submitter);
+                                    return;
+                                }
+
                                 form.submit();
                             }
                         });

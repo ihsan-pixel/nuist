@@ -550,8 +550,20 @@
         'rejected' => ['color' => 'danger', 'label' => 'Ditolak'],
     ];
 
-    $resolveImportErrorFields = function ($row) {
-        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+    $shouldIgnorePerformanceScoreError = function ($row) {
+        $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
+
+        return str_contains($keterangan, 'gtt') || str_contains($keterangan, 'ptt');
+    };
+
+    $resolveImportValidationMessages = function ($row) use ($shouldIgnorePerformanceScoreError) {
+        return collect($row->validation_errors ?? [])
+            ->map(fn ($error) => (string) $error)
+            ->reject(fn ($error) => $shouldIgnorePerformanceScoreError($row) && str_contains($error, 'Penilaian Kinerja'));
+    };
+
+    $resolveImportErrorFields = function ($row) use ($resolveImportValidationMessages) {
+        $errors = $resolveImportValidationMessages($row);
         $fields = [];
         $identifierFields = ['source_nuist_id', 'source_nama', 'source_nip_maarif', 'source_nuptk'];
 
@@ -571,7 +583,7 @@
             $fields[] = 'source_tmt_pertama';
         }
 
-        if ($errors->contains(fn ($error) => str_contains($error, 'Tahun Lulus harus 4 digit'))) {
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tahun Lulus wajib diisi') || str_contains($error, 'Tahun Lulus harus 4 digit'))) {
             $fields[] = 'source_tahun_lulus';
         }
 
@@ -594,10 +606,31 @@
         $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
         $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
         $nipmValue = trim((string) ($row->source_nip_maarif ?? ''));
+        $tmtValue = trim((string) ($row->source_tmt_pertama ?? ''));
 
         $existingWarning = $errors->first(fn ($error) => str_contains($error, 'NIPM wajib diisi') || str_contains($error, 'belum memiliki NIPM'));
         if ($existingWarning) {
             return $existingWarning;
+        }
+
+        $betweenTwoAndThreeYears = false;
+        if ($tmtValue !== '') {
+            try {
+                $normalizedTmt = str_ireplace(
+                    ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    $tmtValue
+                );
+                $tmtDate = \Illuminate\Support\Carbon::parse($normalizedTmt)->startOfDay();
+                $today = now()->startOfDay();
+                $betweenTwoAndThreeYears = $tmtDate->copy()->addYears(2)->lessThanOrEqualTo($today)
+                    && $tmtDate->copy()->addYears(3)->greaterThan($today);
+            } catch (\Throwable $exception) {
+            }
+        }
+
+        if ($betweenTwoAndThreeYears) {
+            return null;
         }
 
         if (in_array($keterangan, ['perpanjangan gty', 'perpanjangan pty'], true) && $nipmValue === '') {
@@ -795,15 +828,6 @@
                                     </thead>
                                     <tbody>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $syncedImportBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-                                            <?php
-                                                $matchedValidRowsCount = $batch->rows
-                                                    ->filter(fn ($row) => $row->is_valid && $row->matched_user_id)
-                                                    ->unique('matched_user_id')
-                                                    ->count();
-                                                $displaySubmissionCount = $batch->requests_count > 0
-                                                    ? $batch->requests_count
-                                                    : $matchedValidRowsCount;
-                                            ?>
                                             <tr>
                                                 <td>
                                                     <span class="sky-data-primary"><?php echo e($batch->madrasah?->name ?? '-'); ?></span>
@@ -813,8 +837,14 @@
                                                     <span class="sky-data-secondary"><?php echo e(optional($batch->synced_at)->format('d/m/Y H:i') ?? '-'); ?></span>
                                                 </td>
                                                 <td>
-                                                    <span class="sky-data-primary"><?php echo e(number_format($displaySubmissionCount)); ?> pengajuan</span>
-                                                    <span class="sky-data-secondary"><?php echo e(number_format($batch->valid_rows)); ?> dari <?php echo e(number_format($batch->total_rows)); ?> baris valid</span>
+                                                    <span class="sky-data-primary"><?php echo e(number_format($batch->synced_submission_count ?? 0)); ?> pengajuan</span>
+                                                    <span class="sky-data-secondary">
+                                                        <?php echo e(number_format($batch->valid_rows)); ?> dari <?php echo e(number_format($batch->total_rows)); ?> baris valid pada file
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($batch->duplicate_valid_matched_rows_count ?? 0) > 0): ?>
+                                                            • <?php echo e(number_format($batch->unique_valid_matched_rows_count ?? 0)); ?> guru unik
+                                                            • <?php echo e(number_format($batch->duplicate_valid_matched_rows_count ?? 0)); ?> baris valid tergabung
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                    </span>
                                                 </td>
                                                 <td class="text-end">
                                                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
@@ -1312,9 +1342,10 @@
                                                             $value = $field ? data_get($row, $field, '') : '';
                                                             $value = $value === '-' ? '' : $value;
                                                             $hasFieldError = $field && in_array($field, $rowErrorFields, true);
+                                                            $hasEmptyGraduationYear = $field === 'source_tahun_lulus' && trim((string) $value) === '';
                                                             $hasNipmWarning = $field === 'source_nip_maarif' && $nipmWarning;
                                                         ?>
-                                                        <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?> <?php echo e(($hasFieldError || $hasNipmWarning) ? 'sky-cell-error' : ''); ?>">
+                                                        <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?> <?php echo e(($hasFieldError || $hasEmptyGraduationYear || $hasNipmWarning) ? 'sky-cell-error' : ''); ?>">
                                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($column === 'Keterangan'): ?>
                                                                 <select name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]" class="form-select form-select-sm">
                                                                     <option value="">Pilih</option>
@@ -1326,7 +1357,7 @@
                                                                 <input type="text"
                                                                        name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]"
                                                                        value="<?php echo e($value); ?>"
-                                                                       class="form-control form-control-sm">
+                                                                       class="form-control form-control-sm <?php echo e(($hasNipmWarning || $hasEmptyGraduationYear) ? 'is-invalid' : ''); ?>">
                                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasNipmWarning): ?>
                                                                     <small class="text-danger d-block mt-1"><?php echo e($nipmWarning); ?></small>
                                                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -1342,7 +1373,7 @@
                                                 </td>
                                                 <td class="wrap">
                                                     <?php
-                                                        $rowMessages = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+                                                        $rowMessages = $resolveImportValidationMessages($row);
                                                         if ($nipmWarning && !$rowMessages->contains($nipmWarning)) {
                                                             $rowMessages->prepend($nipmWarning);
                                                         }

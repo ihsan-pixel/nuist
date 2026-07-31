@@ -165,8 +165,20 @@
         'Keterangan' => 'source_keterangan',
     ];
 
-    $resolveImportErrorFields = function ($row) {
-        $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+    $shouldIgnorePerformanceScoreError = function ($row) {
+        $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
+
+        return str_contains($keterangan, 'gtt') || str_contains($keterangan, 'ptt');
+    };
+
+    $resolveImportValidationMessages = function ($row) use ($shouldIgnorePerformanceScoreError) {
+        return collect($row->validation_errors ?? [])
+            ->map(fn ($error) => (string) $error)
+            ->reject(fn ($error) => $shouldIgnorePerformanceScoreError($row) && str_contains($error, 'Penilaian Kinerja'));
+    };
+
+    $resolveImportErrorFields = function ($row) use ($resolveImportValidationMessages) {
+        $errors = $resolveImportValidationMessages($row);
         $fields = [];
         $identifierFields = ['source_nuist_id', 'source_nama', 'source_nip_maarif', 'source_nuptk'];
 
@@ -209,10 +221,31 @@
         $errors = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
         $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
         $nipmValue = trim((string) ($row->source_nip_maarif ?? ''));
+        $tmtValue = trim((string) ($row->source_tmt_pertama ?? ''));
 
         $existingWarning = $errors->first(fn ($error) => str_contains($error, 'NIPM wajib diisi') || str_contains($error, 'belum memiliki NIPM'));
         if ($existingWarning) {
             return $existingWarning;
+        }
+
+        $betweenTwoAndThreeYears = false;
+        if ($tmtValue !== '') {
+            try {
+                $normalizedTmt = str_ireplace(
+                    ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    $tmtValue
+                );
+                $tmtDate = \Illuminate\Support\Carbon::parse($normalizedTmt)->startOfDay();
+                $today = now()->startOfDay();
+                $betweenTwoAndThreeYears = $tmtDate->copy()->addYears(2)->lessThanOrEqualTo($today)
+                    && $tmtDate->copy()->addYears(3)->greaterThan($today);
+            } catch (\Throwable $exception) {
+            }
+        }
+
+        if ($betweenTwoAndThreeYears) {
+            return null;
         }
 
         if (in_array($keterangan, ['perpanjangan gty', 'perpanjangan pty'], true) && $nipmValue === '') {
@@ -767,7 +800,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                                         <input type="text"
                                                                name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]"
                                                                value="<?php echo e($value); ?>"
-                                                               class="form-control form-control-sm">
+                                                               class="form-control form-control-sm <?php echo e($hasNipmWarning ? 'is-invalid' : ''); ?>">
                                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasNipmWarning): ?>
                                                             <small class="text-danger d-block mt-1"><?php echo e($nipmWarning); ?></small>
                                                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -783,7 +816,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                             </td>
                                             <td class="wrap">
                                                 <?php
-                                                    $rowMessages = collect($row->validation_errors ?? [])->map(fn ($error) => (string) $error);
+                                                    $rowMessages = $resolveImportValidationMessages($row);
                                                     if ($nipmWarning && !$rowMessages->contains($nipmWarning)) {
                                                         $rowMessages->prepend($nipmWarning);
                                                     }
