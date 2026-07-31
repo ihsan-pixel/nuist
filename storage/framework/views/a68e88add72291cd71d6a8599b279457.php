@@ -330,7 +330,7 @@
                     <div class="sky-panel-label mb-1">Kelola Nomor per Sekolah</div>
                     <h6 class="mb-0">Rapikan, kunci, dan validasi nomor berdasarkan sekolah</h6>
                 </div>
-                <span class="sky-chip"><?php echo e($schools->count()); ?> sekolah tersinkron</span>
+                <span class="sky-chip"><?php echo e($schools->count()); ?> sekolah terdata</span>
             </div>
 
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schools->isNotEmpty()): ?>
@@ -540,8 +540,8 @@
             <?php else: ?>
                 <div class="sky-empty-state py-5">
                     <i class="bx bx-buildings"></i>
-                    <strong>Belum ada sekolah tersinkron</strong>
-                    <small>Sekolah akan muncul di sini setelah batch SK Yayasan berhasil tersinkron.</small>
+                    <strong>Belum ada sekolah yang bisa dikelola</strong>
+                    <small>Sekolah akan muncul di sini jika sudah memiliki pengajuan SK Yayasan atau riwayat nomor yang bisa diatur.</small>
                 </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
