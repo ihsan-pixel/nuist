@@ -274,11 +274,13 @@
                         <select name="madrasah_ids[]" class="form-select sky-multi-select" multiple required>
                             @foreach($schools as $school)
                                 <option value="{{ $school->id }}" @selected(in_array((int) $school->id, $selectedBulkSchoolIds, true))>
-                                    {{ $school->scod ? $school->scod . ' - ' : '' }}{{ $school->name }} ({{ (int) ($school->generated_documents_count ?? 0) }} nomor)
+                                    {{ $school->scod ? $school->scod . ' - ' : '' }}{{ $school->name }}
+                                    - {{ (int) ($school->generate_requests_count ?? 0) }} pengajuan
+                                    - {{ (int) ($school->generated_documents_count ?? 0) > 0 ? (int) ($school->generated_documents_count ?? 0) . ' nomor tersimpan' : 'belum punya nomor' }}
                                 </option>
                             @endforeach
                         </select>
-                        <small class="text-muted">Pilih sekolah yang nomornya ingin dihapus lalu disusun ulang. Total dokumen sekolah terpilih harus sama dengan jumlah nomor dalam rentang.</small>
+                        <small class="text-muted">Pilih sekolah yang nomornya ingin dihapus lalu disusun ulang. Sekolah yang sudah dihapus nomornya tetap bisa dipilih lagi untuk diisi rentang baru.</small>
                     </div>
                     <div class="col-lg-3">
                         <label class="form-label">Nomor Awal Rentang</label>
@@ -396,7 +398,8 @@
                                                 </div>
                                             @endif
                                         @else
-                                            <div class="text-muted">Belum ada dokumen yang digenerate</div>
+                                            <div class="fw-semibold text-warning">Nomor SK belum ada</div>
+                                            <div class="text-muted mt-1">Nomor sekolah ini kosong atau sudah dihapus. Sekolah tetap bisa dipilih untuk diisi ulang sesuai rentang nomor yang Anda tentukan.</div>
                                         @endif
                                     </td>
                                     <td class="small">{{ $school->submission_letter_reference['submission_letter_number'] ?? '-' }}</td>
@@ -647,7 +650,13 @@
                 <div class="sky-empty-state py-5">
                     <i class="bx bx-hash"></i>
                     <strong>Belum ada nomor SK yang cocok dengan filter</strong>
-                    <small>Ubah pencarian atau filter sekolah untuk melihat data nomor lain.</small>
+                    <small>
+                        @if(($filters['madrasah_id'] ?? null))
+                            Sekolah yang dipilih saat ini belum memiliki nomor SK tersimpan atau nomornya sudah dihapus. Anda bisa mengisi ulang dari panel Atur Ulang Rentang Pilihan.
+                        @else
+                            Ubah pencarian atau filter sekolah untuk melihat data nomor lain.
+                        @endif
+                    </small>
                 </div>
             @endif
         </div>
