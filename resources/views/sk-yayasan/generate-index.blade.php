@@ -176,6 +176,10 @@
                                                             <span class="fw-semibold text-dark">Rentang tersimpan:</span>
                                                             <span class="text-muted">{{ $storedNumberSummary['range_label'] }}/{{ $storedNumberSummary['status_label'] }}</span>
                                                         </div>
+                                                        <div class="mt-1 {{ ($storedNumberSummary['duplicate_count'] ?? 0) > 0 ? 'text-danger' : 'text-success' }}">
+                                                            <span class="fw-semibold">Status duplikat:</span>
+                                                            <span>{{ ($storedNumberSummary['duplicate_count'] ?? 0) > 0 ? 'ada (' . $storedNumberSummary['duplicate_count'] . ' data)' : 'tidak ada' }}</span>
+                                                        </div>
                                                         @if($storedNumberSummary['validation_note'])
                                                             <div class="mt-1 text-success">
                                                                 <span class="fw-semibold">Validasi:</span>
@@ -186,12 +190,6 @@
                                                             <div class="mt-1 text-danger">
                                                                 <span class="fw-semibold">Nomor loncat:</span>
                                                                 <span>{{ $storedNumberSummary['missing_preview'] }}</span>
-                                                            </div>
-                                                        @endif
-                                                        @if(($storedNumberSummary['duplicate_count'] ?? 0) > 0)
-                                                            <div class="mt-1 text-danger">
-                                                                <span class="fw-semibold">Duplikat nomor:</span>
-                                                                <span>{{ $storedNumberSummary['duplicate_count'] }} data</span>
                                                             </div>
                                                         @endif
                                                     @endif
@@ -301,6 +299,10 @@
                                                                 <span class="fw-semibold text-dark">Rentang tersimpan:</span>
                                                                 <span class="text-muted">{{ $storedNumberSummary['range_label'] }}/{{ $storedNumberSummary['status_label'] }}</span>
                                                             </div>
+                                                            <div class="mt-1 {{ ($storedNumberSummary['duplicate_count'] ?? 0) > 0 ? 'text-danger' : 'text-success' }}">
+                                                                <span class="fw-semibold">Status duplikat:</span>
+                                                                <span>{{ ($storedNumberSummary['duplicate_count'] ?? 0) > 0 ? 'ada (' . $storedNumberSummary['duplicate_count'] . ' data)' : 'tidak ada' }}</span>
+                                                            </div>
                                                             @if($storedNumberSummary['validation_note'])
                                                                 <div class="mt-1 text-success">
                                                                     <span class="fw-semibold">Validasi:</span>
@@ -311,12 +313,6 @@
                                                                 <div class="mt-1 text-danger">
                                                                     <span class="fw-semibold">Nomor loncat:</span>
                                                                     <span>{{ $storedNumberSummary['missing_preview'] }}</span>
-                                                                </div>
-                                                            @endif
-                                                            @if(($storedNumberSummary['duplicate_count'] ?? 0) > 0)
-                                                                <div class="mt-1 text-danger">
-                                                                    <span class="fw-semibold">Duplikat nomor:</span>
-                                                                    <span>{{ $storedNumberSummary['duplicate_count'] }} data</span>
                                                                 </div>
                                                             @endif
                                                         @endif
