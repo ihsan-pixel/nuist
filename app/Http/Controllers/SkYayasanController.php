@@ -1602,26 +1602,16 @@ class SkYayasanController extends Controller
             'copy_recipient_2' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $requests = SkYayasanRequest::query()
-            ->with([
-                'madrasah.yayasan',
-                'employee.statusKepegawaian',
-                'employee.skYayasanEmployeeData',
-                'template',
-                'document.template',
-                'importBatch.rows',
-            ])
-            ->where('madrasah_id', $madrasah->id)
-            ->where($this->generateEligibleRequestsConstraint())
-            ->get();
+        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+        $schoolGeneration = $this->buildSchoolGenerationPayloads($madrasah, $templates);
+        $payloads = $schoolGeneration['payloads'];
 
-        if ($requests->isEmpty()) {
+        if ($payloads->isEmpty()) {
             return back()->with('error', 'Tidak ada pengajuan pada sekolah ini yang bisa digenerate.');
         }
 
-        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
         $coreData = array_merge(
-            $this->buildSchoolSkCoreData($madrasah),
+            $schoolGeneration['core_data'],
             array_filter([
                 'school_year' => $validated['school_year'] ?? null,
                 'document_number_start' => $validated['document_number_start'] ?? null,
@@ -1635,26 +1625,20 @@ class SkYayasanController extends Controller
             ], fn ($value) => $value !== null && $value !== '')
         );
         $issuedDate = Carbon::parse($coreData['issued_date']);
-        $sortedRequests = $requests
-            ->sortBy(fn (SkYayasanRequest $submission) => mb_strtolower((string) ($submission->employee?->name ?? '')))
-            ->values();
-
-        $missingTemplates = $sortedRequests
-            ->filter(fn (SkYayasanRequest $submission) => !$this->resolveTemplateForSubmission($submission, $templates))
-            ->map(fn (SkYayasanRequest $submission) => $submission->employee?->name ?? ('Request #' . $submission->id))
-            ->all();
+        $missingTemplates = $schoolGeneration['missing_templates'];
 
         if (!empty($missingTemplates)) {
             return back()->with('error', 'Template belum tersedia untuk: ' . implode(', ', $missingTemplates));
         }
 
-        $documents = DB::transaction(function () use ($sortedRequests, $templates, $issuedDate, $coreData) {
+        $documents = DB::transaction(function () use ($payloads, $issuedDate, $coreData) {
             $generatedDocuments = collect();
 
-            foreach ($sortedRequests as $submission) {
-                $template = $this->resolveTemplateForSubmission($submission, $templates);
+            foreach ($payloads as $payload) {
+                /** @var \App\Models\SkYayasanRequest $submission */
+                $submission = $payload['submission'];
 
-                $generatedDocuments->push($this->persistGeneratedDocument($submission, $template, $issuedDate, [
+                $generatedDocuments->push($this->persistGeneratedDocument($submission, $payload['template'], $issuedDate, [
                     'school_year' => $coreData['school_year'],
                     'document_number_start' => $coreData['document_number_start'],
                     'number_format_suffix' => $coreData['number_format_suffix'],
@@ -1672,6 +1656,147 @@ class SkYayasanController extends Controller
         });
 
         return $this->downloadSchoolDocumentsPdf($madrasah, $documents);
+    }
+
+    public function renumberSchoolDocumentNumbers(Request $request, Madrasah $madrasah): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests((int) $madrasah->id);
+
+        $validated = $request->validate([
+            'lock_after' => ['nullable', 'boolean'],
+        ]);
+
+        $lockAfterRenumber = (bool) ($validated['lock_after'] ?? false);
+
+        if ($lockAfterRenumber && !$this->skYayasanDocumentNumberLockSupported()) {
+            return back()->with('error', 'Fitur kunci ulang nomor SK belum aktif karena kolom database belum dimigrasikan.');
+        }
+
+        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+        $schoolGeneration = $this->buildSchoolGenerationPayloads($madrasah, $templates, true);
+        $payloads = $schoolGeneration['payloads'];
+
+        if ($payloads->isEmpty()) {
+            return back()->with('error', 'Tidak ada pengajuan pada sekolah ini yang bisa disusun ulang nomor SK-nya.');
+        }
+
+        if (!empty($schoolGeneration['missing_templates'])) {
+            return back()->with('error', 'Template belum tersedia untuk: ' . implode(', ', $schoolGeneration['missing_templates']));
+        }
+
+        $existingSequences = $payloads
+            ->map(fn (array $payload) => $this->extractDocumentNumberSequence($payload['submission']->document?->document_number))
+            ->filter(fn (?int $sequence) => $sequence !== null)
+            ->values();
+
+        if ($existingSequences->isEmpty()) {
+            return back()->with('error', 'Belum ada nomor SK pada sekolah ini yang bisa dirapikan. Generate dokumen sekolah terlebih dahulu.');
+        }
+
+        $preferredStartNumber = max(
+            1,
+            (int) ($existingSequences->min() ?? ($schoolGeneration['core_data']['document_number_start'] ?? 1))
+        );
+        $preferredNumberFormatSuffix = $payloads->first()['data']['number_format_suffix'] ?? null;
+        $issuedDate = $payloads->first()['issued_date'];
+        $requestIds = $payloads
+            ->pluck('submission.id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->values();
+        $documentIds = $payloads
+            ->pluck('submission.document.id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        $assignedNumbers = [];
+
+        DB::transaction(function () use (
+            $payloads,
+            $documentIds,
+            $requestIds,
+            $issuedDate,
+            $preferredStartNumber,
+            $preferredNumberFormatSuffix,
+            $lockAfterRenumber,
+            &$assignedNumbers
+        ) {
+            if ($documentIds->isNotEmpty() && $this->skYayasanDocumentNumberLockSupported()) {
+                SkYayasanDocument::query()
+                    ->whereIn('id', $documentIds->all())
+                    ->update([
+                        'number_locked_at' => null,
+                        'number_locked_by' => null,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            if ($documentIds->isNotEmpty()) {
+                $this->assignTemporaryDocumentNumbers(
+                    SkYayasanDocument::query()
+                        ->whereIn('id', $documentIds->all())
+                        ->get()
+                );
+            }
+
+            $assignedNumbers = $this->buildAssignedDocumentNumbers(
+                $payloads,
+                $issuedDate,
+                $preferredStartNumber,
+                $preferredNumberFormatSuffix
+            );
+
+            foreach ($payloads as $payload) {
+                /** @var \App\Models\SkYayasanRequest $submission */
+                $submission = $payload['submission'];
+                $submission->unsetRelation('document');
+
+                $this->persistGeneratedDocument(
+                    $submission,
+                    $payload['template'],
+                    $payload['issued_date'],
+                    array_merge($payload['data'], [
+                        'document_number' => $assignedNumbers[$submission->id] ?? null,
+                    ])
+                );
+            }
+
+            if ($lockAfterRenumber && $this->skYayasanDocumentNumberLockSupported() && $requestIds->isNotEmpty()) {
+                SkYayasanDocument::query()
+                    ->whereIn('request_id', $requestIds->all())
+                    ->update([
+                        'number_locked_at' => now(),
+                        'number_locked_by' => auth()->id(),
+                        'updated_at' => now(),
+                    ]);
+            }
+        });
+
+        $assignedSequences = collect($assignedNumbers)
+            ->values()
+            ->map(fn (?string $documentNumber) => $this->extractDocumentNumberSequence($documentNumber))
+            ->filter(fn (?int $sequence) => $sequence !== null)
+            ->values();
+
+        $rangeLabel = $assignedSequences->isEmpty()
+            ? null
+            : ($assignedSequences->min() === $assignedSequences->max()
+                ? (string) $assignedSequences->min()
+                : ($assignedSequences->min() . ' - ' . $assignedSequences->max()));
+
+        $message = count($assignedNumbers) . ' nomor SK untuk sekolah ini berhasil disusun ulang.';
+
+        if ($rangeLabel) {
+            $message .= ' Rentang baru: ' . $rangeLabel . '.';
+        }
+
+        if ($lockAfterRenumber) {
+            $message .= ' Semua nomor hasil susun ulang langsung dikunci kembali.';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function regenerateAllDocuments(): RedirectResponse
@@ -2134,6 +2259,95 @@ class SkYayasanController extends Controller
             && (int) $submission->stored_template->id !== (int) $submission->resolved_template->id;
 
         return $submission;
+    }
+
+    private function sortGenerateSchoolRequests(Collection $requests, bool $preferExistingDocumentSequence = false): Collection
+    {
+        return $requests->sort(function (SkYayasanRequest $left, SkYayasanRequest $right) use ($preferExistingDocumentSequence) {
+            if ($preferExistingDocumentSequence) {
+                $leftSequence = $this->extractDocumentNumberSequence($left->document?->document_number);
+                $rightSequence = $this->extractDocumentNumberSequence($right->document?->document_number);
+
+                if ($leftSequence === null && $rightSequence !== null) {
+                    return 1;
+                }
+
+                if ($leftSequence !== null && $rightSequence === null) {
+                    return -1;
+                }
+
+                if ($leftSequence !== null && $rightSequence !== null && $leftSequence !== $rightSequence) {
+                    return $leftSequence <=> $rightSequence;
+                }
+            }
+
+            $leftName = mb_strtolower((string) ($left->employee?->name ?? ''));
+            $rightName = mb_strtolower((string) ($right->employee?->name ?? ''));
+
+            if ($leftName !== $rightName) {
+                return $leftName <=> $rightName;
+            }
+
+            return (int) $left->id <=> (int) $right->id;
+        })->values();
+    }
+
+    private function buildSchoolGenerationPayloads(
+        Madrasah $madrasah,
+        Collection $templates,
+        bool $preferExistingDocumentSequence = false
+    ): array {
+        $coreData = $this->buildSchoolSkCoreData($madrasah);
+        $issuedDate = Carbon::parse($coreData['issued_date']);
+        $requests = SkYayasanRequest::query()
+            ->with([
+                'madrasah.yayasan',
+                'employee.statusKepegawaian',
+                'employee.skYayasanEmployeeData',
+                'template',
+                'document.template',
+                'importBatch.rows',
+            ])
+            ->where('madrasah_id', $madrasah->id)
+            ->where($this->generateEligibleRequestsConstraint())
+            ->get();
+
+        $sortedRequests = $this->sortGenerateSchoolRequests($requests, $preferExistingDocumentSequence);
+        $payloads = collect();
+        $missingTemplates = [];
+
+        foreach ($sortedRequests as $submission) {
+            $template = $this->resolveTemplateForSubmission($submission, $templates);
+
+            if (!$template) {
+                $missingTemplates[] = $submission->employee?->name ?? ('Request #' . $submission->id);
+                continue;
+            }
+
+            $payloads->push([
+                'submission' => $submission,
+                'template' => $template,
+                'issued_date' => $issuedDate->copy(),
+                'data' => [
+                    'school_year' => $coreData['school_year'],
+                    'document_number_start' => $coreData['document_number_start'],
+                    'number_format_suffix' => $coreData['number_format_suffix'],
+                    'signer_name' => $coreData['signer_name'],
+                    'signer_position' => $coreData['signer_position'],
+                    'established_at' => $coreData['established_at'],
+                    'copy_recipient_1' => $coreData['copy_recipient_1'],
+                    'copy_recipient_2' => $coreData['copy_recipient_2'],
+                    'publication_notes' => $submission->document?->publication_notes,
+                ],
+            ]);
+        }
+
+        return [
+            'core_data' => $coreData,
+            'issued_date' => $issuedDate,
+            'payloads' => $payloads,
+            'missing_templates' => $missingTemplates,
+        ];
     }
 
     private function buildSchoolSkCoreData(Madrasah $madrasah, ?SkYayasanDocument $document = null): array

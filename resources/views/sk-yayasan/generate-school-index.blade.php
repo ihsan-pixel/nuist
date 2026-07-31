@@ -39,6 +39,8 @@
         ->filter()
         ->unique('id')
         ->values();
+    $generatedDocumentsCount = $requests->filter(fn ($submission) => filled($submission->document?->document_number))->count();
+    $lockedDocumentsCount = $requests->filter(fn ($submission) => $submission->document?->number_locked_at !== null)->count();
 
     $shouldIgnorePerformanceScoreError = function ($row) {
         $keterangan = \Illuminate\Support\Str::lower(trim((string) ($row->source_keterangan ?? '')));
@@ -209,14 +211,41 @@
                         </div>
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             <span class="sky-chip">{{ $requests->count() }} data</span>
+                            @if($generatedDocumentsCount > 0)
+                                <span class="sky-chip">{{ $generatedDocumentsCount }} nomor tergenerate</span>
+                            @endif
+                            @if($lockedDocumentsCount > 0)
+                                <span class="sky-chip">{{ $lockedDocumentsCount }} nomor terkunci</span>
+                            @endif
                             @if($requests->count() > 0)
+                                <form method="POST"
+                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="btn btn-outline-warning"
+                                            @disabled($generatedDocumentsCount === 0)
+                                            onclick="return confirm('Susun ulang nomor SK untuk sekolah ini saja? Nomor sekolah lain tidak akan diubah, dan nomor sekolah ini akan dirapikan mulai dari rentang terendah yang tersedia.')">
+                                        <i class="bx bx-sort-alt-2 me-1"></i>Rapikan Nomor SK
+                                    </button>
+                                </form>
+                                <form method="POST"
+                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}">
+                                    @csrf
+                                    <input type="hidden" name="lock_after" value="1">
+                                    <button type="submit"
+                                            class="btn btn-outline-dark"
+                                            @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)
+                                            onclick="return confirm('Susun ulang lalu kunci kembali semua nomor SK untuk sekolah ini? Nomor sekolah lain tidak akan diubah dan nomor pada sekolah ini akan final setelah proses ini.')">
+                                        <i class="bx bx-reset me-1"></i>Rapikan & Kunci Ulang
+                                    </button>
+                                </form>
                                 <form method="POST"
                                       action="{{ route('sk-yayasan.generate.school.lock-number', $madrasah) }}">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit"
                                             class="btn btn-outline-dark"
-                                            @disabled(!$numberLockSupported)
+                                            @disabled(!$numberLockSupported || $generatedDocumentsCount === 0)
                                             onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci tidak akan diubah saat generate ulang.')">
                                         <i class="bx bx-lock-alt me-1"></i>Kunci Nomor SK Sekolah Ini
                                     </button>
