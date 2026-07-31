@@ -198,8 +198,11 @@ class SkYayasanImportSynchronizer
             $resolvedExistingNipm
         );
 
-        $tahunLulus = $this->parseYearValue($rowData['tahun_lulus'] ?? null);
-        if (($rowData['tahun_lulus'] ?? null) !== null && ($rowData['tahun_lulus'] ?? null) !== '' && $tahunLulus === null) {
+        $rawTahunLulus = $rowData['tahun_lulus'] ?? null;
+        $tahunLulus = $this->parseYearValue($rawTahunLulus);
+        if ($this->nullableString($rawTahunLulus) === null) {
+            $errors[] = 'Tahun Lulus wajib diisi.';
+        } elseif ($tahunLulus === null) {
             $errors[] = 'Tahun Lulus harus 4 digit.';
         }
 

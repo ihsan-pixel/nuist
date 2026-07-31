@@ -585,7 +585,7 @@
             $fields[] = 'source_tmt_pertama';
         }
 
-        if ($errors->contains(fn ($error) => str_contains($error, 'Tahun Lulus harus 4 digit'))) {
+        if ($errors->contains(fn ($error) => str_contains($error, 'Tahun Lulus wajib diisi') || str_contains($error, 'Tahun Lulus harus 4 digit'))) {
             $fields[] = 'source_tahun_lulus';
         }
 
