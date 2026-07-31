@@ -4097,21 +4097,36 @@ class SkYayasanController extends Controller
                 ?? $submission->document?->template;
         }
 
-        foreach ([$submission->template, $submission->document?->template] as $candidateTemplate) {
-            if ($candidateTemplate instanceof SkYayasanTemplate && $this->scoreTemplateMatch($candidateTemplate, $templateKey) > 0) {
-                return $candidateTemplate;
-            }
-        }
+        $candidateTemplates = collect([
+            $submission->template,
+            $submission->document?->template,
+        ])
+            ->filter(fn ($template) => $template instanceof SkYayasanTemplate);
+
+        $activeTemplateIds = $templates
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
 
         return $templates
-            ->map(function (SkYayasanTemplate $template) use ($templateKey) {
+            ->concat($candidateTemplates)
+            ->filter(fn ($template) => $template instanceof SkYayasanTemplate)
+            ->unique(fn (SkYayasanTemplate $template) => (int) $template->id)
+            ->map(function (SkYayasanTemplate $template) use ($templateKey, $activeTemplateIds, $candidateTemplates) {
                 return [
                     'template' => $template,
                     'score' => $this->scoreTemplateMatch($template, $templateKey),
+                    'is_active' => in_array((int) $template->id, $activeTemplateIds, true),
+                    'is_candidate' => $candidateTemplates->contains(fn (SkYayasanTemplate $candidate) => (int) $candidate->id === (int) $template->id),
                 ];
             })
             ->filter(fn (array $item) => $item['score'] > 0)
-            ->sortByDesc('score')
+            ->sortByDesc(fn (array $item) => sprintf(
+                '%05d-%d-%d',
+                $item['score'],
+                $item['is_active'] ? 1 : 0,
+                $item['is_candidate'] ? 1 : 0
+            ))
             ->pluck('template')
             ->first();
     }
