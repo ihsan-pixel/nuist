@@ -116,6 +116,9 @@ class SkYayasanController extends Controller
                 ->whereHas('importBatch', fn (Builder $batchQuery) => $batchQuery->where('status', 'synced')),
             'skYayasanRequests as generated_documents_count' => fn (Builder $query) => $query
                 ->whereHas('document'),
+            'skYayasanRequests as requests_without_number_count' => fn (Builder $query) => $query
+                ->where($this->generateEligibleRequestsConstraint())
+                ->doesntHave('document'),
         ];
 
         if ($numberLockSupported) {
@@ -129,6 +132,7 @@ class SkYayasanController extends Controller
                 ->get(),
             $numberLockSupported
         );
+        $requestsWithoutNumberBySchool = $this->buildRequestsWithoutNumberBySchool($schools);
 
         $documentsQuery = SkYayasanDocument::query()
             ->with([
@@ -200,6 +204,7 @@ class SkYayasanController extends Controller
         return view('sk-yayasan.number-index', [
             'documents' => $documents,
             'schools' => $schools,
+            'requestsWithoutNumberBySchool' => $requestsWithoutNumberBySchool,
             'schoolOptions' => $schoolOptions,
             'filters' => [
                 'q' => $search,
@@ -510,6 +515,73 @@ class SkYayasanController extends Controller
         });
 
         return back()->with('success', $documents->count() . ' nomor SK berhasil dihapus dari ' . $selectedSchools->count() . ' sekolah terpilih. Sekolah-sekolah tersebut sekarang benar-benar kosong nomor dan siap diatur ulang rentangnya.');
+    }
+
+    public function assignDocumentNumberToSubmission(Request $request, SkYayasanRequest $submission): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+
+        $validated = $request->validate([
+            'document_number' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('sk_yayasan_documents', 'document_number'),
+            ],
+        ]);
+
+        $submission->loadMissing([
+            'madrasah.yayasan',
+            'employee.statusKepegawaian',
+            'employee.skYayasanEmployeeData',
+            'template',
+            'document.template',
+            'importBatch.rows',
+        ]);
+
+        if (!$this->submissionCanBeGenerated($submission)) {
+            return back()->with('error', 'Pengajuan ini belum memenuhi syarat untuk diberi nomor SK.');
+        }
+
+        if ($submission->document?->document_number) {
+            return back()->with('info', 'Pengajuan ini sudah memiliki nomor SK.');
+        }
+
+        $documentNumber = trim((string) $validated['document_number']);
+
+        if ($this->extractDocumentNumberSequence($documentNumber) === null) {
+            throw ValidationException::withMessages([
+                'document_number' => 'Format nomor SK harus diawali angka lalu tanda /, contoh: 7095/SK.02/LPM.DIY/VII/2026.',
+            ]);
+        }
+
+        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+        $template = $this->resolveTemplateForSubmission($submission, $templates);
+
+        if (!$template) {
+            return back()->with('error', 'Template untuk pengajuan ini belum tersedia.');
+        }
+
+        $coreData = $this->buildSchoolSkCoreData($submission->madrasah);
+        $issuedDate = Carbon::parse($coreData['issued_date']);
+
+        $this->persistGeneratedDocument($submission, $template, $issuedDate, [
+            'school_year' => $coreData['school_year'],
+            'document_number_start' => $coreData['document_number_start'],
+            'number_format_suffix' => $coreData['number_format_suffix'],
+            'signer_name' => $coreData['signer_name'],
+            'signer_position' => $coreData['signer_position'],
+            'established_at' => $coreData['established_at'],
+            'copy_recipient_1' => $coreData['copy_recipient_1'],
+            'copy_recipient_2' => $coreData['copy_recipient_2'],
+            'publication_notes' => $submission->document?->publication_notes,
+            'document_number' => $documentNumber,
+            'number_validation_mode' => 'manual_super_admin_assignment',
+            'number_validation_note' => 'Nomor SK ini sudah ditambahkan manual oleh super admin dari halaman Nomor SK Yayasan.',
+            'number_validated_at' => now()->toIso8601String(),
+        ]);
+
+        return back()->with('success', 'Nomor SK untuk ' . ($submission->employee?->name ?? ('Request #' . $submission->id)) . ' berhasil ditambahkan.');
     }
 
     public function schoolIndex(Request $request): View
@@ -2779,6 +2851,41 @@ class SkYayasanController extends Controller
             'payloads' => $payloads,
             'missing_templates' => $missingTemplates,
         ];
+    }
+
+    private function buildRequestsWithoutNumberBySchool(Collection $schools): array
+    {
+        $schoolIds = $schools->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->values();
+
+        if ($schoolIds->isEmpty()) {
+            return [];
+        }
+
+        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+        $requests = SkYayasanRequest::query()
+            ->with([
+                'madrasah',
+                'employee.statusKepegawaian',
+                'employee.skYayasanEmployeeData',
+                'template',
+                'document.template',
+                'importBatch.rows',
+            ])
+            ->whereIn('madrasah_id', $schoolIds->all())
+            ->where($this->generateEligibleRequestsConstraint())
+            ->doesntHave('document')
+            ->get();
+
+        return $requests
+            ->map(fn (SkYayasanRequest $submission) => $this->decorateGenerateSubmission($submission, $templates))
+            ->groupBy(fn (SkYayasanRequest $submission) => (int) $submission->madrasah_id)
+            ->map(fn (Collection $submissions) => $submissions
+                ->sortBy(fn (SkYayasanRequest $submission) => mb_strtolower((string) ($submission->employee?->name ?? '')))
+                ->values())
+            ->all();
     }
 
     private function buildSchoolSkCoreData(Madrasah $madrasah, ?SkYayasanDocument $document = null): array

@@ -352,6 +352,8 @@
                                 @php($readyLockCount = (int) ($school->ready_lock_count ?? 0))
                                 @php($readyLockRange = $school->ready_lock_range)
                                 @php($storedNumberSummary = $school->stored_number_summary ?? null)
+                                @php($requestsWithoutNumber = $requestsWithoutNumberBySchool[$school->id] ?? collect())
+                                @php($requestsWithoutNumberCount = $requestsWithoutNumber instanceof \Illuminate\Support\Collection ? $requestsWithoutNumber->count() : 0)
                                 @php($allGeneratedLocked = $generatedDocumentsCount > 0 && $generatedDocumentsCount === $lockedDocumentsCount)
                                 <tr>
                                     <td>
@@ -369,6 +371,12 @@
                                             <div class="text-muted mt-1">
                                                 {{ $allGeneratedLocked ? 'Semua draft sekolah ini sudah final.' : 'Nomor yang dikunci tidak akan berubah saat generate ulang.' }}
                                             </div>
+                                            @if($requestsWithoutNumberCount > 0)
+                                                <div class="mt-1 text-warning">
+                                                    <span class="fw-semibold">Belum punya nomor:</span>
+                                                    <span>{{ $requestsWithoutNumberCount }} user</span>
+                                                </div>
+                                            @endif
                                             @if($storedNumberSummary && $storedNumberSummary['range_label'])
                                                 <div class="mt-1">
                                                     <span class="fw-semibold text-dark">Rentang:</span>
@@ -400,6 +408,12 @@
                                         @else
                                             <div class="fw-semibold text-warning">Nomor SK belum ada</div>
                                             <div class="text-muted mt-1">Nomor sekolah ini kosong atau sudah dihapus. Sekolah tetap bisa dipilih untuk diisi ulang sesuai rentang nomor yang Anda tentukan.</div>
+                                            @if($requestsWithoutNumberCount > 0)
+                                                <div class="mt-1 text-warning">
+                                                    <span class="fw-semibold">User siap diisi nomor:</span>
+                                                    <span>{{ $requestsWithoutNumberCount }} user</span>
+                                                </div>
+                                            @endif
                                         @endif
                                     </td>
                                     <td class="small">{{ $school->submission_letter_reference['submission_letter_number'] ?? '-' }}</td>
@@ -419,6 +433,16 @@
                                                         <i class="bx bx-list-ul me-2 text-info"></i>Lihat Nomor Sekolah Ini
                                                     </a>
                                                 </li>
+                                                @if($requestsWithoutNumberCount > 0)
+                                                    <li>
+                                                        <button type="button"
+                                                                class="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#schoolMissingNumberModal{{ $school->id }}">
+                                                            <i class="bx bx-user-plus me-2 text-warning"></i>User Belum Punya Nomor ({{ $requestsWithoutNumberCount }})
+                                                        </button>
+                                                    </li>
+                                                @endif
                                                 <li><hr class="dropdown-divider my-2"></li>
                                                 <li>
                                                     <form method="POST"
@@ -719,6 +743,96 @@
                 </div>
             </div>
         </div>
+    @endforeach
+
+    @foreach($schools as $school)
+        @php($requestsWithoutNumber = $requestsWithoutNumberBySchool[$school->id] ?? collect())
+        @php($requestsWithoutNumberCount = $requestsWithoutNumber instanceof \Illuminate\Support\Collection ? $requestsWithoutNumber->count() : 0)
+        @if($requestsWithoutNumberCount > 0)
+            <div class="modal fade" id="schoolMissingNumberModal{{ $school->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div>
+                                <h5 class="modal-title mb-1">User Belum Memiliki Nomor SK</h5>
+                                <small class="text-muted">{{ $school->name }} • {{ $requestsWithoutNumberCount }} user siap diisi nomor</small>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Guru/Pegawai</th>
+                                            <th>Request</th>
+                                            <th>Jenis Pengajuan</th>
+                                            <th>Template</th>
+                                            <th>Nomor SK Baru</th>
+                                            <th class="text-end">Simpan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($requestsWithoutNumber as $submission)
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-semibold">{{ $submission->request_number }}</div>
+                                                </td>
+                                                <td>{{ $submission->submission_type_label ?? '-' }}</td>
+                                                <td>
+                                                    @if($submission->resolved_template)
+                                                        <div class="fw-semibold">{{ $submission->resolved_template->name }}</div>
+                                                    @else
+                                                        <span class="text-danger">Template belum tersedia</span>
+                                                    @endif
+                                                </td>
+                                                <td style="min-width: 260px;">
+                                                    @if($submission->resolved_template)
+                                                        <form method="POST"
+                                                              id="assignMissingNumberForm{{ $submission->id }}"
+                                                              action="{{ route('sk-yayasan.numbers.assign-request-number', $submission) }}"
+                                                              class="d-flex flex-column gap-2"
+                                                              data-sk-swal-confirm
+                                                              data-sk-swal-title="Tambahkan nomor SK untuk user ini?"
+                                                              data-sk-swal-text="Sistem akan membuat dokumen SK untuk user ini dengan nomor yang Anda input."
+                                                              data-sk-swal-confirm-text="Ya, tambahkan">
+                                                            @csrf
+                                                            <input type="text"
+                                                                   name="document_number"
+                                                                   class="form-control"
+                                                                   value="{{ old('document_number') }}"
+                                                                   placeholder="Contoh: 7095/SK.02/LPM.DIY/VII/2026"
+                                                                   required>
+                                                            <small class="text-muted">Isi nomor manual untuk user ini.</small>
+                                                        </form>
+                                                    @else
+                                                        <span class="text-muted">Template belum ada, nomor belum bisa ditambahkan.</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-end">
+                                                    @if($submission->resolved_template)
+                                                        <button type="submit"
+                                                                form="assignMissingNumberForm{{ $submission->id }}"
+                                                                class="btn btn-sm btn-primary">
+                                                            Tambah Nomor
+                                                        </button>
+                                                    @else
+                                                        <span class="text-muted small">Belum bisa</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
     @endforeach
 </div>
 @endsection

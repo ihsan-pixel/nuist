@@ -2002,6 +2002,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::get('/nomor-sk', [SkYayasanController::class, 'numberIndex'])->name('numbers.index');
         Route::post('/nomor-sk/hapus', [SkYayasanController::class, 'clearSelectedSchoolDocumentNumbers'])->name('numbers.bulk-clear');
         Route::post('/nomor-sk/atur-rentang', [SkYayasanController::class, 'bulkRenumberSelectedSchoolNumbers'])->name('numbers.bulk-renumber');
+        Route::post('/nomor-sk/request/{submission}', [SkYayasanController::class, 'assignDocumentNumberToSubmission'])->name('numbers.assign-request-number');
         Route::patch('/nomor-sk/{document}', [SkYayasanController::class, 'updateDocumentNumber'])->name('numbers.update');
         Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan'])->name('pengajuan.index');
         Route::get('/pengajuan/export-sekolah-summary', [SkYayasanController::class, 'exportSchoolSubmissionSummary'])->name('pengajuan.export-school-summary');
