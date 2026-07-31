@@ -97,7 +97,18 @@
     .sky-number-page .sky-filter-card .form-label {
         font-weight: 700;
     }
+
+    .sky-number-page .sky-multi-select {
+        min-height: 220px;
+    }
 </style>
+
+@php
+    $selectedBulkSchoolIds = collect(old('madrasah_ids', ($filters['madrasah_id'] ?? null) ? [(int) $filters['madrasah_id']] : []))
+        ->map(fn ($id) => (int) $id)
+        ->filter(fn (int $id) => $id > 0)
+        ->all();
+@endphp
 
 <div class="sky-page sky-number-page">
     <div class="sky-hero-strip mb-4">
@@ -237,6 +248,64 @@
                     </button>
                 </form>
             </div>
+        </div>
+    </div>
+
+    <div class="card sky-section-card mb-3">
+        <div class="card-body">
+            <div class="sky-toolbar mb-3">
+                <div>
+                    <div class="sky-panel-label mb-1">Atur Ulang Rentang Pilihan</div>
+                    <h6 class="mb-0">Pilih beberapa sekolah, lalu susun ulang nomor mereka ke rentang yang Anda tentukan</h6>
+                </div>
+                <span class="sky-chip">Urutan sekolah mengikuti SCOD</span>
+            </div>
+
+            <form method="POST"
+                  action="{{ route('sk-yayasan.numbers.bulk-renumber') }}"
+                  data-sk-swal-confirm
+                  data-sk-swal-title="Atur ulang nomor SK sekolah terpilih?"
+                  data-sk-swal-text="Nomor SK lama pada sekolah terpilih akan diganti penuh sesuai rentang yang Anda tentukan."
+                  data-sk-swal-confirm-text="Ya, atur ulang">
+                @csrf
+                <div class="row g-3">
+                    <div class="col-lg-5">
+                        <label class="form-label">Pilih Sekolah</label>
+                        <select name="madrasah_ids[]" class="form-select sky-multi-select" multiple required>
+                            @foreach($schools as $school)
+                                <option value="{{ $school->id }}" @selected(in_array((int) $school->id, $selectedBulkSchoolIds, true))>
+                                    {{ $school->scod ? $school->scod . ' - ' : '' }}{{ $school->name }} ({{ (int) ($school->generated_documents_count ?? 0) }} nomor)
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Pilih sekolah yang nomornya ingin dihapus lalu disusun ulang. Total dokumen sekolah terpilih harus sama dengan jumlah nomor dalam rentang.</small>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label">Nomor Awal Rentang</label>
+                        <input type="number" name="range_start" class="form-control" min="1" value="{{ old('range_start') }}" required>
+                        <small class="text-muted">Contoh: `7070`.</small>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label">Nomor Akhir Rentang</label>
+                        <input type="number" name="range_end" class="form-control" min="1" value="{{ old('range_end') }}" required>
+                        <small class="text-muted">Contoh: `7085`.</small>
+                    </div>
+                    <div class="col-lg-1 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" value="1" id="bulkLockAfter" name="lock_after" @checked(old('lock_after'))>
+                            <label class="form-check-label small" for="bulkLockAfter">Kunci</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+                    <div class="small text-muted">
+                        Sistem akan menghapus nomor lama sekolah terpilih, lalu mengisi ulang sesuai rentang yang Anda masukkan. Jika rentang bentrok dengan sekolah lain, proses akan ditolak.
+                    </div>
+                    <button type="submit" class="btn btn-primary" @disabled($schools->isEmpty())>
+                        <i class="bx bx-slider-alt me-1"></i>Atur Ulang Rentang Pilihan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

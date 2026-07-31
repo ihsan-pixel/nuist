@@ -265,6 +265,193 @@ class SkYayasanController extends Controller
         return back()->with('success', 'Nomor SK berhasil diperbarui dari ' . $oldNumber . ' menjadi ' . $documentNumber . '.');
     }
 
+    public function bulkRenumberSelectedSchoolNumbers(Request $request): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests();
+
+        $validated = $request->validate([
+            'madrasah_ids' => ['required', 'array', 'min:1'],
+            'madrasah_ids.*' => ['required', 'integer', 'exists:madrasahs,id'],
+            'range_start' => ['required', 'integer', 'min:1'],
+            'range_end' => ['required', 'integer', 'gte:range_start'],
+            'lock_after' => ['nullable', 'boolean'],
+        ], [
+            'madrasah_ids.required' => 'Pilih minimal satu sekolah.',
+            'range_end.gte' => 'Nomor akhir rentang harus lebih besar atau sama dengan nomor awal.',
+        ]);
+
+        $lockAfterRenumber = (bool) ($validated['lock_after'] ?? false);
+        if ($lockAfterRenumber && !$this->skYayasanDocumentNumberLockSupported()) {
+            return back()->with('error', 'Fitur kunci ulang nomor SK belum aktif karena kolom database belum dimigrasikan.');
+        }
+
+        $selectedSchoolIds = collect($validated['madrasah_ids'])
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        $selectedSchools = $this->generateQueueSchoolsQuery(null, null, false)
+            ->whereIn('id', $selectedSchoolIds->all())
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
+            ->orderBy('name')
+            ->get();
+
+        if ($selectedSchools->isEmpty()) {
+            return back()->with('error', 'Tidak ada sekolah tersinkron yang bisa diatur ulang nomornya.');
+        }
+
+        $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
+        $payloads = collect();
+        $missingTemplates = [];
+        $schoolsWithoutDocuments = [];
+
+        foreach ($selectedSchools as $school) {
+            $schoolGeneration = $this->buildSchoolGenerationPayloads($school, $templates, true);
+
+            if (!empty($schoolGeneration['missing_templates'])) {
+                foreach ($schoolGeneration['missing_templates'] as $missingTemplateLabel) {
+                    $missingTemplates[] = $school->name . ': ' . $missingTemplateLabel;
+                }
+            }
+
+            $schoolPayloads = $schoolGeneration['payloads']
+                ->filter(fn (array $payload) => $payload['submission']->document !== null)
+                ->values();
+
+            if ($schoolPayloads->isEmpty()) {
+                $schoolsWithoutDocuments[] = $school->name;
+                continue;
+            }
+
+            $payloads = $payloads->concat($schoolPayloads);
+        }
+
+        if (!empty($missingTemplates)) {
+            return back()->with('error', 'Template belum tersedia untuk: ' . implode(', ', array_slice($missingTemplates, 0, 10)) . (count($missingTemplates) > 10 ? ' dan lainnya.' : ''));
+        }
+
+        if ($payloads->isEmpty()) {
+            return back()->with('error', 'Sekolah yang dipilih belum memiliki dokumen SK yang bisa diatur ulang nomornya.');
+        }
+
+        $rangeStart = (int) $validated['range_start'];
+        $rangeEnd = (int) $validated['range_end'];
+        $targetSequences = range($rangeStart, $rangeEnd);
+        $targetRangeCount = count($targetSequences);
+        $selectedDocumentCount = $payloads->count();
+
+        if ($selectedDocumentCount !== $targetRangeCount) {
+            return back()->with('error', 'Jumlah dokumen pada sekolah terpilih (' . $selectedDocumentCount . ' dokumen) harus sama dengan jumlah nomor pada rentang yang dipilih (' . $targetRangeCount . ' nomor).');
+        }
+
+        $documentIds = $payloads
+            ->pluck('submission.document.id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        $conflicts = SkYayasanDocument::query()
+            ->with(['request.madrasah:id,name'])
+            ->when($documentIds->isNotEmpty(), fn (Builder $query) => $query->whereNotIn('id', $documentIds->all()))
+            ->whereNotNull('document_number')
+            ->get(['id', 'request_id', 'document_number'])
+            ->filter(function (SkYayasanDocument $document) use ($targetSequences) {
+                $sequence = $this->extractDocumentNumberSequence($document->document_number);
+
+                return $sequence !== null && in_array($sequence, $targetSequences, true);
+            })
+            ->values();
+
+        if ($conflicts->isNotEmpty()) {
+            $conflictPreview = $conflicts->take(5)->map(function (SkYayasanDocument $document) {
+                $schoolName = $document->request?->madrasah?->name ?? 'Sekolah lain';
+
+                return $document->document_number . ' (' . $schoolName . ')';
+            })->implode(', ');
+
+            return back()->with('error', 'Rentang ' . $rangeStart . '-' . $rangeEnd . ' bentrok dengan nomor sekolah lain: ' . $conflictPreview . ($conflicts->count() > 5 ? ' dan lainnya.' : ''));
+        }
+
+        $assignedNumbers = [];
+        $requestIds = $payloads
+            ->pluck('submission.id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        DB::transaction(function () use (
+            $documentIds,
+            $payloads,
+            $targetSequences,
+            $lockAfterRenumber,
+            $requestIds,
+            &$assignedNumbers
+        ) {
+            if ($documentIds->isNotEmpty() && $this->skYayasanDocumentNumberLockSupported()) {
+                SkYayasanDocument::query()
+                    ->whereIn('id', $documentIds->all())
+                    ->update([
+                        'number_locked_at' => null,
+                        'number_locked_by' => null,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            if ($documentIds->isNotEmpty()) {
+                $this->assignTemporaryDocumentNumbers(
+                    SkYayasanDocument::query()
+                        ->whereIn('id', $documentIds->all())
+                        ->get()
+                );
+            }
+
+            $assignedNumbers = $this->buildAssignedDocumentNumbersFromFixedSequences($payloads, $targetSequences);
+
+            foreach ($payloads as $payload) {
+                /** @var \App\Models\SkYayasanRequest $submission */
+                $submission = $payload['submission'];
+                $submission->unsetRelation('document');
+
+                $this->persistGeneratedDocument(
+                    $submission,
+                    $payload['template'],
+                    $payload['issued_date'],
+                    array_merge($payload['data'], [
+                        'document_number' => $assignedNumbers[$submission->id] ?? null,
+                        'number_validation_mode' => 'manual_selected_school_range',
+                        'number_validation_note' => 'Nomor SK ini sudah tervalidasi melalui penataan ulang rentang nomor terpilih oleh super admin.',
+                        'number_validated_at' => now()->toIso8601String(),
+                    ])
+                );
+            }
+
+            if ($lockAfterRenumber && $this->skYayasanDocumentNumberLockSupported() && $requestIds->isNotEmpty()) {
+                SkYayasanDocument::query()
+                    ->whereIn('request_id', $requestIds->all())
+                    ->update([
+                        'number_locked_at' => now(),
+                        'number_locked_by' => auth()->id(),
+                        'updated_at' => now(),
+                    ]);
+            }
+        });
+
+        $message = $selectedDocumentCount . ' nomor SK berhasil diatur ulang ke rentang ' . $rangeStart . '-' . $rangeEnd . ' untuk ' . $selectedSchools->count() . ' sekolah terpilih.';
+
+        if (!empty($schoolsWithoutDocuments)) {
+            $message .= ' Sekolah tanpa dokumen yang dilewati: ' . implode(', ', array_slice($schoolsWithoutDocuments, 0, 5)) . (count($schoolsWithoutDocuments) > 5 ? ' dan lainnya.' : '') . '.';
+        }
+
+        if ($lockAfterRenumber) {
+            $message .= ' Semua nomor hasil pengaturan ulang langsung dikunci kembali.';
+        }
+
+        return back()->with('success', $message);
+    }
+
     public function schoolIndex(Request $request): View
     {
         $user = $this->ensureSchoolAdmin();
@@ -3335,6 +3522,32 @@ class SkYayasanController extends Controller
             );
             $reservedSequences->put($nextSequence, true);
             $nextSequence++;
+        }
+
+        return $assignedNumbers;
+    }
+
+    private function buildAssignedDocumentNumbersFromFixedSequences(Collection $payloads, array $sequences): array
+    {
+        $payloads = $payloads->values();
+
+        if ($payloads->count() !== count($sequences)) {
+            throw ValidationException::withMessages([
+                'range_start' => 'Jumlah dokumen dan rentang nomor yang dipilih tidak sama.',
+            ]);
+        }
+
+        $assignedNumbers = [];
+
+        foreach ($payloads as $index => $payload) {
+            /** @var \App\Models\SkYayasanRequest $submission */
+            $submission = $payload['submission'];
+            $sequence = (int) $sequences[$index];
+            $assignedNumbers[$submission->id] = $this->formatDocumentNumberFromSequence(
+                $sequence,
+                $payload['issued_date'],
+                $payload['data']['number_format_suffix'] ?? null
+            );
         }
 
         return $assignedNumbers;

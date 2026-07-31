@@ -2000,6 +2000,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
     Route::middleware(['role:super_admin'])->group(function () {
         Route::get('/dashboard', [SkYayasanController::class, 'dashboard'])->name('dashboard');
         Route::get('/nomor-sk', [SkYayasanController::class, 'numberIndex'])->name('numbers.index');
+        Route::post('/nomor-sk/atur-rentang', [SkYayasanController::class, 'bulkRenumberSelectedSchoolNumbers'])->name('numbers.bulk-renumber');
         Route::patch('/nomor-sk/{document}', [SkYayasanController::class, 'updateDocumentNumber'])->name('numbers.update');
         Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan'])->name('pengajuan.index');
         Route::get('/pengajuan/export-sekolah-summary', [SkYayasanController::class, 'exportSchoolSubmissionSummary'])->name('pengajuan.export-school-summary');
