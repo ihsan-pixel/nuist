@@ -1344,9 +1344,10 @@
                                                             $value = $field ? data_get($row, $field, '') : '';
                                                             $value = $value === '-' ? '' : $value;
                                                             $hasFieldError = $field && in_array($field, $rowErrorFields, true);
+                                                            $hasEmptyGraduationYear = $field === 'source_tahun_lulus' && trim((string) $value) === '';
                                                             $hasNipmWarning = $field === 'source_nip_maarif' && $nipmWarning;
                                                         @endphp
-                                                        <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ ($hasFieldError || $hasNipmWarning) ? 'sky-cell-error' : '' }}">
+                                                        <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ ($hasFieldError || $hasEmptyGraduationYear || $hasNipmWarning) ? 'sky-cell-error' : '' }}">
                                                             @if($column === 'Keterangan')
                                                                 <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
                                                                     <option value="">Pilih</option>
@@ -1358,7 +1359,7 @@
                                                                 <input type="text"
                                                                        name="rows[{{ $loop->parent->index }}][{{ $field }}]"
                                                                        value="{{ $value }}"
-                                                                       class="form-control form-control-sm {{ $hasNipmWarning ? 'is-invalid' : '' }}">
+                                                                       class="form-control form-control-sm {{ ($hasNipmWarning || $hasEmptyGraduationYear) ? 'is-invalid' : '' }}">
                                                                 @if($hasNipmWarning)
                                                                     <small class="text-danger d-block mt-1">{{ $nipmWarning }}</small>
                                                                 @endif
