@@ -1763,6 +1763,11 @@ class SkYayasanController extends Controller
                     $payload['issued_date'],
                     array_merge($payload['data'], [
                         'document_number' => $assignedNumbers[$submission->id] ?? null,
+                        'number_validation_mode' => $useUnusedGlobalNumbers ? 'used_unused_global_numbers' : null,
+                        'number_validation_note' => $useUnusedGlobalNumbers
+                            ? 'Nomor SK sekolah ini sudah tervalidasi karena menggunakan nomor kosong global yang sebelumnya belum terpakai.'
+                            : null,
+                        'number_validated_at' => now()->toIso8601String(),
                     ])
                 );
             }
@@ -2215,6 +2220,9 @@ class SkYayasanController extends Controller
                     'established_at' => $data['established_at'],
                     'copy_recipient_1' => $data['copy_recipient_1'],
                     'copy_recipient_2' => $data['copy_recipient_2'],
+                    'number_validation_mode' => $data['number_validation_mode'] ?? null,
+                    'number_validation_note' => $data['number_validation_note'] ?? null,
+                    'number_validated_at' => $data['number_validated_at'] ?? null,
                 ],
                 'rendered_content' => $renderedContent,
                 'status' => $submission->current_status === 'published' ? 'published' : 'draft',
@@ -2427,7 +2435,7 @@ class SkYayasanController extends Controller
             return [];
         }
 
-        $documentNumbersBySchool = DB::table('sk_yayasan_documents')
+        $documentRowsBySchool = DB::table('sk_yayasan_documents')
             ->join('sk_yayasan_requests', 'sk_yayasan_requests.id', '=', 'sk_yayasan_documents.request_id')
             ->whereIn('sk_yayasan_requests.madrasah_id', $schoolIds->all())
             ->whereNotNull('sk_yayasan_documents.document_number')
@@ -2436,13 +2444,33 @@ class SkYayasanController extends Controller
             ->get([
                 'sk_yayasan_requests.madrasah_id',
                 'sk_yayasan_documents.document_number',
+                'sk_yayasan_documents.meta_payload',
             ])
             ->groupBy('madrasah_id');
+        $globalSequenceOwners = DB::table('sk_yayasan_documents')
+            ->join('sk_yayasan_requests', 'sk_yayasan_requests.id', '=', 'sk_yayasan_documents.request_id')
+            ->whereNotNull('sk_yayasan_documents.document_number')
+            ->get([
+                'sk_yayasan_requests.madrasah_id',
+                'sk_yayasan_documents.document_number',
+            ])
+            ->reduce(function (array $carry, $row) {
+                $sequence = $this->extractDocumentNumberSequence($row->document_number ?? null);
+
+                if ($sequence === null) {
+                    return $carry;
+                }
+
+                $carry[$sequence] ??= [];
+                $carry[$sequence][(int) $row->madrasah_id] = true;
+
+                return $carry;
+            }, []);
 
         $summaries = [];
 
         foreach ($schoolIds as $schoolId) {
-            $rows = collect($documentNumbersBySchool->get($schoolId, []));
+            $rows = collect($documentRowsBySchool->get($schoolId, []));
             $allSequences = $rows
                 ->map(fn ($row) => $this->extractDocumentNumberSequence($row->document_number ?? null))
                 ->filter(fn (?int $sequence) => $sequence !== null)
@@ -2451,6 +2479,13 @@ class SkYayasanController extends Controller
                 ->unique()
                 ->sort()
                 ->values();
+            $usesUnusedGlobalNumbers = $rows->contains(function ($row) {
+                $metaPayload = is_array($row->meta_payload)
+                    ? $row->meta_payload
+                    : json_decode((string) ($row->meta_payload ?? '[]'), true);
+
+                return ($metaPayload['number_validation_mode'] ?? null) === 'used_unused_global_numbers';
+            });
 
             if ($uniqueSequences->isEmpty()) {
                 $summaries[$schoolId] = [
@@ -2460,6 +2495,7 @@ class SkYayasanController extends Controller
                     'missing_sequences' => [],
                     'missing_preview' => null,
                     'duplicate_count' => 0,
+                    'validation_note' => null,
                 ];
                 continue;
             }
@@ -2472,29 +2508,54 @@ class SkYayasanController extends Controller
                 ->values()
                 ->map(fn ($sequence) => (int) $sequence)
                 ->all();
+            $missingUsedByOtherSchools = collect($missingSequences)
+                ->filter(fn (int $sequence) => isset($globalSequenceOwners[$sequence]))
+                ->values()
+                ->all();
+            $missingUnusedGlobally = collect($missingSequences)
+                ->reject(fn (int $sequence) => isset($globalSequenceOwners[$sequence]))
+                ->values()
+                ->all();
             $duplicateCount = max(0, $allSequences->count() - $uniqueSequences->count());
             $isSequential = empty($missingSequences) && $duplicateCount === 0;
+            $isValidatedByOtherSchools = !empty($missingUsedByOtherSchools)
+                && empty($missingUnusedGlobally)
+                && $duplicateCount === 0;
             $rangeLabel = $minSequence === $maxSequence
                 ? (string) $minSequence
                 : ($minSequence . '-' . $maxSequence);
             $missingPreview = null;
+            $validationNote = null;
 
-            if (!empty($missingSequences)) {
-                $preview = array_slice($missingSequences, 0, 5);
+            if (!empty($missingUnusedGlobally)) {
+                $preview = array_slice($missingUnusedGlobally, 0, 5);
                 $missingPreview = implode(', ', $preview);
 
-                if (count($missingSequences) > count($preview)) {
-                    $missingPreview .= ' +' . (count($missingSequences) - count($preview)) . ' lagi';
+                if (count($missingUnusedGlobally) > count($preview)) {
+                    $missingPreview .= ' +' . (count($missingUnusedGlobally) - count($preview)) . ' lagi';
                 }
             }
 
+            if ($usesUnusedGlobalNumbers && $isSequential) {
+                $validationNote = 'Nomor SK ini sudah tervalidasi karena sekolah ini memakai nomor kosong global yang sebelumnya belum terpakai.';
+            } elseif ($usesUnusedGlobalNumbers && $isValidatedByOtherSchools) {
+                $validationNote = 'Nomor SK ini sudah tervalidasi. Sekolah ini memakai nomor kosong global, dan nomor sela yang tidak tampil sudah dipakai sekolah lain.';
+            } elseif ($isValidatedByOtherSchools) {
+                $validationNote = 'Nomor SK ini sudah tervalidasi karena rentang nomor sela sudah dipakai user dari sekolah lain.';
+            }
+
+            $statusLabel = $duplicateCount > 0 || !empty($missingUnusedGlobally)
+                ? 'belum sesuai'
+                : ($validationNote ? 'tervalidasi' : 'sesuai');
+
             $summaries[$schoolId] = [
                 'range_label' => $rangeLabel,
-                'status_label' => $isSequential ? 'sesuai' : 'belum sesuai',
-                'is_sequential' => $isSequential,
-                'missing_sequences' => $missingSequences,
+                'status_label' => $statusLabel,
+                'is_sequential' => $isSequential || $statusLabel === 'tervalidasi',
+                'missing_sequences' => $missingUnusedGlobally,
                 'missing_preview' => $missingPreview,
                 'duplicate_count' => $duplicateCount,
+                'validation_note' => $validationNote,
             ];
         }
 
@@ -2540,6 +2601,7 @@ class SkYayasanController extends Controller
                 'missing_sequences' => [],
                 'missing_preview' => null,
                 'duplicate_count' => 0,
+                'validation_note' => null,
             ];
             $school->ready_lock_range = $readyLockRanges[$school->id]['range'] ?? null;
             $school->ready_lock_count = (int) ($readyLockRanges[$school->id]['count'] ?? 0);

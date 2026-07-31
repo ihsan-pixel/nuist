@@ -176,6 +176,12 @@
                                                             <span class="fw-semibold text-dark">Rentang tersimpan:</span>
                                                             <span class="text-muted">{{ $storedNumberSummary['range_label'] }}/{{ $storedNumberSummary['status_label'] }}</span>
                                                         </div>
+                                                        @if($storedNumberSummary['validation_note'])
+                                                            <div class="mt-1 text-success">
+                                                                <span class="fw-semibold">Validasi:</span>
+                                                                <span>{{ $storedNumberSummary['validation_note'] }}</span>
+                                                            </div>
+                                                        @endif
                                                         @if(!$storedNumberSummary['is_sequential'] && $storedNumberSummary['missing_preview'])
                                                             <div class="mt-1 text-danger">
                                                                 <span class="fw-semibold">Nomor loncat:</span>
@@ -295,6 +301,12 @@
                                                                 <span class="fw-semibold text-dark">Rentang tersimpan:</span>
                                                                 <span class="text-muted">{{ $storedNumberSummary['range_label'] }}/{{ $storedNumberSummary['status_label'] }}</span>
                                                             </div>
+                                                            @if($storedNumberSummary['validation_note'])
+                                                                <div class="mt-1 text-success">
+                                                                    <span class="fw-semibold">Validasi:</span>
+                                                                    <span>{{ $storedNumberSummary['validation_note'] }}</span>
+                                                                </div>
+                                                            @endif
                                                             @if(!$storedNumberSummary['is_sequential'] && $storedNumberSummary['missing_preview'])
                                                                 <div class="mt-1 text-danger">
                                                                     <span class="fw-semibold">Nomor loncat:</span>
