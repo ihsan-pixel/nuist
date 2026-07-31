@@ -271,9 +271,11 @@
                 <div class="row g-3">
                     <div class="col-lg-5">
                         <label class="form-label">Pilih Sekolah</label>
-                        <select name="madrasah_ids[]" class="form-select sky-multi-select" multiple required>
+                        <select name="madrasah_ids[]" class="form-select sky-multi-select" id="bulkSchoolSelect" multiple required>
                             @foreach($schools as $school)
-                                <option value="{{ $school->id }}" @selected(in_array((int) $school->id, $selectedBulkSchoolIds, true))>
+                                <option value="{{ $school->id }}"
+                                        data-request-count="{{ (int) ($school->generate_requests_count ?? 0) }}"
+                                        @selected(in_array((int) $school->id, $selectedBulkSchoolIds, true))>
                                     {{ $school->scod ? $school->scod . ' - ' : '' }}{{ $school->name }}
                                     - {{ (int) ($school->generate_requests_count ?? 0) }} pengajuan
                                     - {{ (int) ($school->generated_documents_count ?? 0) > 0 ? (int) ($school->generated_documents_count ?? 0) . ' nomor tersimpan' : 'belum punya nomor' }}
@@ -284,13 +286,13 @@
                     </div>
                     <div class="col-lg-3">
                         <label class="form-label">Nomor Awal Rentang</label>
-                        <input type="number" name="range_start" class="form-control" min="1" value="{{ old('range_start') }}" required>
+                        <input type="number" name="range_start" id="bulkRangeStartInput" class="form-control" min="1" value="{{ old('range_start') }}" required>
                         <small class="text-muted">Contoh: `7070`.</small>
                     </div>
                     <div class="col-lg-3">
                         <label class="form-label">Nomor Akhir Rentang</label>
-                        <input type="number" name="range_end" class="form-control" min="1" value="{{ old('range_end') }}" required>
-                        <small class="text-muted">Contoh: `7085`.</small>
+                        <input type="number" name="range_end" id="bulkRangeEndInput" class="form-control" min="1" value="{{ old('range_end') }}" required>
+                        <small class="text-muted" id="bulkRangeHint">Contoh: `7085`.</small>
                     </div>
                     <div class="col-lg-1 d-flex align-items-end">
                         <div class="form-check mb-2">
@@ -848,3 +850,48 @@
     @endforeach
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const schoolSelect = document.getElementById('bulkSchoolSelect');
+    const rangeStartInput = document.getElementById('bulkRangeStartInput');
+    const rangeEndInput = document.getElementById('bulkRangeEndInput');
+    const rangeHint = document.getElementById('bulkRangeHint');
+
+    if (!schoolSelect || !rangeStartInput || !rangeEndInput || !rangeHint) {
+        return;
+    }
+
+    const calculateSelectedRequestCount = () => {
+        return Array.from(schoolSelect.selectedOptions).reduce((total, option) => {
+            const count = parseInt(option.dataset.requestCount || '0', 10);
+
+            return total + (Number.isNaN(count) ? 0 : count);
+        }, 0);
+    };
+
+    const syncRangeEnd = () => {
+        const selectedRequestCount = calculateSelectedRequestCount();
+        const startNumber = parseInt(rangeStartInput.value || '', 10);
+
+        if (selectedRequestCount <= 0) {
+            rangeHint.textContent = 'Contoh: `7085`.';
+            return;
+        }
+
+        rangeHint.textContent = 'Total pengajuan terpilih: ' + selectedRequestCount + ' guru/user.';
+
+        if (Number.isNaN(startNumber) || startNumber <= 0) {
+            return;
+        }
+
+        rangeEndInput.value = String(startNumber + selectedRequestCount - 1);
+    };
+
+    schoolSelect.addEventListener('change', syncRangeEnd);
+    rangeStartInput.addEventListener('input', syncRangeEnd);
+    syncRangeEnd();
+});
+</script>
+@endpush
