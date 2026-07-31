@@ -347,6 +347,7 @@
                         </thead>
                         <tbody>
                             @foreach($schools as $school)
+                                @php($totalSchoolRequests = (int) ($school->generate_requests_count ?? 0))
                                 @php($generatedDocumentsCount = (int) ($school->generated_documents_count ?? 0))
                                 @php($lockedDocumentsCount = (int) ($school->locked_documents_count ?? 0))
                                 @php($readyLockCount = (int) ($school->ready_lock_count ?? 0))
@@ -354,7 +355,7 @@
                                 @php($storedNumberSummary = $school->stored_number_summary ?? null)
                                 @php($requestsWithoutNumber = $requestsWithoutNumberBySchool[$school->id] ?? collect())
                                 @php($requestsWithoutNumberCount = $requestsWithoutNumber instanceof \Illuminate\Support\Collection ? $requestsWithoutNumber->count() : 0)
-                                @php($allGeneratedLocked = $generatedDocumentsCount > 0 && $generatedDocumentsCount === $lockedDocumentsCount)
+                                @php($allGeneratedLocked = $totalSchoolRequests > 0 && $generatedDocumentsCount === $totalSchoolRequests && $generatedDocumentsCount === $lockedDocumentsCount)
                                 <tr>
                                     <td>
                                         <div class="fw-semibold">{{ $school->name }}</div>
@@ -367,7 +368,10 @@
                                         @if(!$numberLockSupported)
                                             <div class="text-muted">Fitur lock menunggu migration database</div>
                                         @elseif($generatedDocumentsCount > 0)
-                                            <div class="fw-semibold text-dark">{{ $lockedDocumentsCount }}/{{ $generatedDocumentsCount }} nomor terkunci</div>
+                                            <div class="fw-semibold text-dark">{{ $lockedDocumentsCount }}/{{ $totalSchoolRequests }} nomor terkunci</div>
+                                            <div class="text-muted mt-1">
+                                                {{ $generatedDocumentsCount }}/{{ $totalSchoolRequests }} pengajuan sudah punya nomor SK.
+                                            </div>
                                             <div class="text-muted mt-1">
                                                 {{ $allGeneratedLocked ? 'Semua draft sekolah ini sudah final.' : 'Nomor yang dikunci tidak akan berubah saat generate ulang.' }}
                                             </div>
@@ -375,6 +379,14 @@
                                                 <div class="mt-1 text-warning">
                                                     <span class="fw-semibold">Belum punya nomor:</span>
                                                     <span>{{ $requestsWithoutNumberCount }} user</span>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-warning"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#schoolMissingNumberModal{{ $school->id }}">
+                                                        Lihat {{ $requestsWithoutNumberCount }} User
+                                                    </button>
                                                 </div>
                                             @endif
                                             @if($storedNumberSummary && $storedNumberSummary['range_label'])
