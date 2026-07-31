@@ -4218,6 +4218,16 @@ class SkYayasanController extends Controller
             return $normalized;
         }
 
+        $normalizedTemplateText = $this->normalizeTemplateText($normalized);
+        $isExplicitPengangkatan = $this->containsTemplateWord($normalizedTemplateText, 'pengangkatan')
+            && !$this->containsTemplateWord($normalizedTemplateText, 'perpanjangan');
+        $isExplicitPerpanjangan = $this->containsTemplateWord($normalizedTemplateText, 'perpanjangan')
+            && !$this->containsTemplateWord($normalizedTemplateText, 'pengangkatan');
+
+        if ($isExplicitPengangkatan || $isExplicitPerpanjangan) {
+            return $normalized;
+        }
+
         $isTwoYearsOrMore = $this->skYayasanTenureIsTwoYearsOrMore($primaryTmt, $fallbackTmt, $fallbackTenure);
         $tmtTenureBand = $this->skYayasanTenureBandFromTmt($primaryTmt, $fallbackTmt);
         $hasNipm = $this->normalizeNipmValue($existingNipm) !== null;

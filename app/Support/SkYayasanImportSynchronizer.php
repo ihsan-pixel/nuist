@@ -471,6 +471,16 @@ class SkYayasanImportSynchronizer
             return $normalized;
         }
 
+        $normalizedTemplateText = Str::lower(trim((string) preg_replace('/\s+/', ' ', $normalized)));
+        $isExplicitPengangkatan = str_contains($normalizedTemplateText, 'pengangkatan')
+            && !str_contains($normalizedTemplateText, 'perpanjangan');
+        $isExplicitPerpanjangan = str_contains($normalizedTemplateText, 'perpanjangan')
+            && !str_contains($normalizedTemplateText, 'pengangkatan');
+
+        if ($isExplicitPengangkatan || $isExplicitPerpanjangan) {
+            return $normalized;
+        }
+
         $tenureBand = $this->tenureBandFromTmt($primaryTmt, $fallbackTmt);
         $hasNipm = $this->normalizeNipmValue($existingNipm) !== null;
 
