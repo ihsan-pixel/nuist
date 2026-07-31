@@ -301,9 +301,21 @@
                     <div class="small text-muted">
                         Sistem akan menghapus nomor lama sekolah terpilih, lalu mengisi ulang sesuai rentang yang Anda masukkan. Jika rentang bentrok dengan sekolah lain, proses akan ditolak.
                     </div>
-                    <button type="submit" class="btn btn-primary" @disabled($schools->isEmpty())>
-                        <i class="bx bx-slider-alt me-1"></i>Atur Ulang Rentang Pilihan
-                    </button>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit"
+                                formaction="{{ route('sk-yayasan.numbers.bulk-clear') }}"
+                                formnovalidate
+                                class="btn btn-outline-danger"
+                                data-sk-swal-title="Hapus nomor SK sekolah terpilih?"
+                                data-sk-swal-text="Nomor SK pada sekolah terpilih akan dikosongkan dulu dan tidak langsung diisi rentang baru."
+                                data-sk-swal-confirm-text="Ya, hapus nomor"
+                                @disabled($schools->isEmpty())>
+                            <i class="bx bx-eraser me-1"></i>Hapus Nomor SK
+                        </button>
+                        <button type="submit" class="btn btn-primary" @disabled($schools->isEmpty())>
+                            <i class="bx bx-slider-alt me-1"></i>Atur Ulang Rentang Pilihan
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

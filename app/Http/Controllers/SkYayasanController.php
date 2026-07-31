@@ -452,6 +452,66 @@ class SkYayasanController extends Controller
         return back()->with('success', $message);
     }
 
+    public function clearSelectedSchoolDocumentNumbers(Request $request): RedirectResponse
+    {
+        $this->ensureSuperAdmin();
+        $this->repairSyncedBatchesRequests();
+
+        $validated = $request->validate([
+            'madrasah_ids' => ['required', 'array', 'min:1'],
+            'madrasah_ids.*' => ['required', 'integer', 'exists:madrasahs,id'],
+        ], [
+            'madrasah_ids.required' => 'Pilih minimal satu sekolah.',
+        ]);
+
+        $selectedSchoolIds = collect($validated['madrasah_ids'])
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        $selectedSchools = Madrasah::query()
+            ->whereIn('id', $selectedSchoolIds->all())
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderByRaw('CAST(COALESCE(NULLIF(scod, \'\'), \'0\') AS UNSIGNED) ASC')
+            ->orderBy('name')
+            ->get(['id', 'name', 'scod']);
+
+        if ($selectedSchools->isEmpty()) {
+            return back()->with('error', 'Tidak ada sekolah yang bisa diproses.');
+        }
+
+        $documents = SkYayasanDocument::query()
+            ->with('request:id,madrasah_id')
+            ->whereNotNull('document_number')
+            ->whereHas('request', fn (Builder $query) => $query->whereIn('madrasah_id', $selectedSchoolIds->all()))
+            ->get();
+
+        if ($documents->isEmpty()) {
+            return back()->with('info', 'Sekolah terpilih sudah tidak memiliki nomor SK.');
+        }
+
+        DB::transaction(function () use ($documents) {
+            foreach ($documents as $document) {
+                $metaPayload = $this->normalizeDocumentMetaPayload($document->meta_payload);
+                unset(
+                    $metaPayload['number_validation_mode'],
+                    $metaPayload['number_validation_note'],
+                    $metaPayload['number_validated_at']
+                );
+
+                $document->update([
+                    'document_number' => null,
+                    'number_locked_at' => null,
+                    'number_locked_by' => null,
+                    'meta_payload' => $metaPayload,
+                ]);
+            }
+        });
+
+        return back()->with('success', $documents->count() . ' nomor SK berhasil dihapus dari ' . $selectedSchools->count() . ' sekolah terpilih. Sekolah-sekolah tersebut sekarang kosong nomor dan siap diatur ulang rentangnya.');
+    }
+
     public function schoolIndex(Request $request): View
     {
         $user = $this->ensureSchoolAdmin();

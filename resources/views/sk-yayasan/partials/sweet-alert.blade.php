@@ -45,14 +45,18 @@
 
                     form.addEventListener('submit', function (event) {
                         event.preventDefault();
+                        const submitter = event.submitter || null;
+                        const source = submitter && submitter.dataset && submitter.dataset.skSwalTitle
+                            ? submitter
+                            : form;
 
                         Swal.fire({
-                            icon: form.dataset.skSwalIcon || 'warning',
-                            title: form.dataset.skSwalTitle || 'Yakin melanjutkan?',
-                            text: form.dataset.skSwalText || 'Tindakan ini tidak bisa dibatalkan.',
+                            icon: source.dataset.skSwalIcon || form.dataset.skSwalIcon || 'warning',
+                            title: source.dataset.skSwalTitle || form.dataset.skSwalTitle || 'Yakin melanjutkan?',
+                            text: source.dataset.skSwalText || form.dataset.skSwalText || 'Tindakan ini tidak bisa dibatalkan.',
                             showCancelButton: true,
-                            confirmButtonText: form.dataset.skSwalConfirmText || 'Ya, lanjutkan',
-                            cancelButtonText: form.dataset.skSwalCancelText || 'Batal',
+                            confirmButtonText: source.dataset.skSwalConfirmText || form.dataset.skSwalConfirmText || 'Ya, lanjutkan',
+                            cancelButtonText: source.dataset.skSwalCancelText || form.dataset.skSwalCancelText || 'Batal',
                             confirmButtonColor: '#0e8549',
                             cancelButtonColor: '#94a3b8',
                         }).then((result) => {
