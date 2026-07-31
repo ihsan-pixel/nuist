@@ -240,7 +240,7 @@
                                                 <input type="hidden" name="copy_recipient_1" value="{{ $coreData['copy_recipient_1'] }}">
                                                 <input type="hidden" name="copy_recipient_2" value="{{ $coreData['copy_recipient_2'] }}">
                                                 <button type="submit" class="dropdown-item">
-                                                    <i class="bx bx-printer me-2 text-primary"></i>Generate Semua Guru Sekolah Ini
+                                                    <i class="bx bx-printer me-2 text-primary"></i>{{ $schoolHasLockedNumbers ? 'Generate Semua Guru Sekolah Ini' : 'Preview Semua Guru Sekolah Ini' }}
                                                 </button>
                                             </form>
                                         </li>
@@ -264,6 +264,12 @@
                             @endif
                         </div>
                     </div>
+
+                    @if(!$schoolHasLockedNumbers)
+                        <div class="alert alert-warning border-0 mb-3">
+                            Sekolah ini belum memiliki nomor SK yang terkunci. Generate dari halaman ini hanya membuka preview PDF, dan draft baru akan tersimpan setelah nomor SK diisi dari halaman <strong>Nomor SK Yayasan</strong>.
+                        </div>
+                    @endif
 
                     @if($requests->count() > 0)
                         <div class="table-responsive">
@@ -351,7 +357,7 @@
                                                             <input type="hidden" name="template_id" value="{{ $submission->template_id }}">
                                                         @endif
                                                         <button type="submit" class="btn btn-sm btn-outline-primary" @disabled(!$submission->resolved_template && !$submission->template_id)>
-                                                            Generate 1 Guru
+                                                            {{ $schoolHasLockedNumbers ? 'Generate 1 Guru' : 'Preview 1 Guru' }}
                                                         </button>
                                                     </form>
                                                     @if($submission->document)

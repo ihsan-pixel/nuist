@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>{{ $document->document_number }}</title>
+    <title>{{ $document->document_number ?: 'Preview SK Yayasan' }}</title>
     @php
         $isFullDocumentTemplate = str_contains($document->rendered_content ?? '', 'data-sk-full-document="1"');
     @endphp
@@ -51,7 +51,7 @@
     @else
     <div class="header">
         <h2 style="margin:0;">{{ $document->template?->document_title ?? 'Surat Keputusan Yayasan' }}</h2>
-        <div>Nomor: {{ $document->document_number }}</div>
+        <div>Nomor: {{ $document->document_number ?: 'Belum ditetapkan' }}</div>
     </div>
 
     <div class="meta">

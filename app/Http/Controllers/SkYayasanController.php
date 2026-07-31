@@ -1975,6 +1975,7 @@ class SkYayasanController extends Controller
             'requests' => $requests,
             'templates' => $templates,
             'coreData' => $this->buildSchoolSkCoreData($madrasah),
+            'schoolHasLockedNumbers' => $this->schoolHasLockedDocumentNumbers((int) $madrasah->id),
             'submissionLetterReference' => $submissionLetterReference,
             'submissionLetterIsMixed' => $submissionLetterNumbers->count() > 1 || $submissionLetterDates->count() > 1,
             'importPreviewColumns' => SkYayasanImportSynchronizer::expectedHeadings(),
@@ -2055,7 +2056,7 @@ class SkYayasanController extends Controller
         $template = $this->resolveTemplateForSubmission($submission, $activeTemplates)
             ?? SkYayasanTemplate::query()->findOrFail($validated['template_id']);
         $issuedDate = Carbon::parse($validated['issued_date']);
-        $document = $this->persistGeneratedDocument($submission, $template, $issuedDate, [
+        $documentData = [
             'school_year' => $validated['school_year'],
             'document_number_start' => $validated['document_number_start'] ?? null,
             'number_format_suffix' => $validated['number_format_suffix'] ?? null,
@@ -2066,10 +2067,22 @@ class SkYayasanController extends Controller
             'copy_recipient_2' => $validated['copy_recipient_2'],
             'publication_notes' => $validated['publication_notes'] ?? null,
             'document_number' => $validated['document_number'] ?? null,
-        ]);
+        ];
+
+        if (!$this->schoolHasLockedDocumentNumbers((int) $submission->madrasah_id) && empty($documentData['document_number'])) {
+            $previewDocument = $this->buildGeneratedDocumentPreview($submission, $template, $issuedDate, $documentData, false);
+
+            return $this->makeGeneratedDocumentPdfResponse(
+                $previewDocument,
+                $submission,
+                'preview-sk-yayasan-' . Str::slug($submission->employee?->name ?? ('request-' . $submission->id))
+            );
+        }
+
+        $document = $this->persistGeneratedDocument($submission, $template, $issuedDate, $documentData);
 
         if ((bool) ($validated['preview_pdf'] ?? false)) {
-            return $this->downloadDocument($document);
+            return $this->makeGeneratedDocumentPdfResponse($document, $document->request);
         }
 
         return back()->with('success', 'Draft SK Yayasan berhasil digenerate.');
@@ -2118,6 +2131,28 @@ class SkYayasanController extends Controller
 
         if (!empty($missingTemplates)) {
             return back()->with('error', 'Template belum tersedia untuk: ' . implode(', ', $missingTemplates));
+        }
+
+        if (!$this->schoolHasLockedDocumentNumbers((int) $madrasah->id)) {
+            $documents = $payloads->map(function (array $payload) use ($issuedDate, $coreData) {
+                /** @var \App\Models\SkYayasanRequest $submission */
+                $submission = $payload['submission'];
+
+                return $this->buildGeneratedDocumentPreview($submission, $payload['template'], $issuedDate, [
+                    'school_year' => $coreData['school_year'],
+                    'document_number_start' => $coreData['document_number_start'],
+                    'number_format_suffix' => $coreData['number_format_suffix'],
+                    'signer_name' => $coreData['signer_name'],
+                    'signer_position' => $coreData['signer_position'],
+                    'established_at' => $coreData['established_at'],
+                    'copy_recipient_1' => $coreData['copy_recipient_1'],
+                    'copy_recipient_2' => $coreData['copy_recipient_2'],
+                    'publication_notes' => null,
+                    'document_number' => null,
+                ], false);
+            })->values();
+
+            return $this->downloadSchoolDocumentsPdf($madrasah, $documents);
         }
 
         $documents = DB::transaction(function () use ($payloads, $issuedDate, $coreData) {
@@ -2316,8 +2351,14 @@ class SkYayasanController extends Controller
         $templates = SkYayasanTemplate::query()->where('is_active', true)->orderBy('name')->get();
         $payloads = collect();
         $missingTemplates = [];
+        $skippedSchoolsWithoutLockedNumbers = [];
 
         foreach ($schools as $school) {
+            if (!$this->schoolHasLockedDocumentNumbers((int) $school->id)) {
+                $skippedSchoolsWithoutLockedNumbers[] = $school->name ?? ('Sekolah #' . $school->id);
+                continue;
+            }
+
             $coreData = $this->buildSchoolSkCoreData($school);
             $schoolIssuedDate = Carbon::parse($coreData['issued_date']);
             $requests = SkYayasanRequest::query()
@@ -2367,7 +2408,7 @@ class SkYayasanController extends Controller
         }
 
         if ($payloads->isEmpty()) {
-            return back()->with('error', 'Belum ada pengajuan yang memenuhi syarat untuk generate ulang.');
+            return back()->with('error', 'Belum ada pengajuan yang memenuhi syarat untuk generate ulang. Sekolah tanpa nomor SK terkunci hanya bisa dipreview dulu, lalu draftnya akan tersimpan setelah nomor diisi dari halaman Nomor SK Yayasan.');
         }
 
         $numberLockSupported = $this->skYayasanDocumentNumberLockSupported();
@@ -2421,7 +2462,13 @@ class SkYayasanController extends Controller
             return !$document || !$numberLockSupported || $document->number_locked_at === null;
         })->count();
 
-        return back()->with('success', 'Generate ulang semua sekolah selesai. ' . $renumberedCount . ' nomor SK disusun ulang mengikuti urutan SCOD sekolah.');
+        $message = 'Generate ulang semua sekolah selesai. ' . $renumberedCount . ' nomor SK disusun ulang mengikuti urutan SCOD sekolah.';
+
+        if (!empty($skippedSchoolsWithoutLockedNumbers)) {
+            $message .= ' Sekolah tanpa nomor SK terkunci dilewati: ' . implode(', ', array_slice($skippedSchoolsWithoutLockedNumbers, 0, 5)) . (count($skippedSchoolsWithoutLockedNumbers) > 5 ? ' dan lainnya.' : '') . '.';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function lockAllDocumentNumbers(): RedirectResponse
@@ -2532,16 +2579,30 @@ class SkYayasanController extends Controller
         $document->load(['request.madrasah.yayasan', 'request.employee.statusKepegawaian', 'template']);
         $this->authorizeDocumentAccess($document);
 
+        return $this->makeGeneratedDocumentPdfResponse($document, $document->request);
+    }
+
+    private function makeGeneratedDocumentPdfResponse(
+        SkYayasanDocument $document,
+        SkYayasanRequest $submission,
+        ?string $filenameBase = null
+    ) {
         $this->resetBrokenSkYayasanFontCache();
 
         $pdf = PDF::loadView('pdf.sk-yayasan-template', [
             'document' => $document,
-            'submission' => $document->request,
+            'submission' => $submission,
         ])->setPaper('a4', 'portrait');
+
+        $resolvedFilename = trim((string) ($filenameBase ?: $document->document_number));
+
+        if ($resolvedFilename === '') {
+            $resolvedFilename = 'draft-sk-yayasan-' . Str::slug($submission->employee?->name ?? ('request-' . $submission->id));
+        }
 
         return response($pdf->output(), 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="' . $document->document_number . '.pdf"')
+            ->header('Content-Disposition', 'inline; filename="' . $resolvedFilename . '.pdf"')
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -2637,6 +2698,45 @@ class SkYayasanController extends Controller
         Carbon $issuedDate,
         array $data
     ): SkYayasanDocument {
+        $payload = $this->buildGeneratedDocumentPayload($submission, $template, $issuedDate, $data, true);
+
+        $document = SkYayasanDocument::query()->updateOrCreate(
+            ['request_id' => $submission->id],
+            $payload
+        );
+
+        $submission->update([
+            'template_id' => $template->id,
+        ]);
+
+        return $document->fresh(['request.madrasah.yayasan', 'request.employee.statusKepegawaian', 'template']);
+    }
+
+    private function buildGeneratedDocumentPreview(
+        SkYayasanRequest $submission,
+        SkYayasanTemplate $template,
+        Carbon $issuedDate,
+        array $data,
+        bool $allowAutoNumber = true
+    ): SkYayasanDocument {
+        $payload = $this->buildGeneratedDocumentPayload($submission, $template, $issuedDate, $data, $allowAutoNumber);
+
+        $document = new SkYayasanDocument(array_merge([
+            'request_id' => $submission->id,
+        ], $payload));
+        $document->setRelation('request', $submission);
+        $document->setRelation('template', $template);
+
+        return $document;
+    }
+
+    private function buildGeneratedDocumentPayload(
+        SkYayasanRequest $submission,
+        SkYayasanTemplate $template,
+        Carbon $issuedDate,
+        array $data,
+        bool $allowAutoNumber = true
+    ): array {
         $submission->loadMissing(['madrasah.yayasan', 'employee.statusKepegawaian', 'document', 'importBatch.rows']);
 
         $existingDocument = $submission->document;
@@ -2650,8 +2750,11 @@ class SkYayasanController extends Controller
             && (
                 $isExistingNumberLocked
                 || (
-                $requestedStartNumber === null
-                || ($existingSequence !== null && $existingSequence >= $requestedStartNumber)
+                    $allowAutoNumber
+                    && (
+                        $requestedStartNumber === null
+                        || ($existingSequence !== null && $existingSequence >= $requestedStartNumber)
+                    )
                 )
             );
 
@@ -2659,18 +2762,20 @@ class SkYayasanController extends Controller
             ? $existingDocumentNumber
             : (!empty($data['document_number'])
                 ? $data['document_number']
-                : ($canReuseExistingNumber
-                    ? $existingDocumentNumber
-                    : $this->generateDocumentNumber(
-                        $template,
-                        $submission,
-                        $issuedDate,
-                        $requestedStartNumber,
-                        $requestedNumberFormatSuffix !== '' ? $requestedNumberFormatSuffix : null
-                    )));
+                : (!$allowAutoNumber
+                    ? null
+                    : ($canReuseExistingNumber
+                        ? $existingDocumentNumber
+                        : $this->generateDocumentNumber(
+                            $template,
+                            $submission,
+                            $issuedDate,
+                            $requestedStartNumber,
+                            $requestedNumberFormatSuffix !== '' ? $requestedNumberFormatSuffix : null
+                        ))));
 
         $placeholders = $this->buildTemplatePlaceholders($submission, [
-            'nomor_sk' => $documentNumber,
+            'nomor_sk' => $documentNumber ?: '-',
             'tanggal_terbit' => $this->formatIndonesianDate($issuedDate),
             'tanggal_mulai' => '01 Juli ' . $issuedDate->format('Y'),
             'tanggal_selesai' => '30 Juni ' . $issuedDate->copy()->addYear()->format('Y'),
@@ -2694,37 +2799,28 @@ class SkYayasanController extends Controller
             'document_title' => $template->document_title,
         ]);
 
-        $document = SkYayasanDocument::query()->updateOrCreate(
-            ['request_id' => $submission->id],
-            [
-                'template_id' => $template->id,
-                'generated_by' => auth()->id(),
-                'document_number' => $documentNumber,
-                'issued_date' => $issuedDate->toDateString(),
-                'signer_name' => $data['signer_name'],
-                'signer_position' => $data['signer_position'] ?? 'Ketua Yayasan',
-                'publication_notes' => $data['publication_notes'] ?? null,
-                'meta_payload' => [
-                    'school_year' => $data['school_year'],
-                    'document_number_start' => $data['document_number_start'] ?? null,
-                    'established_at' => $data['established_at'],
-                    'copy_recipient_1' => $data['copy_recipient_1'],
-                    'copy_recipient_2' => $data['copy_recipient_2'],
-                    'number_validation_mode' => $data['number_validation_mode'] ?? null,
-                    'number_validation_note' => $data['number_validation_note'] ?? null,
-                    'number_validated_at' => $data['number_validated_at'] ?? null,
-                ],
-                'rendered_content' => $renderedContent,
-                'status' => $submission->current_status === 'published' ? 'published' : 'draft',
-                'generated_at' => now(),
-            ]
-        );
-
-        $submission->update([
+        return [
             'template_id' => $template->id,
-        ]);
-
-        return $document->fresh(['request.madrasah.yayasan', 'request.employee.statusKepegawaian', 'template']);
+            'generated_by' => auth()->id(),
+            'document_number' => $documentNumber,
+            'issued_date' => $issuedDate->toDateString(),
+            'signer_name' => $data['signer_name'],
+            'signer_position' => $data['signer_position'] ?? 'Ketua Yayasan',
+            'publication_notes' => $data['publication_notes'] ?? null,
+            'meta_payload' => [
+                'school_year' => $data['school_year'],
+                'document_number_start' => $data['document_number_start'] ?? null,
+                'established_at' => $data['established_at'],
+                'copy_recipient_1' => $data['copy_recipient_1'],
+                'copy_recipient_2' => $data['copy_recipient_2'],
+                'number_validation_mode' => $data['number_validation_mode'] ?? null,
+                'number_validation_note' => $data['number_validation_note'] ?? null,
+                'number_validated_at' => $data['number_validated_at'] ?? null,
+            ],
+            'rendered_content' => $renderedContent,
+            'status' => $submission->current_status === 'published' ? 'published' : 'draft',
+            'generated_at' => now(),
+        ];
     }
 
     private function generateEligibleRequestsConstraint(): Closure
@@ -2764,6 +2860,18 @@ class SkYayasanController extends Controller
     private function submissionCanBeManagedForNumbers(SkYayasanRequest $submission): bool
     {
         return in_array($submission->current_status, ['submitted', 'reviewed', 'approved', 'published'], true);
+    }
+
+    private function schoolHasLockedDocumentNumbers(int $madrasahId): bool
+    {
+        if ($madrasahId <= 0 || !$this->skYayasanDocumentNumberLockSupported()) {
+            return false;
+        }
+
+        return SkYayasanDocument::query()
+            ->whereNotNull('number_locked_at')
+            ->whereHas('request', fn (Builder $query) => $query->where('madrasah_id', $madrasahId))
+            ->exists();
     }
 
     private function numberManagementSchoolsQuery(): Builder

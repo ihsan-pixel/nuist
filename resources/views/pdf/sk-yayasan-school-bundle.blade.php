@@ -59,7 +59,7 @@
         <div class="sk-page">
             <div class="header">
                 <h2 style="margin:0;">{{ $document->template?->document_title ?? 'Surat Keputusan Yayasan' }}</h2>
-                <div>Nomor: {{ $document->document_number }}</div>
+                <div>Nomor: {{ $document->document_number ?: 'Belum ditetapkan' }}</div>
             </div>
 
             <div class="meta">
