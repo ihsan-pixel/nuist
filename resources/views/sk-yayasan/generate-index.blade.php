@@ -146,6 +146,7 @@
                                         @php($lockedDocumentsCount = (int) ($school->locked_documents_count ?? 0))
                                         @php($readyLockCount = (int) ($school->ready_lock_count ?? 0))
                                         @php($readyLockRange = $school->ready_lock_range)
+                                        @php($storedNumberSummary = $school->stored_number_summary ?? null)
                                         @php($allGeneratedLocked = $generatedDocumentsCount > 0 && $generatedDocumentsCount === $lockedDocumentsCount)
                                         <tr>
                                             <td>
@@ -170,6 +171,24 @@
                                                     <div class="text-muted mt-1">
                                                         {{ $allGeneratedLocked ? 'Semua draft/generate sekolah ini sudah final.' : 'Nomor yang sudah dikunci tidak akan berubah saat generate ulang.' }}
                                                     </div>
+                                                    @if($storedNumberSummary && $storedNumberSummary['range_label'])
+                                                        <div class="mt-1">
+                                                            <span class="fw-semibold text-dark">Rentang tersimpan:</span>
+                                                            <span class="text-muted">{{ $storedNumberSummary['range_label'] }}/{{ $storedNumberSummary['status_label'] }}</span>
+                                                        </div>
+                                                        @if(!$storedNumberSummary['is_sequential'] && $storedNumberSummary['missing_preview'])
+                                                            <div class="mt-1 text-danger">
+                                                                <span class="fw-semibold">Nomor loncat:</span>
+                                                                <span>{{ $storedNumberSummary['missing_preview'] }}</span>
+                                                            </div>
+                                                        @endif
+                                                        @if(($storedNumberSummary['duplicate_count'] ?? 0) > 0)
+                                                            <div class="mt-1 text-danger">
+                                                                <span class="fw-semibold">Duplikat nomor:</span>
+                                                                <span>{{ $storedNumberSummary['duplicate_count'] }} data</span>
+                                                            </div>
+                                                        @endif
+                                                    @endif
                                                     @if($readyLockCount > 0 && $readyLockRange)
                                                         <div class="mt-1">
                                                             <span class="fw-semibold text-dark">Rentang siap dikunci (urut SCOD):</span>

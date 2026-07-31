@@ -2408,6 +2408,91 @@ class SkYayasanController extends Controller
             ->all();
     }
 
+    private function buildSchoolStoredNumberSummaries(Collection $schools): array
+    {
+        $schoolIds = $schools->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->values();
+
+        if ($schoolIds->isEmpty()) {
+            return [];
+        }
+
+        $documentNumbersBySchool = DB::table('sk_yayasan_documents')
+            ->join('sk_yayasan_requests', 'sk_yayasan_requests.id', '=', 'sk_yayasan_documents.request_id')
+            ->whereIn('sk_yayasan_requests.madrasah_id', $schoolIds->all())
+            ->whereNotNull('sk_yayasan_documents.document_number')
+            ->orderBy('sk_yayasan_requests.madrasah_id')
+            ->orderBy('sk_yayasan_documents.document_number')
+            ->get([
+                'sk_yayasan_requests.madrasah_id',
+                'sk_yayasan_documents.document_number',
+            ])
+            ->groupBy('madrasah_id');
+
+        $summaries = [];
+
+        foreach ($schoolIds as $schoolId) {
+            $rows = collect($documentNumbersBySchool->get($schoolId, []));
+            $allSequences = $rows
+                ->map(fn ($row) => $this->extractDocumentNumberSequence($row->document_number ?? null))
+                ->filter(fn (?int $sequence) => $sequence !== null)
+                ->values();
+            $uniqueSequences = $allSequences
+                ->unique()
+                ->sort()
+                ->values();
+
+            if ($uniqueSequences->isEmpty()) {
+                $summaries[$schoolId] = [
+                    'range_label' => null,
+                    'status_label' => 'belum ada nomor',
+                    'is_sequential' => false,
+                    'missing_sequences' => [],
+                    'missing_preview' => null,
+                    'duplicate_count' => 0,
+                ];
+                continue;
+            }
+
+            $minSequence = (int) $uniqueSequences->first();
+            $maxSequence = (int) $uniqueSequences->last();
+            $expectedRange = collect(range($minSequence, $maxSequence));
+            $missingSequences = $expectedRange
+                ->diff($uniqueSequences)
+                ->values()
+                ->map(fn ($sequence) => (int) $sequence)
+                ->all();
+            $duplicateCount = max(0, $allSequences->count() - $uniqueSequences->count());
+            $isSequential = empty($missingSequences) && $duplicateCount === 0;
+            $rangeLabel = $minSequence === $maxSequence
+                ? (string) $minSequence
+                : ($minSequence . '-' . $maxSequence);
+            $missingPreview = null;
+
+            if (!empty($missingSequences)) {
+                $preview = array_slice($missingSequences, 0, 5);
+                $missingPreview = implode(', ', $preview);
+
+                if (count($missingSequences) > count($preview)) {
+                    $missingPreview .= ' +' . (count($missingSequences) - count($preview)) . ' lagi';
+                }
+            }
+
+            $summaries[$schoolId] = [
+                'range_label' => $rangeLabel,
+                'status_label' => $isSequential ? 'sesuai' : 'belum sesuai',
+                'is_sequential' => $isSequential,
+                'missing_sequences' => $missingSequences,
+                'missing_preview' => $missingPreview,
+                'duplicate_count' => $duplicateCount,
+            ];
+        }
+
+        return $summaries;
+    }
+
     private function prepareGenerateQueueSchools(
         Collection $schools,
         bool $numberLockSupported,
@@ -2419,6 +2504,7 @@ class SkYayasanController extends Controller
         }
 
         $submissionLetterReferences = $this->buildSchoolSubmissionLetterReferences($schools);
+        $storedNumberSummaries = $this->buildSchoolStoredNumberSummaries($schools);
         $readyLockRanges = $numberLockSupported
             ? $this->buildSchoolReadyLockRanges($schools)
             : [];
@@ -2426,6 +2512,7 @@ class SkYayasanController extends Controller
         return $schools->transform(function (Madrasah $school) use (
             $numberLockSupported,
             $readyLockRanges,
+            $storedNumberSummaries,
             $submissionLetterReferences,
             $uppmSummaries,
             $uppmValidationPeriodKey
@@ -2438,6 +2525,14 @@ class SkYayasanController extends Controller
             $school->locked_documents_count = $numberLockSupported
                 ? (int) ($school->locked_documents_count ?? 0)
                 : 0;
+            $school->stored_number_summary = $storedNumberSummaries[$school->id] ?? [
+                'range_label' => null,
+                'status_label' => 'belum ada nomor',
+                'is_sequential' => false,
+                'missing_sequences' => [],
+                'missing_preview' => null,
+                'duplicate_count' => 0,
+            ];
             $school->ready_lock_range = $readyLockRanges[$school->id]['range'] ?? null;
             $school->ready_lock_count = (int) ($readyLockRanges[$school->id]['count'] ?? 0);
 
