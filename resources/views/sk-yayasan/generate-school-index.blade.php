@@ -219,34 +219,46 @@
                             @endif
                             @if($requests->count() > 0)
                                 <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}">
+                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
+                                      data-sk-swal-confirm
+                                      data-sk-swal-title="Rapikan nomor SK sekolah ini?"
+                                      data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Sistem akan menyusun ulang nomor SK sekolah ini mulai dari rentang terendah yang masih tersedia."
+                                      data-sk-swal-confirm-text="Ya, rapikan"
+                                      data-sk-swal-icon="warning">
                                     @csrf
                                     <button type="submit"
                                             class="btn btn-outline-warning"
-                                            @disabled($generatedDocumentsCount === 0)
-                                            onclick="return confirm('Susun ulang nomor SK untuk sekolah ini saja? Nomor sekolah lain tidak akan diubah, dan nomor sekolah ini akan dirapikan mulai dari rentang terendah yang tersedia.')">
+                                            @disabled($generatedDocumentsCount === 0)>
                                         <i class="bx bx-sort-alt-2 me-1"></i>Rapikan Nomor SK
                                     </button>
                                 </form>
                                 <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}">
+                                      action="{{ route('sk-yayasan.generate.school.renumber', $madrasah) }}"
+                                      data-sk-swal-confirm
+                                      data-sk-swal-title="Rapikan dan kunci ulang nomor SK?"
+                                      data-sk-swal-text="Nomor sekolah lain tidak akan diubah. Setelah dirapikan, semua nomor SK sekolah ini akan langsung dikunci kembali."
+                                      data-sk-swal-confirm-text="Ya, rapikan & kunci"
+                                      data-sk-swal-icon="warning">
                                     @csrf
                                     <input type="hidden" name="lock_after" value="1">
                                     <button type="submit"
                                             class="btn btn-outline-dark"
-                                            @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)
-                                            onclick="return confirm('Susun ulang lalu kunci kembali semua nomor SK untuk sekolah ini? Nomor sekolah lain tidak akan diubah dan nomor pada sekolah ini akan final setelah proses ini.')">
+                                            @disabled($generatedDocumentsCount === 0 || !$numberLockSupported)>
                                         <i class="bx bx-reset me-1"></i>Rapikan & Kunci Ulang
                                     </button>
                                 </form>
                                 <form method="POST"
-                                      action="{{ route('sk-yayasan.generate.school.lock-number', $madrasah) }}">
+                                      action="{{ route('sk-yayasan.generate.school.lock-number', $madrasah) }}"
+                                      data-sk-swal-confirm
+                                      data-sk-swal-title="Kunci nomor SK sekolah ini?"
+                                      data-sk-swal-text="Nomor yang sudah dikunci tidak akan berubah saat generate ulang berikutnya."
+                                      data-sk-swal-confirm-text="Ya, kunci"
+                                      data-sk-swal-icon="warning">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit"
                                             class="btn btn-outline-dark"
-                                            @disabled(!$numberLockSupported || $generatedDocumentsCount === 0)
-                                            onclick="return confirm('Kunci semua nomor SK yang sudah tergenerate untuk sekolah ini? Nomor yang sudah dikunci tidak akan diubah saat generate ulang.')">
+                                            @disabled(!$numberLockSupported || $generatedDocumentsCount === 0)>
                                         <i class="bx bx-lock-alt me-1"></i>Kunci Nomor SK Sekolah Ini
                                     </button>
                                 </form>
