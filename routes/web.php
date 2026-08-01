@@ -1933,6 +1933,8 @@ Route::prefix('admin-masterdata')->middleware(['auth', 'role:super_admin,penguru
     Route::get('/data-madrasah/export', [App\Http\Controllers\DataMadrasahController::class, 'export'])->name('admin.data_madrasah.export');
 
     Route::get('/tenaga-pendidik', [App\Http\Controllers\TenagaPendidikController::class, 'index'])->name('admin_masterdata.tenaga-pendidik.index');
+    Route::get('/tenaga-pendidik/data', [App\Http\Controllers\TenagaPendidikController::class, 'data'])->name('admin_masterdata.tenaga-pendidik.data');
+    Route::get('/tenaga-pendidik/export-school-summary', [App\Http\Controllers\TenagaPendidikController::class, 'exportSchoolSummary'])->name('admin_masterdata.tenaga-pendidik.export-school-summary');
     Route::post('/tenaga-pendidik/store', [App\Http\Controllers\TenagaPendidikController::class, 'store'])->name('admin_masterdata.tenaga-pendidik.store');
     Route::put('/tenaga-pendidik/update/{id}', [App\Http\Controllers\TenagaPendidikController::class, 'update'])->name('admin_masterdata.tenaga-pendidik.update');
     Route::delete('/tenaga-pendidik/destroy/{id}', [App\Http\Controllers\TenagaPendidikController::class, 'destroy'])->name('admin_masterdata.tenaga-pendidik.destroy');
@@ -1973,6 +1975,8 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
 
 Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {
     Route::get('/tenaga-pendidik', [TenagaPendidikController::class, 'index'])->name('tenaga-pendidik.index');
+    Route::get('/tenaga-pendidik/data', [TenagaPendidikController::class, 'data'])->name('tenaga-pendidik.data');
+    Route::get('/tenaga-pendidik/export-school-summary', [TenagaPendidikController::class, 'exportSchoolSummary'])->name('tenaga-pendidik.export-school-summary');
     Route::post('/tenaga-pendidik/store', [TenagaPendidikController::class, 'store'])->name('tenaga-pendidik.store');
     Route::put('/tenaga-pendidik/update/{id}', [TenagaPendidikController::class, 'update'])->name('tenaga-pendidik.update');
     Route::delete('/tenaga-pendidik/destroy/{id}', [TenagaPendidikController::class, 'destroy'])->name('tenaga-pendidik.destroy');

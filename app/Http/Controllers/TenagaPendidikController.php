@@ -2,43 +2,125 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TenagaPendidikSchoolSummaryExport;
+use App\Imports\TenagaPendidikImport;
 use App\Models\Madrasah;
 use App\Models\StatusKepegawaian;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\TenagaPendidikImport;
+use DataTables;
 
 class TenagaPendidikController extends Controller
 {
     public function index()
     {
         $user = auth()->user();
+        $this->ensureAuthorizedRole($user);
 
-        $tenagaPendidikQuery = User::with('madrasah')
-            ->leftJoin('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
-            ->select('users.*')
-            ->where('role', 'tenaga_pendidik')
-            ->whereNotNull('users.madrasah_id')
-            ->orderBy('madrasahs.scod')
-            ->orderBy('users.name');
+        $madrasahs = Madrasah::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        $statusKepegawaian = StatusKepegawaian::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
-        if ($user->role === 'admin') {
-            $tenagaPendidikQuery->where('users.madrasah_id', $user->madrasah_id);
-        } elseif ($user->role === 'pengurus' || $user->role === 'super_admin') {
-            // Super admin and pengurus can see all assigned tenaga pendidik.
-        } else {
-            abort(403, 'Unauthorized access');
-        }
+        return view('masterdata.tenaga-pendidik.index', [
+            'madrasahs' => $madrasahs,
+            'statusKepegawaian' => $statusKepegawaian,
+            'userRole' => trim(strtolower($user->role)),
+            'isSuperAdmin' => trim(strtolower($user->role)) === 'super_admin',
+        ]);
+    }
 
-        $tenagaPendidiks = $tenagaPendidikQuery->get();
+    public function data(Request $request)
+    {
+        $user = auth()->user();
+        $this->ensureAuthorizedRole($user);
 
-        $madrasahs = Madrasah::all();
-        $statusKepegawaian = StatusKepegawaian::all();
-        return view('masterdata.tenaga-pendidik.index', compact('tenagaPendidiks', 'madrasahs', 'statusKepegawaian'));
+        $query = $this->tenagaPendidikDataQuery($user);
+        $isAdmin = trim(strtolower($user->role)) === 'admin';
+
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
+            ->editColumn('nuist_id', fn ($row) => $row->nuist_id ?: '-')
+            ->editColumn('kartanu', fn ($row) => $row->kartanu ?: '-')
+            ->editColumn('nuptk', fn ($row) => $row->nuptk ?: '-')
+            ->editColumn('pendidikan_terakhir', fn ($row) => $row->pendidikan_terakhir ?: '-')
+            ->editColumn('madrasah_name', fn ($row) => $row->madrasah_name ?: '-')
+            ->editColumn('status_kepegawaian_name', fn ($row) => $row->status_kepegawaian_name ?: '-')
+            ->editColumn('ketugasan', fn ($row) => $row->ketugasan ?: '-')
+            ->editColumn('mengajar', fn ($row) => $row->mengajar ?: '-')
+            ->editColumn('alamat', fn ($row) => $row->alamat ?: '-')
+            ->addColumn('avatar_url', function ($row) {
+                return $row->avatar ? asset('storage/' . $row->avatar) : null;
+            })
+            ->addColumn('tanggal_lahir_form', function ($row) {
+                return $row->tanggal_lahir ? Carbon::parse($row->tanggal_lahir)->format('Y-m-d') : '';
+            })
+            ->addColumn('tanggal_lahir_display', function ($row) {
+                return $row->tanggal_lahir ? Carbon::parse($row->tanggal_lahir)->translatedFormat('j F Y') : '-';
+            })
+            ->addColumn('tmt_form', function ($row) {
+                return $row->tmt ? Carbon::parse($row->tmt)->format('Y-m-d') : '';
+            })
+            ->addColumn('tmt_display', function ($row) {
+                return $row->tmt ? Carbon::parse($row->tmt)->translatedFormat('j F Y') : '-';
+            })
+            ->addColumn('pemenuhan_beban_kerja_lain_label', function ($row) {
+                return (int) $row->pemenuhan_beban_kerja_lain === 1 ? 'Ya' : 'Tidak';
+            })
+            ->addColumn('action', function ($row) use ($isAdmin) {
+                $buttons = [];
+
+                if ($isAdmin) {
+                    $buttons[] = sprintf(
+                        '<button type="button" class="btn btn-sm btn-info view-tenaga-pendidik-btn" data-id="%d"><i class="bx bx-show"></i> View</button>',
+                        $row->id
+                    );
+                    $buttons[] = sprintf(
+                        '<button type="button" class="btn btn-sm btn-warning edit-tenaga-pendidik-btn" data-id="%d"><i class="bx bx-edit"></i> Edit</button>',
+                        $row->id
+                    );
+
+                    return implode(' ', $buttons);
+                }
+
+                $buttons[] = sprintf(
+                    '<button type="button" class="btn btn-sm btn-warning edit-tenaga-pendidik-btn" data-id="%d"><i class="bx bx-edit"></i> Edit</button>',
+                    $row->id
+                );
+                $buttons[] = sprintf(
+                    '<button type="button" class="btn btn-sm btn-danger delete-tenaga-pendidik-btn" data-id="%d" data-name="%s">Delete</button>',
+                    $row->id,
+                    e($row->name)
+                );
+
+                return implode(' ', $buttons);
+            })
+            ->filterColumn('madrasah_name', function ($query, $keyword) {
+                $query->where('madrasahs.name', 'like', '%' . $keyword . '%');
+            })
+            ->filterColumn('status_kepegawaian_name', function ($query, $keyword) {
+                $query->where('status_kepegawaian.name', 'like', '%' . $keyword . '%');
+            })
+            ->rawColumns(['action'])
+            ->toJson();
+    }
+
+    public function exportSchoolSummary()
+    {
+        $user = auth()->user();
+        $this->ensureAuthorizedRole($user);
+
+        $rows = $this->schoolSummaryRows($user);
+        $fileName = 'rekap_tenaga_pendidik_per_sekolah_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new TenagaPendidikSchoolSummaryExport($rows), $fileName);
     }
 
     public function store(Request $request)
@@ -187,5 +269,94 @@ class TenagaPendidikController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal import data: '.$e->getMessage());
         }
+    }
+
+    private function ensureAuthorizedRole(User $user): void
+    {
+        if (!in_array(trim(strtolower($user->role)), ['super_admin', 'admin', 'pengurus'], true)) {
+            abort(403, 'Unauthorized access');
+        }
+    }
+
+    private function tenagaPendidikDataQuery(User $user)
+    {
+        $query = User::query()
+            ->leftJoin('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
+            ->leftJoin('madrasahs as madrasah_tambahan', 'users.madrasah_id_tambahan', '=', 'madrasah_tambahan.id')
+            ->leftJoin('status_kepegawaian', 'users.status_kepegawaian_id', '=', 'status_kepegawaian.id')
+            ->where('users.role', 'tenaga_pendidik')
+            ->whereNotNull('users.madrasah_id')
+            ->select([
+                'users.id',
+                'users.name',
+                'users.email',
+                'users.nuist_id',
+                'users.kartanu',
+                'users.nip',
+                'users.nuptk',
+                'users.npk',
+                'users.tempat_lahir',
+                'users.tanggal_lahir',
+                'users.no_hp',
+                'users.pendidikan_terakhir',
+                'users.tahun_lulus',
+                'users.program_studi',
+                'users.tmt',
+                'users.ketugasan',
+                'users.mengajar',
+                'users.alamat',
+                'users.avatar',
+                'users.status_kepegawaian_id',
+                'users.madrasah_id',
+                'users.pemenuhan_beban_kerja_lain',
+                'users.madrasah_id_tambahan',
+                'madrasahs.name as madrasah_name',
+                'madrasahs.scod as madrasah_scod',
+                'status_kepegawaian.name as status_kepegawaian_name',
+                'madrasah_tambahan.name as madrasah_tambahan_name',
+            ])
+            ->orderBy('madrasahs.scod')
+            ->orderBy('users.name');
+
+        if (trim(strtolower($user->role)) === 'admin') {
+            $query->where('users.madrasah_id', $user->madrasah_id);
+        }
+
+        return $query;
+    }
+
+    private function schoolSummaryRows(User $user)
+    {
+        $query = Madrasah::query()
+            ->leftJoin('users', function ($join) {
+                $join->on('madrasahs.id', '=', 'users.madrasah_id')
+                    ->where('users.role', '=', 'tenaga_pendidik');
+            })
+            ->select([
+                'madrasahs.id',
+                'madrasahs.scod',
+                'madrasahs.name',
+                DB::raw('SUM(CASE WHEN users.status_kepegawaian_id IN (3, 4, 5, 6) THEN 1 ELSE 0 END) as jumlah_guru'),
+                DB::raw('SUM(CASE WHEN users.status_kepegawaian_id IN (7, 8) THEN 1 ELSE 0 END) as jumlah_karyawan'),
+                DB::raw('SUM(CASE WHEN users.status_kepegawaian_id IN (3, 4, 5, 6, 7, 8) THEN 1 ELSE 0 END) as total'),
+            ])
+            ->groupBy('madrasahs.id', 'madrasahs.scod', 'madrasahs.name')
+            ->orderBy('madrasahs.scod')
+            ->orderBy('madrasahs.name');
+
+        if (trim(strtolower($user->role)) === 'admin') {
+            $query->where('madrasahs.id', $user->madrasah_id);
+        }
+
+        return $query->get()->map(function ($row, $index) {
+            return [
+                'no' => $index + 1,
+                'scod' => $row->scod,
+                'madrasah' => $row->name,
+                'jumlah_guru' => (int) $row->jumlah_guru,
+                'jumlah_karyawan' => (int) $row->jumlah_karyawan,
+                'total' => (int) $row->total,
+            ];
+        });
     }
 }

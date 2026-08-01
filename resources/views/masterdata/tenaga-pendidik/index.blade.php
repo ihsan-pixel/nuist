@@ -100,15 +100,37 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bx bx-user me-2"></i>Tenaga Pendidik
-                </h4>
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                    <div>
+                        <h4 class="card-title mb-1">
+                            <i class="bx bx-user me-2"></i>Tenaga Pendidik
+                        </h4>
+                        <p class="text-muted mb-0 small">Data dimuat bertahap dari server agar tetap cepat walau jumlah user besar.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ route('tenaga-pendidik.export-school-summary') }}" class="btn btn-outline-success">
+                            <i class="bx bx-download"></i> Download Rekap Per Sekolah
+                        </a>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahTP">
+                            <i class="bx bx-plus"></i> Tambah Tenaga Pendidik
+                        </button>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportTP">
+                            <i class="bx bx-upload"></i> Import Data TP
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
-
-                <div class="mb-3 d-flex justify-content-end gap-2">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahTP"><i class="bx bx-plus"></i> Tambah Tenaga Pendidik</button>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalImportTP"><i class="bx bx-upload"></i> Import Data TP</button>
+                <div class="alert alert-light border mb-3">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
+                        <div>
+                            <strong>Export rekap sekolah</strong><br>
+                            <span class="text-muted small">File berisi jumlah guru `GTY/GTT`, jumlah karyawan `PTY/PTT`, dan total per sekolah.</span>
+                        </div>
+                        <div class="text-muted small">
+                            Pencarian, urut, dan paging diproses di server.
+                        </div>
+                    </div>
                 </div>
 
         <div class="table-responsive">
@@ -132,394 +154,341 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse($tenagaPendidiks as $index => $tp)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            {{-- <td>
-                            @if($tp->avatar)
-                                <img src="{{ asset('storage/' . $tp->avatar) }}"
-                                    alt="Avatar {{ $tp->name }}"
-                                    class="rounded-circle"
-                                    width="50" height="50">
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
-                            </td> --}}
-                            <td>{{ $tp->name }}</td>
-                            <td>{{ $tp->email }}</td>
-                            <td>{{ $tp->nuist_id ?? '-' }}</td>
-                            <td>{{ $tp->kartanu ?? '-' }}</td>
-                            <td>{{ $tp->nuptk ?? '-' }}</td>
-                            <td>{{ $tp->pendidikan_terakhir ?? '-' }}</td>
-                            <td>{{ $tp->madrasah?->name ?? '-' }}</td>
-                            <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
-                            <td>{{ $tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->translatedFormat('j F Y') : '-' }}</td>
-                            <td>{{ $tp->ketugasan ?? '-' }}</td>
-                            <td>{{ $tp->mengajar ?? '-' }}</td>
-                            <td>{{ $tp->alamat ?? '-' }}</td>
-                            <td>
-                                @if(strtolower(auth()->user()->role) == 'admin')
-                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalViewTP{{ $tp->id }}">
-                                        <i class="bx bx-show"></i> View
-                                    </button>
-                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">
-                                        <i class="bx bx-edit"></i> Edit
-                                    </button>
-                                @else
-                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
-                                    <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;" class="delete-tenaga-pendidik-form" data-name="{{ $tp->name }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                    </form>
-                                @endif
-                            </td>
-                        </tr>
-
-                        <!-- Modal Edit Tenaga Pendidik -->
-                        <div class="modal fade" id="modalEditTP{{ $tp->id }}" tabindex="-1">
-                            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                                <form action="{{ route('tenaga-pendidik.update', $tp->id) }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Edit Tenaga Pendidik</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body row g-3">
-                                            <div class="col-md-6">
-                                                <label>Nama Lengkap & Gelar</label>
-                                                <input type="text" name="nama" class="form-control" value="{{ $tp->name }}" required>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Email</label>
-                                                <input type="email" name="email" class="form-control" value="{{ $tp->email }}" required>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Password (Kosongkan jika tidak diubah)</label>
-                                                <input type="password" name="password" class="form-control">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Tempat Lahir</label>
-                                                <input type="text" name="tempat_lahir" class="form-control" value="{{ $tp->tempat_lahir }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Tanggal Lahir</label>
-                                                <input type="date" name="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $tp->tanggal_lahir ? $tp->tanggal_lahir->format('Y-m-d') : '') }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>No HP</label>
-                                                <input type="text" name="no_hp" class="form-control" value="{{ $tp->no_hp }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Kartu NU</label>
-                                                <input type="text" name="kartanu" class="form-control" value="{{ $tp->kartanu }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>NIP Ma'arif</label>
-                                                <input type="text" name="nip" class="form-control" value="{{ $tp->nip }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>NUPTK</label>
-                                                <input type="text" name="nuptk" class="form-control" value="{{ $tp->nuptk }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>NPK</label>
-                                                <input type="text" name="npk" class="form-control" value="{{ $tp->npk }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Madrasah</label>
-                                                @if($userRole === 'super_admin')
-                                                    <select name="madrasah_id" class="form-control">
-                                                        <option value="">-- Pilih Madrasah --</option>
-                                                        @foreach($madrasahs as $madrasah)
-                                                            <option value="{{ $madrasah->id }}" {{ (string) $tp->madrasah_id === (string) $madrasah->id ? 'selected' : '' }}>
-                                                                {{ $madrasah->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                @else
-                                                    <input type="text" class="form-control" value="{{ $tp->madrasah ? $tp->madrasah->name : '-' }}" readonly>
-                                                    <input type="hidden" name="madrasah_id" value="{{ $tp->madrasah_id }}">
-                                                @endif
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Status Kepegawaian</label>
-                                                <select name="status_kepegawaian_id" class="form-control">
-                                                    <option value="">-- Pilih Status Kepegawaian --</option>
-                                                    @foreach($statusKepegawaian as $status)
-                                                        <option value="{{ $status->id }}" {{ $tp->status_kepegawaian_id == $status->id ? 'selected' : '' }}>
-                                                            {{ $status->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>TMT</label>
-                                                <input type="date" name="tmt" class="form-control" value="{{ old('tmt', $tp->tmt ? $tp->tmt->format('Y-m-d') : '') }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Pendidikan Terakhir</label>
-                                                <input type="text" name="pendidikan_terakhir" class="form-control" value="{{ $tp->pendidikan_terakhir }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Tahun Lulus</label>
-                                                <input type="number" name="tahun_lulus" class="form-control" value="{{ $tp->tahun_lulus }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Program Studi</label>
-                                                <input type="text" name="program_studi" class="form-control" value="{{ $tp->program_studi }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Foto Profile</label>
-                                                <input type="file" name="avatar" class="form-control">
-                                                <small class="text-muted">Opsional, boleh dikosongkan</small>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Ketugasan</label>
-                                                <select name="ketugasan" class="form-control">
-                                                    <option value="">-- Pilih Ketugasan --</option>
-                                                    <option value="tenaga pendidik" {{ old('ketugasan', $tp->ketugasan) == 'tenaga pendidik' ? 'selected' : '' }}>Tenaga Pendidik</option>
-                                                    <option value="penjaga sekolah" {{ old('ketugasan', $tp->ketugasan) == 'penjaga sekolah' ? 'selected' : '' }}>Penjaga Sekolah</option>
-                                                    <option value="kepala madrasah/sekolah" {{ old('ketugasan', $tp->ketugasan) == 'kepala madrasah/sekolah' ? 'selected' : '' }}>Kepala Madrasah/Sekolah</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Mengajar</label>
-                                                <input type="text" name="mengajar" class="form-control" value="{{ old('mengajar', $tp->mengajar) }}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
-                                                <select name="pemenuhan_beban_kerja_lain" id="pemenuhan_beban_kerja_lain_edit{{ $tp->id }}" class="form-control">
-                                                    <option value="">-- Pilih --</option>
-                                                    <option value="1" {{ $tp->pemenuhan_beban_kerja_lain ? 'selected' : '' }}>Iya</option>
-                                                    <option value="0" {{ !$tp->pemenuhan_beban_kerja_lain ? 'selected' : '' }}>Tidak</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6" id="madrasah_tambahan_edit_container{{ $tp->id }}" style="display: {{ $tp->pemenuhan_beban_kerja_lain ? 'block' : 'none' }};">
-                                                <label>Madrasah Tambahan</label>
-                                                <select name="madrasah_id_tambahan" class="form-control">
-                                                    <option value="">-- Pilih Madrasah --</option>
-                                                    @foreach($madrasahs as $madrasah)
-                                                        <option value="{{ $madrasah->id }}" {{ $tp->madrasah_id_tambahan == $madrasah->id ? 'selected' : '' }}>{{ $madrasah->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="col-12">
-                                                <label>Alamat</label>
-                                                <textarea name="alamat" class="form-control" rows="2">{{ $tp->alamat }}</textarea>
-                                            </div>
-
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                            <button type="submit" class="btn btn-primary">Simpan</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Modal View Tenaga Pendidik -->
-                        <div class="modal fade" id="modalViewTP{{ $tp->id }}" tabindex="-1">
-                            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Detail Tenaga Pendidik</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <!-- Profile Header -->
-                                        <div class="text-center mb-4">
-                                            @if($tp->avatar)
-                                                <img src="{{ asset('storage/app/public/' . $tp->avatar) }}"
-                                                    alt="Foto {{ $tp->name }}"
-                                                    class="rounded-circle border-3 border-primary mb-3"
-                                                    width="120" height="120"
-                                                    style="object-fit: cover;">
-                                            @else
-                                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                                                    style="width: 120px; height: 120px;">
-                                                    <i class="bx bx-user text-muted" style="font-size: 3rem;"></i>
-                                                </div>
-                                            @endif
-                                            <h4 class="mb-1">{{ $tp->name }}</h4>
-                                            <p class="text-muted mb-0">{{ $tp->email }}</p>
-                                            @if($tp->nuist_id)
-                                                <small class="text-primary fw-bold">NUist ID: {{ $tp->nuist_id }}</small>
-                                            @endif
-                                        </div>
-
-                                        <!-- Personal Information -->
-                                        <div class="card border-0 bg-light mb-3">
-                                            <div class="card-header bg-white border-bottom-0">
-                                                <h6 class="mb-0 text-primary">
-                                                    <i class="bx bx-user-circle me-2"></i>Informasi Pribadi
-                                                </h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Tempat Lahir</label>
-                                                        <p class="mb-0">{{ $tp->tempat_lahir ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Tanggal Lahir</label>
-                                                        <p class="mb-0">{{ $tp->tanggal_lahir ? $tp->tanggal_lahir->translatedFormat('j F Y') : '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">No HP</label>
-                                                        <p class="mb-0">{{ $tp->no_hp ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Kartu NU</label>
-                                                        <p class="mb-0">{{ $tp->kartanu ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <label class="form-label fw-bold text-muted small">Alamat</label>
-                                                        <p class="mb-0">{{ $tp->alamat ?? '-' }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Professional Information -->
-                                        <div class="card border-0 bg-light mb-3">
-                                            <div class="card-header bg-white border-bottom-0">
-                                                <h6 class="mb-0 text-primary">
-                                                    <i class="bx bx-briefcase me-2"></i>Informasi Kepegawaian
-                                                </h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">NIP Ma'arif</label>
-                                                        <p class="mb-0">{{ $tp->nip ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">NUPTK</label>
-                                                        <p class="mb-0">{{ $tp->nuptk ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">NPK</label>
-                                                        <p class="mb-0">{{ $tp->npk ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Status Kepegawaian</label>
-                                                        <p class="mb-0">{{ $tp->statusKepegawaian->name ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">TMT</label>
-                                                        <p class="mb-0">{{ $tp->tmt ? $tp->tmt->translatedFormat('j F Y') : '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Ketugasan</label>
-                                                        <p class="mb-0">{{ $tp->ketugasan ?? '-' }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Education Information -->
-                                        <div class="card border-0 bg-light mb-3">
-                                            <div class="card-header bg-white border-bottom-0">
-                                                <h6 class="mb-0 text-primary">
-                                                    <i class="bx bx-graduation me-2"></i>Informasi Pendidikan
-                                                </h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Pendidikan Terakhir</label>
-                                                        <p class="mb-0">{{ $tp->pendidikan_terakhir ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Tahun Lulus</label>
-                                                        <p class="mb-0">{{ $tp->tahun_lulus ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Program Studi</label>
-                                                        <p class="mb-0">{{ $tp->program_studi ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Mengajar</label>
-                                                        <p class="mb-0">{{ $tp->mengajar ?? '-' }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Assignment Information -->
-                                        <div class="card border-0 bg-light mb-3">
-                                            <div class="card-header bg-white border-bottom-0">
-                                                <h6 class="mb-0 text-primary">
-                                                    <i class="bx bx-building me-2"></i>Informasi Penugasan
-                                                </h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Madrasah Utama</label>
-                                                        <p class="mb-0">{{ $tp->madrasah ? $tp->madrasah->name : '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold text-muted small">Pemenuhan Beban Kerja Lain</label>
-                                                        <p class="mb-0">{{ $tp->pemenuhan_beban_kerja_lain ? 'Ya' : 'Tidak' }}</p>
-                                                    </div>
-                                                    @if($tp->pemenuhan_beban_kerja_lain)
-                                                    <div class="col-12">
-                                                        <label class="form-label fw-bold text-muted small">Madrasah Tambahan</label>
-                                                        <p class="mb-0">{{ $tp->madrasahTambahan ? $tp->madrasahTambahan->name : '-' }}</p>
-                                                    </div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    @empty
-                        <tr>
-                            <td colspan="12" class="text-center p-4">
-                                <div class="alert alert-info d-inline-block text-center" role="alert">
-                                    <i class="bx bx-info-circle bx-lg me-2"></i>
-                                    <strong>Belum ada data Tenaga Pendidik</strong><br>
-                                    <small>Silakan tambahkan data tenaga pendidik terlebih dahulu untuk melanjutkan.</small>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                <tbody></tbody>
             </table>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalViewTP" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Tenaga Pendidik</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <img id="view_tp_avatar" src="" alt="Foto tenaga pendidik" class="rounded-circle border-3 border-primary mb-3 d-none" width="120" height="120" style="object-fit: cover;">
+                    <div id="view_tp_avatar_placeholder" class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                        <i class="bx bx-user text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                    <h4 class="mb-1" id="view_tp_name">-</h4>
+                    <p class="text-muted mb-0" id="view_tp_email">-</p>
+                    <small class="text-primary fw-bold" id="view_tp_nuist_id">NUist ID: -</small>
+                </div>
+
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-header bg-white border-bottom-0">
+                        <h6 class="mb-0 text-primary">
+                            <i class="bx bx-user-circle me-2"></i>Informasi Pribadi
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Tempat Lahir</label>
+                                <p class="mb-0" id="view_tp_tempat_lahir">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Tanggal Lahir</label>
+                                <p class="mb-0" id="view_tp_tanggal_lahir">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">No HP</label>
+                                <p class="mb-0" id="view_tp_no_hp">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Kartu NU</label>
+                                <p class="mb-0" id="view_tp_kartanu">-</p>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-muted small">Alamat</label>
+                                <p class="mb-0" id="view_tp_alamat">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-header bg-white border-bottom-0">
+                        <h6 class="mb-0 text-primary">
+                            <i class="bx bx-briefcase me-2"></i>Informasi Kepegawaian
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">NIP Ma'arif</label>
+                                <p class="mb-0" id="view_tp_nip">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">NUPTK</label>
+                                <p class="mb-0" id="view_tp_nuptk">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">NPK</label>
+                                <p class="mb-0" id="view_tp_npk">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Status Kepegawaian</label>
+                                <p class="mb-0" id="view_tp_status_kepegawaian">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">TMT</label>
+                                <p class="mb-0" id="view_tp_tmt">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Ketugasan</label>
+                                <p class="mb-0" id="view_tp_ketugasan">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-header bg-white border-bottom-0">
+                        <h6 class="mb-0 text-primary">
+                            <i class="bx bx-graduation me-2"></i>Informasi Pendidikan
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Pendidikan Terakhir</label>
+                                <p class="mb-0" id="view_tp_pendidikan_terakhir">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Tahun Lulus</label>
+                                <p class="mb-0" id="view_tp_tahun_lulus">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Program Studi</label>
+                                <p class="mb-0" id="view_tp_program_studi">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Mengajar</label>
+                                <p class="mb-0" id="view_tp_mengajar">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 bg-light mb-0">
+                    <div class="card-header bg-white border-bottom-0">
+                        <h6 class="mb-0 text-primary">
+                            <i class="bx bx-building me-2"></i>Informasi Penugasan
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Madrasah Utama</label>
+                                <p class="mb-0" id="view_tp_madrasah">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted small">Pemenuhan Beban Kerja Lain</label>
+                                <p class="mb-0" id="view_tp_beban_kerja">-</p>
+                            </div>
+                            <div class="col-12 d-none" id="view_tp_madrasah_tambahan_wrapper">
+                                <label class="form-label fw-bold text-muted small">Madrasah Tambahan</label>
+                                <p class="mb-0" id="view_tp_madrasah_tambahan">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditTP" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable tp-modal-dialog">
+        <div class="modal-content tp-modal-content">
+            <form id="editTenagaPendidikForm" method="POST" enctype="multipart/form-data" class="tp-modal-form">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title mb-1">Edit Tenaga Pendidik</h5>
+                        <p class="text-muted mb-0 small">Perubahan disimpan ke data user yang dipilih.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body tp-modal-body">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="tp-form-section">
+                                <div class="tp-form-section-title">
+                                    <i class="bx bx-lock-alt text-primary"></i>
+                                    <span>Akun & Penugasan</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Nama Lengkap</label>
+                                        <input type="text" name="nama" id="edit_nama" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Email</label>
+                                        <input type="email" name="email" id="edit_email" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Password (Kosongkan jika tidak diubah)</label>
+                                        <input type="password" name="password" id="edit_password" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Madrasah</label>
+                                        @if($userRole === 'super_admin')
+                                            <select name="madrasah_id" id="edit_madrasah_id" class="form-control">
+                                                <option value="">-- Pilih Madrasah --</option>
+                                                @foreach($madrasahs as $madrasah)
+                                                    <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <input type="text" id="edit_madrasah_name" class="form-control" readonly>
+                                            <input type="hidden" name="madrasah_id" id="edit_madrasah_id">
+                                        @endif
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Status Kepegawaian</label>
+                                        <select name="status_kepegawaian_id" id="edit_status_kepegawaian_id" class="form-control">
+                                            <option value="">-- Pilih Status Kepegawaian --</option>
+                                            @foreach($statusKepegawaian as $status)
+                                                <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Ketugasan</label>
+                                        <select name="ketugasan" id="edit_ketugasan" class="form-control">
+                                            <option value="">-- Pilih Ketugasan --</option>
+                                            <option value="tenaga pendidik">Tenaga Pendidik</option>
+                                            <option value="penjaga sekolah">Penjaga Sekolah</option>
+                                            <option value="kepala madrasah/sekolah">Kepala Madrasah/Sekolah</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Mengajar</label>
+                                        <input type="text" name="mengajar" id="edit_mengajar" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">TMT</label>
+                                        <input type="date" name="tmt" id="edit_tmt" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="tp-form-section">
+                                <div class="tp-form-section-title">
+                                    <i class="bx bx-user text-primary"></i>
+                                    <span>Profil Pribadi</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Tempat Lahir</label>
+                                        <input type="text" name="tempat_lahir" id="edit_tempat_lahir" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Tanggal Lahir</label>
+                                        <input type="date" name="tanggal_lahir" id="edit_tanggal_lahir" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">No HP</label>
+                                        <input type="text" name="no_hp" id="edit_no_hp" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Kartu NU</label>
+                                        <input type="text" name="kartanu" id="edit_kartanu" class="form-control">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label tp-form-label">Alamat</label>
+                                        <textarea name="alamat" id="edit_alamat" class="form-control" rows="4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="tp-form-section">
+                                <div class="tp-form-section-title">
+                                    <i class="bx bx-id-card text-primary"></i>
+                                    <span>Data Kepegawaian</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">NIP Ma'arif</label>
+                                        <input type="text" name="nip" id="edit_nip" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">NUPTK</label>
+                                        <input type="text" name="nuptk" id="edit_nuptk" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">NPK</label>
+                                        <input type="text" name="npk" id="edit_npk" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
+                                        <select name="pemenuhan_beban_kerja_lain" id="edit_pemenuhan_beban_kerja_lain" class="form-control">
+                                            <option value="">-- Pilih --</option>
+                                            <option value="1">Iya</option>
+                                            <option value="0">Tidak</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 d-none" id="edit_madrasah_tambahan_container">
+                                        <label class="form-label tp-form-label">Madrasah Tambahan</label>
+                                        <select name="madrasah_id_tambahan" id="edit_madrasah_id_tambahan" class="form-control">
+                                            <option value="">-- Pilih Madrasah --</option>
+                                            @foreach($madrasahs as $madrasah)
+                                                <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="tp-form-section">
+                                <div class="tp-form-section-title">
+                                    <i class="bx bx-book-content text-primary"></i>
+                                    <span>Pendidikan & Lampiran</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Pendidikan Terakhir</label>
+                                        <input type="text" name="pendidikan_terakhir" id="edit_pendidikan_terakhir" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label tp-form-label">Tahun Lulus</label>
+                                        <input type="number" name="tahun_lulus" id="edit_tahun_lulus" class="form-control">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label tp-form-label">Program Studi</label>
+                                        <input type="text" name="program_studi" id="edit_program_studi" class="form-control">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label tp-form-label">Foto Profile</label>
+                                        <input type="file" name="avatar" id="edit_avatar" class="form-control">
+                                        <small class="text-muted">Opsional, boleh dikosongkan.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -897,6 +866,93 @@
 
     <script>
         $(document).ready(function () {
+            const userRole = @json($userRole);
+            const isSuperAdmin = @json($userRole === 'super_admin');
+            const editModal = new bootstrap.Modal(document.getElementById('modalEditTP'));
+            const viewModal = new bootstrap.Modal(document.getElementById('modalViewTP'));
+            const rowDataMap = {};
+
+            const toText = (value, fallback = '-') => {
+                return value === null || value === undefined || value === '' ? fallback : value;
+            };
+
+            const toggleEditMadrasahTambahan = () => {
+                const value = $('#edit_pemenuhan_beban_kerja_lain').val();
+                $('#edit_madrasah_tambahan_container').toggleClass('d-none', value !== '1');
+            };
+
+            const fillViewModal = (data) => {
+                $('#view_tp_name').text(toText(data.name));
+                $('#view_tp_email').text(toText(data.email));
+                $('#view_tp_nuist_id').text(`NUist ID: ${toText(data.nuist_id)}`);
+                $('#view_tp_tempat_lahir').text(toText(data.tempat_lahir));
+                $('#view_tp_tanggal_lahir').text(toText(data.tanggal_lahir_display));
+                $('#view_tp_no_hp').text(toText(data.no_hp));
+                $('#view_tp_kartanu').text(toText(data.kartanu));
+                $('#view_tp_alamat').text(toText(data.alamat));
+                $('#view_tp_nip').text(toText(data.nip));
+                $('#view_tp_nuptk').text(toText(data.nuptk));
+                $('#view_tp_npk').text(toText(data.npk));
+                $('#view_tp_status_kepegawaian').text(toText(data.status_kepegawaian_name));
+                $('#view_tp_tmt').text(toText(data.tmt_display));
+                $('#view_tp_ketugasan').text(toText(data.ketugasan));
+                $('#view_tp_pendidikan_terakhir').text(toText(data.pendidikan_terakhir));
+                $('#view_tp_tahun_lulus').text(toText(data.tahun_lulus));
+                $('#view_tp_program_studi').text(toText(data.program_studi));
+                $('#view_tp_mengajar').text(toText(data.mengajar));
+                $('#view_tp_madrasah').text(toText(data.madrasah_name));
+                $('#view_tp_beban_kerja').text(toText(data.pemenuhan_beban_kerja_lain_label));
+
+                const hasMadrasahTambahan = data.pemenuhan_beban_kerja_lain_label === 'Ya' && data.madrasah_tambahan_name;
+                $('#view_tp_madrasah_tambahan_wrapper').toggleClass('d-none', !hasMadrasahTambahan);
+                $('#view_tp_madrasah_tambahan').text(toText(data.madrasah_tambahan_name));
+
+                if (data.avatar_url) {
+                    $('#view_tp_avatar').attr('src', data.avatar_url).removeClass('d-none');
+                    $('#view_tp_avatar_placeholder').addClass('d-none');
+                } else {
+                    $('#view_tp_avatar').attr('src', '').addClass('d-none');
+                    $('#view_tp_avatar_placeholder').removeClass('d-none');
+                }
+            };
+
+            const fillEditModal = (data) => {
+                const updateUrl = @json(route('tenaga-pendidik.update', '__ID__')).replace('__ID__', data.id);
+
+                $('#editTenagaPendidikForm').attr('action', updateUrl);
+                $('#edit_nama').val(data.name || '');
+                $('#edit_email').val(data.email || '');
+                $('#edit_password').val('');
+                $('#edit_tempat_lahir').val(data.tempat_lahir || '');
+                $('#edit_tanggal_lahir').val(data.tanggal_lahir_form || '');
+                $('#edit_no_hp').val(data.no_hp || '');
+                $('#edit_kartanu').val(data.kartanu || '');
+                $('#edit_nip').val(data.nip || '');
+                $('#edit_nuptk').val(data.nuptk || '');
+                $('#edit_npk').val(data.npk || '');
+                $('#edit_status_kepegawaian_id').val(data.status_kepegawaian_id || '');
+                $('#edit_tmt').val(data.tmt_form || '');
+                $('#edit_pendidikan_terakhir').val(data.pendidikan_terakhir || '');
+                $('#edit_tahun_lulus').val(data.tahun_lulus || '');
+                $('#edit_program_studi').val(data.program_studi || '');
+                $('#edit_ketugasan').val(data.ketugasan || '');
+                $('#edit_mengajar').val(data.mengajar || '');
+                $('#edit_alamat').val(data.alamat || '');
+                $('#edit_pemenuhan_beban_kerja_lain').val(
+                    data.pemenuhan_beban_kerja_lain === 1 || data.pemenuhan_beban_kerja_lain === '1' ? '1' : '0'
+                );
+                $('#edit_madrasah_id_tambahan').val(data.madrasah_id_tambahan || '');
+
+                if (isSuperAdmin) {
+                    $('#edit_madrasah_id').val(data.madrasah_id || '');
+                } else {
+                    $('#edit_madrasah_name').val(data.madrasah_name || '-');
+                    $('#edit_madrasah_id').val(data.madrasah_id || '');
+                }
+
+                toggleEditMadrasahTambahan();
+            };
+
             @if(session('success'))
                 Swal.fire({
                     icon: 'success',
@@ -916,20 +972,73 @@
             @endif
 
             let table = $("#datatable-buttons").DataTable({
+                processing: true,
+                serverSide: true,
                 responsive: true,
                 lengthChange: true,
                 autoWidth: false,
-                buttons: ["copy", "excel", "pdf", "print", "colvis"]
+                deferRender: true,
+                pageLength: 25,
+                ajax: "{{ route('tenaga-pendidik.data') }}",
+                order: [[7, 'asc'], [1, 'asc']],
+                columns: [
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', searchable: false, orderable: false },
+                    { data: 'name', name: 'users.name' },
+                    { data: 'email', name: 'users.email' },
+                    { data: 'nuist_id', name: 'users.nuist_id' },
+                    { data: 'kartanu', name: 'users.kartanu' },
+                    { data: 'nuptk', name: 'users.nuptk' },
+                    { data: 'pendidikan_terakhir', name: 'users.pendidikan_terakhir' },
+                    { data: 'madrasah_name', name: 'madrasahs.name' },
+                    { data: 'status_kepegawaian_name', name: 'status_kepegawaian.name' },
+                    { data: 'tmt_display', name: 'users.tmt' },
+                    { data: 'ketugasan', name: 'users.ketugasan' },
+                    { data: 'mengajar', name: 'users.mengajar' },
+                    { data: 'alamat', name: 'users.alamat' },
+                    { data: 'action', name: 'action', searchable: false, orderable: false }
+                ],
+                buttons: ["copy", "excel", "pdf", "print", "colvis"],
+                language: {
+                    emptyTable: 'Belum ada data tenaga pendidik.',
+                    processing: 'Memuat data...'
+                }
             });
 
             table.buttons().container()
                 .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
 
-            $('.delete-tenaga-pendidik-form').on('submit', function (event) {
-                event.preventDefault();
+            table.on('xhr.dt', function (e, settings, json) {
+                Object.keys(rowDataMap).forEach((key) => delete rowDataMap[key]);
 
-                const form = this;
-                const teacherName = $(form).data('name') || 'data ini';
+                (json.data || []).forEach((item) => {
+                    rowDataMap[item.id] = item;
+                });
+            });
+
+            $(document).on('click', '.view-tenaga-pendidik-btn', function () {
+                const data = rowDataMap[$(this).data('id')];
+                if (!data) {
+                    return;
+                }
+
+                fillViewModal(data);
+                viewModal.show();
+            });
+
+            $(document).on('click', '.edit-tenaga-pendidik-btn', function () {
+                const data = rowDataMap[$(this).data('id')];
+                if (!data) {
+                    return;
+                }
+
+                fillEditModal(data);
+                editModal.show();
+            });
+
+            $(document).on('click', '.delete-tenaga-pendidik-btn', function () {
+                const teacherId = $(this).data('id');
+                const teacherName = $(this).data('name') || 'data ini';
+                const deleteUrl = @json(route('tenaga-pendidik.destroy', '__ID__')).replace('__ID__', teacherId);
 
                 Swal.fire({
                     title: 'Hapus tenaga pendidik?',
@@ -941,21 +1050,22 @@
                     confirmButtonText: 'Ya, hapus',
                     cancelButtonText: 'Batal'
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
+                    if (!result.isConfirmed) {
                         return;
                     }
 
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Dibatalkan',
-                        text: 'Penghapusan data dibatalkan.',
-                        confirmButtonColor: '#0e8549'
-                    });
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = deleteUrl;
+                    form.innerHTML = `
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="_method" value="DELETE">
+                    `;
+                    document.body.appendChild(form);
+                    form.submit();
                 });
             });
 
-            // Handle add modal
             $('#pemenuhan_beban_kerja_lain_add').change(function() {
                 if ($(this).val() == '1') {
                     $('#madrasah_tambahan_add_container').show();
@@ -963,17 +1073,7 @@
                     $('#madrasah_tambahan_add_container').hide();
                 }
             });
-
-            // Handle edit modals
-            @foreach($tenagaPendidiks as $tp)
-                $('#pemenuhan_beban_kerja_lain_edit{{ $tp->id }}').change(function() {
-                    if ($(this).val() == '1') {
-                        $('#madrasah_tambahan_edit_container{{ $tp->id }}').show();
-                    } else {
-                        $('#madrasah_tambahan_edit_container{{ $tp->id }}').hide();
-                    }
-                });
-            @endforeach
+            $('#edit_pemenuhan_beban_kerja_lain').change(toggleEditMadrasahTambahan);
         });
     </script>
 @endsection
