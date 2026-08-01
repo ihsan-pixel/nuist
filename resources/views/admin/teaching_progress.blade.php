@@ -133,6 +133,7 @@
                                         @endfor
                                         <th colspan="5" class="text-center">Total Minggu Ini</th>
                                         <th rowspan="2" class="text-center">Kehadiran</th>
+                                        <th rowspan="2" class="text-center">Rank</th>
                                     </tr>
                                     <tr>
                                         <th class="text-center">Sudah Jadwal</th>
@@ -155,7 +156,7 @@
                                 <tbody>
                                     @foreach($laporanData as $kabupaten)
                                         <tr class="report-group-row">
-                                            <td colspan="42">{{ $kabupaten['kabupaten'] }}</td>
+                                            <td colspan="43">{{ $kabupaten['kabupaten'] }}</td>
                                         </tr>
                                         @foreach(collect($kabupaten['madrasahs'])->sortBy(fn ($madrasah) => (int) $madrasah['scod']) as $madrasah)
                                             <tr>
@@ -178,6 +179,7 @@
                                                 <td class="text-center">{{ $madrasah['total_tidak_presensi_jurnal'] }}</td>
                                                 <td class="text-center">{{ $madrasah['total_alpha'] }}</td>
                                                 <td class="text-center fw-semibold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
+                                                <td class="text-center fw-semibold">{{ $madrasah['rank'] ?? '-' }}</td>
                                             </tr>
                                         @endforeach
                                         <tr class="report-total-row">
@@ -206,6 +208,7 @@
                                             <td class="text-center">{{ $kabupaten['total_tidak_presensi_jurnal'] }}</td>
                                             <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
                                             <td class="text-center fw-semibold">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
+                                            <td class="text-center fw-semibold">-</td>
                                         </tr>
                                     @endforeach
                                     <tr class="report-grand-total">
@@ -235,6 +238,7 @@
                                         <td class="text-center">{{ $weeklyGrandTidakPresensi }}</td>
                                         <td class="text-center">{{ $weeklyGrandAlpha }}</td>
                                         <td class="text-center fw-semibold">{{ number_format($weeklyGrandPercentage, 2) }}%</td>
+                                        <td class="text-center fw-semibold">-</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -286,12 +290,13 @@
                                         <th class="text-center">Belum Jurnal</th>
                                         <th class="text-center">Alpha</th>
                                         <th class="text-center">Kehadiran</th>
+                                        <th class="text-center">Rank</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($laporanBulananData as $kabupaten)
                                         <tr class="report-group-row">
-                                            <td colspan="12">{{ $kabupaten['kabupaten'] }} - {{ $startOfMonth->locale('id')->translatedFormat('F Y') }}</td>
+                                            <td colspan="13">{{ $kabupaten['kabupaten'] }} - {{ $startOfMonth->locale('id')->translatedFormat('F Y') }}</td>
                                         </tr>
                                         @foreach(collect($kabupaten['madrasahs'])->sortBy(fn ($madrasah) => (int) $madrasah['scod']) as $madrasah)
                                             <tr>
@@ -307,6 +312,7 @@
                                                 <td class="text-center">{{ $madrasah['total_tidak_presensi_jurnal'] }}</td>
                                                 <td class="text-center">{{ $madrasah['total_alpha'] }}</td>
                                                 <td class="text-center fw-semibold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
+                                                <td class="text-center fw-semibold">{{ $madrasah['rank'] ?? '-' }}</td>
                                             </tr>
                                         @endforeach
                                         <tr class="report-total-row">
@@ -320,6 +326,7 @@
                                             <td class="text-center">{{ $kabupaten['total_tidak_presensi_jurnal'] }}</td>
                                             <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
                                             <td class="text-center fw-semibold">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
+                                            <td class="text-center fw-semibold">-</td>
                                         </tr>
                                     @endforeach
                                     <tr class="report-grand-total">
@@ -333,6 +340,7 @@
                                         <td class="text-center">{{ $monthlyGrandTidakPresensi }}</td>
                                         <td class="text-center">{{ $monthlyGrandAlpha }}</td>
                                         <td class="text-center fw-semibold">{{ number_format($monthlyGrandPercentage, 2) }}%</td>
+                                        <td class="text-center fw-semibold">-</td>
                                     </tr>
                                 </tbody>
                             </table>

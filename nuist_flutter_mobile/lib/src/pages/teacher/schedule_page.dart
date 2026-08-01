@@ -242,7 +242,7 @@ class _TeacherSchedulePageState extends State<TeacherSchedulePage>
   }
 }
 
-class _ScheduleContent extends StatelessWidget {
+class _ScheduleContent extends StatefulWidget {
   const _ScheduleContent({
     required this.data,
     required this.onBackToHome,
@@ -258,46 +258,109 @@ class _ScheduleContent extends StatelessWidget {
   final ValueChanged<Map<String, dynamic>> onDelete;
 
   @override
+  State<_ScheduleContent> createState() => _ScheduleContentState();
+}
+
+class _ScheduleContentState extends State<_ScheduleContent> {
+  static const List<String> _dayOrder = <String>[
+    'Senin',
+    'Selasa',
+    'Rabu',
+    'Kamis',
+    'Jumat',
+    'Sabtu',
+    'Minggu',
+  ];
+
+  String? _selectedDay;
+
+  String? _resolveSelectedDay(List<String> availableDays) {
+    if (availableDays.isEmpty) {
+      return null;
+    }
+    if (_selectedDay != null && availableDays.contains(_selectedDay)) {
+      return _selectedDay;
+    }
+
+    final today = _currentDayLabel();
+    if (availableDays.contains(today)) {
+      return today;
+    }
+
+    return availableDays.first;
+  }
+
+  String _currentDayLabel() {
+    switch (DateTime.now().weekday) {
+      case DateTime.monday:
+        return 'Senin';
+      case DateTime.tuesday:
+        return 'Selasa';
+      case DateTime.wednesday:
+        return 'Rabu';
+      case DateTime.thursday:
+        return 'Kamis';
+      case DateTime.friday:
+        return 'Jumat';
+      case DateTime.saturday:
+        return 'Sabtu';
+      case DateTime.sunday:
+        return 'Minggu';
+    }
+    return 'Senin';
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final items = ((data['items'] as List?) ?? const [])
+    final items = ((widget.data['items'] as List?) ?? const [])
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
-    final canManage = data['can_manage'] == true;
+    final canManage = widget.data['can_manage'] == true;
 
     final grouped = <String, List<Map<String, dynamic>>>{};
-    final schools = <String>{};
     for (final item in items) {
       final day = item['day'] as String? ?? 'Lainnya';
       grouped.putIfAbsent(day, () => <Map<String, dynamic>>[]).add(item);
-      final schoolName = item['school_name'] as String?;
-      if (schoolName != null && schoolName.trim().isNotEmpty) {
-        schools.add(schoolName.trim());
-      }
     }
+    final availableDays = grouped.keys.toList()
+      ..sort((a, b) {
+        final aIndex = _dayOrder.indexOf(a);
+        final bIndex = _dayOrder.indexOf(b);
+        final normalizedA = aIndex == -1 ? _dayOrder.length : aIndex;
+        final normalizedB = bIndex == -1 ? _dayOrder.length : bIndex;
+        if (normalizedA != normalizedB) {
+          return normalizedA.compareTo(normalizedB);
+        }
+        return a.compareTo(b);
+      });
+    final selectedDay = _resolveSelectedDay(availableDays);
+    final selectedItems = selectedDay == null
+        ? const <Map<String, dynamic>>[]
+        : grouped[selectedDay] ?? const <Map<String, dynamic>>[];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TeacherPageHeader(
           title: 'Jadwal',
-          onBack: onBackToHome,
+          onBack: widget.onBackToHome,
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 14),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             const Expanded(
               child: _PageSectionHeading(
-                eyebrow: 'Agenda Mengajar',
-                title: 'Kelola Jadwal Mengajar',
+                eyebrow: 'Jadwal',
+                title: 'Mengajar',
               ),
             ),
             const SizedBox(width: 12),
             _ScheduleActionButton(
               label: 'Tambah',
               icon: Icons.add_rounded,
-              onTap: canManage ? onCreate : null,
+              onTap: canManage ? widget.onCreate : null,
             ),
           ],
         ),
@@ -308,7 +371,7 @@ class _ScheduleContent extends StatelessWidget {
         //   totalSchools: schools.length,
         // ),
         if (!canManage) ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           const AppSectionCard(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,7 +395,7 @@ class _ScheduleContent extends StatelessWidget {
             ),
           ),
         ],
-        const SizedBox(height: 18),
+        const SizedBox(height: 14),
         if (items.isEmpty)
           AppSectionCard(
             child: Column(
@@ -346,85 +409,162 @@ class _ScheduleContent extends StatelessWidget {
                   const SizedBox(height: 10),
                   _InlineActionButton(
                     label: 'Tambah Jadwal Baru',
-                    onTap: onCreate,
+                    onTap: widget.onCreate,
                   ),
                 ],
               ],
             ),
           )
-        else
-          ...grouped.entries.map(
-            (entry) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: AppSectionCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        else ...[
+          if (availableDays.isNotEmpty) ...[
+            _ScheduleDayTabs(
+              days: availableDays,
+              selectedDay: selectedDay,
+              onSelect: (day) {
+                setState(() {
+                  _selectedDay = day;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+          ],
+          AppSectionCard(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF1F6B52),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          entry.key,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEAF4EF),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            '${entry.value.length} sesi',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ],
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF1F6B52),
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                    const SizedBox(height: 14),
-                    ...entry.value.asMap().entries.map(
-                          (itemEntry) => Padding(
-                            padding: EdgeInsets.only(
-                              bottom: itemEntry.key == entry.value.length - 1
-                                  ? 0
-                                  : 12,
-                            ),
-                            child: _ScheduleAgendaTile(
-                              item: itemEntry.value,
-                              onEdit: canManage
-                                  ? () => onEdit(itemEntry.value)
-                                  : null,
-                              onDelete: canManage
-                                  ? () => onDelete(itemEntry.value)
-                                  : null,
-                            ),
-                          ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        selectedDay ?? 'Jadwal',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
                         ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEAF4EF),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '${selectedItems.length} sesi',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 10),
+                ...selectedItems.asMap().entries.map(
+                      (itemEntry) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: itemEntry.key == selectedItems.length - 1
+                              ? 0
+                              : 10,
+                        ),
+                        child: _ScheduleAgendaTile(
+                          item: itemEntry.value,
+                          onEdit: canManage
+                              ? () => widget.onEdit(itemEntry.value)
+                              : null,
+                          onDelete: canManage
+                              ? () => widget.onDelete(itemEntry.value)
+                              : null,
+                        ),
+                      ),
+                    ),
+              ],
             ),
           ),
+        ],
       ],
+    );
+  }
+}
+
+class _ScheduleDayTabs extends StatelessWidget {
+  const _ScheduleDayTabs({
+    required this.days,
+    required this.selectedDay,
+    required this.onSelect,
+  });
+
+  final List<String> days;
+  final String? selectedDay;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: days.asMap().entries.map((entry) {
+          final day = entry.value;
+          return Padding(
+            padding: EdgeInsets.only(right: entry.key == days.length - 1 ? 0 : 8),
+            child: _ScheduleDayTab(
+              label: day,
+              isSelected: day == selectedDay,
+              onTap: () => onSelect(day),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _ScheduleDayTab extends StatelessWidget {
+  const _ScheduleDayTab({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: isSelected ? const Color(0xFF1F6B52) : const Color(0xFFF3F7F4),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -530,36 +670,36 @@ class _ScheduleAgendaTile extends StatelessWidget {
     final schoolName = item['school_name'] as String?;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFFFCFDFC),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE2ECE5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 72,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            width: 64,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFFEAF4EF),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
                 const Icon(
                   Icons.schedule_rounded,
-                  size: 18,
+                  size: 16,
                   color: Color(0xFF1F6B52),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
                   item['start_time'] as String? ?? '-',
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w800,
-                    fontSize: 12,
+                    fontSize: 11,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -568,13 +708,13 @@ class _ScheduleAgendaTile extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w700,
-                    fontSize: 11,
+                    fontSize: 10,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,7 +728,8 @@ class _ScheduleAgendaTile extends StatelessWidget {
                         style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w800,
-                          fontSize: 15,
+                          fontSize: 14,
+                          height: 1.15,
                         ),
                       ),
                     ),
@@ -601,45 +742,45 @@ class _ScheduleAgendaTile extends StatelessWidget {
                     ],
                   ],
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     const Icon(
                       Icons.groups_rounded,
-                      size: 15,
+                      size: 14,
                       color: Color(0xFF1F6B52),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 5),
                     Expanded(
                       child: Text(
                         item['class_name'] as String? ?? '-',
                         style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
                     ),
                   ],
                 ),
                 if (schoolName != null && schoolName.trim().isNotEmpty) ...[
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
-                        size: 15,
+                        size: 14,
                         color: Color(0xFF7A8F8C),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 5),
                       Expanded(
                         child: Text(
                           schoolName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 12,
+                            color: Color(0xFF5F706B),
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -712,12 +853,12 @@ class _ItemActionIcon extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: SizedBox(
-          width: 34,
-          height: 34,
+          width: 30,
+          height: 30,
           child: Icon(
             icon,
             color: color,
-            size: 18,
+            size: 16,
           ),
         ),
       ),
@@ -740,26 +881,26 @@ class _ScheduleActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: onTap == null ? const Color(0xFFF4F4F4) : const Color(0xFF1F6B52),
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
-                size: 18,
+                size: 16,
                 color: onTap == null ? const Color(0xFF9AA4A2) : Colors.white,
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 5),
               Text(
                 label,
                 style: TextStyle(
                   color: onTap == null ? const Color(0xFF9AA4A2) : Colors.white,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -1555,12 +1696,12 @@ class _PageSectionHeading extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          eyebrow.toUpperCase(),
+          eyebrow,
           style: const TextStyle(
             color: Colors.black,
             fontSize: 11,
             fontWeight: FontWeight.w800,
-            letterSpacing: 0.6,
+            letterSpacing: 0.4,
           ),
         ),
         const SizedBox(height: 4),
@@ -1568,7 +1709,7 @@ class _PageSectionHeading extends StatelessWidget {
           title,
           style: const TextStyle(
             color: Colors.black,
-            fontSize: 17,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
           ),
         ),

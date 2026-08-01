@@ -335,6 +335,8 @@ class TeachingProgressController extends Controller
             $laporanData[] = $kabupatenData;
         }
 
+        $laporanData = $this->assignMadrasahRanks($laporanData);
+
         foreach ($kabupatenOrder as $kabupaten) {
             $madrasahs = Madrasah::where('kabupaten', $kabupaten)
                 ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
@@ -474,6 +476,8 @@ class TeachingProgressController extends Controller
             $laporanBulananData[] = $kabupatenBulananData;
         }
 
+        $laporanBulananData = $this->assignMadrasahRanks($laporanBulananData);
+
         return view('admin.teaching_progress', compact(
             'laporanData',
             'laporanBulananData',
@@ -485,6 +489,58 @@ class TeachingProgressController extends Controller
             'teachingRecapData',
             'weeklyDayMarkers'
         ));
+    }
+
+    private function assignMadrasahRanks(array $groupedData): array
+    {
+        $flattened = collect($groupedData)
+            ->flatMap(function (array $kabupaten) {
+                return collect($kabupaten['madrasahs'] ?? [])->map(function (array $madrasah) use ($kabupaten) {
+                    return [
+                        'kabupaten' => $kabupaten['kabupaten'] ?? '',
+                        'scod' => (string) ($madrasah['scod'] ?? ''),
+                        'persentase_kehadiran' => (float) ($madrasah['persentase_kehadiran'] ?? 0),
+                    ];
+                });
+            })
+            ->sort(function (array $left, array $right) {
+                $percentageComparison = $right['persentase_kehadiran'] <=> $left['persentase_kehadiran'];
+                if ($percentageComparison !== 0) {
+                    return $percentageComparison;
+                }
+
+                return (int) $left['scod'] <=> (int) $right['scod'];
+            })
+            ->values();
+
+        $rankMap = [];
+        $lastPercentageKey = null;
+        $currentRank = 0;
+
+        foreach ($flattened as $index => $item) {
+            $percentageKey = number_format((float) $item['persentase_kehadiran'], 4, '.', '');
+            if ($lastPercentageKey !== $percentageKey) {
+                $currentRank = $index + 1;
+                $lastPercentageKey = $percentageKey;
+            }
+
+            $rankMap[($item['kabupaten'] ?? '') . '|' . ($item['scod'] ?? '')] = $currentRank;
+        }
+
+        return collect($groupedData)
+            ->map(function (array $kabupaten) use ($rankMap) {
+                $kabupaten['madrasahs'] = collect($kabupaten['madrasahs'] ?? [])
+                    ->map(function (array $madrasah) use ($kabupaten, $rankMap) {
+                        $key = ($kabupaten['kabupaten'] ?? '') . '|' . ((string) ($madrasah['scod'] ?? ''));
+                        $madrasah['rank'] = $rankMap[$key] ?? null;
+
+                        return $madrasah;
+                    })
+                    ->all();
+
+                return $kabupaten;
+            })
+            ->all();
     }
 
     private function getEligibleTeachers($madrasahId, $excludePrincipal = true)

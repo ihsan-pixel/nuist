@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -242,7 +242,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     }
   }
 
-  Future<void> _submitAttendance(Map<String, dynamic> data) async {
+  Future<bool> _submitAttendance(Map<String, dynamic> data) async {
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
     );
@@ -263,14 +263,14 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           ),
         ),
       );
-      return;
+      return false;
     }
 
     if (mode == null || mode.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Mode presensi hari ini tidak tersedia.')),
       );
-      return;
+      return false;
     }
 
     if (_position == null) {
@@ -283,14 +283,14 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           ),
         ),
       );
-      return;
+      return false;
     }
 
     if (_selfieFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ambil foto selfie terlebih dahulu.')),
       );
-      return;
+      return false;
     }
 
     if (mode == 'keluar') {
@@ -303,7 +303,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           pulangStart: timeRanges['pulang_start'] as String?,
         );
         if (confirmed != true || !mounted) {
-          return;
+          return false;
         }
       }
     }
@@ -328,7 +328,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
       final result = await widget.repository.submitAttendance(payload: payload);
       if (!mounted) {
-        return;
+        return false;
       }
 
       setState(() {
@@ -338,7 +338,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       await _refresh();
 
       if (!mounted) {
-        return;
+        return false;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -348,15 +348,17 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           ),
         ),
       );
+      return true;
     } catch (error) {
       if (!mounted) {
-        return;
+        return false;
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error.toString().replaceFirst('Exception: ', '')),
         ),
       );
+      return false;
     } finally {
       if (mounted) {
         setState(() {
@@ -364,6 +366,64 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         });
       }
     }
+  }
+
+  Future<void> _openAttendanceSheet(Map<String, dynamic> data) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            Future<void> handleCaptureLocation() async {
+              await _captureLocation();
+              if (mounted) {
+                setModalState(() {});
+              }
+            }
+
+            Future<void> handleCaptureSelfie() async {
+              await _captureSelfie();
+              if (mounted) {
+                setModalState(() {});
+              }
+            }
+
+            Future<void> handleSubmit() async {
+              final success = await _submitAttendance(data);
+              if (mounted) {
+                setModalState(() {});
+              }
+              if (success && mounted) {
+                Navigator.of(sheetContext).pop();
+              }
+            }
+
+            return _AttendanceSubmitSheet(
+              position: _position,
+              locationError: _locationError,
+              locationReadingsCount: _locationReadings.length,
+              loadingLocation: _loadingLocation,
+              onCaptureLocation: handleCaptureLocation,
+              selfieFile: _selfieFile,
+              capturingSelfie: _capturingSelfie,
+              onCaptureSelfie: handleCaptureSelfie,
+              onClearSelfie: () {
+                setState(() {
+                  _selfieFile = null;
+                });
+                setModalState(() {});
+              },
+              submitting: _submitting,
+              data: data,
+              onSubmit: handleSubmit,
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<String> _buildSelfieData(XFile file) async {
@@ -486,13 +546,13 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         return RefreshIndicator(
           onRefresh: _refresh,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
             children: [
               TeacherPageHeader(
                 title: 'Presensi',
                 onBack: widget.onBackToHome,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 14),
               if (snapshot.connectionState == ConnectionState.waiting)
                 const _PageLoading()
               else if (snapshot.hasError)
@@ -504,21 +564,8 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
                 _AttendanceContent(
                   data: snapshot.data ?? const <String, dynamic>{},
                   now: _now,
-                  position: _position,
-                  selfieFile: _selfieFile,
-                  locationError: _locationError,
-                  locationReadingsCount: _locationReadings.length,
-                  loadingLocation: _loadingLocation,
-                  capturingSelfie: _capturingSelfie,
                   submitting: _submitting,
-                  onCaptureLocation: _captureLocation,
-                  onCaptureSelfie: _captureSelfie,
-                  onClearSelfie: () {
-                    setState(() {
-                      _selfieFile = null;
-                    });
-                  },
-                  onSubmit: () => _submitAttendance(
+                  onSubmit: () => _openAttendanceSheet(
                     snapshot.data ?? const <String, dynamic>{},
                   ),
                 ),
@@ -534,31 +581,13 @@ class _AttendanceContent extends StatelessWidget {
   const _AttendanceContent({
     required this.data,
     required this.now,
-    required this.position,
-    required this.selfieFile,
-    required this.locationError,
-    required this.locationReadingsCount,
-    required this.loadingLocation,
-    required this.capturingSelfie,
     required this.submitting,
-    required this.onCaptureLocation,
-    required this.onCaptureSelfie,
-    required this.onClearSelfie,
     required this.onSubmit,
   });
 
   final Map<String, dynamic> data;
   final DateTime now;
-  final Position? position;
-  final XFile? selfieFile;
-  final String? locationError;
-  final int locationReadingsCount;
-  final bool loadingLocation;
-  final bool capturingSelfie;
   final bool submitting;
-  final Future<void> Function() onCaptureLocation;
-  final Future<void> Function() onCaptureSelfie;
-  final VoidCallback onClearSelfie;
   final VoidCallback onSubmit;
 
   @override
@@ -568,6 +597,9 @@ class _AttendanceContent extends StatelessWidget {
     );
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
+    );
+    final timeRanges = Map<String, dynamic>.from(
+      (data['time_ranges'] as Map?) ?? const <String, dynamic>{},
     );
     final verification = Map<String, dynamic>.from(
       (data['verification'] as Map?) ?? const <String, dynamic>{},
@@ -579,12 +611,12 @@ class _AttendanceContent extends StatelessWidget {
     final canSubmit = form['can_submit'] == true;
     final nextModeLabel =
         form['next_mode_label'] as String? ?? 'Presensi Hari Ini';
-    final verificationMode = verification['mode'] as String? ?? 'selfie';
     final verificationLabel = verification['label'] as String? ?? 'Selfie';
     final verificationDescription =
         verification['description'] as String? ??
         'Presensi mobile memakai selfie kamera depan.';
-    final nativeSupportsVerification = verificationMode == 'selfie';
+    final nativeSupportsVerification =
+        (verification['mode'] as String? ?? 'selfie') == 'selfie';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -599,156 +631,23 @@ class _AttendanceContent extends StatelessWidget {
           status: today['status'] as String? ?? 'belum_presensi',
         ),
         const SizedBox(height: 18),
-        Row(
-          children: [
-            Expanded(
-              child: _MiniAttendanceCard(
-                icon: Icons.login_rounded,
-                label: 'Masuk',
-                value: _displayAttendanceTime(today['check_in'] as String?),
+        _AttendanceActionSection(
+          canSubmit: canSubmit,
+          nativeSupportsVerification: nativeSupportsVerification,
+          verificationLabel: verificationLabel,
+          verificationDescription: verificationDescription,
+          nextModeLabel: nextModeLabel,
+          blockedMessage: form['blocked_message'] as String?,
+          timeRanges: timeRanges,
+          submitting: submitting,
+          onSubmit: onSubmit,
+          onOpenHistory: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => _AttendanceHistoryPage(items: recent),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _MiniAttendanceCard(
-                icon: Icons.logout_rounded,
-                label: 'Keluar',
-                value: _displayAttendanceTime(today['check_out'] as String?),
-              ),
-            ),
-          ],
-        ),
-        // const SizedBox(height: 14),
-        // _AttendanceActionCard(
-        //   form: form,
-        //   timeRanges: timeRanges,
-        // ),
-        const SizedBox(height: 14),
-        _AttendanceMapCard(
-          position: position,
-          locationError: locationError,
-          locationReadingsCount: locationReadingsCount,
-          loadingLocation: loadingLocation,
-          onRefreshLocation: onCaptureLocation,
-        ),
-        const SizedBox(height: 14),
-        AppSectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Metode Verifikasi',
-                style: TextStyle(
-                  color: _attendanceText,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '$verificationLabel aktif. $verificationDescription',
-                style: const TextStyle(
-                  color: _attendanceMuted,
-                  fontSize: 12,
-                  height: 1.4,
-                ),
-              ),
-              if (!nativeSupportsVerification) ...[
-                const SizedBox(height: 10),
-                const Text(
-                  'Aplikasi native ini belum mendukung scan wajah. Gunakan presensi mobile web jika mode scan wajah diaktifkan.',
-                  style: TextStyle(
-                    color: Color(0xFF1C5C47),
-                    fontSize: 12,
-                    height: 1.4,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        _AttendanceSelfieCard(
-          selfieFile: selfieFile,
-          capturingSelfie: capturingSelfie,
-          onCaptureSelfie: onCaptureSelfie,
-          onClearSelfie: onClearSelfie,
-          enabled: nativeSupportsVerification,
-          title: verificationMode == 'selfie'
-              ? 'Selfie Presensi'
-              : 'Scan Wajah Tidak Tersedia',
-          emptyTitle: verificationMode == 'selfie'
-              ? 'Belum ada selfie'
-              : 'Scan wajah aktif',
-          emptyDescription: verificationMode == 'selfie'
-              ? 'Gunakan kamera depan untuk mengambil selfie presensi.'
-              : 'Mode scan wajah diaktifkan dari pengaturan presensi mobile. Gunakan presensi mobile web untuk mode ini.',
-        ),
-        const SizedBox(height: 14),
-        AppSectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Kirim Presensi',
-                style: TextStyle(
-                  color: _attendanceText,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                canSubmit
-                    ? (nativeSupportsVerification
-                        ? 'Lokasi dan selfie wajib tersedia sebelum presensi dikirim.'
-                        : 'Submit dari aplikasi native dinonaktifkan saat mode scan wajah aktif.')
-                    : (form['blocked_message'] as String? ??
-                        'Presensi untuk hari ini belum dapat dilakukan.'),
-                style: const TextStyle(
-                  color: _attendanceMuted,
-                  fontSize: 12,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 14),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: canSubmit && nativeSupportsVerification && !submitting
-                      ? onSubmit
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _attendancePrimary,
-                    disabledBackgroundColor: const Color(0xFFD2E4DC),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    elevation: 0,
-                  ),
-                  icon: submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.check_circle_outline_rounded),
-                  label: Text(
-                    submitting ? 'Mengirim...' : nextModeLabel,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
         const SizedBox(height: 18),
         _GuidanceCard(
@@ -756,48 +655,9 @@ class _AttendanceContent extends StatelessWidget {
               .whereType<String>()
               .toList(),
         ),
-        const SizedBox(height: 18),
-        const _PageSectionHeading(
-          eyebrow: 'Riwayat',
-          title: 'Riwayat Presensi',
-        ),
-        const SizedBox(height: 12),
-        if (recent.isEmpty)
-          const AppSectionCard(
-            child: AppEmptyState(
-              title: 'Belum ada riwayat presensi',
-              message: 'Riwayat presensi akan tampil di sini.',
-              icon: Icons.history_toggle_off_rounded,
-            ),
-          )
-        else
-          ...recent.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _AttendanceHistoryTile(item: item),
-            ),
-          ),
       ],
     );
   }
-}
-
-String _displayAttendanceTime(String? value) {
-  final raw = (value ?? '').trim();
-  if (raw.isEmpty || raw == '-') {
-    return '-';
-  }
-
-  final match = RegExp(r'(\d{2}:\d{2})(?::\d{2})?').firstMatch(raw);
-  if (match != null) {
-    return match.group(1) ?? raw;
-  }
-
-  if (raw.length >= 5) {
-    return raw.substring(0, 5);
-  }
-
-  return raw;
 }
 
 class _AttendanceHeroCard extends StatelessWidget {
@@ -821,24 +681,11 @@ class _AttendanceHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _statusColor(status);
-
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [_attendancePrimary, _attendancePrimaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x12003B39),
-            blurRadius: 18,
-            offset: Offset(0, 8),
-          ),
-        ],
+        color: _attendancePrimaryDark,
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -850,7 +697,7 @@ class _AttendanceHeroCard extends StatelessWidget {
                   todayLabel,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.82),
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -867,70 +714,43 @@ class _AttendanceHeroCard extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
-                    fontSize: 12,
+                    fontSize: 11,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text(
             teacherName,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.w800,
               height: 1.05,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             schoolName,
             style: TextStyle(
               color: Colors.white.withOpacity(0.85),
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              Expanded(
-                child: _HeroInfoPill(
-                  icon: Icons.verified_user_outlined,
-                  label: statusLabel,
-                ),
+              _HeroInfoPill(
+                icon: Icons.verified_user_outlined,
+                label: statusLabel,
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.bolt_rounded,
-                        color: statusColor,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          nextModeLabel,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              _HeroInfoPill(
+                icon: Icons.bolt_rounded,
+                label: nextModeLabel,
               ),
             ],
           ),
@@ -952,27 +772,26 @@ class _HeroInfoPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.16),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.verified_user_outlined,
+          Icon(
+            icon,
             color: Colors.white,
-            size: 18,
+            size: 16,
           ),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 12,
-              ),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 11,
             ),
           ),
         ],
@@ -981,412 +800,550 @@ class _HeroInfoPill extends StatelessWidget {
   }
 }
 
-class _MiniAttendanceCard extends StatelessWidget {
-  const _MiniAttendanceCard({
-    required this.icon,
-    required this.label,
-    required this.value,
+class _AttendanceActionSection extends StatelessWidget {
+  const _AttendanceActionSection({
+    required this.canSubmit,
+    required this.nativeSupportsVerification,
+    required this.verificationLabel,
+    required this.verificationDescription,
+    required this.nextModeLabel,
+    required this.blockedMessage,
+    required this.timeRanges,
+    required this.submitting,
+    required this.onSubmit,
+    required this.onOpenHistory,
   });
 
-  final IconData icon;
-  final String label;
-  final String value;
+  final bool canSubmit;
+  final bool nativeSupportsVerification;
+  final String verificationLabel;
+  final String verificationDescription;
+  final String nextModeLabel;
+  final String? blockedMessage;
+  final Map<String, dynamic> timeRanges;
+  final bool submitting;
+  final VoidCallback onSubmit;
+  final VoidCallback onOpenHistory;
 
   @override
   Widget build(BuildContext context) {
-    return AppSectionCard(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: _attendanceSoft,
-              borderRadius: BorderRadius.circular(14),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _PageSectionHeading(
+          eyebrow: 'Aksi',
+          title: 'Presensi',
+        ),
+        const SizedBox(height: 10),
+        Text(
+          '$verificationLabel aktif. $verificationDescription',
+          style: const TextStyle(
+            color: _attendanceMuted,
+            fontSize: 12,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _RangeChip(label: nextModeLabel),
+            if ((timeRanges['masuk_start'] as String?)?.trim().isNotEmpty == true)
+              _RangeChip(label: 'Masuk ${timeRanges['masuk_start']}'),
+            if ((timeRanges['pulang_start'] as String?)?.trim().isNotEmpty == true)
+              _RangeChip(label: 'Pulang ${timeRanges['pulang_start']}'),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Text(
+          canSubmit
+              ? (nativeSupportsVerification
+                  ? 'Lokasi dan selfie diisi saat tombol presensi dibuka.'
+                  : 'Submit dari aplikasi native dinonaktifkan saat mode scan wajah aktif.')
+              : (blockedMessage ?? 'Presensi untuk hari ini belum dapat dilakukan.'),
+          style: TextStyle(
+            color: !canSubmit ? const Color(0xFFB42318) : _attendanceMuted,
+            fontSize: 12,
+            height: 1.4,
+            fontWeight: !canSubmit ? FontWeight.w700 : FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: canSubmit && nativeSupportsVerification && !submitting
+                ? onSubmit
+                : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _attendancePrimary,
+              disabledBackgroundColor: const Color(0xFFD2E4DC),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 0,
             ),
-            child: Icon(
-              icon,
-              color: _attendancePrimary,
-              size: 18,
+            icon: submitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.check_circle_outline_rounded),
+            label: Text(
+              submitting ? 'Mengirim...' : nextModeLabel,
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
-          const SizedBox(height: 14),
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: _attendanceText,
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: onOpenHistory,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _attendancePrimary,
+              side: const BorderSide(color: Color(0xFFD7E3DD)),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            icon: const Icon(Icons.history_rounded, size: 18),
+            label: const Text(
+              'Cek Riwayat Presensi',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+              ),
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: _attendanceMuted,
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-            ),
-          ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+class _RangeChip extends StatelessWidget {
+  const _RangeChip({
+    required this.label,
+  });
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F7F4),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
 }
 
-// class _AttendanceActionCard extends StatelessWidget {
-//   const _AttendanceActionCard({
-//     required this.form,
-//     required this.timeRanges,
-//   });
-//
-//   final Map<String, dynamic> form;
-//   final Map<String, dynamic> timeRanges;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final blockedMessage = form['blocked_message'] as String?;
-//     final nextModeLabel = form['next_mode_label'] as String? ?? '-';
-//
-//     return AppSectionCard(
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-          // const Text(
-          //   'Status Presensi',
-          //   style: TextStyle(
-          //     color: _attendanceText,
-          //     fontWeight: FontWeight.w800,
-          //     fontSize: 16,
-          //   ),
-          // ),
-          // const SizedBox(height: 10),
-          // Container(
-          //   width: double.infinity,
-          //   padding: const EdgeInsets.all(14),
-          //   decoration: BoxDecoration(
-          //     color: blockedMessage == null
-          //         ? _attendanceSoft
-          //         : const Color(0xFFFFF2F0),
-          //     borderRadius: BorderRadius.circular(18),
-          //     border: Border.all(
-          //       color: blockedMessage == null
-          //           ? const Color(0xFFC9DDD3)
-          //           : const Color(0xFFFFD0CB),
-          //     ),
-          //   ),
-          //   child: Text(
-          //     blockedMessage ?? 'Mode aktif saat ini: $nextModeLabel',
-          //     style: TextStyle(
-          //       color: blockedMessage == null
-          //           ? _attendanceText
-          //           : const Color(0xFFB42318),
-          //       height: 1.4,
-          //       fontWeight: FontWeight.w700,
-          //       fontSize: 13,
-          //     ),
-          //   ),
-          // ),
-          // const SizedBox(height: 12),
-          // Wrap(
-          //   spacing: 8,
-          //   runSpacing: 8,
-          //   children: [
-          //     _RangeChip(
-          //       label: 'Masuk ${timeRanges['masuk_start'] ?? '-'}',
-          //     ),
-          //     _RangeChip(
-          //       label: 'Pulang ${timeRanges['pulang_start'] ?? '-'}',
-          //     ),
-          //     if ((timeRanges['pulang_end'] as String?)?.isNotEmpty == true)
-          //       _RangeChip(
-          //         label: 'Batas ${timeRanges['pulang_end']}',
-          //       ),
-          //   ],
-          // ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-class _AttendanceMapCard extends StatelessWidget {
-  const _AttendanceMapCard({
+class _AttendanceSubmitSheet extends StatelessWidget {
+  const _AttendanceSubmitSheet({
     required this.position,
     required this.locationError,
     required this.locationReadingsCount,
     required this.loadingLocation,
-    required this.onRefreshLocation,
+    required this.onCaptureLocation,
+    required this.selfieFile,
+    required this.capturingSelfie,
+    required this.onCaptureSelfie,
+    required this.onClearSelfie,
+    required this.submitting,
+    required this.data,
+    required this.onSubmit,
   });
 
   final Position? position;
   final String? locationError;
   final int locationReadingsCount;
   final bool loadingLocation;
-  final Future<void> Function() onRefreshLocation;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _attendanceSoft,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.map_outlined,
-                  color: _attendancePrimary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Peta Lokasi Presensi',
-                  style: TextStyle(
-                    color: _attendanceText,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: loadingLocation ? null : onRefreshLocation,
-                child: Text(
-                  loadingLocation ? 'Memuat...' : 'Perbarui',
-                  style: const TextStyle(
-                    color: _attendancePrimary,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (position == null)
-            Text(
-              locationError?.trim().isNotEmpty == true
-                  ? locationError!
-                  : 'Lokasi belum tersedia. Halaman ini mengambil GPS otomatis saat dibuka.',
-              style: TextStyle(
-                color: locationError?.trim().isNotEmpty == true
-                    ? const Color(0xFFB42318)
-                    : _attendanceMuted,
-                fontSize: 13,
-                height: 1.45,
-              ),
-            )
-          else ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: SizedBox(
-                height: 180,
-                width: double.infinity,
-                child: FlutterMap(
-                  options: MapOptions(
-                    initialCenter: LatLng(position!.latitude, position!.longitude),
-                    initialZoom: 16,
-                    interactionOptions: const InteractionOptions(
-                      flags: InteractiveFlag.drag |
-                          InteractiveFlag.pinchZoom |
-                          InteractiveFlag.doubleTapZoom,
-                    ),
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'nuist_flutter_mobile',
-                    ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: LatLng(position!.latitude, position!.longitude),
-                          width: 54,
-                          height: 54,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: _attendancePrimary,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color(0x22003B39),
-                                  blurRadius: 14,
-                                  offset: Offset(0, 6),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.location_on_rounded,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Akurasi ${position!.accuracy.toStringAsFixed(1)} m • Sampel GPS $locationReadingsCount',
-              style: const TextStyle(
-                color: _attendanceMuted,
-                fontSize: 12,
-                height: 1.4,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _AttendanceSelfieCard extends StatelessWidget {
-  const _AttendanceSelfieCard({
-    required this.selfieFile,
-    required this.capturingSelfie,
-    required this.onCaptureSelfie,
-    required this.onClearSelfie,
-    required this.enabled,
-    required this.title,
-    required this.emptyTitle,
-    required this.emptyDescription,
-  });
-
+  final Future<void> Function() onCaptureLocation;
   final XFile? selfieFile;
   final bool capturingSelfie;
   final Future<void> Function() onCaptureSelfie;
   final VoidCallback onClearSelfie;
-  final bool enabled;
-  final String title;
-  final String emptyTitle;
-  final String emptyDescription;
+  final bool submitting;
+  final Map<String, dynamic> data;
+  final Future<void> Function() onSubmit;
 
   @override
   Widget build(BuildContext context) {
-    return AppSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _attendanceSoft,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.camera_alt_outlined,
-                  color: _attendancePrimary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: _attendanceText,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: !enabled || capturingSelfie ? null : onCaptureSelfie,
-                child: Text(
-                  !enabled
-                      ? 'Mode Web'
-                      : (capturingSelfie ? 'Membuka...' : 'Ambil Selfie'),
-                  style: const TextStyle(
-                    color: _attendancePrimary,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
+    final verification = Map<String, dynamic>.from(
+      (data['verification'] as Map?) ?? const <String, dynamic>{},
+    );
+    final form = Map<String, dynamic>.from(
+      (data['form'] as Map?) ?? const <String, dynamic>{},
+    );
+    final verificationMode = verification['mode'] as String? ?? 'selfie';
+    final verificationLabel = verification['label'] as String? ?? 'Selfie';
+    final verificationDescription =
+        verification['description'] as String? ??
+        'Presensi mobile memakai selfie kamera depan.';
+    final canSubmit = form['can_submit'] == true;
+    final hasLocation = position != null;
+    final requiresSelfie = verificationMode == 'selfie';
+    final hasSelfie = !requiresSelfie || selfieFile != null;
+    final isReadyToSubmit = canSubmit && hasLocation && hasSelfie;
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            12,
+            16,
+            16 + MediaQuery.of(context).viewInsets.bottom,
           ),
-          const SizedBox(height: 12),
-          if (selfieFile == null)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 14),
-              decoration: BoxDecoration(
-                color: _attendanceSoft,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFC9DDD3)),
-              ),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.account_circle_outlined,
-                    size: 42,
-                    color: _attendancePrimary,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    emptyTitle,
-                    style: const TextStyle(
-                      color: _attendanceText,
-                      fontWeight: FontWeight.w800,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD7E3DD),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    emptyDescription,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: _attendanceMuted,
-                      fontSize: 12,
-                      height: 1.4,
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Presensi',
+                  style: TextStyle(
+                    color: _attendanceText,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$verificationLabel aktif. $verificationDescription',
+                  style: const TextStyle(
+                    color: _attendanceMuted,
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _SimpleModalBlock(
+                  icon: Icons.my_location_rounded,
+                  title: 'Lokasi',
+                  actionLabel: loadingLocation ? 'Memuat...' : 'Perbarui',
+                  onActionTap: loadingLocation ? null : onCaptureLocation,
+                  child: position == null
+                      ? Text(
+                          locationError?.trim().isNotEmpty == true
+                              ? locationError!
+                              : 'Lokasi belum tersedia. Tekan perbarui untuk membaca GPS.',
+                          style: TextStyle(
+                            color: locationError?.trim().isNotEmpty == true
+                                ? const Color(0xFFB42318)
+                                : _attendanceMuted,
+                            fontSize: 12,
+                            height: 1.45,
+                          ),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: SizedBox(
+                                height: 140,
+                                width: double.infinity,
+                                child: FlutterMap(
+                                  options: MapOptions(
+                                    initialCenter: LatLng(
+                                      position!.latitude,
+                                      position!.longitude,
+                                    ),
+                                    initialZoom: 16,
+                                    interactionOptions:
+                                        const InteractionOptions(
+                                      flags: InteractiveFlag.drag |
+                                          InteractiveFlag.pinchZoom |
+                                          InteractiveFlag.doubleTapZoom,
+                                    ),
+                                  ),
+                                  children: [
+                                    TileLayer(
+                                      urlTemplate:
+                                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                      userAgentPackageName:
+                                          'nuist_flutter_mobile',
+                                    ),
+                                    MarkerLayer(
+                                      markers: [
+                                        Marker(
+                                          point: LatLng(
+                                            position!.latitude,
+                                            position!.longitude,
+                                          ),
+                                          width: 44,
+                                          height: 44,
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                              color: _attendancePrimary,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.location_on_rounded,
+                                              color: Colors.white,
+                                              size: 24,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              _coordinateLabel(position!),
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Akurasi ${position!.accuracy.toStringAsFixed(1)} m • Sampel GPS $locationReadingsCount',
+                              style: const TextStyle(
+                                color: _attendanceMuted,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 12),
+                _SimpleModalBlock(
+                  icon: Icons.camera_alt_outlined,
+                  title: verificationMode == 'selfie'
+                      ? 'Foto Selfie'
+                      : 'Scan Wajah Tidak Tersedia',
+                  actionLabel: verificationMode == 'selfie'
+                      ? (capturingSelfie ? 'Membuka...' : 'Ambil')
+                      : 'Mode Web',
+                  onActionTap: verificationMode == 'selfie' && !capturingSelfie
+                      ? onCaptureSelfie
+                      : null,
+                  child: selfieFile == null
+                      ? Text(
+                          verificationMode == 'selfie'
+                              ? 'Belum ada foto selfie.'
+                              : 'Gunakan presensi mobile web untuk mode scan wajah.',
+                          style: const TextStyle(
+                            color: _attendanceMuted,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: AspectRatio(
+                                aspectRatio: 4 / 5,
+                                child: Image.file(
+                                  File(selfieFile!.path),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton.icon(
+                                onPressed: onClearSelfie,
+                                icon: const Icon(Icons.delete_outline_rounded),
+                                label: const Text('Hapus'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: const Color(0xFFB42318),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                if (!isReadyToSubmit) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFF3D6AE)),
+                    ),
+                    child: Text(
+                      !hasLocation
+                          ? 'Lokasi belum lengkap. Ambil atau perbarui lokasi terlebih dahulu.'
+                          : 'Foto selfie belum lengkap. Ambil foto selfie terlebih dahulu.',
+                      style: const TextStyle(
+                        color: Color(0xFF9A5B12),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ],
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: Image.file(
-                      File(selfieFile!.path),
-                      fit: BoxFit.cover,
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: isReadyToSubmit && !submitting ? onSubmit : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _attendancePrimary,
+                      disabledBackgroundColor: const Color(0xFFD2E4DC),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    onPressed: onClearSelfie,
-                    icon: const Icon(Icons.delete_outline_rounded),
-                    label: const Text('Hapus'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFFB42318),
+                    icon: submitting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.check_circle_outline_rounded),
+                    label: Text(
+                      submitting
+                          ? 'Mengirim...'
+                          : (form['next_mode_label'] as String? ??
+                              'Kirim Presensi'),
+                      style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SimpleModalBlock extends StatelessWidget {
+  const _SimpleModalBlock({
+    required this.icon,
+    required this.title,
+    required this.child,
+    this.actionLabel,
+    this.onActionTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final Widget child;
+  final String? actionLabel;
+  final Future<void> Function()? onActionTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7FAF8),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE0EBE5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: _attendanceSoft,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: _attendancePrimary,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: _attendanceText,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              if (actionLabel != null)
+                TextButton(
+                  onPressed: onActionTap == null
+                      ? null
+                      : () async {
+                          await onActionTap!.call();
+                        },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    actionLabel!,
+                    style: const TextStyle(
+                      color: _attendancePrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          child,
         ],
       ),
     );
@@ -1577,6 +1534,48 @@ class _AttendanceHistoryTile extends StatelessWidget {
   }
 }
 
+class _AttendanceHistoryPage extends StatelessWidget {
+  const _AttendanceHistoryPage({
+    required this.items,
+  });
+
+  final List<Map<String, dynamic>> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+          children: [
+            TeacherPageHeader(
+              title: 'Riwayat Presensi',
+              onBack: () => Navigator.of(context).pop(),
+            ),
+            const SizedBox(height: 14),
+            if (items.isEmpty)
+              const AppSectionCard(
+                child: AppEmptyState(
+                  title: 'Belum ada riwayat presensi',
+                  message: 'Riwayat presensi akan tampil di sini.',
+                  icon: Icons.history_toggle_off_rounded,
+                ),
+              )
+            else
+              ...items.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _AttendanceHistoryTile(item: item),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _StatusPill extends StatelessWidget {
   const _StatusPill({
     required this.label,
@@ -1670,12 +1669,12 @@ class _PageSectionHeading extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          eyebrow.toUpperCase(),
+          eyebrow,
           style: const TextStyle(
-            color: _attendancePrimary,
-            fontSize: 11,
+            color: Colors.black,
+            fontSize: 12,
             fontWeight: FontWeight.w800,
-            letterSpacing: 0.6,
+            letterSpacing: 0.2,
           ),
         ),
         const SizedBox(height: 4),
@@ -1683,7 +1682,7 @@ class _PageSectionHeading extends StatelessWidget {
           title,
           style: const TextStyle(
             color: _attendanceText,
-            fontSize: 17,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
           ),
         ),

@@ -92,23 +92,9 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
 
   Future<Map<String, dynamic>> _requestDashboardForMonth(DateTime month) async {
     final normalized = DateTime(month.year, month.month);
-    final data = await widget.repository.getDashboard(
+    return widget.repository.getDashboard(
       month: _monthKeyFromDate(normalized),
     );
-    final resolvedMonth = _parseMonthValue(
-          (data['current_month_value'] as String?)?.trim(),
-        ) ??
-        normalized;
-
-    if (mounted) {
-      setState(() {
-        _selectedCalendarMonth = resolvedMonth;
-      });
-    } else {
-      _selectedCalendarMonth = resolvedMonth;
-    }
-
-    return data;
   }
 
   Future<void> _refresh() async {
@@ -318,6 +304,8 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
       future: _future,
       builder: (context, snapshot) {
         final data = snapshot.data ?? const <String, dynamic>{};
+        final selectedMonthLabel =
+            _monthLabelFullId(_effectiveSelectedCalendarMonth);
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return RefreshIndicator(
@@ -369,6 +357,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
                       offset: const Offset(0, -196),
                       child: _DashboardContent(
                         data: data,
+                        selectedMonthLabel: selectedMonthLabel,
                         onOpenIzin: widget.onOpenIzin,
                         onOpenManageIzin: widget.onOpenManageIzin,
                         onOpenReports: widget.onOpenReports,
@@ -429,6 +418,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
 class _DashboardContent extends StatelessWidget {
   const _DashboardContent({
     required this.data,
+    required this.selectedMonthLabel,
     required this.onOpenIzin,
     required this.onOpenManageIzin,
     required this.onOpenReports,
@@ -442,6 +432,7 @@ class _DashboardContent extends StatelessWidget {
   });
 
   final Map<String, dynamic> data;
+  final String selectedMonthLabel;
   final Future<void> Function() onOpenIzin;
   final Future<void> Function() onOpenManageIzin;
   final Future<void> Function() onOpenReports;
@@ -467,8 +458,7 @@ class _DashboardContent extends StatelessWidget {
     final performance = Map<String, dynamic>.from(
       (data['performance'] as Map?) ?? const <String, dynamic>{},
     );
-    final currentMonthLabel =
-        (data['current_month_label'] as String?) ?? 'Bulan Ini';
+    final currentMonthLabel = selectedMonthLabel;
     final calendarLeadingEmptyDays =
         (data['attendance_calendar_leading_empty_days'] as num?)?.toInt() ?? 0;
     final attendanceCalendar =
@@ -502,7 +492,7 @@ class _DashboardContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppSectionCard(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -510,7 +500,7 @@ class _DashboardContent extends StatelessWidget {
                 level: (performance['level'] as String?) ?? 'Belum Ada Progress',
                 percent: (performance['percent'] as num?)?.toInt() ?? 0,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Row(
                 children: [
                   const Expanded(
@@ -543,9 +533,8 @@ class _DashboardContent extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 118,
+              const SizedBox(height: 10),
+              IntrinsicHeight(
                 child: Row(
                   children: [
                     Expanded(
@@ -1615,28 +1604,29 @@ class _MonthlyStatTile extends StatelessWidget {
     final accent = gradient.first;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FCFA),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: accent.withOpacity(0.18),
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 26,
-            height: 26,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               color: accent.withOpacity(0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: accent, size: 14),
+            child: Icon(icon, color: accent, size: 13),
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 4),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
@@ -1644,27 +1634,23 @@ class _MonthlyStatTile extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.black,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
                 height: 1,
               ),
             ),
           ),
-          const SizedBox(height: 3),
-          Flexible(
-            child: Center(
-              child: Text(
-                label == 'Kehadiran' ? 'Hadir' : label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0xFF5F706B),
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  height: 1.1,
-                ),
-              ),
+          const SizedBox(height: 2),
+          Text(
+            label == 'Kehadiran' ? 'Hadir' : label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF5F706B),
+              fontSize: 8.5,
+              fontWeight: FontWeight.w700,
+              height: 1.1,
             ),
           ),
         ],
@@ -2226,23 +2212,23 @@ String _monthKeyFromDate(DateTime value) {
   return '${value.year.toString().padLeft(4, '0')}-${value.month.toString().padLeft(2, '0')}';
 }
 
-DateTime? _parseMonthValue(String? value) {
-  if (value == null || value.isEmpty) {
-    return null;
-  }
+String _monthLabelFullId(DateTime value) {
+  const monthNames = <String>[
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
+  ];
 
-  final parts = value.split('-');
-  if (parts.length != 2) {
-    return null;
-  }
-
-  final year = int.tryParse(parts[0]);
-  final month = int.tryParse(parts[1]);
-  if (year == null || month == null || month < 1 || month > 12) {
-    return null;
-  }
-
-  return DateTime(year, month);
+  return '${monthNames[value.month - 1]} ${value.year}';
 }
 
 String _monthLabelShortId(int month) {
