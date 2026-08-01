@@ -10,12 +10,12 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
-const _journalPrimary = Color(0xFFF49637);
-const _journalPrimaryDark = Color(0xFFC96A19);
-const _journalText = Color(0xFF7A4212);
+const _journalPrimary = Color(0xFF1F6B52);
+const _journalPrimaryDark = Color(0xFF174C3D);
+const _journalText = Color(0xFF1E463A);
 const _journalMuted = Color(0xFF6F8580);
 const _journalSoft = Color(0xFFF2FBF7);
-const _journalWarning = Color(0xFFF4A12A);
+const _journalWarning = Color(0xFF2E7D61);
 const _journalDanger = Color(0xFFB42318);
 
 class TeacherTeachingJournalPage extends StatefulWidget {
@@ -1343,7 +1343,7 @@ class _JournalEntryTile extends StatelessWidget {
             child: Text(
               item['materi'] as String? ?? '-',
               style: const TextStyle(
-                color: Color(0xFF385452),
+                color: Colors.black,
                 fontSize: 12,
                 height: 1.4,
               ),

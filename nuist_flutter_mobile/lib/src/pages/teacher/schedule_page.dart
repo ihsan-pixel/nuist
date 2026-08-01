@@ -315,14 +315,14 @@ class _ScheduleContent extends StatelessWidget {
               children: [
                 Icon(
                   Icons.info_outline_rounded,
-                  color: Color(0xFFF49637),
+                  color: Color(0xFF1F6B52),
                 ),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Akun ini belum terhubung ke madrasah, sehingga jadwal belum bisa dikelola.',
                     style: TextStyle(
-                      color: Color(0xFF6D7F7D),
+                      color: Colors.black,
                       fontSize: 12,
                       height: 1.4,
                     ),
@@ -366,7 +366,7 @@ class _ScheduleContent extends StatelessWidget {
                           width: 10,
                           height: 10,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFF49637),
+                            color: Color(0xFF1F6B52),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -376,7 +376,7 @@ class _ScheduleContent extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF7A4212),
+                            color: Colors.black,
                           ),
                         ),
                         const Spacer(),
@@ -386,14 +386,14 @@ class _ScheduleContent extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFF4E8),
+                            color: const Color(0xFFEAF4EF),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
                             '${entry.value.length} sesi',
                             style: const TextStyle(
                               fontSize: 11,
-                              color: Color(0xFFF49637),
+                              color: Colors.black,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -448,8 +448,8 @@ class _ScheduleContent extends StatelessWidget {
 //         borderRadius: BorderRadius.circular(28),
 //         gradient: const LinearGradient(
 //           colors: [
-//             Color(0xFFF49637),
-//             Color(0xFFC96A19),
+//             Color(0xFF1F6B52),
+//             Color(0xFF174C3D),
 //           ],
 //           begin: Alignment.topLeft,
 //           end: Alignment.bottomRight,
@@ -543,7 +543,7 @@ class _ScheduleAgendaTile extends StatelessWidget {
             width: 72,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF4E8),
+              color: const Color(0xFFEAF4EF),
               borderRadius: BorderRadius.circular(18),
             ),
             child: Column(
@@ -551,13 +551,13 @@ class _ScheduleAgendaTile extends StatelessWidget {
                 const Icon(
                   Icons.schedule_rounded,
                   size: 18,
-                  color: Color(0xFFF49637),
+                  color: Color(0xFF1F6B52),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   item['start_time'] as String? ?? '-',
                   style: const TextStyle(
-                    color: Color(0xFFA65612),
+                    color: Colors.black,
                     fontWeight: FontWeight.w800,
                     fontSize: 12,
                   ),
@@ -566,7 +566,7 @@ class _ScheduleAgendaTile extends StatelessWidget {
                 Text(
                   item['end_time'] as String? ?? '-',
                   style: const TextStyle(
-                    color: Color(0xFFC96A19),
+                    color: Colors.black,
                     fontWeight: FontWeight.w700,
                     fontSize: 11,
                   ),
@@ -586,7 +586,7 @@ class _ScheduleAgendaTile extends StatelessWidget {
                       child: Text(
                         item['subject'] as String? ?? '-',
                         style: const TextStyle(
-                          color: Color(0xFF7A4212),
+                          color: Colors.black,
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
                         ),
@@ -607,14 +607,14 @@ class _ScheduleAgendaTile extends StatelessWidget {
                     const Icon(
                       Icons.groups_rounded,
                       size: 15,
-                      color: Color(0xFFF49637),
+                      color: Color(0xFF1F6B52),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         item['class_name'] as String? ?? '-',
                         style: const TextStyle(
-                          color: Color(0xFF4D6663),
+                          color: Colors.black,
                           fontWeight: FontWeight.w700,
                           fontSize: 12,
                         ),
@@ -638,7 +638,7 @@ class _ScheduleAgendaTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Color(0xFF7A8F8C),
+                            color: Colors.black,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -673,8 +673,8 @@ class _ScheduleItemActions extends StatelessWidget {
         if (onEdit != null)
           _ItemActionIcon(
             icon: Icons.edit_outlined,
-            color: const Color(0xFFF49637),
-            background: const Color(0xFFFFF4E8),
+            color: const Color(0xFF1F6B52),
+            background: const Color(0xFFEAF4EF),
             onTap: onEdit!,
           ),
         if (onEdit != null && onDelete != null) const SizedBox(width: 6),
@@ -739,7 +739,7 @@ class _ScheduleActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: onTap == null ? const Color(0xFFF4F4F4) : const Color(0xFFF49637),
+      color: onTap == null ? const Color(0xFFF4F4F4) : const Color(0xFF1F6B52),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -786,17 +786,17 @@ class _InlineActionButton extends StatelessWidget {
       onPressed: onTap,
       icon: const Icon(
         Icons.add_rounded,
-        color: Color(0xFFF49637),
+        color: Color(0xFF1F6B52),
       ),
       label: const Text(
         'Tambah Jadwal Baru',
         style: TextStyle(
-          color: Color(0xFFF49637),
+          color: Colors.black,
           fontWeight: FontWeight.w800,
         ),
       ),
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Color(0xFFF49637)),
+        side: const BorderSide(color: Color(0xFF1F6B52)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -914,7 +914,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFFF49637),
+              primary: Color(0xFF1F6B52),
             ),
           ),
           child: child!,
@@ -996,7 +996,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                   child: Text(
                     _isEditing ? 'Edit Jadwal' : 'Tambah Jadwal',
                     style: const TextStyle(
-                      color: Color(0xFF7A4212),
+                      color: Colors.black,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1006,7 +1006,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                 const Text(
                   '',
                   style: TextStyle(
-                    color: Color(0xFF6D7F7D),
+                    color: Colors.black,
                     fontSize: 12,
                   ),
                 ),
@@ -1111,7 +1111,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                   const Text(
                     'Anda bisa memilih beberapa kelas sekaligus, lalu menambahkan kelas lain bila belum ada di daftar.',
                     style: TextStyle(
-                      color: Color(0xFF6D7F7D),
+                      color: Colors.black,
                       fontSize: 11,
                       height: 1.35,
                     ),
@@ -1169,7 +1169,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                         child: const Text(
                           'Batal',
                           style: TextStyle(
-                            color: Color(0xFF6D7F7D),
+                            color: Colors.black,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -1180,7 +1180,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                       child: ElevatedButton(
                         onPressed: _submitting ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF49637),
+                          backgroundColor: const Color(0xFF1F6B52),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           elevation: 0,
@@ -1247,7 +1247,7 @@ class _FieldLabel extends StatelessWidget {
     return Text(
       label,
       style: const TextStyle(
-        color: Color(0xFF7A4212),
+        color: Colors.black,
         fontSize: 12,
         fontWeight: FontWeight.w800,
       ),
@@ -1293,7 +1293,7 @@ class _FormDropdown<T> extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFF49637)),
+          borderSide: const BorderSide(color: Color(0xFF1F6B52)),
         ),
       ),
       items: items
@@ -1304,7 +1304,7 @@ class _FormDropdown<T> extends StatelessWidget {
                 itemLabel(item),
                 style: const TextStyle(
                   fontSize: 13,
-                  color: Color(0xFF3E4A48),
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -1341,7 +1341,7 @@ class _MultiClassSelector extends StatelessWidget {
           'Belum ada daftar kelas tersedia. Tulis kelas secara manual di bawah.',
           style: TextStyle(
             fontSize: 13,
-            color: Color(0xFF6D7F7D),
+            color: Colors.black,
             height: 1.4,
           ),
         ),
@@ -1373,11 +1373,11 @@ class _MultiClassSelector extends StatelessWidget {
               }
               onChanged(next);
             },
-            selectedColor: const Color(0xFFFFE8D0),
-            checkmarkColor: const Color(0xFFA65612),
+            selectedColor: const Color(0xFFD7EBE2),
+            checkmarkColor: const Color(0xFF215344),
             labelStyle: TextStyle(
               color: selected
-                  ? const Color(0xFFA65612)
+                  ? const Color(0xFF215344)
                   : const Color(0xFF3E4A48),
               fontWeight: FontWeight.w700,
               fontSize: 12,
@@ -1386,7 +1386,7 @@ class _MultiClassSelector extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
               side: BorderSide(
                 color: selected
-                    ? const Color(0xFFF49637)
+                    ? const Color(0xFF1F6B52)
                     : const Color(0xFFE3ECE6),
               ),
             ),
@@ -1432,7 +1432,7 @@ class _FormTextField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFF49637)),
+          borderSide: const BorderSide(color: Color(0xFF1F6B52)),
         ),
       ),
     );
@@ -1466,7 +1466,7 @@ class _TimeField extends StatelessWidget {
         hintText: hintText,
         suffixIcon: const Icon(
           Icons.access_time_rounded,
-          color: Color(0xFFF49637),
+          color: Color(0xFF1F6B52),
         ),
         filled: true,
         fillColor: const Color(0xFFFCFDFC),
@@ -1484,7 +1484,7 @@ class _TimeField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFF49637)),
+          borderSide: const BorderSide(color: Color(0xFF1F6B52)),
         ),
       ),
     );
@@ -1500,7 +1500,7 @@ class _PageLoading extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(top: 120),
         child: CircularProgressIndicator(
-          color: Color(0xFFF49637),
+          color: Color(0xFF1F6B52),
         ),
       ),
     );
@@ -1557,7 +1557,7 @@ class _PageSectionHeading extends StatelessWidget {
         Text(
           eyebrow.toUpperCase(),
           style: const TextStyle(
-            color: Color(0xFFF49637),
+            color: Colors.black,
             fontSize: 11,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.6,
@@ -1567,7 +1567,7 @@ class _PageSectionHeading extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Color(0xFF7A4212),
+            color: Colors.black,
             fontSize: 17,
             fontWeight: FontWeight.w800,
           ),

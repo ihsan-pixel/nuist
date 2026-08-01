@@ -308,7 +308,7 @@ class _TeacherProfileSettingsPageState
                         right: 0,
                         bottom: 0,
                         child: Material(
-                          color: const Color(0xFFF49637),
+                          color: const Color(0xFF1F6B52),
                           shape: const CircleBorder(),
                           child: InkWell(
                             customBorder: const CircleBorder(),
@@ -339,7 +339,7 @@ class _TeacherProfileSettingsPageState
                   const Text(
                     'Foto Profil',
                     style: TextStyle(
-                      color: Color(0xFF7A4212),
+                      color: Colors.black,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                     ),
@@ -364,7 +364,7 @@ class _TeacherProfileSettingsPageState
                   const Text(
                     'Data Tenaga Pendidik',
                     style: TextStyle(
-                      color: Color(0xFF7A4212),
+                      color: Colors.black,
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                     ),
@@ -452,9 +452,9 @@ class _TeacherProfileSettingsPageState
                     child: ElevatedButton(
                       onPressed: _savingProfile ? null : _saveProfile,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF49637),
+                        backgroundColor: const Color(0xFF1F6B52),
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: const Color(0xFFF6D2AA),
+                        disabledBackgroundColor: const Color(0xFFC4DCD2),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
@@ -487,7 +487,7 @@ class _TeacherProfileSettingsPageState
                   const Text(
                     'Keamanan Akun',
                     style: TextStyle(
-                      color: Color(0xFF7A4212),
+                      color: Colors.black,
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                     ),
@@ -509,8 +509,8 @@ class _TeacherProfileSettingsPageState
                         await widget.onOpenChangePassword();
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFF49637),
-                        side: const BorderSide(color: Color(0xFFF0C28B)),
+                        foregroundColor: const Color(0xFF1F6B52),
+                        side: const BorderSide(color: Color(0xFFBDD6CB)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
@@ -568,21 +568,21 @@ InputDecoration _inputDecoration(
         ? hintText.trim()
         : null,
     hintStyle: const TextStyle(
-      color: Color(0xFF97AAA8),
+      color: Colors.black,
     ),
     filled: true,
-    fillColor: const Color(0xFFFFFBF7),
+    fillColor: const Color(0xFFFBFDFC),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFF0D7BB)),
+      borderSide: const BorderSide(color: Color(0xFFC9DED5)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFF0D7BB)),
+      borderSide: const BorderSide(color: Color(0xFFC9DED5)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFF49637), width: 1.4),
+      borderSide: const BorderSide(color: Color(0xFF1F6B52), width: 1.4),
     ),
   );
 }
@@ -633,7 +633,7 @@ class _ProfileAvatarPreview extends StatelessWidget {
       width: size,
       height: size,
       decoration: const BoxDecoration(
-        color: Color(0xFFFFF4E8),
+        color: Color(0xFFEAF4EF),
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
@@ -661,7 +661,7 @@ class _AvatarFallbackIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Icon(
       Icons.person_rounded,
-      color: Color(0xFFF49637),
+      color: Color(0xFF1F6B52),
       size: 42,
     );
   }

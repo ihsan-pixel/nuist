@@ -6,11 +6,11 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 
-const _izinPrimary = Color(0xFFF49637);
-const _izinPrimaryDark = Color(0xFFC96A19);
+const _izinPrimary = Color(0xFF1F6B52);
+const _izinPrimaryDark = Color(0xFF174C3D);
 const _izinText = Color(0xFF1F4F4C);
 const _izinMuted = Color(0xFF6D7F7D);
-const _izinSoft = Color(0xFFFFF7EF);
+const _izinSoft = Color(0xFFF3F8F5);
 
 class TeacherIzinPage extends StatefulWidget {
   const TeacherIzinPage({
@@ -309,7 +309,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
               ),
               child: Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFFFCF8),
+                  color: Color(0xFFFCFEFC),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
                 ),
                 child: SafeArea(
@@ -324,7 +324,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                             width: 46,
                             height: 4,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE5D4C3),
+                              color: const Color(0xFFD2E2DA),
                               borderRadius: BorderRadius.circular(999),
                             ),
                           ),
@@ -588,7 +588,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                   });
                                 },
                                 selectedColor: const Color(0xFFFFE1D2),
-                                checkmarkColor: const Color(0xFFD45B19),
+                                checkmarkColor: const Color(0xFF1C5C47),
                                 label: Text(day['label'] as String? ?? '-'),
                               );
                             }).toList(),
@@ -620,7 +620,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: const Color(0xFFE8D6C6),
+                                  color: const Color(0xFFD3E3DB),
                                 ),
                               ),
                               child: Row(
@@ -659,7 +659,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _izinPrimary,
                               foregroundColor: Colors.white,
-                              disabledBackgroundColor: const Color(0xFFF6D2AA),
+                              disabledBackgroundColor: const Color(0xFFC4DCD2),
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18),
@@ -765,7 +765,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFAF5),
+      backgroundColor: const Color(0xFFF8FCFA),
       appBar: AppBar(
         title: const Text('Izin'),
         backgroundColor: Colors.white,
@@ -891,7 +891,7 @@ class _IzinContent extends StatelessWidget {
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: _izinPrimaryDark,
-                      side: const BorderSide(color: Color(0xFFF0C28B)),
+                      side: const BorderSide(color: Color(0xFFBDD6CB)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
@@ -936,7 +936,7 @@ class _IzinContent extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: _izinSoft,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFF4DFC8)),
+                          border: Border.all(color: const Color(0xFFD6E5DE)),
                         ),
                         padding: const EdgeInsets.all(14),
                         child: Column(
@@ -1040,9 +1040,9 @@ class _IzinContent extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFCF8),
+                      color: const Color(0xFFFCFEFC),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFEEDFD0)),
+                      border: Border.all(color: const Color(0xFFD8E7E0)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1076,7 +1076,7 @@ class _IzinContent extends StatelessWidget {
                           Text(
                             'Sampai ${item['end_date_label']}',
                             style: const TextStyle(
-                              color: Color(0xFF8BA3A1),
+                              color: Colors.black,
                               fontSize: 12,
                             ),
                           ),
@@ -1121,7 +1121,7 @@ class _IzinContent extends StatelessWidget {
                                   .map(
                                     (label) => _SmallChip(
                                       label: 'Presensi $label',
-                                      color: const Color(0xFFFFEAD5),
+                                      color: const Color(0xFFE1F0E8),
                                       textColor: _izinPrimaryDark,
                                     ),
                                   )),
@@ -1155,7 +1155,7 @@ class _IzinContent extends StatelessWidget {
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: _izinPrimaryDark,
                                 side: const BorderSide(
-                                  color: Color(0xFFF0C28B),
+                                  color: Color(0xFFBDD6CB),
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 12,
@@ -1314,11 +1314,11 @@ InputDecoration _izinInputDecoration(String hint) {
     fillColor: Colors.white,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFE8D6C6)),
+      borderSide: const BorderSide(color: Color(0xFFD3E3DB)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFE8D6C6)),
+      borderSide: const BorderSide(color: Color(0xFFD3E3DB)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),

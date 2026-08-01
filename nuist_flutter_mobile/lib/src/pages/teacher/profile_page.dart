@@ -179,7 +179,7 @@ class _ProfileTopHeader extends StatelessWidget {
       child: Row(
         children: [
           Material(
-            color: const Color(0xFFFFF4E8),
+            color: const Color(0xFFEAF4EF),
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               onTap: onBack,
@@ -189,7 +189,7 @@ class _ProfileTopHeader extends StatelessWidget {
                 height: 42,
                 child: Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFF49637),
+                  color: Color(0xFF1F6B52),
                   size: 18,
                 ),
               ),
@@ -200,14 +200,14 @@ class _ProfileTopHeader extends StatelessWidget {
               'Profile',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color(0xFF7A4212),
+                color: Colors.black,
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
               ),
             ),
           ),
           Material(
-            color: const Color(0xFFFFF4E8),
+            color: const Color(0xFFEAF4EF),
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               onTap: onOpenSettings,
@@ -219,7 +219,7 @@ class _ProfileTopHeader extends StatelessWidget {
                   Icons.settings_outlined,
                   color: onOpenSettings == null
                       ? const Color(0xFFD1B28D)
-                      : const Color(0xFFF49637),
+                      : const Color(0xFF1F6B52),
                   size: 20,
                 ),
               ),
@@ -404,8 +404,8 @@ class _ProfileHeroCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFFF49637),
-            Color(0xFFC96A19),
+            Color(0xFF1F6B52),
+            Color(0xFF174C3D),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -487,8 +487,8 @@ class _ProfileHeroCard extends StatelessWidget {
                 _HeroPill(
                   icon: Icons.verified_rounded,
                   label: 'Verified Account',
-                  foreground: Color(0xFFF49637),
-                  background: Color(0xFFFFF4E8),
+                  foreground: Colors.black,
+                  background: Color(0xFFEAF4EF),
                 ),
               ],
             ),
@@ -660,7 +660,7 @@ class _SectionHeading extends StatelessWidget {
         Text(
           eyebrow.toUpperCase(),
           style: const TextStyle(
-            color: Color(0xFFF49637),
+            color: Colors.black,
             fontSize: 11,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.6,
@@ -670,7 +670,7 @@ class _SectionHeading extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Color(0xFF7A4212),
+            color: Colors.black,
             fontSize: 17,
             fontWeight: FontWeight.w800,
           ),
@@ -692,13 +692,13 @@ class _MembershipChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF4E8),
+        color: const Color(0xFFEAF4EF),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          color: Color(0xFFF49637),
+          color: Colors.black,
           fontSize: 12,
           fontWeight: FontWeight.w700,
         ),
@@ -785,12 +785,12 @@ class _AgendaRow extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF4E8),
+              color: const Color(0xFFEAF4EF),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(
               Icons.event_available_rounded,
-              color: Color(0xFFF49637),
+              color: Color(0xFF1F6B52),
               size: 20,
             ),
           ),
@@ -812,7 +812,7 @@ class _AgendaRow extends StatelessWidget {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF6D7F7D),
+                    color: Colors.black,
                   ),
                 ),
               ],
@@ -834,7 +834,7 @@ class _ProfileLoading extends StatelessWidget {
         height: 260,
         child: Center(
           child: CircularProgressIndicator(
-            color: Color(0xFFF49637),
+            color: Color(0xFF1F6B52),
           ),
         ),
       ),

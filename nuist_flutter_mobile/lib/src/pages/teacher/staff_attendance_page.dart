@@ -6,7 +6,7 @@ import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 import 'report_page.dart';
 
-const _staffPrimary = Color(0xFFF49637);
+const _staffPrimary = Color(0xFF1F6B52);
 const _staffText = Color(0xFF1F4F4C);
 const _staffMuted = Color(0xFF6D7F7D);
 
@@ -85,7 +85,7 @@ class _TeacherStaffAttendancePageState extends State<TeacherStaffAttendancePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFAF5),
+      backgroundColor: const Color(0xFFF8FCFA),
       appBar: AppBar(
         title: const Text('Data Presensi'),
         backgroundColor: Colors.white,
@@ -192,7 +192,7 @@ class _StaffAttendanceContent extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFE8D6C6)),
+                    border: Border.all(color: const Color(0xFFD3E3DB)),
                   ),
                   child: Row(
                     children: [
@@ -272,9 +272,9 @@ class _StaffAttendanceContent extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFCF8),
+                      color: const Color(0xFFFCFEFC),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFEEDFD0)),
+                      border: Border.all(color: const Color(0xFFD8E7E0)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,7 +349,7 @@ class _StaffAttendanceContent extends StatelessWidget {
                             },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: _staffPrimary,
-                              side: const BorderSide(color: Color(0xFFF0C28B)),
+                              side: const BorderSide(color: Color(0xFFBDD6CB)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),

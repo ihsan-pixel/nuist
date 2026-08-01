@@ -126,14 +126,8 @@ class _NavSideItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         onTap: onTap,
         child: Center(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
+          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: selected ? const Color(0xFFFFF4E8) : Colors.transparent,
-              borderRadius: BorderRadius.circular(22),
-            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -141,7 +135,7 @@ class _NavSideItem extends StatelessWidget {
                   icon,
                   size: 22,
                   color: selected
-                      ? const Color(0xFFF49637)
+                      ? const Color(0xFF1F6B52)
                       : const Color(0xFF8BA3A1),
                 ),
                 const SizedBox(height: 4),
@@ -150,9 +144,7 @@ class _NavSideItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                    color: selected
-                        ? const Color(0xFFF49637)
-                        : const Color(0xFF8BA3A1),
+                    color: Colors.black,
                   ),
                 ),
               ],
@@ -191,10 +183,10 @@ class _CenterNavItem extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color:
-                  selected ? const Color(0xFFF49637) : const Color(0xFFFFF4E8),
+                  selected ? const Color(0xFF1F6B52) : const Color(0xFFEAF4EF),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0xFFF49637),
+                  color: Color(0xFF1F6B52),
                   blurRadius: 5,
                   offset: Offset(0, 3),
                 ),
@@ -207,8 +199,8 @@ class _CenterNavItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFFF49637),
-                    Color(0xFFC96A19),
+                    Color(0xFF1F6B52),
+                    Color(0xFF174C3D),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -224,11 +216,10 @@ class _CenterNavItem extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color:
-                  selected ? const Color(0xFFA65612) : const Color(0xFFA07A52),
+              color: Colors.black,
             ),
           ),
         ],

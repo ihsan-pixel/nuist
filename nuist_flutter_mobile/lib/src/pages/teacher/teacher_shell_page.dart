@@ -182,6 +182,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       backgroundColor: Colors.white,
       body: SafeArea(
         top: _currentIndex != 4,

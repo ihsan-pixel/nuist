@@ -133,7 +133,7 @@ class _TeacherProfileChangePasswordPageState
                   const Text(
                     'Keamanan Akun',
                     style: TextStyle(
-                      color: Color(0xFF7A4212),
+                      color: Colors.black,
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                     ),
@@ -219,9 +219,9 @@ class _TeacherProfileChangePasswordPageState
                     child: ElevatedButton(
                       onPressed: _submitting ? null : _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF49637),
+                        backgroundColor: const Color(0xFF1F6B52),
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: const Color(0xFFF6D2AA),
+                        disabledBackgroundColor: const Color(0xFFC4DCD2),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
@@ -266,9 +266,9 @@ class _PasswordStrengthCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBF7),
+        color: const Color(0xFFFBFDFC),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFF0D7BB)),
+        border: Border.all(color: const Color(0xFFC9DED5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +288,7 @@ class _PasswordStrengthCard extends StatelessWidget {
             child: LinearProgressIndicator(
               minHeight: 7,
               value: strength.value / 100,
-              backgroundColor: const Color(0xFFF6E6D2),
+              backgroundColor: const Color(0xFFD9E8E1),
               valueColor: AlwaysStoppedAnimation<Color>(strength.color),
             ),
           ),
@@ -302,18 +302,18 @@ InputDecoration _passwordInputDecoration(String label) {
   return InputDecoration(
     labelText: label,
     filled: true,
-    fillColor: const Color(0xFFFFFBF7),
+    fillColor: const Color(0xFFFBFDFC),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFF0D7BB)),
+      borderSide: const BorderSide(color: Color(0xFFC9DED5)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFF0D7BB)),
+      borderSide: const BorderSide(color: Color(0xFFC9DED5)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFF49637), width: 1.4),
+      borderSide: const BorderSide(color: Color(0xFF1F6B52), width: 1.4),
     ),
   );
 }

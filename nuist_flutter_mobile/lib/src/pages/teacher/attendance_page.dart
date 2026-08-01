@@ -15,11 +15,11 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
-const _attendancePrimary = Color(0xFFF49637);
-const _attendancePrimaryDark = Color(0xFFC96A19);
-const _attendanceText = Color(0xFF7A4212);
+const _attendancePrimary = Color(0xFF1F6B52);
+const _attendancePrimaryDark = Color(0xFF174C3D);
+const _attendanceText = Color(0xFF1E463A);
 const _attendanceMuted = Color(0xFF7A8F8C);
-const _attendanceSoft = Color(0xFFFFF4E8);
+const _attendanceSoft = Color(0xFFEAF4EF);
 
 class TeacherAttendancePage extends StatefulWidget {
   const TeacherAttendancePage({
@@ -658,7 +658,7 @@ class _AttendanceContent extends StatelessWidget {
                 const Text(
                   'Aplikasi native ini belum mendukung scan wajah. Gunakan presensi mobile web jika mode scan wajah diaktifkan.',
                   style: TextStyle(
-                    color: Color(0xFFB54708),
+                    color: Color(0xFF1C5C47),
                     fontSize: 12,
                     height: 1.4,
                     fontWeight: FontWeight.w600,
@@ -721,7 +721,7 @@ class _AttendanceContent extends StatelessWidget {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _attendancePrimary,
-                    disabledBackgroundColor: const Color(0xFFF8E3CD),
+                    disabledBackgroundColor: const Color(0xFFD2E4DC),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
@@ -1075,7 +1075,7 @@ class _MiniAttendanceCard extends StatelessWidget {
           //     borderRadius: BorderRadius.circular(18),
           //     border: Border.all(
           //       color: blockedMessage == null
-          //           ? const Color(0xFFF8D7B1)
+          //           ? const Color(0xFFC9DDD3)
           //           : const Color(0xFFFFD0CB),
           //     ),
           //   ),
@@ -1329,7 +1329,7 @@ class _AttendanceSelfieCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _attendanceSoft,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFF8D7B1)),
+                border: Border.all(color: const Color(0xFFC9DDD3)),
               ),
               child: Column(
                 children: [
@@ -1527,7 +1527,7 @@ class _AttendanceHistoryTile extends StatelessWidget {
                 Text(
                   '${item['check_in'] ?? '-'} • ${item['check_out'] ?? '-'}',
                   style: const TextStyle(
-                    color: Color(0xFF4D6663),
+                    color: Colors.black,
                     fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),
@@ -1561,7 +1561,7 @@ class _AttendanceHistoryTile extends StatelessWidget {
                   const Text(
                     'Presensi hadir ini berasal dari izin tugas luar yang sudah disetujui.',
                     style: TextStyle(
-                      color: Color(0xFF0D8E89),
+                      color: Colors.black,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       height: 1.35,

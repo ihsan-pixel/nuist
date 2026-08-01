@@ -10,7 +10,7 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 
-const _manageIzinPrimary = Color(0xFFF49637);
+const _manageIzinPrimary = Color(0xFF1F6B52);
 const _manageIzinText = Color(0xFF1F4F4C);
 const _manageIzinMuted = Color(0xFF6D7F7D);
 
@@ -310,7 +310,7 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFAF5),
+      backgroundColor: const Color(0xFFF8FCFA),
       appBar: AppBar(
         title: const Text('Kelola Izin'),
         backgroundColor: Colors.white,
@@ -479,9 +479,9 @@ class _ManageIzinContent extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFCF8),
+                      color: const Color(0xFFFCFEFC),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFEEDFD0)),
+                      border: Border.all(color: const Color(0xFFD8E7E0)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -507,7 +507,7 @@ class _ManageIzinContent extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: hasAttachment
-                                    ? const Color(0xFFFFF4E8)
+                                    ? const Color(0xFFEAF4EF)
                                     : const Color(0xFFF5F7F7),
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -631,7 +631,7 @@ class _ManageIzinContent extends StatelessWidget {
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF3E3),
+                              color: const Color(0xFFE7F3EC),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Text(

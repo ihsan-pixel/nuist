@@ -23,7 +23,7 @@ class AppDetailRow extends StatelessWidget {
               label,
               style: const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF6D7F7D),
+                color: Colors.black,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -34,7 +34,7 @@ class AppDetailRow extends StatelessWidget {
               value,
               style: const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF1F4F4C),
+                color: Colors.black,
                 fontWeight: FontWeight.w700,
               ),
             ),

@@ -9,7 +9,7 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 
-const _reportPrimary = Color(0xFFF49637);
+const _reportPrimary = Color(0xFF1F6B52);
 const _reportText = Color(0xFF1F4F4C);
 const _reportMuted = Color(0xFF6D7F7D);
 
@@ -229,7 +229,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFAF5),
+      backgroundColor: const Color(0xFFF8FCFA),
       appBar: AppBar(
         title: Text(widget.pageTitle),
         backgroundColor: Colors.white,
@@ -411,7 +411,7 @@ class _ReportContent extends StatelessWidget {
                         ? Colors.white
                         : const Color(0xFFF5F1EC),
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFE8D6C6)),
+                    border: Border.all(color: const Color(0xFFD3E3DB)),
                   ),
                   child: Row(
                     children: [
@@ -620,9 +620,9 @@ class _SimpleHistoryCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFCF8),
+        color: const Color(0xFFFCFEFC),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEEDFD0)),
+        border: Border.all(color: const Color(0xFFD8E7E0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,11 +664,11 @@ InputDecoration _inputDecoration(String label) {
     fillColor: Colors.white,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFE8D6C6)),
+      borderSide: const BorderSide(color: Color(0xFFD3E3DB)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFE8D6C6)),
+      borderSide: const BorderSide(color: Color(0xFFD3E3DB)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(18),

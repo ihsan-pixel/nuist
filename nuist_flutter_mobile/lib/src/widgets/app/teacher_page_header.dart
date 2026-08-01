@@ -33,7 +33,7 @@ class TeacherPageHeader extends StatelessWidget {
       child: Row(
         children: [
           Material(
-            color: const Color(0xFFFFF4E8),
+            color: const Color(0xFFEAF4EF),
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               onTap: onBack,
@@ -43,7 +43,7 @@ class TeacherPageHeader extends StatelessWidget {
                 height: 40,
                 child: Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFFF49637),
+                  color: Color(0xFF1F6B52),
                   size: 18,
                 ),
               ),
@@ -54,7 +54,7 @@ class TeacherPageHeader extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                color: Color(0xFF7A4212),
+                color: Colors.black,
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
               ),
@@ -67,7 +67,7 @@ class TeacherPageHeader extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFF49637),
+                  color: Color(0xFF1F6B52),
                   shape: BoxShape.circle,
                 ),
               ),

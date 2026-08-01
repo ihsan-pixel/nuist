@@ -10,8 +10,14 @@ class TeacherMobileRepository {
 
   final ApiClient _apiClient;
 
-  Future<Map<String, dynamic>> getDashboard() {
-    return _get('/mobile/app/teacher/dashboard', actionLabel: 'dashboard');
+  Future<Map<String, dynamic>> getDashboard({
+    String? month,
+  }) {
+    return _get(
+      '/mobile/app/teacher/dashboard',
+      actionLabel: 'dashboard',
+      queryParameters: month == null ? null : {'month': month},
+    );
   }
 
   Future<Map<String, dynamic>> getSchedule() {
@@ -501,10 +507,14 @@ class TeacherMobileRepository {
   Future<Map<String, dynamic>> _get(
     String path, {
     required String actionLabel,
+    Map<String, dynamic>? queryParameters,
   }) async {
     try {
       final response = await _withRetry<Map<String, dynamic>>(
-        request: () => _apiClient.dio.get<Map<String, dynamic>>(path),
+        request: () => _apiClient.dio.get<Map<String, dynamic>>(
+          path,
+          queryParameters: queryParameters,
+        ),
         actionLabel: actionLabel,
       );
       final data = response.data?['data'];

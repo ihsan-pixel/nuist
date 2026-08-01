@@ -89,7 +89,7 @@ class AuthPageScaffold extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFFA07B57),
+                                color: Colors.black,
                               ),
                             ),
                           ],
@@ -165,7 +165,7 @@ class _MobileBrandPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x33C86A12),
+            color: Color(0x331F6B52),
             blurRadius: 24,
             offset: Offset(0, 10),
           ),

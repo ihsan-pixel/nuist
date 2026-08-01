@@ -56,8 +56,19 @@ class TeacherAppController extends Controller
     {
         $user = $this->resolveTeacher($request);
         $today = Carbon::today('Asia/Jakarta');
-        $monthStart = $today->copy()->startOfMonth();
-        $monthEnd = $today->copy()->endOfMonth();
+        $selectedMonth = $request->string('month')->trim()->value();
+        $calendarDate = $today->copy();
+
+        if ($selectedMonth !== '') {
+            try {
+                $calendarDate = Carbon::createFromFormat('Y-m', $selectedMonth, 'Asia/Jakarta')->startOfMonth();
+            } catch (\Throwable $exception) {
+                $calendarDate = $today->copy();
+            }
+        }
+
+        $monthStart = $calendarDate->copy()->startOfMonth();
+        $monthEnd = $calendarDate->copy()->endOfMonth();
         $activeTeachingPeriod = $user->madrasah_id
             ? $this->resolveSchedulePeriod($user->madrasah_id, null, true, $today)
             : null;
@@ -96,7 +107,7 @@ class TeacherAppController extends Controller
             $today
         );
         $approvedTeachingJournalIzin = $this->findApprovedTeachingJournalIzin($user, $today);
-        $attendanceStats = $this->calculateDashboardAttendanceStats($user, $presensiThisMonth, $today);
+        $attendanceStats = $this->calculateDashboardAttendanceStats($user, $presensiThisMonth, $calendarDate, $today);
 
         $scheduleItems = $todaySchedules->map(function (TeachingSchedule $schedule) use ($todayAttendances, $todayEventMap, $approvedTeachingJournalIzin, $today) {
             $attendance = $todayEventMap->has($schedule->id . '|' . $today->toDateString())
@@ -169,7 +180,8 @@ class TeacherAppController extends Controller
                 'role' => $user->role,
                 'school_name' => $user->madrasah?->name ?? '-',
                 'today_label' => $today->locale('id')->isoFormat('dddd, D MMMM YYYY'),
-                'current_month_label' => $today->locale('id')->isoFormat('MMMM YYYY'),
+                'current_month_label' => $calendarDate->locale('id')->isoFormat('MMMM YYYY'),
+                'current_month_value' => $calendarDate->format('Y-m'),
                 'user_card' => [
                     'name' => $user->name,
                     'school_name' => $user->madrasah?->name ?? '-',
@@ -214,7 +226,7 @@ class TeacherAppController extends Controller
                     'steps' => $performanceSteps,
                 ],
                 'attendance_calendar_leading_empty_days' => $monthStart->dayOfWeekIso - 1,
-                'attendance_calendar' => $this->buildAttendanceCalendar($presensiThisMonth, $holidaysThisMonth, $today),
+                'attendance_calendar' => $this->buildAttendanceCalendar($presensiThisMonth, $holidaysThisMonth, $calendarDate, $today),
                 'holiday_notes' => $holidaysThisMonth
                     ->map(fn (Holiday $holiday) => $this->serializeHoliday($holiday))
                     ->values(),
@@ -2368,11 +2380,17 @@ class TeacherAppController extends Controller
         );
     }
 
-    private function calculateDashboardAttendanceStats(User $user, $items, Carbon $today): array
+    private function calculateDashboardAttendanceStats(User $user, $items, Carbon $month, Carbon $today): array
     {
-        $monthStart = $today->copy()->startOfMonth();
-        $monthEnd = $today->copy()->endOfMonth();
-        $effectiveEnd = $today->copy()->min($monthEnd);
+        $monthStart = $month->copy()->startOfMonth();
+        $monthEnd = $month->copy()->endOfMonth();
+        if ($monthStart->isAfter($today->copy()->startOfMonth())) {
+            $effectiveEnd = $monthStart->copy()->subDay();
+        } elseif ($monthStart->isSameMonth($today) && $monthStart->year === $today->year) {
+            $effectiveEnd = $today->copy()->min($monthEnd);
+        } else {
+            $effectiveEnd = $monthEnd->copy();
+        }
         $recordsByDate = collect($items)->groupBy(fn ($item) => $item->tanggal->toDateString());
         $workingDays = 0;
         $presentCount = 0;
@@ -2408,8 +2426,8 @@ class TeacherAppController extends Controller
             'working_days' => $workingDays,
             'hari_kbm' => (int) ($user->madrasah?->hari_kbm ?? '6'),
             'attendance_basis_label' => $workingDays > 0
-                ? 'Dihitung dari ' . $workingDays . ' hari kerja bulan ini • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari'
-                : 'Belum ada hari kerja bulan ini • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari',
+                ? 'Dihitung dari ' . $workingDays . ' hari kerja • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari'
+                : 'Belum ada hari kerja pada periode ini • KBM ' . ($user->madrasah?->hari_kbm ?? '6') . ' hari',
         ];
     }
 
@@ -3211,9 +3229,9 @@ class TeacherAppController extends Controller
         return $izin->alasan ?: $izin->deskripsi_tugas;
     }
 
-    private function buildAttendanceCalendar($items, $holidays, Carbon $today)
+    private function buildAttendanceCalendar($items, $holidays, Carbon $month, Carbon $today)
     {
-        $monthStart = $today->copy()->startOfMonth();
+        $monthStart = $month->copy()->startOfMonth();
         $daysInMonth = $monthStart->daysInMonth;
         $groupedItems = $items->groupBy(function ($item) {
             return Carbon::parse($item->tanggal)->toDateString();

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const authBgStart = Color(0xFFFFF5EA);
-  static const authBgEnd = Color(0xFFFFECD6);
-  static const accentMain = Color(0xFFF28C28);
-  static const accentSoft = Color(0xFFF7B56B);
-  static const accentDeep = Color(0xFFC86A12);
-  static const textMain = Color(0xFF8B4F18);
-  static const textBody = Color(0xFF7A5B3F);
-  static const textMuted = Color(0xFFA07B57);
-  static const inputBorder = Color(0xFFF1D4B3);
-  static const inputFill = Color(0xFFFFFCF8);
+  static const authBgStart = Color(0xFFF2F8F4);
+  static const authBgEnd = Color(0xFFE1EEE7);
+  static const accentMain = Color(0xFF1F6B52);
+  static const accentSoft = Color(0xFF4D8D74);
+  static const accentDeep = Color(0xFF174C3D);
+  static const textMain = Colors.black;
+  static const textBody = Colors.black;
+  static const textMuted = Colors.black;
+  static const inputBorder = Color(0xFFC8DDD3);
+  static const inputFill = Color(0xFFFCFEFC);
   static const fieldError = Color(0xFFC44F4F);
 
   const AppColors._();
@@ -32,7 +32,7 @@ class AppTheme {
           fontSize: 32,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.9,
-          color: AppColors.accentMain,
+          color: Colors.black,
         ),
         titleMedium: TextStyle(
           fontSize: 15,
@@ -78,7 +78,7 @@ class AppTheme {
           ),
         ),
         hintStyle: const TextStyle(
-          color: Color(0xFFC8A27E),
+          color: Colors.black,
           fontSize: 14,
         ),
       ),
