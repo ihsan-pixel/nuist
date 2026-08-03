@@ -2,12 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MadrasahProfileSummaryExport;
 use App\Models\Madrasah;
+use App\Models\SkYayasanRequest;
+use App\Models\Siswa;
+use App\Models\TeachingAttendance;
+use App\Models\TeachingClassStudentCount;
+use App\Models\TeachingSchedule;
+use App\Models\TeachingSchedulePeriod;
+use App\Models\User;
+use App\Models\Yayasan;
+use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\MadrasahImport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MadrasahController extends Controller
 {
@@ -239,23 +249,22 @@ class MadrasahController extends Controller
      */
     public function profile(Request $request)
     {
-        $user = auth()->user();
-        if (in_array($user->role, ['super_admin', 'pengurus'])) {
-            $search = $request->input('search');
-            $yayasan_id = $request->input('yayasan_id');
-            $kabupaten = $request->input('kabupaten');
+        $this->ensureProfileAccess();
 
-            $madrasahs = Madrasah::withCount('tenagaPendidikUsers')
-                ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
-                ->when($yayasan_id, fn($q) => $q->where('yayasan_id', $yayasan_id))
-                ->when($kabupaten, fn($q) => $q->where('kabupaten', $kabupaten))
-                ->get();
+        return view('masterdata.madrasah.profile', $this->prepareProfilePayload($request));
+    }
 
-            $yayasans = \App\Models\Yayasan::has('madrasahs')->get();
-        } else {
-            abort(403, 'Unauthorized access');
-        }
-        return view('masterdata.madrasah.profile', compact('madrasahs', 'yayasans', 'search', 'yayasan_id', 'kabupaten'));
+    public function exportProfileSummary(Request $request)
+    {
+        $this->ensureProfileAccess();
+
+        $payload = $this->prepareProfilePayload($request);
+        $fileName = 'ringkasan-profile-madrasah-' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(
+            new MadrasahProfileSummaryExport($payload['schoolSummaryRows']),
+            $fileName
+        );
     }
 
     /**
@@ -283,5 +292,231 @@ class MadrasahController extends Controller
         $statusKepegawaian = \App\Models\StatusKepegawaian::all();
 
         return view('masterdata.madrasah.detail', compact('madrasah', 'kepalaSekolah', 'tpByStatus', 'madrasahs', 'statusKepegawaian'));
+    }
+
+    private function ensureProfileAccess(): void
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+            abort(403, 'Unauthorized access');
+        }
+    }
+
+    private function prepareProfilePayload(Request $request): array
+    {
+        $search = trim((string) $request->input('search', ''));
+        $yayasan_id = $request->integer('yayasan_id') ?: null;
+        $kabupaten = trim((string) $request->input('kabupaten', ''));
+        $kabupaten = $kabupaten !== '' ? $kabupaten : null;
+
+        $madrasahs = Madrasah::query()
+            ->with(['yayasan:id,name'])
+            ->withCount('tenagaPendidikUsers')
+            ->when($search !== '', fn ($query) => $query->where('name', 'like', '%' . $search . '%'))
+            ->when($yayasan_id, fn ($query) => $query->where('yayasan_id', $yayasan_id))
+            ->when($kabupaten, fn ($query) => $query->where('kabupaten', $kabupaten))
+            ->orderByRaw("CASE WHEN scod IS NULL OR scod = '' THEN 1 ELSE 0 END")
+            ->orderBy('scod')
+            ->orderBy('name')
+            ->get();
+
+        $schoolSummaryRows = $this->buildSchoolSummaryRows($madrasahs);
+        $topCompleteSchools = $schoolSummaryRows->take(3)->values();
+        $yayasans = Yayasan::query()
+            ->has('madrasahs')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return [
+            'madrasahs' => $madrasahs,
+            'yayasans' => $yayasans,
+            'search' => $search,
+            'yayasan_id' => $yayasan_id,
+            'kabupaten' => $kabupaten,
+            'schoolSummaryRows' => $schoolSummaryRows,
+            'topCompleteSchools' => $topCompleteSchools,
+            'summaryStats' => [
+                'total_schools' => $schoolSummaryRows->count(),
+                'average_completion_percentage' => (int) round((float) $schoolSummaryRows->avg('overall_completion_percentage')),
+                'fully_complete_schools' => $schoolSummaryRows->where('overall_completion_percentage', 100)->count(),
+                'schools_with_students' => $schoolSummaryRows->where('total_students', '>', 0)->count(),
+            ],
+        ];
+    }
+
+    private function buildSchoolSummaryRows(Collection $madrasahs): Collection
+    {
+        if ($madrasahs->isEmpty()) {
+            return collect();
+        }
+
+        $schoolIds = $madrasahs->pluck('id')->filter()->values();
+        $today = now('Asia/Jakarta')->toDateString();
+
+        $teacherEmployeeCounts = User::query()
+            ->where('role', 'tenaga_pendidik')
+            ->whereIn('madrasah_id', $schoolIds)
+            ->selectRaw('madrasah_id')
+            ->selectRaw('SUM(CASE WHEN status_kepegawaian_id IN (3, 4, 5, 6) THEN 1 ELSE 0 END) as total_teachers')
+            ->selectRaw('SUM(CASE WHEN status_kepegawaian_id IN (7, 8) THEN 1 ELSE 0 END) as total_employees')
+            ->selectRaw('COUNT(*) as total_teacher_employees')
+            ->groupBy('madrasah_id')
+            ->get()
+            ->keyBy('madrasah_id');
+
+        $periodCounts = TeachingSchedulePeriod::query()
+            ->whereIn('school_id', $schoolIds)
+            ->selectRaw('school_id, COUNT(*) as total_periods')
+            ->groupBy('school_id')
+            ->pluck('total_periods', 'school_id');
+
+        $selectedPeriods = TeachingSchedulePeriod::query()
+            ->whereIn('school_id', $schoolIds)
+            ->orderBy('school_id')
+            ->orderByRaw(
+                "CASE WHEN start_date <= ? AND end_date >= ? THEN 1 ELSE 0 END DESC",
+                [$today, $today]
+            )
+            ->orderByDesc('end_date')
+            ->orderByDesc('start_date')
+            ->get()
+            ->unique('school_id')
+            ->keyBy('school_id');
+
+        $selectedPeriodIds = $selectedPeriods->pluck('id')->filter()->values();
+
+        $scheduleCountsByPeriod = $selectedPeriodIds->isEmpty()
+            ? collect()
+            : TeachingSchedule::query()
+                ->whereIn('teaching_schedule_period_id', $selectedPeriodIds)
+                ->selectRaw('teaching_schedule_period_id, COUNT(*) as total_schedules')
+                ->groupBy('teaching_schedule_period_id')
+                ->pluck('total_schedules', 'teaching_schedule_period_id');
+
+        $teachingAttendanceCountsByPeriod = $selectedPeriodIds->isEmpty()
+            ? collect()
+            : TeachingAttendance::query()
+                ->join('teaching_schedules', 'teaching_schedules.id', '=', 'teaching_attendances.teaching_schedule_id')
+                ->whereIn('teaching_schedules.teaching_schedule_period_id', $selectedPeriodIds)
+                ->selectRaw('teaching_schedules.teaching_schedule_period_id as period_id, COUNT(teaching_attendances.id) as total_attendances')
+                ->groupBy('teaching_schedules.teaching_schedule_period_id')
+                ->pluck('total_attendances', 'period_id');
+
+        $classStudentCountsByPeriod = $selectedPeriodIds->isEmpty()
+            ? collect()
+            : TeachingClassStudentCount::query()
+                ->whereIn('teaching_schedule_period_id', $selectedPeriodIds)
+                ->selectRaw('teaching_schedule_period_id, COUNT(*) as total_class_records, COALESCE(SUM(total_students), 0) as total_class_students')
+                ->groupBy('teaching_schedule_period_id')
+                ->get()
+                ->keyBy('teaching_schedule_period_id');
+
+        $studentCounts = Siswa::query()
+            ->whereIn('madrasah_id', $schoolIds)
+            ->selectRaw('madrasah_id, COUNT(*) as total_students')
+            ->groupBy('madrasah_id')
+            ->pluck('total_students', 'madrasah_id');
+
+        $skSubmissionCounts = SkYayasanRequest::query()
+            ->whereIn('madrasah_id', $schoolIds)
+            ->selectRaw('madrasah_id, COUNT(*) as total_submissions')
+            ->groupBy('madrasah_id')
+            ->pluck('total_submissions', 'madrasah_id');
+
+        return $madrasahs
+            ->map(function (Madrasah $madrasah) use (
+                $teacherEmployeeCounts,
+                $periodCounts,
+                $selectedPeriods,
+                $scheduleCountsByPeriod,
+                $teachingAttendanceCountsByPeriod,
+                $classStudentCountsByPeriod,
+                $studentCounts,
+                $skSubmissionCounts,
+                $today
+            ) {
+                $staffCounts = $teacherEmployeeCounts->get($madrasah->id);
+                $selectedPeriod = $selectedPeriods->get($madrasah->id);
+                $selectedPeriodId = $selectedPeriod?->id;
+                $classStudentSummary = $selectedPeriodId ? $classStudentCountsByPeriod->get($selectedPeriodId) : null;
+                $presensiConfigFilled = collect([
+                    $madrasah->presensi_masuk_start,
+                    $madrasah->presensi_masuk_end,
+                    $madrasah->presensi_pulang_start,
+                    $madrasah->presensi_pulang_end,
+                    $madrasah->presensi_pulang_jumat,
+                    $madrasah->presensi_pulang_sabtu,
+                ])->filter(fn ($value) => trim((string) $value) !== '')->count();
+
+                $presensiConfigTotal = 6;
+                $presensiConfigPercentage = (int) round(($presensiConfigFilled / $presensiConfigTotal) * 100);
+                $totalTeachers = (int) ($staffCounts->total_teachers ?? 0);
+                $totalEmployees = (int) ($staffCounts->total_employees ?? 0);
+                $totalTeacherEmployees = (int) ($staffCounts->total_teacher_employees ?? 0);
+                $totalPeriods = (int) ($periodCounts[$madrasah->id] ?? 0);
+                $totalSchedules = (int) ($selectedPeriodId ? ($scheduleCountsByPeriod[$selectedPeriodId] ?? 0) : 0);
+                $totalTeachingAttendances = (int) ($selectedPeriodId ? ($teachingAttendanceCountsByPeriod[$selectedPeriodId] ?? 0) : 0);
+                $totalClassStudentRecords = (int) ($classStudentSummary->total_class_records ?? 0);
+                $totalClassStudents = (int) ($classStudentSummary->total_class_students ?? 0);
+                $totalStudents = (int) ($studentCounts[$madrasah->id] ?? 0);
+                $totalSkSubmissions = (int) ($skSubmissionCounts[$madrasah->id] ?? 0);
+                $isSelectedPeriodActive = $selectedPeriod
+                    && $selectedPeriod->start_date
+                    && $selectedPeriod->end_date
+                    && $selectedPeriod->start_date->toDateString() <= $today
+                    && $selectedPeriod->end_date->toDateString() >= $today;
+
+                $categoryScores = [
+                    'guru_pegawai' => $totalTeacherEmployees > 0 ? 100 : 0,
+                    'tertib_presensi' => $presensiConfigPercentage,
+                    'periode_jadwal' => $totalPeriods > 0 ? 100 : 0,
+                    'jadwal_periode' => $totalSchedules > 0 ? 100 : 0,
+                    'jurnal_periode' => $totalTeachingAttendances > 0 ? 100 : 0,
+                    'siswa_per_kelas' => $totalClassStudentRecords > 0 ? 100 : 0,
+                    'pengajuan_sk' => $totalSkSubmissions > 0 ? 100 : 0,
+                    'siswa' => $totalStudents > 0 ? 100 : 0,
+                ];
+
+                return [
+                    'school_id' => $madrasah->id,
+                    'scod' => $madrasah->scod ?: '-',
+                    'school_name' => $madrasah->name,
+                    'yayasan_name' => $madrasah->yayasan?->name ?: '-',
+                    'kabupaten' => $madrasah->kabupaten ?: '-',
+                    'total_teachers' => $totalTeachers,
+                    'total_employees' => $totalEmployees,
+                    'total_teacher_employees' => $totalTeacherEmployees,
+                    'presensi_config_filled' => $presensiConfigFilled,
+                    'presensi_config_total' => $presensiConfigTotal,
+                    'presensi_config_percentage' => $presensiConfigPercentage,
+                    'total_periods' => $totalPeriods,
+                    'selected_period_label' => $selectedPeriod?->summary_label ?: '-',
+                    'selected_period_scope' => $selectedPeriod ? ($isSelectedPeriodActive ? 'Aktif' : 'Terakhir') : '-',
+                    'total_teaching_schedules' => $totalSchedules,
+                    'total_teaching_attendances' => $totalTeachingAttendances,
+                    'total_class_student_records' => $totalClassStudentRecords,
+                    'total_class_students' => $totalClassStudents,
+                    'total_sk_submissions' => $totalSkSubmissions,
+                    'total_students' => $totalStudents,
+                    'filled_indicator_count' => collect($categoryScores)->filter(fn ($score) => (int) $score >= 100)->count(),
+                    'overall_completion_percentage' => (int) round(collect($categoryScores)->avg()),
+                ];
+            })
+            ->sortByDesc(function (array $row) {
+                return sprintf(
+                    '%03d-%06d-%06d-%06d',
+                    $row['overall_completion_percentage'],
+                    $row['total_teacher_employees'],
+                    $row['total_students'],
+                    $row['total_teaching_schedules']
+                );
+            })
+            ->values()
+            ->map(function (array $row, int $index) {
+                $row['rank'] = $index + 1;
+
+                return $row;
+            });
     }
 }
