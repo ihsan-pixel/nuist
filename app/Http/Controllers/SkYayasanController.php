@@ -5289,6 +5289,7 @@ class SkYayasanController extends Controller
             ?? $this->detectEmploymentTypeFromText((string) $effectiveKeterangan);
         $generatedPerformanceScore = $this->resolveGeneratedSkPerformanceScore(
             $employee,
+            $madrasah?->id,
             $importRow?->source_penilaian_kinerja,
             $employeeSkData?->penilaian_kinerja,
             $employmentType
@@ -5376,10 +5377,15 @@ class SkYayasanController extends Controller
 
     private function resolveGeneratedSkPerformanceScore(
         ?User $employee,
+        ?int $madrasahId,
         mixed $submittedValue,
         mixed $fallbackValue = null,
         ?string $employmentType = null
     ): string {
+        if (in_array((int) $madrasahId, [8, 9], true)) {
+            return $this->formatGeneratedSkPerformanceScore($submittedValue ?? $fallbackValue);
+        }
+
         if (in_array($employmentType, ['pty', 'ptt'], true)) {
             return $this->formatGeneratedSkPerformanceScore($submittedValue ?? $fallbackValue);
         }
