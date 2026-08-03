@@ -263,11 +263,13 @@
 
             <form method="POST"
                   action="{{ route('sk-yayasan.numbers.bulk-renumber') }}"
+                  id="bulkRenumberSelectedSchoolForm"
                   data-sk-swal-confirm
                   data-sk-swal-title="Atur ulang nomor SK sekolah terpilih?"
                   data-sk-swal-text="Nomor SK lama pada sekolah terpilih akan diganti penuh sesuai rentang yang Anda tentukan."
                   data-sk-swal-confirm-text="Ya, atur ulang">
                 @csrf
+                <input type="hidden" name="skip_used_numbers" id="bulkSkipUsedNumbersInput" value="{{ old('skip_used_numbers', 0) ? 1 : 0 }}">
                 <div class="row g-3">
                     <div class="col-lg-5">
                         <label class="form-label">Pilih Sekolah</label>
@@ -303,7 +305,7 @@
                 </div>
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
                     <div class="small text-muted">
-                        Sistem akan menghapus nomor lama sekolah terpilih, lalu mengisi ulang sesuai rentang yang Anda masukkan. Jika rentang bentrok dengan sekolah lain, proses akan ditolak.
+                        Sistem akan menghapus nomor lama sekolah terpilih, lalu mengisi ulang sesuai rentang yang Anda masukkan. Jika ada nomor yang sudah dipakai sekolah lain, sistem bisa melanjutkan dengan melewati nomor bentrok tanpa mengubah nomor yang sudah dipakai.
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                         <button type="submit"
@@ -858,6 +860,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const rangeStartInput = document.getElementById('bulkRangeStartInput');
     const rangeEndInput = document.getElementById('bulkRangeEndInput');
     const rangeHint = document.getElementById('bulkRangeHint');
+    const bulkRenumberForm = document.getElementById('bulkRenumberSelectedSchoolForm');
+    const bulkSkipUsedNumbersInput = document.getElementById('bulkSkipUsedNumbersInput');
+    const bulkRenumberConflict = @json(session('sk_yayasan_bulk_renumber_conflict'));
 
     if (!schoolSelect || !rangeStartInput || !rangeEndInput || !rangeHint) {
         return;
@@ -892,6 +897,53 @@ document.addEventListener('DOMContentLoaded', function () {
     schoolSelect.addEventListener('change', syncRangeEnd);
     rangeStartInput.addEventListener('input', syncRangeEnd);
     syncRangeEnd();
+
+    if (
+        bulkRenumberConflict
+        && typeof Swal !== 'undefined'
+        && bulkRenumberForm
+        && bulkSkipUsedNumbersInput
+    ) {
+        const skippedSequences = Array.isArray(bulkRenumberConflict.skipped_sequences)
+            ? bulkRenumberConflict.skipped_sequences
+            : [];
+        const conflictPreview = Array.isArray(bulkRenumberConflict.conflict_preview)
+            ? bulkRenumberConflict.conflict_preview
+            : [];
+        const skippedLabel = skippedSequences.length
+            ? skippedSequences.join(', ')
+            : '-';
+        const previewItems = conflictPreview.length
+            ? '<ul style="text-align:left;padding-left:18px;margin:.5rem 0 0;">' + conflictPreview.map((item) => `<li>${item}</li>`).join('') + '</ul>'
+            : '';
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Rentang nomor bentrok',
+            html:
+                '<div style="text-align:left">' +
+                    '<p>Rentang <strong>' + (bulkRenumberConflict.range_label || '-') + '</strong> bentrok dengan nomor yang sudah dipakai sekolah lain.</p>' +
+                    '<p>Jika dilanjutkan, sistem akan tetap mulai dari nomor <strong>' + (bulkRenumberConflict.requested_start || '-') + '</strong> dan melewati nomor yang sudah terpakai tanpa mengubah nomor sekolah lain.</p>' +
+                    '<p class="mb-1">Perkiraan rentang hasil: <strong>' + (bulkRenumberConflict.proposed_range_label || '-') + '</strong></p>' +
+                    '<p class="mb-0">Nomor yang dilewati: <strong>' + skippedLabel + '</strong></p>' +
+                    previewItems +
+                '</div>',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, lewati nomor bentrok',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#0e8549',
+            cancelButtonColor: '#94a3b8',
+        }).then((result) => {
+            if (!result.isConfirmed) {
+                bulkSkipUsedNumbersInput.value = '0';
+                return;
+            }
+
+            bulkSkipUsedNumbersInput.value = '1';
+            bulkRenumberForm.dataset.skSwalSubmitting = '1';
+            bulkRenumberForm.submit();
+        });
+    }
 });
 </script>
 @endpush

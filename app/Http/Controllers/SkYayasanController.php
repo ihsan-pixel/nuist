@@ -284,12 +284,14 @@ class SkYayasanController extends Controller
             'range_start' => ['required', 'integer', 'min:1'],
             'range_end' => ['required', 'integer', 'gte:range_start'],
             'lock_after' => ['nullable', 'boolean'],
+            'skip_used_numbers' => ['nullable', 'boolean'],
         ], [
             'madrasah_ids.required' => 'Pilih minimal satu sekolah.',
             'range_end.gte' => 'Nomor akhir rentang harus lebih besar atau sama dengan nomor awal.',
         ]);
 
         $lockAfterRenumber = (bool) ($validated['lock_after'] ?? false);
+        $skipUsedNumbers = (bool) ($validated['skip_used_numbers'] ?? false);
         if ($lockAfterRenumber && !$this->skYayasanDocumentNumberLockSupported()) {
             return back()->with('error', 'Fitur kunci ulang nomor SK belum aktif karena kolom database belum dimigrasikan.');
         }
@@ -372,16 +374,39 @@ class SkYayasanController extends Controller
             ->values();
 
         if ($conflicts->isNotEmpty()) {
-            $conflictPreview = $conflicts->take(5)->map(function (SkYayasanDocument $document) {
-                $schoolName = $document->request?->madrasah?->name ?? 'Sekolah lain';
+            if (!$skipUsedNumbers) {
+                $assignmentPlan = $this->planAssignedDocumentNumbersFromStartingSequence($payloads, $rangeStart);
+                $conflictSequences = $conflicts
+                    ->map(fn (SkYayasanDocument $document) => $this->extractDocumentNumberSequence($document->document_number))
+                    ->filter(fn (?int $sequence) => $sequence !== null)
+                    ->unique()
+                    ->sort()
+                    ->values();
+                $conflictPreview = $conflicts->take(5)->map(function (SkYayasanDocument $document) {
+                    $schoolName = $document->request?->madrasah?->name ?? 'Sekolah lain';
 
-                return $document->document_number . ' (' . $schoolName . ')';
-            })->implode(', ');
+                    return $document->document_number . ' (' . $schoolName . ')';
+                })->values();
 
-            return back()->with('error', 'Rentang ' . $rangeStart . '-' . $rangeEnd . ' bentrok dengan nomor sekolah lain: ' . $conflictPreview . ($conflicts->count() > 5 ? ' dan lainnya.' : ''));
+                return back()
+                    ->withInput()
+                    ->with('sk_yayasan_bulk_renumber_conflict', [
+                        'range_label' => $this->formatSequenceRangeLabel($targetSequences),
+                        'requested_start' => $rangeStart,
+                        'requested_end' => $rangeEnd,
+                        'proposed_range_label' => $this->formatSequenceRangeLabel($assignmentPlan['assigned_sequences']),
+                        'proposed_last_sequence' => collect($assignmentPlan['assigned_sequences'])->last(),
+                        'skipped_sequences' => $assignmentPlan['skipped_sequences'],
+                        'initial_conflict_sequences' => $conflictSequences->all(),
+                        'conflict_preview' => $conflictPreview->all(),
+                        'conflict_count' => $conflicts->count(),
+                        'selected_document_count' => $selectedDocumentCount,
+                    ]);
+            }
         }
 
         $assignedNumbers = [];
+        $assignedSequences = [];
         $requestIds = $payloads
             ->pluck('submission.id')
             ->filter()
@@ -392,9 +417,12 @@ class SkYayasanController extends Controller
             $documentIds,
             $payloads,
             $targetSequences,
+            $rangeStart,
+            $skipUsedNumbers,
             $lockAfterRenumber,
             $requestIds,
-            &$assignedNumbers
+            &$assignedNumbers,
+            &$assignedSequences
         ) {
             if ($documentIds->isNotEmpty() && $this->skYayasanDocumentNumberLockSupported()) {
                 SkYayasanDocument::query()
@@ -414,7 +442,14 @@ class SkYayasanController extends Controller
                 );
             }
 
-            $assignedNumbers = $this->buildAssignedDocumentNumbersFromFixedSequences($payloads, $targetSequences);
+            if ($skipUsedNumbers) {
+                $assignmentPlan = $this->planAssignedDocumentNumbersFromStartingSequence($payloads, $rangeStart);
+                $assignedNumbers = $assignmentPlan['assigned_numbers'];
+                $assignedSequences = $assignmentPlan['assigned_sequences'];
+            } else {
+                $assignedNumbers = $this->buildAssignedDocumentNumbersFromFixedSequences($payloads, $targetSequences);
+                $assignedSequences = $targetSequences;
+            }
 
             foreach ($payloads as $payload) {
                 /** @var \App\Models\SkYayasanRequest $submission */
@@ -428,7 +463,9 @@ class SkYayasanController extends Controller
                     array_merge($payload['data'], [
                         'document_number' => $assignedNumbers[$submission->id] ?? null,
                         'number_validation_mode' => 'manual_selected_school_range',
-                        'number_validation_note' => 'Nomor SK ini sudah tervalidasi melalui penataan ulang rentang nomor terpilih oleh super admin.',
+                        'number_validation_note' => $skipUsedNumbers
+                            ? 'Nomor SK ini sudah tervalidasi melalui penataan ulang rentang nomor terpilih oleh super admin dengan melewati nomor yang sudah dipakai sekolah lain.'
+                            : 'Nomor SK ini sudah tervalidasi melalui penataan ulang rentang nomor terpilih oleh super admin.',
                         'number_validated_at' => now()->toIso8601String(),
                     ])
                 );
@@ -445,7 +482,15 @@ class SkYayasanController extends Controller
             }
         });
 
-        $message = $selectedDocumentCount . ' nomor SK berhasil diatur ulang ke rentang ' . $rangeStart . '-' . $rangeEnd . ' untuk ' . $selectedSchools->count() . ' sekolah terpilih.';
+        $requestedRangeLabel = $this->formatSequenceRangeLabel($targetSequences) ?? ($rangeStart . '-' . $rangeEnd);
+        $assignedRangeLabel = $this->formatSequenceRangeLabel($assignedSequences) ?? $requestedRangeLabel;
+        $message = $selectedDocumentCount . ' nomor SK berhasil diatur ulang untuk ' . $selectedSchools->count() . ' sekolah terpilih.';
+
+        if ($skipUsedNumbers && $assignedRangeLabel !== $requestedRangeLabel) {
+            $message .= ' Rentang permintaan ' . $requestedRangeLabel . ' diproses dengan melewati nomor yang sudah dipakai, sehingga rentang hasil menjadi ' . $assignedRangeLabel . '.';
+        } else {
+            $message .= ' Rentang hasil: ' . $assignedRangeLabel . '.';
+        }
 
         if (!empty($schoolsWithoutEligibleRequests)) {
             $message .= ' Sekolah tanpa pengajuan yang bisa diproses: ' . implode(', ', array_slice($schoolsWithoutEligibleRequests, 0, 5)) . (count($schoolsWithoutEligibleRequests) > 5 ? ' dan lainnya.' : '') . '.';
@@ -3840,6 +3885,61 @@ class SkYayasanController extends Controller
         return $assignedNumbers;
     }
 
+    private function planAssignedDocumentNumbersFromStartingSequence(Collection $payloads, int $startSequence): array
+    {
+        $payloads = $payloads->values();
+
+        if ($payloads->isEmpty()) {
+            return [
+                'assigned_numbers' => [],
+                'assigned_sequences' => [],
+                'skipped_sequences' => [],
+            ];
+        }
+
+        $renumberableDocumentIds = $payloads
+            ->pluck('submission.document.id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        $reservedSequences = SkYayasanDocument::query()
+            ->when($renumberableDocumentIds->isNotEmpty(), fn (Builder $query) => $query->whereNotIn('id', $renumberableDocumentIds->all()))
+            ->pluck('document_number')
+            ->map(fn (?string $documentNumber) => $this->extractDocumentNumberSequence($documentNumber))
+            ->filter(fn (?int $sequence) => $sequence !== null)
+            ->flip();
+
+        $nextSequence = max(1, $startSequence);
+        $assignedNumbers = [];
+        $assignedSequences = [];
+        $skippedSequences = [];
+
+        foreach ($payloads as $payload) {
+            while ($reservedSequences->has($nextSequence)) {
+                $skippedSequences[] = $nextSequence;
+                $nextSequence++;
+            }
+
+            /** @var \App\Models\SkYayasanRequest $submission */
+            $submission = $payload['submission'];
+            $assignedNumbers[$submission->id] = $this->formatDocumentNumberFromSequence(
+                $nextSequence,
+                $payload['issued_date'],
+                $payload['data']['number_format_suffix'] ?? null
+            );
+            $assignedSequences[] = $nextSequence;
+            $reservedSequences->put($nextSequence, true);
+            $nextSequence++;
+        }
+
+        return [
+            'assigned_numbers' => $assignedNumbers,
+            'assigned_sequences' => $assignedSequences,
+            'skipped_sequences' => array_values(array_unique($skippedSequences)),
+        ];
+    }
+
     private function buildAssignedDocumentNumbersFromFixedSequences(Collection $payloads, array $sequences): array
     {
         $payloads = $payloads->values();
@@ -3864,6 +3964,25 @@ class SkYayasanController extends Controller
         }
 
         return $assignedNumbers;
+    }
+
+    private function formatSequenceRangeLabel(array $sequences): ?string
+    {
+        $sequences = collect($sequences)
+            ->map(fn ($sequence) => (int) $sequence)
+            ->filter(fn (int $sequence) => $sequence > 0)
+            ->values();
+
+        if ($sequences->isEmpty()) {
+            return null;
+        }
+
+        $firstSequence = (int) $sequences->first();
+        $lastSequence = (int) $sequences->last();
+
+        return $firstSequence === $lastSequence
+            ? (string) $firstSequence
+            : ($firstSequence . '-' . $lastSequence);
     }
 
     private function buildSchoolReadyLockRanges(Collection $schools): array
