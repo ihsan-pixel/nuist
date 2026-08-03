@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\MadrasahProfileSummaryExport;
 use App\Models\Madrasah;
+use App\Models\Presensi;
 use App\Models\SkYayasanRequest;
 use App\Models\Siswa;
 use App\Models\TeachingAttendance;
@@ -386,6 +387,14 @@ class MadrasahController extends Controller
 
         $selectedPeriodIds = $selectedPeriods->pluck('id')->filter()->values();
 
+        $teacherCoverageByPeriod = $selectedPeriodIds->isEmpty()
+            ? collect()
+            : TeachingSchedule::query()
+                ->whereIn('teaching_schedule_period_id', $selectedPeriodIds)
+                ->selectRaw('teaching_schedule_period_id, COUNT(DISTINCT teacher_id) as total_teachers_with_schedule')
+                ->groupBy('teaching_schedule_period_id')
+                ->pluck('total_teachers_with_schedule', 'teaching_schedule_period_id');
+
         $scheduleCountsByPeriod = $selectedPeriodIds->isEmpty()
             ? collect()
             : TeachingSchedule::query()
@@ -393,6 +402,15 @@ class MadrasahController extends Controller
                 ->selectRaw('teaching_schedule_period_id, COUNT(*) as total_schedules')
                 ->groupBy('teaching_schedule_period_id')
                 ->pluck('total_schedules', 'teaching_schedule_period_id');
+
+        $teachingAttendanceScheduleCoverageByPeriod = $selectedPeriodIds->isEmpty()
+            ? collect()
+            : TeachingAttendance::query()
+                ->join('teaching_schedules', 'teaching_schedules.id', '=', 'teaching_attendances.teaching_schedule_id')
+                ->whereIn('teaching_schedules.teaching_schedule_period_id', $selectedPeriodIds)
+                ->selectRaw('teaching_schedules.teaching_schedule_period_id as period_id, COUNT(DISTINCT teaching_attendances.teaching_schedule_id) as total_schedules_with_attendance')
+                ->groupBy('teaching_schedules.teaching_schedule_period_id')
+                ->pluck('total_schedules_with_attendance', 'period_id');
 
         $teachingAttendanceCountsByPeriod = $selectedPeriodIds->isEmpty()
             ? collect()
@@ -402,6 +420,13 @@ class MadrasahController extends Controller
                 ->selectRaw('teaching_schedules.teaching_schedule_period_id as period_id, COUNT(teaching_attendances.id) as total_attendances')
                 ->groupBy('teaching_schedules.teaching_schedule_period_id')
                 ->pluck('total_attendances', 'period_id');
+
+        $presensiCoverageBySchool = Presensi::query()
+            ->whereIn('madrasah_id', $schoolIds)
+            ->whereNotNull('user_id')
+            ->selectRaw('madrasah_id, COUNT(DISTINCT user_id) as total_users_with_presensi')
+            ->groupBy('madrasah_id')
+            ->pluck('total_users_with_presensi', 'madrasah_id');
 
         $classStudentCountsByPeriod = $selectedPeriodIds->isEmpty()
             ? collect()
@@ -429,8 +454,11 @@ class MadrasahController extends Controller
                 $teacherEmployeeCounts,
                 $periodCounts,
                 $selectedPeriods,
+                $teacherCoverageByPeriod,
                 $scheduleCountsByPeriod,
+                $teachingAttendanceScheduleCoverageByPeriod,
                 $teachingAttendanceCountsByPeriod,
+                $presensiCoverageBySchool,
                 $classStudentCountsByPeriod,
                 $studentCounts,
                 $skSubmissionCounts,
@@ -455,8 +483,11 @@ class MadrasahController extends Controller
                 $totalEmployees = (int) ($staffCounts->total_employees ?? 0);
                 $totalTeacherEmployees = (int) ($staffCounts->total_teacher_employees ?? 0);
                 $totalPeriods = (int) ($periodCounts[$madrasah->id] ?? 0);
+                $totalTeachersWithSchedule = (int) ($selectedPeriodId ? ($teacherCoverageByPeriod[$selectedPeriodId] ?? 0) : 0);
                 $totalSchedules = (int) ($selectedPeriodId ? ($scheduleCountsByPeriod[$selectedPeriodId] ?? 0) : 0);
+                $totalSchedulesWithAttendance = (int) ($selectedPeriodId ? ($teachingAttendanceScheduleCoverageByPeriod[$selectedPeriodId] ?? 0) : 0);
                 $totalTeachingAttendances = (int) ($selectedPeriodId ? ($teachingAttendanceCountsByPeriod[$selectedPeriodId] ?? 0) : 0);
+                $totalUsersWithPresensi = (int) ($presensiCoverageBySchool[$madrasah->id] ?? 0);
                 $totalClassStudentRecords = (int) ($classStudentSummary->total_class_records ?? 0);
                 $totalClassStudents = (int) ($classStudentSummary->total_class_students ?? 0);
                 $totalStudents = (int) ($studentCounts[$madrasah->id] ?? 0);
@@ -470,11 +501,21 @@ class MadrasahController extends Controller
                 $teacherPercentage = $totalTeachers > 0 ? 100 : 0;
                 $employeePercentage = $totalEmployees > 0 ? 100 : 0;
                 $teacherEmployeePercentage = (int) round(($teacherPercentage + $employeePercentage) / 2);
+                $presensiPercentage = $totalTeacherEmployees > 0
+                    ? (int) round(min(100, ($totalUsersWithPresensi / $totalTeacherEmployees) * 100))
+                    : 0;
+                $schedulePercentage = $totalTeachers > 0
+                    ? (int) round(min(100, ($totalTeachersWithSchedule / $totalTeachers) * 100))
+                    : 0;
+                $journalPercentage = $totalSchedules > 0
+                    ? (int) round(min(100, ($totalSchedulesWithAttendance / $totalSchedules) * 100))
+                    : 0;
                 $skSubmissionPercentage = $totalSkSubmissions > 0 ? 100 : 0;
                 $studentPercentage = $totalStudents > 0 ? 100 : 0;
                 $categoryScores = [
-                    'guru' => $teacherPercentage,
-                    'pegawai' => $employeePercentage,
+                    'presensi' => $presensiPercentage,
+                    'jadwal' => $schedulePercentage,
+                    'jurnal' => $journalPercentage,
                     'guru_pegawai' => $teacherEmployeePercentage,
                     'pengajuan_sk' => $skSubmissionPercentage,
                     'siswa' => $studentPercentage,
@@ -492,14 +533,20 @@ class MadrasahController extends Controller
                     'total_employees_percentage' => $employeePercentage,
                     'total_teacher_employees' => $totalTeacherEmployees,
                     'total_teacher_employees_percentage' => $teacherEmployeePercentage,
+                    'total_users_with_presensi' => $totalUsersWithPresensi,
                     'presensi_config_filled' => $presensiConfigFilled,
                     'presensi_config_total' => $presensiConfigTotal,
                     'presensi_config_percentage' => $presensiConfigPercentage,
+                    'presensi_percentage' => $presensiPercentage,
                     'total_periods' => $totalPeriods,
                     'selected_period_label' => $selectedPeriod?->summary_label ?: '-',
                     'selected_period_scope' => $selectedPeriod ? ($isSelectedPeriodActive ? 'Aktif' : 'Terakhir') : '-',
+                    'total_teachers_with_schedule' => $totalTeachersWithSchedule,
                     'total_teaching_schedules' => $totalSchedules,
+                    'schedule_percentage' => $schedulePercentage,
+                    'total_schedules_with_attendance' => $totalSchedulesWithAttendance,
                     'total_teaching_attendances' => $totalTeachingAttendances,
+                    'journal_percentage' => $journalPercentage,
                     'total_class_student_records' => $totalClassStudentRecords,
                     'total_class_students' => $totalClassStudents,
                     'total_sk_submissions' => $totalSkSubmissions,

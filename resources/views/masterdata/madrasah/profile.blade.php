@@ -138,7 +138,7 @@
                             <div class="card-body">
                                 <p class="text-muted text-uppercase fw-semibold small mb-2">Rata-rata Kelengkapan</p>
                                 <h3 class="mb-1">{{ $summaryStats['average_completion_percentage'] }}%</h3>
-                                <small class="text-muted">Rerata dari guru, pegawai, total, SK, dan siswa</small>
+                                <small class="text-muted">Rerata dari presensi, jadwal, jurnal, guru+pegawai, SK, dan siswa</small>
                             </div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                             <div class="card-body">
                                 <p class="text-muted text-uppercase fw-semibold small mb-2">Sekolah Lengkap</p>
                                 <h3 class="mb-1">{{ number_format($summaryStats['fully_complete_schools']) }}</h3>
-                                <small class="text-muted">Sudah 100% pada seluruh kolom kelengkapan</small>
+                                <small class="text-muted">Sudah 100% pada seluruh 6 indikator disiplin digitalisasi</small>
                             </div>
                         </div>
                     </div>
@@ -182,6 +182,9 @@
                                 </div>
 
                                 <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-light text-dark">Presensi: {{ $school['presensi_percentage'] }}%</span>
+                                    <span class="badge bg-light text-dark">Jadwal: {{ $school['schedule_percentage'] }}%</span>
+                                    <span class="badge bg-light text-dark">Jurnal: {{ $school['journal_percentage'] }}%</span>
                                     <span class="badge bg-light text-dark">Guru: {{ $school['total_teachers'] }} ({{ $school['total_teachers_percentage'] }}%)</span>
                                     <span class="badge bg-light text-dark">Pegawai: {{ $school['total_employees'] }} ({{ $school['total_employees_percentage'] }}%)</span>
                                     <span class="badge bg-light text-dark">SK: {{ $school['total_sk_submissions'] }} ({{ $school['total_sk_submissions_percentage'] }}%)</span>
@@ -199,9 +202,9 @@
                         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2">
                             <div>
                                 <h5 class="mb-1">Ringkasan Kelengkapan Data Sekolah</h5>
-                                <p class="text-muted mb-0">Diurutkan dari sekolah dengan data paling lengkap berdasarkan guru, pegawai, total guru + pegawai, pengajuan SK, dan data siswa.</p>
+                                <p class="text-muted mb-0">Diurutkan dari skor disiplin digitalisasi dengan bobot sama untuk presensi, jadwal, jurnal, guru + pegawai, pengajuan SK, dan data siswa.</p>
                             </div>
-                            <span class="badge bg-info-subtle text-info">Setiap kolom angka menampilkan jumlah data dan persentase kelengkapannya</span>
+                            <span class="badge bg-info-subtle text-info">Kolom Persentase dan Rank dihitung dari 6 indikator dengan bobot masing-masing 16.67%</span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -258,11 +261,14 @@
                                         <td class="profile-metric">
                                             <div class="d-flex justify-content-between small mb-1">
                                                 <span class="fw-semibold">{{ $row['overall_completion_percentage'] }}%</span>
-                                                <span class="text-muted">{{ $row['filled_indicator_count'] }}/5</span>
+                                                <span class="text-muted">{{ $row['filled_indicator_count'] }}/6</span>
                                             </div>
                                             <div class="progress">
                                                 <div class="progress-bar bg-success" role="progressbar" style="width: {{ $row['overall_completion_percentage'] }}%"></div>
                                             </div>
+                                            <small class="text-muted d-block mt-1">
+                                                P {{ $row['presensi_percentage'] }}% • Jd {{ $row['schedule_percentage'] }}% • Jr {{ $row['journal_percentage'] }}%
+                                            </small>
                                         </td>
                                         <td>
                                             <span class="profile-rank-pill">{{ $row['rank'] }}</span>
