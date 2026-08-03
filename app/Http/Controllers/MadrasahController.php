@@ -467,15 +467,17 @@ class MadrasahController extends Controller
                     && $selectedPeriod->start_date->toDateString() <= $today
                     && $selectedPeriod->end_date->toDateString() >= $today;
 
+                $teacherPercentage = $totalTeachers > 0 ? 100 : 0;
+                $employeePercentage = $totalEmployees > 0 ? 100 : 0;
+                $teacherEmployeePercentage = (int) round(($teacherPercentage + $employeePercentage) / 2);
+                $skSubmissionPercentage = $totalSkSubmissions > 0 ? 100 : 0;
+                $studentPercentage = $totalStudents > 0 ? 100 : 0;
                 $categoryScores = [
-                    'guru_pegawai' => $totalTeacherEmployees > 0 ? 100 : 0,
-                    'tertib_presensi' => $presensiConfigPercentage,
-                    'periode_jadwal' => $totalPeriods > 0 ? 100 : 0,
-                    'jadwal_periode' => $totalSchedules > 0 ? 100 : 0,
-                    'jurnal_periode' => $totalTeachingAttendances > 0 ? 100 : 0,
-                    'siswa_per_kelas' => $totalClassStudentRecords > 0 ? 100 : 0,
-                    'pengajuan_sk' => $totalSkSubmissions > 0 ? 100 : 0,
-                    'siswa' => $totalStudents > 0 ? 100 : 0,
+                    'guru' => $teacherPercentage,
+                    'pegawai' => $employeePercentage,
+                    'guru_pegawai' => $teacherEmployeePercentage,
+                    'pengajuan_sk' => $skSubmissionPercentage,
+                    'siswa' => $studentPercentage,
                 ];
 
                 return [
@@ -485,8 +487,11 @@ class MadrasahController extends Controller
                     'yayasan_name' => $madrasah->yayasan?->name ?: '-',
                     'kabupaten' => $madrasah->kabupaten ?: '-',
                     'total_teachers' => $totalTeachers,
+                    'total_teachers_percentage' => $teacherPercentage,
                     'total_employees' => $totalEmployees,
+                    'total_employees_percentage' => $employeePercentage,
                     'total_teacher_employees' => $totalTeacherEmployees,
+                    'total_teacher_employees_percentage' => $teacherEmployeePercentage,
                     'presensi_config_filled' => $presensiConfigFilled,
                     'presensi_config_total' => $presensiConfigTotal,
                     'presensi_config_percentage' => $presensiConfigPercentage,
@@ -498,7 +503,9 @@ class MadrasahController extends Controller
                     'total_class_student_records' => $totalClassStudentRecords,
                     'total_class_students' => $totalClassStudents,
                     'total_sk_submissions' => $totalSkSubmissions,
+                    'total_sk_submissions_percentage' => $skSubmissionPercentage,
                     'total_students' => $totalStudents,
+                    'total_students_percentage' => $studentPercentage,
                     'filled_indicator_count' => collect($categoryScores)->filter(fn ($score) => (int) $score >= 100)->count(),
                     'overall_completion_percentage' => (int) round(collect($categoryScores)->avg()),
                 ];

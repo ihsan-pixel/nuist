@@ -138,7 +138,7 @@
                             <div class="card-body">
                                 <p class="text-muted text-uppercase fw-semibold small mb-2">Rata-rata Kelengkapan</p>
                                 <h3 class="mb-1">{{ $summaryStats['average_completion_percentage'] }}%</h3>
-                                <small class="text-muted">Rerata dari 8 indikator data sekolah</small>
+                                <small class="text-muted">Rerata dari guru, pegawai, total, SK, dan siswa</small>
                             </div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                             <div class="card-body">
                                 <p class="text-muted text-uppercase fw-semibold small mb-2">Sekolah Lengkap</p>
                                 <h3 class="mb-1">{{ number_format($summaryStats['fully_complete_schools']) }}</h3>
-                                <small class="text-muted">Sudah 100% pada seluruh indikator</small>
+                                <small class="text-muted">Sudah 100% pada seluruh kolom kelengkapan</small>
                             </div>
                         </div>
                     </div>
@@ -182,11 +182,10 @@
                                 </div>
 
                                 <div class="d-flex flex-wrap gap-2">
-                                    <span class="badge bg-light text-dark">Guru/Pegawai: {{ $school['total_teacher_employees'] }}</span>
-                                    <span class="badge bg-light text-dark">Presensi: {{ $school['presensi_config_percentage'] }}%</span>
-                                    <span class="badge bg-light text-dark">Jadwal: {{ $school['total_teaching_schedules'] }}</span>
-                                    <span class="badge bg-light text-dark">Jurnal: {{ $school['total_teaching_attendances'] }}</span>
-                                    <span class="badge bg-light text-dark">Siswa: {{ $school['total_students'] }}</span>
+                                    <span class="badge bg-light text-dark">Guru: {{ $school['total_teachers'] }} ({{ $school['total_teachers_percentage'] }}%)</span>
+                                    <span class="badge bg-light text-dark">Pegawai: {{ $school['total_employees'] }} ({{ $school['total_employees_percentage'] }}%)</span>
+                                    <span class="badge bg-light text-dark">SK: {{ $school['total_sk_submissions'] }} ({{ $school['total_sk_submissions_percentage'] }}%)</span>
+                                    <span class="badge bg-light text-dark">Siswa: {{ $school['total_students'] }} ({{ $school['total_students_percentage'] }}%)</span>
                                 </div>
                             </div>
                         </div>
@@ -200,9 +199,9 @@
                         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2">
                             <div>
                                 <h5 class="mb-1">Ringkasan Kelengkapan Data Sekolah</h5>
-                                <p class="text-muted mb-0">Diurutkan dari sekolah dengan data paling lengkap berdasarkan 8 indikator yang diminta.</p>
+                                <p class="text-muted mb-0">Diurutkan dari sekolah dengan data paling lengkap berdasarkan guru, pegawai, total guru + pegawai, pengajuan SK, dan data siswa.</p>
                             </div>
-                            <span class="badge bg-info-subtle text-info">Acuan periode: aktif, jika tidak ada memakai periode terakhir</span>
+                            <span class="badge bg-info-subtle text-info">Setiap kolom angka menampilkan jumlah data dan persentase kelengkapannya</span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -211,75 +210,62 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>#</th>
-                                        <th>Sekolah</th>
-                                        <th>Kelengkapan</th>
-                                        <th>Guru & Pegawai</th>
-                                        <th>Tertib Presensi</th>
-                                        <th>Periode Jadwal</th>
-                                        <th>Jadwal Mengajar</th>
-                                        <th>Jurnal Mengajar</th>
-                                        <th>Siswa per Kelas</th>
+                                        <th>SCOD</th>
+                                        <th>Nama Sekolah/Madrasah</th>
+                                        <th>Jumlah Guru</th>
+                                        <th>Jumlah Pegawai</th>
+                                        <th>Total Guru + Pegawai</th>
                                         <th>Pengajuan SK</th>
                                         <th>Data Siswa</th>
-                                        <th>Aksi</th>
+                                        <th>Persentase</th>
+                                        <th>Rank</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($schoolSummaryRows as $row)
                                     <tr>
                                         <td>
-                                            <span class="profile-rank-pill">{{ $row['rank'] }}</span>
+                                            {{ $loop->iteration }}
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['scod'] }}</div>
+                                            <small class="text-muted">{{ $row['kabupaten'] }}</small>
                                         </td>
                                         <td>
                                             <div class="fw-semibold">{{ $row['school_name'] }}</div>
-                                            <div class="small text-muted">{{ $row['scod'] }} • {{ $row['yayasan_name'] }}</div>
-                                            <div class="small text-muted">{{ $row['kabupaten'] }}</div>
+                                            <small class="text-muted">{{ $row['yayasan_name'] }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['total_teachers'] }}</div>
+                                            <small class="text-muted">{{ $row['total_teachers_percentage'] }}%</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['total_employees'] }}</div>
+                                            <small class="text-muted">{{ $row['total_employees_percentage'] }}%</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['total_teacher_employees'] }}</div>
+                                            <small class="text-muted">{{ $row['total_teacher_employees_percentage'] }}%</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['total_sk_submissions'] }}</div>
+                                            <small class="text-muted">{{ $row['total_sk_submissions_percentage'] }}%</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['total_students'] }}</div>
+                                            <small class="text-muted">{{ $row['total_students_percentage'] }}%</small>
                                         </td>
                                         <td class="profile-metric">
                                             <div class="d-flex justify-content-between small mb-1">
                                                 <span class="fw-semibold">{{ $row['overall_completion_percentage'] }}%</span>
-                                                <span class="text-muted">{{ $row['filled_indicator_count'] }}/8 indikator</span>
+                                                <span class="text-muted">{{ $row['filled_indicator_count'] }}/5</span>
                                             </div>
                                             <div class="progress">
                                                 <div class="progress-bar bg-success" role="progressbar" style="width: {{ $row['overall_completion_percentage'] }}%"></div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="fw-semibold">{{ $row['total_teacher_employees'] }}</div>
-                                            <small class="text-muted">Guru {{ $row['total_teachers'] }} • Pegawai {{ $row['total_employees'] }}</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold">{{ $row['presensi_config_percentage'] }}%</div>
-                                            <small class="text-muted">{{ $row['presensi_config_filled'] }}/{{ $row['presensi_config_total'] }} komponen</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold">{{ $row['total_periods'] }}</div>
-                                            <small class="text-muted">{{ $row['selected_period_scope'] }}: {{ $row['selected_period_label'] }}</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold">{{ $row['total_teaching_schedules'] }}</div>
-                                            <small class="text-muted">Data jadwal pada periode acuan</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold">{{ $row['total_teaching_attendances'] }}</div>
-                                            <small class="text-muted">Presensi jurnal pada periode acuan</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold">{{ $row['total_class_student_records'] }}</div>
-                                            <small class="text-muted">{{ $row['total_class_students'] }} total siswa dari data kelas</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold">{{ $row['total_sk_submissions'] }}</div>
-                                            <small class="text-muted">Data pengajuan SK yayasan</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold">{{ $row['total_students'] }}</div>
-                                            <small class="text-muted">Data siswa terdaftar</small>
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('madrasah.detail', $row['school_id']) }}" class="btn btn-success btn-sm rounded-pill px-3">
-                                                <i class="bx bx-user me-1"></i>Lihat Profile
-                                            </a>
+                                            <span class="profile-rank-pill">{{ $row['rank'] }}</span>
                                         </td>
                                     </tr>
                                     @endforeach
