@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\MadrasahProfileSummaryExport;
+use App\Models\Holiday;
 use App\Models\Madrasah;
 use App\Models\Presensi;
+use App\Models\SkYayasanImportBatch;
 use App\Models\SkYayasanRequest;
 use App\Models\Siswa;
 use App\Models\TeachingAttendance;
@@ -13,8 +15,9 @@ use App\Models\TeachingSchedule;
 use App\Models\TeachingSchedulePeriod;
 use App\Models\User;
 use App\Models\Yayasan;
-use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use App\Imports\MadrasahImport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -341,7 +344,7 @@ class MadrasahController extends Controller
                 'total_schools' => $schoolSummaryRows->count(),
                 'average_completion_percentage' => (int) round((float) $schoolSummaryRows->avg('overall_completion_percentage')),
                 'fully_complete_schools' => $schoolSummaryRows->where('overall_completion_percentage', 100)->count(),
-                'schools_with_students' => $schoolSummaryRows->where('total_students', '>', 0)->count(),
+                'schools_with_active_period' => $schoolSummaryRows->where('has_active_period', true)->count(),
             ],
         ];
     }
@@ -353,18 +356,14 @@ class MadrasahController extends Controller
         }
 
         $schoolIds = $madrasahs->pluck('id')->filter()->values();
-        $today = now('Asia/Jakarta')->toDateString();
+        $today = now('Asia/Jakarta')->startOfDay();
+        $monthStart = $today->copy()->startOfMonth();
 
-        $teacherEmployeeCounts = User::query()
+        $schoolUsers = User::query()
             ->where('role', 'tenaga_pendidik')
             ->whereIn('madrasah_id', $schoolIds)
-            ->selectRaw('madrasah_id')
-            ->selectRaw('SUM(CASE WHEN status_kepegawaian_id IN (3, 4, 5, 6) THEN 1 ELSE 0 END) as total_teachers')
-            ->selectRaw('SUM(CASE WHEN status_kepegawaian_id IN (7, 8) THEN 1 ELSE 0 END) as total_employees')
-            ->selectRaw('COUNT(*) as total_teacher_employees')
-            ->groupBy('madrasah_id')
             ->get()
-            ->keyBy('madrasah_id');
+            ->groupBy('madrasah_id');
 
         $periodCounts = TeachingSchedulePeriod::query()
             ->whereIn('school_id', $schoolIds)
@@ -372,76 +371,62 @@ class MadrasahController extends Controller
             ->groupBy('school_id')
             ->pluck('total_periods', 'school_id');
 
-        $selectedPeriods = TeachingSchedulePeriod::query()
+        $activePeriods = TeachingSchedulePeriod::query()
+            ->whereIn('school_id', $schoolIds)
+            ->whereDate('start_date', '<=', $today->toDateString())
+            ->whereDate('end_date', '>=', $today->toDateString())
+            ->get()
+            ->keyBy('school_id');
+
+        $latestPeriods = TeachingSchedulePeriod::query()
             ->whereIn('school_id', $schoolIds)
             ->orderBy('school_id')
-            ->orderByRaw(
-                "CASE WHEN start_date <= ? AND end_date >= ? THEN 1 ELSE 0 END DESC",
-                [$today, $today]
-            )
             ->orderByDesc('end_date')
             ->orderByDesc('start_date')
             ->get()
             ->unique('school_id')
             ->keyBy('school_id');
 
-        $selectedPeriodIds = $selectedPeriods->pluck('id')->filter()->values();
-
-        $teacherCoverageByPeriod = $selectedPeriodIds->isEmpty()
+        $activePeriodIds = $activePeriods->pluck('id')->filter()->values();
+        $activeSchedules = $activePeriodIds->isEmpty()
             ? collect()
             : TeachingSchedule::query()
-                ->whereIn('teaching_schedule_period_id', $selectedPeriodIds)
-                ->selectRaw('teaching_schedule_period_id, COUNT(DISTINCT teacher_id) as total_teachers_with_schedule')
-                ->groupBy('teaching_schedule_period_id')
-                ->pluck('total_teachers_with_schedule', 'teaching_schedule_period_id');
+                ->whereIn('teaching_schedule_period_id', $activePeriodIds)
+                ->get(['id', 'school_id', 'teaching_schedule_period_id', 'teacher_id', 'day']);
 
-        $scheduleCountsByPeriod = $selectedPeriodIds->isEmpty()
-            ? collect()
-            : TeachingSchedule::query()
-                ->whereIn('teaching_schedule_period_id', $selectedPeriodIds)
-                ->selectRaw('teaching_schedule_period_id, COUNT(*) as total_schedules')
-                ->groupBy('teaching_schedule_period_id')
-                ->pluck('total_schedules', 'teaching_schedule_period_id');
+        $schedulesBySchool = $activeSchedules->groupBy('school_id');
+        $scheduleCountsByPeriod = $activeSchedules->groupBy('teaching_schedule_period_id')->map->count();
 
-        $teachingAttendanceScheduleCoverageByPeriod = $selectedPeriodIds->isEmpty()
+        $journalCountsBySchool = $activePeriodIds->isEmpty()
             ? collect()
             : TeachingAttendance::query()
                 ->join('teaching_schedules', 'teaching_schedules.id', '=', 'teaching_attendances.teaching_schedule_id')
-                ->whereIn('teaching_schedules.teaching_schedule_period_id', $selectedPeriodIds)
-                ->selectRaw('teaching_schedules.teaching_schedule_period_id as period_id, COUNT(DISTINCT teaching_attendances.teaching_schedule_id) as total_schedules_with_attendance')
-                ->groupBy('teaching_schedules.teaching_schedule_period_id')
-                ->pluck('total_schedules_with_attendance', 'period_id');
+                ->whereIn('teaching_schedules.teaching_schedule_period_id', $activePeriodIds)
+                ->whereDate('teaching_attendances.tanggal', '<=', $today->toDateString())
+                ->selectRaw('teaching_schedules.school_id, COUNT(teaching_attendances.id) as total_journals')
+                ->groupBy('teaching_schedules.school_id')
+                ->pluck('total_journals', 'teaching_schedules.school_id');
 
-        $teachingAttendanceCountsByPeriod = $selectedPeriodIds->isEmpty()
-            ? collect()
-            : TeachingAttendance::query()
-                ->join('teaching_schedules', 'teaching_schedules.id', '=', 'teaching_attendances.teaching_schedule_id')
-                ->whereIn('teaching_schedules.teaching_schedule_period_id', $selectedPeriodIds)
-                ->selectRaw('teaching_schedules.teaching_schedule_period_id as period_id, COUNT(teaching_attendances.id) as total_attendances')
-                ->groupBy('teaching_schedules.teaching_schedule_period_id')
-                ->pluck('total_attendances', 'period_id');
-
-        $presensiCoverageBySchool = Presensi::query()
+        $attendanceCountsBySchool = Presensi::query()
             ->whereIn('madrasah_id', $schoolIds)
-            ->whereNotNull('user_id')
-            ->selectRaw('madrasah_id, COUNT(DISTINCT user_id) as total_users_with_presensi')
+            ->whereBetween('tanggal', [$monthStart->toDateString(), $today->toDateString()])
+            ->selectRaw('madrasah_id, COUNT(*) as total_presensi')
             ->groupBy('madrasah_id')
-            ->pluck('total_users_with_presensi', 'madrasah_id');
+            ->pluck('total_presensi', 'madrasah_id');
 
-        $classStudentCountsByPeriod = $selectedPeriodIds->isEmpty()
-            ? collect()
-            : TeachingClassStudentCount::query()
-                ->whereIn('teaching_schedule_period_id', $selectedPeriodIds)
-                ->selectRaw('teaching_schedule_period_id, COUNT(*) as total_class_records, COALESCE(SUM(total_students), 0) as total_class_students')
-                ->groupBy('teaching_schedule_period_id')
-                ->get()
-                ->keyBy('teaching_schedule_period_id');
-
-        $studentCounts = Siswa::query()
+        $latestImportBatches = SkYayasanImportBatch::query()
             ->whereIn('madrasah_id', $schoolIds)
-            ->selectRaw('madrasah_id, COUNT(*) as total_students')
-            ->groupBy('madrasah_id')
-            ->pluck('total_students', 'madrasah_id');
+            ->orderByDesc('uploaded_at')
+            ->orderByDesc('id')
+            ->get()
+            ->unique('madrasah_id')
+            ->keyBy('madrasah_id');
+
+        $studentsBySchool = Siswa::query()
+            ->with('madrasah:id,scod,name')
+            ->whereIn('madrasah_id', $schoolIds)
+            ->get()
+            ->groupBy('madrasah_id');
 
         $skSubmissionCounts = SkYayasanRequest::query()
             ->whereIn('madrasah_id', $schoolIds)
@@ -451,74 +436,105 @@ class MadrasahController extends Controller
 
         return $madrasahs
             ->map(function (Madrasah $madrasah) use (
-                $teacherEmployeeCounts,
+                $schoolUsers,
                 $periodCounts,
-                $selectedPeriods,
-                $teacherCoverageByPeriod,
+                $activePeriods,
+                $latestPeriods,
+                $schedulesBySchool,
                 $scheduleCountsByPeriod,
-                $teachingAttendanceScheduleCoverageByPeriod,
-                $teachingAttendanceCountsByPeriod,
-                $presensiCoverageBySchool,
-                $classStudentCountsByPeriod,
-                $studentCounts,
+                $journalCountsBySchool,
+                $attendanceCountsBySchool,
+                $latestImportBatches,
+                $studentsBySchool,
                 $skSubmissionCounts,
-                $today
+                $today,
+                $monthStart
             ) {
-                $staffCounts = $teacherEmployeeCounts->get($madrasah->id);
-                $selectedPeriod = $selectedPeriods->get($madrasah->id);
-                $selectedPeriodId = $selectedPeriod?->id;
-                $classStudentSummary = $selectedPeriodId ? $classStudentCountsByPeriod->get($selectedPeriodId) : null;
-                $presensiConfigFilled = collect([
-                    $madrasah->presensi_masuk_start,
-                    $madrasah->presensi_masuk_end,
-                    $madrasah->presensi_pulang_start,
-                    $madrasah->presensi_pulang_end,
-                    $madrasah->presensi_pulang_jumat,
-                    $madrasah->presensi_pulang_sabtu,
-                ])->filter(fn ($value) => trim((string) $value) !== '')->count();
+                $users = $schoolUsers->get($madrasah->id, collect());
+                $teachers = $users->filter(fn (User $user) => !in_array((int) $user->status_kepegawaian_id, [7, 8], true))->values();
+                $employees = $users->filter(fn (User $user) => in_array((int) $user->status_kepegawaian_id, [7, 8], true))->values();
+                $eligibleTeachers = $teachers->filter(function (User $user) {
+                    $ketugasan = mb_strtolower(trim((string) $user->ketugasan));
 
-                $presensiConfigTotal = 6;
-                $presensiConfigPercentage = (int) round(($presensiConfigFilled / $presensiConfigTotal) * 100);
-                $totalTeachers = (int) ($staffCounts->total_teachers ?? 0);
-                $totalEmployees = (int) ($staffCounts->total_employees ?? 0);
-                $totalTeacherEmployees = (int) ($staffCounts->total_teacher_employees ?? 0);
+                    return $ketugasan === '' || !str_contains($ketugasan, 'kepala');
+                })->values();
+
+                $activePeriod = $activePeriods->get($madrasah->id);
+                $latestPeriod = $latestPeriods->get($madrasah->id);
+                $activePeriodId = $activePeriod?->id;
+                $schoolSchedules = $schedulesBySchool->get($madrasah->id, collect());
+                $teachersWithSchedule = $schoolSchedules
+                    ->pluck('teacher_id')
+                    ->filter()
+                    ->unique()
+                    ->intersect($eligibleTeachers->pluck('id'))
+                    ->values();
+
+                $totalTeacherEmployees = $users->count();
+                $totalTeachers = $teachers->count();
+                $totalEmployees = $employees->count();
+                $userCompletionPercentage = $totalTeacherEmployees > 0
+                    ? (float) round($users->avg(fn (User $user) => $this->calculateUserCompletionStats($user)['percentage']), 1)
+                    : 0.0;
+
+                $attendanceWorkingDays = $this->countWorkingDaysBetween(
+                    $monthStart->copy(),
+                    $today->copy(),
+                    (int) ($madrasah->hari_kbm ?: 5)
+                );
+                $expectedAttendance = $totalTeacherEmployees * $attendanceWorkingDays;
+                $actualAttendance = (int) ($attendanceCountsBySchool[$madrasah->id] ?? 0);
+                $attendanceDisciplinePercentage = $expectedAttendance > 0
+                    ? round(min(100, ($actualAttendance / $expectedAttendance) * 100), 1)
+                    : 0.0;
+
                 $totalPeriods = (int) ($periodCounts[$madrasah->id] ?? 0);
-                $totalTeachersWithSchedule = (int) ($selectedPeriodId ? ($teacherCoverageByPeriod[$selectedPeriodId] ?? 0) : 0);
-                $totalSchedules = (int) ($selectedPeriodId ? ($scheduleCountsByPeriod[$selectedPeriodId] ?? 0) : 0);
-                $totalSchedulesWithAttendance = (int) ($selectedPeriodId ? ($teachingAttendanceScheduleCoverageByPeriod[$selectedPeriodId] ?? 0) : 0);
-                $totalTeachingAttendances = (int) ($selectedPeriodId ? ($teachingAttendanceCountsByPeriod[$selectedPeriodId] ?? 0) : 0);
-                $totalUsersWithPresensi = (int) ($presensiCoverageBySchool[$madrasah->id] ?? 0);
-                $totalClassStudentRecords = (int) ($classStudentSummary->total_class_records ?? 0);
-                $totalClassStudents = (int) ($classStudentSummary->total_class_students ?? 0);
-                $totalStudents = (int) ($studentCounts[$madrasah->id] ?? 0);
-                $totalSkSubmissions = (int) ($skSubmissionCounts[$madrasah->id] ?? 0);
-                $isSelectedPeriodActive = $selectedPeriod
-                    && $selectedPeriod->start_date
-                    && $selectedPeriod->end_date
-                    && $selectedPeriod->start_date->toDateString() <= $today
-                    && $selectedPeriod->end_date->toDateString() >= $today;
+                $totalTeachersWithSchedule = $teachersWithSchedule->count();
+                $totalTeachersWithoutSchedule = max(0, $eligibleTeachers->count() - $totalTeachersWithSchedule);
+                $scheduleCoveragePercentage = $eligibleTeachers->count() > 0
+                    ? round(min(100, ($totalTeachersWithSchedule / $eligibleTeachers->count()) * 100), 1)
+                    : 0.0;
 
-                $teacherPercentage = $totalTeachers > 0 ? 100 : 0;
-                $employeePercentage = $totalEmployees > 0 ? 100 : 0;
-                $teacherEmployeePercentage = (int) round(($teacherPercentage + $employeePercentage) / 2);
-                $presensiPercentage = $totalTeacherEmployees > 0
-                    ? (int) round(min(100, ($totalUsersWithPresensi / $totalTeacherEmployees) * 100))
-                    : 0;
-                $schedulePercentage = $totalTeachers > 0
-                    ? (int) round(min(100, ($totalTeachersWithSchedule / $totalTeachers) * 100))
-                    : 0;
-                $journalPercentage = $totalSchedules > 0
-                    ? (int) round(min(100, ($totalSchedulesWithAttendance / $totalSchedules) * 100))
-                    : 0;
-                $skSubmissionPercentage = $totalSkSubmissions > 0 ? 100 : 0;
-                $studentPercentage = $totalStudents > 0 ? 100 : 0;
+                $journalExpectedMeetings = 0;
+                if ($activePeriod) {
+                    $periodStart = $activePeriod->start_date->copy()->startOfDay();
+                    $periodEnd = $activePeriod->end_date->copy()->startOfDay()->min($today->copy());
+
+                    foreach ($schoolSchedules as $schedule) {
+                        $journalExpectedMeetings += $this->countScheduleOccurrences(
+                            (string) $schedule->day,
+                            $periodStart->copy(),
+                            $periodEnd->copy()
+                        );
+                    }
+                }
+
+                $totalTeachingAttendances = (int) ($journalCountsBySchool[$madrasah->id] ?? 0);
+                $journalDisciplinePercentage = $journalExpectedMeetings > 0
+                    ? round(min(100, ($totalTeachingAttendances / $journalExpectedMeetings) * 100), 1)
+                    : 0.0;
+
+                $latestBatch = $latestImportBatches->get($madrasah->id);
+                $totalSkSubmissions = (int) ($skSubmissionCounts[$madrasah->id] ?? 0);
+                $skCompletenessPercentage = $latestBatch && (int) $latestBatch->total_rows > 0
+                    ? round(min(100, (((int) $latestBatch->valid_rows) / ((int) $latestBatch->total_rows)) * 100), 1)
+                    : ($totalTeacherEmployees > 0
+                        ? round(min(100, ($totalSkSubmissions / $totalTeacherEmployees) * 100), 1)
+                        : 0.0);
+
+                $students = $studentsBySchool->get($madrasah->id, collect());
+                $totalStudents = $students->count();
+                $studentCompletionPercentage = $totalStudents > 0
+                    ? (float) round($students->avg(fn (Siswa $siswa) => $this->calculateStudentCompletionStats($siswa)['percentage']), 1)
+                    : 0.0;
+
                 $categoryScores = [
-                    'presensi' => $presensiPercentage,
-                    'jadwal' => $schedulePercentage,
-                    'jurnal' => $journalPercentage,
-                    'guru_pegawai' => $teacherEmployeePercentage,
-                    'pengajuan_sk' => $skSubmissionPercentage,
-                    'siswa' => $studentPercentage,
+                    'users' => $userCompletionPercentage,
+                    'presensi' => $attendanceDisciplinePercentage,
+                    'jadwal' => $scheduleCoveragePercentage,
+                    'jurnal' => $journalDisciplinePercentage,
+                    'sk' => $skCompletenessPercentage,
+                    'siswa' => $studentCompletionPercentage,
                 ];
 
                 return [
@@ -527,43 +543,46 @@ class MadrasahController extends Controller
                     'school_name' => $madrasah->name,
                     'yayasan_name' => $madrasah->yayasan?->name ?: '-',
                     'kabupaten' => $madrasah->kabupaten ?: '-',
-                    'total_teachers' => $totalTeachers,
-                    'total_teachers_percentage' => $teacherPercentage,
-                    'total_employees' => $totalEmployees,
-                    'total_employees_percentage' => $employeePercentage,
                     'total_teacher_employees' => $totalTeacherEmployees,
-                    'total_teacher_employees_percentage' => $teacherEmployeePercentage,
-                    'total_users_with_presensi' => $totalUsersWithPresensi,
-                    'presensi_config_filled' => $presensiConfigFilled,
-                    'presensi_config_total' => $presensiConfigTotal,
-                    'presensi_config_percentage' => $presensiConfigPercentage,
-                    'presensi_percentage' => $presensiPercentage,
+                    'total_teachers' => $totalTeachers,
+                    'total_employees' => $totalEmployees,
+                    'user_completion_percentage' => $userCompletionPercentage,
+                    'attendance_month_label' => $monthStart->translatedFormat('F Y'),
+                    'actual_attendance' => $actualAttendance,
+                    'expected_attendance' => $expectedAttendance,
+                    'attendance_discipline_percentage' => $attendanceDisciplinePercentage,
+                    'has_active_period' => (bool) $activePeriod,
                     'total_periods' => $totalPeriods,
-                    'selected_period_label' => $selectedPeriod?->summary_label ?: '-',
-                    'selected_period_scope' => $selectedPeriod ? ($isSelectedPeriodActive ? 'Aktif' : 'Terakhir') : '-',
+                    'active_period_label' => $activePeriod?->summary_label ?: '-',
+                    'latest_period_label' => $latestPeriod?->summary_label ?: '-',
+                    'active_period_status' => $activePeriod ? 'Aktif' : 'Belum ada periode aktif',
+                    'eligible_teacher_total' => $eligibleTeachers->count(),
                     'total_teachers_with_schedule' => $totalTeachersWithSchedule,
-                    'total_teaching_schedules' => $totalSchedules,
-                    'schedule_percentage' => $schedulePercentage,
-                    'total_schedules_with_attendance' => $totalSchedulesWithAttendance,
+                    'total_teachers_without_schedule' => $totalTeachersWithoutSchedule,
+                    'schedule_coverage_percentage' => $scheduleCoveragePercentage,
+                    'total_teaching_schedules' => (int) ($activePeriodId ? ($scheduleCountsByPeriod[$activePeriodId] ?? 0) : 0),
                     'total_teaching_attendances' => $totalTeachingAttendances,
-                    'journal_percentage' => $journalPercentage,
-                    'total_class_student_records' => $totalClassStudentRecords,
-                    'total_class_students' => $totalClassStudents,
+                    'journal_expected_meetings' => $journalExpectedMeetings,
+                    'journal_discipline_percentage' => $journalDisciplinePercentage,
                     'total_sk_submissions' => $totalSkSubmissions,
-                    'total_sk_submissions_percentage' => $skSubmissionPercentage,
+                    'sk_completeness_percentage' => $skCompletenessPercentage,
+                    'sk_latest_batch_total_rows' => (int) ($latestBatch->total_rows ?? 0),
+                    'sk_latest_batch_valid_rows' => (int) ($latestBatch->valid_rows ?? 0),
+                    'sk_latest_batch_status' => $latestBatch?->status ?: '-',
                     'total_students' => $totalStudents,
-                    'total_students_percentage' => $studentPercentage,
-                    'filled_indicator_count' => collect($categoryScores)->filter(fn ($score) => (int) $score >= 100)->count(),
-                    'overall_completion_percentage' => (int) round(collect($categoryScores)->avg()),
+                    'student_completion_percentage' => $studentCompletionPercentage,
+                    'filled_indicator_count' => collect($categoryScores)->filter(fn ($score) => (float) $score >= 100)->count(),
+                    'overall_completion_percentage' => (float) round(collect($categoryScores)->avg(), 1),
                 ];
             })
             ->sortByDesc(function (array $row) {
                 return sprintf(
-                    '%03d-%06d-%06d-%06d',
+                    '%06.1f-%06.1f-%06.1f-%06.1f-%06d',
                     $row['overall_completion_percentage'],
-                    $row['total_teacher_employees'],
-                    $row['total_students'],
-                    $row['total_teaching_schedules']
+                    $row['attendance_discipline_percentage'],
+                    $row['schedule_coverage_percentage'],
+                    $row['journal_discipline_percentage'],
+                    $row['total_students']
                 );
             })
             ->values()
@@ -572,5 +591,148 @@ class MadrasahController extends Controller
 
                 return $row;
             });
+    }
+
+    private function calculateUserCompletionStats(User $user): array
+    {
+        $fields = [
+            $user->name,
+            $user->email,
+            $user->no_hp,
+            $user->tempat_lahir,
+            $user->tanggal_lahir,
+            $user->status_kepegawaian_id,
+            $user->ketugasan,
+            $user->madrasah_id,
+        ];
+
+        $filled = collect($fields)->filter(fn ($value) => $this->fieldHasValue($value))->count();
+        $total = count($fields);
+
+        return [
+            'filled' => $filled,
+            'total' => $total,
+            'percentage' => $total > 0 ? (int) round(($filled / $total) * 100) : 0,
+        ];
+    }
+
+    private function calculateStudentCompletionStats(Siswa $siswa): array
+    {
+        $fields = [
+            $siswa->scod ?: $siswa->madrasah?->scod,
+            $siswa->nama_madrasah ?: $siswa->madrasah?->name,
+            $siswa->nis,
+            $siswa->nisn,
+            $siswa->nik,
+            $siswa->no_kk,
+            $siswa->nama_lengkap,
+            $siswa->jenis_kelamin,
+            $siswa->tempat_lahir,
+            $siswa->tanggal_lahir,
+            $siswa->agama,
+            $siswa->kelas,
+            $siswa->jurusan,
+            $siswa->alamat,
+            $siswa->dusun,
+            $siswa->kelurahan,
+            $siswa->kecamatan,
+            $siswa->no_hp,
+            $siswa->email,
+            $siswa->nama_ayah,
+            $siswa->nama_ibu,
+            $siswa->no_hp_orang_tua_wali,
+        ];
+
+        $filled = collect($fields)->filter(fn ($value) => $this->fieldHasValue($value))->count();
+        $total = count($fields);
+
+        return [
+            'filled' => $filled,
+            'total' => $total,
+            'percentage' => $total > 0 ? (int) round(($filled / $total) * 100) : 0,
+        ];
+    }
+
+    private function fieldHasValue(mixed $value): bool
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return true;
+        }
+
+        return trim((string) $value) !== '';
+    }
+
+    private function countWorkingDaysBetween(Carbon $startDate, Carbon $endDate, int $hariKbm = 5): int
+    {
+        if ($endDate->lt($startDate)) {
+            return 0;
+        }
+
+        $holidayDates = Holiday::query()
+            ->where('is_active', true)
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->pluck('date')
+            ->map(fn ($date) => Carbon::parse($date)->toDateString())
+            ->flip();
+
+        $workingDays = 0;
+        $cursor = $startDate->copy();
+
+        while ($cursor->lte($endDate)) {
+            $dayOfWeek = $cursor->dayOfWeek;
+            $isWorkingDay = $hariKbm === 6
+                ? ($dayOfWeek >= 1 && $dayOfWeek <= 6)
+                : ($dayOfWeek >= 1 && $dayOfWeek <= 5);
+
+            if ($isWorkingDay && !$holidayDates->has($cursor->toDateString())) {
+                $workingDays++;
+            }
+
+            $cursor->addDay();
+        }
+
+        return $workingDays;
+    }
+
+    private function countScheduleOccurrences(string $dayLabel, Carbon $startDate, Carbon $endDate): int
+    {
+        if ($endDate->lt($startDate)) {
+            return 0;
+        }
+
+        $dayMap = [
+            'minggu' => 0,
+            'senin' => 1,
+            'selasa' => 2,
+            'rabu' => 3,
+            'kamis' => 4,
+            'jumat' => 5,
+            'sabtu' => 6,
+        ];
+
+        $targetDay = $dayMap[mb_strtolower(trim($dayLabel))] ?? null;
+        if ($targetDay === null) {
+            return 0;
+        }
+
+        $holidayDates = Holiday::query()
+            ->where('is_active', true)
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->pluck('date')
+            ->map(fn ($date) => Carbon::parse($date)->toDateString())
+            ->flip();
+
+        $count = 0;
+        $cursor = $startDate->copy();
+
+        while ($cursor->lte($endDate)) {
+            if ($cursor->dayOfWeek === $targetDay && !$holidayDates->has($cursor->toDateString())) {
+                $count++;
+            }
+
+            $cursor->addDay();
+        }
+
+        return $count;
     }
 }

@@ -145,7 +145,7 @@
                     <div class="col-xl-3 col-md-6">
                         <div class="card profile-summary-card h-100">
                             <div class="card-body">
-                                <p class="text-muted text-uppercase fw-semibold small mb-2">Sekolah Lengkap</p>
+                                <p class="text-muted text-uppercase fw-semibold small mb-2">Skor 100%</p>
                                 <h3 class="mb-1">{{ number_format($summaryStats['fully_complete_schools']) }}</h3>
                                 <small class="text-muted">Sudah 100% pada seluruh 6 indikator disiplin digitalisasi</small>
                             </div>
@@ -154,57 +154,22 @@
                     <div class="col-xl-3 col-md-6">
                         <div class="card profile-summary-card h-100">
                             <div class="card-body">
-                                <p class="text-muted text-uppercase fw-semibold small mb-2">Sekolah Dengan Data Siswa</p>
-                                <h3 class="mb-1">{{ number_format($summaryStats['schools_with_students']) }}</h3>
-                                <small class="text-muted">Sudah memiliki data siswa terinput</small>
+                                <p class="text-muted text-uppercase fw-semibold small mb-2">Periode Aktif</p>
+                                <h3 class="mb-1">{{ number_format($summaryStats['schools_with_active_period']) }}</h3>
+                                <small class="text-muted">Sekolah yang saat ini memiliki periode jadwal mengajar aktif</small>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                @if($topCompleteSchools->isNotEmpty())
-                <div class="row g-3 mb-4">
-                    @foreach($topCompleteSchools as $school)
-                    <div class="col-xl-4">
-                        <div class="card profile-summary-card h-100">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div>
-                                        <span class="badge bg-primary-subtle text-primary mb-2">Peringkat #{{ $school['rank'] }}</span>
-                                        <h5 class="mb-1">{{ $school['school_name'] }}</h5>
-                                        <small class="text-muted">{{ $school['scod'] }} • {{ $school['kabupaten'] }}</small>
-                                    </div>
-                                    <span class="badge bg-success fs-6">{{ $school['overall_completion_percentage'] }}%</span>
-                                </div>
-
-                                <div class="progress mb-3">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ $school['overall_completion_percentage'] }}%"></div>
-                                </div>
-
-                                <div class="d-flex flex-wrap gap-2">
-                                    <span class="badge bg-light text-dark">Presensi: {{ $school['presensi_percentage'] }}%</span>
-                                    <span class="badge bg-light text-dark">Jadwal: {{ $school['schedule_percentage'] }}%</span>
-                                    <span class="badge bg-light text-dark">Jurnal: {{ $school['journal_percentage'] }}%</span>
-                                    <span class="badge bg-light text-dark">Guru: {{ $school['total_teachers'] }} ({{ $school['total_teachers_percentage'] }}%)</span>
-                                    <span class="badge bg-light text-dark">Pegawai: {{ $school['total_employees'] }} ({{ $school['total_employees_percentage'] }}%)</span>
-                                    <span class="badge bg-light text-dark">SK: {{ $school['total_sk_submissions'] }} ({{ $school['total_sk_submissions_percentage'] }}%)</span>
-                                    <span class="badge bg-light text-dark">Siswa: {{ $school['total_students'] }} ({{ $school['total_students_percentage'] }}%)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
 
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-light border-0">
                         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2">
                             <div>
-                                <h5 class="mb-1">Ringkasan Kelengkapan Data Sekolah</h5>
-                                <p class="text-muted mb-0">Diurutkan dari skor disiplin digitalisasi dengan bobot sama untuk presensi, jadwal, jurnal, guru + pegawai, pengajuan SK, dan data siswa.</p>
+                                <h5 class="mb-1">Monitoring Kelengkapan Data Sekolah</h5>
+                                <p class="text-muted mb-0">Tabel ini menampilkan status kelengkapan data guru dan pegawai, kedisiplinan presensi, periode dan jadwal mengajar, jurnal mengajar, pengajuan SK yayasan, serta data siswa untuk setiap sekolah.</p>
                             </div>
-                            <span class="badge bg-info-subtle text-info">Kolom Persentase dan Rank dihitung dari 6 indikator dengan bobot masing-masing 16.67%</span>
+                            <span class="badge bg-info-subtle text-info">Persentase total dan rank dihitung dari 6 indikator dengan bobot sama</span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -215,11 +180,20 @@
                                         <th>#</th>
                                         <th>SCOD</th>
                                         <th>Nama Sekolah/Madrasah</th>
-                                        <th>Jumlah Guru</th>
-                                        <th>Jumlah Pegawai</th>
-                                        <th>Total Guru + Pegawai</th>
-                                        <th>Pengajuan SK</th>
+                                        <th>Guru + Pegawai</th>
+                                        <th>Kelengkapan Data Users</th>
+                                        <th>Presensi Kehadiran</th>
+                                        <th>Disiplin Kehadiran</th>
+                                        <th>Periode Aktif</th>
+                                        <th>Guru Sudah Jadwal</th>
+                                        <th>Guru Belum Jadwal</th>
+                                        <th>Cakupan Jadwal Guru</th>
+                                        <th>Jurnal Mengajar</th>
+                                        <th>Disiplin Jurnal</th>
+                                        <th>Pengajuan SK Yayasan</th>
+                                        <th>Kelengkapan SK</th>
                                         <th>Data Siswa</th>
+                                        <th>Kelengkapan Siswa</th>
                                         <th>Persentase</th>
                                         <th>Rank</th>
                                     </tr>
@@ -239,35 +213,74 @@
                                             <small class="text-muted">{{ $row['yayasan_name'] }}</small>
                                         </td>
                                         <td>
-                                            <div class="fw-semibold">{{ $row['total_teachers'] }}</div>
-                                            <small class="text-muted">{{ $row['total_teachers_percentage'] }}%</small>
-                                        </td>
-                                        <td>
-                                            <div class="fw-semibold">{{ $row['total_employees'] }}</div>
-                                            <small class="text-muted">{{ $row['total_employees_percentage'] }}%</small>
-                                        </td>
-                                        <td>
                                             <div class="fw-semibold">{{ $row['total_teacher_employees'] }}</div>
-                                            <small class="text-muted">{{ $row['total_teacher_employees_percentage'] }}%</small>
+                                            <small class="text-muted">Guru {{ $row['total_teachers'] }} • Pegawai {{ $row['total_employees'] }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ number_format($row['user_completion_percentage'], 1) }}%</div>
+                                            <small class="text-muted">Kelengkapan rata-rata data users</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ number_format($row['actual_attendance']) }}</div>
+                                            <small class="text-muted">{{ number_format($row['expected_attendance']) }} target • {{ $row['attendance_month_label'] }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ number_format($row['attendance_discipline_percentage'], 1) }}%</div>
+                                            <small class="text-muted">Kedisiplinan presensi kehadiran</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['has_active_period'] ? 'Ada' : 'Belum Ada' }}</div>
+                                            <small class="text-muted">{{ $row['has_active_period'] ? $row['active_period_label'] : 'Terakhir: ' . $row['latest_period_label'] }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['total_teachers_with_schedule'] }}</div>
+                                            <small class="text-muted">dari {{ $row['eligible_teacher_total'] }} guru yang wajib dijadwalkan</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['total_teachers_without_schedule'] }}</div>
+                                            <small class="text-muted">Guru belum punya jadwal mengajar</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ number_format($row['schedule_coverage_percentage'], 1) }}%</div>
+                                            <small class="text-muted">{{ $row['total_teaching_schedules'] }} data jadwal pada periode aktif</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ $row['total_teaching_attendances'] }}</div>
+                                            <small class="text-muted">{{ $row['journal_expected_meetings'] }} target jurnal</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ number_format($row['journal_discipline_percentage'], 1) }}%</div>
+                                            <small class="text-muted">Kedisiplinan presensi jurnal mengajar</small>
                                         </td>
                                         <td>
                                             <div class="fw-semibold">{{ $row['total_sk_submissions'] }}</div>
-                                            <small class="text-muted">{{ $row['total_sk_submissions_percentage'] }}%</small>
+                                            <small class="text-muted">Pengajuan SK yayasan tercatat</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ number_format($row['sk_completeness_percentage'], 1) }}%</div>
+                                            <small class="text-muted">Valid {{ $row['sk_latest_batch_valid_rows'] }}/{{ $row['sk_latest_batch_total_rows'] }} • {{ $row['sk_latest_batch_status'] }}</small>
                                         </td>
                                         <td>
                                             <div class="fw-semibold">{{ $row['total_students'] }}</div>
-                                            <small class="text-muted">{{ $row['total_students_percentage'] }}%</small>
+                                            <small class="text-muted">Data siswa yang sudah dikirim</small>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{ number_format($row['student_completion_percentage'], 1) }}%</div>
+                                            <small class="text-muted">Rata-rata kelengkapan data siswa</small>
                                         </td>
                                         <td class="profile-metric">
                                             <div class="d-flex justify-content-between small mb-1">
-                                                <span class="fw-semibold">{{ $row['overall_completion_percentage'] }}%</span>
+                                                <span class="fw-semibold">{{ number_format($row['overall_completion_percentage'], 1) }}%</span>
                                                 <span class="text-muted">{{ $row['filled_indicator_count'] }}/6</span>
                                             </div>
                                             <div class="progress">
                                                 <div class="progress-bar bg-success" role="progressbar" style="width: {{ $row['overall_completion_percentage'] }}%"></div>
                                             </div>
                                             <small class="text-muted d-block mt-1">
-                                                P {{ $row['presensi_percentage'] }}% • Jd {{ $row['schedule_percentage'] }}% • Jr {{ $row['journal_percentage'] }}%
+                                                Users {{ number_format($row['user_completion_percentage'], 1) }}% • Hadir {{ number_format($row['attendance_discipline_percentage'], 1) }}% • Jadwal {{ number_format($row['schedule_coverage_percentage'], 1) }}%
+                                            </small>
+                                            <small class="text-muted d-block">
+                                                Jurnal {{ number_format($row['journal_discipline_percentage'], 1) }}% • SK {{ number_format($row['sk_completeness_percentage'], 1) }}% • Siswa {{ number_format($row['student_completion_percentage'], 1) }}%
                                             </small>
                                         </td>
                                         <td>
@@ -279,41 +292,6 @@
                             </table>
                         </div>
                     </div>
-                </div>
-
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <h5 class="mb-1">Akses Cepat Profile Sekolah</h5>
-                        <p class="text-muted mb-0">Kartu di bawah tetap bisa dipakai untuk membuka detail profile masing-masing sekolah.</p>
-                    </div>
-                </div>
-
-                <div class="row">
-                    @forelse($madrasahs as $madrasah)
-                    <div class="col-xxl-3 col-md-6">
-                        <div class="card project-card" style="border: none; box-shadow: 0 0.75rem 1.5rem rgba(18,38,63,.03); border-radius: 0.75rem; overflow: hidden;">
-                            @if($madrasah->logo)
-                            <img src="{{ asset('storage/' . $madrasah->logo) }}" class="card-img-top" alt="{{ $madrasah->name }}" style="height: 200px; object-fit: cover;">
-                            @else
-                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <i class="bx bx-school bx-lg text-muted"></i>
-                            </div>
-                            @endif
-                            <div class="card-body p-4">
-                                <h5 class="card-title fw-semibold mb-2">{{ $madrasah->name }}</h5>
-                                <p class="card-text text-muted small mb-3">{{ Str::limit($madrasah->alamat ?? 'Alamat tidak tersedia', 100) }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <a href="{{ route('madrasah.detail', $madrasah->id) }}" class="btn btn-success btn-sm rounded-pill px-3">
-                                        <i class="bx bx-user me-1"></i>
-                                        Lihat Profile
-                                    </a>
-                                    <span class="badge bg-light text-dark">{{ $madrasah->tenaga_pendidik_count }} tenaga pendidik</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @empty
-                    @endforelse
                 </div>
                 @endif
             </div>
