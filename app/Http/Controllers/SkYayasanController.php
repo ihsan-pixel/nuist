@@ -1867,8 +1867,19 @@ class SkYayasanController extends Controller
             return;
         }
 
+        $proposalKeterangan = $this->resolveOriginalAppointmentKeterangan(
+            $appointmentRow['keterangan'] ?? $row->source_keterangan,
+            $appointmentRow['source_keterangan_label'] ?? $this->normalizeSkYayasanKeteranganLabel($row->source_keterangan),
+            $row->sk_payload ?? []
+        );
+        $rejectionKeterangan = $this->resolveRejectedAppointmentDisplayKeterangan(
+            $appointmentRow['rejection_keterangan'] ?? $appointmentRow['keterangan'] ?? $row->source_keterangan,
+            $appointmentRow['source_keterangan_label'] ?? $this->normalizeSkYayasanKeteranganLabel($row->source_keterangan),
+            $row->sk_payload ?? []
+        ) ?? $row->source_keterangan;
+
         $row->update([
-            'source_keterangan' => $appointmentRow['rejection_keterangan'] ?? $row->source_keterangan,
+            'source_keterangan' => $rejectionKeterangan,
             'source_nip_maarif' => null,
         ]);
 
@@ -1878,6 +1889,8 @@ class SkYayasanController extends Controller
             'sk_payload' => $this->mergeAppointmentDecisionMetadata($row->sk_payload ?? [], [
                 '_appointment_decision' => 'rejected',
                 '_appointment_decided_at' => now()->toIso8601String(),
+                '_appointment_original_keterangan' => $proposalKeterangan,
+                '_appointment_rejection_keterangan' => $rejectionKeterangan,
             ]),
         ]);
         $row->refresh();
@@ -3574,7 +3587,16 @@ class SkYayasanController extends Controller
                             'teacher_name' => $teacher?->name ?? $row->matched_name ?? '-',
                             'keterangan' => $keterangan,
                             'source_keterangan_label' => $sourceKeteranganLabel,
-                            'rejection_keterangan' => $this->resolveRejectedAppointmentKeterangan($keterangan),
+                            'proposal_keterangan' => $this->resolveOriginalAppointmentKeterangan(
+                                $keterangan,
+                                $sourceKeteranganLabel,
+                                $row->sk_payload ?? []
+                            ),
+                            'rejection_keterangan' => $this->resolveRejectedAppointmentDisplayKeterangan(
+                                $keterangan,
+                                $sourceKeteranganLabel,
+                                $row->sk_payload ?? []
+                            ),
                             'decision_status' => $decisionStatus,
                             'existing_nipm' => $teacher?->nip,
                             'source_nipm' => $row->source_nip_maarif,
@@ -3701,6 +3723,60 @@ class SkYayasanController extends Controller
                 return $row;
             })
             ->values();
+    }
+
+    private function resolveOriginalAppointmentKeterangan(
+        ?string $keterangan,
+        ?string $sourceKeteranganLabel,
+        array $skPayload = []
+    ): ?string {
+        $payloadValue = $this->normalizeSkYayasanKeteranganLabel(
+            data_get($skPayload, '_appointment_original_keterangan')
+        );
+
+        if ($payloadValue !== null) {
+            return $payloadValue;
+        }
+
+        if (in_array($sourceKeteranganLabel, ['Pengangkatan GTY', 'Pengangkatan PTY'], true)) {
+            return $sourceKeteranganLabel;
+        }
+
+        return match ($this->normalizeSkYayasanKeteranganLabel($keterangan)) {
+            'Pengangkatan GTT' => 'Pengangkatan GTY',
+            'Pengangkatan PTT' => 'Pengangkatan PTY',
+            'Perpanjangan GTT' => 'Perpanjangan GTY',
+            'Perpanjangan PTT' => 'Perpanjangan PTY',
+            default => $this->normalizeSkYayasanKeteranganLabel($keterangan),
+        };
+    }
+
+    private function resolveRejectedAppointmentDisplayKeterangan(
+        ?string $keterangan,
+        ?string $sourceKeteranganLabel,
+        array $skPayload = []
+    ): ?string {
+        $payloadValue = $this->normalizeSkYayasanKeteranganLabel(
+            data_get($skPayload, '_appointment_rejection_keterangan')
+        );
+
+        if ($payloadValue !== null) {
+            return $payloadValue;
+        }
+
+        $normalizedCurrent = $this->normalizeSkYayasanKeteranganLabel($keterangan);
+        if (in_array($normalizedCurrent, [
+            'Pengangkatan GTT',
+            'Pengangkatan PTT',
+            'Perpanjangan GTT',
+            'Perpanjangan PTT',
+        ], true)) {
+            return $normalizedCurrent;
+        }
+
+        return $this->resolveRejectedAppointmentKeterangan(
+            $this->resolveOriginalAppointmentKeterangan($keterangan, $sourceKeteranganLabel, $skPayload)
+        );
     }
 
     private function resolveRejectedAppointmentKeterangan(?string $keterangan): ?string

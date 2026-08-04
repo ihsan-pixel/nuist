@@ -644,7 +644,7 @@
                                             <td>{{ data_get($appointmentData, 'tmt_label', '-') }}</td>
                                             <td>{{ data_get($appointmentData, 'tenure_label', '-') }}</td>
                                             <td>
-                                                <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'keterangan', '-') }}</span>
+                                                <span class="badge bg-info-subtle text-info">{{ data_get($appointmentData, 'proposal_keterangan', data_get($appointmentData, 'keterangan', '-')) }}</span>
                                             </td>
                                             <td>
                                                 <span class="badge bg-danger-subtle text-danger">{{ data_get($appointmentData, 'rejection_keterangan', '-') }}</span>
