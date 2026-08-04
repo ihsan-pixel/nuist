@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_theme.dart';
+
 const _authAppVersionLabel = 'Nuist Mobile v1.0.0+1';
 
 class AuthPageScaffold extends StatelessWidget {
@@ -163,9 +165,12 @@ class _MobileBrandPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.92),
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: AppColors.accentWarmSoft,
+        ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x331F6B52),
+            color: AppColors.shadowSoft,
             blurRadius: 24,
             offset: Offset(0, 10),
           ),

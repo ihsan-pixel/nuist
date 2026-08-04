@@ -10,12 +10,12 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
-const _journalPrimary = Color(0xFF1F6B52);
-const _journalPrimaryDark = Color(0xFF174C3D);
-const _journalText = Color(0xFF1E463A);
-const _journalMuted = Color(0xFF6F8580);
-const _journalSoft = Color(0xFFF2FBF7);
-const _journalWarning = Color(0xFF2E7D61);
+const _journalPrimary = Color(0xFF04A512);
+const _journalPrimaryDark = Color(0xFF037A0D);
+const _journalText = Color(0xFF1C4A22);
+const _journalMuted = Color(0xFF6B7C69);
+const _journalSoft = Color(0xFFEBF7EC);
+const _journalWarning = Color(0xFFFF8A1F);
 const _journalDanger = Color(0xFFB42318);
 
 class TeacherTeachingJournalPage extends StatefulWidget {
@@ -37,8 +37,8 @@ class TeacherTeachingJournalPage extends StatefulWidget {
       _TeacherTeachingJournalPageState();
 }
 
-class _TeacherTeachingJournalPageState
-    extends State<TeacherTeachingJournalPage> with WidgetsBindingObserver {
+class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
+    with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _future;
   Position? _position;
   String? _locationAddress;

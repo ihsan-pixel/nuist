@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_theme.dart';
+
 class AppEmptyState extends StatelessWidget {
   const AppEmptyState({
     super.key,
@@ -22,7 +24,7 @@ class AppEmptyState extends StatelessWidget {
             Icon(
               icon,
               size: 42,
-              color: const Color(0xFF1F6B52),
+              color: AppColors.accentMain,
             ),
             const SizedBox(height: 10),
             Text(
@@ -36,12 +38,12 @@ class AppEmptyState extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.black,
-                ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black,
               ),
+            ),
           ],
         ),
       ),

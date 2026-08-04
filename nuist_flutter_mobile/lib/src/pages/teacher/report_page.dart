@@ -9,9 +9,9 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 
-const _reportPrimary = Color(0xFF1F6B52);
-const _reportText = Color(0xFF1F4F4C);
-const _reportMuted = Color(0xFF6D7F7D);
+const _reportPrimary = Color(0xFF04A512);
+const _reportText = Color(0xFF1C4A22);
+const _reportMuted = Color(0xFF6B7C69);
 
 class TeacherReportPage extends StatefulWidget {
   const TeacherReportPage({
@@ -194,12 +194,12 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
 
   Future<void> _saveAndOpenPdf(Map<String, dynamic> file) async {
     final bytes = (file['bytes'] as List?)?.cast<int>() ?? const <int>[];
-    final filename =
-        (file['filename'] as String?)?.trim().isNotEmpty == true
-            ? file['filename'] as String
-            : 'report.pdf';
+    final filename = (file['filename'] as String?)?.trim().isNotEmpty == true
+        ? file['filename'] as String
+        : 'report.pdf';
     final directory = await getTemporaryDirectory();
-    final path = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}_$filename';
+    final path =
+        '${directory.path}/${DateTime.now().millisecondsSinceEpoch}_$filename';
     final output = File(path);
     await output.writeAsBytes(bytes, flush: true);
     final result = await OpenFilex.open(output.path);

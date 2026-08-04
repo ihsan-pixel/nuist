@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_theme.dart';
+
 class TeacherPageHeader extends StatelessWidget {
   const TeacherPageHeader({
     super.key,
@@ -19,21 +21,21 @@ class TeacherPageHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0F003B39),
+            color: AppColors.shadowSoft,
             blurRadius: 18,
             offset: Offset(0, 8),
           ),
         ],
         border: const Border.fromBorderSide(
           BorderSide(
-            color: Color(0xFFE6EEEE),
+            color: AppColors.surfaceLine,
           ),
         ),
       ),
       child: Row(
         children: [
           Material(
-            color: const Color(0xFFEAF4EF),
+            color: AppColors.accentWarmSoft,
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               onTap: onBack,
@@ -43,7 +45,7 @@ class TeacherPageHeader extends StatelessWidget {
                 height: 40,
                 child: Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFF1F6B52),
+                  color: AppColors.accentDeep,
                   size: 18,
                 ),
               ),
@@ -67,7 +69,7 @@ class TeacherPageHeader extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF1F6B52),
+                  color: AppColors.accentWarm,
                   shape: BoxShape.circle,
                 ),
               ),

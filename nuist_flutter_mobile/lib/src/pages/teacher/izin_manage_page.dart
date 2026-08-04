@@ -10,9 +10,9 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 
-const _manageIzinPrimary = Color(0xFF1F6B52);
-const _manageIzinText = Color(0xFF1F4F4C);
-const _manageIzinMuted = Color(0xFF6D7F7D);
+const _manageIzinPrimary = Color(0xFF04A512);
+const _manageIzinText = Color(0xFF1C4A22);
+const _manageIzinMuted = Color(0xFF6B7C69);
 
 class TeacherIzinManagePage extends StatefulWidget {
   const TeacherIzinManagePage({
@@ -98,9 +98,8 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: approve
-                    ? const Color(0xFF2E8B57)
-                    : const Color(0xFFB42318),
+                backgroundColor:
+                    approve ? const Color(0xFF2E8B57) : const Color(0xFFB42318),
                 foregroundColor: Colors.white,
               ),
               child: Text(approve ? 'Setujui' : 'Tolak'),
@@ -294,8 +293,8 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
 
     for (final candidate in candidates) {
       final uri = Uri.tryParse(candidate);
-      final value = (uri?.path.isNotEmpty == true ? uri!.path : candidate)
-          .toLowerCase();
+      final value =
+          (uri?.path.isNotEmpty == true ? uri!.path : candidate).toLowerCase();
       if (value.endsWith('.jpg') ||
           value.endsWith('.jpeg') ||
           value.endsWith('.png') ||
@@ -488,15 +487,14 @@ class _ManageIzinContent extends StatelessWidget {
                       children: [
                         Builder(
                           builder: (context) {
-                            final hasAttachment =
-                                (item['file_url'] as String?)
-                                        ?.trim()
-                                        .isNotEmpty ==
-                                    true;
+                            final hasAttachment = (item['file_url'] as String?)
+                                    ?.trim()
+                                    .isNotEmpty ==
+                                true;
                             final itemId = (item['id'] as num?)?.toInt();
                             final openingThisAttachment =
                                 openingAttachmentId != null &&
-                                openingAttachmentId == itemId;
+                                    openingAttachmentId == itemId;
 
                             return Container(
                               width: double.infinity,
@@ -614,7 +612,8 @@ class _ManageIzinContent extends StatelessWidget {
                             text: 'Sampai ${item['end_date_label']}',
                           ),
                         ],
-                        if ((item['reason'] as String?)?.isNotEmpty == true) ...[
+                        if ((item['reason'] as String?)?.isNotEmpty ==
+                            true) ...[
                           const SizedBox(height: 10),
                           Text(
                             item['reason'] as String,
@@ -644,7 +643,8 @@ class _ManageIzinContent extends StatelessWidget {
                             ),
                           ),
                         ],
-                        if ((item['approved_at_label'] as String?)?.isNotEmpty ==
+                        if ((item['approved_at_label'] as String?)
+                                ?.isNotEmpty ==
                             true) ...[
                           const SizedBox(height: 8),
                           _ManagedMetaLine(

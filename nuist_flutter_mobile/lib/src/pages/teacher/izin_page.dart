@@ -6,11 +6,11 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 
-const _izinPrimary = Color(0xFF1F6B52);
-const _izinPrimaryDark = Color(0xFF174C3D);
-const _izinText = Color(0xFF1F4F4C);
-const _izinMuted = Color(0xFF6D7F7D);
-const _izinSoft = Color(0xFFF3F8F5);
+const _izinPrimary = Color(0xFF04A512);
+const _izinPrimaryDark = Color(0xFF037A0D);
+const _izinText = Color(0xFF1C4A22);
+const _izinMuted = Color(0xFF6B7C69);
+const _izinSoft = Color(0xFFEBF7EC);
 
 class TeacherIzinPage extends StatefulWidget {
   const TeacherIzinPage({
@@ -202,10 +202,10 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
           payload['tanggal_mulai'] = dateController.text.trim();
           payload['tanggal_selesai'] = endDateController.text.trim();
           payload['alasan'] = noteController.text.trim();
-          payload['hari_presensi'] =
-              selectedPresenceDays.toList()..sort((a, b) => a.compareTo(b));
-          payload['hari_tidak_presensi'] =
-              selectedNoPresenceDays.toList()..sort((a, b) => a.compareTo(b));
+          payload['hari_presensi'] = selectedPresenceDays.toList()
+            ..sort((a, b) => a.compareTo(b));
+          payload['hari_tidak_presensi'] = selectedNoPresenceDays.toList()
+            ..sort((a, b) => a.compareTo(b));
           attachmentField = 'file_izin';
           break;
       }
@@ -357,14 +357,13 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                             child: TextField(
                               readOnly: true,
                               controller: TextEditingController(
-                                text:
-                                    (formMeta['external_school_name'] as String?)
+                                text: (formMeta['external_school_name']
+                                                as String?)
                                             ?.trim()
                                             .isNotEmpty ==
                                         true
-                                        ? formMeta['external_school_name']
-                                            as String
-                                        : 'Belum diatur',
+                                    ? formMeta['external_school_name'] as String
+                                    : 'Belum diatur',
                               ),
                               decoration: _izinInputDecoration('Sekolah Lain'),
                             ),
@@ -372,9 +371,8 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                           const SizedBox(height: 12),
                         ],
                         _LabeledField(
-                          label: needsDateRange
-                              ? 'Tanggal Mulai'
-                              : 'Tanggal Izin',
+                          label:
+                              needsDateRange ? 'Tanggal Mulai' : 'Tanggal Izin',
                           child: TextField(
                             controller: dateController,
                             readOnly: true,
@@ -383,16 +381,13 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                               dateController,
                               sheetSetState,
                             ),
-                            decoration:
-                                _izinInputDecoration(
-                                  needsDateRange
-                                      ? 'Tanggal Mulai'
-                                      : 'Tanggal Izin',
-                                ).copyWith(
-                                  suffixIcon: const Icon(
-                                    Icons.calendar_today_rounded,
-                                  ),
-                                ),
+                            decoration: _izinInputDecoration(
+                              needsDateRange ? 'Tanggal Mulai' : 'Tanggal Izin',
+                            ).copyWith(
+                              suffixIcon: const Icon(
+                                Icons.calendar_today_rounded,
+                              ),
+                            ),
                           ),
                         ),
                         if (needsDateRange) ...[
@@ -407,14 +402,13 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                 endDateController,
                                 sheetSetState,
                               ),
-                              decoration:
-                                  _izinInputDecoration(
-                                    'Tanggal Selesai',
-                                  ).copyWith(
-                                    suffixIcon: const Icon(
-                                      Icons.calendar_today_rounded,
-                                    ),
-                                  ),
+                              decoration: _izinInputDecoration(
+                                'Tanggal Selesai',
+                              ).copyWith(
+                                suffixIcon: const Icon(
+                                  Icons.calendar_today_rounded,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -488,16 +482,15 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                 startTimeController,
                                 sheetSetState,
                               ),
-                              decoration:
-                                  _izinInputDecoration(
-                                    type == 'terlambat'
-                                        ? 'Waktu Masuk'
-                                        : 'Waktu Mulai',
-                                  ).copyWith(
-                                    suffixIcon: const Icon(
-                                      Icons.schedule_rounded,
-                                    ),
-                                  ),
+                              decoration: _izinInputDecoration(
+                                type == 'terlambat'
+                                    ? 'Waktu Masuk'
+                                    : 'Waktu Mulai',
+                              ).copyWith(
+                                suffixIcon: const Icon(
+                                  Icons.schedule_rounded,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -513,14 +506,13 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                 endTimeController,
                                 sheetSetState,
                               ),
-                              decoration:
-                                  _izinInputDecoration(
-                                    'Waktu Selesai',
-                                  ).copyWith(
-                                    suffixIcon: const Icon(
-                                      Icons.schedule_rounded,
-                                    ),
-                                  ),
+                              decoration: _izinInputDecoration(
+                                'Waktu Selesai',
+                              ).copyWith(
+                                suffixIcon: const Icon(
+                                  Icons.schedule_rounded,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -539,7 +531,8 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                             spacing: 8,
                             runSpacing: 8,
                             children: dayOptions.map((day) {
-                              final value = (day['value'] as num?)?.toInt() ?? 0;
+                              final value =
+                                  (day['value'] as num?)?.toInt() ?? 0;
                               final selected =
                                   selectedPresenceDays.contains(value);
                               return FilterChip(
@@ -573,7 +566,8 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                             spacing: 8,
                             runSpacing: 8,
                             children: dayOptions.map((day) {
-                              final value = (day['value'] as num?)?.toInt() ?? 0;
+                              final value =
+                                  (day['value'] as num?)?.toInt() ?? 0;
                               final selected =
                                   selectedNoPresenceDays.contains(value);
                               return FilterChip(
@@ -679,7 +673,8 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                     isEditing
                                         ? 'Simpan Perubahan'
                                         : 'Kirim Pengajuan',
-                                    style: const TextStyle(fontWeight: FontWeight.w800),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w800),
                                   ),
                           ),
                         ),
@@ -1081,14 +1076,16 @@ class _IzinContent extends StatelessWidget {
                             ),
                           ),
                         ],
-                        if ((item['reason'] as String?)?.isNotEmpty == true) ...[
+                        if ((item['reason'] as String?)?.isNotEmpty ==
+                            true) ...[
                           const SizedBox(height: 8),
                           Text(
                             item['reason'] as String,
                             style: const TextStyle(color: _izinText),
                           ),
                         ],
-                        if ((item['location'] as String?)?.isNotEmpty == true) ...[
+                        if ((item['location'] as String?)?.isNotEmpty ==
+                            true) ...[
                           const SizedBox(height: 8),
                           _MetaLine(
                             icon: Icons.location_on_outlined,
@@ -1108,7 +1105,8 @@ class _IzinContent extends StatelessWidget {
                         ],
                         if (((item['day_presence_labels'] as List?) ?? const [])
                                 .isNotEmpty ||
-                            ((item['day_no_presence_labels'] as List?) ?? const [])
+                            ((item['day_no_presence_labels'] as List?) ??
+                                    const [])
                                 .isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Wrap(
@@ -1147,7 +1145,8 @@ class _IzinContent extends StatelessWidget {
                                 action: {
                                   'type': item['type'],
                                   'title': item['title'],
-                                  'subtitle': 'Perbarui pengajuan izin yang masih menunggu persetujuan.',
+                                  'subtitle':
+                                      'Perbarui pengajuan izin yang masih menunggu persetujuan.',
                                 },
                                 formMeta: formMeta,
                                 existingItem: item,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_theme.dart';
+
 class TeacherBottomNavItem {
   const TeacherBottomNavItem({
     required this.label,
@@ -50,13 +52,13 @@ class TeacherBottomNav extends StatelessWidget {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: const [
                     BoxShadow(
-                      color: Color(0x16003B39),
+                      color: AppColors.shadowSoft,
                       blurRadius: 28,
                       offset: Offset(0, 10),
                     ),
                   ],
                   border: Border.all(
-                    color: const Color(0xFFE2EFED),
+                    color: AppColors.surfaceLine,
                   ),
                 ),
                 child: Row(
@@ -134,9 +136,7 @@ class _NavSideItem extends StatelessWidget {
                 Icon(
                   icon,
                   size: 22,
-                  color: selected
-                      ? const Color(0xFF1F6B52)
-                      : const Color(0xFF8BA3A1),
+                  color: selected ? AppColors.accentMain : AppColors.textMuted,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -182,29 +182,24 @@ class _CenterNavItem extends StatelessWidget {
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color:
-                  selected ? const Color(0xFF1F6B52) : const Color(0xFFEAF4EF),
+              color: selected ? AppColors.accentWarmSoft : AppColors.accentSoft,
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0xFF1F6B52),
-                  blurRadius: 5,
-                  offset: Offset(0, 3),
+                  color: AppColors.shadowSoft,
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
                 ),
               ],
+              border: Border.all(
+                color: selected ? AppColors.accentWarm : AppColors.surfaceLine,
+              ),
             ),
             child: Container(
               width: 62,
               height: 62,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF1F6B52),
-                    Color(0xFF174C3D),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+                color: selected ? AppColors.accentMain : AppColors.accentDeep,
               ),
               child: Icon(
                 icon,

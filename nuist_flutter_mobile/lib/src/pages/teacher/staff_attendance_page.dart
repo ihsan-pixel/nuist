@@ -6,9 +6,9 @@ import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 import 'report_page.dart';
 
-const _staffPrimary = Color(0xFF1F6B52);
-const _staffText = Color(0xFF1F4F4C);
-const _staffMuted = Color(0xFF6D7F7D);
+const _staffPrimary = Color(0xFF04A512);
+const _staffText = Color(0xFF1C4A22);
+const _staffMuted = Color(0xFF6B7C69);
 
 class TeacherStaffAttendancePage extends StatefulWidget {
   const TeacherStaffAttendancePage({
@@ -23,7 +23,8 @@ class TeacherStaffAttendancePage extends StatefulWidget {
       _TeacherStaffAttendancePageState();
 }
 
-class _TeacherStaffAttendancePageState extends State<TeacherStaffAttendancePage> {
+class _TeacherStaffAttendancePageState
+    extends State<TeacherStaffAttendancePage> {
   late Future<Map<String, dynamic>> _future;
   late String _date;
 

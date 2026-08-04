@@ -43,7 +43,7 @@ class AuthActionButton extends StatelessWidget {
           onPressed: isLoading ? null : onPressed,
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.accentMain,
-            disabledBackgroundColor: const Color(0xFFBCD6CA),
+            disabledBackgroundColor: const Color(0xFFCBE8CE),
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(48),
             shape: RoundedRectangleBorder(
@@ -63,7 +63,7 @@ class AuthActionButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size.fromHeight(48),
           side: const BorderSide(
-            color: AppColors.accentMain,
+            color: AppColors.accentWarm,
             width: 2,
           ),
           shape: RoundedRectangleBorder(
