@@ -181,11 +181,13 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAttendanceFullscreen = _currentIndex == 2;
+
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
       body: SafeArea(
-        top: _currentIndex != 4,
+        top: _currentIndex != 4 && !isAttendanceFullscreen,
         bottom: false,
         child: IndexedStack(
           index: _currentIndex,
@@ -230,11 +232,13 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
           ],
         ),
       ),
-      bottomNavigationBar: TeacherBottomNav(
-        items: _navItems,
-        currentIndex: _currentIndex,
-        onSelect: _selectTab,
-      ),
+      bottomNavigationBar: isAttendanceFullscreen
+          ? null
+          : TeacherBottomNav(
+              items: _navItems,
+              currentIndex: _currentIndex,
+              onSelect: _selectTab,
+            ),
     );
   }
 }

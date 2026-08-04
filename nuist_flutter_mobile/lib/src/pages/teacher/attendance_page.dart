@@ -11,15 +11,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../services/teacher_mobile_repository.dart';
-import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
-import '../../widgets/app/teacher_page_header.dart';
 
-const _attendancePrimary = Color(0xFF1F6B52);
-const _attendancePrimaryDark = Color(0xFF174C3D);
-const _attendanceText = Color(0xFF1E463A);
-const _attendanceMuted = Color(0xFF7A8F8C);
-const _attendanceSoft = Color(0xFFEAF4EF);
+const _attendancePrimary = Color(0xFF04A512);
+const _attendancePrimaryDark = Color(0xFF037A0D);
+const _attendancePrimarySoft = Color(0xFFE7F8E9);
+const _attendancePrimaryBorder = Color(0xFFBFEAC4);
+const _attendanceText = Color(0xFF0E4D16);
+const _attendanceMuted = Color(0xFF6A8870);
 
 class TeacherAttendancePage extends StatefulWidget {
   const TeacherAttendancePage({
@@ -42,6 +41,8 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   final ImagePicker _imagePicker = ImagePicker();
 
   late Future<Map<String, dynamic>> _future;
+  DateTime _now = DateTime.now();
+  Timer? _clockTimer;
   Position? _position;
   XFile? _selfieFile;
   String? _locationAddress;
@@ -50,18 +51,11 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   bool _loadingLocation = false;
   bool _capturingSelfie = false;
   bool _submitting = false;
-  late DateTime _now;
-  Timer? _clockTimer;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _future = widget.repository.getAttendance();
-    _now = DateTime.now();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _handlePageReactivated(refreshRemoteData: false);
-    });
     _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) {
         return;
@@ -69,6 +63,10 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       setState(() {
         _now = DateTime.now();
       });
+    });
+    _future = widget.repository.getAttendance();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handlePageReactivated(refreshRemoteData: false);
     });
   }
 
@@ -89,8 +87,8 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
   @override
   void dispose() {
-    _clockTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+    _clockTimer?.cancel();
     super.dispose();
   }
 
@@ -109,14 +107,13 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       return;
     }
 
-    setState(() {
-      _now = DateTime.now();
-    });
-
     if (refreshRemoteData) {
       await _refresh();
     }
 
+    setState(() {
+      _now = DateTime.now();
+    });
     _triggerAutoLocationCapture();
   }
 
@@ -147,7 +144,8 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        throw Exception('Izin lokasi ditolak. Presensi memerlukan akses lokasi.');
+        throw Exception(
+            'Izin lokasi ditolak. Presensi memerlukan akses lokasi.');
       }
 
       final readings = <Map<String, dynamic>>[];
@@ -368,64 +366,6 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     }
   }
 
-  Future<void> _openAttendanceSheet(Map<String, dynamic> data) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            Future<void> handleCaptureLocation() async {
-              await _captureLocation();
-              if (mounted) {
-                setModalState(() {});
-              }
-            }
-
-            Future<void> handleCaptureSelfie() async {
-              await _captureSelfie();
-              if (mounted) {
-                setModalState(() {});
-              }
-            }
-
-            Future<void> handleSubmit() async {
-              final success = await _submitAttendance(data);
-              if (mounted) {
-                setModalState(() {});
-              }
-              if (success && mounted) {
-                Navigator.of(sheetContext).pop();
-              }
-            }
-
-            return _AttendanceSubmitSheet(
-              position: _position,
-              locationError: _locationError,
-              locationReadingsCount: _locationReadings.length,
-              loadingLocation: _loadingLocation,
-              onCaptureLocation: handleCaptureLocation,
-              selfieFile: _selfieFile,
-              capturingSelfie: _capturingSelfie,
-              onCaptureSelfie: handleCaptureSelfie,
-              onClearSelfie: () {
-                setState(() {
-                  _selfieFile = null;
-                });
-                setModalState(() {});
-              },
-              submitting: _submitting,
-              data: data,
-              onSubmit: handleSubmit,
-            );
-          },
-        );
-      },
-    );
-  }
-
   Future<String> _buildSelfieData(XFile file) async {
     final bytes = await file.readAsBytes();
     final lowerPath = file.path.toLowerCase();
@@ -436,10 +376,9 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   Future<bool?> _confirmEarlyCheckout({
     required String? pulangStart,
   }) {
-    final pulangLabel =
-        pulangStart != null && pulangStart.trim().isNotEmpty
-            ? pulangStart.trim()
-            : null;
+    final pulangLabel = pulangStart != null && pulangStart.trim().isNotEmpty
+        ? pulangStart.trim()
+        : null;
 
     return showDialog<bool>(
       context: context,
@@ -538,39 +477,178 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     }
   }
 
+  int _attendanceFlowInitialStep(Map<String, dynamic> data) {
+    final verification = Map<String, dynamic>.from(
+      (data['verification'] as Map?) ?? const <String, dynamic>{},
+    );
+    final requiresSelfie =
+        (verification['mode'] as String? ?? 'selfie') == 'selfie';
+
+    if (_position == null) {
+      return 0;
+    }
+
+    if (requiresSelfie && _selfieFile == null) {
+      return 1;
+    }
+
+    return 2;
+  }
+
+  Future<void> _openAttendanceFlow(Map<String, dynamic> data) async {
+    final pageController = PageController(
+      initialPage: _attendanceFlowInitialStep(data),
+    );
+    var currentStep = _attendanceFlowInitialStep(data);
+
+    Future<void> jumpToStep(
+      int step,
+      void Function(void Function()) setModalState,
+    ) async {
+      currentStep = step;
+      setModalState(() {});
+      await pageController.animateToPage(
+        step,
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+      );
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            Future<void> handleCaptureLocation() async {
+              await _captureLocation();
+              if (!mounted) {
+                return;
+              }
+              setModalState(() {});
+              if (_position != null && currentStep == 0) {
+                await jumpToStep(1, setModalState);
+              }
+            }
+
+            Future<void> handleCaptureSelfie() async {
+              await _captureSelfie();
+              if (!mounted) {
+                return;
+              }
+              setModalState(() {});
+              if (_selfieFile != null && currentStep <= 1) {
+                await jumpToStep(2, setModalState);
+              }
+            }
+
+            Future<void> handleSubmit() async {
+              final success = await _submitAttendance(data);
+              if (!mounted) {
+                return;
+              }
+              setModalState(() {});
+              if (success) {
+                Navigator.of(sheetContext).pop();
+              }
+            }
+
+            return _AttendanceFlowSheet(
+              pageController: pageController,
+              currentStep: currentStep,
+              onStepChange: (step) {
+                currentStep = step;
+                setModalState(() {});
+              },
+              position: _position,
+              locationAddress: _locationAddress,
+              locationError: _locationError,
+              locationReadingsCount: _locationReadings.length,
+              loadingLocation: _loadingLocation,
+              onCaptureLocation: handleCaptureLocation,
+              selfieFile: _selfieFile,
+              capturingSelfie: _capturingSelfie,
+              onCaptureSelfie: handleCaptureSelfie,
+              onClearSelfie: () {
+                setState(() {
+                  _selfieFile = null;
+                });
+                setModalState(() {});
+              },
+              submitting: _submitting,
+              data: data,
+              onSubmit: handleSubmit,
+              onPreviousStep: currentStep == 0
+                  ? null
+                  : () async {
+                      await jumpToStep(currentStep - 1, setModalState);
+                    },
+              onNextStep: () async {
+                if (currentStep == 0 && _position != null) {
+                  await jumpToStep(1, setModalState);
+                  return;
+                }
+                if (currentStep == 1 && _selfieFile != null) {
+                  await jumpToStep(2, setModalState);
+                }
+              },
+            );
+          },
+        );
+      },
+    );
+    pageController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
       future: _future,
       builder: (context, snapshot) {
-        return RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-            children: [
-              TeacherPageHeader(
-                title: 'Presensi',
-                onBack: widget.onBackToHome,
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const ColoredBox(
+            color: Colors.white,
+            child: _PageLoading(),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+              child: _PageError(
+                message: snapshot.error.toString(),
+                onRetry: _refresh,
               ),
-              const SizedBox(height: 14),
-              if (snapshot.connectionState == ConnectionState.waiting)
-                const _PageLoading()
-              else if (snapshot.hasError)
-                _PageError(
-                  message: snapshot.error.toString(),
-                  onRetry: _refresh,
-                )
-              else
-                _AttendanceContent(
-                  data: snapshot.data ?? const <String, dynamic>{},
-                  now: _now,
-                  submitting: _submitting,
-                  onSubmit: () => _openAttendanceSheet(
-                    snapshot.data ?? const <String, dynamic>{},
-                  ),
-                ),
-            ],
+            ),
+          );
+        }
+
+        return _AttendanceContent(
+          data: snapshot.data ?? const <String, dynamic>{},
+          now: _now,
+          submitting: _submitting,
+          position: _position,
+          locationAddress: _locationAddress,
+          locationError: _locationError,
+          locationReadingsCount: _locationReadings.length,
+          loadingLocation: _loadingLocation,
+          onCaptureLocation: _captureLocation,
+          selfieFile: _selfieFile,
+          capturingSelfie: _capturingSelfie,
+          onCaptureSelfie: _captureSelfie,
+          onClearSelfie: () {
+            setState(() {
+              _selfieFile = null;
+            });
+          },
+          onOpenAttendanceFlow: () => _openAttendanceFlow(
+            snapshot.data ?? const <String, dynamic>{},
           ),
+          onBackToHome: widget.onBackToHome,
+          onRefreshData: _refresh,
         );
       },
     );
@@ -582,16 +660,43 @@ class _AttendanceContent extends StatelessWidget {
     required this.data,
     required this.now,
     required this.submitting,
-    required this.onSubmit,
+    required this.position,
+    required this.locationAddress,
+    required this.locationError,
+    required this.locationReadingsCount,
+    required this.loadingLocation,
+    required this.onCaptureLocation,
+    required this.selfieFile,
+    required this.capturingSelfie,
+    required this.onCaptureSelfie,
+    required this.onClearSelfie,
+    required this.onOpenAttendanceFlow,
+    required this.onBackToHome,
+    required this.onRefreshData,
   });
 
   final Map<String, dynamic> data;
   final DateTime now;
   final bool submitting;
-  final VoidCallback onSubmit;
+  final Position? position;
+  final String? locationAddress;
+  final String? locationError;
+  final int locationReadingsCount;
+  final bool loadingLocation;
+  final Future<void> Function() onCaptureLocation;
+  final XFile? selfieFile;
+  final bool capturingSelfie;
+  final Future<void> Function() onCaptureSelfie;
+  final VoidCallback onClearSelfie;
+  final VoidCallback onOpenAttendanceFlow;
+  final VoidCallback onBackToHome;
+  final Future<void> Function() onRefreshData;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final mediaQuery = MediaQuery.of(context);
     final today = Map<String, dynamic>.from(
       (data['today_attendance'] as Map?) ?? const <String, dynamic>{},
     );
@@ -604,327 +709,199 @@ class _AttendanceContent extends StatelessWidget {
     final verification = Map<String, dynamic>.from(
       (data['verification'] as Map?) ?? const <String, dynamic>{},
     );
-    final recent = ((data['recent'] as List?) ?? const [])
-        .whereType<Map>()
-        .map((item) => Map<String, dynamic>.from(item))
-        .toList();
     final canSubmit = form['can_submit'] == true;
     final nextModeLabel =
-        form['next_mode_label'] as String? ?? 'Presensi Hari Ini';
-    final verificationLabel = verification['label'] as String? ?? 'Selfie';
-    final verificationDescription =
-        verification['description'] as String? ??
-        'Presensi mobile memakai selfie kamera depan.';
+        form['next_mode_label'] as String? ?? 'Presensi Masuk';
     final nativeSupportsVerification =
         (verification['mode'] as String? ?? 'selfie') == 'selfie';
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _AttendanceHeroCard(
-          teacherName: data['teacher_name'] as String? ?? '-',
-          schoolName: data['school_name'] as String? ?? '-',
-          todayLabel: data['today_label'] as String? ?? '-',
-          currentTime: _timeLabel(now),
-          statusLabel: today['status_label'] as String? ?? 'Belum presensi',
-          nextModeLabel: nextModeLabel,
-          status: today['status'] as String? ?? 'belum_presensi',
-        ),
-        const SizedBox(height: 18),
-        _AttendanceActionSection(
-          canSubmit: canSubmit,
-          nativeSupportsVerification: nativeSupportsVerification,
-          verificationLabel: verificationLabel,
-          verificationDescription: verificationDescription,
-          nextModeLabel: nextModeLabel,
-          blockedMessage: form['blocked_message'] as String?,
-          timeRanges: timeRanges,
-          submitting: submitting,
-          onSubmit: onSubmit,
-          onOpenHistory: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => _AttendanceHistoryPage(items: recent),
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 18),
-        _GuidanceCard(
-          guidance: ((form['guidance'] as List?) ?? const [])
-              .whereType<String>()
-              .toList(),
-        ),
-      ],
+    final schoolName = data['school_name'] as String? ?? '-';
+    final schoolLatitude = _findNumericValue(
+      [data, form, today],
+      const ['school_latitude', 'latitude', 'lat'],
     );
-  }
-}
+    final schoolLongitude = _findNumericValue(
+      [data, form, today],
+      const ['school_longitude', 'longitude', 'lng', 'lon'],
+    );
+    final mapCenter = _mapViewportCenter(
+      userPosition: position,
+      schoolLatitude: schoolLatitude,
+      schoolLongitude: schoolLongitude,
+    );
+    final canOpenFlow = canSubmit && nativeSupportsVerification && !submitting;
 
-class _AttendanceHeroCard extends StatelessWidget {
-  const _AttendanceHeroCard({
-    required this.teacherName,
-    required this.schoolName,
-    required this.todayLabel,
-    required this.currentTime,
-    required this.statusLabel,
-    required this.nextModeLabel,
-    required this.status,
-  });
-
-  final String teacherName;
-  final String schoolName;
-  final String todayLabel;
-  final String currentTime;
-  final String statusLabel;
-  final String nextModeLabel;
-  final String status;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _attendancePrimaryDark,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: _AttendanceMapLayer(
+            center: mapCenter,
+            userPosition: position,
+            schoolName: schoolName,
+            schoolLatitude: schoolLatitude,
+            schoolLongitude: schoolLongitude,
+            loadingLocation: loadingLocation,
+          ),
+        ),
+        Positioned(
+          top: mediaQuery.padding.top + 10,
+          left: 14,
+          right: 14,
+          child: Row(
             children: [
+              _MapHeaderButton(
+                icon: Icons.arrow_back_ios_new_rounded,
+                onTap: onBackToHome,
+              ),
               Expanded(
-                child: Text(
-                  todayLabel,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.82),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Presensi Hari Ini',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: _attendanceText,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _formatRunningTime(now),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: _attendancePrimaryDark,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 10,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.18),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  currentTime,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
+              PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == 'refresh') {
+                    await onRefreshData();
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem<String>(
+                    value: 'refresh',
+                    child: Text('Refresh'),
                   ),
+                ],
+                child: const _MapHeaderButton(
+                  icon: Icons.more_horiz_rounded,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            teacherName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              height: 1.05,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            schoolName,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.85),
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+        ),
+        Positioned(
+          left: 18,
+          right: 18,
+          bottom: 20 + mediaQuery.padding.bottom,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _HeroInfoPill(
-                icon: Icons.verified_user_outlined,
-                label: statusLabel,
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: colorScheme.surface.withOpacity(0.96),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 22,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: _AttendanceTopMetric(
+                        title: 'Jam Masuk',
+                        value: _resolveAttendanceDisplayTime(
+                          today,
+                          isCheckIn: true,
+                        ),
+                        caption: (timeRanges['masuk_start'] as String?)
+                                    ?.trim()
+                                    .isNotEmpty ==
+                                true
+                            ? 'Mulai ${timeRanges['masuk_start']}'
+                            : 'Belum tercatat',
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Container(
+                      width: 1,
+                      height: 44,
+                      color: _attendancePrimaryBorder,
+                    ),
+                    const SizedBox(width: 14),
+                    _AttendanceCenterStatus(
+                      statusLabel: _formatCurrentDate(now),
+                      subtitle: '',
+                      metric: null,
+                      metricLabel: '',
+                    ),
+                    const SizedBox(width: 14),
+                    Container(
+                      width: 1,
+                      height: 44,
+                      color: _attendancePrimaryBorder,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _AttendanceTopMetric(
+                        title: 'Jam Pulang',
+                        value: _resolveAttendanceDisplayTime(
+                          today,
+                          isCheckIn: false,
+                        ),
+                        caption: (timeRanges['pulang_start'] as String?)
+                                    ?.trim()
+                                    .isNotEmpty ==
+                                true
+                            ? 'Mulai ${timeRanges['pulang_start']}'
+                            : 'Belum tercatat',
+                        align: CrossAxisAlignment.end,
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              _HeroInfoPill(
-                icon: Icons.bolt_rounded,
-                label: nextModeLabel,
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: canOpenFlow ? onOpenAttendanceFlow : null,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: _attendancePrimary,
+                    disabledBackgroundColor: _attendancePrimaryBorder,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Text(
+                    nextModeLabel,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroInfoPill extends StatelessWidget {
-  const _HeroInfoPill({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: Colors.white,
-            size: 16,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttendanceActionSection extends StatelessWidget {
-  const _AttendanceActionSection({
-    required this.canSubmit,
-    required this.nativeSupportsVerification,
-    required this.verificationLabel,
-    required this.verificationDescription,
-    required this.nextModeLabel,
-    required this.blockedMessage,
-    required this.timeRanges,
-    required this.submitting,
-    required this.onSubmit,
-    required this.onOpenHistory,
-  });
-
-  final bool canSubmit;
-  final bool nativeSupportsVerification;
-  final String verificationLabel;
-  final String verificationDescription;
-  final String nextModeLabel;
-  final String? blockedMessage;
-  final Map<String, dynamic> timeRanges;
-  final bool submitting;
-  final VoidCallback onSubmit;
-  final VoidCallback onOpenHistory;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _PageSectionHeading(
-          eyebrow: 'Aksi',
-          title: 'Presensi',
-        ),
-        const SizedBox(height: 10),
-        Text(
-          '$verificationLabel aktif. $verificationDescription',
-          style: const TextStyle(
-            color: _attendanceMuted,
-            fontSize: 12,
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _RangeChip(label: nextModeLabel),
-            if ((timeRanges['masuk_start'] as String?)?.trim().isNotEmpty == true)
-              _RangeChip(label: 'Masuk ${timeRanges['masuk_start']}'),
-            if ((timeRanges['pulang_start'] as String?)?.trim().isNotEmpty == true)
-              _RangeChip(label: 'Pulang ${timeRanges['pulang_start']}'),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Text(
-          canSubmit
-              ? (nativeSupportsVerification
-                  ? 'Lokasi dan selfie diisi saat tombol presensi dibuka.'
-                  : 'Submit dari aplikasi native dinonaktifkan saat mode scan wajah aktif.')
-              : (blockedMessage ?? 'Presensi untuk hari ini belum dapat dilakukan.'),
-          style: TextStyle(
-            color: !canSubmit ? const Color(0xFFB42318) : _attendanceMuted,
-            fontSize: 12,
-            height: 1.4,
-            fontWeight: !canSubmit ? FontWeight.w700 : FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 14),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: canSubmit && nativeSupportsVerification && !submitting
-                ? onSubmit
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _attendancePrimary,
-              disabledBackgroundColor: const Color(0xFFD2E4DC),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 0,
-            ),
-            icon: submitting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.check_circle_outline_rounded),
-            label: Text(
-              submitting ? 'Mengirim...' : nextModeLabel,
-              style: const TextStyle(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: onOpenHistory,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: _attendancePrimary,
-              side: const BorderSide(color: Color(0xFFD7E3DD)),
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            icon: const Icon(Icons.history_rounded, size: 18),
-            label: const Text(
-              'Cek Riwayat Presensi',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-              ),
-            ),
           ),
         ),
       ],
@@ -932,36 +909,13 @@ class _AttendanceActionSection extends StatelessWidget {
   }
 }
 
-class _RangeChip extends StatelessWidget {
-  const _RangeChip({
-    required this.label,
-  });
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3F7F4),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
-class _AttendanceSubmitSheet extends StatelessWidget {
-  const _AttendanceSubmitSheet({
+class _AttendanceFlowSheet extends StatelessWidget {
+  const _AttendanceFlowSheet({
+    required this.pageController,
+    required this.currentStep,
+    required this.onStepChange,
     required this.position,
+    required this.locationAddress,
     required this.locationError,
     required this.locationReadingsCount,
     required this.loadingLocation,
@@ -973,9 +927,15 @@ class _AttendanceSubmitSheet extends StatelessWidget {
     required this.submitting,
     required this.data,
     required this.onSubmit,
+    required this.onPreviousStep,
+    required this.onNextStep,
   });
 
+  final PageController pageController;
+  final int currentStep;
+  final ValueChanged<int> onStepChange;
   final Position? position;
+  final String? locationAddress;
   final String? locationError;
   final int locationReadingsCount;
   final bool loadingLocation;
@@ -987,429 +947,353 @@ class _AttendanceSubmitSheet extends StatelessWidget {
   final bool submitting;
   final Map<String, dynamic> data;
   final Future<void> Function() onSubmit;
+  final Future<void> Function()? onPreviousStep;
+  final Future<void> Function()? onNextStep;
 
   @override
   Widget build(BuildContext context) {
-    final verification = Map<String, dynamic>.from(
-      (data['verification'] as Map?) ?? const <String, dynamic>{},
-    );
+    final theme = Theme.of(context);
+    final mediaQuery = MediaQuery.of(context);
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
     );
-    final verificationMode = verification['mode'] as String? ?? 'selfie';
-    final verificationLabel = verification['label'] as String? ?? 'Selfie';
-    final verificationDescription =
-        verification['description'] as String? ??
+    final today = Map<String, dynamic>.from(
+      (data['today_attendance'] as Map?) ?? const <String, dynamic>{},
+    );
+    final verification = Map<String, dynamic>.from(
+      (data['verification'] as Map?) ?? const <String, dynamic>{},
+    );
+    final nextModeLabel =
+        form['next_mode_label'] as String? ?? 'Presensi Masuk';
+    final verificationDescription = verification['description'] as String? ??
         'Presensi mobile memakai selfie kamera depan.';
-    final canSubmit = form['can_submit'] == true;
     final hasLocation = position != null;
-    final requiresSelfie = verificationMode == 'selfie';
-    final hasSelfie = !requiresSelfie || selfieFile != null;
-    final isReadyToSubmit = canSubmit && hasLocation && hasSelfie;
+    final hasSelfie = selfieFile != null;
 
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            12,
-            16,
-            16 + MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          18,
+          14,
+          18,
+          16 + mediaQuery.padding.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 42,
+              height: 5,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD7DEE6),
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
               children: [
-                Center(
-                  child: Container(
-                    width: 44,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD7E3DD),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Presensi',
-                  style: TextStyle(
-                    color: _attendanceText,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
                 Text(
-                  '$verificationLabel aktif. $verificationDescription',
-                  style: const TextStyle(
+                  nextModeLabel,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: _attendanceText,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'Langkah ${currentStep + 1}/3',
+                  style: theme.textTheme.bodySmall?.copyWith(
                     color: _attendanceMuted,
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _SimpleModalBlock(
-                  icon: Icons.my_location_rounded,
-                  title: 'Lokasi',
-                  actionLabel: loadingLocation ? 'Memuat...' : 'Perbarui',
-                  onActionTap: loadingLocation ? null : onCaptureLocation,
-                  child: position == null
-                      ? Text(
-                          locationError?.trim().isNotEmpty == true
-                              ? locationError!
-                              : 'Lokasi belum tersedia. Tekan perbarui untuk membaca GPS.',
-                          style: TextStyle(
-                            color: locationError?.trim().isNotEmpty == true
-                                ? const Color(0xFFB42318)
-                                : _attendanceMuted,
-                            fontSize: 12,
-                            height: 1.45,
-                          ),
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: SizedBox(
-                                height: 140,
-                                width: double.infinity,
-                                child: FlutterMap(
-                                  options: MapOptions(
-                                    initialCenter: LatLng(
-                                      position!.latitude,
-                                      position!.longitude,
-                                    ),
-                                    initialZoom: 16,
-                                    interactionOptions:
-                                        const InteractionOptions(
-                                      flags: InteractiveFlag.drag |
-                                          InteractiveFlag.pinchZoom |
-                                          InteractiveFlag.doubleTapZoom,
-                                    ),
-                                  ),
-                                  children: [
-                                    TileLayer(
-                                      urlTemplate:
-                                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                      userAgentPackageName:
-                                          'nuist_flutter_mobile',
-                                    ),
-                                    MarkerLayer(
-                                      markers: [
-                                        Marker(
-                                          point: LatLng(
-                                            position!.latitude,
-                                            position!.longitude,
-                                          ),
-                                          width: 44,
-                                          height: 44,
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              color: _attendancePrimary,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: const Icon(
-                                              Icons.location_on_rounded,
-                                              color: Colors.white,
-                                              size: 24,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              _coordinateLabel(position!),
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Akurasi ${position!.accuracy.toStringAsFixed(1)} m • Sampel GPS $locationReadingsCount',
-                              style: const TextStyle(
-                                color: _attendanceMuted,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
-                const SizedBox(height: 12),
-                _SimpleModalBlock(
-                  icon: Icons.camera_alt_outlined,
-                  title: verificationMode == 'selfie'
-                      ? 'Foto Selfie'
-                      : 'Scan Wajah Tidak Tersedia',
-                  actionLabel: verificationMode == 'selfie'
-                      ? (capturingSelfie ? 'Membuka...' : 'Ambil')
-                      : 'Mode Web',
-                  onActionTap: verificationMode == 'selfie' && !capturingSelfie
-                      ? onCaptureSelfie
-                      : null,
-                  child: selfieFile == null
-                      ? Text(
-                          verificationMode == 'selfie'
-                              ? 'Belum ada foto selfie.'
-                              : 'Gunakan presensi mobile web untuk mode scan wajah.',
-                          style: const TextStyle(
-                            color: _attendanceMuted,
-                            fontSize: 12,
-                            height: 1.4,
-                          ),
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: AspectRatio(
-                                aspectRatio: 4 / 5,
-                                child: Image.file(
-                                  File(selfieFile!.path),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton.icon(
-                                onPressed: onClearSelfie,
-                                icon: const Icon(Icons.delete_outline_rounded),
-                                label: const Text('Hapus'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: const Color(0xFFB42318),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
-                if (!isReadyToSubmit) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7ED),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFF3D6AE)),
-                    ),
-                    child: Text(
-                      !hasLocation
-                          ? 'Lokasi belum lengkap. Ambil atau perbarui lokasi terlebih dahulu.'
-                          : 'Foto selfie belum lengkap. Ambil foto selfie terlebih dahulu.',
-                      style: const TextStyle(
-                        color: Color(0xFF9A5B12),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: isReadyToSubmit && !submitting ? onSubmit : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _attendancePrimary,
-                      disabledBackgroundColor: const Color(0xFFD2E4DC),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
-                    ),
-                    icon: submitting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.check_circle_outline_rounded),
-                    label: Text(
-                      submitting
-                          ? 'Mengirim...'
-                          : (form['next_mode_label'] as String? ??
-                              'Kirim Presensi'),
-                      style: const TextStyle(fontWeight: FontWeight.w800),
-                    ),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 10.5,
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SimpleModalBlock extends StatelessWidget {
-  const _SimpleModalBlock({
-    required this.icon,
-    required this.title,
-    required this.child,
-    this.actionLabel,
-    this.onActionTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final Widget child;
-  final String? actionLabel;
-  final Future<void> Function()? onActionTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7FAF8),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE0EBE5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: _attendanceSoft,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  color: _attendancePrimary,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: _attendanceText,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              if (actionLabel != null)
-                TextButton(
-                  onPressed: onActionTap == null
-                      ? null
-                      : () async {
-                          await onActionTap!.call();
-                        },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: const Size(0, 0),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    actionLabel!,
-                    style: const TextStyle(
-                      color: _attendancePrimary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+            const SizedBox(height: 12),
+            Row(
+              children: List.generate(
+                3,
+                (index) => Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    height: 5,
+                    margin: EdgeInsets.only(right: index == 2 ? 0 : 6),
+                    decoration: BoxDecoration(
+                      color: index <= currentStep
+                          ? _attendancePrimary
+                          : const Color(0xFFE7EBF0),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-class _GuidanceCard extends StatelessWidget {
-  const _GuidanceCard({
-    required this.guidance,
-  });
-
-  final List<String> guidance;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _PageSectionHeading(
-            eyebrow: 'Panduan',
-            title: 'Langkah Presensi',
-          ),
-          const SizedBox(height: 12),
-          if (guidance.isEmpty)
-            const Text(
-              'Tidak ada panduan tambahan untuk hari ini.',
-              style: TextStyle(
-                color: _attendanceMuted,
-                fontSize: 12,
               ),
-            )
-          else
-            ...guidance.asMap().entries.map(
-                  (entry) => Padding(
-                    padding: EdgeInsets.only(
-                      bottom: entry.key == guidance.length - 1 ? 0 : 10,
-                    ),
-                    child: Row(
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: mediaQuery.size.height * 0.44,
+              child: PageView(
+                controller: pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: onStepChange,
+                children: [
+                  _AttendanceStepCard(
+                    title: '1. Ambil Lokasi',
+                    subtitle:
+                        'Pastikan GPS aktif. Setelah lokasi terbaca, langkah akan lanjut otomatis.',
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: _attendanceSoft,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${entry.key + 1}',
-                              style: const TextStyle(
-                                color: _attendancePrimary,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 11,
+                        if (position != null)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
+                            child: SizedBox(
+                              height: 148,
+                              width: double.infinity,
+                              child: FlutterMap(
+                                options: MapOptions(
+                                  initialCenter: LatLng(
+                                    position!.latitude,
+                                    position!.longitude,
+                                  ),
+                                  initialZoom: 16,
+                                ),
+                                children: [
+                                  TileLayer(
+                                    urlTemplate:
+                                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                    userAgentPackageName:
+                                        'nuist_flutter_mobile',
+                                  ),
+                                  MarkerLayer(
+                                    markers: [
+                                      Marker(
+                                        point: LatLng(
+                                          position!.latitude,
+                                          position!.longitude,
+                                        ),
+                                        width: 38,
+                                        height: 38,
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: _attendancePrimary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.location_on_rounded,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else
+                          Container(
+                            height: 148,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF4F7FA),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.map_outlined,
+                                size: 32,
+                                color: _attendanceMuted,
                               ),
                             ),
                           ),
+                        const SizedBox(height: 12),
+                        Text(
+                          locationError?.trim().isNotEmpty == true
+                              ? locationError!
+                              : (locationAddress?.trim().isNotEmpty == true
+                                  ? locationAddress!
+                                  : hasLocation
+                                      ? _coordinateLabel(position!)
+                                      : 'Lokasi belum tersedia.'),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: locationError?.trim().isNotEmpty == true
+                                ? const Color(0xFFB42318)
+                                : _attendanceText,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11,
+                            height: 1.4,
+                          ),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            entry.value,
-                            style: const TextStyle(
+                        if (hasLocation) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            'Akurasi ${position!.accuracy.toStringAsFixed(1)} m • Sampel GPS $locationReadingsCount',
+                            style: theme.textTheme.bodySmall?.copyWith(
                               color: _attendanceMuted,
-                              fontSize: 12,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 14),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.tonalIcon(
+                            onPressed: loadingLocation
+                                ? null
+                                : () async {
+                                    await onCaptureLocation();
+                                  },
+                            icon: loadingLocation
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.my_location_rounded),
+                            label: Text(
+                              hasLocation ? 'Perbarui Lokasi' : 'Ambil Lokasi',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _AttendanceStepCard(
+                    title: '2. Ambil Selfie',
+                    subtitle:
+                        'Gunakan kamera depan. Setelah foto berhasil, langkah akan lanjut otomatis.',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 10,
+                            child: selfieFile == null
+                                ? Container(
+                                    color: const Color(0xFFF4F7FA),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.photo_camera_front_rounded,
+                                        size: 34,
+                                        color: _attendanceMuted,
+                                      ),
+                                    ),
+                                  )
+                                : Image.file(
+                                    File(selfieFile!.path),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          hasSelfie
+                              ? 'Selfie sudah siap digunakan untuk presensi.'
+                              : verificationDescription,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: _attendanceText,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FilledButton.tonalIcon(
+                                onPressed: capturingSelfie
+                                    ? null
+                                    : () async {
+                                        await onCaptureSelfie();
+                                      },
+                                icon: capturingSelfie
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.camera_alt_rounded),
+                                label: Text(
+                                  hasSelfie ? 'Ambil Ulang' : 'Buka Kamera',
+                                ),
+                              ),
+                            ),
+                            if (hasSelfie) ...[
+                              const SizedBox(width: 10),
+                              IconButton.filledTonal(
+                                onPressed: onClearSelfie,
+                                icon: const Icon(Icons.delete_outline_rounded),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  _AttendanceStepCard(
+                    title: '3. Konfirmasi Presensi',
+                    subtitle:
+                        'Periksa lokasi dan selfie. Jika sudah benar, langsung kirim presensi.',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _AttendanceSummaryRow(
+                          label: 'Status',
+                          value: today['status_label'] as String? ??
+                              'Belum presensi',
+                        ),
+                        _AttendanceSummaryRow(
+                          label: 'Jam Masuk',
+                          value: _resolveAttendanceDisplayTime(
+                            today,
+                            isCheckIn: true,
+                          ),
+                        ),
+                        _AttendanceSummaryRow(
+                          label: 'Jam Pulang',
+                          value: _resolveAttendanceDisplayTime(
+                            today,
+                            isCheckIn: false,
+                          ),
+                        ),
+                        _AttendanceSummaryRow(
+                          label: 'Lokasi',
+                          value: hasLocation ? 'Siap' : 'Belum lengkap',
+                        ),
+                        _AttendanceSummaryRow(
+                          label: 'Selfie',
+                          value: hasSelfie ? 'Siap' : 'Belum lengkap',
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF4F7FA),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            hasSelfie
+                                ? 'Selfie sudah ada. Tinggal klik $nextModeLabel.'
+                                : 'Selfie belum ada. Kembali ke langkah sebelumnya jika perlu.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: _attendanceText,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
                               height: 1.4,
                             ),
                           ),
@@ -1417,158 +1301,67 @@ class _GuidanceCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttendanceHistoryTile extends StatelessWidget {
-  const _AttendanceHistoryTile({
-    required this.item,
-  });
-
-  final Map<String, dynamic> item;
-
-  @override
-  Widget build(BuildContext context) {
-    final status = (item['status'] as String? ?? '-').toLowerCase();
-    final statusLabel = item['status_label'] as String? ?? item['status'] as String? ?? '-';
-    final isAutoPresent = item['is_auto_present'] == true;
-    final statusColor = _statusColor(status);
-
-    return AppSectionCard(
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(16),
+                ],
+              ),
             ),
-            child: Icon(
-              status == 'hadir'
-                  ? Icons.verified_rounded
-                  : status == 'izin'
-                      ? Icons.schedule_rounded
-                      : Icons.cancel_rounded,
-              color: statusColor,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 16),
+            Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item['date_label'] as String? ?? '-',
-                        style: const TextStyle(
-                          color: _attendanceText,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        ),
-                      ),
+                if (currentStep > 0)
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: onPreviousStep == null
+                          ? null
+                          : () async {
+                              await onPreviousStep!.call();
+                            },
+                      child: const Text('Kembali'),
                     ),
-                    _StatusPill(label: statusLabel),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '${item['check_in'] ?? '-'} • ${item['check_out'] ?? '-'}',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
+                  ),
+                if (currentStep > 0) const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: currentStep == 2
+                        ? (hasLocation && hasSelfie && !submitting
+                            ? () async {
+                                await onSubmit();
+                              }
+                            : null)
+                        : (currentStep == 0 && hasLocation) ||
+                                (currentStep == 1 && hasSelfie)
+                            ? () async {
+                                await onNextStep?.call();
+                              }
+                            : null,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _attendancePrimary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                    ),
+                    child: currentStep == 2 && submitting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            currentStep == 2
+                                ? nextModeLabel
+                                : currentStep == 0
+                                    ? 'Lanjut ke Selfie'
+                                    : 'Lanjut ke Konfirmasi',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12.5,
+                            ),
+                          ),
                   ),
                 ),
-                if ((item['location'] as String?)?.trim().isNotEmpty == true) ...[
-                  const SizedBox(height: 5),
-                  Text(
-                    item['location'] as String,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _attendanceMuted,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-                if ((item['note'] as String?)?.trim().isNotEmpty == true) ...[
-                  const SizedBox(height: 5),
-                  Text(
-                    item['note'] as String,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFF9A6A33),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-                if (isAutoPresent) ...[
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Presensi hadir ini berasal dari izin tugas luar yang sudah disetujui.',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      height: 1.35,
-                    ),
-                  ),
-                ],
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttendanceHistoryPage extends StatelessWidget {
-  const _AttendanceHistoryPage({
-    required this.items,
-  });
-
-  final List<Map<String, dynamic>> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-          children: [
-            TeacherPageHeader(
-              title: 'Riwayat Presensi',
-              onBack: () => Navigator.of(context).pop(),
-            ),
-            const SizedBox(height: 14),
-            if (items.isEmpty)
-              const AppSectionCard(
-                child: AppEmptyState(
-                  title: 'Belum ada riwayat presensi',
-                  message: 'Riwayat presensi akan tampil di sini.',
-                  icon: Icons.history_toggle_off_rounded,
-                ),
-              )
-            else
-              ...items.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _AttendanceHistoryTile(item: item),
-                ),
-              ),
           ],
         ),
       ),
@@ -1576,31 +1369,486 @@ class _AttendanceHistoryPage extends StatelessWidget {
   }
 }
 
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({
-    required this.label,
+class _AttendanceStepCard extends StatelessWidget {
+  const _AttendanceStepCard({
+    required this.title,
+    required this.subtitle,
+    required this.child,
   });
 
-  final String label;
+  final String title;
+  final String subtitle;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final color = _statusColor(label.toLowerCase());
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.w800,
-          fontSize: 11,
+    return SingleChildScrollView(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFBFCFD),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xFFE8EDF3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: _attendanceText,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: _attendanceMuted,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                  ),
+            ),
+            const SizedBox(height: 14),
+            child,
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _AttendanceSummaryRow extends StatelessWidget {
+  const _AttendanceSummaryRow({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: _attendanceMuted,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: _attendanceText,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttendanceCenterStatus extends StatelessWidget {
+  const _AttendanceCenterStatus({
+    required this.statusLabel,
+    required this.subtitle,
+    required this.metric,
+    required this.metricLabel,
+  });
+
+  final String statusLabel;
+  final String subtitle;
+  final String? metric;
+  final String metricLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final displaySubtitle = (metric != null ? metricLabel : subtitle).trim();
+
+    return Container(
+      constraints: const BoxConstraints(minWidth: 104, maxWidth: 120),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: _attendancePrimarySoft,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _attendancePrimaryBorder),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (metric != null) ...[
+            Text(
+              metric!,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: _attendanceText,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 10,
+                  ),
+            ),
+            const SizedBox(height: 2),
+          ],
+          Text(
+            statusLabel,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: _attendanceText,
+                  fontWeight: FontWeight.w800,
+                  fontSize: metric == null ? 10 : 11,
+                  height: 1.25,
+                ),
+          ),
+          if (displaySubtitle.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              displaySubtitle,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: _attendanceMuted,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 9,
+                  ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AttendanceMapLayer extends StatefulWidget {
+  const _AttendanceMapLayer({
+    required this.center,
+    required this.userPosition,
+    required this.schoolName,
+    required this.schoolLatitude,
+    required this.schoolLongitude,
+    required this.loadingLocation,
+  });
+
+  final LatLng center;
+  final Position? userPosition;
+  final String schoolName;
+  final double? schoolLatitude;
+  final double? schoolLongitude;
+  final bool loadingLocation;
+
+  @override
+  State<_AttendanceMapLayer> createState() => _AttendanceMapLayerState();
+}
+
+class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
+  late final MapController _mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncViewport();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _AttendanceMapLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_viewportChanged(oldWidget, widget)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _syncViewport();
+      });
+    }
+  }
+
+  bool _viewportChanged(
+    _AttendanceMapLayer oldWidget,
+    _AttendanceMapLayer newWidget,
+  ) {
+    return oldWidget.center.latitude != newWidget.center.latitude ||
+        oldWidget.center.longitude != newWidget.center.longitude ||
+        oldWidget.userPosition?.latitude != newWidget.userPosition?.latitude ||
+        oldWidget.userPosition?.longitude !=
+            newWidget.userPosition?.longitude ||
+        oldWidget.schoolLatitude != newWidget.schoolLatitude ||
+        oldWidget.schoolLongitude != newWidget.schoolLongitude;
+  }
+
+  void _syncViewport() {
+    if (!mounted) {
+      return;
+    }
+
+    _mapController.move(
+      widget.center,
+      widget.userPosition != null ? 16.2 : 14.2,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final routePoints = <LatLng>[
+      if (widget.schoolLatitude != null && widget.schoolLongitude != null)
+        LatLng(widget.schoolLatitude!, widget.schoolLongitude!),
+      if (widget.userPosition != null)
+        LatLng(widget.userPosition!.latitude, widget.userPosition!.longitude),
+    ];
+    final markers = <Marker>[
+      if (widget.schoolLatitude != null && widget.schoolLongitude != null)
+        Marker(
+          point: LatLng(widget.schoolLatitude!, widget.schoolLongitude!),
+          width: 140,
+          height: 58,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(999),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  widget.schoolName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: _attendanceText,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Icon(
+                Icons.location_on_rounded,
+                color: _attendancePrimaryDark,
+                size: 28,
+              ),
+            ],
+          ),
+        ),
+      if (widget.userPosition != null)
+        Marker(
+          point: LatLng(
+            widget.userPosition!.latitude,
+            widget.userPosition!.longitude,
+          ),
+          width: 48,
+          height: 48,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _attendancePrimary.withOpacity(0.18),
+            ),
+            padding: const EdgeInsets.all(6),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: _attendancePrimary,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.my_location_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+    ];
+
+    return Stack(
+      children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: widget.center,
+            initialZoom: widget.userPosition != null ? 16.2 : 14.2,
+            interactionOptions: const InteractionOptions(
+              flags: InteractiveFlag.drag |
+                  InteractiveFlag.pinchZoom |
+                  InteractiveFlag.doubleTapZoom,
+            ),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'nuist_flutter_mobile',
+            ),
+            if (routePoints.length >= 2)
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: routePoints,
+                    strokeWidth: 4,
+                    color: _attendancePrimary.withOpacity(0.7),
+                  ),
+                ],
+              ),
+            if (markers.isNotEmpty) MarkerLayer(markers: markers),
+          ],
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.02),
+                    Colors.black.withOpacity(0.14),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (widget.loadingLocation)
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 260,
+            child: Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Membaca lokasi...',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _MapHeaderButton extends StatelessWidget {
+  const _MapHeaderButton({
+    required this.icon,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withOpacity(0.95),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Icon(
+            icon,
+            color: _attendanceText,
+            size: 18,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AttendanceTopMetric extends StatelessWidget {
+  const _AttendanceTopMetric({
+    required this.title,
+    required this.value,
+    required this.caption,
+    this.align = CrossAxisAlignment.start,
+    this.textAlign = TextAlign.start,
+  });
+
+  final String title;
+  final String value;
+  final String caption;
+  final CrossAxisAlignment align;
+  final TextAlign textAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: align,
+      children: [
+        Text(
+          title,
+          textAlign: textAlign,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: _attendanceMuted,
+                fontWeight: FontWeight.w700,
+                fontSize: 10,
+              ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          textAlign: textAlign,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: _attendanceText,
+                fontWeight: FontWeight.w900,
+                fontSize: 17,
+              ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          caption,
+          textAlign: textAlign,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: _attendanceMuted,
+                fontWeight: FontWeight.w600,
+                fontSize: 10,
+              ),
+        ),
+      ],
     );
   }
 }
@@ -1654,63 +1902,193 @@ class _PageError extends StatelessWidget {
   }
 }
 
-class _PageSectionHeading extends StatelessWidget {
-  const _PageSectionHeading({
-    required this.eyebrow,
-    required this.title,
-  });
-
-  final String eyebrow;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          eyebrow,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.2,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          title,
-          style: const TextStyle(
-            color: _attendanceText,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-Color _statusColor(String status) {
-  switch (status) {
-    case 'hadir':
-      return _attendancePrimary;
-    case 'izin':
-      return const Color(0xFFE3A320);
-    case 'alpha':
-      return const Color(0xFFB42318);
-    default:
-      return _attendanceMuted;
-  }
-}
-
-String _timeLabel(DateTime value) {
-  final hours = value.hour.toString().padLeft(2, '0');
-  final minutes = value.minute.toString().padLeft(2, '0');
-  final seconds = value.second.toString().padLeft(2, '0');
-  return '$hours:$minutes:$seconds';
-}
-
 String _coordinateLabel(Position position) {
   return 'Lat ${position.latitude.toStringAsFixed(6)}, Lng ${position.longitude.toStringAsFixed(6)}';
+}
+
+LatLng _mapViewportCenter({
+  required Position? userPosition,
+  required double? schoolLatitude,
+  required double? schoolLongitude,
+}) {
+  final points = <LatLng>[
+    if (schoolLatitude != null && schoolLongitude != null)
+      LatLng(schoolLatitude, schoolLongitude),
+    if (userPosition != null)
+      LatLng(userPosition.latitude, userPosition.longitude),
+  ];
+
+  if (points.isEmpty) {
+    return const LatLng(-6.200000, 106.816666);
+  }
+
+  if (points.length == 1) {
+    return LatLng(points.first.latitude - 0.0012, points.first.longitude);
+  }
+
+  final latitudes = points.map((point) => point.latitude).toList()..sort();
+  final longitudes = points.map((point) => point.longitude).toList()..sort();
+  final minLat = latitudes.first;
+  final maxLat = latitudes.last;
+  final minLng = longitudes.first;
+  final maxLng = longitudes.last;
+  final latCenter = (minLat + maxLat) / 2;
+  final lngCenter = (minLng + maxLng) / 2;
+  final upwardOffset = ((maxLat - minLat).abs() * 0.85).clamp(0.0012, 0.0038);
+
+  return LatLng(latCenter - upwardOffset, lngCenter);
+}
+
+double? _findNumericValue(
+  Iterable<Map<String, dynamic>> maps,
+  List<String> keys,
+) {
+  for (final map in maps) {
+    for (final key in keys) {
+      final value = _toDouble(map[key]);
+      if (value != null) {
+        return value;
+      }
+    }
+  }
+
+  return null;
+}
+
+double? _toDouble(dynamic value) {
+  if (value is num) {
+    return value.toDouble();
+  }
+
+  if (value is String) {
+    return double.tryParse(value.trim());
+  }
+
+  return null;
+}
+
+String _formatRunningTime(DateTime value) {
+  final hour = value.hour.toString().padLeft(2, '0');
+  final minute = value.minute.toString().padLeft(2, '0');
+  final second = value.second.toString().padLeft(2, '0');
+  return '$hour:$minute:$second';
+}
+
+String _formatAttendanceTime(dynamic value) {
+  if (value is Map) {
+    for (final key in const [
+      'time',
+      'formatted_time',
+      'check_time',
+      'value',
+    ]) {
+      final nested = value[key];
+      final formattedNested = _formatAttendanceTime(nested);
+      if (formattedNested != '--:--') {
+        return formattedNested;
+      }
+    }
+    return '--:--';
+  }
+
+  final raw = value?.toString().trim() ?? '';
+  if (raw.isEmpty) {
+    return '--:--';
+  }
+
+  final parsed = DateTime.tryParse(raw);
+  if (parsed != null) {
+    final hour = parsed.hour.toString().padLeft(2, '0');
+    final minute = parsed.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+
+  final match = RegExp(r'(\d{1,2}:\d{2})(?::\d{2})?').firstMatch(raw);
+  if (match != null) {
+    return match.group(1) ?? '--:--';
+  }
+
+  return '--:--';
+}
+
+String _resolveAttendanceDisplayTime(
+  Map<String, dynamic> today, {
+  required bool isCheckIn,
+}) {
+  final directKeys = isCheckIn
+      ? const ['check_in', 'waktu_masuk', 'checkIn']
+      : const ['check_out', 'waktu_keluar', 'checkOut'];
+
+  final directValue = _findFirstMapValue(today, directKeys);
+  final directTime = _formatAttendanceTime(directValue);
+  if (directTime != '--:--') {
+    return directTime;
+  }
+
+  final nestedKeys = isCheckIn ? const ['masuk'] : const ['pulang', 'keluar'];
+  for (final key in nestedKeys) {
+    final nestedValue = today[key];
+    final nestedTime = _formatAttendanceTime(nestedValue);
+    if (nestedTime != '--:--') {
+      return nestedTime;
+    }
+  }
+
+  final entries = today['entries'];
+  if (entries is List) {
+    final iterable = isCheckIn ? entries : entries.reversed;
+    for (final item in iterable) {
+      if (item is! Map) {
+        continue;
+      }
+
+      final entry = Map<String, dynamic>.from(item);
+      final entryValue = _findFirstMapValue(entry, directKeys);
+      final entryTime = _formatAttendanceTime(entryValue);
+      if (entryTime != '--:--') {
+        return entryTime;
+      }
+
+      for (final key in nestedKeys) {
+        final nestedEntryTime = _formatAttendanceTime(entry[key]);
+        if (nestedEntryTime != '--:--') {
+          return nestedEntryTime;
+        }
+      }
+    }
+  }
+
+  return '--:--';
+}
+
+dynamic _findFirstMapValue(
+  Map<String, dynamic> source,
+  List<String> keys,
+) {
+  for (final key in keys) {
+    if (source.containsKey(key) && source[key] != null) {
+      return source[key];
+    }
+  }
+
+  return null;
+}
+
+String _formatCurrentDate(DateTime value) {
+  const months = <String>[
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'Mei',
+    'Jun',
+    'Jul',
+    'Agu',
+    'Sep',
+    'Okt',
+    'Nov',
+    'Des',
+  ];
+
+  return '${value.day} ${months[value.month - 1]} ${value.year}';
 }
