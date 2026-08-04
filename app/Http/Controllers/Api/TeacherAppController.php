@@ -519,8 +519,8 @@ class TeacherAppController extends Controller
                         'status' => $item->status ?? '-',
                         'status_label' => $this->presensiStatusLabel($item, $autoPresentIzin),
                         'is_auto_present' => $autoPresentIzin !== null,
-                        'check_in' => $this->formatTimeValue($item->waktu_masuk),
-                        'check_out' => $this->formatTimeValue($item->waktu_keluar),
+                        'check_in' => $this->formatTimeValue($item->getRawOriginal('waktu_masuk'), true),
+                        'check_out' => $this->formatTimeValue($item->getRawOriginal('waktu_keluar'), true),
                         'location' => $item->lokasi ?: $item->madrasah?->name,
                         // 'location_out' => $item->lokasi_keluar,
                         'school_name' => $item->madrasah?->name,
@@ -2453,8 +2453,8 @@ class TeacherAppController extends Controller
             'status' => $status,
             'status_label' => $this->attendanceSummaryStatusLabel($status, $autoPresentIzin !== null),
             'is_auto_present' => $autoPresentIzin !== null,
-            'check_in' => $this->formatTimeValue($checkIn?->waktu_masuk),
-            'check_out' => $this->formatTimeValue($checkOut?->waktu_keluar),
+            'check_in' => $this->formatTimeValue($checkIn?->getRawOriginal('waktu_masuk'), true),
+            'check_out' => $this->formatTimeValue($checkOut?->getRawOriginal('waktu_keluar'), true),
             'location' => $checkIn?->lokasi ?: $checkIn?->madrasah?->name,
             // 'location_out' => $checkOut?->lokasi_keluar,
             'entries' => $items->map(function (Presensi $item) {
@@ -2466,8 +2466,8 @@ class TeacherAppController extends Controller
                     'status_label' => $this->presensiStatusLabel($item, $entryAutoPresentIzin),
                     'is_auto_present' => $entryAutoPresentIzin !== null,
                     'school_name' => $item->madrasah?->name,
-                    'check_in' => $this->formatTimeValue($item->waktu_masuk),
-                    'check_out' => $this->formatTimeValue($item->waktu_keluar),
+                    'check_in' => $this->formatTimeValue($item->getRawOriginal('waktu_masuk'), true),
+                    'check_out' => $this->formatTimeValue($item->getRawOriginal('waktu_keluar'), true),
                     'location' => $item->lokasi,
                     // 'location_out' => $item->lokasi_keluar,
                     'note' => $item->keterangan,
@@ -2571,6 +2571,14 @@ class TeacherAppController extends Controller
         $nextModeLabel = null;
 
         $hadirRecords = $todayPresensi->where('status', 'hadir');
+        $latestCheckInRecord = $hadirRecords
+            ->filter(fn (Presensi $item) => !empty($item->waktu_masuk))
+            ->sortByDesc('waktu_masuk')
+            ->first();
+        $latestCheckOutRecord = $hadirRecords
+            ->filter(fn (Presensi $item) => !empty($item->waktu_keluar))
+            ->sortByDesc('waktu_keluar')
+            ->first();
         $openRecord = $hadirRecords
             ->filter(fn (Presensi $item) => !empty($item->waktu_masuk) && empty($item->waktu_keluar))
             ->sortByDesc('waktu_masuk')
@@ -2604,6 +2612,8 @@ class TeacherAppController extends Controller
             'can_submit' => $nextMode !== null && $blockedMessage === null,
             'next_mode' => $nextMode,
             'next_mode_label' => $nextModeLabel,
+            'current_check_in' => $this->formatTimeValue($latestCheckInRecord?->getRawOriginal('waktu_masuk')),
+            'current_check_out' => $this->formatTimeValue($latestCheckOutRecord?->getRawOriginal('waktu_keluar')),
             'blocked_message' => $blockedMessage,
             'is_holiday' => (bool) $holiday && !$approvedPicketSubmission,
             'holiday_name' => $holiday?->name,
@@ -2798,22 +2808,43 @@ class TeacherAppController extends Controller
 
     private function normalizeTimeValue($value): string
     {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('H:i:s');
+        }
+
         $time = trim((string) $value);
         if ($time === '') {
             return '00:00:00';
         }
 
-        return strlen($time) === 5 ? $time . ':00' : $time;
+        if (preg_match('/(\d{1,2}):(\d{2})(?::(\d{2}))?/', $time, $matches) === 1) {
+            return sprintf(
+                '%02d:%02d:%02d',
+                (int) $matches[1],
+                (int) $matches[2],
+                isset($matches[3]) ? (int) $matches[3] : 0,
+            );
+        }
+
+        try {
+            return Carbon::parse($time, 'Asia/Jakarta')->format('H:i:s');
+        } catch (\Throwable $exception) {
+            return '00:00:00';
+        }
     }
 
-    private function formatTimeValue($value): ?string
+    private function formatTimeValue($value, bool $includeSeconds = false): ?string
     {
         $time = trim((string) $value);
         if ($time === '') {
             return null;
         }
 
-        return substr($this->normalizeTimeValue($time), 0, 5);
+        $normalized = $this->normalizeTimeValue($time);
+
+        return $includeSeconds
+            ? substr($normalized, 0, 8)
+            : substr($normalized, 0, 5);
     }
 
     private function validateLocationForFakeGps(array $payload, User $user, bool $isPresensiMasuk): array

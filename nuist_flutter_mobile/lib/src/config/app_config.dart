@@ -21,6 +21,23 @@ class AppConfig {
     ].map(_normalize).whereType<String>().toSet().toList();
   }
 
+  static String get webBaseUrl {
+    return webBaseUrls.first;
+  }
+
+  static List<String> get webBaseUrls {
+    return apiBaseUrls
+        .map((url) => url.replaceFirst(RegExp(r'/api/?$'), ''))
+        .map(_normalize)
+        .whereType<String>()
+        .toSet()
+        .toList();
+  }
+
+  static String get attendanceFaceScanBridgeUrl {
+    return '$webBaseUrl/mobile-face-scan-bridge.html';
+  }
+
   static bool get isPlaceholder => false;
 
   static String? _normalize(String value) {

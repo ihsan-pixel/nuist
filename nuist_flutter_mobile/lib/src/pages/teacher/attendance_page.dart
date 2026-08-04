@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'attendance_face_scan_page.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
 
@@ -19,17 +20,21 @@ const _attendancePrimarySoft = Color(0xFFE7F8E9);
 const _attendancePrimaryBorder = Color(0xFFBFEAC4);
 const _attendanceText = Color(0xFF0E4D16);
 const _attendanceMuted = Color(0xFF6A8870);
+const _attendanceMapDefaultZoom = 15.6;
+const _attendanceMapUserZoom = 18.4;
 
 class TeacherAttendancePage extends StatefulWidget {
   const TeacherAttendancePage({
     super.key,
     required this.repository,
     required this.onBackToHome,
+    required this.onOpenAttendanceHistory,
     required this.isActive,
   });
 
   final TeacherMobileRepository repository;
   final VoidCallback onBackToHome;
+  final Future<void> Function() onOpenAttendanceHistory;
   final bool isActive;
 
   @override
@@ -45,6 +50,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   Timer? _clockTimer;
   Position? _position;
   XFile? _selfieFile;
+  Map<String, dynamic>? _faceScanResult;
   String? _locationAddress;
   String? _locationError;
   List<Map<String, dynamic>> _locationReadings = const [];
@@ -219,6 +225,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
       setState(() {
         _selfieFile = file;
+        _faceScanResult = null;
       });
     } catch (error) {
       if (!mounted) {
@@ -240,6 +247,66 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     }
   }
 
+  Future<void> _captureFaceScan(Map<String, dynamic> data) async {
+    final verification = Map<String, dynamic>.from(
+      (data['verification'] as Map?) ?? const <String, dynamic>{},
+    );
+    final isFaceEnrolled = verification['face_enrolled'] == true ||
+        verification['enrolled'] == true;
+
+    if (!isFaceEnrolled) {
+      final message = verification['message'] as String? ??
+          'Data wajah belum terdaftar. Hubungi admin untuk aktivasi scan wajah.';
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+      return;
+    }
+
+    final result = await Navigator.of(context).push<Map<String, dynamic>>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => const AttendanceFaceScanPage(
+          title: 'Scan Wajah',
+          description: 'Selesaikan verifikasi biometrik untuk presensi.',
+        ),
+      ),
+    );
+
+    if (!mounted || result == null) {
+      return;
+    }
+
+    final normalizedResult = _normalizeFaceScanResult(result);
+    if (normalizedResult == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Hasil scan wajah belum lengkap. Silakan ulangi scan.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _selfieFile = null;
+      _faceScanResult = normalizedResult;
+    });
+  }
+
+  Future<void> _captureVerification(Map<String, dynamic> data) async {
+    if (_requiresFaceScan(data)) {
+      await _captureFaceScan(data);
+      return;
+    }
+
+    await _captureSelfie();
+  }
+
   Future<bool> _submitAttendance(Map<String, dynamic> data) async {
     final form = Map<String, dynamic>.from(
       (data['form'] as Map?) ?? const <String, dynamic>{},
@@ -252,17 +319,6 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     );
     final mode = form['next_mode'] as String?;
     final verificationMode = verification['mode'] as String? ?? 'selfie';
-
-    if (verificationMode != 'selfie') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Mode scan wajah sedang aktif. Gunakan presensi mobile web sampai aplikasi native mendukung scan wajah.',
-          ),
-        ),
-      );
-      return false;
-    }
 
     if (mode == null || mode.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -284,7 +340,16 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       return false;
     }
 
-    if (_selfieFile == null) {
+    if (verificationMode == 'face_scan') {
+      if (_faceScanResult == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Selesaikan scan wajah biometrik terlebih dahulu.'),
+          ),
+        );
+        return false;
+      }
+    } else if (_selfieFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ambil foto selfie terlebih dahulu.')),
       );
@@ -311,7 +376,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     });
 
     try {
-      final payload = {
+      final payload = <String, dynamic>{
         'presensi_mode': mode,
         'latitude': _position!.latitude,
         'longitude': _position!.longitude,
@@ -321,8 +386,18 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
         'speed': _position!.speed,
         'device_info': 'flutter_mobile_${defaultTargetPlatform.name}',
         'location_readings': _locationReadings,
-        'selfie_data': await _buildSelfieData(_selfieFile!),
       };
+
+      if (verificationMode == 'face_scan') {
+        payload.addAll({
+          'selfie_data': _faceScanResult!['selfie_data'],
+          'face_descriptor': _faceScanResult!['face_descriptor'],
+          'liveness_score': _faceScanResult!['liveness_score'],
+          'liveness_challenges': _faceScanResult!['liveness_challenges'],
+        });
+      } else {
+        payload['selfie_data'] = await _buildSelfieData(_selfieFile!);
+      }
 
       final result = await widget.repository.submitAttendance(payload: payload);
       if (!mounted) {
@@ -331,6 +406,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
       setState(() {
         _selfieFile = null;
+        _faceScanResult = null;
       });
 
       await _refresh();
@@ -371,6 +447,44 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
     final lowerPath = file.path.toLowerCase();
     final mime = lowerPath.endsWith('.png') ? 'image/png' : 'image/jpeg';
     return 'data:$mime;base64,${base64Encode(bytes)}';
+  }
+
+  Map<String, dynamic>? _normalizeFaceScanResult(Map<String, dynamic> raw) {
+    final selfieData =
+        raw['captured_image'] as String? ?? raw['selfie_data'] as String?;
+    final faceDescriptor = raw['face_descriptor'];
+    final livenessScore = raw['liveness_score'];
+    final livenessChallenges = raw['liveness_challenges'];
+
+    if (selfieData == null ||
+        selfieData.trim().isEmpty ||
+        faceDescriptor is! List ||
+        livenessChallenges is! List) {
+      return null;
+    }
+
+    return {
+      'selfie_data': selfieData,
+      'face_descriptor': List<dynamic>.from(faceDescriptor),
+      'liveness_score': livenessScore,
+      'liveness_challenges': List<dynamic>.from(livenessChallenges),
+    };
+  }
+
+  bool _requiresFaceScan(Map<String, dynamic> data) {
+    final verification = Map<String, dynamic>.from(
+      (data['verification'] as Map?) ?? const <String, dynamic>{},
+    );
+
+    return (verification['mode'] as String? ?? 'selfie') == 'face_scan';
+  }
+
+  bool _hasVerificationCapture(Map<String, dynamic> data) {
+    if (_requiresFaceScan(data)) {
+      return _faceScanResult != null;
+    }
+
+    return _selfieFile != null;
   }
 
   Future<bool?> _confirmEarlyCheckout({
@@ -478,17 +592,11 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
   }
 
   int _attendanceFlowInitialStep(Map<String, dynamic> data) {
-    final verification = Map<String, dynamic>.from(
-      (data['verification'] as Map?) ?? const <String, dynamic>{},
-    );
-    final requiresSelfie =
-        (verification['mode'] as String? ?? 'selfie') == 'selfie';
-
     if (_position == null) {
       return 0;
     }
 
-    if (requiresSelfie && _selfieFile == null) {
+    if (!_hasVerificationCapture(data)) {
       return 1;
     }
 
@@ -533,13 +641,13 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
               }
             }
 
-            Future<void> handleCaptureSelfie() async {
-              await _captureSelfie();
+            Future<void> handleCaptureVerification() async {
+              await _captureVerification(data);
               if (!mounted) {
                 return;
               }
               setModalState(() {});
-              if (_selfieFile != null && currentStep <= 1) {
+              if (_hasVerificationCapture(data) && currentStep <= 1) {
                 await jumpToStep(2, setModalState);
               }
             }
@@ -569,11 +677,13 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
               loadingLocation: _loadingLocation,
               onCaptureLocation: handleCaptureLocation,
               selfieFile: _selfieFile,
+              faceScanResult: _faceScanResult,
               capturingSelfie: _capturingSelfie,
-              onCaptureSelfie: handleCaptureSelfie,
+              onCaptureSelfie: handleCaptureVerification,
               onClearSelfie: () {
                 setState(() {
                   _selfieFile = null;
+                  _faceScanResult = null;
                 });
                 setModalState(() {});
               },
@@ -590,7 +700,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
                   await jumpToStep(1, setModalState);
                   return;
                 }
-                if (currentStep == 1 && _selfieFile != null) {
+                if (currentStep == 1 && _hasVerificationCapture(data)) {
                   await jumpToStep(2, setModalState);
                 }
               },
@@ -637,17 +747,22 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
           loadingLocation: _loadingLocation,
           onCaptureLocation: _captureLocation,
           selfieFile: _selfieFile,
+          faceScanResult: _faceScanResult,
           capturingSelfie: _capturingSelfie,
-          onCaptureSelfie: _captureSelfie,
+          onCaptureSelfie: () => _captureVerification(
+            snapshot.data ?? const <String, dynamic>{},
+          ),
           onClearSelfie: () {
             setState(() {
               _selfieFile = null;
+              _faceScanResult = null;
             });
           },
           onOpenAttendanceFlow: () => _openAttendanceFlow(
             snapshot.data ?? const <String, dynamic>{},
           ),
           onBackToHome: widget.onBackToHome,
+          onOpenAttendanceHistory: widget.onOpenAttendanceHistory,
           onRefreshData: _refresh,
         );
       },
@@ -667,11 +782,13 @@ class _AttendanceContent extends StatelessWidget {
     required this.loadingLocation,
     required this.onCaptureLocation,
     required this.selfieFile,
+    required this.faceScanResult,
     required this.capturingSelfie,
     required this.onCaptureSelfie,
     required this.onClearSelfie,
     required this.onOpenAttendanceFlow,
     required this.onBackToHome,
+    required this.onOpenAttendanceHistory,
     required this.onRefreshData,
   });
 
@@ -685,11 +802,13 @@ class _AttendanceContent extends StatelessWidget {
   final bool loadingLocation;
   final Future<void> Function() onCaptureLocation;
   final XFile? selfieFile;
+  final Map<String, dynamic>? faceScanResult;
   final bool capturingSelfie;
   final Future<void> Function() onCaptureSelfie;
   final VoidCallback onClearSelfie;
   final VoidCallback onOpenAttendanceFlow;
   final VoidCallback onBackToHome;
+  final Future<void> Function() onOpenAttendanceHistory;
   final Future<void> Function() onRefreshData;
 
   @override
@@ -706,14 +825,20 @@ class _AttendanceContent extends StatelessWidget {
     final timeRanges = Map<String, dynamic>.from(
       (data['time_ranges'] as Map?) ?? const <String, dynamic>{},
     );
+    final recent = (data['recent'] as List?) ?? const [];
     final verification = Map<String, dynamic>.from(
       (data['verification'] as Map?) ?? const <String, dynamic>{},
     );
     final canSubmit = form['can_submit'] == true;
     final nextModeLabel =
         form['next_mode_label'] as String? ?? 'Presensi Masuk';
+    final verificationMode = verification['mode'] as String? ?? 'selfie';
     final nativeSupportsVerification =
-        (verification['mode'] as String? ?? 'selfie') == 'selfie';
+        verificationMode == 'selfie' || verificationMode == 'face_scan';
+    final isFaceScan = verificationMode == 'face_scan';
+    final isFaceEnrolled = verification['face_enrolled'] == true ||
+        verification['enrolled'] == true ||
+        !isFaceScan;
     final schoolName = data['school_name'] as String? ?? '-';
     final schoolLatitude = _findNumericValue(
       [data, form, today],
@@ -728,7 +853,10 @@ class _AttendanceContent extends StatelessWidget {
       schoolLatitude: schoolLatitude,
       schoolLongitude: schoolLongitude,
     );
-    final canOpenFlow = canSubmit && nativeSupportsVerification && !submitting;
+    final canOpenFlow = canSubmit &&
+        nativeSupportsVerification &&
+        isFaceEnrolled &&
+        !submitting;
 
     return Stack(
       children: [
@@ -783,9 +911,17 @@ class _AttendanceContent extends StatelessWidget {
                 onSelected: (value) async {
                   if (value == 'refresh') {
                     await onRefreshData();
+                    return;
+                  }
+                  if (value == 'history') {
+                    await onOpenAttendanceHistory();
                   }
                 },
                 itemBuilder: (context) => const [
+                  PopupMenuItem<String>(
+                    value: 'history',
+                    child: Text('Riwayat Presensi'),
+                  ),
                   PopupMenuItem<String>(
                     value: 'refresh',
                     child: Text('Refresh'),
@@ -828,6 +964,10 @@ class _AttendanceContent extends StatelessWidget {
                         title: 'Jam Masuk',
                         value: _resolveAttendanceDisplayTime(
                           today,
+                          form: form,
+                          recent: recent,
+                          now: now,
+                          startTime: timeRanges['masuk_start'] as String?,
                           isCheckIn: true,
                         ),
                         caption: (timeRanges['masuk_start'] as String?)
@@ -863,6 +1003,10 @@ class _AttendanceContent extends StatelessWidget {
                         title: 'Jam Pulang',
                         value: _resolveAttendanceDisplayTime(
                           today,
+                          form: form,
+                          recent: recent,
+                          now: now,
+                          startTime: timeRanges['pulang_start'] as String?,
                           isCheckIn: false,
                         ),
                         caption: (timeRanges['pulang_start'] as String?)
@@ -901,6 +1045,18 @@ class _AttendanceContent extends StatelessWidget {
                   ),
                 ),
               ),
+              if (isFaceScan && !isFaceEnrolled) ...[
+                const SizedBox(height: 8),
+                Text(
+                  verification['message'] as String? ??
+                      'Data wajah belum terdaftar.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -921,6 +1077,7 @@ class _AttendanceFlowSheet extends StatelessWidget {
     required this.loadingLocation,
     required this.onCaptureLocation,
     required this.selfieFile,
+    required this.faceScanResult,
     required this.capturingSelfie,
     required this.onCaptureSelfie,
     required this.onClearSelfie,
@@ -941,6 +1098,7 @@ class _AttendanceFlowSheet extends StatelessWidget {
   final bool loadingLocation;
   final Future<void> Function() onCaptureLocation;
   final XFile? selfieFile;
+  final Map<String, dynamic>? faceScanResult;
   final bool capturingSelfie;
   final Future<void> Function() onCaptureSelfie;
   final VoidCallback onClearSelfie;
@@ -960,15 +1118,31 @@ class _AttendanceFlowSheet extends StatelessWidget {
     final today = Map<String, dynamic>.from(
       (data['today_attendance'] as Map?) ?? const <String, dynamic>{},
     );
+    final recent = (data['recent'] as List?) ?? const [];
+    final currentNow = DateTime.now();
     final verification = Map<String, dynamic>.from(
       (data['verification'] as Map?) ?? const <String, dynamic>{},
     );
+    final isFaceScan =
+        (verification['mode'] as String? ?? 'selfie') == 'face_scan';
     final nextModeLabel =
         form['next_mode_label'] as String? ?? 'Presensi Masuk';
     final verificationDescription = verification['description'] as String? ??
         'Presensi mobile memakai selfie kamera depan.';
     final hasLocation = position != null;
-    final hasSelfie = selfieFile != null;
+    final hasVerificationCapture =
+        isFaceScan ? faceScanResult != null : selfieFile != null;
+    final verificationLabel = isFaceScan ? 'Scan Wajah' : 'Selfie';
+    final verificationActionLabel = isFaceScan ? 'Buka Scan' : 'Buka Kamera';
+    final verificationRetryLabel = isFaceScan ? 'Ulangi Scan' : 'Ambil Ulang';
+    final verificationReadyText = isFaceScan
+        ? 'Scan wajah biometrik sudah siap digunakan.'
+        : 'Selfie sudah siap digunakan untuk presensi.';
+    final verificationPendingText =
+        isFaceScan ? verificationDescription : verificationDescription;
+    final faceScanPreview = _previewBytesFromDataUrl(
+      faceScanResult?['selfie_data'] as String?,
+    );
 
     return Container(
       decoration: const BoxDecoration(
@@ -1169,9 +1343,10 @@ class _AttendanceFlowSheet extends StatelessWidget {
                     ),
                   ),
                   _AttendanceStepCard(
-                    title: '2. Ambil Selfie',
-                    subtitle:
-                        'Gunakan kamera depan. Setelah foto berhasil, langkah akan lanjut otomatis.',
+                    title: isFaceScan ? '2. Scan Wajah' : '2. Ambil Selfie',
+                    subtitle: isFaceScan
+                        ? 'Lakukan verifikasi biometrik. Setelah scan berhasil, langkah akan lanjut otomatis.'
+                        : 'Gunakan kamera depan. Setelah foto berhasil, langkah akan lanjut otomatis.',
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1179,28 +1354,46 @@ class _AttendanceFlowSheet extends StatelessWidget {
                           borderRadius: BorderRadius.circular(18),
                           child: AspectRatio(
                             aspectRatio: 16 / 10,
-                            child: selfieFile == null
+                            child: !hasVerificationCapture
                                 ? Container(
                                     color: const Color(0xFFF4F7FA),
-                                    child: const Center(
+                                    child: Center(
                                       child: Icon(
-                                        Icons.photo_camera_front_rounded,
+                                        isFaceScan
+                                            ? Icons
+                                                .face_retouching_natural_rounded
+                                            : Icons.photo_camera_front_rounded,
                                         size: 34,
                                         color: _attendanceMuted,
                                       ),
                                     ),
                                   )
-                                : Image.file(
-                                    File(selfieFile!.path),
-                                    fit: BoxFit.cover,
-                                  ),
+                                : isFaceScan
+                                    ? (faceScanPreview == null
+                                        ? Container(
+                                            color: _attendancePrimarySoft,
+                                            alignment: Alignment.center,
+                                            child: const Icon(
+                                              Icons.verified_user_rounded,
+                                              size: 36,
+                                              color: _attendancePrimaryDark,
+                                            ),
+                                          )
+                                        : Image.memory(
+                                            faceScanPreview,
+                                            fit: BoxFit.cover,
+                                          ))
+                                    : Image.file(
+                                        File(selfieFile!.path),
+                                        fit: BoxFit.cover,
+                                      ),
                           ),
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          hasSelfie
-                              ? 'Selfie sudah siap digunakan untuk presensi.'
-                              : verificationDescription,
+                          hasVerificationCapture
+                              ? verificationReadyText
+                              : verificationPendingText,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: _attendanceText,
                             fontWeight: FontWeight.w700,
@@ -1226,13 +1419,20 @@ class _AttendanceFlowSheet extends StatelessWidget {
                                           strokeWidth: 2,
                                         ),
                                       )
-                                    : const Icon(Icons.camera_alt_rounded),
+                                    : Icon(
+                                        isFaceScan
+                                            ? Icons
+                                                .face_retouching_natural_rounded
+                                            : Icons.camera_alt_rounded,
+                                      ),
                                 label: Text(
-                                  hasSelfie ? 'Ambil Ulang' : 'Buka Kamera',
+                                  hasVerificationCapture
+                                      ? verificationRetryLabel
+                                      : verificationActionLabel,
                                 ),
                               ),
                             ),
-                            if (hasSelfie) ...[
+                            if (hasVerificationCapture) ...[
                               const SizedBox(width: 10),
                               IconButton.filledTonal(
                                 onPressed: onClearSelfie,
@@ -1260,6 +1460,10 @@ class _AttendanceFlowSheet extends StatelessWidget {
                           label: 'Jam Masuk',
                           value: _resolveAttendanceDisplayTime(
                             today,
+                            form: form,
+                            recent: recent,
+                            now: currentNow,
+                            startTime: null,
                             isCheckIn: true,
                           ),
                         ),
@@ -1267,6 +1471,10 @@ class _AttendanceFlowSheet extends StatelessWidget {
                           label: 'Jam Pulang',
                           value: _resolveAttendanceDisplayTime(
                             today,
+                            form: form,
+                            recent: recent,
+                            now: currentNow,
+                            startTime: null,
                             isCheckIn: false,
                           ),
                         ),
@@ -1275,8 +1483,9 @@ class _AttendanceFlowSheet extends StatelessWidget {
                           value: hasLocation ? 'Siap' : 'Belum lengkap',
                         ),
                         _AttendanceSummaryRow(
-                          label: 'Selfie',
-                          value: hasSelfie ? 'Siap' : 'Belum lengkap',
+                          label: verificationLabel,
+                          value:
+                              hasVerificationCapture ? 'Siap' : 'Belum lengkap',
                         ),
                         const SizedBox(height: 12),
                         Container(
@@ -1287,9 +1496,9 @@ class _AttendanceFlowSheet extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            hasSelfie
-                                ? 'Selfie sudah ada. Tinggal klik $nextModeLabel.'
-                                : 'Selfie belum ada. Kembali ke langkah sebelumnya jika perlu.',
+                            hasVerificationCapture
+                                ? '$verificationLabel sudah siap. Tinggal klik $nextModeLabel.'
+                                : '$verificationLabel belum ada. Kembali ke langkah sebelumnya jika perlu.',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: _attendanceText,
                               fontSize: 10.5,
@@ -1322,13 +1531,13 @@ class _AttendanceFlowSheet extends StatelessWidget {
                 Expanded(
                   child: FilledButton(
                     onPressed: currentStep == 2
-                        ? (hasLocation && hasSelfie && !submitting
+                        ? (hasLocation && hasVerificationCapture && !submitting
                             ? () async {
                                 await onSubmit();
                               }
                             : null)
                         : (currentStep == 0 && hasLocation) ||
-                                (currentStep == 1 && hasSelfie)
+                                (currentStep == 1 && hasVerificationCapture)
                             ? () async {
                                 await onNextStep?.call();
                               }
@@ -1351,7 +1560,7 @@ class _AttendanceFlowSheet extends StatelessWidget {
                             currentStep == 2
                                 ? nextModeLabel
                                 : currentStep == 0
-                                    ? 'Lanjut ke Selfie'
+                                    ? 'Lanjut ke ${isFaceScan ? 'Scan' : 'Selfie'}'
                                     : 'Lanjut ke Konfirmasi',
                             style: const TextStyle(
                               fontWeight: FontWeight.w800,
@@ -1599,7 +1808,9 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
 
     _mapController.move(
       widget.center,
-      widget.userPosition != null ? 16.2 : 14.2,
+      widget.userPosition != null
+          ? _attendanceMapUserZoom
+          : _attendanceMapDefaultZoom,
     );
   }
 
@@ -1690,7 +1901,9 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
           mapController: _mapController,
           options: MapOptions(
             initialCenter: widget.center,
-            initialZoom: widget.userPosition != null ? 16.2 : 14.2,
+            initialZoom: widget.userPosition != null
+                ? _attendanceMapUserZoom
+                : _attendanceMapDefaultZoom,
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.drag |
                   InteractiveFlag.pinchZoom |
@@ -1911,11 +2124,13 @@ LatLng _mapViewportCenter({
   required double? schoolLatitude,
   required double? schoolLongitude,
 }) {
+  if (userPosition != null) {
+    return LatLng(userPosition.latitude, userPosition.longitude);
+  }
+
   final points = <LatLng>[
     if (schoolLatitude != null && schoolLongitude != null)
       LatLng(schoolLatitude, schoolLongitude),
-    if (userPosition != null)
-      LatLng(userPosition.latitude, userPosition.longitude),
   ];
 
   if (points.isEmpty) {
@@ -1923,7 +2138,7 @@ LatLng _mapViewportCenter({
   }
 
   if (points.length == 1) {
-    return LatLng(points.first.latitude - 0.0012, points.first.longitude);
+    return points.first;
   }
 
   final latitudes = points.map((point) => point.latitude).toList()..sort();
@@ -1932,11 +2147,7 @@ LatLng _mapViewportCenter({
   final maxLat = latitudes.last;
   final minLng = longitudes.first;
   final maxLng = longitudes.last;
-  final latCenter = (minLat + maxLat) / 2;
-  final lngCenter = (minLng + maxLng) / 2;
-  final upwardOffset = ((maxLat - minLat).abs() * 0.85).clamp(0.0012, 0.0038);
-
-  return LatLng(latCenter - upwardOffset, lngCenter);
+  return LatLng((minLat + maxLat) / 2, (minLng + maxLng) / 2);
 }
 
 double? _findNumericValue(
@@ -1968,10 +2179,9 @@ double? _toDouble(dynamic value) {
 }
 
 String _formatRunningTime(DateTime value) {
-  final hour = value.hour.toString().padLeft(2, '0');
-  final minute = value.minute.toString().padLeft(2, '0');
+  final base = _formatHourMinute(value);
   final second = value.second.toString().padLeft(2, '0');
-  return '$hour:$minute:$second';
+  return '$base:$second';
 }
 
 String _formatAttendanceTime(dynamic value) {
@@ -2003,9 +2213,13 @@ String _formatAttendanceTime(dynamic value) {
     return '$hour:$minute';
   }
 
-  final match = RegExp(r'(\d{1,2}:\d{2})(?::\d{2})?').firstMatch(raw);
+  final match = RegExp(r'(\d{1,2}:\d{2})(?::(\d{2}))?').firstMatch(raw);
   if (match != null) {
-    return match.group(1) ?? '--:--';
+    final base = match.group(1);
+    if (base == null) {
+      return '--:--';
+    }
+    return base;
   }
 
   return '--:--';
@@ -2013,6 +2227,10 @@ String _formatAttendanceTime(dynamic value) {
 
 String _resolveAttendanceDisplayTime(
   Map<String, dynamic> today, {
+  required Map<String, dynamic> form,
+  required List recent,
+  required DateTime now,
+  required String? startTime,
   required bool isCheckIn,
 }) {
   final directKeys = isCheckIn
@@ -2023,6 +2241,17 @@ String _resolveAttendanceDisplayTime(
   final directTime = _formatAttendanceTime(directValue);
   if (directTime != '--:--') {
     return directTime;
+  }
+
+  final formValue = _findFirstMapValue(
+    form,
+    isCheckIn
+        ? const ['current_check_in', 'check_in', 'waktu_masuk']
+        : const ['current_check_out', 'check_out', 'waktu_keluar'],
+  );
+  final formTime = _formatAttendanceTime(formValue);
+  if (formTime != '--:--') {
+    return formTime;
   }
 
   final nestedKeys = isCheckIn ? const ['masuk'] : const ['pulang', 'keluar'];
@@ -2058,6 +2287,44 @@ String _resolveAttendanceDisplayTime(
     }
   }
 
+  final todayDate = _formatIsoDate(now);
+  for (final item in recent) {
+    if (item is! Map) {
+      continue;
+    }
+
+    final recentItem = Map<String, dynamic>.from(item);
+    final dateValue = recentItem['date']?.toString().trim();
+    if (dateValue != todayDate) {
+      continue;
+    }
+
+    final recentValue = _findFirstMapValue(recentItem, directKeys);
+    final recentTime = _formatAttendanceTime(recentValue);
+    if (recentTime != '--:--') {
+      return recentTime;
+    }
+
+    for (final key in nestedKeys) {
+      final nestedRecentTime = _formatAttendanceTime(recentItem[key]);
+      if (nestedRecentTime != '--:--') {
+        return nestedRecentTime;
+      }
+    }
+  }
+
+  if (isCheckIn) {
+    final inferredTime = _inferCheckInTimeFromNote(
+      today: today,
+      recent: recent,
+      now: now,
+      startTime: startTime,
+    );
+    if (inferredTime != null) {
+      return inferredTime;
+    }
+  }
+
   return '--:--';
 }
 
@@ -2072,6 +2339,82 @@ dynamic _findFirstMapValue(
   }
 
   return null;
+}
+
+String? _inferCheckInTimeFromNote({
+  required Map<String, dynamic> today,
+  required List recent,
+  required DateTime now,
+  required String? startTime,
+}) {
+  final candidates = <String?>[
+    today['note']?.toString(),
+    if (today['entries'] is List)
+      ...((today['entries'] as List)
+          .whereType<Map>()
+          .map((item) => item['note']?.toString())),
+    ...recent.whereType<Map>().map((item) {
+      final dateValue = item['date']?.toString().trim();
+      if (dateValue != _formatIsoDate(now)) {
+        return null;
+      }
+      return item['note']?.toString();
+    }),
+  ];
+
+  final lateNote =
+      candidates.whereType<String>().map((item) => item.trim()).firstWhere(
+            (item) => item.toLowerCase().contains('terlambat'),
+            orElse: () => '',
+          );
+
+  if (lateNote.isEmpty) {
+    return null;
+  }
+
+  final minuteMatch =
+      RegExp(r'(\d+)\s*menit', caseSensitive: false).firstMatch(lateNote);
+  final lateMinutes =
+      minuteMatch == null ? null : int.tryParse(minuteMatch[1]!);
+  if (lateMinutes == null) {
+    return null;
+  }
+
+  final parsedStart = _parseClockTime(startTime ?? '07:00');
+  if (parsedStart == null) {
+    return null;
+  }
+
+  final inferred = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    parsedStart.$1,
+    parsedStart.$2,
+  ).add(Duration(minutes: lateMinutes));
+
+  return _formatHourMinute(inferred);
+}
+
+(int, int)? _parseClockTime(String value) {
+  final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(value.trim());
+  if (match == null) {
+    return null;
+  }
+
+  final hour = int.tryParse(match.group(1)!);
+  final minute = int.tryParse(match.group(2)!);
+  if (hour == null || minute == null) {
+    return null;
+  }
+
+  return (hour, minute);
+}
+
+String _formatHourMinute(DateTime value) {
+  final hour = value.hour.toString().padLeft(2, '0');
+  final minute = value.minute.toString().padLeft(2, '0');
+  return '$hour:$minute';
 }
 
 String _formatCurrentDate(DateTime value) {
@@ -2091,4 +2434,26 @@ String _formatCurrentDate(DateTime value) {
   ];
 
   return '${value.day} ${months[value.month - 1]} ${value.year}';
+}
+
+String _formatIsoDate(DateTime value) {
+  final year = value.year.toString().padLeft(4, '0');
+  final month = value.month.toString().padLeft(2, '0');
+  final day = value.day.toString().padLeft(2, '0');
+  return '$year-$month-$day';
+}
+
+Uint8List? _previewBytesFromDataUrl(String? value) {
+  final raw = value?.trim() ?? '';
+  if (raw.isEmpty) {
+    return null;
+  }
+
+  final payload = raw.contains(',') ? raw.substring(raw.indexOf(',') + 1) : raw;
+
+  try {
+    return base64Decode(payload);
+  } catch (_) {
+    return null;
+  }
 }

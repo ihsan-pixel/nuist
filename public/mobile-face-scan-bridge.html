@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Scan Wajah Presensi</title>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="/js/face-recognition.js"></script>
+    <style>
+        :root {
+            color-scheme: dark;
+            --primary: #04A512;
+            --primary-dark: #037A0D;
+            --primary-soft: rgba(4, 165, 18, 0.16);
+            --surface: #081108;
+            --surface-soft: rgba(255, 255, 255, 0.08);
+            --surface-border: rgba(255, 255, 255, 0.12);
+            --text: #F8FFF8;
+            --muted: rgba(248, 255, 248, 0.74);
+            --danger: #FFB4AB;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+        }
+
+        .screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at top, rgba(4, 165, 18, 0.16), transparent 34%),
+                linear-gradient(180deg, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.78));
+            overflow: hidden;
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+            transform: scaleX(-1);
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 18px 18px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.08) 34%, rgba(0, 0, 0, 0.72));
+        }
+
+        .panel {
+            padding: 14px 14px 12px;
+            border-radius: 22px;
+            background: rgba(6, 16, 8, 0.58);
+            border: 1px solid var(--surface-border);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            margin-top: 4px;
+            font-size: 13px;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .guide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 16px;
+            padding: 18px 0;
+        }
+
+        .oval {
+            position: relative;
+            width: min(74vw, 280px);
+            height: min(92vw, 360px);
+            border-radius: 999px;
+            border: 3px solid rgba(255, 255, 255, 0.94);
+            box-shadow:
+                0 0 0 999px rgba(0, 0, 0, 0.34),
+                0 0 0 12px rgba(255, 255, 255, 0.06) inset;
+        }
+
+        .oval::after {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border-radius: 999px;
+            border: 1px dashed rgba(255, 255, 255, 0.22);
+        }
+
+        .instruction {
+            max-width: 320px;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.45;
+            font-weight: 700;
+        }
+
+        .status {
+            margin-top: 8px;
+            max-width: 320px;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .status.error {
+            color: var(--danger);
+        }
+
+        .footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .step {
+            padding: 10px 12px;
+            border-radius: 16px;
+            background: var(--surface-soft);
+            border: 1px solid var(--surface-border);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            transition: 180ms ease;
+        }
+
+        .step.active {
+            border-color: rgba(122, 182, 255, 0.32);
+            color: #D8EBFF;
+            background: rgba(61, 126, 202, 0.18);
+        }
+
+        .step.done {
+            border-color: rgba(4, 165, 18, 0.36);
+            color: #E9FFEC;
+            background: var(--primary-soft);
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 18px;
+            padding: 15px 18px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .primary {
+            color: #fff;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 12px 28px rgba(4, 165, 18, 0.28);
+        }
+
+        .secondary {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--surface-border);
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: default;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="screen">
+        <video id="video" autoplay muted playsinline></video>
+
+        <div class="overlay">
+            <div class="panel">
+                <div class="title">Scan Wajah Presensi</div>
+                <div class="subtitle">Selesaikan verifikasi biometrik dengan liveness check sebelum presensi dikirim.</div>
+            </div>
+
+            <div class="guide">
+                <div class="oval"></div>
+                <div class="instruction" id="instruction">Posisikan wajah di dalam bingkai lalu mulai scan.</div>
+                <div class="status" id="status">Menyiapkan kamera scan wajah.</div>
+            </div>
+
+            <div class="footer">
+                <div class="steps">
+                    <div class="step" data-step="align">Posisi Wajah</div>
+                    <div class="step" data-step="blink">Kedip</div>
+                    <div class="step" data-step="challenge">Challenge</div>
+                    <div class="step" data-step="done">Selesai</div>
+                </div>
+                <div class="actions">
+                    <button class="primary" id="start-btn" type="button">Mulai Scan Wajah</button>
+                    <button class="secondary" id="retry-btn" type="button" hidden>Ulangi Scan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const instructionEl = document.getElementById('instruction');
+        const statusEl = document.getElementById('status');
+        const startBtn = document.getElementById('start-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const stepEls = Array.from(document.querySelectorAll('[data-step]'));
+
+        const bridge = {
+            post(payload) {
+                if (window.FaceScanBridge && typeof window.FaceScanBridge.postMessage === 'function') {
+                    window.FaceScanBridge.postMessage(JSON.stringify(payload));
+                }
+            },
+            event(type, payload = {}) {
+                this.post({ type, payload });
+            },
+        };
+
+        const faceRecognition = new window.FaceRecognition();
+        let bootstrapped = false;
+        let scanInFlight = false;
+
+        function setInstruction(message) {
+            if (!message) {
+                return;
+            }
+            instructionEl.textContent = message;
+            bridge.event('instruction', { message });
+        }
+
+        function setStatus(message, isError = false) {
+            if (!message) {
+                return;
+            }
+            statusEl.textContent = message;
+            statusEl.classList.toggle('error', isError);
+            bridge.event(isError ? 'error' : 'status', { message });
+        }
+
+        function setStepState(key, state) {
+            const target = stepEls.find((el) => el.dataset.step === key);
+            if (!target) {
+                return;
+            }
+
+            target.classList.remove('active', 'done');
+            if (state === 'active') {
+                target.classList.add('active');
+            }
+            if (state === 'done') {
+                target.classList.add('done');
+            }
+
+            bridge.event('challenge', { key, state });
+        }
+
+        function resetStepStates() {
+            ['align', 'blink', 'challenge', 'done'].forEach((key) => setStepState(key, 'pending'));
+        }
+
+        async function ensureReady() {
+            if (bootstrapped) {
+                return;
+            }
+
+            setStatus('Memuat model scan wajah.');
+            await faceRecognition.loadModels();
+            setStatus('Mengaktifkan kamera depan.');
+            await faceRecognition.initializeCamera(video);
+            bootstrapped = true;
+            bridge.event('camera_ready');
+            setStatus('Kamera siap. Mulai scan saat Anda siap.');
+        }
+
+        async function startScan() {
+            if (scanInFlight) {
+                return;
+            }
+
+            scanInFlight = true;
+            startBtn.disabled = true;
+            retryBtn.hidden = true;
+            statusEl.classList.remove('error');
+            resetStepStates();
+            setInstruction('Posisikan wajah di dalam bingkai lalu ikuti instruksi scan.');
+            bridge.event('scan_started');
+
+            try {
+                await ensureReady();
+
+                const result = await faceRecognition.performAttendanceScan(video, {
+                    onInstruction: setInstruction,
+                    onStatus: (message) => setStatus(message, false),
+                    onGuideState: (state) => {
+                        if (state && typeof state.message === 'string' && state.message.trim() !== '') {
+                            setStatus(state.message, false);
+                        }
+                    },
+                    onChallengeState: (key, state) => {
+                        setStepState(key, state);
+                    },
+                });
+
+                setStepState('done', 'done');
+                setInstruction('Scan wajah berhasil. Data biometrik siap dikirim.');
+                setStatus('Scan wajah selesai.');
+                bridge.event('result', { result });
+            } catch (error) {
+                const message = String(error && error.message ? error.message : error || 'Scan wajah belum berhasil.');
+                setStatus(message, true);
+                retryBtn.hidden = false;
+            } finally {
+                scanInFlight = false;
+                startBtn.disabled = false;
+            }
+        }
+
+        startBtn.addEventListener('click', startScan);
+        retryBtn.addEventListener('click', startScan);
+
+        window.FaceScanPage = {
+            start: startScan,
+        };
+
+        window.addEventListener('beforeunload', () => {
+            faceRecognition.stopCamera(video);
+        });
+
+        bridge.event('page_ready');
+    </script>
+</body>
+</html>

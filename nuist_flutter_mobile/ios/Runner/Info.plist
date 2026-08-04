@@ -50,7 +50,7 @@
 		<string>remote-notification</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Kamera digunakan untuk mengambil foto selfie presensi.</string>
+	<string>Kamera digunakan untuk scan wajah biometrik dan verifikasi presensi.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Lokasi digunakan untuk validasi presensi masuk dan keluar.</string>
 </dict>

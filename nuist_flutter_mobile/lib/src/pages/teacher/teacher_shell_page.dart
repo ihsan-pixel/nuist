@@ -214,6 +214,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
             TeacherAttendancePage(
               repository: widget.repository,
               onBackToHome: _openDashboard,
+              onOpenAttendanceHistory: _openReportPage,
               isActive: _currentIndex == 2,
             ),
             TeacherTeachingJournalPage(
