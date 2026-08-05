@@ -1429,6 +1429,7 @@ class SkYayasanController extends Controller
         $batch->loadMissing(['madrasah', 'uploader', 'reviewer', 'rows']);
 
         $columns = $this->importBatchPdfColumns();
+        $rows = $batch->rows->map(fn (SkYayasanImportRow $row) => $this->mapImportBatchPdfRow($row));
         $filename = 'pengajuan-sk-yayasan-'
             . Str::slug($batch->madrasah?->name ?? 'sekolah')
             . '-batch-'
@@ -1440,7 +1441,7 @@ class SkYayasanController extends Controller
         $pdf = PDF::loadView('pdf.sk-yayasan-import-batch', [
             'batch' => $batch,
             'columns' => $columns,
-            'rows' => $batch->rows,
+            'rows' => $rows,
         ])->setPaper('a3', 'landscape');
 
         return response($pdf->output(), 200)
@@ -2731,6 +2732,28 @@ class SkYayasanController extends Controller
             'Program Studi' => 'source_program_studi',
             'Mapel/Tugas yang Diampu' => 'source_mapel_tugas',
             'Keterangan' => 'source_keterangan',
+        ];
+    }
+
+    private function mapImportBatchPdfRow(SkYayasanImportRow $row): array
+    {
+        return [
+            'excel_no' => $row->excel_no,
+            'source_nuist_id' => $row->source_nuist_id,
+            'source_nama' => $row->source_nama,
+            'source_gelar' => $row->source_gelar,
+            'source_tempat_lahir' => $row->source_tempat_lahir,
+            'source_tanggal_lahir' => $row->source_tanggal_lahir,
+            'source_nip_maarif' => $row->source_nip_maarif,
+            'source_nuptk' => $row->source_nuptk,
+            'source_nomor_kartanu' => $row->source_nomor_kartanu,
+            'source_tmt_pertama' => $row->source_tmt_pertama,
+            'source_masa_kerja' => $this->formatTenureFromTmt($row->source_tmt_pertama, null, now(), null),
+            'source_pendidikan_terakhir' => $row->source_pendidikan_terakhir,
+            'source_tahun_lulus' => $row->source_tahun_lulus,
+            'source_program_studi' => $row->source_program_studi,
+            'source_mapel_tugas' => $row->source_mapel_tugas,
+            'source_keterangan' => $row->source_keterangan,
         ];
     }
 

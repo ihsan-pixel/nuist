@@ -52,13 +52,6 @@
             width: 110px;
         }
 
-        .note {
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
-            margin-bottom: 14px;
-            padding: 8px 10px;
-        }
-
         table {
             border-collapse: collapse;
             table-layout: fixed;
@@ -99,7 +92,7 @@
 <div class="header">
     <div class="title">Rekap Pengajuan SK Yayasan</div>
     <p class="subtitle">
-        Batch {{ $batch->id }} - {{ $batch->madrasah?->name ?? '-' }}
+        {{ $batch->madrasah?->name ?? '-' }}
     </p>
 </div>
 
@@ -130,10 +123,6 @@
             <td>{{ $batch->original_filename ?? '-' }}</td>
         </tr>
     </table>
-</div>
-
-<div class="note">
-    PDF ini hanya memuat data pengajuan. Kolom Nilai Kinerja dan Status tidak disertakan.
 </div>
 
 <table>
