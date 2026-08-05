@@ -728,6 +728,7 @@ Route::domain('admin.nuist.id')->group(function () {
                 Route::get('/dashboard', [SkYayasanController::class, 'dashboard']);
                 Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan']);
                 Route::get('/pengajuan/export-sekolah-summary', [SkYayasanController::class, 'exportSchoolSubmissionSummary']);
+                Route::get('/pengajuan/import-batches/{batch}/export-pdf', [SkYayasanController::class, 'exportImportBatchPdf']);
                 Route::patch('/pengajuan/{submission}/status', [SkYayasanController::class, 'updateSubmissionStatus']);
                 Route::patch('/import-batches/{batch}/rows', [SkYayasanController::class, 'updateImportBatchRows']);
                 Route::patch('/import-batches/{batch}/review', [SkYayasanController::class, 'reviewImportBatch']);
@@ -2011,6 +2012,7 @@ Route::prefix('sk-yayasan')->middleware(['auth'])->name('sk-yayasan.')->group(fu
         Route::patch('/nomor-sk/{document}', [SkYayasanController::class, 'updateDocumentNumber'])->name('numbers.update');
         Route::get('/pengajuan', [SkYayasanController::class, 'superAdminPengajuan'])->name('pengajuan.index');
         Route::get('/pengajuan/export-sekolah-summary', [SkYayasanController::class, 'exportSchoolSubmissionSummary'])->name('pengajuan.export-school-summary');
+        Route::get('/pengajuan/import-batches/{batch}/export-pdf', [SkYayasanController::class, 'exportImportBatchPdf'])->name('pengajuan.export-batch-pdf');
         Route::patch('/pengajuan/{submission}/status', [SkYayasanController::class, 'updateSubmissionStatus'])->name('pengajuan.update-status');
         Route::patch('/import-batches/{batch}/rows', [SkYayasanController::class, 'updateImportBatchRows'])->name('import-batches.rows.update');
         Route::patch('/import-batches/{batch}/review', [SkYayasanController::class, 'reviewImportBatch'])->name('import-batches.review');

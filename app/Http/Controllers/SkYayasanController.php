@@ -1422,6 +1422,35 @@ class SkYayasanController extends Controller
         );
     }
 
+    public function exportImportBatchPdf(SkYayasanImportBatch $batch)
+    {
+        $this->ensureSuperAdmin();
+
+        $batch->loadMissing(['madrasah', 'uploader', 'reviewer', 'rows']);
+
+        $columns = $this->importBatchPdfColumns();
+        $filename = 'pengajuan-sk-yayasan-'
+            . Str::slug($batch->madrasah?->name ?? 'sekolah')
+            . '-batch-'
+            . $batch->id
+            . '-'
+            . now()->format('Ymd_His')
+            . '.pdf';
+
+        $pdf = PDF::loadView('pdf.sk-yayasan-import-batch', [
+            'batch' => $batch,
+            'columns' => $columns,
+            'rows' => $batch->rows,
+        ])->setPaper('a3', 'landscape');
+
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
     public function updateSubmissionStatus(Request $request, SkYayasanRequest $submission): RedirectResponse
     {
         $this->ensureSuperAdmin();
@@ -2681,6 +2710,28 @@ class SkYayasanController extends Controller
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
+    }
+
+    private function importBatchPdfColumns(): array
+    {
+        return [
+            'No' => 'excel_no',
+            'NUIST ID' => 'source_nuist_id',
+            'Nama' => 'source_nama',
+            'Gelar' => 'source_gelar',
+            'Tempat Lahir' => 'source_tempat_lahir',
+            'Tanggal Lahir' => 'source_tanggal_lahir',
+            "NIP Ma'arif" => 'source_nip_maarif',
+            'NUPTK' => 'source_nuptk',
+            'Nomor Kartanu' => 'source_nomor_kartanu',
+            'TMT Pertama' => 'source_tmt_pertama',
+            'Masa Kerja' => 'source_masa_kerja',
+            'Pendidikan Terakhir' => 'source_pendidikan_terakhir',
+            'Tahun Lulus' => 'source_tahun_lulus',
+            'Program Studi' => 'source_program_studi',
+            'Mapel/Tugas yang Diampu' => 'source_mapel_tugas',
+            'Keterangan' => 'source_keterangan',
+        ];
     }
 
     private function resetBrokenSkYayasanFontCache(): void

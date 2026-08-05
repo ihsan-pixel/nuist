@@ -762,6 +762,9 @@
                                                 </td>
                                                 <td class="text-end">
                                                     <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                                        <a href="{{ route('sk-yayasan.pengajuan.export-batch-pdf', $batch) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                                            Export PDF
+                                                        </a>
                                                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
                                                             Review
                                                         </button>
@@ -850,9 +853,14 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-end">
-                                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
-                                                        Detail
-                                                    </button>
+                                                    <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                                        <a href="{{ route('sk-yayasan.pengajuan.export-batch-pdf', $batch) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                                            Export PDF
+                                                        </a>
+                                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                                            Detail
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach
