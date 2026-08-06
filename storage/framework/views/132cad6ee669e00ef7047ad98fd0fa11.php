@@ -1,15 +1,13 @@
-@extends('layouts.master')
+<?php $__env->startSection('title'); ?>Pengajuan Perpanjangan SK <?php $__env->stopSection(); ?>
 
-@section('title')Pengajuan Perpanjangan SK @endsection
+<?php $__env->startSection('content'); ?>
+<?php $__env->startComponent('components.breadcrumb'); ?>
+    <?php $__env->slot('li_1'); ?> SK Yayasan <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Pengajuan Perpanjangan SK <?php $__env->endSlot(); ?>
+<?php echo $__env->renderComponent(); ?>
 
-@section('content')
-@component('components.breadcrumb')
-    @slot('li_1') SK Yayasan @endslot
-    @slot('title') Pengajuan Perpanjangan SK @endslot
-@endcomponent
-
-@include('sk-yayasan.partials.ui-styles')
-@include('sk-yayasan.partials.sweet-alert')
+<?php echo $__env->make('sk-yayasan.partials.ui-styles', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php echo $__env->make('sk-yayasan.partials.sweet-alert', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <style>
     .sky-pagination-wrap {
@@ -504,7 +502,7 @@
     }
 </style>
 
-@php
+<?php
     $keteranganOptions = \App\Support\SkYayasanImportSynchronizer::allowedKeteranganOptions();
     $importPreviewFieldMap = [
         'No' => 'excel_no',
@@ -641,7 +639,7 @@
 
         return null;
     };
-@endphp
+?>
 
 <div class="sky-page">
     <div class="sky-header mb-4">
@@ -649,18 +647,16 @@
             <div>
                 <div class="sky-section-kicker mb-2">SK Yayasan</div>
                 <h4 class="sky-page-title">Pengajuan perpanjangan SK</h4>
-                {{-- <p class="sky-page-subtitle">
-                    Halaman ini merangkum pengajuan aktif, hasil sinkronisasi batch, serta kondisi tiap sekolah agar proses review yayasan lebih rapi dan cepat ditindaklanjuti.
-                </p> --}}
+                
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <a href="{{ route('sk-yayasan.template.index') }}" class="btn btn-light">
+                <a href="<?php echo e(route('sk-yayasan.template.index')); ?>" class="btn btn-light">
                     <i class="mdi mdi-text-box-edit-outline me-1"></i>Template
                 </a>
-                <a href="{{ route('sk-yayasan.generate.index') }}" class="btn btn-light">
+                <a href="<?php echo e(route('sk-yayasan.generate.index')); ?>" class="btn btn-light">
                     <i class="mdi mdi-file-document-multiple-outline me-1"></i>Generate
                 </a>
-                <a href="{{ route('sk-yayasan.pengajuan.export-school-summary') }}" class="btn btn-primary">
+                <a href="<?php echo e(route('sk-yayasan.pengajuan.export-school-summary')); ?>" class="btn btn-primary">
                     <i class="mdi mdi-microsoft-excel me-1"></i>Rekap Sekolah
                 </a>
             </div>
@@ -670,23 +666,23 @@
     <div class="sky-summary-grid mb-4">
         <div class="sky-summary-card">
             <div class="sky-summary-label">Sekolah Sudah Mengajukan</div>
-            <div class="sky-summary-value mt-2">{{ number_format($schoolSubmissionSummaryCards['submitted_schools'] ?? 0) }}</div>
-            {{-- <span class="sky-summary-note">Sekolah yang sudah memiliki pengajuan atau batch aktif.</span> --}}
+            <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['submitted_schools'] ?? 0)); ?></div>
+            
         </div>
         <div class="sky-summary-card">
             <div class="sky-summary-label">Sekolah Belum Mengajukan</div>
-            <div class="sky-summary-value mt-2">{{ number_format($schoolSubmissionSummaryCards['not_submitted_schools'] ?? 0) }}</div>
-            {{-- <span class="sky-summary-note">Sekolah yang belum mengirim batch aktif ke yayasan.</span> --}}
+            <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['not_submitted_schools'] ?? 0)); ?></div>
+            
         </div>
         <div class="sky-summary-card">
             <div class="sky-summary-label">Total Pengajuan Aktif</div>
-            <div class="sky-summary-value mt-2">{{ number_format($schoolSubmissionSummaryCards['total_requests'] ?? 0) }}</div>
-            {{-- <span class="sky-summary-note">Seluruh pengajuan yang sedang diproses pada tahap review atau penerbitan.</span> --}}
+            <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['total_requests'] ?? 0)); ?></div>
+            
         </div>
         <div class="sky-summary-card">
             <div class="sky-summary-label">Belum Match Akun NUist</div>
-            <div class="sky-summary-value mt-2">{{ number_format($schoolSubmissionSummaryCards['requests_without_nuist_account'] ?? 0) }}</div>
-            {{-- <span class="sky-summary-note">Jumlah baris pada batch terakhir yang masih perlu dicocokkan dengan akun.</span> --}}
+            <div class="sky-summary-value mt-2"><?php echo e(number_format($schoolSubmissionSummaryCards['requests_without_nuist_account'] ?? 0)); ?></div>
+            
         </div>
     </div>
 
@@ -697,25 +693,25 @@
                     <div class="sky-panel-label mb-1">Komposisi Keterangan</div>
                     <h6 class="mb-0">Jenis pengajuan yang sedang berjalan</h6>
                 </div>
-                {{-- <span class="sky-chip">{{ number_format(collect($keteranganSummaryCounts)->sum()) }} data terpetakan</span> --}}
+                
             </div>
 
-            @if(!empty($keteranganSummaryCounts))
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($keteranganSummaryCounts)): ?>
                 <div class="sky-keterangan-grid">
-                    @foreach($keteranganSummaryCounts as $label => $count)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $keteranganSummaryCounts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $label => $count): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <div class="sky-keterangan-card">
-                            <div class="sky-summary-label mb-2">{{ $label }}</div>
-                            <div class="sky-keterangan-value">{{ number_format($count) }}</div>
+                            <div class="sky-summary-label mb-2"><?php echo e($label); ?></div>
+                            <div class="sky-keterangan-value"><?php echo e(number_format($count)); ?></div>
                         </div>
-                    @endforeach
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                 </div>
-            @else
+            <?php else: ?>
                 <div class="sky-empty-state py-4">
                     <i class="bx bx-receipt"></i>
                     <strong>Belum ada kategori pengajuan yang terpetakan</strong>
-                    {{-- <small>Ringkasan akan muncul setelah batch aktif berhasil dibaca sistem.</small> --}}
+                    
                 </div>
-            @endif
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 
@@ -728,14 +724,14 @@
                             <div class="sky-panel-label mb-1">Batch Pending</div>
                             <h6 class="mb-0">Import yang masih menunggu review</h6>
                         </div>
-                        <span class="sky-chip">{{ $pendingImportBatches->total() }} batch</span>
+                        <span class="sky-chip"><?php echo e($pendingImportBatches->total()); ?> batch</span>
                     </div>
                     <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
                 </button>
 
                 <div id="pendingBatchPanel" class="collapse show sky-collapse-shell">
                     <div class="card-body">
-                        @if($pendingImportBatches->count() > 0)
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendingImportBatches->count() > 0): ?>
                             <div class="table-responsive">
                                 <table class="table align-middle">
                                     <thead>
@@ -747,61 +743,62 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($pendingImportBatches as $batch)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $pendingImportBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                             <tr>
                                                 <td>
-                                                    <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
+                                                    <span class="sky-data-primary"><?php echo e($batch->madrasah?->name ?? '-'); ?></span>
                                                 </td>
                                                 <td>
-                                                    <span class="sky-data-primary">{{ $batch->uploader?->name ?? '-' }}</span>
-                                                    <span class="sky-data-secondary">{{ optional($batch->uploaded_at)->format('d/m/Y H:i') }}</span>
+                                                    <span class="sky-data-primary"><?php echo e($batch->uploader?->name ?? '-'); ?></span>
+                                                    <span class="sky-data-secondary"><?php echo e(optional($batch->uploaded_at)->format('d/m/Y H:i')); ?></span>
                                                 </td>
                                                 <td>
-                                                    <span class="sky-data-primary">{{ $batch->valid_rows }} valid / {{ $batch->invalid_rows }} salah</span>
-                                                    <span class="sky-data-secondary">{{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}</span>
+                                                    <span class="sky-data-primary"><?php echo e($batch->valid_rows); ?> valid / <?php echo e($batch->invalid_rows); ?> salah</span>
+                                                    <span class="sky-data-secondary"><?php echo e($batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template'); ?></span>
                                                 </td>
                                                 <td class="text-end">
                                                     <div class="d-inline-flex flex-wrap justify-content-end gap-2">
-                                                        <a href="{{ route('sk-yayasan.pengajuan.export-batch-pdf', $batch) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                                        <a href="<?php echo e(route('sk-yayasan.pengajuan.export-batch-pdf', $batch)); ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                                                             Export PDF
                                                         </a>
-                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
                                                             Review
                                                         </button>
                                                         <form method="POST"
-                                                              action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                                              action="<?php echo e(route('sk-yayasan.import-batches.destroy', $batch)); ?>"
                                                               data-sk-swal-confirm
                                                               data-sk-swal-title="Hapus pengajuan ini?"
                                                               data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
                                                               data-sk-swal-confirm-text="Ya, hapus"
                                                               data-sk-swal-icon="warning">
-                                                            @csrf
-                                                            @method('DELETE')
+                                                            <?php echo csrf_field(); ?>
+                                                            <?php echo method_field('DELETE'); ?>
                                                             <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
                                                         </form>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div class="sky-empty-state py-5">
                                 <i class="bx bx-spreadsheet"></i>
                                 <strong>Tidak ada batch pending review</strong>
-                                {{-- <small>Batch baru dari sekolah akan muncul di sini sebelum disinkronkan.</small> --}}
+                                
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
-                    @if($pendingImportBatches->hasPages())
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendingImportBatches->hasPages()): ?>
                         <div class="card-footer">
                             <div class="sky-pagination-wrap">
-                                {{ $pendingImportBatches->links('pagination::bootstrap-5') }}
+                                <?php echo e($pendingImportBatches->links('pagination::bootstrap-5')); ?>
+
                             </div>
                         </div>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -814,14 +811,14 @@
                             <div class="sky-panel-label mb-1">Batch Tersinkron</div>
                             <h6 class="mb-0">Import yang sudah masuk ke aplikasi</h6>
                         </div>
-                        <span class="sky-chip">{{ $syncedImportBatches->total() }} batch • {{ $syncedImportBatchSchoolCount }} sekolah</span>
+                        <span class="sky-chip"><?php echo e($syncedImportBatches->total()); ?> batch • <?php echo e($syncedImportBatchSchoolCount); ?> sekolah</span>
                     </div>
                     <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
                 </button>
 
                 <div id="syncedBatchPanel" class="collapse show sky-collapse-shell">
                     <div class="card-body">
-                        @if($syncedImportBatches->count() > 0)
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($syncedImportBatches->count() > 0): ?>
                             <div class="table-responsive">
                                 <table class="table align-middle">
                                     <thead>
@@ -833,56 +830,57 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($syncedImportBatches as $batch)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $syncedImportBatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                             <tr>
                                                 <td>
-                                                    <span class="sky-data-primary">{{ $batch->madrasah?->name ?? '-' }}</span>
+                                                    <span class="sky-data-primary"><?php echo e($batch->madrasah?->name ?? '-'); ?></span>
                                                 </td>
                                                 <td>
-                                                    <span class="sky-data-primary">{{ $batch->reviewer?->name ?? '-' }}</span>
-                                                    <span class="sky-data-secondary">{{ optional($batch->synced_at)->format('d/m/Y H:i') ?? '-' }}</span>
+                                                    <span class="sky-data-primary"><?php echo e($batch->reviewer?->name ?? '-'); ?></span>
+                                                    <span class="sky-data-secondary"><?php echo e(optional($batch->synced_at)->format('d/m/Y H:i') ?? '-'); ?></span>
                                                 </td>
                                                 <td>
-                                                    <span class="sky-data-primary">{{ number_format($batch->synced_submission_count ?? 0) }} pengajuan</span>
+                                                    <span class="sky-data-primary"><?php echo e(number_format($batch->synced_submission_count ?? 0)); ?> pengajuan</span>
                                                     <span class="sky-data-secondary">
-                                                        {{ number_format($batch->valid_rows) }} dari {{ number_format($batch->total_rows) }} baris valid pada file
-                                                        @if(($batch->duplicate_valid_matched_rows_count ?? 0) > 0)
-                                                            • {{ number_format($batch->unique_valid_matched_rows_count ?? 0) }} guru unik
-                                                            • {{ number_format($batch->duplicate_valid_matched_rows_count ?? 0) }} baris valid tergabung
-                                                        @endif
+                                                        <?php echo e(number_format($batch->valid_rows)); ?> dari <?php echo e(number_format($batch->total_rows)); ?> baris valid pada file
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(($batch->duplicate_valid_matched_rows_count ?? 0) > 0): ?>
+                                                            • <?php echo e(number_format($batch->unique_valid_matched_rows_count ?? 0)); ?> guru unik
+                                                            • <?php echo e(number_format($batch->duplicate_valid_matched_rows_count ?? 0)); ?> baris valid tergabung
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </span>
                                                 </td>
                                                 <td class="text-end">
                                                     <div class="d-inline-flex flex-wrap justify-content-end gap-2">
-                                                        <a href="{{ route('sk-yayasan.pengajuan.export-batch-pdf', $batch) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                                        <a href="<?php echo e(route('sk-yayasan.pengajuan.export-batch-pdf', $batch)); ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                                                             Export PDF
                                                         </a>
-                                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal{{ $batch->id }}">
+                                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importBatchModal<?php echo e($batch->id); ?>">
                                                             Detail
                                                         </button>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div class="sky-empty-state py-5">
                                 <i class="bx bx-check-shield"></i>
                                 <strong>Belum ada batch tersinkron</strong>
                                 <small>Batch yang sudah berhasil disinkronkan ke aplikasi akan tampil di sini.</small>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
-                    @if($syncedImportBatches->hasPages())
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($syncedImportBatches->hasPages()): ?>
                         <div class="card-footer">
                             <div class="sky-pagination-wrap">
-                                {{ $syncedImportBatches->links('pagination::bootstrap-5') }}
+                                <?php echo e($syncedImportBatches->links('pagination::bootstrap-5')); ?>
+
                             </div>
                         </div>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -895,7 +893,7 @@
                     <div class="sky-panel-label mb-1">Daftar Pengajuan</div>
                     <h6 class="mb-0">Semua pengajuan yang masuk ke yayasan, termasuk yang ditolak</h6>
                 </div>
-                <span class="sky-chip">{{ number_format($submissions->total()) }} pengajuan</span>
+                <span class="sky-chip"><?php echo e(number_format($submissions->total())); ?> pengajuan</span>
             </div>
             <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
         </button>
@@ -909,7 +907,7 @@
                             <input
                                 type="text"
                                 name="q"
-                                value="{{ request('q') }}"
+                                value="<?php echo e(request('q')); ?>"
                                 class="form-control"
                                 placeholder="Contoh: SMA Ma'arif, Ahmad, atau nomor surat">
                         </div>
@@ -917,30 +915,30 @@
                             <label class="form-label mb-1">Sekolah</label>
                             <select name="madrasah_id" class="form-select">
                                 <option value="">Semua sekolah</option>
-                                @foreach($madrasahs as $madrasah)
-                                    <option value="{{ $madrasah->id }}" @selected((string) request('madrasah_id') === (string) $madrasah->id)>{{ $madrasah->name }}</option>
-                                @endforeach
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <option value="<?php echo e($madrasah->id); ?>" <?php if((string) request('madrasah_id') === (string) $madrasah->id): echo 'selected'; endif; ?>><?php echo e($madrasah->name); ?></option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             </select>
                         </div>
                         <div class="col-lg-2">
                             <label class="form-label mb-1">Status</label>
                             <select name="status" class="form-select">
                                 <option value="">Semua status</option>
-                                @foreach($statusOptions as $value => $label)
-                                    <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
-                                @endforeach
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $statusOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <option value="<?php echo e($value); ?>" <?php if(request('status') === $value): echo 'selected'; endif; ?>><?php echo e($label); ?></option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             </select>
                         </div>
                         <div class="col-lg-2">
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">Terapkan</button>
-                                <a href="{{ route('sk-yayasan.pengajuan.index') }}" class="btn btn-light">Reset</a>
+                                <a href="<?php echo e(route('sk-yayasan.pengajuan.index')); ?>" class="btn btn-light">Reset</a>
                             </div>
                         </div>
                     </div>
                 </form>
 
-                @if($submissions->count() > 0)
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissions->count() > 0): ?>
                     <div class="table-responsive">
                         <table class="table align-middle">
                             <thead>
@@ -956,77 +954,79 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($submissions as $submission)
-                                    @php
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $submissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $submission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <?php
                                         $submissionBadge = $statusBadgeMap[$submission->current_status] ?? ['color' => 'secondary', 'label' => ucfirst(str_replace('_', ' ', (string) $submission->current_status))];
-                                    @endphp
+                                    ?>
                                     <tr>
                                         <td>
-                                            <span class="sky-data-primary">{{ $submission->request_number }}</span>
-                                            <span class="sky-data-secondary">Masuk {{ optional($submission->submitted_at)->format('d/m/Y H:i') ?? '-' }}</span>
+                                            <span class="sky-data-primary"><?php echo e($submission->request_number); ?></span>
+                                            <span class="sky-data-secondary">Masuk <?php echo e(optional($submission->submitted_at)->format('d/m/Y H:i') ?? '-'); ?></span>
                                         </td>
                                         <td>
-                                            <span class="sky-data-primary">{{ $submission->employee?->name ?? '-' }}</span>
-                                            <span class="sky-data-secondary">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? 'Status belum tersedia') }}</span>
+                                            <span class="sky-data-primary"><?php echo e($submission->employee?->name ?? '-'); ?></span>
+                                            <span class="sky-data-secondary"><?php echo e($submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? 'Status belum tersedia')); ?></span>
                                         </td>
                                         <td>
-                                            <span class="sky-data-primary">{{ $submission->madrasah?->name ?? '-' }}</span>
-                                            <span class="sky-data-secondary">Dikirim oleh {{ $submission->submitter?->name ?? '-' }}</span>
+                                            <span class="sky-data-primary"><?php echo e($submission->madrasah?->name ?? '-'); ?></span>
+                                            <span class="sky-data-secondary">Dikirim oleh <?php echo e($submission->submitter?->name ?? '-'); ?></span>
                                         </td>
                                         <td>
-                                            <span class="sky-data-primary">{{ $submission->submission_letter_number ?? '-' }}</span>
-                                            <span class="sky-data-secondary">{{ optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? 'Tanggal belum diisi' }}</span>
+                                            <span class="sky-data-primary"><?php echo e($submission->submission_letter_number ?? '-'); ?></span>
+                                            <span class="sky-data-secondary"><?php echo e(optional($submission->submission_letter_date)->translatedFormat('d M Y') ?? 'Tanggal belum diisi'); ?></span>
                                         </td>
                                         <td>
-                                            <span class="badge bg-{{ $submissionBadge['color'] }}-subtle text-{{ $submissionBadge['color'] }}">{{ $submissionBadge['label'] }}</span>
+                                            <span class="badge bg-<?php echo e($submissionBadge['color']); ?>-subtle text-<?php echo e($submissionBadge['color']); ?>"><?php echo e($submissionBadge['label']); ?></span>
                                             <span class="sky-data-secondary">
-                                                @if($submission->reviewer)
-                                                    Review oleh {{ $submission->reviewer->name }}{{ $submission->reviewed_at ? ' • ' . $submission->reviewed_at->format('d/m/Y H:i') : '' }}
-                                                @else
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->reviewer): ?>
+                                                    Review oleh <?php echo e($submission->reviewer->name); ?><?php echo e($submission->reviewed_at ? ' • ' . $submission->reviewed_at->format('d/m/Y H:i') : ''); ?>
+
+                                                <?php else: ?>
                                                     Menunggu review yayasan
-                                                @endif
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="sky-data-primary">{{ $submission->template?->name ?? 'Belum dipilih' }}</span>
-                                            <span class="sky-data-secondary">{{ $submission->document ? 'Draft/PDF tersedia' : 'Belum ada dokumen' }}</span>
+                                            <span class="sky-data-primary"><?php echo e($submission->template?->name ?? 'Belum dipilih'); ?></span>
+                                            <span class="sky-data-secondary"><?php echo e($submission->document ? 'Draft/PDF tersedia' : 'Belum ada dokumen'); ?></span>
                                         </td>
                                         <td>
-                                            <span class="sky-data-secondary mt-0">{{ \Illuminate\Support\Str::limit($submission->review_notes ?: 'Belum ada catatan review.', 110) }}</span>
+                                            <span class="sky-data-secondary mt-0"><?php echo e(\Illuminate\Support\Str::limit($submission->review_notes ?: 'Belum ada catatan review.', 110)); ?></span>
                                         </td>
                                         <td class="text-end">
                                             <div class="d-inline-flex flex-wrap justify-content-end gap-2">
-                                                @if($submission->document)
-                                                    <a href="{{ route('sk-yayasan.documents.download', $submission->document) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->document): ?>
+                                                    <a href="<?php echo e(route('sk-yayasan.documents.download', $submission->document)); ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
                                                         PDF
                                                     </a>
-                                                @endif
-                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $submission->id }}">
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal<?php echo e($submission->id); ?>">
                                                     Review
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
-                @else
+                <?php else: ?>
                     <div class="sky-empty-state py-5">
                         <i class="bx bx-search-alt"></i>
                         <strong>Tidak ada pengajuan yang sesuai filter</strong>
                         <small>Coba ubah kata kunci, sekolah, atau status termasuk filter ditolak untuk melihat data lain.</small>
                     </div>
-                @endif
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
-            @if($submissions->hasPages())
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submissions->hasPages()): ?>
                 <div class="card-footer">
                     <div class="sky-pagination-wrap">
-                        {{ $submissions->links('pagination::bootstrap-5') }}
+                        <?php echo e($submissions->links('pagination::bootstrap-5')); ?>
+
                     </div>
                 </div>
-            @endif
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 
@@ -1037,7 +1037,7 @@
                     <div class="sky-panel-label mb-1">Monitoring Sekolah</div>
                     <h6 class="mb-0">Status ringkas pengajuan per sekolah</h6>
                 </div>
-                <span class="sky-chip">{{ count($schoolSubmissionSummaryRows) }} sekolah</span>
+                <span class="sky-chip"><?php echo e(count($schoolSubmissionSummaryRows)); ?> sekolah</span>
             </div>
             <i class="mdi mdi-chevron-down sky-collapse-icon"></i>
         </button>
@@ -1059,8 +1059,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($schoolSubmissionSummaryRows as $row)
-                                @php
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $schoolSubmissionSummaryRows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                <?php
                                     $schoolStatusBadge = match ($row['submission_status_label']) {
                                         'Sudah Mengajukan' => ['color' => 'success', 'label' => 'Sudah Mengajukan'],
                                         'Ditolak' => ['color' => 'danger', 'label' => 'Ditolak'],
@@ -1068,32 +1068,32 @@
                                     };
                                     $latestBatchBadge = $batchStatusBadgeMap[$row['latest_batch_status'] ?? ''] ?? ['color' => 'secondary', 'label' => 'Belum ada batch'];
                                     $hasRejectedHistory = ($row['rejected_requests_count'] ?? 0) > 0 || ($row['rejected_batch_count'] ?? 0) > 0;
-                                @endphp
+                                ?>
                                 <tr>
-                                    <td>{{ $row['scod'] ?: '-' }}</td>
+                                    <td><?php echo e($row['scod'] ?: '-'); ?></td>
                                     <td>
-                                        <span class="sky-data-primary">{{ $row['school_name'] ?: '-' }}</span>
-                                        <span class="sky-data-secondary">{{ $row['kabupaten'] ?: '-' }}</span>
+                                        <span class="sky-data-primary"><?php echo e($row['school_name'] ?: '-'); ?></span>
+                                        <span class="sky-data-secondary"><?php echo e($row['kabupaten'] ?: '-'); ?></span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $schoolStatusBadge['color'] }}-subtle text-{{ $schoolStatusBadge['color'] }}">{{ $schoolStatusBadge['label'] }}</span>
-                                        @if($hasRejectedHistory && $row['submission_status_label'] !== 'Ditolak')
+                                        <span class="badge bg-<?php echo e($schoolStatusBadge['color']); ?>-subtle text-<?php echo e($schoolStatusBadge['color']); ?>"><?php echo e($schoolStatusBadge['label']); ?></span>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasRejectedHistory && $row['submission_status_label'] !== 'Ditolak'): ?>
                                             <span class="badge bg-danger-subtle text-danger mt-1">Ada Riwayat Ditolak</span>
-                                        @endif
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </td>
-                                    <td>{{ number_format($row['total_requests']) }}</td>
-                                    <td>{{ number_format($row['active_batch_count']) }}</td>
+                                    <td><?php echo e(number_format($row['total_requests'])); ?></td>
+                                    <td><?php echo e(number_format($row['active_batch_count'])); ?></td>
                                     <td>
-                                        <span class="badge bg-{{ $latestBatchBadge['color'] }}-subtle text-{{ $latestBatchBadge['color'] }}">{{ $latestBatchBadge['label'] }}</span>
-                                        <span class="sky-data-secondary">{{ optional($row['latest_batch_uploaded_at'])->format('d/m/Y H:i') ?: 'Belum ada upload' }}</span>
+                                        <span class="badge bg-<?php echo e($latestBatchBadge['color']); ?>-subtle text-<?php echo e($latestBatchBadge['color']); ?>"><?php echo e($latestBatchBadge['label']); ?></span>
+                                        <span class="sky-data-secondary"><?php echo e(optional($row['latest_batch_uploaded_at'])->format('d/m/Y H:i') ?: 'Belum ada upload'); ?></span>
                                     </td>
                                     <td>
-                                        <span class="sky-data-primary">{{ number_format($row['rejected_requests_count'] ?? 0) }} pengajuan</span>
-                                        <span class="sky-data-secondary">{{ number_format($row['rejected_batch_count'] ?? 0) }} batch ditolak</span>
+                                        <span class="sky-data-primary"><?php echo e(number_format($row['rejected_requests_count'] ?? 0)); ?> pengajuan</span>
+                                        <span class="sky-data-secondary"><?php echo e(number_format($row['rejected_batch_count'] ?? 0)); ?> batch ditolak</span>
                                     </td>
-                                    <td>{{ number_format($row['latest_batch_unmatched_count']) }}</td>
+                                    <td><?php echo e(number_format($row['latest_batch_unmatched_count'])); ?></td>
                                 </tr>
-                            @empty
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                 <tr>
                                     <td colspan="8">
                                         <div class="sky-empty-state py-4">
@@ -1103,7 +1103,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                            @endforelse
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -1111,14 +1111,14 @@
         </div>
     </div>
 
-    @foreach($submissions as $submission)
-        <div class="modal fade" id="reviewModal{{ $submission->id }}" tabindex="-1" aria-hidden="true">
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $submissions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $submission): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+        <div class="modal fade" id="reviewModal<?php echo e($submission->id); ?>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg">
-                <form method="POST" action="{{ route('sk-yayasan.pengajuan.update-status', $submission) }}" class="modal-content">
-                    @csrf
-                    @method('PATCH')
+                <form method="POST" action="<?php echo e(route('sk-yayasan.pengajuan.update-status', $submission)); ?>" class="modal-content">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PATCH'); ?>
                     <div class="modal-header">
-                        <h5 class="modal-title">Review Pengajuan {{ $submission->request_number }}</h5>
+                        <h5 class="modal-title">Review Pengajuan <?php echo e($submission->request_number); ?></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -1126,75 +1126,75 @@
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-1">Sekolah</div>
-                                    <div class="fw-semibold">{{ $submission->madrasah?->name ?? '-' }}</div>
+                                    <div class="fw-semibold"><?php echo e($submission->madrasah?->name ?? '-'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-1">Pegawai/Guru</div>
-                                    <div class="fw-semibold">{{ $submission->employee?->name ?? '-' }}</div>
+                                    <div class="fw-semibold"><?php echo e($submission->employee?->name ?? '-'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-1">Status Kepegawaian</div>
-                                    <div class="fw-semibold">{{ $submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-') }}</div>
+                                    <div class="fw-semibold"><?php echo e($submission->employee?->statusKepegawaian?->name ?? ($submission->employee?->ketugasan ?? '-')); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-1">Nomor Surat Pengajuan</div>
-                                    <div class="fw-semibold">{{ $submission->submission_letter_number ?? '-' }}</div>
+                                    <div class="fw-semibold"><?php echo e($submission->submission_letter_number ?? '-'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-1">Tanggal Surat Pengajuan</div>
-                                    <div class="fw-semibold">{{ optional($submission->submission_letter_date)->translatedFormat('d F Y') ?? '-' }}</div>
+                                    <div class="fw-semibold"><?php echo e(optional($submission->submission_letter_date)->translatedFormat('d F Y') ?? '-'); ?></div>
                                 </div>
                             </div>
                         </div>
-                        @if($submission->importBatch)
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->importBatch): ?>
                             <div class="sky-inline-note sky-inline-note-info">
                                 Berkas terkait:
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel']) }}" class="ms-2" target="_blank" rel="noopener">Excel</a>
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas']) }}" class="ms-2" target="_blank" rel="noopener">Pakta Integritas</a>
-                                <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku']) }}" class="ms-2" target="_blank" rel="noopener">Penilaian Perilaku</a>
+                                <a href="<?php echo e(route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'excel'])); ?>" class="ms-2" target="_blank" rel="noopener">Excel</a>
+                                <a href="<?php echo e(route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'fakta_integritas'])); ?>" class="ms-2" target="_blank" rel="noopener">Pakta Integritas</a>
+                                <a href="<?php echo e(route('sk-yayasan.import-batches.attachments.download', [$submission->importBatch, 'penilaian_perilaku'])); ?>" class="ms-2" target="_blank" rel="noopener">Penilaian Perilaku</a>
                             </div>
-                        @endif
-                        @if($submission->appointment_alert)
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($submission->appointment_alert): ?>
                             <div class="sky-inline-note sky-inline-note-danger mt-3">
                                 <strong>Perlu perhatian:</strong>
-                                {{ $submission->appointment_alert['keterangan'] }} ini memiliki masa kerja kurang dari 2 tahun.
-                                TMT: {{ $submission->appointment_alert['tmt_label'] ?? '-' }}.
-                                Masa kerja saat ini: {{ $submission->appointment_alert['tenure_label'] ?? '-' }}.
+                                <?php echo e($submission->appointment_alert['keterangan']); ?> ini memiliki masa kerja kurang dari 2 tahun.
+                                TMT: <?php echo e($submission->appointment_alert['tmt_label'] ?? '-'); ?>.
+                                Masa kerja saat ini: <?php echo e($submission->appointment_alert['tenure_label'] ?? '-'); ?>.
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select name="current_status" class="form-select" required>
-                                <option value="reviewed" @selected($submission->current_status === 'reviewed')>Direview</option>
-                                <option value="approved" @selected($submission->current_status === 'approved')>Setujui</option>
-                                <option value="rejected" @selected($submission->current_status === 'rejected')>Tolak</option>
+                                <option value="reviewed" <?php if($submission->current_status === 'reviewed'): echo 'selected'; endif; ?>>Direview</option>
+                                <option value="approved" <?php if($submission->current_status === 'approved'): echo 'selected'; endif; ?>>Setujui</option>
+                                <option value="rejected" <?php if($submission->current_status === 'rejected'): echo 'selected'; endif; ?>>Tolak</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Template Rekomendasi</label>
                             <select name="template_id" class="form-select">
                                 <option value="">Belum dipilih</option>
-                                @foreach($templates as $template)
-                                    <option value="{{ $template->id }}" @selected(($submission->template_id ?? $submission->resolved_template?->id) == $template->id)>{{ $template->name }}</option>
-                                @endforeach
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $templates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $template): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                    <option value="<?php echo e($template->id); ?>" <?php if(($submission->template_id ?? $submission->resolved_template?->id) == $template->id): echo 'selected'; endif; ?>><?php echo e($template->name); ?></option>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                             </select>
-                            @if(!$submission->template_id && $submission->resolved_template)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$submission->template_id && $submission->resolved_template): ?>
                                 <small class="text-muted d-block mt-1">
-                                    Template otomatis mengikuti keterangan pengajuan: <strong>{{ $submission->resolved_template->name }}</strong>
+                                    Template otomatis mengikuti keterangan pengajuan: <strong><?php echo e($submission->resolved_template->name); ?></strong>
                                 </small>
-                            @endif
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                         <div class="mb-0">
                             <label class="form-label">Catatan Review</label>
-                            <textarea name="review_notes" rows="4" class="form-control">{{ $submission->review_notes }}</textarea>
+                            <textarea name="review_notes" rows="4" class="form-control"><?php echo e($submission->review_notes); ?></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1204,23 +1204,23 @@
                 </form>
             </div>
         </div>
-    @endforeach
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
 
-    @foreach($importBatchModalItems as $batch)
-        @php
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importBatchModalItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+        <?php
             $batchBadge = $batch->status === 'synced'
                 ? ['bg' => 'success', 'label' => 'TERSINKRON']
                 : ($batch->status === 'rejected'
                     ? ['bg' => 'danger', 'label' => 'DITOLAK']
                     : ['bg' => 'warning', 'label' => 'PENDING REVIEW']);
-        @endphp
-        <div class="modal fade" id="importBatchModal{{ $batch->id }}" tabindex="-1" aria-hidden="true">
+        ?>
+        <div class="modal fade" id="importBatchModal<?php echo e($batch->id); ?>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen-xl-down modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div>
                             <h5 class="modal-title mb-1">Review Import Data</h5>
-                            <div class="sky-file-meta">{{ $batch->original_filename }} - {{ $batch->madrasah?->name ?? '-' }}</div>
+                            <div class="sky-file-meta"><?php echo e($batch->original_filename); ?> - <?php echo e($batch->madrasah?->name ?? '-'); ?></div>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -1229,89 +1229,90 @@
                             <div class="col-md-3 col-6">
                                 <div class="sky-mini-stat">
                                     <div class="label">Uploader</div>
-                                    <div class="value">{{ $batch->uploader?->name ?? '-' }}</div>
+                                    <div class="value"><?php echo e($batch->uploader?->name ?? '-'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6">
                                 <div class="sky-mini-stat">
                                     <div class="label">Upload</div>
-                                    <div class="value">{{ optional($batch->uploaded_at)->format('d/m/Y') ?? '-' }}</div>
+                                    <div class="value"><?php echo e(optional($batch->uploaded_at)->format('d/m/Y') ?? '-'); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6">
                                 <div class="sky-mini-stat">
                                     <div class="label">Valid</div>
-                                    <div class="value">{{ $batch->valid_rows }}</div>
+                                    <div class="value"><?php echo e($batch->valid_rows); ?></div>
                                 </div>
                             </div>
                             <div class="col-md-3 col-6">
                                 <div class="sky-mini-stat">
                                     <div class="label">Perlu Cek</div>
-                                    <div class="value">{{ $batch->invalid_rows }}</div>
+                                    <div class="value"><?php echo e($batch->invalid_rows); ?></div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                            <span class="badge bg-{{ $batchBadge['bg'] }}-subtle text-{{ $batchBadge['bg'] }}">{{ $batchBadge['label'] }}</span>
-                            <span class="sky-chip">{{ $batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template' }}</span>
+                            <span class="badge bg-<?php echo e($batchBadge['bg']); ?>-subtle text-<?php echo e($batchBadge['bg']); ?>"><?php echo e($batchBadge['label']); ?></span>
+                            <span class="sky-chip"><?php echo e($batch->headings_valid ? 'Kolom sesuai template' : 'Kolom belum sesuai template'); ?></span>
                         </div>
 
                         <div class="row g-2 mb-3">
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-2">Lampiran Excel</div>
-                                    <div class="small mb-2">{{ $batch->original_filename }}</div>
-                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
+                                    <div class="small mb-2"><?php echo e($batch->original_filename); ?></div>
+                                    <a href="<?php echo e(route('sk-yayasan.import-batches.attachments.download', [$batch, 'excel'])); ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-2">Pakta Integritas</div>
-                                    <div class="small mb-2">{{ $batch->fakta_integritas_filename ?? '-' }}</div>
-                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
+                                    <div class="small mb-2"><?php echo e($batch->fakta_integritas_filename ?? '-'); ?></div>
+                                    <a href="<?php echo e(route('sk-yayasan.import-batches.attachments.download', [$batch, 'fakta_integritas'])); ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="sky-soft-card p-3 h-100">
                                     <div class="sky-panel-label mb-2">Penilaian Perilaku</div>
-                                    <div class="small mb-2">{{ $batch->penilaian_perilaku_filename ?? '-' }}</div>
-                                    <a href="{{ route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku']) }}" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
+                                    <div class="small mb-2"><?php echo e($batch->penilaian_perilaku_filename ?? '-'); ?></div>
+                                    <a href="<?php echo e(route('sk-yayasan.import-batches.attachments.download', [$batch, 'penilaian_perilaku'])); ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">Lihat File</a>
                                 </div>
                             </div>
                         </div>
 
-                        @if(!$batch->headings_valid)
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$batch->headings_valid): ?>
                             <div class="sky-inline-note sky-inline-note-danger">
                                 Format kolom file belum sesuai template.
-                                @if(!empty($batch->missing_headings))
-                                    <div>Kolom kurang: {{ implode(', ', $batch->missing_headings) }}</div>
-                                @endif
-                                @if(!empty($batch->unexpected_headings))
-                                    <div>Kolom tidak dikenali: {{ implode(', ', $batch->unexpected_headings) }}</div>
-                                @endif
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($batch->missing_headings)): ?>
+                                    <div>Kolom kurang: <?php echo e(implode(', ', $batch->missing_headings)); ?></div>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($batch->unexpected_headings)): ?>
+                                    <div>Kolom tidak dikenali: <?php echo e(implode(', ', $batch->unexpected_headings)); ?></div>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        @if($batch->review_notes)
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->review_notes): ?>
                             <div class="sky-inline-note sky-inline-note-secondary">
-                                <strong>Catatan Review:</strong> {{ $batch->review_notes }}
-                            </div>
-                        @endif
+                                <strong>Catatan Review:</strong> <?php echo e($batch->review_notes); ?>
 
-                        @if($batch->invalid_rows > 0)
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->invalid_rows > 0): ?>
                             <div class="sky-inline-note sky-inline-note-danger mb-3">
                                 Kolom dengan warna merah menandakan data itu masih perlu diperbaiki.
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <form method="POST"
-                              action="{{ route('sk-yayasan.import-batches.rows.update', $batch) }}"
-                              id="editImportBatchForm{{ $batch->id }}"
-                              data-next-form-index="{{ $batch->rows->count() }}"
-                              data-next-row-number="{{ ((int) $batch->rows->max('row_number')) + 1 }}">
-                            @csrf
-                            @method('PATCH')
+                              action="<?php echo e(route('sk-yayasan.import-batches.rows.update', $batch)); ?>"
+                              id="editImportBatchForm<?php echo e($batch->id); ?>"
+                              data-next-form-index="<?php echo e($batch->rows->count()); ?>"
+                              data-next-row-number="<?php echo e(((int) $batch->rows->max('row_number')) + 1); ?>">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('PATCH'); ?>
                             <input type="hidden" name="action" value="save" data-sync-action>
                             <div class="sky-table-actions">
                                 <div class="text-muted small">
@@ -1333,149 +1334,151 @@
                                             <th class="sky-row-select-col">
                                                 <input type="checkbox" class="form-check-input" data-select-all-rows>
                                             </th>
-                                            @foreach($importPreviewColumns as $column)
-                                                <th>{{ $column }}</th>
-                                            @endforeach
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                <th><?php echo e($column); ?></th>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                             <th>Match User</th>
                                             <th>Status</th>
                                             <th class="wrap">Keterangan</th>
                                         </tr>
                                     </thead>
                                     <tbody data-import-rows>
-                                            @foreach($batch->rows as $row)
-                                                @php
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $batch->rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                <?php
                                                     $rowErrorFields = $resolveImportErrorFields($row);
                                                     $nipmWarning = $resolveNipmImportWarning($row);
-                                                @endphp
+                                                ?>
                                             <tr data-import-row>
                                                 <td class="sky-row-select-col">
                                                     <input type="checkbox" class="form-check-input" data-row-select>
                                                 </td>
-                                                <input type="hidden" name="rows[{{ $loop->index }}][row_number]" value="{{ $row->row_number }}">
-                                                @foreach($importPreviewColumns as $column)
-                                                        @php
+                                                <input type="hidden" name="rows[<?php echo e($loop->index); ?>][row_number]" value="<?php echo e($row->row_number); ?>">
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $importPreviewColumns; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $column): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                        <?php
                                                             $field = $importPreviewFieldMap[$column] ?? null;
                                                             $value = $field ? data_get($row, $field, '') : '';
                                                             $value = $value === '-' ? '' : $value;
                                                             $hasFieldError = $field && in_array($field, $rowErrorFields, true);
                                                             $hasEmptyGraduationYear = $field === 'source_tahun_lulus' && trim((string) $value) === '';
                                                             $hasNipmWarning = $field === 'source_nip_maarif' && $nipmWarning;
-                                                        @endphp
-                                                        <td class="sky-edit-cell {{ $column === 'No' ? 'sky-edit-cell-sm' : '' }} {{ ($hasFieldError || $hasEmptyGraduationYear || $hasNipmWarning) ? 'sky-cell-error' : '' }}">
-                                                            @if($column === 'Keterangan')
-                                                                <select name="rows[{{ $loop->parent->index }}][{{ $field }}]" class="form-select form-select-sm">
+                                                        ?>
+                                                        <td class="sky-edit-cell <?php echo e($column === 'No' ? 'sky-edit-cell-sm' : ''); ?> <?php echo e(($hasFieldError || $hasEmptyGraduationYear || $hasNipmWarning) ? 'sky-cell-error' : ''); ?>">
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($column === 'Keterangan'): ?>
+                                                                <select name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]" class="form-select form-select-sm">
                                                                     <option value="">Pilih</option>
-                                                                @foreach($keteranganOptions as $option)
-                                                                    <option value="{{ $option }}" @selected($value === $option)>{{ $option }}</option>
-                                                                @endforeach
+                                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $keteranganOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $option): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                                                                    <option value="<?php echo e($option); ?>" <?php if($value === $option): echo 'selected'; endif; ?>><?php echo e($option); ?></option>
+                                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                                             </select>
-                                                        @else
+                                                        <?php else: ?>
                                                                 <input type="text"
-                                                                       name="rows[{{ $loop->parent->index }}][{{ $field }}]"
-                                                                       value="{{ $value }}"
-                                                                       class="form-control form-control-sm {{ ($hasNipmWarning || $hasEmptyGraduationYear) ? 'is-invalid' : '' }}">
-                                                                @if($hasNipmWarning)
-                                                                    <small class="text-danger d-block mt-1">{{ $nipmWarning }}</small>
-                                                                @endif
-                                                            @endif
+                                                                       name="rows[<?php echo e($loop->parent->index); ?>][<?php echo e($field); ?>]"
+                                                                       value="<?php echo e($value); ?>"
+                                                                       class="form-control form-control-sm <?php echo e(($hasNipmWarning || $hasEmptyGraduationYear) ? 'is-invalid' : ''); ?>">
+                                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasNipmWarning): ?>
+                                                                    <small class="text-danger d-block mt-1"><?php echo e($nipmWarning); ?></small>
+                                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                         </td>
-                                                    @endforeach
-                                                <td class="{{ in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : '' }}">{{ $row->matched_name ?? '-' }}</td>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+                                                <td class="<?php echo e(in_array('matched_name', $rowErrorFields, true) ? 'sky-cell-error-readonly' : ''); ?>"><?php echo e($row->matched_name ?? '-'); ?></td>
                                                 <td>
-                                                    <span class="badge bg-{{ $row->is_valid ? 'success' : 'danger' }}-subtle text-{{ $row->is_valid ? 'success' : 'danger' }}">
-                                                        {{ $row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan') }}
+                                                    <span class="badge bg-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>-subtle text-<?php echo e($row->is_valid ? 'success' : 'danger'); ?>">
+                                                        <?php echo e($row->status_label ?? ($row->is_valid ? 'Siap sync' : 'Perlu perbaikan')); ?>
+
                                                     </span>
                                                 </td>
                                                 <td class="wrap">
-                                                    @php
+                                                    <?php
                                                         $rowMessages = $resolveImportValidationMessages($row);
                                                         if ($nipmWarning && !$rowMessages->contains($nipmWarning)) {
                                                             $rowMessages->prepend($nipmWarning);
                                                         }
-                                                    @endphp
-                                                    {{ $rowMessages->isNotEmpty() ? $rowMessages->implode(' ') : 'Data siap disinkronkan.' }}
+                                                    ?>
+                                                    <?php echo e($rowMessages->isNotEmpty() ? $rowMessages->implode(' ') : 'Data siap disinkronkan.'); ?>
+
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        @if($batch->status === 'pending_review')
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($batch->status === 'pending_review'): ?>
                             <div class="w-100">
                                 <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
                                     <div class="text-muted small">
                                         Data pada tabel bisa diedit langsung. Simpan dulu agar status validasi dan match user diperbarui.
                                     </div>
                                     <button type="submit"
-                                            form="editImportBatchForm{{ $batch->id }}"
+                                            form="editImportBatchForm<?php echo e($batch->id); ?>"
                                             class="btn btn-outline-primary"
                                             onclick="this.form.querySelector('[data-sync-action]').value='save'">
                                         Simpan Perubahan Tabel
                                     </button>
                                 </div>
 
-                                <form method="POST" action="{{ route('sk-yayasan.import-batches.review', $batch) }}" class="w-100">
-                                    @csrf
-                                    @method('PATCH')
+                                <form method="POST" action="<?php echo e(route('sk-yayasan.import-batches.review', $batch)); ?>" class="w-100">
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('PATCH'); ?>
                                     <div class="mb-3">
                                         <label class="form-label">Catatan Review</label>
                                         <textarea name="review_notes" rows="3" class="form-control" placeholder="Isi catatan untuk admin sekolah bila perlu."></textarea>
                                     </div>
                                     <div class="d-flex flex-wrap justify-content-end gap-2">
                                         <button type="submit" name="action" value="reject" class="btn btn-outline-danger">Tolak Batch</button>
-                                        <button type="submit" name="action" value="sync" class="btn btn-primary" @disabled(!$batch->headings_valid || $batch->invalid_rows > 0)>Sinkronkan ke Database</button>
+                                        <button type="submit" name="action" value="sync" class="btn btn-primary" <?php if(!$batch->headings_valid || $batch->invalid_rows > 0): echo 'disabled'; endif; ?>>Sinkronkan ke Database</button>
                                     </div>
                                 </form>
 
                                 <form method="POST"
-                                      action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                      action="<?php echo e(route('sk-yayasan.import-batches.destroy', $batch)); ?>"
                                       class="w-100 mt-2"
                                       data-sk-swal-confirm
                                       data-sk-swal-title="Hapus pengajuan ini?"
                                       data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
                                       data-sk-swal-confirm-text="Ya, hapus"
                                       data-sk-swal-icon="warning">
-                                    @csrf
-                                    @method('DELETE')
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('DELETE'); ?>
                                     <div class="d-flex justify-content-end">
                                         <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
                                     </div>
                                 </form>
                             </div>
-                        @elseif($batch->status === 'rejected')
+                        <?php elseif($batch->status === 'rejected'): ?>
                             <div class="d-flex flex-wrap justify-content-between gap-2 w-100">
                                 <button type="submit"
-                                        form="editImportBatchForm{{ $batch->id }}"
+                                        form="editImportBatchForm<?php echo e($batch->id); ?>"
                                         class="btn btn-outline-primary"
                                         onclick="this.form.querySelector('[data-sync-action]').value='save'">
                                     Simpan & Kembalikan ke Pending Review
                                 </button>
                                 <div class="d-flex flex-wrap gap-2 ms-auto">
                                     <form method="POST"
-                                          action="{{ route('sk-yayasan.import-batches.destroy', $batch) }}"
+                                          action="<?php echo e(route('sk-yayasan.import-batches.destroy', $batch)); ?>"
                                           data-sk-swal-confirm
                                           data-sk-swal-title="Hapus pengajuan ini?"
                                           data-sk-swal-text="Semua request, dokumen, dan lampiran pada batch ini akan dihapus permanen."
                                           data-sk-swal-confirm-text="Ya, hapus"
                                           data-sk-swal-icon="warning">
-                                        @csrf
-                                        @method('DELETE')
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
                                         <button type="submit" class="btn btn-outline-danger">Hapus Pengajuan</button>
                                     </form>
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
                                 </div>
                             </div>
-                        @elseif($batch->status === 'synced')
+                        <?php elseif($batch->status === 'synced'): ?>
                             <div class="w-100">
                                 <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
                                     <div class="text-muted small">
                                         Data yang sudah tersinkron tetap bisa diedit. Simpan perubahan lalu lakukan sinkronisasi ulang agar perubahan diterapkan kembali ke aplikasi.
                                     </div>
                                     <button type="submit"
-                                            form="editImportBatchForm{{ $batch->id }}"
+                                            form="editImportBatchForm<?php echo e($batch->id); ?>"
                                             class="btn btn-outline-primary"
                                             onclick="this.form.querySelector('[data-sync-action]').value='save'">
                                         <i class="bx bx-save me-1"></i>Simpan Perubahan Tabel
@@ -1487,38 +1490,38 @@
                                     <textarea name="review_notes"
                                               rows="3"
                                               class="form-control"
-                                              form="editImportBatchForm{{ $batch->id }}"
+                                              form="editImportBatchForm<?php echo e($batch->id); ?>"
                                               placeholder="Catatan opsional untuk sinkronisasi ulang batch ini."></textarea>
                                 </div>
                                 <div class="d-flex flex-wrap justify-content-end gap-2">
                                     <button type="submit"
-                                            form="editImportBatchForm{{ $batch->id }}"
+                                            form="editImportBatchForm<?php echo e($batch->id); ?>"
                                             class="btn btn-primary"
                                             onclick="this.form.querySelector('[data-sync-action]').value='sync'"
-                                            @disabled(!$batch->headings_valid || $batch->invalid_rows > 0)>
+                                            <?php if(!$batch->headings_valid || $batch->invalid_rows > 0): echo 'disabled'; endif; ?>>
                                         <i class="bx bx-refresh me-1"></i>Sinkronisasi Ulang
                                     </button>
                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
                                 </div>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div class="d-flex justify-content-end w-100">
                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
-    @endforeach
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
 <script>
-    const importPreviewColumns = @json($importPreviewColumns);
-    const importPreviewFieldMap = @json($importPreviewFieldMap);
-    const keteranganOptions = @json(array_values($keteranganOptions));
+    const importPreviewColumns = <?php echo json_encode($importPreviewColumns, 15, 512) ?>;
+    const importPreviewFieldMap = <?php echo json_encode($importPreviewFieldMap, 15, 512) ?>;
+    const keteranganOptions = <?php echo json_encode(array_values($keteranganOptions), 15, 512) ?>;
 
     function escapeImportRowHtml(value) {
         return String(value ?? '')
@@ -1679,4 +1682,6 @@
         }
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/sk-yayasan/pengajuan-index.blade.php ENDPATH**/ ?>
