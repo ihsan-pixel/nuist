@@ -819,6 +819,14 @@
 
                         <div class="mb-3">
                             <label class="form-label">File Excel Data Tenaga Pendidik</label>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <a href="{{ route('sk-yayasan.sekolah.template-import') }}"
+                                   class="btn btn-sm btn-outline-secondary"
+                                   target="_blank"
+                                   rel="noopener">
+                                    <i class="bx bx-download me-1"></i>Unduh Template Excel Pengajuan SK
+                                </a>
+                            </div>
                             <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls,.csv">
                             <small class="text-muted">File saat ini: {{ $batch->original_filename }}. Upload file baru jika data Excel direvisi.</small>
                         </div>
