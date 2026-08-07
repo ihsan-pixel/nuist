@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GithubWebhookController;
 use App\Http\Controllers\Api\FaceController;
 use App\Http\Controllers\Api\MobileController;
+use App\Http\Controllers\Api\StudentAppController;
 use App\Http\Controllers\Api\TeacherAppController;
 
 /*
@@ -69,6 +70,14 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
         Route::get('/izin/manage', [TeacherAppController::class, 'manageIzin']);
         Route::post('/izin/{izin}/approve', [TeacherAppController::class, 'approveIzin']);
         Route::post('/izin/{izin}/reject', [TeacherAppController::class, 'rejectIzin']);
+    });
+    Route::prefix('/app/student')->group(function () {
+        Route::get('/dashboard', [StudentAppController::class, 'dashboard']);
+        Route::get('/bills', [StudentAppController::class, 'bills']);
+        Route::get('/payments', [StudentAppController::class, 'payments']);
+        Route::post('/payments/{bill}/virtual-account', [StudentAppController::class, 'createVirtualAccount']);
+        Route::get('/payment-history', [StudentAppController::class, 'paymentHistory']);
+        Route::get('/profile', [StudentAppController::class, 'profile']);
     });
 });
 
