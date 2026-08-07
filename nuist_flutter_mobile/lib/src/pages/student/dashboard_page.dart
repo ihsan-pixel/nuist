@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/student_mobile_repository.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
-import '../../widgets/app/app_stat_card.dart';
 import 'student_ui.dart';
 
 class StudentDashboardPage extends StatefulWidget {
@@ -24,28 +22,53 @@ class StudentDashboardPage extends StatefulWidget {
 }
 
 class _StudentDashboardPageState extends State<StudentDashboardPage> {
+  final ScrollController _scrollController = ScrollController();
+
   bool _isLoading = true;
+  bool _hasScrolled = false;
   String? _errorMessage;
   Map<String, dynamic> _data = const <String, dynamic>{};
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_handleScrollChanged);
     _load();
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_handleScrollChanged)
+      ..dispose();
+    super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant StudentDashboardPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.dataRevision != widget.dataRevision) {
-      _load(isRefresh: true);
+      _load();
     }
   }
 
-  Future<void> _load({bool isRefresh = false}) async {
+  void _handleScrollChanged() {
+    final hasScrolled =
+        _scrollController.hasClients && _scrollController.offset > 28;
+    if (hasScrolled == _hasScrolled || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _hasScrolled = hasScrolled;
+    });
+  }
+
+  Future<void> _load() async {
     if (!mounted) {
       return;
     }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -82,7 +105,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
     }
 
     if (_errorMessage != null) {
-      return _StudentErrorView(
+      return StudentErrorView(
         message: _errorMessage!,
         onRetry: _load,
       );
@@ -103,254 +126,69 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
     final reminder = (_data['upcoming_reminder'] as Map?) == null
         ? null
         : Map<String, dynamic>.from(_data['upcoming_reminder'] as Map);
-    final lastPayment = (_data['last_payment'] as Map?) == null
-        ? null
-        : Map<String, dynamic>.from(_data['last_payment'] as Map);
     final recentPayments = ((_data['recent_payments'] as List?) ?? const [])
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
 
+    final studentName = normalizeStudentText(student['name']);
+    final schoolName = normalizeStudentText(school['name']);
+
     return RefreshIndicator(
       onRefresh: _load,
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 132),
+      child: Stack(
         children: [
-          _StudentDashboardHero(
-            greeting: normalizeStudentText(_data['greeting']),
-            studentName: normalizeStudentText(student['name']),
-            schoolName: normalizeStudentText(school['name']),
-            classLabel: [
-              normalizeStudentText(student['kelas'], fallback: ''),
-              normalizeStudentText(student['jurusan'], fallback: ''),
-            ].where((item) => item.isNotEmpty).join(' • '),
-          ),
-          const SizedBox(height: 18),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                AppStatCard(
-                  label: 'Tagihan aktif',
-                  value: '${summary['unpaid_bills'] ?? 0}',
-                  color: const Color(0xFF0B8F6E),
-                  trailing: const Icon(
-                    Icons.receipt_long_rounded,
-                    color: Colors.white,
-                    size: 24,
+          ListView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 152),
+            children: [
+              const _StudentDashboardTopBackdrop(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Transform.translate(
+                  offset: const Offset(0, -194),
+                  child: _StudentDashboardContent(
+                    student: student,
+                    studentName: studentName,
+                    schoolName: schoolName,
+                    summary: summary,
+                    activeBill: activeBill,
+                    reminder: reminder,
+                    recentPayments: recentPayments,
+                    onSelectTab: widget.onSelectTab,
                   ),
                 ),
-                const SizedBox(width: 14),
-                AppStatCard(
-                  label: 'Tingkat lunas',
-                  value: '${summary['payment_completion_rate'] ?? 0}%',
-                  color: const Color(0xFFFF8A1F),
-                  trailing: const Icon(
-                    Icons.pie_chart_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                AppStatCard(
-                  label: 'Terbayar',
-                  value: formatStudentCurrency(summary['total_paid']),
-                  color: const Color(0xFF2563EB),
-                  trailing: const Icon(
-                    Icons.payments_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-          AppSectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StudentSectionHeading(
-                  title: 'Ringkasan pembayaran',
-                  subtitle:
-                      'Pantau posisi tagihan dan progres pelunasan saat ini.',
-                  trailing: TextButton(
-                    onPressed: () => widget.onSelectTab(1),
-                    child: const Text('Lihat semua'),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    _SummaryMiniCard(
-                      label: 'Total tagihan',
-                      value: '${summary['total_bills'] ?? 0}',
-                      color: const Color(0xFFE8F7EE),
-                    ),
-                    _SummaryMiniCard(
-                      label: 'Sudah lunas',
-                      value: '${summary['paid_bills'] ?? 0}',
-                      color: const Color(0xFFFFF1E4),
-                    ),
-                    _SummaryMiniCard(
-                      label: 'Sisa tagihan',
-                      value: formatStudentCurrency(summary['outstanding']),
-                      color: const Color(0xFFEAF2FF),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          if (reminder != null) ...[
-            const SizedBox(height: 18),
-            AppSectionCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const StudentSectionHeading(
-                    title: 'Pengingat terdekat',
-                    subtitle:
-                        'Prioritaskan tagihan yang jatuh temponya paling dekat.',
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF4E8),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFFCCEA5)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          normalizeStudentText(reminder['title']),
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF9A3412),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          normalizeStudentText(reminder['message']),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF9A3412),
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
-            ),
-          ],
-          const SizedBox(height: 18),
-          AppSectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StudentSectionHeading(
-                  title: 'Tagihan utama',
-                  subtitle: activeBill == null
-                      ? 'Belum ada tagihan yang perlu ditindaklanjuti.'
-                      : 'Tagihan yang sebaiknya kamu cek atau bayar lebih dulu.',
-                  trailing: activeBill == null
-                      ? null
-                      : StudentStatusBadge(
-                          label:
-                              normalizeStudentText(activeBill['status_label']),
-                          color:
-                              billStatusColor(activeBill['status'] as String?),
-                        ),
-                ),
-                const SizedBox(height: 14),
-                if (activeBill == null)
-                  const AppEmptyState(
-                    title: 'Belum ada tagihan',
-                    message:
-                        'Saat admin sekolah membuat tagihan, datanya akan tampil di sini.',
-                    icon: Icons.receipt_long_rounded,
-                  )
-                else
-                  Column(
-                    children: [
-                      StudentInfoRow(
-                        label: 'Nomor tagihan',
-                        value:
-                            normalizeStudentText(activeBill['nomor_tagihan']),
-                        icon: Icons.confirmation_number_rounded,
-                      ),
-                      StudentInfoRow(
-                        label: 'Jenis tagihan',
-                        value:
-                            normalizeStudentText(activeBill['jenis_tagihan']),
-                        icon: Icons.category_rounded,
-                      ),
-                      StudentInfoRow(
-                        label: 'Jatuh tempo',
-                        value: formatStudentDate(
-                            activeBill['jatuh_tempo'] as String?),
-                        icon: Icons.event_available_rounded,
-                      ),
-                      StudentInfoRow(
-                        label: 'Sisa pembayaran',
-                        value: formatStudentCurrency(
-                            activeBill['outstanding_amount']),
-                        icon: Icons.account_balance_wallet_rounded,
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: () => widget.onSelectTab(2),
-                          icon: const Icon(Icons.payments_rounded),
-                          label: const Text('Buka halaman pembayaran'),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
+            ],
           ),
-          const SizedBox(height: 18),
-          AppSectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StudentSectionHeading(
-                  title: 'Pembayaran terbaru',
-                  subtitle: 'Riwayat singkat transaksi siswa.',
-                  trailing: TextButton(
-                    onPressed: () => widget.onSelectTab(3),
-                    child: const Text('Riwayat'),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (recentPayments.isEmpty)
-                  const AppEmptyState(
-                    title: 'Belum ada pembayaran',
-                    message:
-                        'Pembayaran yang telah dibuat akan tampil di sini.',
-                    icon: Icons.history_rounded,
-                  )
-                else
-                  ...recentPayments.map(
-                    (item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _PaymentPreviewTile(item: item),
-                    ),
-                  ),
-                if (lastPayment != null && recentPayments.isEmpty)
-                  _PaymentPreviewTile(item: lastPayment),
-              ],
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              decoration: BoxDecoration(
+                color: _hasScrolled ? Colors.white : Colors.transparent,
+                boxShadow: _hasScrolled
+                    ? const [
+                        BoxShadow(
+                          color: Color(0x141E293B),
+                          blurRadius: 20,
+                          offset: Offset(0, 8),
+                        ),
+                      ]
+                    : const [],
+              ),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+              child: _StudentDashboardHeader(
+                schoolName: schoolName,
+                studentName: studentName,
+                isScrolled: _hasScrolled,
+                onOpenPayments: () => widget.onSelectTab(2),
+                onOpenProfile: () => widget.onSelectTab(4),
+              ),
             ),
           ),
         ],
@@ -359,109 +197,722 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
   }
 }
 
-class _StudentDashboardHero extends StatelessWidget {
-  const _StudentDashboardHero({
-    required this.greeting,
+class _StudentDashboardContent extends StatelessWidget {
+  const _StudentDashboardContent({
+    required this.student,
     required this.studentName,
     required this.schoolName,
-    required this.classLabel,
+    required this.summary,
+    required this.activeBill,
+    required this.reminder,
+    required this.recentPayments,
+    required this.onSelectTab,
   });
 
-  final String greeting;
+  final Map<String, dynamic> student;
   final String studentName;
   final String schoolName;
-  final String classLabel;
+  final Map<String, dynamic> summary;
+  final Map<String, dynamic>? activeBill;
+  final Map<String, dynamic>? reminder;
+  final List<Map<String, dynamic>> recentPayments;
+  final ValueChanged<int> onSelectTab;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0B8F6E), Color(0xFF066C56)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x330B8F6E),
-            blurRadius: 24,
-            offset: Offset(0, 12),
-          ),
-        ],
+    final monthLabel = _studentDashboardMonthLabel(DateTime.now());
+    final services = <_StudentServiceItem>[
+      _StudentServiceItem(
+        label: 'Tagihan',
+        icon: Icons.receipt_long_rounded,
+        onTap: () => onSelectTab(1),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  greeting,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFD9FDEB),
+      _StudentServiceItem(
+        label: 'Bayar',
+        icon: Icons.account_balance_wallet_rounded,
+        onTap: () => onSelectTab(2),
+      ),
+      _StudentServiceItem(
+        label: 'Riwayat',
+        icon: Icons.history_rounded,
+        onTap: () => onSelectTab(3),
+      ),
+      _StudentServiceItem(
+        label: 'Profil',
+        icon: Icons.person_rounded,
+        onTap: () => onSelectTab(4),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppSectionCard(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _StudentPerformanceCard(
+                studentName: studentName,
+                classLabel: [
+                  normalizeStudentText(student['kelas'], fallback: ''),
+                  normalizeStudentText(student['jurusan'], fallback: ''),
+                ].where((item) => item.isNotEmpty).join(' • '),
+                percent:
+                    (summary['payment_completion_rate'] as num?)?.toInt() ?? 0,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Aktivitas Pembayaran',
+                      style: TextStyle(
+                        color: Color(0xFF1E293B),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  studentName,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  schoolName,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    height: 1.35,
-                  ),
-                ),
-                if (classLabel.trim().isNotEmpty) ...[
-                  const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+                      horizontal: 10,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.16),
+                      color: const Color(0xFFEAF8F2),
                       borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
                     child: Text(
-                      classLabel,
+                      monthLabel,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
+                        color: Color(0xFF1E293B),
+                        fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 8),
+              IntrinsicHeight(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _StudentStatTile(
+                        label: 'Lunas',
+                        value: '${summary['paid_bills'] ?? 0}',
+                        iconSurface: const Color(0xFFDDF8E6),
+                        iconColor: const Color(0xFF10B981),
+                        icon: Icons.trending_up_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _StudentStatTile(
+                        label: 'Tagihan',
+                        value: '${summary['total_bills'] ?? 0}',
+                        iconSurface: const Color(0xFFE4F6EF),
+                        iconColor: const Color(0xFF0B8F6E),
+                        icon: Icons.check_circle_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _StudentStatTile(
+                        label: 'Pending',
+                        value: '${summary['pending_payments'] ?? 0}',
+                        iconSurface: const Color(0xFFFFF1C9),
+                        iconColor: const Color(0xFFF59E0B),
+                        icon: Icons.schedule_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _StudentStatTile(
+                        label: 'Sisa',
+                        value: '${summary['unpaid_bills'] ?? 0}',
+                        iconSurface: const Color(0xFFFFDDE0),
+                        iconColor: const Color(0xFFEF4444),
+                        icon: Icons.cancel_rounded,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        _StudentSectionHeader(
+          title: 'Layanan',
+          onTap: () => onSelectTab(4),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 94,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: services.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final item = services[index];
+              return SizedBox(
+                width: 72,
+                child: _StudentServiceShortcutTile(item: item),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        _StudentSectionHeader(
+          title: 'Tagihan',
+          onTap: activeBill == null ? null : () => onSelectTab(1),
+        ),
+        const SizedBox(height: 8),
+        if (activeBill == null)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4),
+            child: _StudentCompactEmptyState(
+              title: 'Tidak ada tagihan aktif',
+              message: 'Semua tagihan sudah lunas atau belum ada tagihan.',
+              icon: Icons.receipt_long_rounded,
+            ),
+          )
+        else
+          SizedBox(
+            height: 164,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _StudentBillShowcaseCard(
+                  item: activeBill!,
+                  schoolName: schoolName,
+                ),
+                if (reminder != null) ...[
+                  const SizedBox(width: 12),
+                  _StudentReminderCard(item: reminder!),
+                ],
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.14),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withOpacity(0.2),
+        const SizedBox(height: 16),
+        _StudentSectionHeader(
+          title: 'Riwayat',
+          onTap: recentPayments.isEmpty ? null : () => onSelectTab(3),
+        ),
+        const SizedBox(height: 8),
+        if (recentPayments.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4),
+            child: _StudentCompactEmptyState(
+              title: 'Belum ada riwayat pembayaran',
+              message: 'Transaksi yang tercatat akan tampil di sini.',
+              icon: Icons.history_rounded,
+            ),
+          )
+        else
+          Column(
+            children: recentPayments
+                .take(3)
+                .map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _PaymentPreviewTile(item: item),
+                  ),
+                )
+                .toList(),
+          ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+}
+
+class _StudentSectionHeader extends StatelessWidget {
+  const _StudentSectionHeader({
+    required this.title,
+    this.onTap,
+  });
+
+  final String title;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF1E293B),
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ),
+        if (onTap != null)
+          GestureDetector(
+            onTap: onTap,
+            child: const Text(
+              'See All',
+              style: TextStyle(
+                color: Color(0xFF0B8F6E),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            child: const Icon(
-              Icons.school_rounded,
+          ),
+      ],
+    );
+  }
+}
+
+class _StudentCompactEmptyState extends StatelessWidget {
+  const _StudentCompactEmptyState({
+    required this.title,
+    required this.message,
+    required this.icon,
+  });
+
+  final String title;
+  final String message;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return StudentTicketEmptyState(
+      title: title,
+      message: message,
+      icon: icon,
+      accentColor: const Color(0xFF0B8F6E),
+      footerLabel: 'MENUNGGU DATA',
+    );
+  }
+}
+
+class _StudentDashboardTopBackdrop extends StatelessWidget {
+  const _StudentDashboardTopBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          height: 288,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF066C56),
+                Color(0xFF0B8F6E),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.elliptical(360, 132),
+              bottomRight: Radius.elliptical(360, 132),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x141E293B),
+                blurRadius: 20,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+        ),
+        const Positioned(
+          top: -12,
+          left: -28,
+          child: _BackdropOrnament(),
+        ),
+        const Positioned(
+          right: -38,
+          bottom: 22,
+          child: RotatedBox(
+            quarterTurns: 2,
+            child: _BackdropOrnament(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BackdropOrnament extends StatelessWidget {
+  const _BackdropOrnament();
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: 0.16,
+      child: Container(
+        width: 120,
+        height: 120,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+        child: Center(
+          child: Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StudentDashboardHeader extends StatelessWidget {
+  const _StudentDashboardHeader({
+    required this.schoolName,
+    required this.studentName,
+    required this.isScrolled,
+    required this.onOpenPayments,
+    required this.onOpenProfile,
+  });
+
+  final String schoolName;
+  final String studentName;
+  final bool isScrolled;
+  final VoidCallback onOpenPayments;
+  final VoidCallback onOpenProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    final foregroundColor = isScrolled ? const Color(0xFF1E293B) : Colors.white;
+    final secondaryColor =
+        isScrolled ? const Color(0xFFCBD5E1) : Colors.white70;
+    final iconColor = isScrolled ? const Color(0xFF066C56) : Colors.white;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              _StudentHeaderAvatar(userName: studentName),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      schoolName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: isScrolled
+                            ? const Color(0xFF64748B)
+                            : secondaryColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      studentName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: foregroundColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        height: 1.05,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        IconButton(
+          onPressed: onOpenPayments,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+          splashRadius: 16,
+          icon: Icon(
+            Icons.account_balance_wallet_outlined,
+            color: iconColor,
+            size: 22,
+          ),
+        ),
+        PopupMenuButton<String>(
+          tooltip: 'Menu',
+          padding: EdgeInsets.zero,
+          elevation: 12,
+          color: Colors.white,
+          surfaceTintColor: Colors.white,
+          offset: const Offset(0, 34),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          onSelected: (value) {
+            switch (value) {
+              case 'profile':
+                onOpenProfile();
+                break;
+              case 'payments':
+                onOpenPayments();
+                break;
+            }
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem<String>(
+              value: 'profile',
+              child: _StudentHeaderMenuItem(
+                icon: Icons.person_outline_rounded,
+                label: 'Profil',
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'payments',
+              child: _StudentHeaderMenuItem(
+                icon: Icons.account_balance_wallet_outlined,
+                label: 'Pembayaran',
+              ),
+            ),
+          ],
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: Center(
+              child: Icon(
+                Icons.more_vert_rounded,
+                color: iconColor,
+                size: 22,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StudentHeaderAvatar extends StatelessWidget {
+  const _StudentHeaderAvatar({
+    required this.userName,
+  });
+
+  final String userName;
+
+  @override
+  Widget build(BuildContext context) {
+    final words = userName.trim().split(RegExp(r'\s+'));
+    final initials = words.take(2).map((item) => item[0]).join().toUpperCase();
+
+    return Container(
+      width: 52,
+      height: 52,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        border: Border.all(color: Colors.white, width: 1.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x141E293B),
+            blurRadius: 14,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF0B8F6E),
+                Color(0xFF066C56),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              initials.isEmpty ? 'S' : initials,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StudentHeaderMenuItem extends StatelessWidget {
+  const _StudentHeaderMenuItem({
+    required this.icon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: const Color(0xFF066C56)),
+        const SizedBox(width: 10),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF066C56),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StudentPerformanceCard extends StatelessWidget {
+  const _StudentPerformanceCard({
+    required this.studentName,
+    required this.classLabel,
+    required this.percent,
+  });
+
+  final String studentName;
+  final String classLabel;
+  final int percent;
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = (percent.clamp(0, 100)) / 100;
+    final level = percent >= 100
+        ? 'Semua Tagihan Lunas'
+        : percent >= 70
+            ? 'Progress Pembayaran Bagus'
+            : percent >= 35
+                ? 'Progress Sedang Berjalan'
+                : 'Perlu Tindak Lanjut';
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(15, 15, 15, 14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF0B8F6E),
+            Color(0xFF066C56),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x141E293B),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Level Progres',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (classLabel.trim().isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        classLabel,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.82),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              TweenAnimationBuilder<int>(
+                tween: IntTween(begin: 0, end: percent),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, _) {
+                  return Text(
+                    '$value%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            level,
+            style: const TextStyle(
               color: Colors.white,
-              size: 34,
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            studentName,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.84),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: progress.toDouble()),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeOutCubic,
+              builder: (context, animatedValue, _) {
+                return LinearProgressIndicator(
+                  minHeight: 7,
+                  value: animatedValue,
+                  backgroundColor: Colors.white24,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF26D0B5),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -470,47 +921,365 @@ class _StudentDashboardHero extends StatelessWidget {
   }
 }
 
-class _SummaryMiniCard extends StatelessWidget {
-  const _SummaryMiniCard({
+class _StudentStatTile extends StatelessWidget {
+  const _StudentStatTile({
     required this.label,
     required this.value,
-    required this.color,
+    required this.iconSurface,
+    required this.iconColor,
+    required this.icon,
   });
 
   final String label;
   final String value;
-  final Color color;
+  final Color iconSurface;
+  final Color iconColor;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final numericValue = int.tryParse(value.replaceAll(RegExp(r'\D'), '')) ?? 0;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x141E293B),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: iconSurface,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 13),
+          ),
+          const SizedBox(height: 4),
+          TweenAnimationBuilder<int>(
+            tween: IntTween(begin: 0, end: numericValue),
+            duration: const Duration(milliseconds: 900),
+            curve: Curves.easeOutCubic,
+            builder: (context, animatedValue, _) {
+              return Text(
+                '$animatedValue',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF1E293B),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  height: 1,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontSize: 8.5,
+              fontWeight: FontWeight.w700,
+              height: 1.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StudentServiceItem {
+  const _StudentServiceItem({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+}
+
+class _StudentServiceShortcutTile extends StatelessWidget {
+  const _StudentServiceShortcutTile({
+    required this.item,
+  });
+
+  final _StudentServiceItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return _AnimatedPressable(
+      onTap: item.onTap,
+      builder: (context, isPressed) {
+        final accent =
+            isPressed ? const Color(0xFF066C56) : const Color(0xFF0B8F6E);
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              width: 58,
+              height: 58,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEAF8F2),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x141E293B),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                item.icon,
+                size: 24,
+                color: accent,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              item.label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _StudentBillShowcaseCard extends StatelessWidget {
+  const _StudentBillShowcaseCard({
+    required this.item,
+    required this.schoolName,
+  });
+
+  final Map<String, dynamic> item;
+  final String schoolName;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = item['status'] as String? ?? 'belum_lunas';
+    final accentColor = billStatusColor(status);
+
+    return SizedBox(
+      width: 224,
+      child: StudentTicketCard(
+        accentColor: accentColor,
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+        footer: StudentTicketAmount(
+          label: 'Sisa bayar',
+          value: formatStudentCurrency(item['outstanding_amount']),
+          color: accentColor,
+          icon: Icons.payments_rounded,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF8F2),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    formatStudentDate(item['jatuh_tempo'] as String?),
+                    style: const TextStyle(
+                      color: Color(0xFF066C56),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  width: 9,
+                  height: 9,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              normalizeStudentText(item['jenis_tagihan']),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF1E293B),
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                height: 1.15,
+              ),
+            ),
+            const SizedBox(height: 7),
+            Text(
+              normalizeStudentText(item['nomor_tagihan']),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF1E293B),
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              schoolName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StudentReminderCard extends StatelessWidget {
+  const _StudentReminderCard({
+    required this.item,
+  });
+
+  final Map<String, dynamic> item;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 148,
+      width: 224,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(18),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x141E293B),
+            blurRadius: 20,
+            offset: Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEDD5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.alarm_rounded,
+              size: 18,
+              color: Color(0xFFB45309),
+            ),
+          ),
+          const SizedBox(height: 12),
           Text(
-            label,
+            normalizeStudentText(item['title']),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMuted,
+              color: Color(0xFF1E293B),
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              height: 1.15,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            value,
+            normalizeStudentText(item['message']),
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textMain,
+              color: Color(0xFF64748B),
+              fontSize: 11.5,
+              height: 1.35,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AnimatedPressable extends StatefulWidget {
+  const _AnimatedPressable({
+    required this.builder,
+    this.onTap,
+  });
+
+  final Widget Function(BuildContext context, bool isPressed) builder;
+  final VoidCallback? onTap;
+
+  @override
+  State<_AnimatedPressable> createState() => _AnimatedPressableState();
+}
+
+class _AnimatedPressableState extends State<_AnimatedPressable> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (_pressed == value || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _pressed = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: (_) => _setPressed(true),
+      onTapUp: (_) => _setPressed(false),
+      onTapCancel: () => _setPressed(false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.96 : 1,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        child: widget.builder(context, _pressed),
       ),
     );
   }
@@ -530,30 +1299,31 @@ class _PaymentPreviewTile extends StatelessWidget {
     );
     final color = paymentStatusColor(item['status_verifikasi'] as String?);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+    return StudentTicketCard(
+      accentColor: color,
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+      footer: StudentTicketAmount(
+        label: 'Nominal bayar',
+        value: formatStudentCurrency(item['nominal_bayar']),
+        color: color,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(
               Icons.payments_rounded,
               color: color,
+              size: 16,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -561,30 +1331,23 @@ class _PaymentPreviewTile extends StatelessWidget {
                 Text(
                   normalizeStudentText(bill['nomor_tagihan']),
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textMain,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${normalizeStudentText(bill['jenis_tagihan'])} • ${formatStudentCurrency(item['nominal_bayar'])}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   formatStudentDate(item['tanggal_bayar'] as String?),
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 10.5,
                     color: AppColors.textMuted,
                   ),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           StudentStatusBadge(
             label: paymentStatusLabel(item['status_verifikasi'] as String?),
             color: color,
@@ -595,45 +1358,20 @@ class _PaymentPreviewTile extends StatelessWidget {
   }
 }
 
-class _StudentErrorView extends StatelessWidget {
-  const _StudentErrorView({
-    required this.message,
-    required this.onRetry,
-  });
-
-  final String message;
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.cloud_off_rounded,
-              size: 42,
-              color: AppColors.accentWarm,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textMain,
-              ),
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Coba lagi'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+String _studentDashboardMonthLabel(DateTime date) {
+  const months = <String>[
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
+  ];
+  return '${months[date.month - 1]} ${date.year}';
 }

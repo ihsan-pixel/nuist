@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import '../../services/student_mobile_repository.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import 'student_ui.dart';
 
@@ -96,8 +95,10 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            normalizeStudentText(result['_message'],
-                fallback: 'Virtual Account berhasil dibuat.'),
+            normalizeStudentText(
+              result['_message'],
+              fallback: 'Virtual Account berhasil dibuat.',
+            ),
           ),
         ),
       );
@@ -136,21 +137,9 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_errorMessage!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: _load,
-                child: const Text('Coba lagi'),
-              ),
-            ],
-          ),
-        ),
+      return StudentErrorView(
+        message: _errorMessage!,
+        onRetry: _load,
       );
     }
 
@@ -173,50 +162,55 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
       onRefresh: _load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 132),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 128),
         children: [
-          const StudentSectionHeading(
+          StudentPageBanner(
             title: 'Pembayaran',
             subtitle:
-                'Kelola Virtual Account dan lihat instruksi pembayaran tagihan aktif.',
+                'Kelola tagihan aktif dan Virtual Account dengan layout yang lebih efisien.',
+            icon: Icons.account_balance_wallet_rounded,
+            badges: [
+              StudentBannerBadge(
+                label: '${summary['pending_payments'] ?? 0} pembayaran pending',
+                icon: Icons.schedule_rounded,
+              ),
+              StudentBannerBadge(
+                label: formatStudentCurrency(summary['outstanding']),
+                icon: Icons.payments_rounded,
+              ),
+            ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           AppSectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.all(14),
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                const StudentSectionHeading(
-                  title: 'Status pembayaran',
-                  subtitle:
-                      'Fokus pada tagihan aktif dan transaksi yang masih menunggu.',
+                StudentMetricCard(
+                  label: 'Sisa tagihan',
+                  value: formatStudentCurrency(summary['outstanding']),
+                  icon: Icons.account_balance_wallet_rounded,
+                  tone: const Color(0xFF2563EB),
                 ),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    _PaymentSummaryCard(
-                      label: 'Sisa tagihan',
-                      value: formatStudentCurrency(summary['outstanding']),
-                      color: const Color(0xFFEAF2FF),
-                    ),
-                    _PaymentSummaryCard(
-                      label: 'Pembayaran pending',
-                      value: '${summary['pending_payments'] ?? 0}',
-                      color: const Color(0xFFFFF1E4),
-                    ),
-                    _PaymentSummaryCard(
-                      label: 'Sudah terbayar',
-                      value: formatStudentCurrency(summary['total_paid']),
-                      color: const Color(0xFFE8F7EE),
-                    ),
-                  ],
+                StudentMetricCard(
+                  label: 'Pending',
+                  value: '${summary['pending_payments'] ?? 0}',
+                  icon: Icons.schedule_rounded,
+                  tone: const Color(0xFFD97706),
+                ),
+                StudentMetricCard(
+                  label: 'Terbayar',
+                  value: formatStudentCurrency(summary['total_paid']),
+                  icon: Icons.task_alt_rounded,
+                  tone: const Color(0xFF0B8F6E),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           AppSectionCard(
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -227,130 +221,74 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
                 ),
                 const SizedBox(height: 12),
                 if (activeBill == null)
-                  const AppEmptyState(
+                  const StudentTicketEmptyState(
                     title: 'Tidak ada tagihan aktif',
                     message:
-                        'Semua tagihan sudah lunas atau belum ada data tagihan aktif.',
+                        'Semua tagihan sudah lunas atau belum ada tagihan aktif.',
                     icon: Icons.task_alt_rounded,
+                    accentColor: Color(0xFF0B8F6E),
+                    footerLabel: 'TIDAK ADA TIKET TAGIHAN',
                   )
-                else
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        normalizeStudentText(
-                                            activeBill['nomor_tagihan']),
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w800,
-                                          color: AppColors.textMain,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        normalizeStudentText(
-                                            activeBill['jenis_tagihan']),
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.textMuted,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                StudentStatusBadge(
-                                  label: normalizeStudentText(
-                                      activeBill['status_label']),
-                                  color: billStatusColor(
-                                      activeBill['status'] as String?),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 14),
-                            StudentInfoRow(
-                              label: 'Periode',
-                              value:
-                                  normalizeStudentText(activeBill['periode']),
-                              icon: Icons.date_range_rounded,
-                            ),
-                            StudentInfoRow(
-                              label: 'Jatuh tempo',
-                              value: formatStudentDate(
-                                  activeBill['jatuh_tempo'] as String?),
-                              icon: Icons.event_note_rounded,
-                            ),
-                            StudentInfoRow(
-                              label: 'Sisa pembayaran',
-                              value: formatStudentCurrency(
-                                  activeBill['outstanding_amount']),
-                              icon: Icons.payments_rounded,
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: FilledButton.icon(
-                                onPressed: (!bniVaEnabled ||
-                                        activeBill['can_generate_va'] != true ||
-                                        _isGeneratingVa)
-                                    ? null
-                                    : () => _generateVirtualAccount(
-                                          (activeBill['id'] as num).toInt(),
-                                        ),
-                                icon: _isGeneratingVa
-                                    ? const SizedBox(
-                                        width: 18,
-                                        height: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.account_balance_wallet_rounded),
-                                label: Text(
-                                  bniVaEnabled
-                                      ? 'Buat / pakai Virtual Account'
-                                      : 'BNI VA belum aktif',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                else ...[
+                  StudentInfoRow(
+                    label: 'Nomor tagihan',
+                    value: normalizeStudentText(activeBill['nomor_tagihan']),
+                    icon: Icons.confirmation_number_rounded,
                   ),
+                  StudentInfoRow(
+                    label: 'Periode',
+                    value: normalizeStudentText(activeBill['periode']),
+                    icon: Icons.date_range_rounded,
+                  ),
+                  StudentInfoRow(
+                    label: 'Sisa pembayaran',
+                    value:
+                        formatStudentCurrency(activeBill['outstanding_amount']),
+                    icon: Icons.payments_rounded,
+                  ),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: FilledButton.icon(
+                      onPressed: (!bniVaEnabled ||
+                              activeBill['can_generate_va'] != true ||
+                              _isGeneratingVa)
+                          ? null
+                          : () => _generateVirtualAccount(
+                              (activeBill['id'] as num).toInt()),
+                      icon: _isGeneratingVa
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.account_balance_wallet_rounded,
+                              size: 18),
+                      label: Text(
+                        bniVaEnabled
+                            ? 'Buat / pakai Virtual Account'
+                            : 'BNI VA belum aktif',
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           AppSectionCard(
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 StudentSectionHeading(
                   title: 'Virtual Account aktif',
                   subtitle: activePayment == null
-                      ? 'Setelah VA dibuat, nomor dan instruksi pembayarannya akan tampil di sini.'
-                      : 'Gunakan nomor VA berikut untuk membayar lewat kanal BNI.',
+                      ? 'Nomor VA akan muncul setelah dibuat dari tagihan aktif.'
+                      : 'Gunakan nomor berikut untuk membayar lewat kanal BNI.',
                   trailing: TextButton(
                     onPressed: widget.onOpenHistoryTab,
                     child: const Text('Riwayat'),
@@ -358,124 +296,123 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
                 ),
                 const SizedBox(height: 12),
                 if (activePayment == null)
-                  const AppEmptyState(
+                  const StudentTicketEmptyState(
                     title: 'Belum ada VA aktif',
                     message:
                         'Buat Virtual Account dari tagihan aktif untuk melanjutkan pembayaran.',
                     icon: Icons.account_balance_wallet_outlined,
+                    accentColor: Color(0xFF2563EB),
+                    footerLabel: 'MENUNGGU VIRTUAL ACCOUNT',
                   )
-                else
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                else ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nomor Virtual Account',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.78),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          normalizeStudentText(activePayment['va_number']),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Berlaku sampai ${formatStudentDateTime(activePayment['va_expired_at'] as String?)}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.78),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
                     children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _copyVaNumber(
+                            normalizeStudentText(activePayment['va_number']),
                           ),
-                          borderRadius: BorderRadius.circular(22),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Nomor Virtual Account',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              normalizeStudentText(activePayment['va_number']),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Berlaku sampai ${formatStudentDateTime(activePayment['va_expired_at'] as String?)}',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                          icon: const Icon(Icons.copy_rounded, size: 18),
+                          label: const Text('Salin nomor VA'),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () => _copyVaNumber(
-                                normalizeStudentText(
-                                    activePayment['va_number']),
-                              ),
-                              icon: const Icon(Icons.copy_rounded),
-                              label: const Text('Salin nomor VA'),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          StudentStatusBadge(
-                            label: paymentStatusLabel(
-                              activePayment['status_verifikasi'] as String?,
-                            ),
-                            color: paymentStatusColor(
-                              activePayment['status_verifikasi'] as String?,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Langkah pembayaran',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textMain,
+                      const SizedBox(width: 10),
+                      StudentStatusBadge(
+                        label: paymentStatusLabel(
+                          activePayment['status_verifikasi'] as String?,
+                        ),
+                        color: paymentStatusColor(
+                          activePayment['status_verifikasi'] as String?,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const _StepText(
-                          number: '1',
-                          text: 'Salin nomor Virtual Account di atas.'),
-                      const _StepText(
-                          number: '2',
-                          text:
-                              'Bayar melalui ATM BNI, mobile banking, atau teller sesuai kebijakan sekolah.'),
-                      const _StepText(
-                          number: '3',
-                          text:
-                              'Setelah pembayaran masuk, status akan berubah menjadi terverifikasi.'),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Langkah pembayaran',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textMain,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const _StepText(
+                    number: '1',
+                    text: 'Salin nomor Virtual Account.',
+                  ),
+                  const _StepText(
+                    number: '2',
+                    text: 'Bayar lewat ATM BNI, mobile banking, atau teller.',
+                  ),
+                  const _StepText(
+                    number: '3',
+                    text:
+                        'Status akan berubah terverifikasi setelah pembayaran masuk.',
+                  ),
+                ],
               ],
             ),
           ),
           if (recentPayments.isNotEmpty) ...[
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
             AppSectionCard(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const StudentSectionHeading(
                     title: 'Transaksi terbaru',
-                    subtitle:
-                        'Lima transaksi terakhir yang tercatat pada akun siswa.',
+                    subtitle: 'Riwayat singkat pembayaran terakhir.',
                   ),
                   const SizedBox(height: 12),
                   ...recentPayments.map(
                     (item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(bottom: 10),
                       child: _RecentPaymentRow(item: item),
                     ),
                   ),
@@ -483,52 +420,6 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _PaymentSummaryCard extends StatelessWidget {
-  const _PaymentSummaryCard({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textMain,
-            ),
-          ),
         ],
       ),
     );
@@ -549,15 +440,16 @@ class _RecentPaymentRow extends StatelessWidget {
     );
     final color = paymentStatusColor(item['status_verifikasi'] as String?);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+    return StudentTicketCard(
+      accentColor: color,
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+      footer: StudentTicketAmount(
+        label: 'Nominal bayar',
+        value: formatStudentCurrency(item['nominal_bayar']),
+        color: color,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
@@ -566,21 +458,23 @@ class _RecentPaymentRow extends StatelessWidget {
                 Text(
                   normalizeStudentText(bill['nomor_tagihan']),
                   style: const TextStyle(
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textMain,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
-                  '${formatStudentCurrency(item['nominal_bayar'])} • ${formatStudentDate(item['tanggal_bayar'] as String?)}',
+                  formatStudentDate(item['tanggal_bayar'] as String?),
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 10.5,
                     color: AppColors.textMuted,
                   ),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           StudentStatusBadge(
             label: paymentStatusLabel(item['status_verifikasi'] as String?),
             color: color,
@@ -603,13 +497,13 @@ class _StepText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 24,
-            height: 24,
+            width: 22,
+            height: 22,
             decoration: const BoxDecoration(
               color: AppColors.accentSoft,
               shape: BoxShape.circle,
@@ -618,20 +512,20 @@ class _StepText extends StatelessWidget {
             child: Text(
               number,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w800,
                 color: AppColors.accentDeep,
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 11.5,
                 color: AppColors.textBody,
-                height: 1.4,
+                height: 1.35,
               ),
             ),
           ),

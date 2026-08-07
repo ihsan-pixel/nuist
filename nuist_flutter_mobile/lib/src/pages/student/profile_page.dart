@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../services/student_mobile_repository.dart';
-import '../../theme/app_theme.dart';
 import '../../widgets/app/app_section_card.dart';
 import 'student_ui.dart';
 
@@ -78,6 +77,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
     if (_isLoggingOut) {
       return;
     }
+
     setState(() {
       _isLoggingOut = true;
     });
@@ -100,21 +100,9 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_errorMessage!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: _load,
-                child: const Text('Coba lagi'),
-              ),
-            ],
-          ),
-        ),
+      return StudentErrorView(
+        message: _errorMessage!,
+        onRetry: _load,
       );
     }
 
@@ -131,193 +119,146 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
       (_data['summary'] as Map?) ?? const <String, dynamic>{},
     );
 
+    final classBadge = [
+      normalizeStudentText(student['kelas'], fallback: ''),
+      normalizeStudentText(student['jurusan'], fallback: ''),
+    ].where((item) => item.isNotEmpty).join(' • ');
+
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 132),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 128),
         children: [
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0B8F6E), Color(0xFF066C56)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          StudentPageBanner(
+            title: normalizeStudentText(student['name']),
+            subtitle: normalizeStudentText(user['email']),
+            icon: Icons.person_rounded,
+            badges: [
+              if (classBadge.isNotEmpty)
+                StudentBannerBadge(
+                  label: classBadge,
+                  icon: Icons.school_rounded,
+                ),
+              StudentBannerBadge(
+                label: normalizeStudentText(school['name']),
+                icon: Icons.apartment_rounded,
               ),
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x330B8F6E),
-                  blurRadius: 24,
-                  offset: Offset(0, 12),
-                ),
-              ],
-            ),
-            child: Row(
+            ],
+          ),
+          const SizedBox(height: 16),
+          AppSectionCard(
+            padding: const EdgeInsets.all(14),
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                Container(
-                  width: 68,
-                  height: 68,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.14),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    color: Colors.white,
-                    size: 34,
-                  ),
+                StudentMetricCard(
+                  label: 'Total tagihan',
+                  value: '${summary['total_bills'] ?? 0}',
+                  icon: Icons.receipt_long_rounded,
+                  tone: const Color(0xFF2563EB),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        normalizeStudentText(student['name']),
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        normalizeStudentText(user['email']),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.16),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          [
-                            normalizeStudentText(student['kelas'],
-                                fallback: ''),
-                            normalizeStudentText(student['jurusan'],
-                                fallback: ''),
-                          ].where((item) => item.isNotEmpty).join(' • '),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                StudentMetricCard(
+                  label: 'Sudah lunas',
+                  value: '${summary['paid_bills'] ?? 0}',
+                  icon: Icons.task_alt_rounded,
+                  tone: const Color(0xFF0B8F6E),
+                ),
+                StudentMetricCard(
+                  label: 'Terbayar',
+                  value: formatStudentCurrency(summary['total_paid']),
+                  icon: Icons.payments_rounded,
+                  tone: const Color(0xFFD97706),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           AppSectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const StudentSectionHeading(
-                  title: 'Ringkasan akun',
-                  subtitle: 'Gambaran cepat status finansial siswa.',
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _ProfileMetric(
-                        label: 'Total tagihan',
-                        value: '${summary['total_bills'] ?? 0}',
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _ProfileMetric(
-                        label: 'Sudah lunas',
-                        value: '${summary['paid_bills'] ?? 0}',
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _ProfileMetric(
-                        label: 'Terbayar',
-                        value: formatStudentCurrency(summary['total_paid']),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-          AppSectionCard(
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const StudentSectionHeading(
                   title: 'Data siswa',
-                  subtitle: 'Informasi utama yang terhubung dengan akun login.',
+                  subtitle: 'Informasi utama yang terhubung ke akun login.',
                 ),
-                const SizedBox(height: 10),
-                StudentInfoRow(
-                  label: 'Nama lengkap',
-                  value: normalizeStudentText(student['name']),
-                  icon: Icons.badge_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'NIS / NISN',
-                  value:
-                      '${normalizeStudentText(student['nis'])} / ${normalizeStudentText(student['nisn'])}',
-                  icon: Icons.credit_card_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Kelas',
-                  value: normalizeStudentText(student['kelas']),
-                  icon: Icons.class_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Jurusan',
-                  value: normalizeStudentText(student['jurusan']),
-                  icon: Icons.menu_book_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Email',
-                  value: normalizeStudentText(student['email']),
-                  icon: Icons.email_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Telepon',
-                  value: normalizeStudentText(student['phone']),
-                  icon: Icons.phone_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Tahun masuk',
-                  value: normalizeStudentText(student['entry_year']),
-                  icon: Icons.calendar_today_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Wali / Orang tua',
-                  value: normalizeStudentText(student['parent_name']),
-                  icon: Icons.family_restroom_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Alamat',
-                  value: normalizeStudentText(student['address']),
-                  icon: Icons.location_on_rounded,
+                const SizedBox(height: 12),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = (constraints.maxWidth - 10) / 2;
+                    return Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'NIS / NISN',
+                            value:
+                                '${normalizeStudentText(student['nis'])} / ${normalizeStudentText(student['nisn'])}',
+                            icon: Icons.credit_card_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'Kelas',
+                            value: normalizeStudentText(student['kelas']),
+                            icon: Icons.class_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'Jurusan',
+                            value: normalizeStudentText(student['jurusan']),
+                            icon: Icons.menu_book_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'Telepon',
+                            value: normalizeStudentText(student['phone']),
+                            icon: Icons.phone_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'Tahun masuk',
+                            value: normalizeStudentText(student['entry_year']),
+                            icon: Icons.calendar_today_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'Wali / Orang tua',
+                            value: normalizeStudentText(student['parent_name']),
+                            icon: Icons.family_restroom_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: constraints.maxWidth,
+                          child: StudentFactTile(
+                            label: 'Alamat',
+                            value: normalizeStudentText(student['address']),
+                            icon: Icons.location_on_rounded,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           AppSectionCard(
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -325,38 +266,64 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                   title: 'Informasi sekolah',
                   subtitle: 'Asal sekolah yang terhubung dengan akun siswa.',
                 ),
-                const SizedBox(height: 10),
-                StudentInfoRow(
-                  label: 'Nama sekolah',
-                  value: normalizeStudentText(school['name']),
-                  icon: Icons.school_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'SCOD',
-                  value: normalizeStudentText(school['scod']),
-                  icon: Icons.qr_code_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Telepon',
-                  value: normalizeStudentText(school['phone']),
-                  icon: Icons.call_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Email',
-                  value: normalizeStudentText(school['email']),
-                  icon: Icons.mail_outline_rounded,
-                ),
-                StudentInfoRow(
-                  label: 'Alamat',
-                  value: normalizeStudentText(school['address']),
-                  icon: Icons.place_rounded,
+                const SizedBox(height: 12),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = (constraints.maxWidth - 10) / 2;
+                    return Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'Nama sekolah',
+                            value: normalizeStudentText(school['name']),
+                            icon: Icons.school_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'SCOD',
+                            value: normalizeStudentText(school['scod']),
+                            icon: Icons.qr_code_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'Telepon',
+                            value: normalizeStudentText(school['phone']),
+                            icon: Icons.call_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: width,
+                          child: StudentFactTile(
+                            label: 'Email',
+                            value: normalizeStudentText(school['email']),
+                            icon: Icons.mail_outline_rounded,
+                          ),
+                        ),
+                        SizedBox(
+                          width: constraints.maxWidth,
+                          child: StudentFactTile(
+                            label: 'Alamat',
+                            value: normalizeStudentText(school['address']),
+                            icon: Icons.place_rounded,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
             child: OutlinedButton.icon(
               onPressed: _isLoggingOut ? null : _logout,
               icon: _isLoggingOut
@@ -365,52 +332,8 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.logout_rounded),
+                  : const Icon(Icons.logout_rounded, size: 18),
               label: const Text('Logout'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProfileMetric extends StatelessWidget {
-  const _ProfileMetric({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textMain,
             ),
           ),
         ],

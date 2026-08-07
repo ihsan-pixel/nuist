@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../services/student_mobile_repository.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/app/app_empty_state.dart';
+import '../../services/student_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
 import 'student_ui.dart';
 
@@ -80,21 +79,9 @@ class _StudentPaymentHistoryPageState extends State<StudentPaymentHistoryPage> {
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_errorMessage!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: _load,
-                child: const Text('Muat ulang'),
-              ),
-            ],
-          ),
-        ),
+      return StudentErrorView(
+        message: _errorMessage!,
+        onRetry: _load,
       );
     }
 
@@ -110,105 +97,69 @@ class _StudentPaymentHistoryPageState extends State<StudentPaymentHistoryPage> {
       onRefresh: _load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 132),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 128),
         children: [
-          const StudentSectionHeading(
+          StudentPageBanner(
             title: 'Riwayat pembayaran',
             subtitle:
-                'Semua transaksi pembayaran siswa, termasuk yang masih menunggu verifikasi.',
+                'Semua transaksi siswa dengan tata letak yang lebih padat dan mudah discan.',
+            icon: Icons.history_rounded,
+            badges: [
+              StudentBannerBadge(
+                label: '${summary['verified_count'] ?? 0} terverifikasi',
+                icon: Icons.check_circle_rounded,
+              ),
+              StudentBannerBadge(
+                label: '${summary['pending_count'] ?? 0} menunggu',
+                icon: Icons.schedule_rounded,
+              ),
+            ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           AppSectionCard(
+            padding: const EdgeInsets.all(14),
             child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                _HistoryMetric(
+                StudentMetricCard(
                   label: 'Terverifikasi',
                   value: '${summary['verified_count'] ?? 0}',
-                  color: const Color(0xFF0B8F6E),
+                  icon: Icons.task_alt_rounded,
+                  tone: const Color(0xFF0B8F6E),
                 ),
-                _HistoryMetric(
+                StudentMetricCard(
                   label: 'Menunggu',
                   value: '${summary['pending_count'] ?? 0}',
-                  color: const Color(0xFF2563EB),
+                  icon: Icons.schedule_rounded,
+                  tone: const Color(0xFF2563EB),
                 ),
-                _HistoryMetric(
-                  label: 'Ditolak',
-                  value: '${summary['rejected_count'] ?? 0}',
-                  color: const Color(0xFFB42318),
-                ),
-                _HistoryMetric(
+                StudentMetricCard(
                   label: 'Total masuk',
                   value: formatStudentCurrency(summary['total_paid']),
-                  color: const Color(0xFFFF8A1F),
+                  icon: Icons.payments_rounded,
+                  tone: const Color(0xFFD97706),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           if (items.isEmpty)
-            const AppSectionCard(
-              child: AppEmptyState(
-                title: 'Belum ada riwayat',
-                message:
-                    'Riwayat pembayaran akan tampil setelah transaksi mulai dibuat.',
-                icon: Icons.history_rounded,
-              ),
+            const StudentTicketEmptyState(
+              title: 'Belum ada riwayat',
+              message:
+                  'Riwayat pembayaran akan tampil setelah transaksi mulai dibuat.',
+              icon: Icons.history_rounded,
+              accentColor: Color(0xFF2563EB),
+              footerLabel: 'BELUM ADA TIKET PEMBAYARAN',
             )
           else
             ...items.map(
               (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: _HistoryCard(item: item),
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HistoryMetric extends StatelessWidget {
-  const _HistoryMetric({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
-          ),
         ],
       ),
     );
@@ -228,8 +179,39 @@ class _HistoryCard extends StatelessWidget {
       (item['bill'] as Map?) ?? const <String, dynamic>{},
     );
     final color = paymentStatusColor(item['status_verifikasi'] as String?);
+    final note = normalizeStudentText(item['keterangan'], fallback: '');
 
-    return AppSectionCard(
+    return StudentTicketCard(
+      accentColor: color,
+      footer: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          StudentTicketAmount(
+            label: 'Nominal bayar',
+            value: formatStudentCurrency(item['nominal_bayar']),
+            color: color,
+          ),
+          if (note.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(11),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text(
+                note,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textBody,
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -243,16 +225,16 @@ class _HistoryCard extends StatelessWidget {
                     Text(
                       normalizeStudentText(item['nomor_transaksi']),
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textMain,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Text(
                       normalizeStudentText(bill['nomor_tagihan']),
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 11,
                         color: AppColors.textMuted,
                       ),
                     ),
@@ -265,61 +247,52 @@ class _HistoryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: StudentInfoRow(
+                child: StudentTicketMeta(
                   label: 'Jenis tagihan',
                   value: normalizeStudentText(bill['jenis_tagihan']),
                   icon: Icons.receipt_rounded,
+                  color: color,
                 ),
               ),
+              const SizedBox(width: 10),
               Expanded(
-                child: StudentInfoRow(
+                child: StudentTicketMeta(
                   label: 'Tanggal bayar',
                   value: formatStudentDate(item['tanggal_bayar'] as String?),
                   icon: Icons.event_rounded,
+                  color: color,
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: StudentInfoRow(
-                  label: 'Nominal',
-                  value: formatStudentCurrency(item['nominal_bayar']),
-                  icon: Icons.payments_rounded,
-                ),
-              ),
-              Expanded(
-                child: StudentInfoRow(
+                child: StudentTicketMeta(
                   label: 'Metode',
                   value: normalizeStudentText(item['metode_pembayaran']),
                   icon: Icons.account_balance_rounded,
+                  color: color,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: StudentTicketMeta(
+                  label: 'Status',
+                  value: paymentStatusLabel(
+                    item['status_verifikasi'] as String?,
+                  ),
+                  icon: Icons.verified_rounded,
+                  color: color,
                 ),
               ),
             ],
           ),
-          if (normalizeStudentText(item['keterangan'], fallback: '').isNotEmpty)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(top: 6),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                normalizeStudentText(item['keterangan']),
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textBody,
-                  height: 1.4,
-                ),
-              ),
-            ),
         ],
       ),
     );

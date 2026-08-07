@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../services/student_mobile_repository.dart';
-import '../../theme/app_theme.dart';
-import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import 'student_ui.dart';
 
@@ -81,24 +79,9 @@ class _StudentBillsPageState extends State<StudentBillsPage> {
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _errorMessage!,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: _load,
-                child: const Text('Muat ulang'),
-              ),
-            ],
-          ),
-        ),
+      return StudentErrorView(
+        message: _errorMessage!,
+        onRetry: _load,
       );
     }
 
@@ -114,108 +97,72 @@ class _StudentBillsPageState extends State<StudentBillsPage> {
       onRefresh: _load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 132),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 128),
         children: [
-          const StudentSectionHeading(
+          StudentPageBanner(
             title: 'Tagihan siswa',
             subtitle:
-                'Daftar tagihan aktif dan yang sudah lunas untuk akun siswa.',
+                'Daftar tagihan aktif dan lunas dengan komposisi yang lebih ringkas.',
+            icon: Icons.receipt_long_rounded,
+            badges: [
+              StudentBannerBadge(
+                label: '${summary['unpaid_bills'] ?? 0} belum lunas',
+                icon: Icons.warning_amber_rounded,
+              ),
+              StudentBannerBadge(
+                label: '${summary['paid_bills'] ?? 0} sudah lunas',
+                icon: Icons.task_alt_rounded,
+              ),
+            ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           AppSectionCard(
-            child: Row(
+            padding: const EdgeInsets.all(14),
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 10,
               children: [
-                Expanded(
-                  child: _TopSummaryItem(
-                    label: 'Belum lunas',
-                    value: '${summary['unpaid_bills'] ?? 0}',
-                    color: const Color(0xFFB42318),
-                  ),
+                StudentMetricCard(
+                  label: 'Belum lunas',
+                  value: '${summary['unpaid_bills'] ?? 0}',
+                  icon: Icons.error_outline_rounded,
+                  tone: const Color(0xFFB42318),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _TopSummaryItem(
-                    label: 'Sudah lunas',
-                    value: '${summary['paid_bills'] ?? 0}',
-                    color: const Color(0xFF0B8F6E),
-                  ),
+                StudentMetricCard(
+                  label: 'Sudah lunas',
+                  value: '${summary['paid_bills'] ?? 0}',
+                  icon: Icons.check_circle_rounded,
+                  tone: const Color(0xFF0B8F6E),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _TopSummaryItem(
-                    label: 'Sisa nominal',
-                    value: formatStudentCurrency(summary['outstanding']),
-                    color: const Color(0xFF2563EB),
-                  ),
+                StudentMetricCard(
+                  label: 'Sisa nominal',
+                  value: formatStudentCurrency(summary['outstanding']),
+                  icon: Icons.account_balance_wallet_rounded,
+                  tone: const Color(0xFF2563EB),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           if (bills.isEmpty)
-            const AppSectionCard(
-              child: AppEmptyState(
-                title: 'Belum ada tagihan',
-                message:
-                    'Data tagihan akan muncul setelah dibuat oleh admin sekolah.',
-                icon: Icons.receipt_long_rounded,
-              ),
+            const StudentTicketEmptyState(
+              title: 'Belum ada tagihan',
+              message:
+                  'Data tagihan akan muncul setelah dibuat oleh admin sekolah.',
+              icon: Icons.receipt_long_rounded,
+              accentColor: Color(0xFF0B8F6E),
+              footerLabel: 'BELUM ADA TIKET TAGIHAN',
             )
           else
             ...bills.map(
               (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: _BillCard(
                   item: item,
                   onOpenPayment: widget.onOpenPaymentTab,
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TopSummaryItem extends StatelessWidget {
-  const _TopSummaryItem({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
-          ),
         ],
       ),
     );
@@ -235,10 +182,32 @@ class _BillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = item['status'] as String?;
     final color = billStatusColor(status);
-    final outstandingAmount = item['outstanding_amount'];
     final canPay = status != 'lunas';
 
-    return AppSectionCard(
+    return StudentTicketCard(
+      accentColor: color,
+      footer: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          StudentTicketAmount(
+            label: 'Sisa pembayaran',
+            value: formatStudentCurrency(item['outstanding_amount']),
+            color: color,
+            icon: Icons.payments_rounded,
+          ),
+          if (canPay) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onOpenPayment,
+                icon: const Icon(Icons.arrow_forward_rounded, size: 17),
+                label: const Text('Lanjut ke pembayaran'),
+              ),
+            ),
+          ],
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -252,17 +221,16 @@ class _BillCard extends StatelessWidget {
                     Text(
                       normalizeStudentText(item['nomor_tagihan']),
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textMain,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Text(
                       normalizeStudentText(item['jenis_tagihan']),
                       style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textMuted,
+                        fontSize: 11,
+                        color: Color(0xFF617565),
                       ),
                     ),
                   ],
@@ -274,54 +242,50 @@ class _BillCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: StudentInfoRow(
+                child: StudentTicketMeta(
                   label: 'Periode',
                   value: normalizeStudentText(item['periode']),
                   icon: Icons.date_range_rounded,
+                  color: color,
                 ),
               ),
+              const SizedBox(width: 10),
               Expanded(
-                child: StudentInfoRow(
+                child: StudentTicketMeta(
                   label: 'Jatuh tempo',
                   value: formatStudentDate(item['jatuh_tempo'] as String?),
                   icon: Icons.event_note_rounded,
+                  color: color,
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: StudentInfoRow(
+                child: StudentTicketMeta(
                   label: 'Total tagihan',
                   value: formatStudentCurrency(item['total_tagihan']),
                   icon: Icons.payments_outlined,
+                  color: color,
                 ),
               ),
+              const SizedBox(width: 10),
               Expanded(
-                child: StudentInfoRow(
-                  label: 'Sisa bayar',
-                  value: formatStudentCurrency(outstandingAmount),
+                child: StudentTicketMeta(
+                  label: 'Sisa',
+                  value: formatStudentCurrency(item['outstanding_amount']),
                   icon: Icons.account_balance_wallet_outlined,
+                  color: color,
                 ),
               ),
             ],
           ),
-          if (canPay) ...[
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: onOpenPayment,
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: const Text('Lanjut ke pembayaran'),
-              ),
-            ),
-          ],
         ],
       ),
     );
