@@ -5855,7 +5855,39 @@ class SkYayasanController extends Controller
             return '-';
         }
 
-        return mb_convert_case(mb_strtolower($string), MB_CASE_TITLE, 'UTF-8');
+        $tokens = preg_split('/(\s+)/u', $string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+        if ($tokens === false) {
+            return mb_convert_case(mb_strtolower($string), MB_CASE_TITLE, 'UTF-8');
+        }
+
+        return implode('', array_map(function (string $token): string {
+            if (preg_match('/^\s+$/u', $token) === 1) {
+                return $token;
+            }
+
+            if (preg_match('/^(?:\p{L}\.)+$/u', $token) === 1) {
+                return mb_strtoupper($token, 'UTF-8');
+            }
+
+            $parts = preg_split("/([-'`])/u", $token, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+            if ($parts === false) {
+                return mb_convert_case(mb_strtolower($token), MB_CASE_TITLE, 'UTF-8');
+            }
+
+            return implode('', array_map(function (string $part): string {
+                if ($part === '-' || $part === '\'' || $part === '`') {
+                    return $part;
+                }
+
+                if (preg_match('/^(?:\p{L}\.)+$/u', $part) === 1) {
+                    return mb_strtoupper($part, 'UTF-8');
+                }
+
+                return mb_convert_case(mb_strtolower($part), MB_CASE_TITLE, 'UTF-8');
+            }, $parts));
+        }, $tokens));
     }
 
     private function normalizeDegree(mixed $value): ?string
