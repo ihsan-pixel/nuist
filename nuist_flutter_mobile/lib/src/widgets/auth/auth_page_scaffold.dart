@@ -67,16 +67,28 @@ class AuthPageScaffold extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
                         child: Column(
                           children: [
-                            Text(
-                              title,
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.headlineLarge,
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 320),
+                              child: Text(
+                                title,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.headlineLarge?.copyWith(
+                                  fontSize: 28,
+                                  letterSpacing: -0.7,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 10),
-                            Text(
-                              subtitle,
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.titleMedium,
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 300),
+                              child: Text(
+                                subtitle,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontSize: 15,
+                                  height: 1.5,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 16),
                             ...children,

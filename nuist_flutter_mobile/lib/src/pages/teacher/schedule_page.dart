@@ -7,6 +7,21 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
+class _SchedulePalette {
+  static const surface = Color(0xFFFFFFFF);
+  static const primary = Color(0xFF0B8F6E);
+  static const primaryDark = Color(0xFF066C56);
+  static const textPrimary = Color(0xFF1E293B);
+  static const textSecondary = Color(0xFF64748B);
+  static const border = Color(0xFFE2E8F0);
+  static const danger = Color(0xFFEF4444);
+  static const iconSurface = Color(0xFFECFDF5);
+  static const softRed = Color(0xFFFEE2E2);
+  static const cardShadow = Color(0x141E293B);
+
+  const _SchedulePalette._();
+}
+
 class TeacherSchedulePage extends StatefulWidget {
   const TeacherSchedulePage({
     super.key,
@@ -148,31 +163,42 @@ class _TeacherSchedulePageState extends State<TeacherSchedulePage>
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: _SchedulePalette.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: _SchedulePalette.border),
           ),
           title: const Text(
             'Hapus Jadwal',
             style: TextStyle(
+              color: _SchedulePalette.textPrimary,
               fontWeight: FontWeight.w800,
             ),
           ),
           content: Text(
             'Hapus jadwal ${(item['subject'] as String?) ?? 'ini'}?',
             style: const TextStyle(
+              color: _SchedulePalette.textSecondary,
               height: 1.4,
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Batal'),
+              child: const Text(
+                'Batal',
+                style: TextStyle(
+                  color: _SchedulePalette.textSecondary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFB42318),
+                backgroundColor: _SchedulePalette.danger,
                 foregroundColor: Colors.white,
+                elevation: 0,
               ),
               child: const Text('Hapus'),
             ),
@@ -211,13 +237,15 @@ class _TeacherSchedulePageState extends State<TeacherSchedulePage>
 
   @override
   Widget build(BuildContext context) {
+    final bottomNavInset = MediaQuery.paddingOf(context).bottom + 128;
+
     return FutureBuilder<Map<String, dynamic>>(
       future: _future,
       builder: (context, snapshot) {
         return RefreshIndicator(
           onRefresh: _refresh,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.fromLTRB(16, 16, 16, bottomNavInset),
             children: [
               if (snapshot.connectionState == ConnectionState.waiting)
                 const _PageLoading()
@@ -378,14 +406,14 @@ class _ScheduleContentState extends State<_ScheduleContent> {
               children: [
                 Icon(
                   Icons.info_outline_rounded,
-                  color: Color(0xFF1F6B52),
+                  color: _SchedulePalette.primary,
                 ),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Akun ini belum terhubung ke madrasah, sehingga jadwal belum bisa dikelola.',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: _SchedulePalette.textSecondary,
                       fontSize: 12,
                       height: 1.4,
                     ),
@@ -439,7 +467,7 @@ class _ScheduleContentState extends State<_ScheduleContent> {
                       width: 10,
                       height: 10,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF1F6B52),
+                        color: _SchedulePalette.primary,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -450,7 +478,7 @@ class _ScheduleContentState extends State<_ScheduleContent> {
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black,
+                          color: _SchedulePalette.textPrimary,
                         ),
                       ),
                     ),
@@ -460,14 +488,15 @@ class _ScheduleContentState extends State<_ScheduleContent> {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEAF4EF),
+                        color: _SchedulePalette.iconSurface,
                         borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: _SchedulePalette.border),
                       ),
                       child: Text(
                         '${selectedItems.length} sesi',
                         style: const TextStyle(
                           fontSize: 10,
-                          color: Colors.black,
+                          color: _SchedulePalette.primaryDark,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -521,7 +550,8 @@ class _ScheduleDayTabs extends StatelessWidget {
         children: days.asMap().entries.map((entry) {
           final day = entry.value;
           return Padding(
-            padding: EdgeInsets.only(right: entry.key == days.length - 1 ? 0 : 8),
+            padding:
+                EdgeInsets.only(right: entry.key == days.length - 1 ? 0 : 8),
             child: _ScheduleDayTab(
               label: day,
               isSelected: day == selectedDay,
@@ -548,19 +578,40 @@ class _ScheduleDayTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected ? const Color(0xFF1F6B52) : const Color(0xFFF3F7F4),
+      color: isSelected ? _SchedulePalette.primary : _SchedulePalette.surface,
       borderRadius: BorderRadius.circular(999),
+      elevation: isSelected ? 0 : 0,
+      shadowColor: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(999),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: isSelected
+                  ? _SchedulePalette.primary
+                  : _SchedulePalette.border,
+            ),
+            boxShadow: isSelected
+                ? const []
+                : const [
+                    BoxShadow(
+                      color: _SchedulePalette.cardShadow,
+                      blurRadius: 14,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : _SchedulePalette.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ),
@@ -672,9 +723,16 @@ class _ScheduleAgendaTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFCFDFC),
+        color: _SchedulePalette.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2ECE5)),
+        border: Border.all(color: _SchedulePalette.border),
+        boxShadow: const [
+          BoxShadow(
+            color: _SchedulePalette.cardShadow,
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -683,21 +741,22 @@ class _ScheduleAgendaTile extends StatelessWidget {
             width: 64,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF4EF),
+              color: _SchedulePalette.iconSurface,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: _SchedulePalette.border),
             ),
             child: Column(
               children: [
                 const Icon(
                   Icons.schedule_rounded,
                   size: 16,
-                  color: Color(0xFF1F6B52),
+                  color: _SchedulePalette.primary,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   item['start_time'] as String? ?? '-',
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: _SchedulePalette.textPrimary,
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
                   ),
@@ -706,7 +765,7 @@ class _ScheduleAgendaTile extends StatelessWidget {
                 Text(
                   item['end_time'] as String? ?? '-',
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: _SchedulePalette.textSecondary,
                     fontWeight: FontWeight.w700,
                     fontSize: 10,
                   ),
@@ -726,7 +785,7 @@ class _ScheduleAgendaTile extends StatelessWidget {
                       child: Text(
                         item['subject'] as String? ?? '-',
                         style: const TextStyle(
-                          color: Colors.black,
+                          color: _SchedulePalette.textPrimary,
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
                           height: 1.15,
@@ -748,14 +807,14 @@ class _ScheduleAgendaTile extends StatelessWidget {
                     const Icon(
                       Icons.groups_rounded,
                       size: 14,
-                      color: Color(0xFF1F6B52),
+                      color: _SchedulePalette.primary,
                     ),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
                         item['class_name'] as String? ?? '-',
                         style: const TextStyle(
-                          color: Colors.black,
+                          color: _SchedulePalette.textPrimary,
                           fontWeight: FontWeight.w700,
                           fontSize: 11,
                         ),
@@ -770,7 +829,7 @@ class _ScheduleAgendaTile extends StatelessWidget {
                       const Icon(
                         Icons.location_on_outlined,
                         size: 14,
-                        color: Color(0xFF7A8F8C),
+                        color: _SchedulePalette.textSecondary,
                       ),
                       const SizedBox(width: 5),
                       Expanded(
@@ -779,7 +838,7 @@ class _ScheduleAgendaTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Color(0xFF5F706B),
+                            color: _SchedulePalette.textSecondary,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -814,16 +873,16 @@ class _ScheduleItemActions extends StatelessWidget {
         if (onEdit != null)
           _ItemActionIcon(
             icon: Icons.edit_outlined,
-            color: const Color(0xFF1F6B52),
-            background: const Color(0xFFEAF4EF),
+            color: _SchedulePalette.primaryDark,
+            background: _SchedulePalette.iconSurface,
             onTap: onEdit!,
           ),
         if (onEdit != null && onDelete != null) const SizedBox(width: 6),
         if (onDelete != null)
           _ItemActionIcon(
             icon: Icons.delete_outline_rounded,
-            color: const Color(0xFFB42318),
-            background: const Color(0xFFFFF1EF),
+            color: _SchedulePalette.danger,
+            background: _SchedulePalette.softRed,
             onTap: onDelete!,
           ),
       ],
@@ -852,13 +911,19 @@ class _ItemActionIcon extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          width: 30,
-          height: 30,
-          child: Icon(
-            icon,
-            color: color,
-            size: 16,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _SchedulePalette.border),
+          ),
+          child: SizedBox(
+            width: 30,
+            height: 30,
+            child: Icon(
+              icon,
+              color: color,
+              size: 16,
+            ),
           ),
         ),
       ),
@@ -880,31 +945,50 @@ class _ScheduleActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: onTap == null ? const Color(0xFFF4F4F4) : const Color(0xFF1F6B52),
+      color: onTap == null ? const Color(0xFFF1F5F9) : _SchedulePalette.primary,
       borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 16,
-                color: onTap == null ? const Color(0xFF9AA4A2) : Colors.white,
-              ),
-              const SizedBox(width: 5),
-              Text(
-                label,
-                style: TextStyle(
-                  color: onTap == null ? const Color(0xFF9AA4A2) : Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
+      elevation: 0,
+      child: Ink(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: onTap == null
+              ? const []
+              : const [
+                  BoxShadow(
+                    color: _SchedulePalette.cardShadow,
+                    blurRadius: 16,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 16,
+                  color: onTap == null
+                      ? _SchedulePalette.textSecondary
+                      : Colors.white,
                 ),
-              ),
-            ],
+                const SizedBox(width: 5),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: onTap == null
+                        ? _SchedulePalette.textSecondary
+                        : Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -927,20 +1011,22 @@ class _InlineActionButton extends StatelessWidget {
       onPressed: onTap,
       icon: const Icon(
         Icons.add_rounded,
-        color: Color(0xFF1F6B52),
+        color: _SchedulePalette.primary,
       ),
-      label: const Text(
-        'Tambah Jadwal Baru',
-        style: TextStyle(
-          color: Colors.black,
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: _SchedulePalette.textPrimary,
           fontWeight: FontWeight.w800,
         ),
       ),
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Color(0xFF1F6B52)),
+        backgroundColor: _SchedulePalette.surface,
+        side: const BorderSide(color: _SchedulePalette.border),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     );
   }
@@ -983,12 +1069,12 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
           .whereType<String>()
           .toList();
 
-  List<String> get _classes => ((widget.options['classes'] as List?) ?? const [])
-      .whereType<String>()
-      .toList();
+  List<String> get _classes =>
+      ((widget.options['classes'] as List?) ?? const [])
+          .whereType<String>()
+          .toList();
 
-  String get _newValue =>
-      (widget.options['new_value'] as String?) ?? '__new__';
+  String get _newValue => (widget.options['new_value'] as String?) ?? '__new__';
 
   bool get _isEditing => widget.initialItem != null;
 
@@ -1008,12 +1094,10 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
         initialClassNames.add(initialClass);
       }
     }
-    final initialKnownClasses = initialClassNames
-        .where((item) => _classes.contains(item))
-        .toSet();
-    final initialCustomClasses = initialClassNames
-        .where((item) => !_classes.contains(item))
-        .toList();
+    final initialKnownClasses =
+        initialClassNames.where((item) => _classes.contains(item)).toSet();
+    final initialCustomClasses =
+        initialClassNames.where((item) => !_classes.contains(item)).toList();
 
     _day = (initial['day'] as String?)?.trim().isNotEmpty == true
         ? (initial['day'] as String).trim()
@@ -1047,7 +1131,8 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
   }
 
   Future<void> _pickTime(TextEditingController controller) async {
-    final initial = _parseTime(controller.text) ?? const TimeOfDay(hour: 7, minute: 0);
+    final initial =
+        _parseTime(controller.text) ?? const TimeOfDay(hour: 7, minute: 0);
     final picked = await showTimePicker(
       context: context,
       initialTime: initial,
@@ -1055,7 +1140,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF1F6B52),
+              primary: _SchedulePalette.primary,
             ),
           ),
           child: child!,
@@ -1084,9 +1169,8 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
       await widget.onSubmit(<String, dynamic>{
         'day': _day,
         'subject': _subject,
-        'subject_new': _subject == _newValue
-            ? _subjectNewController.text.trim()
-            : null,
+        'subject_new':
+            _subject == _newValue ? _subjectNewController.text.trim() : null,
         'class_names': _selectedClasses.toList()..sort(),
         'class_name_new': _classNewController.text.trim(),
         'start_time': _startTimeController.text.trim(),
@@ -1111,7 +1195,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: _SchedulePalette.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Padding(
@@ -1127,7 +1211,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                     width: 46,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8E8E8),
+                      color: _SchedulePalette.border,
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -1137,18 +1221,22 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                   child: Text(
                     _isEditing ? 'Edit Jadwal' : 'Tambah Jadwal',
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: _SchedulePalette.textPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  '',
-                  style: TextStyle(
-                    color: Colors.black,
+                Text(
+                  _isEditing
+                      ? 'Perbarui sesi mengajar tanpa mengubah susunan halaman.'
+                      : 'Tambahkan sesi mengajar baru dengan tampilan yang ringkas.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: _SchedulePalette.textSecondary,
                     fontSize: 12,
+                    height: 1.45,
                   ),
                 ),
                 if (_errorMessage != null) ...[
@@ -1157,14 +1245,14 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1EF),
+                      color: _SchedulePalette.softRed,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFF6C8C1)),
+                      border: Border.all(color: _SchedulePalette.danger),
                     ),
                     child: Text(
                       _errorMessage!,
                       style: const TextStyle(
-                        color: Color(0xFFB42318),
+                        color: _SchedulePalette.danger,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -1252,7 +1340,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                   const Text(
                     'Anda bisa memilih beberapa kelas sekaligus, lalu menambahkan kelas lain bila belum ada di daftar.',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: _SchedulePalette.textSecondary,
                       fontSize: 11,
                       height: 1.35,
                     ),
@@ -1302,7 +1390,9 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                             : () => Navigator.of(context).pop(false),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: const BorderSide(color: Color(0xFFE6E6E6)),
+                          backgroundColor: _SchedulePalette.surface,
+                          side:
+                              const BorderSide(color: _SchedulePalette.border),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -1310,7 +1400,7 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                         child: const Text(
                           'Batal',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: _SchedulePalette.textPrimary,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -1321,10 +1411,11 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                       child: ElevatedButton(
                         onPressed: _submitting ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1F6B52),
+                          backgroundColor: _SchedulePalette.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           elevation: 0,
+                          shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -1388,7 +1479,7 @@ class _FieldLabel extends StatelessWidget {
     return Text(
       label,
       style: const TextStyle(
-        color: Colors.black,
+        color: _SchedulePalette.textPrimary,
         fontSize: 12,
         fontWeight: FontWeight.w800,
       ),
@@ -1415,26 +1506,26 @@ class _FormDropdown<T> extends StatelessWidget {
       value: value,
       icon: const Icon(
         Icons.keyboard_arrow_down_rounded,
-        color: Color(0xFF9AA4A2),
+        color: _SchedulePalette.textSecondary,
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: const Color(0xFFFCFDFC),
+        fillColor: _SchedulePalette.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 14,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE3ECE6)),
+          borderSide: const BorderSide(color: _SchedulePalette.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE3ECE6)),
+          borderSide: const BorderSide(color: _SchedulePalette.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF1F6B52)),
+          borderSide: const BorderSide(color: _SchedulePalette.primary),
         ),
       ),
       items: items
@@ -1445,7 +1536,7 @@ class _FormDropdown<T> extends StatelessWidget {
                 itemLabel(item),
                 style: const TextStyle(
                   fontSize: 13,
-                  color: Colors.black,
+                  color: _SchedulePalette.textPrimary,
                 ),
               ),
             ),
@@ -1474,15 +1565,15 @@ class _MultiClassSelector extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFFFCFDFC),
+          color: _SchedulePalette.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE3ECE6)),
+          border: Border.all(color: _SchedulePalette.border),
         ),
         child: const Text(
           'Belum ada daftar kelas tersedia. Tulis kelas secara manual di bawah.',
           style: TextStyle(
             fontSize: 13,
-            color: Colors.black,
+            color: _SchedulePalette.textSecondary,
             height: 1.4,
           ),
         ),
@@ -1493,9 +1584,9 @@ class _MultiClassSelector extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFCFDFC),
+        color: _SchedulePalette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE3ECE6)),
+        border: Border.all(color: _SchedulePalette.border),
       ),
       child: Wrap(
         spacing: 8,
@@ -1514,12 +1605,12 @@ class _MultiClassSelector extends StatelessWidget {
               }
               onChanged(next);
             },
-            selectedColor: const Color(0xFFD7EBE2),
-            checkmarkColor: const Color(0xFF215344),
+            selectedColor: _SchedulePalette.iconSurface,
+            checkmarkColor: _SchedulePalette.primaryDark,
             labelStyle: TextStyle(
               color: selected
-                  ? const Color(0xFF215344)
-                  : const Color(0xFF3E4A48),
+                  ? _SchedulePalette.primaryDark
+                  : _SchedulePalette.textSecondary,
               fontWeight: FontWeight.w700,
               fontSize: 12,
             ),
@@ -1527,11 +1618,11 @@ class _MultiClassSelector extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
               side: BorderSide(
                 color: selected
-                    ? const Color(0xFF1F6B52)
-                    : const Color(0xFFE3ECE6),
+                    ? _SchedulePalette.primary
+                    : _SchedulePalette.border,
               ),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: _SchedulePalette.surface,
           );
         }).toList(),
       ),
@@ -1558,22 +1649,22 @@ class _FormTextField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
-        fillColor: const Color(0xFFFCFDFC),
+        fillColor: _SchedulePalette.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 14,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE3ECE6)),
+          borderSide: const BorderSide(color: _SchedulePalette.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE3ECE6)),
+          borderSide: const BorderSide(color: _SchedulePalette.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF1F6B52)),
+          borderSide: const BorderSide(color: _SchedulePalette.primary),
         ),
       ),
     );
@@ -1607,25 +1698,25 @@ class _TimeField extends StatelessWidget {
         hintText: hintText,
         suffixIcon: const Icon(
           Icons.access_time_rounded,
-          color: Color(0xFF1F6B52),
+          color: _SchedulePalette.primary,
         ),
         filled: true,
-        fillColor: const Color(0xFFFCFDFC),
+        fillColor: _SchedulePalette.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 14,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE3ECE6)),
+          borderSide: const BorderSide(color: _SchedulePalette.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE3ECE6)),
+          borderSide: const BorderSide(color: _SchedulePalette.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF1F6B52)),
+          borderSide: const BorderSide(color: _SchedulePalette.primary),
         ),
       ),
     );
@@ -1641,7 +1732,7 @@ class _PageLoading extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(top: 120),
         child: CircularProgressIndicator(
-          color: Color(0xFF1F6B52),
+          color: _SchedulePalette.primary,
         ),
       ),
     );
@@ -1666,13 +1757,17 @@ class _PageError extends StatelessWidget {
             message,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: Color(0xFF9F1239),
+              color: _SchedulePalette.danger,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
           OutlinedButton(
             onPressed: onRetry,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _SchedulePalette.primaryDark,
+              side: const BorderSide(color: _SchedulePalette.border),
+            ),
             child: const Text('Coba Lagi'),
           ),
         ],
@@ -1698,7 +1793,7 @@ class _PageSectionHeading extends StatelessWidget {
         Text(
           eyebrow,
           style: const TextStyle(
-            color: Colors.black,
+            color: _SchedulePalette.textSecondary,
             fontSize: 11,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.4,
@@ -1708,7 +1803,7 @@ class _PageSectionHeading extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Colors.black,
+            color: _SchedulePalette.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w800,
           ),

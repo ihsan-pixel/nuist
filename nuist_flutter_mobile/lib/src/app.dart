@@ -6,6 +6,7 @@ import 'config/app_config.dart';
 import 'controllers/session_controller.dart';
 import 'pages/auth/login_page.dart';
 import 'pages/home/home_page.dart';
+import 'pages/splash/splash_page.dart';
 import 'pages/teacher/teacher_shell_page.dart';
 import 'services/api_client.dart';
 import 'services/auth_repository.dart';
@@ -94,19 +95,18 @@ class _NuistMobileAppState extends State<NuistMobileApp>
           debugShowCheckedModeBanner: false,
           title: 'Nuist Mobile',
           theme: AppTheme.build(),
-          home: _buildHome(),
+          home: SplashGate(
+            isReady: !_sessionController.isBootstrapping,
+            child: _buildHome(),
+          ),
         );
       },
     );
   }
 
   Widget _buildHome() {
-    if (_sessionController.isBootstrapping) {
-      return const _LoadingScreen();
-    }
-
     final session = _sessionController.session;
-    if (session == null) {
+    if (session == null || _sessionController.isPostLoginLoading) {
       return LoginPage(
         controller: _sessionController,
         authRepository: _authRepository,
@@ -123,19 +123,6 @@ class _NuistMobileAppState extends State<NuistMobileApp>
     return HomePage(
       controller: _sessionController,
       session: session,
-    );
-  }
-}
-
-class _LoadingScreen extends StatelessWidget {
-  const _LoadingScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
     );
   }
 }

@@ -6,6 +6,30 @@ import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 
+class _DashboardPalette {
+  static const background = Color(0xFFF7F8FC);
+  static const surface = Color(0xFFFFFFFF);
+  static const primary = Color(0xFF0B8F6E);
+  static const primaryDark = Color(0xFF066C56);
+  static const secondaryGreen = Color(0xFF16A085);
+  static const accent = Color(0xFFF5B301);
+  static const textPrimary = Color(0xFF1E293B);
+  static const textSecondary = Color(0xFF64748B);
+  static const border = Color(0xFFE2E8F0);
+  static const success = Color(0xFF22C55E);
+  static const warning = Color(0xFFF59E0B);
+  static const danger = Color(0xFFEF4444);
+  static const iconSurface = Color(0xFFECFDF5);
+  static const softGreen = Color(0xFFDCFCE7);
+  static const softGreenAlt = Color(0xFFD1FAE5);
+  static const softYellow = Color(0xFFFEF3C7);
+  static const softRed = Color(0xFFFEE2E2);
+  static const goldLine = Color(0x0DF5B301);
+  static const cardShadow = Color(0x141E293B);
+
+  const _DashboardPalette._();
+}
+
 class TeacherDashboardPage extends StatefulWidget {
   const TeacherDashboardPage({
     super.key,
@@ -144,7 +168,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
                     const Text(
                       'Pilih Bulan',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: _DashboardPalette.textPrimary,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                       ),
@@ -154,9 +178,9 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF7FAF8),
+                        color: _DashboardPalette.background,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE2ECE9)),
+                        border: Border.all(color: _DashboardPalette.border),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<int>(
@@ -164,7 +188,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
                           isExpanded: true,
                           icon: const Icon(
                             Icons.keyboard_arrow_down_rounded,
-                            color: Color(0xFF1F6B52),
+                            color: _DashboardPalette.primaryDark,
                           ),
                           items: yearOptions
                               .map(
@@ -173,7 +197,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
                                   child: Text(
                                     year.toString(),
                                     style: const TextStyle(
-                                      color: Colors.black,
+                                      color: _DashboardPalette.textPrimary,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -205,21 +229,20 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
                         return GestureDetector(
                           onTap: () => Navigator.of(context).pop(candidate),
                           child: Container(
-                            width:
-                                (MediaQuery.of(context).size.width - 56) / 3,
+                            width: (MediaQuery.of(context).size.width - 56) / 3,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 12,
                             ),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFFF1F7F4)
-                                  : const Color(0xFFF9FCFA),
+                                  ? _DashboardPalette.iconSurface
+                                  : _DashboardPalette.surface,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF1F6B52)
-                                    : const Color(0xFFE3ECE8),
+                                    ? _DashboardPalette.primaryDark
+                                    : _DashboardPalette.border,
                               ),
                             ),
                             child: Center(
@@ -227,8 +250,8 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
                                 _monthLabelShortId(month),
                                 style: TextStyle(
                                   color: isSelected
-                                      ? const Color(0xFF1F6B52)
-                                      : Colors.black,
+                                      ? _DashboardPalette.primaryDark
+                                      : _DashboardPalette.textPrimary,
                                   fontSize: 13,
                                   fontWeight: isSelected
                                       ? FontWeight.w800
@@ -381,15 +404,13 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage>
                   duration: const Duration(milliseconds: 180),
                   curve: Curves.easeOut,
                   decoration: BoxDecoration(
-                    color: _hasScrolled
-                        ? Colors.white
-                        : const Color(0xFF174C3D),
+                    color: _hasScrolled ? Colors.white : Colors.transparent,
                     boxShadow: _hasScrolled
                         ? const [
                             BoxShadow(
-                              color: Color(0x12003B39),
-                              blurRadius: 16,
-                              offset: Offset(0, 6),
+                              color: _DashboardPalette.cardShadow,
+                              blurRadius: 20,
+                              offset: Offset(0, 8),
                             ),
                           ]
                         : const [],
@@ -497,7 +518,8 @@ class _DashboardContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _PerformanceCard(
-                level: (performance['level'] as String?) ?? 'Belum Ada Progress',
+                level:
+                    (performance['level'] as String?) ?? 'Belum Ada Progress',
                 percent: (performance['percent'] as num?)?.toInt() ?? 0,
               ),
               const SizedBox(height: 14),
@@ -507,7 +529,7 @@ class _DashboardContent extends StatelessWidget {
                     child: Text(
                       'Aktivitas Presensi',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: _DashboardPalette.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                       ),
@@ -519,13 +541,14 @@ class _DashboardContent extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F7F5),
+                      color: _DashboardPalette.iconSurface,
                       borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: _DashboardPalette.border),
                     ),
                     child: Text(
                       currentMonthLabel,
                       style: const TextStyle(
-                        color: Colors.black,
+                        color: _DashboardPalette.textPrimary,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
@@ -541,10 +564,8 @@ class _DashboardContent extends StatelessWidget {
                       child: _MonthlyStatTile(
                         label: 'Kehadiran',
                         value: '${summary['attendance_percent'] ?? 0}%',
-                        gradient: const [
-                          Color(0xFF0D8E89),
-                          Color(0xFF005E5A),
-                        ],
+                        iconSurface: _DashboardPalette.softGreen,
+                        iconColor: _DashboardPalette.success,
                         icon: Icons.trending_up_rounded,
                       ),
                     ),
@@ -553,10 +574,8 @@ class _DashboardContent extends StatelessWidget {
                       child: _MonthlyStatTile(
                         label: 'Presensi',
                         value: '${monthlyStats['present_count'] ?? 0}',
-                        gradient: const [
-                          Color(0xFF1F9D73),
-                          Color(0xFF17634B),
-                        ],
+                        iconSurface: _DashboardPalette.softGreenAlt,
+                        iconColor: _DashboardPalette.secondaryGreen,
                         icon: Icons.check_circle_rounded,
                       ),
                     ),
@@ -565,10 +584,8 @@ class _DashboardContent extends StatelessWidget {
                       child: _MonthlyStatTile(
                         label: 'Izin',
                         value: '${monthlyStats['izin_count'] ?? 0}',
-                        gradient: const [
-                          Color(0xFF4D8D74),
-                          Color(0xFF215344),
-                        ],
+                        iconSurface: _DashboardPalette.softYellow,
+                        iconColor: _DashboardPalette.warning,
                         icon: Icons.schedule_rounded,
                       ),
                     ),
@@ -577,10 +594,8 @@ class _DashboardContent extends StatelessWidget {
                       child: _MonthlyStatTile(
                         label: 'Alpha',
                         value: '${monthlyStats['alpha_count'] ?? 0}',
-                        gradient: const [
-                          Color(0xFFEE6B5F),
-                          Color(0xFFB83A36),
-                        ],
+                        iconSurface: _DashboardPalette.softRed,
+                        iconColor: _DashboardPalette.danger,
                         icon: Icons.cancel_rounded,
                       ),
                     ),
@@ -598,7 +613,7 @@ class _DashboardContent extends StatelessWidget {
               child: Text(
                 'Layanan',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: _DashboardPalette.textPrimary,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.4,
@@ -618,7 +633,7 @@ class _DashboardContent extends StatelessWidget {
               child: const Text(
                 'See All',
                 style: TextStyle(
-                  color: Color(0xFF1F6B52),
+                  color: _DashboardPalette.primary,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -658,7 +673,7 @@ class _DashboardContent extends StatelessWidget {
               child: Text(
                 'Jadwal',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: _DashboardPalette.textPrimary,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.4,
@@ -670,7 +685,7 @@ class _DashboardContent extends StatelessWidget {
               child: const Text(
                 'See All',
                 style: TextStyle(
-                  color: Color(0xFF1F6B52),
+                  color: _DashboardPalette.primary,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -709,7 +724,7 @@ class _DashboardContent extends StatelessWidget {
               child: Text(
                 'Kalender',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: _DashboardPalette.textPrimary,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.4,
@@ -719,7 +734,7 @@ class _DashboardContent extends StatelessWidget {
             Text(
               currentMonthLabel,
               style: const TextStyle(
-                color: Color(0xFF627370),
+                color: _DashboardPalette.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),
@@ -744,28 +759,46 @@ class _DashboardTopBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 288,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF11372D),
-            Color(0xFF154336),
-            Color(0xFF174C3D),
-            Color(0xFF20614D),
-            Color(0xFF2E7D61),
-            Color(0xFF58A383),
-            Color(0xFF8BC8AE),
-          ],
-          stops: [0, 0.14, 0.32, 0.52, 0.72, 0.88, 1],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+    return Stack(
+      children: [
+        Container(
+          height: 288,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                _DashboardPalette.primaryDark,
+                _DashboardPalette.primary,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.elliptical(360, 132),
+              bottomRight: Radius.elliptical(360, 132),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _DashboardPalette.cardShadow,
+                blurRadius: 20,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
         ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.elliptical(360, 132),
-          bottomRight: Radius.elliptical(360, 132),
+        const Positioned(
+          top: -12,
+          left: -28,
+          child: _DashboardBackdropOrnament(),
         ),
-      ),
+        const Positioned(
+          right: -38,
+          bottom: 22,
+          child: RotatedBox(
+            quarterTurns: 2,
+            child: _DashboardBackdropOrnament(),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -851,9 +884,10 @@ class _DashboardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foregroundColor =
-        isScrolled ? Colors.black : const Color(0xFFF6FBF8);
-    final iconColor =
-        isScrolled ? const Color(0xFF214845) : const Color(0xFFF6FBF8);
+        isScrolled ? _DashboardPalette.textPrimary : Colors.white;
+    final iconColor = isScrolled
+        ? _DashboardPalette.primaryDark
+        : Colors.white.withOpacity(0.9);
 
     return Row(
       children: [
@@ -874,7 +908,7 @@ class _DashboardHeader extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: foregroundColor.withOpacity(isScrolled ? 1 : 0.9),
+                        color: isScrolled ? foregroundColor : Colors.white70,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -928,13 +962,26 @@ class _DashboardHeaderAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final initials = _initialsFromName(userName);
 
-    return CircleAvatar(
-      radius: 26,
-      backgroundColor: Colors.white,
+    return Container(
+      width: 52,
+      height: 52,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        border: Border.all(color: Colors.white, width: 1.5),
+        boxShadow: const [
+          BoxShadow(
+            color: _DashboardPalette.cardShadow,
+            blurRadius: 14,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
       child: ClipOval(
         child: SizedBox(
-          width: 52,
-          height: 52,
+          width: 48,
+          height: 48,
           child: avatarUrl != null && avatarUrl!.trim().isNotEmpty
               ? Image.network(
                   avatarUrl!.trim(),
@@ -964,7 +1011,10 @@ class _DashboardAvatarFallback extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1F6B52), Color(0xFF174C3D)],
+          colors: [
+            _DashboardPalette.primary,
+            _DashboardPalette.primaryDark,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -1107,8 +1157,9 @@ class _HeaderMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        isDestructive ? const Color(0xFFB42318) : const Color(0xFF214845);
+    final color = isDestructive
+        ? _DashboardPalette.danger
+        : _DashboardPalette.primaryDark;
 
     return Row(
       children: [
@@ -1142,8 +1193,22 @@ class _PerformanceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF174C3D),
-        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [
+            _DashboardPalette.primary,
+            _DashboardPalette.primaryDark,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
+          BoxShadow(
+            color: _DashboardPalette.cardShadow,
+            blurRadius: 20,
+            offset: Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1161,14 +1226,21 @@ class _PerformanceCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Text(
-                '$percent%',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
+              TweenAnimationBuilder<int>(
+                tween: IntTween(begin: 0, end: percent),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, _) {
+                  return Text(
+                    '$value%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -1185,13 +1257,20 @@ class _PerformanceCard extends StatelessWidget {
           const SizedBox(height: 14),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              minHeight: 8,
-              value: progress.toDouble(),
-              backgroundColor: const Color(0xFF3B6F5F),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFFC7E5D8),
-              ),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: progress.toDouble()),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeOutCubic,
+              builder: (context, animatedValue, _) {
+                return LinearProgressIndicator(
+                  minHeight: 8,
+                  value: animatedValue,
+                  backgroundColor: Colors.white24,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    _DashboardPalette.accent,
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -1240,7 +1319,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
                 child: Text(
                   'Presensi Bulan Ini',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: _DashboardPalette.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1252,8 +1331,9 @@ class _AttendanceCalendarCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3F7F5),
+                    color: _DashboardPalette.iconSurface,
                     borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: _DashboardPalette.border),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1261,7 +1341,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
                       Text(
                         monthLabel,
                         style: const TextStyle(
-                          color: Colors.black,
+                          color: _DashboardPalette.textPrimary,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1270,7 +1350,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
                       const Icon(
                         Icons.keyboard_arrow_down_rounded,
                         size: 14,
-                        color: Color(0xFF1F6B52),
+                        color: _DashboardPalette.primary,
                       ),
                     ],
                   ),
@@ -1285,23 +1365,23 @@ class _AttendanceCalendarCard extends StatelessWidget {
             children: [
               _CalendarLegendChip(
                 label: 'Hadir',
-                color: Color(0xFF2E8B57),
+                color: _DashboardPalette.success,
               ),
               _CalendarLegendChip(
                 label: 'Izin',
-                color: Color(0xFFF4A12A),
+                color: _DashboardPalette.warning,
               ),
               _CalendarLegendChip(
                 label: 'Alpha',
-                color: Color(0xFFB42318),
+                color: _DashboardPalette.danger,
               ),
               _CalendarLegendChip(
                 label: 'Tanggal Merah',
-                color: Color(0xFFD92D20),
+                color: _DashboardPalette.accent,
               ),
               _CalendarLegendChip(
                 label: 'Libur',
-                color: Color(0xFF6B7A99),
+                color: _DashboardPalette.textSecondary,
               ),
             ],
           ),
@@ -1309,9 +1389,9 @@ class _AttendanceCalendarCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF7FAF8),
+              color: const Color(0xFFFDFEFE),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE4EEEA)),
+              border: Border.all(color: _DashboardPalette.border),
             ),
             child: const Row(
               children: [
@@ -1335,7 +1415,9 @@ class _AttendanceCalendarCard extends StatelessWidget {
           else
             Column(
               children: [
-                for (var rowIndex = 0; rowIndex < weekRows.length; rowIndex++) ...[
+                for (var rowIndex = 0;
+                    rowIndex < weekRows.length;
+                    rowIndex++) ...[
                   Row(
                     children: [
                       for (var cellIndex = 0;
@@ -1364,7 +1446,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
           const Text(
             'Tanggal Merah',
             style: TextStyle(
-              color: Colors.black,
+              color: _DashboardPalette.textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
@@ -1383,10 +1465,10 @@ class _AttendanceCalendarCard extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF7F6),
+                  color: const Color(0xFFFFFBF1),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFF3D4CF),
+                    color: _DashboardPalette.softYellow,
                   ),
                 ),
                 child: Row(
@@ -1398,13 +1480,13 @@ class _AttendanceCalendarCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD92D20).withOpacity(0.1),
+                        color: _DashboardPalette.softYellow,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
                         item['date_label'] as String? ?? '-',
                         style: const TextStyle(
-                          color: Color(0xFFD92D20),
+                          color: _DashboardPalette.warning,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1421,7 +1503,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: Colors.black,
+                              color: _DashboardPalette.textPrimary,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               height: 1.1,
@@ -1437,7 +1519,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                color: Color(0xFF8A9B99),
+                                color: _DashboardPalette.textSecondary,
                                 fontSize: 10,
                                 height: 1.2,
                               ),
@@ -1511,7 +1593,7 @@ class _CalendarWeekday extends StatelessWidget {
         label,
         textAlign: TextAlign.center,
         style: const TextStyle(
-          color: Color(0xFF667774),
+          color: _DashboardPalette.textSecondary,
           fontSize: 10,
           fontWeight: FontWeight.w700,
         ),
@@ -1533,22 +1615,32 @@ class _CalendarDayTile extends StatelessWidget {
     final isToday = item['is_today'] == true;
     final color = _calendarStatusColor(status);
     final isHoliday = status == 'tanggal_merah';
+    final isMissedAttendance = status == 'alpha' || status == 'belum_tercatat';
     final backgroundColor = isHoliday
-        ? const Color(0xFFFFF5F4)
-        : isToday
-            ? const Color(0xFFF1F8F5)
-            : const Color(0xFFF8FBF9);
-    final borderColor = isHoliday
-        ? const Color(0xFFF1C9C2)
-        : isToday
-            ? const Color(0xFF1F6B52)
-            : const Color(0xFFE1EBE7);
+        ? const Color(0xFFFFFBF1)
+        : (isMissedAttendance
+            ? const Color(0xFFFFFAFA)
+            : _DashboardPalette.surface);
+    final borderColor = isToday
+        ? _DashboardPalette.primary
+        : (isHoliday
+            ? _DashboardPalette.softYellow
+            : (isMissedAttendance
+                ? const Color(0xFFFECACA)
+                : _DashboardPalette.border));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: _DashboardPalette.cardShadow,
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
         border: Border.all(
           color: borderColor,
           width: isToday ? 1.5 : 1,
@@ -1559,16 +1651,27 @@ class _CalendarDayTile extends StatelessWidget {
         children: [
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(
-              '${item['day_number'] ?? '-'}',
-              style: TextStyle(
-                color: isHoliday
-                    ? const Color(0xFFD92D20)
-                    : isToday
-                        ? const Color(0xFF1F6B52)
-                        : const Color(0xFF25403B),
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
+            child: Container(
+              padding: isToday
+                  ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+                  : EdgeInsets.zero,
+              decoration: BoxDecoration(
+                color: isToday ? _DashboardPalette.primary : Colors.transparent,
+                shape: isToday ? BoxShape.circle : BoxShape.rectangle,
+              ),
+              child: Text(
+                '${item['day_number'] ?? '-'}',
+                style: TextStyle(
+                  color: isToday
+                      ? Colors.white
+                      : (isHoliday
+                          ? _DashboardPalette.warning
+                          : (isMissedAttendance
+                              ? _DashboardPalette.danger
+                              : _DashboardPalette.textPrimary)),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ),
@@ -1590,27 +1693,35 @@ class _MonthlyStatTile extends StatelessWidget {
   const _MonthlyStatTile({
     required this.label,
     required this.value,
-    required this.gradient,
+    required this.iconSurface,
+    required this.iconColor,
     required this.icon,
   });
 
   final String label;
   final String value;
-  final List<Color> gradient;
+  final Color iconSurface;
+  final Color iconColor;
   final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    final accent = gradient.first;
+    final numericValue = _extractFirstInt(value);
+    final suffix = value.replaceAll(RegExp(r'[\d\s]'), '');
 
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FCFA),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: accent.withOpacity(0.18),
-        ),
+        border: Border.all(color: _DashboardPalette.border),
+        boxShadow: const [
+          BoxShadow(
+            color: _DashboardPalette.cardShadow,
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1621,24 +1732,31 @@ class _MonthlyStatTile extends StatelessWidget {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.12),
+              color: iconSurface,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: accent, size: 13),
+            child: Icon(icon, color: iconColor, size: 13),
           ),
           const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                height: 1,
-              ),
-            ),
+          TweenAnimationBuilder<int>(
+            tween: IntTween(begin: 0, end: numericValue),
+            duration: const Duration(milliseconds: 900),
+            curve: Curves.easeOutCubic,
+            builder: (context, animatedValue, _) {
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '$animatedValue$suffix',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: _DashboardPalette.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    height: 1,
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 2),
           Text(
@@ -1647,7 +1765,7 @@ class _MonthlyStatTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: Color(0xFF5F706B),
+              color: _DashboardPalette.textSecondary,
               fontSize: 8.5,
               fontWeight: FontWeight.w700,
               height: 1.1,
@@ -1804,17 +1922,17 @@ class _AllServicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAF8),
+      backgroundColor: _DashboardPalette.background,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        foregroundColor: _DashboardPalette.textPrimary,
         title: const Text(
           'Semua Layanan',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
-            color: Colors.black,
+            color: _DashboardPalette.textPrimary,
           ),
         ),
       ),
@@ -1833,7 +1951,7 @@ class _AllServicesPage extends StatelessWidget {
                 Text(
                   section.title,
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: _DashboardPalette.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1843,8 +1961,7 @@ class _AllServicesPage extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: section.items.length,
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 16,
@@ -1891,71 +2008,83 @@ class _ServiceShortcutTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = colors.first;
-
-    return GestureDetector(
+    return _AnimatedPressable(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  color: accent.withOpacity(0.12),
-                  shape: BoxShape.circle,
+      builder: (context, isPressed) {
+        final accent = isPressed
+            ? _DashboardPalette.primaryDark
+            : _DashboardPalette.primary;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  width: 58,
+                  height: 58,
+                  decoration: const BoxDecoration(
+                    color: _DashboardPalette.iconSurface,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: _DashboardPalette.cardShadow,
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 24,
+                    color: accent,
+                  ),
                 ),
-                child: Icon(
-                  icon,
-                  size: 24,
-                  color: accent,
-                ),
-              ),
-              if (badgeText != null)
-                Positioned(
-                  top: -2,
-                  right: -2,
-                  child: Container(
-                    constraints: const BoxConstraints(minWidth: 18),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: const Color(0xFFE2ECE9)),
-                    ),
-                    child: Text(
-                      badgeText!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: accent,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
+                if (badgeText != null)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 18),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: _DashboardPalette.border),
+                      ),
+                      child: Text(
+                        badgeText!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: accent,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF233432),
+              ],
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
+            const SizedBox(height: 10),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: _DashboardPalette.textPrimary,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -1973,28 +2102,27 @@ class _ScheduleShowcaseCard extends StatelessWidget {
     final isCompleted = status == 'completed';
     final isExcused = status == 'izin';
     final accentColor = isCompleted
-        ? const Color(0xFF1F9D73)
-        : (isExcused ? const Color(0xFF2D7DA8) : const Color(0xFF1F6B52));
+        ? _DashboardPalette.success
+        : (isExcused ? _DashboardPalette.warning : _DashboardPalette.primary);
     final softColor = isCompleted
-        ? const Color(0xFFEAF8EF)
-        : (isExcused ? const Color(0xFFEAF5FB) : const Color(0xFFF1F7F4));
-    final statusLabel = isCompleted
-        ? 'Selesai'
-        : (isExcused ? 'Izin' : 'Belum Presensi');
+        ? _DashboardPalette.softGreen
+        : (isExcused
+            ? _DashboardPalette.softYellow
+            : _DashboardPalette.iconSurface);
+    final statusLabel =
+        isCompleted ? 'Selesai' : (isExcused ? 'Izin' : 'Belum Presensi');
 
     return Container(
       width: 224,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: accentColor.withOpacity(0.18),
-        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _DashboardPalette.border),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0F003B39),
-            blurRadius: 18,
+            color: _DashboardPalette.cardShadow,
+            blurRadius: 20,
             offset: Offset(0, 8),
           ),
         ],
@@ -2010,13 +2138,13 @@ class _ScheduleShowcaseCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: softColor,
+                  color: _DashboardPalette.iconSurface,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   '${item['start_time'] ?? '-'} - ${item['end_time'] ?? '-'}',
-                  style: TextStyle(
-                    color: accentColor,
+                  style: const TextStyle(
+                    color: _DashboardPalette.primaryDark,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                   ),
@@ -2039,7 +2167,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Colors.black,
+              color: _DashboardPalette.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w800,
               height: 1.15,
@@ -2051,7 +2179,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Color(0xFF516360),
+              color: _DashboardPalette.textPrimary,
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -2063,7 +2191,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: Color(0xFF82918E),
+                color: _DashboardPalette.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -2083,7 +2211,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  Icons.school_rounded,
+                  Icons.task_alt_rounded,
                   size: 16,
                   color: accentColor,
                 ),
@@ -2182,6 +2310,113 @@ class _SkeletonCard extends StatelessWidget {
   }
 }
 
+int _extractFirstInt(String value) {
+  final match = RegExp(r'\d+').firstMatch(value);
+  if (match == null) {
+    return 0;
+  }
+  return int.tryParse(match.group(0)!) ?? 0;
+}
+
+class _DashboardBackdropOrnament extends StatelessWidget {
+  const _DashboardBackdropOrnament();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 148,
+      height: 148,
+      child: CustomPaint(
+        painter: _DashboardOrganicLinePainter(),
+      ),
+    );
+  }
+}
+
+class _DashboardOrganicLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = _DashboardPalette.goldLine
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 6;
+
+    final firstPath = Path()
+      ..moveTo(size.width * 0.06, size.height * 0.5)
+      ..quadraticBezierTo(
+        size.width * 0.26,
+        size.height * 0.18,
+        size.width * 0.54,
+        size.height * 0.34,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.82,
+        size.height * 0.5,
+        size.width * 0.95,
+        size.height * 0.18,
+      );
+
+    final secondPath = Path()
+      ..moveTo(size.width * 0.1, size.height * 0.79)
+      ..quadraticBezierTo(
+        size.width * 0.36,
+        size.height * 0.56,
+        size.width * 0.57,
+        size.height * 0.76,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.84,
+        size.height * 0.98,
+        size.width * 0.98,
+        size.height * 0.69,
+      );
+
+    canvas.drawPath(firstPath, paint);
+    canvas.drawPath(secondPath, paint..strokeWidth = 4);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _AnimatedPressable extends StatefulWidget {
+  const _AnimatedPressable({
+    required this.builder,
+    required this.onTap,
+  });
+
+  final Widget Function(BuildContext context, bool isPressed) builder;
+  final VoidCallback onTap;
+
+  @override
+  State<_AnimatedPressable> createState() => _AnimatedPressableState();
+}
+
+class _AnimatedPressableState extends State<_AnimatedPressable> {
+  bool _pressed = false;
+
+  void _setPressed(bool value) {
+    if (_pressed == value) {
+      return;
+    }
+    setState(() {
+      _pressed = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: (_) => _setPressed(true),
+      onTapUp: (_) => _setPressed(false),
+      onTapCancel: () => _setPressed(false),
+      child: widget.builder(context, _pressed),
+    );
+  }
+}
+
 String _initialsFromName(String value) {
   final parts = value
       .trim()
@@ -2253,18 +2488,19 @@ String _monthLabelShortId(int month) {
 Color _calendarStatusColor(String value) {
   switch (value) {
     case 'tanggal_merah':
-      return const Color(0xFFD92D20);
+      return _DashboardPalette.accent;
     case 'hadir':
-      return const Color(0xFF2E8B57);
+      return _DashboardPalette.success;
     case 'izin':
-      return const Color(0xFFF4A12A);
+      return _DashboardPalette.warning;
     case 'alpha':
-      return const Color(0xFFB42318);
+    case 'belum_tercatat':
+      return _DashboardPalette.danger;
     case 'libur':
-      return const Color(0xFF6B7A99);
+      return _DashboardPalette.textSecondary;
     case 'akan_datang':
-      return const Color(0xFFC8D3D1);
+      return _DashboardPalette.accent;
     default:
-      return const Color(0xFF90A4A1);
+      return _DashboardPalette.accent;
   }
 }

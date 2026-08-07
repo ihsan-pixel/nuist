@@ -1,11 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../controllers/session_controller.dart';
 import '../../services/auth_repository.dart';
-import '../../theme/app_theme.dart';
-import '../../widgets/auth/auth_action_button.dart';
-import '../../widgets/auth/auth_field_label.dart';
-import '../../widgets/auth/auth_page_scaffold.dart';
 import '../../widgets/auth/status_banner.dart';
 import 'forgot_password_page.dart';
 import 'register_page.dart';
@@ -24,25 +22,61 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
+  static const _pagePadding =
+      EdgeInsets.symmetric(horizontal: 18, vertical: 14);
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
 
   bool _obscurePassword = true;
   bool _rememberMe = false;
   bool _loadingRemembered = true;
+  bool _hasSubmitted = false;
+  String? _lastErrorMessage;
+
+  late final AnimationController _entryController;
+  late final AnimationController _errorShakeController;
 
   @override
   void initState() {
     super.initState();
+    _entryController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1050),
+    );
+    _errorShakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 460),
+    );
+    _emailController.addListener(_handleFieldChanged);
+    _passwordController.addListener(_handleFieldChanged);
+    widget.controller.addListener(_handleControllerChanged);
+    _entryController.forward();
     _restoreRememberedLogin();
   }
 
   @override
+  void didUpdateWidget(covariant LoginPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_handleControllerChanged);
+      widget.controller.addListener(_handleControllerChanged);
+    }
+  }
+
+  @override
   void dispose() {
+    widget.controller.removeListener(_handleControllerChanged);
+    _entryController.dispose();
+    _errorShakeController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -61,6 +95,7 @@ class _LoginPageState extends State<LoginPage> {
         }
         _loadingRemembered = false;
       });
+      _requestEmailFocus();
     } catch (_) {
       if (!mounted) {
         return;
@@ -69,12 +104,70 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _loadingRemembered = false;
       });
+      _requestEmailFocus();
     }
+  }
+
+  void _requestEmailFocus() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _emailFocusNode.requestFocus();
+    });
+  }
+
+  void _handleFieldChanged() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {});
+  }
+
+  void _handleControllerChanged() {
+    final message = widget.controller.errorMessage;
+    if (message != null && message.isNotEmpty && message != _lastErrorMessage) {
+      _lastErrorMessage = message;
+      _errorShakeController.forward(from: 0);
+    }
+  }
+
+  bool get _canSubmit {
+    if (_loadingRemembered) {
+      return false;
+    }
+
+    return _emailController.text.trim().isNotEmpty &&
+        _passwordController.text.isNotEmpty &&
+        !widget.controller.isLoggingIn &&
+        !widget.controller.isPostLoginLoading;
+  }
+
+  String? _validateEmail(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) {
+      return _hasSubmitted ? 'Email wajib diisi.' : null;
+    }
+    if (!text.contains('@') || text.startsWith('@') || text.endsWith('@')) {
+      return 'Format email tidak valid.';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if ((value ?? '').isEmpty) {
+      return _hasSubmitted ? 'Password wajib diisi.' : null;
+    }
+    return null;
   }
 
   Future<void> _submit() async {
     final form = _formKey.currentState;
+    setState(() {
+      _hasSubmitted = true;
+    });
     if (form == null || !form.validate()) {
+      _errorShakeController.forward(from: 0);
       return;
     }
 
@@ -135,168 +228,795 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
+    final textTheme = Theme.of(context).textTheme;
 
-    if (_loadingRemembered) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return AuthPageScaffold(
-      backgroundAsset: 'assets/images/login_bg.png',
-      title: 'Welcome Back!',
-      subtitle: 'Login to Nuist LP. Maarif NU PWNU DIY',
-      footer: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      backgroundColor: _LoginPalette.background,
+      body: Stack(
+        fit: StackFit.expand,
         children: [
-          const Text(
-            'Belum punya akun? ',
-            style: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 12,
-            ),
-          ),
-          GestureDetector(
-            onTap: controller.isLoggingIn ? null : _openRegisterPage,
-            child: Text(
-              'Daftar di sini',
-              style: TextStyle(
-                color: controller.isLoggingIn
-                    ? AppColors.textMuted
-                    : AppColors.accentDeep,
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
+          const _LoginBackdrop(),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: _pagePadding,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 372),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 2),
+                      _buildAnimatedHeader(),
+                      const SizedBox(height: 10),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 270),
+                        child: _buildAnimatedTitle(
+                          child: Text(
+                            'Selamat Datang Kembali',
+                            textAlign: TextAlign.center,
+                            style: textTheme.headlineLarge?.copyWith(
+                              fontSize: 23,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.35,
+                              color: _LoginPalette.textPrimary,
+                              fontFamilyFallback: const [
+                                'SF Pro Display',
+                                'Inter',
+                                'Poppins',
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 262),
+                        child: _buildAnimatedTitle(
+                          interval:
+                              const Interval(0.18, 0.48, curve: Curves.easeOut),
+                          beginY: 0.12,
+                          child: Text(
+                            'Masuk untuk mengakses seluruh layanan NUIST Mobile.',
+                            textAlign: TextAlign.center,
+                            style: textTheme.titleMedium?.copyWith(
+                              fontSize: 13.5,
+                              height: 1.38,
+                              fontWeight: FontWeight.w500,
+                              color: _LoginPalette.textSecondary,
+                              fontFamilyFallback: const [
+                                'SF Pro Display',
+                                'Inter',
+                                'Poppins',
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      _buildAnimatedFormCard(controller),
+                      const SizedBox(height: 12),
+                      _buildAnimatedFooter(controller),
+                      const SizedBox(height: 12),
+                      _buildAnimatedVersion(),
+                    ],
+                  ),
+                ),
               ),
             ),
+          ),
+          if (controller.isPostLoginLoading) const _PostLoginLoadingOverlay(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnimatedHeader() {
+    final animation = CurvedAnimation(
+      parent: _entryController,
+      curve: const Interval(0.0, 0.36, curve: Curves.easeOutCubic),
+    );
+    final slide = Tween<Offset>(
+      begin: const Offset(0, -0.08),
+      end: Offset.zero,
+    ).animate(animation);
+
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: slide,
+        child: const _LoginBrandCard(),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedTitle({
+    required Widget child,
+    Interval interval = const Interval(0.08, 0.42, curve: Curves.easeOutCubic),
+    double beginY = 0.08,
+  }) {
+    final animation = CurvedAnimation(
+      parent: _entryController,
+      curve: interval,
+    );
+    final slide = Tween<Offset>(
+      begin: Offset(0, beginY),
+      end: Offset.zero,
+    ).animate(animation);
+
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: slide,
+        child: child,
+      ),
+    );
+  }
+
+  Widget _buildAnimatedFormCard(SessionController controller) {
+    final animation = CurvedAnimation(
+      parent: _entryController,
+      curve: const Interval(0.22, 0.72, curve: Curves.easeOutCubic),
+    );
+    final slide = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(animation);
+
+    return AnimatedBuilder(
+      animation: _errorShakeController,
+      builder: (context, child) {
+        final shake = math.sin(_errorShakeController.value * math.pi * 6) *
+            (1 - _errorShakeController.value) *
+            14;
+        return Transform.translate(
+          offset: Offset(shake, 0),
+          child: child,
+        );
+      },
+      child: FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: slide,
+          child: _LoginFormCard(
+            formKey: _formKey,
+            emailController: _emailController,
+            passwordController: _passwordController,
+            emailFocusNode: _emailFocusNode,
+            passwordFocusNode: _passwordFocusNode,
+            obscurePassword: _obscurePassword,
+            rememberMe: _rememberMe,
+            canSubmit: _canSubmit,
+            isSubmitting: controller.isLoggingIn,
+            errorMessage: controller.errorMessage,
+            onTogglePasswordVisibility: () {
+              setState(() {
+                _obscurePassword = !_obscurePassword;
+              });
+            },
+            onRememberMeChanged: controller.isLoggingIn
+                ? null
+                : (value) => _setRememberMe(value),
+            onForgotPassword:
+                controller.isLoggingIn ? null : _openForgotPasswordPage,
+            onSubmit: _submit,
+            emailValidator: _validateEmail,
+            passwordValidator: _validatePassword,
+            shouldAutovalidate:
+                _hasSubmitted || _emailController.text.isNotEmpty,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedFooter(SessionController controller) {
+    final animation = CurvedAnimation(
+      parent: _entryController,
+      curve: const Interval(0.46, 0.84, curve: Curves.easeOutCubic),
+    );
+    final scale = Tween<double>(
+      begin: 0.96,
+      end: 1,
+    ).animate(animation);
+
+    return FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(
+        scale: scale,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Belum memiliki akun? ',
+              style: TextStyle(
+                color: _LoginPalette.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            GestureDetector(
+              onTap: controller.isLoggingIn ? null : _openRegisterPage,
+              child: Text(
+                'Daftar sekarang',
+                style: TextStyle(
+                  color: controller.isLoggingIn
+                      ? _LoginPalette.textSecondary
+                      : _LoginPalette.primary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedVersion() {
+    final animation = CurvedAnimation(
+      parent: _entryController,
+      curve: const Interval(0.58, 0.92, curve: Curves.easeOut),
+    );
+
+    return FadeTransition(
+      opacity: animation,
+      child: const Text(
+        'NUIST Mobile v1.0.0',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: _LoginPalette.textSecondary,
+        ),
+      ),
+    );
+  }
+}
+
+class _LoginFormCard extends StatelessWidget {
+  const _LoginFormCard({
+    required this.formKey,
+    required this.emailController,
+    required this.passwordController,
+    required this.emailFocusNode,
+    required this.passwordFocusNode,
+    required this.obscurePassword,
+    required this.rememberMe,
+    required this.canSubmit,
+    required this.isSubmitting,
+    required this.errorMessage,
+    required this.onTogglePasswordVisibility,
+    required this.onRememberMeChanged,
+    required this.onForgotPassword,
+    required this.onSubmit,
+    required this.emailValidator,
+    required this.passwordValidator,
+    required this.shouldAutovalidate,
+  });
+
+  final GlobalKey<FormState> formKey;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final FocusNode emailFocusNode;
+  final FocusNode passwordFocusNode;
+  final bool obscurePassword;
+  final bool rememberMe;
+  final bool canSubmit;
+  final bool isSubmitting;
+  final String? errorMessage;
+  final VoidCallback onTogglePasswordVisibility;
+  final ValueChanged<bool>? onRememberMeChanged;
+  final VoidCallback? onForgotPassword;
+  final VoidCallback onSubmit;
+  final FormFieldValidator<String> emailValidator;
+  final FormFieldValidator<String> passwordValidator;
+  final bool shouldAutovalidate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      decoration: BoxDecoration(
+        color: _LoginPalette.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: _LoginPalette.border.withOpacity(0.9),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: _LoginPalette.primaryDark.withOpacity(0.06),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-      children: [
-        if (controller.errorMessage != null) ...[
-          StatusBanner(
-            message: controller.errorMessage!,
-            type: StatusBannerType.error,
-          ),
-          const SizedBox(height: 12),
-        ],
-        Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const AuthFieldLabel('Email'),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  hintText: 'Masukkan email akun',
-                ),
-                validator: (value) {
-                  final text = value?.trim() ?? '';
-                  if (text.isEmpty) {
-                    return 'Email wajib diisi.';
-                  }
-                  if (!text.contains('@')) {
-                    return 'Format email tidak valid.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              const AuthFieldLabel('Password'),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                onFieldSubmitted: (_) => _submit(),
-                decoration: InputDecoration(
-                  hintText: 'Masukkan password',
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      color: AppColors.accentMain,
-                    ),
-                  ),
-                ),
-                validator: (value) {
-                  if ((value ?? '').isEmpty) {
-                    return 'Password wajib diisi.';
-                  }
-                  return null;
-                },
+      child: Form(
+        key: formKey,
+        autovalidateMode: shouldAutovalidate
+            ? AutovalidateMode.onUserInteraction
+            : AutovalidateMode.disabled,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (errorMessage != null) ...[
+              StatusBanner(
+                message: errorMessage!,
+                type: StatusBannerType.error,
               ),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _rememberMe,
-                    onChanged: controller.isLoggingIn
-                        ? null
-                        : (value) => _setRememberMe(value ?? false),
-                    activeColor: AppColors.accentMain,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+            ],
+            const _InputLabel('Email'),
+            const SizedBox(height: 5),
+            TextFormField(
+              controller: emailController,
+              focusNode: emailFocusNode,
+              autofocus: true,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              enabled: !isSubmitting,
+              style: const TextStyle(
+                fontSize: 16,
+                color: _LoginPalette.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+              decoration: _buildInputDecoration(
+                hintText: 'Masukkan email Anda',
+                icon: Icons.mail_outline_rounded,
+              ),
+              validator: emailValidator,
+              onFieldSubmitted: (_) => passwordFocusNode.requestFocus(),
+            ),
+            const SizedBox(height: 10),
+            const _InputLabel('Password'),
+            const SizedBox(height: 5),
+            TextFormField(
+              controller: passwordController,
+              focusNode: passwordFocusNode,
+              obscureText: obscurePassword,
+              enabled: !isSubmitting,
+              textInputAction: TextInputAction.done,
+              style: const TextStyle(
+                fontSize: 16,
+                color: _LoginPalette.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+              decoration: _buildInputDecoration(
+                hintText: 'Masukkan password',
+                icon: Icons.lock_outline_rounded,
+                suffix: IconButton(
+                  onPressed: onTogglePasswordVisibility,
+                  icon: Icon(
+                    obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    color: _LoginPalette.textSecondary,
                   ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: controller.isLoggingIn
-                          ? null
-                          : () => _setRememberMe(!_rememberMe),
-                      child: const Text(
-                        'Remember me',
+                ),
+              ),
+              validator: passwordValidator,
+              onFieldSubmitted: (_) => onSubmit(),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: onRememberMeChanged == null
+                      ? null
+                      : () => onRememberMeChanged!(!rememberMe),
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: rememberMe,
+                        onChanged: onRememberMeChanged == null
+                            ? null
+                            : (value) => onRememberMeChanged!(value ?? false),
+                        activeColor: _LoginPalette.primary,
+                        side: const BorderSide(color: _LoginPalette.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      const Text(
+                        'Ingat Saya',
                         style: TextStyle(
-                          color: AppColors.textBody,
+                          color: _LoginPalette.textPrimary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: onForgotPassword,
+                  style: TextButton.styleFrom(
+                    foregroundColor: _LoginPalette.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                  ),
+                  child: const Text(
+                    'Lupa Password?',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  GestureDetector(
-                    onTap:
-                        controller.isLoggingIn ? null : _openForgotPasswordPage,
-                    child: Text(
-                      'Lupa password?',
-                      style: TextStyle(
-                        color: controller.isLoggingIn
-                            ? AppColors.textMuted
-                            : AppColors.accentDeep,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: canSubmit ? onSubmit : null,
+                style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.all(
+                    const Size.fromHeight(48),
+                  ),
+                  backgroundColor: MaterialStateProperty.resolveWith((states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return const Color(0xFFBFD8D0);
+                    }
+                    if (states.contains(MaterialState.pressed)) {
+                      return _LoginPalette.primaryDark;
+                    }
+                    if (states.contains(MaterialState.hovered)) {
+                      return const Color(0xFF0A8466);
+                    }
+                    return _LoginPalette.primary;
+                  }),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  overlayColor: MaterialStateProperty.all(
+                    Colors.white.withOpacity(0.08),
+                  ),
+                  elevation: MaterialStateProperty.resolveWith((states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return 0.0;
+                    }
+                    if (states.contains(MaterialState.pressed)) {
+                      return 1.0;
+                    }
+                    return 8.0;
+                  }),
+                  shadowColor: MaterialStateProperty.all(
+                    _LoginPalette.primaryDark.withOpacity(0.24),
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                ),
+                child: isSubmitting
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Masuk',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                  ),
-                ],
               ),
-              const SizedBox(height: 4),
-              const Text(
-                'Jika dipilih, email dan password akan tersimpan untuk login berikutnya.',
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(
+        fontSize: 13.5,
+        color: _LoginPalette.textSecondary,
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      prefixIcon: Icon(
+        icon,
+        color: _LoginPalette.textSecondary,
+        size: 20,
+      ),
+      suffixIcon: suffix,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(color: _LoginPalette.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(
+          color: _LoginPalette.primary,
+          width: 1.3,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(
+          color: _LoginPalette.error,
+        ),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(
+          color: _LoginPalette.error,
+          width: 1.3,
+        ),
+      ),
+    );
+  }
+}
+
+class _LoginBrandCard extends StatefulWidget {
+  const _LoginBrandCard();
+
+  @override
+  State<_LoginBrandCard> createState() => _LoginBrandCardState();
+}
+
+class _LoginBrandCardState extends State<_LoginBrandCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2600),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 132,
+      height: 132,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedBuilder(
+            animation: _pulseController,
+            builder: (context, child) {
+              final pulse =
+                  (math.sin(_pulseController.value * 2 * math.pi) + 1) / 2;
+              return Container(
+                width: 88 + (pulse * 12),
+                height: 88 + (pulse * 12),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      _LoginPalette.primary.withOpacity(0.14 + (pulse * 0.05)),
+                      _LoginPalette.primary.withOpacity(0.04),
+                      Colors.transparent,
+                    ],
+                    stops: const [0, 0.56, 1],
+                  ),
+                ),
+              );
+            },
+          ),
+          Container(
+            width: 102,
+            height: 102,
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: _LoginPalette.primaryDark.withOpacity(0.08),
+                  blurRadius: 18,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Image.asset(
+              'assets/images/nuist_logo.png',
+              fit: BoxFit.contain,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoginBackdrop extends StatelessWidget {
+  const _LoginBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned(
+          top: -42,
+          left: -48,
+          child: SizedBox(
+            width: 200,
+            height: 200,
+            child: CustomPaint(
+              painter: _OrganicLinePainter(
+                color: _LoginPalette.accent.withOpacity(0.08),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          right: -52,
+          bottom: -56,
+          child: Transform.rotate(
+            angle: math.pi,
+            child: SizedBox(
+              width: 216,
+              height: 216,
+              child: CustomPaint(
+                painter: _OrganicLinePainter(
+                  color: _LoginPalette.accent.withOpacity(0.08),
                 ),
               ),
-              const SizedBox(height: 16),
-              AuthActionButton(
-                label: 'Masuk',
-                filled: true,
-                onPressed: _submit,
-                isLoading: controller.isLoggingIn,
-              ),
-            ],
+            ),
           ),
         ),
       ],
     );
   }
+}
+
+class _OrganicLinePainter extends CustomPainter {
+  const _OrganicLinePainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 7;
+
+    final firstPath = Path()
+      ..moveTo(size.width * 0.06, size.height * 0.5)
+      ..quadraticBezierTo(
+        size.width * 0.26,
+        size.height * 0.18,
+        size.width * 0.54,
+        size.height * 0.34,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.82,
+        size.height * 0.5,
+        size.width * 0.95,
+        size.height * 0.18,
+      );
+
+    final secondPath = Path()
+      ..moveTo(size.width * 0.1, size.height * 0.79)
+      ..quadraticBezierTo(
+        size.width * 0.36,
+        size.height * 0.56,
+        size.width * 0.57,
+        size.height * 0.76,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.84,
+        size.height * 0.98,
+        size.width * 0.98,
+        size.height * 0.69,
+      );
+
+    canvas.drawPath(firstPath, paint);
+    canvas.drawPath(secondPath, paint..strokeWidth = 5);
+  }
+
+  @override
+  bool shouldRepaint(covariant _OrganicLinePainter oldDelegate) {
+    return oldDelegate.color != color;
+  }
+}
+
+class _InputLabel extends StatelessWidget {
+  const _InputLabel(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: const TextStyle(
+        fontSize: 12.5,
+        fontWeight: FontWeight.w700,
+        color: _LoginPalette.textPrimary,
+      ),
+    );
+  }
+}
+
+class _PostLoginLoadingOverlay extends StatelessWidget {
+  const _PostLoginLoadingOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.white.withOpacity(0.72),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: _LoginPalette.primaryDark.withOpacity(0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: _LoginPalette.primary,
+                ),
+              ),
+              SizedBox(width: 14),
+              Text(
+                'Sedang memuat data...',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: _LoginPalette.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LoginPalette {
+  static const primary = Color(0xFF0B8F6E);
+  static const primaryDark = Color(0xFF066C56);
+  static const accent = Color(0xFFF5B301);
+  static const background = Color(0xFFF7F8FC);
+  static const card = Color(0xFFFFFFFF);
+  static const textPrimary = Color(0xFF1E293B);
+  static const textSecondary = Color(0xFF64748B);
+  static const border = Color(0xFFE2E8F0);
+  static const error = Color(0xFFEF4444);
+
+  const _LoginPalette._();
 }

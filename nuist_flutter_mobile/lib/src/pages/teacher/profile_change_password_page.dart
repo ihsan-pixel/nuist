@@ -4,6 +4,21 @@ import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
+class _PasswordPagePalette {
+  static const background = Color(0xFFF7F8FC);
+  static const surface = Color(0xFFFFFFFF);
+  static const primary = Color(0xFF0B8F6E);
+  static const textPrimary = Color(0xFF1E293B);
+  static const textSecondary = Color(0xFF64748B);
+  static const border = Color(0xFFE2E8F0);
+  static const danger = Color(0xFFEF4444);
+  static const warning = Color(0xFFF59E0B);
+  static const info = Color(0xFF2563EB);
+  static const success = Color(0xFF22C55E);
+
+  const _PasswordPagePalette._();
+}
+
 class TeacherProfileChangePasswordPage extends StatefulWidget {
   const TeacherProfileChangePasswordPage({
     super.key,
@@ -113,41 +128,39 @@ class _TeacherProfileChangePasswordPageState
     final passwordStrength = _PasswordStrength.evaluate(
       _newPasswordController.text,
     );
+    final bottomInset = MediaQuery.paddingOf(context).bottom + 24;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _PasswordPagePalette.background,
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+          padding: EdgeInsets.fromLTRB(14, 12, 14, bottomInset),
           children: [
             TeacherPageHeader(
               title: 'Ubah Password',
               onBack: () => Navigator.of(context).pop(),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
             AppSectionCard(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Keamanan Akun',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  const _PasswordSectionHeading(
+                    eyebrow: 'Keamanan',
+                    title: 'Keamanan Akun',
                   ),
                   const SizedBox(height: 8),
                   const Text(
                     'Masukkan password lama, lalu buat password baru minimal 8 karakter.',
                     style: TextStyle(
-                      color: Color(0xFF7C8F8D),
-                      fontSize: 12,
+                      color: _PasswordPagePalette.textSecondary,
+                      fontSize: 11.5,
                       height: 1.45,
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _currentPasswordController,
                     obscureText: _obscureCurrent,
@@ -163,11 +176,12 @@ class _TeacherProfileChangePasswordPageState
                           _obscureCurrent
                               ? Icons.visibility_off_rounded
                               : Icons.visibility_rounded,
+                          color: _PasswordPagePalette.textSecondary,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _newPasswordController,
                     obscureText: _obscureNew,
@@ -186,13 +200,14 @@ class _TeacherProfileChangePasswordPageState
                           _obscureNew
                               ? Icons.visibility_off_rounded
                               : Icons.visibility_rounded,
+                          color: _PasswordPagePalette.textSecondary,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   _PasswordStrengthCard(strength: passwordStrength),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirm,
@@ -209,22 +224,25 @@ class _TeacherProfileChangePasswordPageState
                           _obscureConfirm
                               ? Icons.visibility_off_rounded
                               : Icons.visibility_rounded,
+                          color: _PasswordPagePalette.textSecondary,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _submitting ? null : _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1F6B52),
+                        backgroundColor: _PasswordPagePalette.primary,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: const Color(0xFFC4DCD2),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        disabledBackgroundColor: _PasswordPagePalette.border,
+                        disabledForegroundColor:
+                            _PasswordPagePalette.textSecondary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         elevation: 0,
                       ),
@@ -266,9 +284,9 @@ class _PasswordStrengthCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFBFDFC),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFC9DED5)),
+        color: _PasswordPagePalette.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _PasswordPagePalette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +306,7 @@ class _PasswordStrengthCard extends StatelessWidget {
             child: LinearProgressIndicator(
               minHeight: 7,
               value: strength.value / 100,
-              backgroundColor: const Color(0xFFD9E8E1),
+              backgroundColor: _PasswordPagePalette.border,
               valueColor: AlwaysStoppedAnimation<Color>(strength.color),
             ),
           ),
@@ -302,18 +320,27 @@ InputDecoration _passwordInputDecoration(String label) {
   return InputDecoration(
     labelText: label,
     filled: true,
-    fillColor: const Color(0xFFFBFDFC),
+    fillColor: _PasswordPagePalette.surface,
+    isDense: true,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    labelStyle: const TextStyle(
+      color: _PasswordPagePalette.textSecondary,
+      fontSize: 13,
+    ),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFC9DED5)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: _PasswordPagePalette.border),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFC9DED5)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: _PasswordPagePalette.border),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFF1F6B52), width: 1.4),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(
+        color: _PasswordPagePalette.primary,
+        width: 1.4,
+      ),
     ),
   );
 }
@@ -340,7 +367,7 @@ class _PasswordStrength {
         label: 'Belum Diisi',
         message:
             'Password harus mengandung huruf besar, huruf kecil, angka, dan simbol (@\$!%*?&).',
-        color: Color(0xFF6C757D),
+        color: _PasswordPagePalette.textSecondary,
         meetsMinimumRequirement: false,
       );
     }
@@ -383,7 +410,7 @@ class _PasswordStrength {
         value: strength,
         label: 'Lemah',
         message: 'Lemah: ${feedback.join(', ')}',
-        color: const Color(0xFFDC3545),
+        color: _PasswordPagePalette.danger,
         meetsMinimumRequirement: false,
       );
     }
@@ -393,7 +420,7 @@ class _PasswordStrength {
         value: strength,
         label: 'Sedang',
         message: 'Sedang: Perlu ${feedback.join(', ')}',
-        color: const Color(0xFFFFC107),
+        color: _PasswordPagePalette.warning,
         meetsMinimumRequirement: false,
       );
     }
@@ -403,7 +430,7 @@ class _PasswordStrength {
         value: strength,
         label: 'Kuat',
         message: 'Kuat: Perlu ${feedback.join(', ')}',
-        color: const Color(0xFF0D6EFD),
+        color: _PasswordPagePalette.info,
         meetsMinimumRequirement: false,
       );
     }
@@ -412,8 +439,45 @@ class _PasswordStrength {
       value: 100,
       label: 'Sangat Kuat',
       message: 'Sangat Kuat: Password memenuhi semua kriteria!',
-      color: Color(0xFF198754),
+      color: _PasswordPagePalette.success,
       meetsMinimumRequirement: true,
+    );
+  }
+}
+
+class _PasswordSectionHeading extends StatelessWidget {
+  const _PasswordSectionHeading({
+    required this.eyebrow,
+    required this.title,
+  });
+
+  final String eyebrow;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          eyebrow.toUpperCase(),
+          style: const TextStyle(
+            color: _PasswordPagePalette.textSecondary,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          title,
+          style: const TextStyle(
+            color: _PasswordPagePalette.textPrimary,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -12,12 +12,17 @@ import 'attendance_face_scan_page.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
 
-const _attendancePrimary = Color(0xFF04A512);
-const _attendancePrimaryDark = Color(0xFF037A0D);
-const _attendancePrimarySoft = Color(0xFFE7F8E9);
-const _attendancePrimaryBorder = Color(0xFFBFEAC4);
-const _attendanceText = Color(0xFF0E4D16);
-const _attendanceMuted = Color(0xFF6A8870);
+const _attendanceBackground = Color(0xFFF7F8FC);
+const _attendanceSurface = Color(0xFFFFFFFF);
+const _attendancePrimary = Color(0xFF0B8F6E);
+const _attendancePrimaryDark = Color(0xFF066C56);
+const _attendancePrimarySoft = Color(0xFFECFDF5);
+const _attendancePrimaryBorder = Color(0xFFE2E8F0);
+const _attendanceText = Color(0xFF1E293B);
+const _attendanceMuted = Color(0xFF64748B);
+const _attendanceDanger = Color(0xFFEF4444);
+const _attendanceDangerSoft = Color(0xFFFEE2E2);
+const _attendanceCardShadow = Color(0x141E293B);
 const _attendanceMapDefaultZoom = 15.6;
 const _attendanceMapUserZoom = 18.4;
 
@@ -426,22 +431,38 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: _attendanceSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+            side: const BorderSide(color: _attendancePrimaryBorder),
+          ),
           title: const Text('Konfirmasi Pulang Awal'),
           content: Text(
             pulangLabel == null
                 ? 'Jam pulang belum tiba. Apakah Anda yakin ingin pulang lebih awal?'
                 : 'Jam pulang dimulai pukul $pulangLabel. Apakah Anda yakin ingin pulang lebih awal?',
+            style: const TextStyle(
+              color: _attendanceMuted,
+              height: 1.45,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Batal'),
+              child: const Text(
+                'Batal',
+                style: TextStyle(
+                  color: _attendanceMuted,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _attendancePrimary,
                 foregroundColor: Colors.white,
+                elevation: 0,
               ),
               child: const Text('Ya, lanjutkan'),
             ),
@@ -645,7 +666,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const ColoredBox(
-            color: Colors.white,
+            color: _attendanceBackground,
             child: _PageLoading(),
           );
         }
@@ -736,7 +757,6 @@ class _AttendanceContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final mediaQuery = MediaQuery.of(context);
     final today = Map<String, dynamic>.from(
       (data['today_attendance'] as Map?) ?? const <String, dynamic>{},
@@ -802,22 +822,45 @@ class _AttendanceContent extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Presensi Hari Ini',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: _attendanceText,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _formatRunningTime(now),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: _attendancePrimaryDark,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 10,
-                          letterSpacing: 0.2,
+                        decoration: BoxDecoration(
+                          color: _attendanceSurface.withOpacity(0.94),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: _attendancePrimaryBorder),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: _attendanceCardShadow,
+                              blurRadius: 18,
+                              offset: Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Presensi Hari Ini',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: _attendanceText,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatRunningTime(now),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: _attendancePrimaryDark,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 10,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -863,13 +906,14 @@ class _AttendanceContent extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: colorScheme.surface.withOpacity(0.96),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
+                  color: _attendanceSurface.withOpacity(0.97),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(color: _attendancePrimaryBorder),
+                  boxShadow: const [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 22,
-                      offset: const Offset(0, 10),
+                      color: _attendanceCardShadow,
+                      blurRadius: 24,
+                      offset: Offset(0, 12),
                     ),
                   ],
                 ),
@@ -940,24 +984,38 @@ class _AttendanceContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: canOpenFlow ? onOpenAttendanceFlow : null,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _attendancePrimary,
-                    disabledBackgroundColor: _attendancePrimaryBorder,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              DecoratedBox(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(18)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _attendanceCardShadow,
+                      blurRadius: 18,
+                      offset: Offset(0, 10),
                     ),
-                  ),
-                  child: Text(
-                    nextModeLabel,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
+                  ],
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: canOpenFlow ? onOpenAttendanceFlow : null,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _attendancePrimary,
+                      disabledBackgroundColor: _attendancePrimaryBorder,
+                      disabledForegroundColor: _attendanceMuted,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                    child: Text(
+                      nextModeLabel,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
@@ -1059,7 +1117,7 @@ class _AttendanceFlowSheet extends StatelessWidget {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: _attendanceSurface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Padding(
@@ -1076,7 +1134,7 @@ class _AttendanceFlowSheet extends StatelessWidget {
               width: 42,
               height: 5,
               decoration: BoxDecoration(
-                color: const Color(0xFFD7DEE6),
+                color: _attendancePrimaryBorder,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -1114,7 +1172,7 @@ class _AttendanceFlowSheet extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: index <= currentStep
                           ? _attendancePrimary
-                          : const Color(0xFFE7EBF0),
+                          : _attendancePrimaryBorder,
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -1189,8 +1247,10 @@ class _AttendanceFlowSheet extends StatelessWidget {
                             height: 148,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF4F7FA),
+                              color: _attendanceBackground,
                               borderRadius: BorderRadius.circular(18),
+                              border:
+                                  Border.all(color: _attendancePrimaryBorder),
                             ),
                             child: const Center(
                               child: Icon(
@@ -1211,7 +1271,7 @@ class _AttendanceFlowSheet extends StatelessWidget {
                                       : 'Lokasi belum tersedia.'),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: locationError?.trim().isNotEmpty == true
-                                ? const Color(0xFFB42318)
+                                ? _attendanceDanger
                                 : _attendanceText,
                             fontWeight: FontWeight.w700,
                             fontSize: 11,
@@ -1250,6 +1310,15 @@ class _AttendanceFlowSheet extends StatelessWidget {
                             label: Text(
                               hasLocation ? 'Perbarui Lokasi' : 'Ambil Lokasi',
                             ),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: _attendancePrimarySoft,
+                              foregroundColor: _attendancePrimaryDark,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -1268,7 +1337,12 @@ class _AttendanceFlowSheet extends StatelessWidget {
                             aspectRatio: 16 / 10,
                             child: !hasVerificationCapture
                                 ? Container(
-                                    color: const Color(0xFFF4F7FA),
+                                    decoration: BoxDecoration(
+                                      color: _attendanceBackground,
+                                      border: Border.all(
+                                        color: _attendancePrimaryBorder,
+                                      ),
+                                    ),
                                     child: const Center(
                                       child: Icon(
                                         Icons.face_retouching_natural_rounded,
@@ -1331,6 +1405,16 @@ class _AttendanceFlowSheet extends StatelessWidget {
                                       ? verificationRetryLabel
                                       : verificationActionLabel,
                                 ),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: _attendancePrimarySoft,
+                                  foregroundColor: _attendancePrimaryDark,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
                               ),
                             ),
                             if (hasVerificationCapture) ...[
@@ -1338,6 +1422,10 @@ class _AttendanceFlowSheet extends StatelessWidget {
                               IconButton.filledTonal(
                                 onPressed: onClearSelfie,
                                 icon: const Icon(Icons.delete_outline_rounded),
+                                style: IconButton.styleFrom(
+                                  backgroundColor: _attendanceDangerSoft,
+                                  foregroundColor: _attendanceDanger,
+                                ),
                               ),
                             ],
                           ],
@@ -1393,8 +1481,9 @@ class _AttendanceFlowSheet extends StatelessWidget {
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF4F7FA),
+                            color: _attendancePrimarySoft,
                             borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: _attendancePrimaryBorder),
                           ),
                           child: Text(
                             hasVerificationCapture
@@ -1447,6 +1536,10 @@ class _AttendanceFlowSheet extends StatelessWidget {
                       backgroundColor: _attendancePrimary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 15),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                     child: currentStep == 2 && submitting
                         ? const SizedBox(
@@ -1497,9 +1590,16 @@ class _AttendanceStepCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFFBFCFD),
+          color: _attendanceSurface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFFE8EDF3)),
+          border: Border.all(color: _attendancePrimaryBorder),
+          boxShadow: const [
+            BoxShadow(
+              color: _attendanceCardShadow,
+              blurRadius: 18,
+              offset: Offset(0, 8),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1737,13 +1837,14 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: _attendanceSurface.withOpacity(0.96),
                   borderRadius: BorderRadius.circular(999),
-                  boxShadow: [
+                  border: Border.all(color: _attendancePrimaryBorder),
+                  boxShadow: const [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
+                      color: _attendanceCardShadow,
                       blurRadius: 16,
-                      offset: const Offset(0, 8),
+                      offset: Offset(0, 8),
                     ),
                   ],
                 ),
@@ -1838,8 +1939,8 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.02),
-                    Colors.black.withOpacity(0.14),
+                    Colors.black.withOpacity(0.015),
+                    Colors.black.withOpacity(0.12),
                   ],
                 ),
               ),
@@ -1847,13 +1948,19 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
           ),
         ),
         if (widget.loadingLocation)
-          const Positioned(
+          Positioned(
             left: 0,
             right: 0,
             bottom: 260,
             child: Center(
               child: Card(
-                child: Padding(
+                color: _attendanceSurface.withOpacity(0.96),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  side: const BorderSide(color: _attendancePrimaryBorder),
+                ),
+                child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1869,6 +1976,7 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
+                          color: _attendanceText,
                         ),
                       ),
                     ],
@@ -1894,18 +2002,32 @@ class _MapHeaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withOpacity(0.95),
+      color: _attendanceSurface.withOpacity(0.95),
       borderRadius: BorderRadius.circular(999),
+      shadowColor: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(999),
         onTap: onTap,
-        child: SizedBox(
-          width: 36,
-          height: 36,
-          child: Icon(
-            icon,
-            color: _attendanceText,
-            size: 18,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: _attendancePrimaryBorder),
+            boxShadow: const [
+              BoxShadow(
+                color: _attendanceCardShadow,
+                blurRadius: 14,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: SizedBox(
+            width: 36,
+            height: 36,
+            child: Icon(
+              icon,
+              color: _attendanceText,
+              size: 18,
+            ),
           ),
         ),
       ),
@@ -2001,13 +2123,17 @@ class _PageError extends StatelessWidget {
             message,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: Color(0xFF9F1239),
+              color: _attendanceDanger,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
           OutlinedButton(
             onPressed: onRetry,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _attendancePrimaryDark,
+              side: const BorderSide(color: _attendancePrimaryBorder),
+            ),
             child: const Text('Coba Lagi'),
           ),
         ],

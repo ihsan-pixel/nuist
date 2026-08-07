@@ -10,6 +10,7 @@ class SessionController extends ChangeNotifier {
 
   bool _isBootstrapping = true;
   bool _isLoggingIn = false;
+  bool _isPostLoginLoading = false;
   bool _isDashboardLoading = false;
   String? _errorMessage;
   Session? _session;
@@ -17,6 +18,7 @@ class SessionController extends ChangeNotifier {
 
   bool get isBootstrapping => _isBootstrapping;
   bool get isLoggingIn => _isLoggingIn;
+  bool get isPostLoginLoading => _isPostLoginLoading;
   bool get isDashboardLoading => _isDashboardLoading;
   bool get isBusy => _isLoggingIn || _isDashboardLoading;
   String? get errorMessage => _errorMessage;
@@ -40,6 +42,7 @@ class SessionController extends ChangeNotifier {
     required bool rememberSession,
   }) async {
     _isLoggingIn = true;
+    _isPostLoginLoading = false;
     _errorMessage = null;
     notifyListeners();
 
@@ -50,10 +53,14 @@ class SessionController extends ChangeNotifier {
         rememberSession: rememberSession,
       );
       _dashboardData = null;
+      _isPostLoginLoading = true;
+      notifyListeners();
+      await Future<void>.delayed(const Duration(milliseconds: 900));
     } catch (error) {
       _errorMessage = error.toString();
     } finally {
       _isLoggingIn = false;
+      _isPostLoginLoading = false;
       notifyListeners();
     }
   }
@@ -88,6 +95,7 @@ class SessionController extends ChangeNotifier {
 
   Future<void> logout() async {
     _errorMessage = null;
+    _isPostLoginLoading = false;
     notifyListeners();
 
     try {

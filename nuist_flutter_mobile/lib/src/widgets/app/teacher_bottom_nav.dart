@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class TeacherBottomNavItem {
   const TeacherBottomNavItem({
     required this.label,
@@ -52,13 +50,13 @@ class TeacherBottomNav extends StatelessWidget {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: const [
                     BoxShadow(
-                      color: AppColors.shadowSoft,
-                      blurRadius: 28,
-                      offset: Offset(0, 10),
+                      color: Color(0x141E293B),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
                     ),
                   ],
                   border: Border.all(
-                    color: AppColors.surfaceLine,
+                    color: const Color(0xFFE2E8F0),
                   ),
                 ),
                 child: Row(
@@ -122,6 +120,9 @@ class _NavSideItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconColor =
+        selected ? const Color(0xFF0B8F6E) : const Color(0xFF94A3B8);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -136,7 +137,7 @@ class _NavSideItem extends StatelessWidget {
                 Icon(
                   icon,
                   size: 22,
-                  color: selected ? AppColors.accentMain : AppColors.textMuted,
+                  color: iconColor,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -144,7 +145,7 @@ class _NavSideItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                    color: Colors.black,
+                    color: iconColor,
                   ),
                 ),
               ],
@@ -156,7 +157,7 @@ class _NavSideItem extends StatelessWidget {
   }
 }
 
-class _CenterNavItem extends StatelessWidget {
+class _CenterNavItem extends StatefulWidget {
   const _CenterNavItem({
     required this.label,
     required this.icon,
@@ -170,51 +171,82 @@ class _CenterNavItem extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_CenterNavItem> createState() => _CenterNavItemState();
+}
+
+class _CenterNavItemState extends State<_CenterNavItem> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AnimatedContainer(
+          AnimatedScale(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOut,
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: selected ? AppColors.accentWarmSoft : AppColors.accentSoft,
-              boxShadow: const [
-                BoxShadow(
-                  color: AppColors.shadowSoft,
-                  blurRadius: 8,
-                  offset: Offset(0, 4),
-                ),
-              ],
-              border: Border.all(
-                color: selected ? AppColors.accentWarm : AppColors.surfaceLine,
-              ),
-            ),
-            child: Container(
-              width: 62,
-              height: 62,
+            scale: _pressed ? 1.06 : 1,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: selected ? AppColors.accentMain : AppColors.accentDeep,
+                color: const Color(0xFFECFDF5),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x141E293B),
+                    blurRadius: 20,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+                border: Border.all(
+                  color: const Color(0xFFE2E8F0),
+                ),
               ),
-              child: Icon(
-                icon,
-                size: 30,
-                color: Colors.white,
+              child: Container(
+                width: 62,
+                height: 62,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF0B8F6E),
+                      Color(0xFF066C56),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x330B8F6E),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  widget.icon,
+                  size: 30,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            label,
-            style: const TextStyle(
+            widget.label,
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: Colors.black,
+              color: widget.selected
+                  ? const Color(0xFF0B8F6E)
+                  : const Color(0xFF94A3B8),
             ),
           ),
         ],

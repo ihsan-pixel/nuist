@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class AppSectionCard extends StatelessWidget {
   const AppSectionCard({
     super.key,
@@ -20,10 +18,10 @@ class AppSectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.surfaceLine),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: const [
           BoxShadow(
-            color: AppColors.shadowSoft,
+            color: Color(0x141E293B),
             blurRadius: 20,
             offset: Offset(0, 8),
           ),

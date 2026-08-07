@@ -228,7 +228,7 @@
                                         <li>
                                             <form method="POST"
                                                   action="{{ route('sk-yayasan.generate.school.pdf', $madrasah) }}"
-                                                  target="_blank">
+                                                  data-sk-pdf-post>
                                                 @csrf
                                                 <input type="hidden" name="issued_date" value="{{ $coreData['issued_date'] }}">
                                                 <input type="hidden" name="school_year" value="{{ $coreData['school_year'] }}">
@@ -337,7 +337,7 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
-                                                    <form method="POST" action="{{ route('sk-yayasan.generate.store') }}" target="_blank">
+                                                    <form method="POST" action="{{ route('sk-yayasan.generate.store') }}" data-sk-pdf-post>
                                                         @csrf
                                                         <input type="hidden" name="request_id" value="{{ $submission->id }}">
                                                         <input type="hidden" name="preview_pdf" value="1">
@@ -544,4 +544,93 @@
         </div>
     </div>
 @endforeach
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form[data-sk-pdf-post]').forEach((form) => {
+                if (form.dataset.skPdfPostBound === '1') {
+                    return;
+                }
+
+                form.dataset.skPdfPostBound = '1';
+
+                form.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+
+                    const popup = window.open('', '_blank');
+                    const submitter = event.submitter || null;
+                    const formData = new FormData(form);
+
+                    if (submitter && submitter.name) {
+                        formData.append(submitter.name, submitter.value);
+                    }
+
+                    if (popup) {
+                        popup.document.write('<title>Menyiapkan PDF...</title><p style="font-family:Arial,sans-serif;padding:16px;">Menyiapkan PDF...</p>');
+                    }
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: form.method || 'POST',
+                            body: formData,
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/pdf, text/html, application/xhtml+xml',
+                            },
+                        });
+
+                        const contentType = (response.headers.get('content-type') || '').toLowerCase();
+
+                        if (!response.ok || !contentType.includes('application/pdf')) {
+                            let message = 'PDF gagal dibuka. Silakan coba lagi.';
+
+                            if (response.status === 404) {
+                                message = 'Endpoint generate PDF tidak ditemukan. Kemungkinan request tab baru berubah menjadi request biasa pada browser ini.';
+                            } else if (response.status === 419) {
+                                message = 'Sesi login sudah habis. Muat ulang halaman lalu coba lagi.';
+                            } else if (response.status === 403) {
+                                message = 'Akses ke generate PDF ditolak.';
+                            }
+
+                            throw new Error(message);
+                        }
+
+                        const pdfBlob = await response.blob();
+                        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                        if (popup) {
+                            popup.location.replace(pdfUrl);
+                        } else {
+                            window.open(pdfUrl, '_blank');
+                        }
+
+                        window.setTimeout(() => URL.revokeObjectURL(pdfUrl), 60000);
+                    } catch (error) {
+                        if (popup && !popup.closed) {
+                            popup.close();
+                        }
+
+                        const message = error instanceof Error
+                            ? error.message
+                            : 'PDF gagal dibuka. Silakan coba lagi.';
+
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal membuka PDF',
+                                text: message,
+                                confirmButtonColor: '#0e8549',
+                            });
+                            return;
+                        }
+
+                        window.alert(message);
+                    }
+                });
+            });
+        });
+    </script>
+@endpush
 @endsection

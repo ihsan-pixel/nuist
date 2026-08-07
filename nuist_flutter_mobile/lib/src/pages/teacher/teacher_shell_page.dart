@@ -185,7 +185,7 @@ class _TeacherShellPageState extends State<TeacherShellPage> {
 
     return Scaffold(
       extendBody: true,
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F8FC),
       body: SafeArea(
         top: _currentIndex != 4 && !isAttendanceFullscreen,
         bottom: false,

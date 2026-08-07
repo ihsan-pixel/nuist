@@ -7,6 +7,18 @@ import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
+class _SettingsPalette {
+  static const background = Color(0xFFF7F8FC);
+  static const surface = Color(0xFFFFFFFF);
+  static const primary = Color(0xFF0B8F6E);
+  static const textPrimary = Color(0xFF1E293B);
+  static const textSecondary = Color(0xFF64748B);
+  static const border = Color(0xFFE2E8F0);
+  static const iconSurface = Color(0xFFECFDF5);
+
+  const _SettingsPalette._();
+}
+
 class TeacherProfileSettingsPage extends StatefulWidget {
   const TeacherProfileSettingsPage({
     super.key,
@@ -282,25 +294,28 @@ class _TeacherProfileSettingsPageState
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom + 24;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _SettingsPalette.background,
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+          padding: EdgeInsets.fromLTRB(14, 12, 14, bottomInset),
           children: [
             TeacherPageHeader(
               title: 'Pengaturan Profil',
               onBack: () => Navigator.of(context).pop(),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
             AppSectionCard(
-              child: Column(
+              padding: const EdgeInsets.all(14),
+              child: Row(
                 children: [
                   Stack(
                     children: [
                       _ProfileAvatarPreview(
-                        radius: 44,
+                        radius: 36,
                         localAvatarFile: _localAvatarFile,
                         avatarUrl: _avatarUrl,
                       ),
@@ -308,17 +323,17 @@ class _TeacherProfileSettingsPageState
                         right: 0,
                         bottom: 0,
                         child: Material(
-                          color: const Color(0xFF1F6B52),
+                          color: _SettingsPalette.primary,
                           shape: const CircleBorder(),
                           child: InkWell(
                             customBorder: const CircleBorder(),
                             onTap: _uploadingAvatar ? null : _pickAvatar,
                             child: SizedBox(
-                              width: 34,
-                              height: 34,
+                              width: 30,
+                              height: 30,
                               child: _uploadingAvatar
                                   ? const Padding(
-                                      padding: EdgeInsets.all(8),
+                                      padding: EdgeInsets.all(7),
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
                                         color: Colors.white,
@@ -327,7 +342,7 @@ class _TeacherProfileSettingsPageState
                                   : const Icon(
                                       Icons.camera_alt_rounded,
                                       color: Colors.white,
-                                      size: 18,
+                                      size: 16,
                                     ),
                             ),
                           ),
@@ -335,41 +350,45 @@ class _TeacherProfileSettingsPageState
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Foto Profil',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Tap ikon kamera untuk mengganti foto profile.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0xFF7C8F8D),
-                      fontSize: 12,
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Foto Profil',
+                          style: TextStyle(
+                            color: _SettingsPalette.textPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        SizedBox(height: 3),
+                        Text(
+                          'Gunakan foto yang jelas. Ketuk ikon kamera untuk mengganti.',
+                          style: TextStyle(
+                            color: _SettingsPalette.textSecondary,
+                            fontSize: 11.5,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             AppSectionCard(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Data Tenaga Pendidik',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  const _SettingsSectionHeading(
+                    eyebrow: 'Profil',
+                    title: 'Data Tenaga Pendidik',
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _nameController,
                     textCapitalization: TextCapitalization.words,
@@ -378,7 +397,7 @@ class _TeacherProfileSettingsPageState
                       hintText: _currentName,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -387,7 +406,7 @@ class _TeacherProfileSettingsPageState
                       hintText: _currentEmail,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
@@ -396,7 +415,7 @@ class _TeacherProfileSettingsPageState
                       hintText: _currentPhone,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _birthPlaceController,
                     textCapitalization: TextCapitalization.words,
@@ -405,7 +424,7 @@ class _TeacherProfileSettingsPageState
                       hintText: _currentBirthPlace,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _birthDateController,
                     readOnly: true,
@@ -414,10 +433,14 @@ class _TeacherProfileSettingsPageState
                       'Tanggal Lahir',
                       hintText: _currentBirthDate,
                     ).copyWith(
-                        suffixIcon: const Icon(Icons.calendar_today_rounded),
+                      suffixIcon: const Icon(
+                        Icons.calendar_today_rounded,
+                        color: _SettingsPalette.primary,
+                        size: 18,
                       ),
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _tmtController,
                     readOnly: true,
@@ -426,10 +449,14 @@ class _TeacherProfileSettingsPageState
                       'TMT',
                       hintText: _currentTmt,
                     ).copyWith(
-                        suffixIcon: const Icon(Icons.calendar_today_rounded),
+                      suffixIcon: const Icon(
+                        Icons.calendar_today_rounded,
+                        color: _SettingsPalette.primary,
+                        size: 18,
                       ),
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _educationController,
                     textCapitalization: TextCapitalization.words,
@@ -438,7 +465,7 @@ class _TeacherProfileSettingsPageState
                       hintText: _currentEducation,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   TextField(
                     controller: _nipController,
                     decoration: _inputDecoration(
@@ -446,18 +473,19 @@ class _TeacherProfileSettingsPageState
                       hintText: _currentNip,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _savingProfile ? null : _saveProfile,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1F6B52),
+                        backgroundColor: _SettingsPalette.primary,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: const Color(0xFFC4DCD2),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        disabledBackgroundColor: _SettingsPalette.border,
+                        disabledForegroundColor: _SettingsPalette.textSecondary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         elevation: 0,
                       ),
@@ -479,29 +507,26 @@ class _TeacherProfileSettingsPageState
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             AppSectionCard(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Keamanan Akun',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  const _SettingsSectionHeading(
+                    eyebrow: 'Keamanan',
+                    title: 'Keamanan Akun',
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   const Text(
                     'Kelola password akun Anda seperti pada halaman mobile.',
                     style: TextStyle(
-                      color: Color(0xFF7C8F8D),
-                      fontSize: 12,
+                      color: _SettingsPalette.textSecondary,
+                      fontSize: 11.5,
                       height: 1.45,
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
@@ -509,11 +534,12 @@ class _TeacherProfileSettingsPageState
                         await widget.onOpenChangePassword();
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF1F6B52),
-                        side: const BorderSide(color: Color(0xFFBDD6CB)),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        foregroundColor: _SettingsPalette.primary,
+                        backgroundColor: _SettingsPalette.surface,
+                        side: const BorderSide(color: _SettingsPalette.border),
+                        padding: const EdgeInsets.symmetric(vertical: 13),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       icon: const Icon(Icons.lock_outline_rounded),
@@ -568,21 +594,28 @@ InputDecoration _inputDecoration(
         ? hintText.trim()
         : null,
     hintStyle: const TextStyle(
-      color: Colors.black,
+      color: _SettingsPalette.textSecondary,
+      fontSize: 14,
+    ),
+    labelStyle: const TextStyle(
+      color: _SettingsPalette.textSecondary,
+      fontSize: 13,
     ),
     filled: true,
-    fillColor: const Color(0xFFFBFDFC),
+    fillColor: _SettingsPalette.surface,
+    isDense: true,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFC9DED5)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: _SettingsPalette.border),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFC9DED5)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: _SettingsPalette.border),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFF1F6B52), width: 1.4),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: _SettingsPalette.primary, width: 1.4),
     ),
   );
 }
@@ -632,9 +665,10 @@ class _ProfileAvatarPreview extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
-        color: Color(0xFFEAF4EF),
+      decoration: BoxDecoration(
+        color: _SettingsPalette.iconSurface,
         shape: BoxShape.circle,
+        border: Border.all(color: _SettingsPalette.border),
       ),
       clipBehavior: Clip.antiAlias,
       child: localAvatarFile != null
@@ -661,8 +695,45 @@ class _AvatarFallbackIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Icon(
       Icons.person_rounded,
-      color: Color(0xFF1F6B52),
-      size: 42,
+      color: _SettingsPalette.primary,
+      size: 36,
+    );
+  }
+}
+
+class _SettingsSectionHeading extends StatelessWidget {
+  const _SettingsSectionHeading({
+    required this.eyebrow,
+    required this.title,
+  });
+
+  final String eyebrow;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          eyebrow.toUpperCase(),
+          style: const TextStyle(
+            color: _SettingsPalette.textSecondary,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          title,
+          style: const TextStyle(
+            color: _SettingsPalette.textPrimary,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
     );
   }
 }

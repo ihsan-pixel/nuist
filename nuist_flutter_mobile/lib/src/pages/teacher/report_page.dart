@@ -7,11 +7,26 @@ import 'package:path_provider/path_provider.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
-import '../../widgets/app/app_stat_card.dart';
+import '../../widgets/app/teacher_page_header.dart';
 
-const _reportPrimary = Color(0xFF04A512);
-const _reportText = Color(0xFF1C4A22);
-const _reportMuted = Color(0xFF6B7C69);
+class _ReportPalette {
+  static const background = Color(0xFFF7F8FC);
+  static const surface = Color(0xFFFFFFFF);
+  static const primary = Color(0xFF0B8F6E);
+  static const primaryDark = Color(0xFF066C56);
+  static const textPrimary = Color(0xFF1E293B);
+  static const textSecondary = Color(0xFF64748B);
+  static const border = Color(0xFFE2E8F0);
+  static const success = Color(0xFF22C55E);
+  static const warning = Color(0xFFF59E0B);
+  static const danger = Color(0xFFEF4444);
+  static const info = Color(0xFF2563EB);
+  static const iconSurface = Color(0xFFECFDF5);
+  static const softGreen = Color(0xFFDCFCE7);
+  static const softYellow = Color(0xFFFEF3C7);
+
+  const _ReportPalette._();
+}
 
 class TeacherReportPage extends StatefulWidget {
   const TeacherReportPage({
@@ -228,56 +243,50 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom + 24;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FCFA),
-      appBar: AppBar(
-        title: Text(widget.pageTitle),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-      ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _future,
-        builder: (context, snapshot) {
-          return RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 120),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else if (snapshot.hasError)
-                  AppSectionCard(
-                    child: Text(
-                      snapshot.error.toString(),
-                      style: const TextStyle(
-                        color: Color(0xFF9F1239),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  )
-                else
-                  _ReportContent(
-                    data: snapshot.data ?? const <String, dynamic>{},
-                    scope: _scope,
-                    month: _month,
-                    exportingAttendance: _exportingAttendance,
-                    exportingTeaching: _exportingTeaching,
-                    onScopeChange: _changeScope,
-                    onPickMonth: _pickMonth,
-                    onTeacherChange: _changeTeacher,
-                    onDownloadAttendance: _downloadAttendancePdf,
-                    onDownloadTeaching: _downloadTeachingPdf,
+      backgroundColor: _ReportPalette.background,
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _future,
+          builder: (context, snapshot) {
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(14, 12, 14, bottomInset),
+                children: [
+                  TeacherPageHeader(
+                    title: widget.pageTitle,
+                    onBack: () => Navigator.of(context).pop(),
                   ),
-              ],
-            ),
-          );
-        },
+                  const SizedBox(height: 12),
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const _ReportLoading()
+                  else if (snapshot.hasError)
+                    _ReportError(
+                      message: snapshot.error.toString(),
+                      onRetry: _refresh,
+                    )
+                  else
+                    _ReportContent(
+                      data: snapshot.data ?? const <String, dynamic>{},
+                      scope: _scope,
+                      month: _month,
+                      exportingAttendance: _exportingAttendance,
+                      exportingTeaching: _exportingTeaching,
+                      onScopeChange: _changeScope,
+                      onPickMonth: _pickMonth,
+                      onTeacherChange: _changeTeacher,
+                      onDownloadAttendance: _downloadAttendancePdf,
+                      onDownloadTeaching: _downloadTeachingPdf,
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -348,18 +357,15 @@ class _ReportContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppSectionCard(
+          padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Filter Laporan',
-                style: TextStyle(
-                  color: _reportText,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
+              const _ReportSectionHeading(
+                eyebrow: 'Filter',
+                title: 'Filter Laporan',
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
               if (permissions['can_select_teacher'] == true) ...[
                 DropdownButtonFormField<int>(
                   value: (filters['selected_teacher_id'] as num?)?.toInt(),
@@ -376,7 +382,7 @@ class _ReportContent extends StatelessWidget {
                   },
                   decoration: _inputDecoration('Pilih Guru'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
               ],
               Row(
                 children: [
@@ -385,6 +391,16 @@ class _ReportContent extends StatelessWidget {
                       label: const Text('Bulanan'),
                       selected: scope == 'monthly',
                       onSelected: (_) => onScopeChange('monthly'),
+                      selectedColor: _ReportPalette.iconSurface,
+                      backgroundColor: _ReportPalette.surface,
+                      side: const BorderSide(color: _ReportPalette.border),
+                      labelStyle: TextStyle(
+                        color: scope == 'monthly'
+                            ? _ReportPalette.primaryDark
+                            : _ReportPalette.textSecondary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -393,13 +409,23 @@ class _ReportContent extends StatelessWidget {
                       label: const Text('Keseluruhan'),
                       selected: scope == 'all',
                       onSelected: (_) => onScopeChange('all'),
+                      selectedColor: _ReportPalette.iconSurface,
+                      backgroundColor: _ReportPalette.surface,
+                      side: const BorderSide(color: _ReportPalette.border),
+                      labelStyle: TextStyle(
+                        color: scope == 'all'
+                            ? _ReportPalette.primaryDark
+                            : _ReportPalette.textSecondary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               InkWell(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
                 onTap: scope == 'monthly' ? onPickMonth : null,
                 child: Ink(
                   padding: const EdgeInsets.symmetric(
@@ -408,16 +434,16 @@ class _ReportContent extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: scope == 'monthly'
-                        ? Colors.white
-                        : const Color(0xFFF5F1EC),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFD3E3DB)),
+                        ? _ReportPalette.surface
+                        : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: _ReportPalette.border),
                   ),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.calendar_month_rounded,
-                        color: _reportPrimary,
+                        color: _ReportPalette.primary,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -426,7 +452,7 @@ class _ReportContent extends StatelessWidget {
                               ? _formatMonthLabel(month)
                               : 'Periode keseluruhan',
                           style: const TextStyle(
-                            color: _reportText,
+                            color: _ReportPalette.textPrimary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -435,88 +461,106 @@ class _ReportContent extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Text(
                 '${selectedTeacher['name'] ?? '-'} • ${selectedTeacher['school_name'] ?? '-'}',
                 style: const TextStyle(
-                  color: _reportMuted,
+                  color: _ReportPalette.textSecondary,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
-              child: AppStatCard(
+              child: _ReportMetricTile(
                 label: 'Hadir',
                 value: '${attendanceSummary['total_hadir'] ?? 0}',
-                color: const Color(0xFF2E8B57),
+                color: _ReportPalette.success,
+                surface: _ReportPalette.softGreen,
+                icon: Icons.check_circle_rounded,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
-              child: AppStatCard(
+              child: _ReportMetricTile(
                 label: 'Izin',
                 value: '${attendanceSummary['total_izin'] ?? 0}',
-                color: const Color(0xFFF4A12A),
+                color: _ReportPalette.warning,
+                surface: _ReportPalette.softYellow,
+                icon: Icons.event_available_rounded,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
-              child: AppStatCard(
+              child: _ReportMetricTile(
                 label: 'Mengajar',
                 value: '${teachingSummary['total_entries'] ?? 0}',
-                color: const Color(0xFF3C6FD1),
+                color: _ReportPalette.info,
+                surface: const Color(0xFFEFF6FF),
+                icon: Icons.menu_book_rounded,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         AppSectionCard(
+          padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   const Expanded(
-                    child: Text(
-                      'Riwayat Presensi Kehadiran',
-                      style: TextStyle(
-                        color: _reportText,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
+                    child: _ReportSectionHeading(
+                      eyebrow: 'Kehadiran',
+                      title: 'Riwayat Presensi Kehadiran',
                     ),
                   ),
-                  FilledButton.tonalIcon(
+                  OutlinedButton.icon(
                     onPressed: exportingAttendance
                         ? null
                         : () async {
                             await onDownloadAttendance();
                           },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _ReportPalette.primaryDark,
+                      side: const BorderSide(color: _ReportPalette.border),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
                     icon: exportingAttendance
                         ? const SizedBox(
                             width: 14,
                             height: 14,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.picture_as_pdf_rounded),
-                    label: const Text('Export PDF'),
+                        : const Icon(Icons.picture_as_pdf_rounded, size: 16),
+                    label: const Text(
+                      'PDF',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
                 attendance['period_label'] as String? ?? '-',
                 style: const TextStyle(
-                  color: _reportMuted,
-                  fontSize: 12,
+                  color: _ReportPalette.textSecondary,
+                  fontSize: 11.5,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               if (attendanceRecords.isEmpty)
                 const AppEmptyState(
                   title: 'Belum ada riwayat kehadiran',
@@ -526,8 +570,9 @@ class _ReportContent extends StatelessWidget {
               else
                 ...attendanceRecords.map(
                   (item) => _SimpleHistoryCard(
-                    title:
-                        '${item['date'] ?? '-'} • ${item['status_label'] ?? '-'}',
+                    title: item['date'] as String? ?? '-',
+                    badgeLabel: item['status_label'] as String? ?? '-',
+                    badgeColor: _reportStatusColor(item['status'] as String?),
                     subtitle:
                         'Masuk ${item['check_in'] ?? '-'} • Keluar ${item['check_out'] ?? '-'}',
                     detail: item['note'] as String? ?? '-',
@@ -536,49 +581,60 @@ class _ReportContent extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         AppSectionCard(
+          padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   const Expanded(
-                    child: Text(
-                      'Riwayat Presensi Jurnal Mengajar',
-                      style: TextStyle(
-                        color: _reportText,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
+                    child: _ReportSectionHeading(
+                      eyebrow: 'Mengajar',
+                      title: 'Riwayat Presensi Jurnal Mengajar',
                     ),
                   ),
-                  FilledButton.tonalIcon(
+                  OutlinedButton.icon(
                     onPressed: exportingTeaching
                         ? null
                         : () async {
                             await onDownloadTeaching();
                           },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _ReportPalette.primaryDark,
+                      side: const BorderSide(color: _ReportPalette.border),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
                     icon: exportingTeaching
                         ? const SizedBox(
                             width: 14,
                             height: 14,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.picture_as_pdf_rounded),
-                    label: const Text('Export PDF'),
+                        : const Icon(Icons.picture_as_pdf_rounded, size: 16),
+                    label: const Text(
+                      'PDF',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
                 teaching['period_label'] as String? ?? '-',
                 style: const TextStyle(
-                  color: _reportMuted,
-                  fontSize: 12,
+                  color: _ReportPalette.textSecondary,
+                  fontSize: 11.5,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               if (teachingRecords.isEmpty)
                 const AppEmptyState(
                   title: 'Belum ada riwayat mengajar',
@@ -588,8 +644,9 @@ class _ReportContent extends StatelessWidget {
               else
                 ...teachingRecords.map(
                   (item) => _SimpleHistoryCard(
-                    title:
-                        '${item['date_label'] ?? '-'} • ${item['subject'] ?? '-'}',
+                    title: item['subject'] as String? ?? '-',
+                    badgeLabel: item['date_label'] as String? ?? '-',
+                    badgeColor: _ReportPalette.info,
                     subtitle:
                         '${item['class_name'] ?? '-'} • ${item['time'] ?? '-'} • ${(item['student_attendance_percentage'] ?? 0)}%',
                     detail: item['materi'] as String? ?? '-',
@@ -606,40 +663,57 @@ class _ReportContent extends StatelessWidget {
 class _SimpleHistoryCard extends StatelessWidget {
   const _SimpleHistoryCard({
     required this.title,
+    required this.badgeLabel,
+    required this.badgeColor,
     required this.subtitle,
     required this.detail,
   });
 
   final String title;
+  final String badgeLabel;
+  final Color badgeColor;
   final String subtitle;
   final String detail;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFCFEFC),
+        color: _ReportPalette.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFD8E7E0)),
+        border: Border.all(color: _ReportPalette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: _reportText,
-              fontWeight: FontWeight.w800,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: _ReportPalette.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _HistoryBadge(
+                label: badgeLabel,
+                color: badgeColor,
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
             style: const TextStyle(
-              color: _reportMuted,
-              fontSize: 12,
+              color: _ReportPalette.textSecondary,
+              fontSize: 11.5,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -647,9 +721,198 @@ class _SimpleHistoryCard extends StatelessWidget {
           Text(
             detail,
             style: const TextStyle(
-              color: _reportText,
+              color: _ReportPalette.textPrimary,
+              fontSize: 12,
               height: 1.45,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReportMetricTile extends StatelessWidget {
+  const _ReportMetricTile({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.surface,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+  final Color surface;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      decoration: BoxDecoration(
+        color: _ReportPalette.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _ReportPalette.border),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: surface,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: color),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: _ReportPalette.textPrimary,
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: _ReportPalette.textSecondary,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReportSectionHeading extends StatelessWidget {
+  const _ReportSectionHeading({
+    required this.eyebrow,
+    required this.title,
+  });
+
+  final String eyebrow;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          eyebrow.toUpperCase(),
+          style: const TextStyle(
+            color: _ReportPalette.textSecondary,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          title,
+          style: const TextStyle(
+            color: _ReportPalette.textPrimary,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HistoryBadge extends StatelessWidget {
+  const _HistoryBadge({
+    required this.label,
+    required this.color,
+  });
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: _ReportPalette.border),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportLoading extends StatelessWidget {
+  const _ReportLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return const AppSectionCard(
+      child: SizedBox(
+        height: 220,
+        child: Center(
+          child: CircularProgressIndicator(
+            color: _ReportPalette.primary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportError extends StatelessWidget {
+  const _ReportError({
+    required this.message,
+    required this.onRetry,
+  });
+
+  final String message;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSectionCard(
+      child: Column(
+        children: [
+          const AppEmptyState(
+            title: 'Laporan belum bisa dimuat',
+            message: 'Tarik ke bawah atau coba lagi beberapa saat lagi.',
+            icon: Icons.error_outline_rounded,
+          ),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: _ReportPalette.danger,
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton(
+            onPressed: onRetry,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _ReportPalette.primaryDark,
+              side: const BorderSide(color: _ReportPalette.border),
+            ),
+            child: const Text('Coba Lagi'),
           ),
         ],
       ),
@@ -661,20 +924,39 @@ InputDecoration _inputDecoration(String label) {
   return InputDecoration(
     labelText: label,
     filled: true,
-    fillColor: Colors.white,
+    fillColor: _ReportPalette.surface,
+    isDense: true,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    labelStyle: const TextStyle(
+      color: _ReportPalette.textSecondary,
+      fontSize: 13,
+    ),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFD3E3DB)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: _ReportPalette.border),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFD3E3DB)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: _ReportPalette.border),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: _reportPrimary, width: 1.4),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: _ReportPalette.primary, width: 1.4),
     ),
   );
+}
+
+Color _reportStatusColor(String? status) {
+  switch (status) {
+    case 'hadir':
+      return _ReportPalette.success;
+    case 'izin':
+      return _ReportPalette.warning;
+    case 'alpha':
+      return _ReportPalette.danger;
+    default:
+      return _ReportPalette.info;
+  }
 }
 
 String _formatMonthLabel(String value) {
