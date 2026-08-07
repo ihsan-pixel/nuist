@@ -281,6 +281,14 @@ class AuthRepository {
     );
     final data = response.data ?? <String, dynamic>{};
 
+    if (data['data'] is Map<String, dynamic>) {
+      return AppUser.fromJson(data['data'] as Map<String, dynamic>);
+    }
+
+    if (data['data'] is Map) {
+      return AppUser.fromJson(Map<String, dynamic>.from(data['data'] as Map));
+    }
+
     if (data['user'] is Map<String, dynamic>) {
       return AppUser.fromJson(data['user'] as Map<String, dynamic>);
     }

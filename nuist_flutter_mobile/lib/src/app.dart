@@ -117,14 +117,23 @@ class _NuistMobileAppState extends State<NuistMobileApp>
       );
     }
 
-    if (session.user.role == 'tenaga_pendidik') {
+    final normalizedRole = (session.user.role ?? '').trim().toLowerCase();
+    final mobileRoute = (session.mobileRoute ?? '').trim().toLowerCase();
+    final isTeacherRoute = normalizedRole == 'tenaga_pendidik' ||
+        mobileRoute.startsWith('/mobile/guru/') ||
+        mobileRoute.startsWith('/mobile/teacher/');
+    final isStudentRoute = normalizedRole == 'siswa' ||
+        mobileRoute.startsWith('/mobile/siswa/') ||
+        mobileRoute.startsWith('/mobile/student/');
+
+    if (isTeacherRoute) {
       return TeacherShellPage(
         controller: _sessionController,
         repository: _teacherMobileRepository,
       );
     }
 
-    if (session.user.role == 'siswa') {
+    if (isStudentRoute) {
       return StudentShellPage(
         controller: _sessionController,
         repository: _studentMobileRepository,
