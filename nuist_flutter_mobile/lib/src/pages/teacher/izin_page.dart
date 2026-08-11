@@ -146,7 +146,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
     }
 
     Future<void> pickAttachment(StateSetter sheetSetState) async {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png'],
         withData: false,

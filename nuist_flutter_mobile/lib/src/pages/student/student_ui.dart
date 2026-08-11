@@ -583,31 +583,25 @@ class StudentTicketCard extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    left: -18,
-
-                    width: 36,
-                    height: 36,
+                    left: -14,
                     child: Container(
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
                         color: backgroundColor,
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
                     ),
                   ),
+
                   Positioned(
-                    right: -18,
-                    width: 36,
-                    height: 36,
+                    right: -14,
                     child: Container(
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
                         color: backgroundColor,
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
                     ),
                   ),

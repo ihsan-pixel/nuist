@@ -513,7 +513,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
   Future<String> _resolveAddress(Position position) async {
     try {
-      final placemarks = await placemarkFromCoordinates(
+      final placemarks = await Geocoding().placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );

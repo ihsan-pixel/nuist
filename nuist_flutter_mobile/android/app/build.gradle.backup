@@ -104,7 +104,6 @@ def registerManualFlutterAssetsTask(String variantName, String buildMode, String
             "-dTargetPlatform=${targetPlatform}",
             "-dBuildMode=${buildMode}",
             "-dTrackWidgetCreation=${trackWidgetCreation}",
-            "-dAndroidArchs=android-arm64",
             ruleName
         inputs.file(targetFile)
         inputs.file(pubspecFile)

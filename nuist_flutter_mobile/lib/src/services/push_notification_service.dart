@@ -64,7 +64,7 @@ class PushNotificationService {
         AndroidInitializationSettings('@drawable/ic_stat_nuist');
     const iosSettings = DarwinInitializationSettings();
     await _localNotifications.initialize(
-      const InitializationSettings(
+      settings: const InitializationSettings(
         android: androidSettings,
         iOS: iosSettings,
       ),
@@ -181,10 +181,10 @@ class PushNotificationService {
     }
 
     await _localNotifications.show(
-      message.hashCode,
-      notification.title ?? 'NUIST',
-      notification.body ?? '',
-      const NotificationDetails(
+      id: message.hashCode,
+      title: notification.title ?? 'NUIST',
+      body: notification.body ?? '',
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
           _channelName,

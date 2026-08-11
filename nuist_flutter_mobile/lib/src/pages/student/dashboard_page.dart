@@ -4,6 +4,7 @@ import '../../services/student_mobile_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app/app_section_card.dart';
 import 'student_ui.dart';
+import 'package:flutter/widget_previews.dart';
 
 class StudentDashboardPage extends StatefulWidget {
   const StudentDashboardPage({
@@ -301,7 +302,7 @@ class _StudentDashboardContent extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _StudentStatTile(
-                        label: 'Lunas',
+                        label: 'Lunass boss',
                         value: '${summary['paid_bills'] ?? 0}',
                         iconSurface: const Color(0xFFDDF8E6),
                         iconColor: const Color(0xFF10B981),
@@ -1374,4 +1375,45 @@ String _studentDashboardMonthLabel(DateTime date) {
     'Desember',
   ];
   return '${months[date.month - 1]} ${date.year}';
+}
+
+@Preview(
+  name: 'Student Dashboard UI',
+  size: Size(390, 844),
+)
+Widget studentDashboardPreview() {
+  return MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SafeArea(
+        child: _StudentDashboardContent(
+          student: const {
+            'name': 'Ahmad Maulana',
+            'kelas': 'XII',
+            'jurusan': 'RPL',
+          },
+          studentName: 'Ahmad Maulana',
+          schoolName: 'SMK Ma\'arif NU',
+          summary: const {
+            'payment_completion_rate': 75,
+            'paid_bills': 6,
+            'total_bills': 8,
+            'pending_payments': 1,
+            'unpaid_bills': 2,
+          },
+          activeBill: const {
+            'status': 'belum_lunas',
+            'jenis_tagihan': 'SPP Agustus',
+            'nomor_tagihan': 'INV-2026-008',
+            'jatuh_tempo': '2026-08-15',
+            'outstanding_amount': 150000,
+          },
+          reminder: null,
+          recentPayments: const [],
+          onSelectTab: (_) {},
+        ),
+      ),
+    ),
+  );
 }
