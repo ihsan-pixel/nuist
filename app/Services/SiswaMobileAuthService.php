@@ -55,7 +55,7 @@ class SiswaMobileAuthService
         // personal email. The linked user still needs a unique email value.
         $accountEmail = filled($siswa->email)
             ? strtolower(trim($siswa->email))
-            : "siswa-{$siswa->id}@nuist.local";
+            : strtolower(trim($siswa->nisn)) . '@nuist.id';
 
         $user = User::query()
             ->where('nuist_id', $linkKey)
