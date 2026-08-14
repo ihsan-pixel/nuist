@@ -550,18 +550,13 @@ class _LoginFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isStudent = loginAs == 'siswa';
-    final roleColor = isStudent
-        ? _LoginPalette.primary
-        : _LoginPalette.primaryDark;
-
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       decoration: BoxDecoration(
         color: _LoginPalette.card,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: roleColor.withValues(alpha: 0.24),
+          color: _LoginPalette.border.withValues(alpha: 0.9),
         ),
         boxShadow: [
           BoxShadow(
@@ -586,46 +581,37 @@ class _LoginFormCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
             ],
-            const _InputLabel('Pilih jenis login'),
-            const SizedBox(height: 8),
-            _RoleLoginSelector(
-              selectedRole: loginAs,
-              enabled: onLoginAsChanged != null,
-              onChanged: onLoginAsChanged,
+            const _InputLabel('Masuk sebagai'),
+            const SizedBox(height: 5),
+            SegmentedButton<String>(
+              segments: const [
+                ButtonSegment(
+                  value: 'siswa',
+                  label: Text('Siswa'),
+                  icon: Icon(Icons.school_outlined),
+                ),
+                ButtonSegment(
+                  value: 'tenaga_pendidik',
+                  label: Text('Tenaga Pendidik'),
+                  icon: Icon(Icons.badge_outlined),
+                ),
+              ],
+              selected: {loginAs},
+              onSelectionChanged: onLoginAsChanged == null
+                  ? null
+                  : (selection) => onLoginAsChanged!(selection.first),
             ),
-            const SizedBox(height: 12),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: roleColor.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: roleColor.withValues(alpha: 0.16)),
+            if (loginAs == 'siswa') ...[
+              const SizedBox(height: 8),
+              const Text(
+                'Gunakan NISN. Password awal atau hasil reset diberikan oleh admin sekolah.',
+                style: TextStyle(
+                  color: _LoginPalette.textSecondary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    isStudent ? Icons.school_rounded : Icons.badge_rounded,
-                    color: roleColor,
-                    size: 19,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      isStudent
-                          ? 'Login Siswa • gunakan NISN dan password Anda.'
-                          : 'Login Tenaga Pendidik • gunakan email dan password Anda.',
-                      style: TextStyle(
-                        color: roleColor,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ],
             const SizedBox(height: 12),
             _InputLabel(loginAs == 'siswa' ? 'NISN' : 'Email'),
             const SizedBox(height: 5),
@@ -841,116 +827,6 @@ class _LoginFormCard extends StatelessWidget {
         borderSide: const BorderSide(
           color: _LoginPalette.error,
           width: 1.3,
-        ),
-      ),
-    );
-  }
-}
-
-class _RoleLoginSelector extends StatelessWidget {
-  const _RoleLoginSelector({
-    required this.selectedRole,
-    required this.enabled,
-    required this.onChanged,
-  });
-
-  final String selectedRole;
-  final bool enabled;
-  final ValueChanged<String>? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _RoleLoginOption(
-            role: 'siswa',
-            label: 'Siswa',
-            icon: Icons.school_rounded,
-            selected: selectedRole == 'siswa',
-            enabled: enabled,
-            onTap: onChanged,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _RoleLoginOption(
-            role: 'tenaga_pendidik',
-            label: 'Tenaga Pendidik',
-            icon: Icons.badge_rounded,
-            selected: selectedRole == 'tenaga_pendidik',
-            enabled: enabled,
-            onTap: onChanged,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _RoleLoginOption extends StatelessWidget {
-  const _RoleLoginOption({
-    required this.role,
-    required this.label,
-    required this.icon,
-    required this.selected,
-    required this.enabled,
-    required this.onTap,
-  });
-
-  final String role;
-  final String label;
-  final IconData icon;
-  final bool selected;
-  final bool enabled;
-  final ValueChanged<String>? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = role == 'siswa'
-        ? _LoginPalette.primary
-        : _LoginPalette.primaryDark;
-
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: 'Login sebagai $label',
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: enabled ? () => onTap?.call(role) : null,
-          borderRadius: BorderRadius.circular(14),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            height: 76,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
-            decoration: BoxDecoration(
-              color: selected ? color.withValues(alpha: 0.13) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: selected ? color : _LoginPalette.border,
-                width: selected ? 1.6 : 1,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: selected ? color : _LoginPalette.textSecondary, size: 23),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: selected ? color : _LoginPalette.textPrimary,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );
