@@ -9,7 +9,7 @@ Halaman login NUIST Mobile menyediakan dua pilihan:
 
 Pilihan peran dikirim ke `POST /api/mobile/login` melalui `login_as`. Server menolak akun yang tidak sesuai dengan peran yang dipilih.
 
-Jika email pribadi siswa kosong, akun internal menggunakan format `NISN@nuist.id`, misalnya `0094908079@nuist.id`. Ini tidak mengubah cara siswa login: siswa tetap memakai NISN.
+Setiap siswa yang memiliki NISN memperoleh email internal pada `siswa.email_nuist` dengan format `NISN@nuist.id`, misalnya `0094908079@nuist.id`. Kolom `siswa.email` tetap khusus email pribadi dan tidak diisi otomatis. Ini tidak mengubah cara siswa login: siswa tetap memakai NISN.
 
 ## Password awal siswa
 

@@ -51,11 +51,20 @@ class SiswaMobileAuthService
     public function syncUserFromSiswa(Siswa $siswa): User
     {
         $linkKey = $this->buildLinkKey($siswa);
-        // A student can use NISN login even when the source school data has no
-        // personal email. The linked user still needs a unique email value.
+        $internalEmail = strtolower(trim($siswa->nisn)) . '@nuist.id';
+
+        // Keep the school's personal-email field untouched. email_nuist is
+        // the stable system identity created for every NISN-enabled student.
+        if ($siswa->email_nuist !== $internalEmail) {
+            $siswa->forceFill(['email_nuist' => $internalEmail])->save();
+            $siswa->refresh();
+        }
+
+        // Laravel's user record requires an address; use personal email when
+        // available and fall back to the separate NUIST system identity.
         $accountEmail = filled($siswa->email)
             ? strtolower(trim($siswa->email))
-            : strtolower(trim($siswa->nisn)) . '@nuist.id';
+            : $internalEmail;
 
         $user = User::query()
             ->where('nuist_id', $linkKey)

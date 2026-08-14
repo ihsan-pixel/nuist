@@ -28,6 +28,7 @@ class Siswa extends Authenticatable
         'agama',
         'nama_orang_tua_wali',
         'email',
+        'email_nuist',
         'email_orang_tua_wali',
         'no_hp',
         'no_hp_orang_tua_wali',
@@ -71,6 +72,17 @@ class Siswa extends Authenticatable
         'last_login_at' => 'datetime',
         'is_active' => 'boolean',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::saving(function (Siswa $siswa) {
+            if (filled($siswa->nisn)) {
+                $siswa->email_nuist = strtolower(trim($siswa->nisn)) . '@nuist.id';
+            }
+        });
+    }
 
     public function madrasah()
     {
