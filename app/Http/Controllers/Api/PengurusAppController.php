@@ -77,6 +77,7 @@ class PengurusAppController extends Controller
             ->map(fn (Madrasah $school) => [
                 'id' => $school->id, 'name' => $school->name, 'scod' => $school->scod,
                 'kabupaten' => $school->kabupaten,
+                'logo' => $school->logo,
                 'logo_url' => filled($school->logo) ? url('storage/' . ltrim($school->logo, '/')) : null,
                 'students' => (int) ($studentCounts[$school->id] ?? 0),
                 'teachers' => (int) ($teacherCounts[$school->id] ?? 0),

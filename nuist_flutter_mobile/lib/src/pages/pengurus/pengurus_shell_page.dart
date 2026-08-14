@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/session_controller.dart';
+import '../../config/app_config.dart';
 import '../../services/pengurus_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_bottom_nav.dart';
@@ -152,12 +153,21 @@ class _SchoolMonitorState extends State<_SchoolMonitor> {
       final keyword = _query.trim().toLowerCase();
       final items = keyword.isEmpty ? allItems : allItems.where((item) => '${item['name']} ${item['scod']} ${item['kabupaten']}'.toLowerCase().contains(keyword)).toList();
       final districts = <String, List<Map<String, dynamic>>>{};
-      for (final item in items) { final district = item['kabupaten']?.toString().trim(); districts.putIfAbsent(district?.isNotEmpty == true ? district! : 'Data kabupaten belum lengkap', () => []).add(item); }
+      for (final item in items) {
+        final district = _schoolDistrict(item);
+        if (district == null) continue;
+        districts.putIfAbsent(district, () => []).add(item);
+      }
+      final districtEntries = districts.entries.toList()
+        ..sort((left, right) => _districtRank(left.key).compareTo(_districtRank(right.key)));
+      for (final entry in districtEntries) {
+        entry.value.sort((left, right) => _scodValue(left['scod']).compareTo(_scodValue(right['scod'])));
+      }
       return RefreshIndicator(onRefresh: _refresh, child: ListView(padding: const EdgeInsets.only(bottom: 28), children: [
         Transform.translate(offset: const Offset(0, -8), child: Container(padding: const EdgeInsets.fromLTRB(14, 22, 14, 16), decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(18), topRight: Radius.circular(18))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           TextField(onChanged: (value) => setState(() => _query = value), textInputAction: TextInputAction.search, decoration: InputDecoration(hintText: 'Cari nama sekolah atau SCOD...', prefixIcon: const Icon(Icons.search_rounded, color: _pengurusPrimary), filled: true, fillColor: const Color(0xFFF7FAF9), contentPadding: const EdgeInsets.symmetric(vertical: 12), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFDCE7E3))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: _pengurusPrimary, width: 1.5)))),
           const SizedBox(height: 18),
-          if (districts.isEmpty) const _SchoolEmptyState() else ...districts.entries.map((entry) => Padding(padding: const EdgeInsets.only(bottom: 20), child: _DistrictSchoolSection(district: entry.key, items: entry.value))),
+          if (districtEntries.isEmpty) const _SchoolEmptyState() else ...districtEntries.map((entry) => Padding(padding: const EdgeInsets.only(bottom: 20), child: _DistrictSchoolSection(district: entry.key, items: entry.value))),
         ]))),
       ]));
     })),
@@ -171,7 +181,7 @@ class _DistrictSchoolSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Row(children: [Expanded(child: Text(_districtTitle(district), style: const TextStyle(color: _pengurusText, fontSize: 15, fontWeight: FontWeight.w800))), GestureDetector(onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => _DistrictSchoolsPage(district: _districtTitle(district), items: items))), child: const Text('See All', style: TextStyle(color: _pengurusPrimary, fontSize: 12, fontWeight: FontWeight.w800)))]),
+    Row(children: [Expanded(child: Text(district, style: const TextStyle(color: _pengurusText, fontSize: 15, fontWeight: FontWeight.w800))), GestureDetector(onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => _DistrictSchoolsPage(district: district, items: items))), child: const Text('See All', style: TextStyle(color: _pengurusPrimary, fontSize: 12, fontWeight: FontWeight.w800)))]),
     const SizedBox(height: 10),
     SizedBox(height: 108, child: ListView.separated(scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(), itemCount: items.take(4).length, separatorBuilder: (_, __) => const SizedBox(width: 14), itemBuilder: (_, index) => _SchoolServiceTile(item: items[index]))),
   ]);
@@ -193,7 +203,7 @@ class _SchoolServiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = item['name']?.toString() ?? 'Sekolah';
-    final logoUrl = item['logo_url']?.toString();
+    final logoUrl = _schoolLogoUrl(item);
     return SizedBox(width: 84, child: Column(children: [
       Container(width: 58, height: 58, padding: const EdgeInsets.all(3), decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Color(0x14172A24), blurRadius: 12, offset: Offset(0, 4))]), child: ClipOval(child: logoUrl != null && logoUrl.isNotEmpty ? Image.network(logoUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _SchoolLogoFallback(name: name)) : _SchoolLogoFallback(name: name))),
       const SizedBox(height: 7),
@@ -552,7 +562,26 @@ class _LoadError extends StatelessWidget { const _LoadError({required this.onRet
 List<Map<String, dynamic>> _updateItems(dynamic value) => (value as List? ?? const []).whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList();
 String _currency(dynamic value) { final amount = value is num ? value.round() : num.tryParse(value?.toString() ?? '')?.round() ?? 0; final digits = amount.toString(); final buffer = StringBuffer(); for (var index = 0; index < digits.length; index++) { buffer.write(digits[index]); if (digits.length - index > 1 && (digits.length - index - 1) % 3 == 0) buffer.write('.'); } return 'Rp $buffer'; }
 String _dateLabel(dynamic value) { final date = DateTime.tryParse(value?.toString() ?? ''); if (date == null) return '-'; const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; return '${date.day} ${months[date.month - 1]}'; }
-String _districtTitle(String value) {
-  if (value == 'Data kabupaten belum lengkap') return value;
-  return value.trimLeft().toLowerCase().startsWith('kabupaten') ? value : 'Kabupaten $value';
+String? _schoolDistrict(Map<String, dynamic> item) {
+  final stored = item['kabupaten']?.toString().trim();
+  if (stored != null && stored.isNotEmpty) return _districtTitle(stored);
+  final scod = item['scod']?.toString().trim() ?? '';
+  return switch (scod.isEmpty ? '' : scod.substring(0, 1)) {
+    '1' => 'Kabupaten Bantul',
+    '2' => 'Kabupaten Gunungkidul',
+    '3' => 'Kabupaten Kulon Progo',
+    '4' => 'Kabupaten Sleman',
+    '5' => 'Kota Yogyakarta',
+    _ => null,
+  };
+}
+String _districtTitle(String value) => value.trimLeft().toLowerCase().startsWith('kabupaten') || value.trimLeft().toLowerCase().startsWith('kota') ? value : 'Kabupaten $value';
+int _districtRank(String district) => const {'Kabupaten Bantul': 1, 'Kabupaten Gunungkidul': 2, 'Kabupaten Kulon Progo': 3, 'Kabupaten Sleman': 4, 'Kota Yogyakarta': 5}[district] ?? 99;
+int _scodValue(dynamic value) => int.tryParse(value?.toString() ?? '') ?? 999999;
+String? _schoolLogoUrl(Map<String, dynamic> item) {
+  final value = item['logo_url']?.toString().trim().isNotEmpty == true ? item['logo_url'].toString().trim() : item['logo']?.toString().trim();
+  if (value == null || value.isEmpty) return null;
+  if (value.startsWith('http://') || value.startsWith('https://')) return value;
+  final path = value.startsWith('storage/') ? value : 'storage/$value';
+  return '${AppConfig.webBaseUrl}/$path';
 }
