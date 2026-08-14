@@ -117,6 +117,28 @@ class AuthRepository {
     }
   }
 
+  Future<String> resetStudentPassword({
+    required String nisn,
+    required String birthDate,
+    required String motherName,
+    required String turnstileToken,
+  }) async {
+    try {
+      final response = await _apiClient.dio.post<Map<String, dynamic>>(
+        '/mobile/student-password-reset',
+        data: {
+          'nisn': nisn,
+          'tanggal_lahir': birthDate,
+          'nama_ibu': motherName,
+          'turnstile_token': turnstileToken,
+        },
+      );
+      return _extractMessage(response.data, fallback: 'Password siswa berhasil direset.');
+    } on DioException catch (error) {
+      throw _mapDioError(error);
+    }
+  }
+
   Future<Session> login({
     required String identifier,
     required String loginAs,

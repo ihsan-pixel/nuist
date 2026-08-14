@@ -6,7 +6,7 @@ import '../../controllers/session_controller.dart';
 import '../../services/auth_repository.dart';
 import '../../widgets/auth/status_banner.dart';
 import 'forgot_password_page.dart';
-import 'register_page.dart';
+import 'student_password_reset_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
@@ -219,30 +219,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _openRegisterPage() async {
-    final message = await Navigator.of(context).push<String>(
-      MaterialPageRoute(
-        builder: (_) => RegisterPage(
-          authRepository: widget.authRepository,
-        ),
-      ),
-    );
-
-    if (!mounted || message == null || message.isEmpty) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
-  }
-
   Future<void> _openForgotPasswordPage() async {
     final message = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder: (_) => ForgotPasswordPage(
-          authRepository: widget.authRepository,
-        ),
+        builder: (_) => _loginAs == 'siswa'
+            ? StudentPasswordResetPage(authRepository: widget.authRepository)
+            : ForgotPasswordPage(authRepository: widget.authRepository),
       ),
     );
 
@@ -323,8 +305,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       ),
                       const SizedBox(height: 14),
                       _buildAnimatedFormCard(controller),
-                      const SizedBox(height: 12),
-                      _buildAnimatedFooter(controller),
                       const SizedBox(height: 12),
                       _buildAnimatedVersion(),
                     ],
@@ -440,50 +420,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAnimatedFooter(SessionController controller) {
-    final animation = CurvedAnimation(
-      parent: _entryController,
-      curve: const Interval(0.46, 0.84, curve: Curves.easeOutCubic),
-    );
-    final scale = Tween<double>(
-      begin: 0.96,
-      end: 1,
-    ).animate(animation);
-
-    return FadeTransition(
-      opacity: animation,
-      child: ScaleTransition(
-        scale: scale,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Belum memiliki akun? ',
-              style: TextStyle(
-                color: _LoginPalette.textSecondary,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            GestureDetector(
-              onTap: controller.isLoggingIn ? null : _openRegisterPage,
-              child: Text(
-                'Daftar sekarang',
-                style: TextStyle(
-                  color: controller.isLoggingIn
-                      ? _LoginPalette.textSecondary
-                      : _LoginPalette.primary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildAnimatedVersion() {
     final animation = CurvedAnimation(
       parent: _entryController,
@@ -581,37 +517,11 @@ class _LoginFormCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
             ],
-            const _InputLabel('Masuk sebagai'),
-            const SizedBox(height: 5),
-            SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(
-                  value: 'siswa',
-                  label: Text('Siswa'),
-                  icon: Icon(Icons.school_outlined),
-                ),
-                ButtonSegment(
-                  value: 'tenaga_pendidik',
-                  label: Text('Tenaga Pendidik'),
-                  icon: Icon(Icons.badge_outlined),
-                ),
-              ],
-              selected: {loginAs},
-              onSelectionChanged: onLoginAsChanged == null
-                  ? null
-                  : (selection) => onLoginAsChanged!(selection.first),
+            _LoginRoleToggle(
+              selectedRole: loginAs,
+              enabled: onLoginAsChanged != null,
+              onChanged: onLoginAsChanged,
             ),
-            if (loginAs == 'siswa') ...[
-              const SizedBox(height: 8),
-              const Text(
-                'Gunakan NISN. Password awal atau hasil reset diberikan oleh admin sekolah.',
-                style: TextStyle(
-                  color: _LoginPalette.textSecondary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
             const SizedBox(height: 12),
             _InputLabel(loginAs == 'siswa' ? 'NISN' : 'Email'),
             const SizedBox(height: 5),
@@ -700,13 +610,13 @@ class _LoginFormCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: loginAs == 'siswa' ? null : onForgotPassword,
+                  onPressed: onForgotPassword,
                   style: TextButton.styleFrom(
                     foregroundColor: _LoginPalette.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                   ),
                   child: Text(
-                    loginAs == 'siswa' ? 'Hubungi admin' : 'Lupa Password?',
+                    'Lupa Password?',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -827,6 +737,126 @@ class _LoginFormCard extends StatelessWidget {
         borderSide: const BorderSide(
           color: _LoginPalette.error,
           width: 1.3,
+        ),
+      ),
+    );
+  }
+}
+
+class _LoginRoleToggle extends StatelessWidget {
+  const _LoginRoleToggle({
+    required this.selectedRole,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final String selectedRole;
+  final bool enabled;
+  final ValueChanged<String>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 58,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F4F6),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeInOutCubicEmphasized,
+            alignment: selectedRole == 'siswa'
+                ? Alignment.centerLeft
+                : Alignment.centerRight,
+            child: FractionallySizedBox(
+              widthFactor: 0.5,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.10),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: _LoginRoleToggleOption(
+                  value: 'siswa',
+                  label: 'Siswa',
+                  selected: selectedRole == 'siswa',
+                  enabled: enabled,
+                  onChanged: onChanged,
+                ),
+              ),
+              Expanded(
+                child: _LoginRoleToggleOption(
+                  value: 'tenaga_pendidik',
+                  label: 'Tenaga Pendidik',
+                  selected: selectedRole == 'tenaga_pendidik',
+                  enabled: enabled,
+                  onChanged: onChanged,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoginRoleToggleOption extends StatelessWidget {
+  const _LoginRoleToggleOption({
+    required this.value,
+    required this.label,
+    required this.selected,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final String value;
+  final String label;
+  final bool selected;
+  final bool enabled;
+  final ValueChanged<String>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: enabled ? () => onChanged?.call(value) : null,
+        borderRadius: BorderRadius.circular(25),
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          style: TextStyle(
+            color: selected
+                ? _LoginPalette.textPrimary
+                : _LoginPalette.textSecondary.withValues(alpha: 0.48),
+            fontSize: 12.5,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+          ),
+          child: Center(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ),
       ),
     );

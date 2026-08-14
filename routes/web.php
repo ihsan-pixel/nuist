@@ -1156,9 +1156,7 @@ Route::domain('presensi.nuist.id')->group(function () {
         return view('mobile.login');
     })->middleware(['guest']);
     Route::get('/mobile/register', function () {
-        $madrasahs = \App\Models\Madrasah::orderBy('scod')->get();
-
-        return view('mobile.register', compact('madrasahs'));
+        abort(404);
     })->middleware(['guest']);
 
     Route::post('/login', function (\Illuminate\Http\Request $request) {
@@ -1592,8 +1590,7 @@ Route::get('/mobile/login', function () {
 })->middleware(['guest'])->name('mobile.login');
 
 Route::get('/mobile/register', function () {
-    $madrasahs = \App\Models\Madrasah::orderBy('scod')->get();
-    return view('mobile.register', compact('madrasahs'));
+    abort(404);
 })->name('mobile.register');
 
 Route::get('/register/operator-spp', [App\Http\Controllers\SppOperatorController::class, 'registerForm'])
@@ -1623,6 +1620,11 @@ Route::post('/mobile/login', [MobileAuthController::class, 'authenticate'])
 Route::get('/mobile/forgot-password', function () {
     return view('mobile.forgot-password-v2');
 })->middleware(['guest'])->name('mobile.password.request');
+
+Route::get('/mobile/student-password-reset/captcha', function () {
+    abort_unless(filled(config('services.turnstile.site_key')), 503);
+    return view('mobile.student-password-reset-captcha');
+})->middleware('guest')->name('mobile.student-password-reset.captcha');
 
 Route::post('/mobile/forgot-password', function (Request $request) {
     $request->validate(['email' => 'required|email']);

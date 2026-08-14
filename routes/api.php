@@ -24,11 +24,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Mobile token login/logout for Capacitor apps (token-based auth)
-Route::get('/mobile/register/options', [App\Http\Controllers\Api\AuthController::class, 'registerOptions']);
-Route::post('/mobile/register', [App\Http\Controllers\Api\AuthController::class, 'register'])
-    ->middleware(['throttle:6,1']);
+// Public registration is intentionally disabled. Teacher and management
+// accounts are provisioned from verified institutional data by administrators.
 Route::post('/mobile/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword'])
     ->middleware(['throttle:6,1']);
+Route::post('/mobile/student-password-reset', [App\Http\Controllers\Api\AuthController::class, 'resetStudentPassword'])
+    ->middleware(['throttle:5,15']);
 Route::post('/mobile/login', [App\Http\Controllers\Api\AuthController::class, 'login'])
     ->middleware(['throttle:6,1']);
 Route::middleware(['auth:sanctum', 'throttle:10,1'])->post('/mobile/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);

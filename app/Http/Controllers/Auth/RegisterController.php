@@ -55,19 +55,7 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-        $this->validator($request->all())->validate();
-
-        $pendingRegistration = $this->create($request->all());
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Registration submitted successfully. Please wait for admin approval.',
-                'data' => $pendingRegistration
-            ]);
-        }
-
-        return redirect($this->redirectPath());
+        abort(404);
     }
 
     /**
@@ -77,8 +65,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        $madrasahs = \App\Models\Madrasah::orderBy('scod')->get();
-        return view('auth.register', compact('madrasahs'));
+        abort(404);
     }
 
     /**

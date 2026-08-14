@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -89,6 +92,70 @@ class AuthController extends Controller
         return response()->json([
             'message' => __($status),
         ]);
+    }
+
+    public function resetStudentPassword(Request $request, \App\Services\StudentDefaultPasswordService $passwords)
+    {
+        $data = $request->validate([
+            'nisn' => ['required', 'string', 'max:50'],
+            'tanggal_lahir' => ['required', 'date'],
+            'nama_ibu' => ['required', 'string', 'max:255'],
+            'turnstile_token' => ['required', 'string', 'max:2048'],
+        ]);
+
+        $key = 'student-password-reset:' . hash('sha256', $request->ip() . '|' . $data['nisn']);
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+            return response()->json(['message' => 'Terlalu banyak percobaan. Silakan coba lagi dalam beberapa menit.'], 429);
+        }
+
+        if (!$this->verifyTurnstile($data['turnstile_token'], $request->ip())) {
+            RateLimiter::hit($key, 900);
+            return response()->json(['message' => 'Verifikasi CAPTCHA gagal. Silakan ulangi CAPTCHA.'], 422);
+        }
+
+        $siswa = \App\Models\Siswa::query()
+            ->where('nisn', trim($data['nisn']))
+            ->where('is_active', true)
+            ->first();
+
+        $sameMother = $siswa && hash_equals(
+            $this->normalizeVerificationText((string) $siswa->nama_ibu),
+            $this->normalizeVerificationText($data['nama_ibu'])
+        );
+
+        if (!$siswa || !$sameMother || !$siswa->tanggal_lahir?->isSameDay($data['tanggal_lahir'])) {
+            RateLimiter::hit($key, 900);
+            return response()->json(['message' => 'Data verifikasi tidak sesuai.'], 422);
+        }
+
+        if (!$passwords->resetToDefault($siswa)) {
+            return response()->json(['message' => 'Password belum dapat direset. Hubungi admin sekolah.'], 422);
+        }
+
+        $linkKey = 'S' . str_pad(strtoupper(base_convert((string) $siswa->id, 10, 36)), 5, '0', STR_PAD_LEFT);
+        \App\Models\User::query()->where('nuist_id', $linkKey)->first()?->tokens()->delete();
+        RateLimiter::clear($key);
+
+        return response()->json(['message' => 'Password berhasil direset. Silakan login dengan password default berdasarkan tanggal lahir Anda.']);
+    }
+
+    private function verifyTurnstile(string $token, ?string $remoteIp): bool
+    {
+        $secret = config('services.turnstile.secret_key');
+        if (blank($secret)) return false;
+
+        try {
+            return Http::asForm()->timeout(10)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => $secret, 'response' => $token, 'remoteip' => $remoteIp,
+            ])->json('success') === true;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private function normalizeVerificationText(string $value): string
+    {
+        return Str::of($value)->lower()->ascii()->replaceMatches('/[^a-z0-9]+/', ' ')->trim()->toString();
     }
 
     /**

@@ -56,4 +56,9 @@ return [
         'service_account_path' => env('FIREBASE_SERVICE_ACCOUNT_PATH'),
     ],
 
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];
