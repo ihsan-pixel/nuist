@@ -17,7 +17,7 @@ Siswa aktif yang memiliki NISN dan belum mempunyai password akan memperoleh pass
 Nuistddmmyyyy
 ```
 
-`ddmmyyyy` adalah tanggal saat password dibuat. Misalnya, password yang dibuat pada 14 Agustus 2026 adalah `Nuist14082026`.
+`ddmmyyyy` adalah tanggal lahir siswa. Misalnya, siswa yang lahir pada 10 November 2009 memiliki password awal `Nuist10112009`.
 
 Password hanya disimpan sebagai hash. Password yang sudah ada tidak akan tertimpa oleh pengeditan data atau import siswa.
 
@@ -25,8 +25,8 @@ Password hanya disimpan sebagai hash. Password yang sudah ada tidak akan tertimp
 
 - Migrasi `2026_08_14_000000_seed_missing_student_mobile_passwords.php` mengisi password untuk siswa aktif yang memiliki NISN tetapi belum memiliki password.
 - Input manual dan import siswa juga otomatis memberi password awal hanya jika password sebelumnya kosong.
-- Admin dapat mereset password satu siswa dari **Data Sekolah → Data Siswa** melalui tombol ikon kunci. Reset menghasilkan pola password awal dengan tanggal reset saat itu.
-- Siswa tanpa NISN tidak dapat login hingga NISN dilengkapi.
+- Admin dapat mereset password satu siswa dari **Data Sekolah → Data Siswa** melalui tombol ikon kunci. Reset memakai tanggal lahir siswa.
+- Siswa tanpa NISN atau tanggal lahir tidak dapat memperoleh password default hingga datanya dilengkapi.
 
 ## API aplikasi
 
@@ -35,7 +35,7 @@ Request baru:
 ```json
 {
   "identifier": "0123456789",
-  "password": "Nuist14082026",
+  "password": "Nuist10112009",
   "login_as": "siswa"
 }
 ```

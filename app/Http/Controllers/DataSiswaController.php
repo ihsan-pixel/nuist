@@ -246,9 +246,11 @@ class DataSiswaController extends Controller
             return back()->withErrors(['password' => 'Password login tidak dapat direset karena siswa belum memiliki NISN.']);
         }
 
-        app(StudentDefaultPasswordService::class)->resetToDefault($siswa);
+        if (!app(StudentDefaultPasswordService::class)->resetToDefault($siswa)) {
+            return back()->withErrors(['password' => 'Password login tidak dapat direset karena tanggal lahir siswa belum diisi.']);
+        }
 
-        return back()->with('success', 'Password siswa direset ke password default NUIST untuk hari ini.');
+        return back()->with('success', 'Password siswa direset ke password default berdasarkan tanggal lahir.');
     }
 
     public function import(Request $request): RedirectResponse

@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       if (nisn.isEmpty) {
         return _hasSubmitted ? 'NISN wajib diisi.' : null;
       }
-      if (!RegExp(r'^\\d{6,50}$').hasMatch(nisn)) {
+      if (!RegExp(r'^\d{6,50}$').hasMatch(nisn)) {
         return 'NISN harus berupa angka.';
       }
       return null;

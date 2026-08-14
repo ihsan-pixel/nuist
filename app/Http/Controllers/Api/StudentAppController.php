@@ -176,15 +176,39 @@ class StudentAppController extends Controller
 
         abort_unless($user && $user->role === 'siswa', Response::HTTP_FORBIDDEN);
 
-        $siswa = Siswa::query()
-            ->with('madrasah')
-            ->where('email', $user->email)
-            ->where('madrasah_id', $user->madrasah_id)
-            ->first();
+        $siswa = $this->resolveStudentFromLinkedUser($user);
 
         abort_unless($siswa, Response::HTTP_NOT_FOUND, 'Data siswa tidak ditemukan untuk akun ini.');
 
         return [$user, $siswa];
+    }
+
+    private function resolveStudentFromLinkedUser(User $user): ?Siswa
+    {
+        // NISN login links the user as S + base36(student ID). Resolve this
+        // first because email is optional for student records.
+        $linkedId = null;
+        if (preg_match('/^S([0-9A-Z]+)$/', (string) $user->nuist_id, $matches)) {
+            $linkedId = (int) base_convert($matches[1], 36, 10);
+        }
+
+        $query = Siswa::query()->with('madrasah');
+        if ($linkedId) {
+            $linked = (clone $query)
+                ->whereKey($linkedId)
+                ->where('madrasah_id', $user->madrasah_id)
+                ->first();
+
+            if ($linked) {
+                return $linked;
+            }
+        }
+
+        // Compatibility for student accounts made before NISN login existed.
+        return (clone $query)
+            ->where('email', $user->email)
+            ->where('madrasah_id', $user->madrasah_id)
+            ->first();
     }
 
     private function loadStudentFinanceData(Siswa $siswa): array

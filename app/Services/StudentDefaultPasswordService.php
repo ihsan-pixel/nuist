@@ -18,21 +18,35 @@ class StudentDefaultPasswordService
             return false;
         }
 
-        $siswa->password = Hash::make($this->plainDefaultPassword());
+        $plainPassword = $this->plainDefaultPassword($siswa);
+        if (!$plainPassword) {
+            return false;
+        }
+
+        $siswa->password = Hash::make($plainPassword);
         $siswa->save();
 
         return true;
     }
 
-    public function plainDefaultPassword(): string
+    public function plainDefaultPassword(Siswa $siswa): ?string
     {
-        return 'Nuist' . now()->format('dmY');
+        return $siswa->tanggal_lahir
+            ? 'Nuist' . $siswa->tanggal_lahir->format('dmY')
+            : null;
     }
 
-    public function resetToDefault(Siswa $siswa): void
+    public function resetToDefault(Siswa $siswa): bool
     {
+        $plainPassword = $this->plainDefaultPassword($siswa);
+        if (!$plainPassword) {
+            return false;
+        }
+
         $siswa->forceFill([
-            'password' => Hash::make($this->plainDefaultPassword()),
+            'password' => Hash::make($plainPassword),
         ])->save();
+
+        return true;
     }
 }

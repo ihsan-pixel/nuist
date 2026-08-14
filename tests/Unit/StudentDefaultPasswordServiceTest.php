@@ -2,20 +2,18 @@
 
 namespace Tests\Unit;
 
+use App\Models\Siswa;
 use App\Services\StudentDefaultPasswordService;
-use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class StudentDefaultPasswordServiceTest extends TestCase
 {
-    public function test_default_student_password_uses_nuist_and_creation_date(): void
+    public function test_default_student_password_uses_nuist_and_birth_date(): void
     {
-        Carbon::setTestNow('2026-08-14 09:30:00');
+        $siswa = new Siswa(['tanggal_lahir' => '2009-11-10']);
 
-        $password = app(StudentDefaultPasswordService::class)->plainDefaultPassword();
+        $password = app(StudentDefaultPasswordService::class)->plainDefaultPassword($siswa);
 
-        $this->assertSame('Nuist14082026', $password);
-
-        Carbon::setTestNow();
+        $this->assertSame('Nuist10112009', $password);
     }
 }
