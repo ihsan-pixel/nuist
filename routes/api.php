@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
     Route::prefix('/app/pengurus')->group(function () {
         Route::get('/dashboard', [PengurusAppController::class, 'dashboard']);
         Route::get('/schools', [PengurusAppController::class, 'schools']);
+        Route::get('/schools/{madrasah}', [PengurusAppController::class, 'school']);
         Route::get('/updates/uppm', [PengurusAppController::class, 'uppmUpdates']);
         Route::get('/updates/spp', [PengurusAppController::class, 'sppUpdates']);
     });

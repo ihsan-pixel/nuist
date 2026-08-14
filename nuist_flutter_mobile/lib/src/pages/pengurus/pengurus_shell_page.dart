@@ -167,7 +167,7 @@ class _SchoolMonitorState extends State<_SchoolMonitor> {
         Transform.translate(offset: const Offset(0, -8), child: Container(padding: const EdgeInsets.fromLTRB(14, 22, 14, 16), decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(18), topRight: Radius.circular(18))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           TextField(onChanged: (value) => setState(() => _query = value), textInputAction: TextInputAction.search, decoration: InputDecoration(hintText: 'Cari nama sekolah atau SCOD...', prefixIcon: const Icon(Icons.search_rounded, color: _pengurusPrimary), filled: true, fillColor: const Color(0xFFF7FAF9), contentPadding: const EdgeInsets.symmetric(vertical: 12), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFDCE7E3))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: _pengurusPrimary, width: 1.5)))),
           const SizedBox(height: 18),
-          if (districtEntries.isEmpty) const _SchoolEmptyState() else ...districtEntries.map((entry) => Padding(padding: const EdgeInsets.only(bottom: 20), child: _DistrictSchoolSection(district: entry.key, items: entry.value))),
+          if (districtEntries.isEmpty) const _SchoolEmptyState() else ...districtEntries.map((entry) => Padding(padding: const EdgeInsets.only(bottom: 20), child: _DistrictSchoolSection(repository: widget.repository, district: entry.key, items: entry.value))),
         ]))),
       ]));
     })),
@@ -175,47 +175,86 @@ class _SchoolMonitorState extends State<_SchoolMonitor> {
 }
 
 class _DistrictSchoolSection extends StatelessWidget {
-  const _DistrictSchoolSection({required this.district, required this.items});
+  const _DistrictSchoolSection({required this.repository, required this.district, required this.items});
+  final PengurusMobileRepository repository;
   final String district;
   final List<Map<String, dynamic>> items;
 
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Row(children: [Expanded(child: Text(district, style: const TextStyle(color: _pengurusText, fontSize: 15, fontWeight: FontWeight.w800))), GestureDetector(onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => _DistrictSchoolsPage(district: district, items: items))), child: const Text('See All', style: TextStyle(color: _pengurusPrimary, fontSize: 12, fontWeight: FontWeight.w800)))]),
+    Row(children: [Expanded(child: Text(district, style: const TextStyle(color: _pengurusText, fontSize: 15, fontWeight: FontWeight.w800))), GestureDetector(onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => _DistrictSchoolsPage(repository: repository, district: district, items: items))), child: const Text('See All', style: TextStyle(color: _pengurusPrimary, fontSize: 12, fontWeight: FontWeight.w800)))]),
     const SizedBox(height: 10),
-    SizedBox(height: 108, child: ListView.separated(scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(), itemCount: items.take(4).length, separatorBuilder: (_, __) => const SizedBox(width: 14), itemBuilder: (_, index) => _SchoolServiceTile(item: items[index]))),
+    SizedBox(height: 108, child: ListView.separated(scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics(), itemCount: items.take(4).length, separatorBuilder: (_, __) => const SizedBox(width: 14), itemBuilder: (_, index) => _SchoolServiceTile(item: items[index], onTap: () => _openSchool(context, items[index])))),
   ]);
+
+  void _openSchool(BuildContext context, Map<String, dynamic> item) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => _SchoolDetailPage(repository: repository, schoolId: int.tryParse(item['id']?.toString() ?? '') ?? 0)));
 }
 
 class _DistrictSchoolsPage extends StatelessWidget {
-  const _DistrictSchoolsPage({required this.district, required this.items});
+  const _DistrictSchoolsPage({required this.repository, required this.district, required this.items});
+  final PengurusMobileRepository repository;
   final String district;
   final List<Map<String, dynamic>> items;
 
   @override
-  Widget build(BuildContext context) => Scaffold(backgroundColor: const Color(0xFFF7F9FC), body: SafeArea(child: Column(children: [TeacherOverlayPageHeader(title: district, onBack: () => Navigator.of(context).pop()), Expanded(child: ListView(padding: const EdgeInsets.all(16), children: [GridView.builder(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), itemCount: items.length, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 12, mainAxisSpacing: 16, childAspectRatio: 0.8), itemBuilder: (_, index) => _SchoolServiceTile(item: items[index]))]))])));
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: const Color(0xFFF7F9FC),
+    body: SafeArea(child: Column(children: [
+      TeacherOverlayPageHeader(title: district, onBack: () => Navigator.of(context).pop()),
+      Expanded(child: ListView(padding: const EdgeInsets.all(16), children: [
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: items.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, crossAxisSpacing: 10, mainAxisSpacing: 16, childAspectRatio: 0.72),
+          itemBuilder: (_, index) => _SchoolServiceTile(item: items[index], onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => _SchoolDetailPage(repository: repository, schoolId: int.tryParse(items[index]['id']?.toString() ?? '') ?? 0)))),
+        ),
+      ])),
+    ])),
+  );
 }
 
 class _SchoolServiceTile extends StatelessWidget {
-  const _SchoolServiceTile({required this.item});
+  const _SchoolServiceTile({required this.item, this.onTap});
   final Map<String, dynamic> item;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final name = item['name']?.toString() ?? 'Sekolah';
     final logoUrl = _schoolLogoUrl(item);
-    return SizedBox(width: 84, child: Column(children: [
+    return SizedBox(width: 84, child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(18), child: Column(children: [
       Container(width: 58, height: 58, padding: const EdgeInsets.all(3), decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Color(0x14172A24), blurRadius: 12, offset: Offset(0, 4))]), child: ClipOval(child: logoUrl != null && logoUrl.isNotEmpty ? Image.network(logoUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _SchoolLogoFallback(name: name)) : _SchoolLogoFallback(name: name))),
       const SizedBox(height: 7),
       Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: const TextStyle(color: _pengurusText, fontSize: 10, fontWeight: FontWeight.w700, height: 1.1)),
-      const SizedBox(height: 2),
-      Text(item['scod']?.toString() ?? '-', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: _pengurusPrimary, fontSize: 9, fontWeight: FontWeight.w700)),
-    ]));
+    ])));
   }
 }
 
 class _SchoolLogoFallback extends StatelessWidget { const _SchoolLogoFallback({required this.name}); final String name; @override Widget build(BuildContext context) => DecoratedBox(decoration: const BoxDecoration(gradient: LinearGradient(colors: [_pengurusPrimary, Color(0xFF00553F)])), child: Center(child: Text(name.isNotEmpty ? name.substring(0, 1).toUpperCase() : 'S', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)))); }
 class _SchoolEmptyState extends StatelessWidget { const _SchoolEmptyState(); @override Widget build(BuildContext context) => const Padding(padding: EdgeInsets.symmetric(vertical: 34), child: Center(child: Column(children: [Icon(Icons.school_outlined, size: 40, color: Color(0xFF94A3B8)), SizedBox(height: 10), Text('Sekolah tidak ditemukan', style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700))]))); }
+
+class _SchoolDetailPage extends StatefulWidget { const _SchoolDetailPage({required this.repository, required this.schoolId}); final PengurusMobileRepository repository; final int schoolId; @override State<_SchoolDetailPage> createState() => _SchoolDetailPageState(); }
+class _SchoolDetailPageState extends State<_SchoolDetailPage> {
+  late Future<Map<String, dynamic>> _future;
+  @override void initState() { super.initState(); _future = widget.repository.school(widget.schoolId); }
+  Future<void> _refresh() async => setState(() => _future = widget.repository.school(widget.schoolId));
+  @override Widget build(BuildContext context) => Scaffold(backgroundColor: const Color(0xFFF7F9FC), body: SafeArea(child: Column(children: [TeacherOverlayPageHeader(title: 'Detail Sekolah', onBack: () => Navigator.of(context).pop()), Expanded(child: FutureBuilder<Map<String, dynamic>>(future: _future, builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+    if (snapshot.hasError || !snapshot.hasData) return _LoadError(onRetry: _refresh);
+    final data = snapshot.data!; final school = Map<String, dynamic>.from(data['school'] as Map? ?? {}); final headmaster = data['headmaster'] is Map ? Map<String, dynamic>.from(data['headmaster'] as Map) : null; final teachers = _updateItems(data['teachers']); final students = _updateItems(data['students']); final name = school['name']?.toString() ?? 'Sekolah'; final logoUrl = _schoolLogoUrl(school);
+    return RefreshIndicator(onRefresh: _refresh, child: ListView(padding: const EdgeInsets.all(16), children: [
+      AppSectionCard(child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Container(width: 62, height: 62, padding: const EdgeInsets.all(3), decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: ClipOval(child: logoUrl != null ? Image.network(logoUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _SchoolLogoFallback(name: name)) : _SchoolLogoFallback(name: name))), const SizedBox(width: 12), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: const TextStyle(color: _pengurusText, fontSize: 16, fontWeight: FontWeight.w800)), const SizedBox(height: 4), Text(school['kabupaten']?.toString() ?? '-', style: const TextStyle(color: _pengurusPrimary, fontSize: 12, fontWeight: FontWeight.w700)), const SizedBox(height: 5), Text(school['alamat']?.toString() ?? 'Alamat belum tersedia', style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, height: 1.3))]))])),
+      const SizedBox(height: 14), const _SectionTitle(title: 'Kepala Sekolah'), const SizedBox(height: 8), AppSectionCard(padding: const EdgeInsets.all(14), child: ListTile(contentPadding: EdgeInsets.zero, leading: const CircleAvatar(backgroundColor: Color(0xFFE5F5F0), child: Icon(Icons.person_rounded, color: _pengurusPrimary)), title: Text(headmaster?['name']?.toString() ?? 'Belum ditetapkan', style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: Text(headmaster?['position']?.toString() ?? 'Data kepala sekolah belum tersedia'))),
+      const SizedBox(height: 14), Row(children: [Expanded(child: _DetailCount(label: 'Tenaga Pendidik', value: '${data['teacher_count'] ?? 0}', icon: Icons.badge_rounded)), const SizedBox(width: 10), Expanded(child: _DetailCount(label: 'Siswa Aktif', value: '${data['student_count'] ?? 0}', icon: Icons.groups_rounded))]),
+      const SizedBox(height: 18), const _SectionTitle(title: 'Data Tenaga Pendidik'), const SizedBox(height: 8), if (teachers.isEmpty) const _DetailEmpty(label: 'Belum ada data tenaga pendidik.') else ...teachers.map((teacher) => Padding(padding: const EdgeInsets.only(bottom: 8), child: _PersonTile(name: teacher['name']?.toString() ?? '-', subtitle: teacher['position']?.toString() ?? 'Tenaga Pendidik', icon: Icons.badge_rounded))),
+      const SizedBox(height: 10), const _SectionTitle(title: 'Data Siswa'), const SizedBox(height: 8), if (students.isEmpty) const _DetailEmpty(label: 'Belum ada data siswa aktif.') else ...students.map((student) => Padding(padding: const EdgeInsets.only(bottom: 8), child: _PersonTile(name: student['name']?.toString() ?? '-', subtitle: student['class']?.toString().isNotEmpty == true ? student['class'].toString() : 'Siswa aktif', icon: Icons.person_outline_rounded))), if (data['students_preview_limited'] == true) const Padding(padding: EdgeInsets.only(top: 4), child: Text('Menampilkan 30 siswa pertama.', style: TextStyle(color: Color(0xFF64748B), fontSize: 11))),
+    ]));
+  }))])));
+}
+class _DetailCount extends StatelessWidget { const _DetailCount({required this.label, required this.value, required this.icon}); final String label, value; final IconData icon; @override Widget build(BuildContext context) => AppSectionCard(padding: const EdgeInsets.all(12), child: Row(children: [Icon(icon, color: _pengurusPrimary), const SizedBox(width: 8), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value, style: const TextStyle(color: _pengurusText, fontSize: 18, fontWeight: FontWeight.w800)), Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 10))]))])); }
+class _PersonTile extends StatelessWidget { const _PersonTile({required this.name, required this.subtitle, required this.icon}); final String name, subtitle; final IconData icon; @override Widget build(BuildContext context) => AppSectionCard(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9), child: ListTile(contentPadding: EdgeInsets.zero, leading: CircleAvatar(backgroundColor: const Color(0xFFE5F5F0), child: Icon(icon, color: _pengurusPrimary, size: 20)), title: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)), subtitle: Text(subtitle, style: const TextStyle(fontSize: 11)))); }
+class _DetailEmpty extends StatelessWidget { const _DetailEmpty({required this.label}); final String label; @override Widget build(BuildContext context) => AppSectionCard(padding: const EdgeInsets.all(14), child: Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12))); }
 
 class _PengurusProfile extends StatelessWidget { const _PengurusProfile({required this.controller}); final SessionController controller; @override Widget build(BuildContext context) { final user = controller.session?.user; return ListView(padding: const EdgeInsets.all(16), children: [_PageHeading(title: 'Profil Pengurus', subtitle: 'Pengaturan akun monitoring'), const SizedBox(height: 18), AppSectionCard(child: ListTile(contentPadding: EdgeInsets.zero, leading: const CircleAvatar(radius: 26, backgroundColor: Color(0xFFE5F5F0), child: Icon(Icons.manage_accounts_rounded, color: _pengurusPrimary)), title: Text(user?.name ?? 'Pengurus', style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: Text(user?.email ?? '-'))), const SizedBox(height: 14), const AppSectionCard(child: Text('Akses ini khusus monitoring dan bersifat read-only.', style: TextStyle(color: Color(0xFF52635C)))), const SizedBox(height: 18), OutlinedButton.icon(onPressed: controller.logout, icon: const Icon(Icons.logout_rounded), label: const Text('Keluar dari akun'))]); } }
 

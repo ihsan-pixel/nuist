@@ -44,6 +44,14 @@ Tombol **See All** membuka daftar hingga 50 pembaruan terbaru melalui API khusus
 
 Data SPP yang ditampilkan pada monitoring hanya berisi sekolah, metode/status pembayaran, nominal, dan tanggal; identitas pribadi siswa tidak ditampilkan pada ringkasan.
 
+## Katalog dan Detail Sekolah
+
+Menu **Data Sekolah** mengelompokkan sekolah berdasarkan kabupaten dan mengurutkan sekolah berdasarkan SCOD. Jika API lama belum mengirim kabupaten, aplikasi memakai prefiks SCOD DIY sebagai fallback: `1xx` Bantul, `2xx` Gunungkidul, `3xx` Kulon Progo, `4xx` Sleman, dan `5xx` Kota Yogyakarta.
+
+Memilih sekolah membuka detail read-only yang memuat profil sekolah, kepala sekolah, jumlah dan daftar tenaga pendidik, serta jumlah dan pratinjau maksimal 30 siswa aktif. Endpoint detailnya adalah:
+
+- `GET /api/mobile/app/pengurus/schools/{madrasah}`
+
 ## Penanganan kegagalan
 
 Aplikasi menampilkan pesan umum dan tombol **Coba lagi** jika server atau jaringan bermasalah. Detail teknis respons server tidak ditampilkan kepada pengguna.

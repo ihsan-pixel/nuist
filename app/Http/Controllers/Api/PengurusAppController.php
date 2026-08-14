@@ -95,6 +95,60 @@ class PengurusAppController extends Controller
         ]]);
     }
 
+    public function school(Request $request, Madrasah $madrasah): JsonResponse
+    {
+        $this->authorizePengurus($request);
+
+        $headmaster = User::query()
+            ->where('madrasah_id', $madrasah->id)
+            ->where('role', 'tenaga_pendidik')
+            ->where(function ($query) {
+                $query->where('ketugasan', 'like', '%kepala%')
+                    ->orWhere('jabatan', 'like', '%kepala%');
+            })
+            ->orderBy('name')
+            ->first(['name', 'gelar', 'ketugasan', 'jabatan']);
+
+        $teachers = User::query()
+            ->where('madrasah_id', $madrasah->id)
+            ->where('role', 'tenaga_pendidik')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'gelar', 'ketugasan']);
+        $students = Siswa::query()
+            ->where('madrasah_id', $madrasah->id)
+            ->where('is_active', true)
+            ->orderBy('nama_lengkap')
+            ->limit(30)
+            ->get(['id', 'nama_lengkap', 'kelas', 'jurusan']);
+
+        return response()->json(['data' => [
+            'school' => [
+                'id' => $madrasah->id,
+                'name' => $madrasah->name,
+                'kabupaten' => $madrasah->kabupaten,
+                'alamat' => $madrasah->alamat,
+                'logo' => $madrasah->logo,
+                'logo_url' => filled($madrasah->logo) ? url('storage/' . ltrim($madrasah->logo, '/')) : null,
+            ],
+            'headmaster' => $headmaster ? [
+                'name' => trim($headmaster->name . ' ' . ($headmaster->gelar ?? '')),
+                'position' => $headmaster->ketugasan ?: $headmaster->jabatan ?: 'Kepala Sekolah',
+            ] : null,
+            'teacher_count' => $teachers->count(),
+            'student_count' => Siswa::query()->where('madrasah_id', $madrasah->id)->where('is_active', true)->count(),
+            'teachers' => $teachers->map(fn (User $teacher) => [
+                'name' => trim($teacher->name . ' ' . ($teacher->gelar ?? '')),
+                'position' => $teacher->ketugasan ?: 'Tenaga Pendidik',
+            ])->all(),
+            'students' => $students->map(fn (Siswa $student) => [
+                'name' => $student->nama_lengkap,
+                'class' => trim(implode(' • ', array_filter([$student->kelas, $student->jurusan]))),
+            ])->all(),
+            'students_preview_limited' => $students->count() >= 30,
+        ]]);
+    }
+
     public function sppUpdates(Request $request): JsonResponse
     {
         $this->authorizePengurus($request);
