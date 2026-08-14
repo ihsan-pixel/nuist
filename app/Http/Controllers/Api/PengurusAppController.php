@@ -21,6 +21,21 @@ class PengurusAppController extends Controller
 
         $data = Cache::remember('pengurus:dashboard:' . $today, now()->addMinute(), function () use ($today) {
             $openBills = SppSiswaBill::query()->whereIn('status', ['belum_lunas', 'sebagian']);
+            $verifiedPayments = DB::table('spp_siswa_transactions')
+                ->selectRaw('bill_id, SUM(nominal_bayar) as paid_amount')
+                ->where('status_verifikasi', 'diverifikasi')
+                ->groupBy('bill_id');
+
+            // `outstanding_amount` is an Eloquent accessor, not a database column.
+            // Calculate it in SQL so this dashboard does not load every bill and its
+            // transactions into memory.
+            $finance = (clone $openBills)
+                ->leftJoinSub($verifiedPayments, 'verified_payments', function ($join) {
+                    $join->on('verified_payments.bill_id', '=', 'spp_siswa_bills.id');
+                })
+                ->selectRaw('COUNT(spp_siswa_bills.id) as open_bills')
+                ->selectRaw('COALESCE(SUM(GREATEST(spp_siswa_bills.total_tagihan - COALESCE(verified_payments.paid_amount, 0), 0)), 0) as outstanding_amount')
+                ->first();
 
             return [
                 'summary' => [
@@ -30,8 +45,8 @@ class PengurusAppController extends Controller
                     'attendance_today' => DB::table('presensis')->where('tanggal', $today)->distinct('user_id')->count('user_id'),
                 ],
                 'finance' => [
-                    'open_bills' => (clone $openBills)->count(),
-                    'outstanding_amount' => (float) $openBills->sum('outstanding_amount'),
+                    'open_bills' => (int) ($finance->open_bills ?? 0),
+                    'outstanding_amount' => (float) ($finance->outstanding_amount ?? 0),
                 ],
                 'generated_at' => now()->toIso8601String(),
             ];
