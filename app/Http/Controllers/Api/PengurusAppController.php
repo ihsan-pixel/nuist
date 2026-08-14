@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Madrasah;
 use App\Models\Siswa;
 use App\Models\SppSiswaBill;
+use App\Models\SppSiswaTransaction;
+use App\Models\UppmPaymentUpdate;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -48,6 +50,8 @@ class PengurusAppController extends Controller
                     'open_bills' => (int) ($finance->open_bills ?? 0),
                     'outstanding_amount' => (float) ($finance->outstanding_amount ?? 0),
                 ],
+                'recent_uppm_updates' => $this->uppmUpdateItems(3),
+                'recent_spp_updates' => $this->sppUpdateItems(3),
                 'generated_at' => now()->toIso8601String(),
             ];
         });
@@ -64,14 +68,82 @@ class PengurusAppController extends Controller
             $studentCounts = Siswa::query()->where('is_active', true)->selectRaw('madrasah_id, COUNT(*) as total')->groupBy('madrasah_id')->pluck('total', 'madrasah_id');
             $teacherCounts = User::query()->where('role', 'tenaga_pendidik')->where('is_active', true)->selectRaw('madrasah_id, COUNT(*) as total')->groupBy('madrasah_id')->pluck('total', 'madrasah_id');
 
-            return Madrasah::query()->orderBy('name')->get(['id', 'name', 'scod'])
+            return Madrasah::query()
+            ->whereNotNull('kabupaten')
+            ->where('kabupaten', '!=', '')
+            ->orderByRaw("COALESCE(kabupaten, '')")
+            ->orderBy('scod')
+            ->orderBy('name')
+            ->get(['id', 'name', 'scod', 'kabupaten', 'logo'])
             ->map(fn (Madrasah $school) => [
                 'id' => $school->id, 'name' => $school->name, 'scod' => $school->scod,
+                'kabupaten' => $school->kabupaten,
+                'logo_url' => filled($school->logo) ? url('storage/' . ltrim($school->logo, '/')) : null,
                 'students' => (int) ($studentCounts[$school->id] ?? 0),
                 'teachers' => (int) ($teacherCounts[$school->id] ?? 0),
             ])->values()->all();
         });
         return response()->json(['data' => ['items' => $items]]);
+    }
+
+    public function uppmUpdates(Request $request): JsonResponse
+    {
+        $this->authorizePengurus($request);
+
+        return response()->json(['data' => [
+            'items' => $this->uppmUpdateItems(50),
+        ]]);
+    }
+
+    public function sppUpdates(Request $request): JsonResponse
+    {
+        $this->authorizePengurus($request);
+
+        return response()->json(['data' => [
+            'items' => $this->sppUpdateItems(50),
+        ]]);
+    }
+
+    private function uppmUpdateItems(int $limit): array
+    {
+        return UppmPaymentUpdate::query()
+            ->with('madrasah:id,name')
+            ->latest('transfer_date')
+            ->latest('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn (UppmPaymentUpdate $update) => [
+                'id' => $update->id,
+                'title' => $update->madrasah?->name ?? 'Sekolah',
+                'subtitle' => 'UPPM • ' . $update->payment_period_label,
+                'amount' => (float) $update->amount,
+                'status' => 'Pembaruan pembayaran',
+                'date' => optional($update->transfer_date)->toDateString() ?? optional($update->created_at)->toDateString(),
+            ])
+            ->all();
+    }
+
+    private function sppUpdateItems(int $limit): array
+    {
+        return SppSiswaTransaction::query()
+            ->with('madrasah:id,name')
+            ->latest('tanggal_bayar')
+            ->latest('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn (SppSiswaTransaction $transaction) => [
+                'id' => $transaction->id,
+                'title' => $transaction->madrasah?->name ?? 'Sekolah',
+                'subtitle' => 'SPP Siswa • ' . ($transaction->metode_pembayaran ?: 'Pembayaran'),
+                'amount' => (float) $transaction->nominal_bayar,
+                'status' => match ($transaction->status_verifikasi) {
+                    'diverifikasi' => 'Terverifikasi',
+                    'ditolak' => 'Ditolak',
+                    default => 'Menunggu verifikasi',
+                },
+                'date' => optional($transaction->tanggal_bayar)->toDateString() ?? optional($transaction->created_at)->toDateString(),
+            ])
+            ->all();
     }
 
     private function authorizePengurus(Request $request): User

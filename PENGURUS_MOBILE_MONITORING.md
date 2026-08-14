@@ -30,6 +30,20 @@ Nilai tertunggak dihitung sebagai:
 - Hitungan siswa dan pendidik dibuat dengan query agregasi, bukan satu query per sekolah.
 - Indeks monitoring tersedia melalui migrasi `2026_08_14_000004_add_pengurus_monitoring_indexes.php`.
 
+## Pembaruan Keuangan di Dashboard
+
+Dashboard menampilkan tiga pembaruan terbaru untuk masing-masing kelompok berikut:
+
+- **Update Data UPPM**, dari `uppm_payment_updates`.
+- **Update SPP Siswa**, dari transaksi `spp_siswa_transactions`.
+
+Tombol **See All** membuka daftar hingga 50 pembaruan terbaru melalui API khusus pengurus:
+
+- `GET /api/mobile/app/pengurus/updates/uppm`
+- `GET /api/mobile/app/pengurus/updates/spp`
+
+Data SPP yang ditampilkan pada monitoring hanya berisi sekolah, metode/status pembayaran, nominal, dan tanggal; identitas pribadi siswa tidak ditampilkan pada ringkasan.
+
 ## Penanganan kegagalan
 
 Aplikasi menampilkan pesan umum dan tombol **Coba lagi** jika server atau jaringan bermasalah. Detail teknis respons server tidak ditampilkan kepada pengguna.
