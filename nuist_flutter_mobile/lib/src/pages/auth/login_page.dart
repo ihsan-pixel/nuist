@@ -773,7 +773,7 @@ class _LoginRoleToggle extends StatelessWidget {
             curve: Curves.easeInOutCubicEmphasized,
             alignment: selectedRole == 'siswa'
                 ? Alignment.centerLeft
-                : selectedRole == 'pengurus'
+                : selectedRole == 'tenaga_pendidik'
                     ? Alignment.center
                     : Alignment.centerRight,
             child: FractionallySizedBox(
@@ -806,7 +806,7 @@ class _LoginRoleToggle extends StatelessWidget {
               ),
               Expanded(
                 child: _LoginRoleToggleOption(
-                  value: 'pengurus',
+                  value: 'tenaga_pendidik',
                   label: 'Pendidik',
                   selected: selectedRole == 'tenaga_pendidik',
                   enabled: enabled,
