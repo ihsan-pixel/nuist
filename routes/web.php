@@ -1622,8 +1622,9 @@ Route::get('/mobile/forgot-password', function () {
 })->middleware(['guest'])->name('mobile.password.request');
 
 Route::get('/mobile/student-password-reset/captcha', function () {
-    abort_unless(filled(config('services.turnstile.site_key')), 503);
-    return view('mobile.student-password-reset-captcha');
+    return view('mobile.student-password-reset-captcha', [
+        'turnstileConfigured' => filled(config('services.turnstile.site_key')),
+    ]);
 })->middleware('guest')->name('mobile.student-password-reset.captcha');
 
 Route::post('/mobile/forgot-password', function (Request $request) {

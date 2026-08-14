@@ -6,6 +6,7 @@ import '../../widgets/app/teacher_page_header.dart';
 import '../../widgets/auth/auth_action_button.dart';
 import '../../widgets/auth/auth_field_label.dart';
 import '../../widgets/auth/status_banner.dart';
+import 'turnstile_verification_page.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({
@@ -48,8 +49,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     });
 
     try {
+      final token = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const TurnstileVerificationPage()),
+      );
+      if (token == null || token.isEmpty || !mounted) {
+        return;
+      }
       final message = await widget.authRepository.sendPasswordResetLink(
         email: _emailController.text.trim(),
+        turnstileToken: token,
       );
 
       if (!mounted) {

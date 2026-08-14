@@ -27,3 +27,7 @@ Kunci rahasia hanya dibaca server dan tidak pernah dikirim ke Flutter. Widget CA
 - Maksimal tiga percobaan verifikasi gagal untuk kombinasi IP dan NISN selama 15 menit.
 - Pesan kegagalan bersifat generik agar tidak membocorkan apakah NISN terdaftar.
 - Siswa tanpa tanggal lahir atau nama ibu kandung di data master harus menghubungi admin sekolah.
+
+## Reset tenaga pendidik
+
+Reset password tenaga pendidik melalui email juga menggunakan Turnstile. Pengguna harus menyelesaikan CAPTCHA sebelum server mengirim tautan reset password ke email akun.

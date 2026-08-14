@@ -92,6 +92,7 @@ class AuthRepository {
 
   Future<String> sendPasswordResetLink({
     required String email,
+    required String turnstileToken,
   }) async {
     try {
       final response = await _withRetry<Map<String, dynamic>>(
@@ -99,6 +100,7 @@ class AuthRepository {
           '/mobile/forgot-password',
           data: {
             'email': email,
+            'turnstile_token': turnstileToken,
           },
         ),
         actionLabel: 'forgot password',

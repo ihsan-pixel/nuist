@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-
-import '../../config/app_config.dart';
 import '../../services/auth_repository.dart';
 import '../../widgets/auth/status_banner.dart';
+import 'turnstile_verification_page.dart';
 
 class StudentPasswordResetPage extends StatefulWidget {
   const StudentPasswordResetPage({super.key, required this.authRepository});
@@ -26,7 +24,7 @@ class _StudentPasswordResetPageState extends State<StudentPasswordResetPage> {
     if (!(_formKey.currentState?.validate() ?? false) || _birthDate == null) {
       setState(() => _error = _birthDate == null ? 'Tanggal lahir wajib diisi.' : null); return;
     }
-    final token = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const _TurnstilePage()));
+    final token = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const TurnstileVerificationPage()));
     if (token == null || token.isEmpty || !mounted) return;
     setState(() { _submitting = true; _error = null; });
     try {
@@ -40,7 +38,7 @@ class _StudentPasswordResetPageState extends State<StudentPasswordResetPage> {
   @override
   Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Reset Password Siswa')), body: ListView(padding: const EdgeInsets.all(20), children: [
     const Text('Verifikasi data diri', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)), const SizedBox(height: 8),
-    const Text('Lengkapi data sesuai data sekolah. Password akan direset ke format Nuistddmmyyyy berdasarkan tanggal lahir.'), const SizedBox(height: 18),
+    const Text('Lengkapi data sesuai data sekolah. Jika nama ibu belum tercatat, hubungi admin sekolah. Password akan direset ke format Nuistddmmyyyy berdasarkan tanggal lahir.'), const SizedBox(height: 18),
     if (_error != null) ...[StatusBanner(message: _error!, type: StatusBannerType.error), const SizedBox(height: 12)],
     Form(key: _formKey, child: Column(children: [
       TextFormField(controller: _nisn, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'NISN'), validator: (v) => RegExp(r'^\d{6,50}$').hasMatch(v?.trim() ?? '') ? null : 'Masukkan NISN yang valid.'),
@@ -49,11 +47,4 @@ class _StudentPasswordResetPageState extends State<StudentPasswordResetPage> {
       const SizedBox(height: 22), FilledButton(onPressed: _submitting ? null : _submit, child: Text(_submitting ? 'Memproses...' : 'Verifikasi & Reset Password')),
     ])),
   ]));
-}
-
-class _TurnstilePage extends StatefulWidget { const _TurnstilePage(); @override State<_TurnstilePage> createState() => _TurnstilePageState(); }
-class _TurnstilePageState extends State<_TurnstilePage> {
-  late final WebViewController _controller;
-  @override void initState() { super.initState(); _controller = WebViewController()..setJavaScriptMode(JavaScriptMode.unrestricted)..addJavaScriptChannel('Turnstile', onMessageReceived: (m) => Navigator.of(context).pop(m.message))..loadRequest(Uri.parse('${AppConfig.webBaseUrl}/mobile/student-password-reset/captcha')); }
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Verifikasi keamanan')), body: WebViewWidget(controller: _controller));
 }

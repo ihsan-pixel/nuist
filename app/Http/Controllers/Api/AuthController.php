@@ -76,7 +76,12 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'email' => ['required', 'email'],
+            'turnstile_token' => ['required', 'string', 'max:2048'],
         ]);
+
+        if (!$this->verifyTurnstile($data['turnstile_token'], $request->ip())) {
+            return response()->json(['message' => 'Verifikasi CAPTCHA gagal. Silakan ulangi CAPTCHA.'], 422);
+        }
 
         $status = Password::sendResetLink($data);
 
@@ -118,12 +123,24 @@ class AuthController extends Controller
             ->where('is_active', true)
             ->first();
 
-        $sameMother = $siswa && hash_equals(
+        if (!$siswa || !$siswa->tanggal_lahir?->isSameDay($data['tanggal_lahir'])) {
+            RateLimiter::hit($key, 900);
+            return response()->json(['message' => 'Data verifikasi tidak sesuai.'], 422);
+        }
+
+        if (blank($siswa->nama_ibu)) {
+            return response()->json([
+                'message' => 'Data verifikasi belum lengkap. Hubungi admin sekolah untuk pembaruan data atau reset password.',
+                'code' => 'student_verification_incomplete',
+            ], 422);
+        }
+
+        $sameMother = hash_equals(
             $this->normalizeVerificationText((string) $siswa->nama_ibu),
             $this->normalizeVerificationText($data['nama_ibu'])
         );
 
-        if (!$siswa || !$sameMother || !$siswa->tanggal_lahir?->isSameDay($data['tanggal_lahir'])) {
+        if (!$sameMother) {
             RateLimiter::hit($key, 900);
             return response()->json(['message' => 'Data verifikasi tidak sesuai.'], 422);
         }
