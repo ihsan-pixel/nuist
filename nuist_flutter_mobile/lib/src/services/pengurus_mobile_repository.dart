@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import 'api_client.dart';
 
 class PengurusMobileRepository {
@@ -8,7 +10,13 @@ class PengurusMobileRepository {
   Future<Map<String, dynamic>> schools() => _get('/mobile/app/pengurus/schools');
 
   Future<Map<String, dynamic>> _get(String path) async {
-    final response = await _apiClient.dio.get<Map<String, dynamic>>(path);
+    final response = await _apiClient.dio.get<Map<String, dynamic>>(
+      path,
+      options: Options(
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 12),
+      ),
+    );
     final data = response.data?['data'];
     return data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
   }
