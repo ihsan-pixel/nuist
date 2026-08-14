@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\FaceController;
 use App\Http\Controllers\Api\MobileController;
 use App\Http\Controllers\Api\StudentAppController;
 use App\Http\Controllers\Api\TeacherAppController;
+use App\Http\Controllers\Api\PengurusAppController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +80,10 @@ Route::middleware('auth:sanctum')->prefix('/mobile')->group(function () {
         Route::post('/payments/{bill}/virtual-account', [StudentAppController::class, 'createVirtualAccount']);
         Route::get('/payment-history', [StudentAppController::class, 'paymentHistory']);
         Route::get('/profile', [StudentAppController::class, 'profile']);
+    });
+    Route::prefix('/app/pengurus')->group(function () {
+        Route::get('/dashboard', [PengurusAppController::class, 'dashboard']);
+        Route::get('/schools', [PengurusAppController::class, 'schools']);
     });
 });
 

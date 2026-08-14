@@ -8,11 +8,13 @@ import 'pages/auth/login_page.dart';
 import 'pages/home/home_page.dart';
 import 'pages/splash/splash_page.dart';
 import 'pages/student/student_shell_page.dart';
+import 'pages/pengurus/pengurus_shell_page.dart';
 import 'pages/teacher/teacher_shell_page.dart';
 import 'services/api_client.dart';
 import 'services/auth_repository.dart';
 import 'services/push_notification_service.dart';
 import 'services/student_mobile_repository.dart';
+import 'services/pengurus_mobile_repository.dart';
 import 'services/teacher_mobile_repository.dart';
 import 'services/token_storage.dart';
 import 'theme/app_theme.dart';
@@ -29,6 +31,7 @@ class _NuistMobileAppState extends State<NuistMobileApp>
   late final AuthRepository _authRepository;
   late final StudentMobileRepository _studentMobileRepository;
   late final TeacherMobileRepository _teacherMobileRepository;
+  late final PengurusMobileRepository _pengurusMobileRepository;
   late final SessionController _sessionController;
   late final PushNotificationService _pushNotificationService;
   String? _lastSyncedPushUserKey;
@@ -45,6 +48,7 @@ class _NuistMobileAppState extends State<NuistMobileApp>
     );
     _studentMobileRepository = StudentMobileRepository(apiClient: apiClient);
     _teacherMobileRepository = TeacherMobileRepository(apiClient: apiClient);
+    _pengurusMobileRepository = PengurusMobileRepository(apiClient: apiClient);
     _pushNotificationService = PushNotificationService(
       authRepository: _authRepository,
       tokenStorage: tokenStorage,
@@ -125,6 +129,7 @@ class _NuistMobileAppState extends State<NuistMobileApp>
     final isStudentRoute = normalizedRole == 'siswa' ||
         mobileRoute.startsWith('/mobile/siswa/') ||
         mobileRoute.startsWith('/mobile/student/');
+    final isPengurusRoute = normalizedRole == 'pengurus' || mobileRoute.startsWith('/mobile/pengurus/');
 
     if (isTeacherRoute) {
       return TeacherShellPage(
@@ -139,6 +144,7 @@ class _NuistMobileAppState extends State<NuistMobileApp>
         repository: _studentMobileRepository,
       );
     }
+    if (isPengurusRoute) return PengurusShellPage(controller: _sessionController, repository: _pengurusMobileRepository);
 
     return HomePage(
       controller: _sessionController,

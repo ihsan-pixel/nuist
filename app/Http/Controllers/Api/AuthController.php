@@ -186,7 +186,7 @@ class AuthController extends Controller
             // Temporary fallback keeps released versions of the app working.
             'email' => 'required_without:identifier|string',
             'password' => 'required|string',
-            'login_as' => 'nullable|in:siswa,tenaga_pendidik',
+            'login_as' => 'nullable|in:siswa,tenaga_pendidik,pengurus',
         ]);
 
         $identifier = trim((string) ($data['identifier'] ?? $data['email']));
@@ -241,7 +241,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!in_array($user->role, ['tenaga_pendidik', 'siswa'])) {
+        if (!in_array($user->role, ['tenaga_pendidik', 'siswa', 'pengurus'])) {
             Auth::logout();
 
             return response()->json([
@@ -260,9 +260,11 @@ class AuthController extends Controller
         // Create a token named 'mobile' (uses HasApiTokens trait)
         $token = $user->createToken('mobile-token')->plainTextToken;
 
-        $mobileRoute = $user->role === 'siswa'
-            ? '/mobile/siswa/dashboard'
-            : '/mobile/dashboard';
+        $mobileRoute = match ($user->role) {
+            'siswa' => '/mobile/siswa/dashboard',
+            'pengurus' => '/mobile/pengurus/dashboard',
+            default => '/mobile/dashboard',
+        };
 
         return response()->json([
             'token' => $token,

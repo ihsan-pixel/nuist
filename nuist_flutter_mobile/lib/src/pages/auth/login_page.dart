@@ -90,8 +90,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
       setState(() {
         _rememberMe = remembered['remember'] == true;
-        _loginAs = (remembered['loginAs'] as String?) == 'siswa'
-            ? 'siswa'
+        final rememberedRole = remembered['loginAs'] as String?;
+        _loginAs = const ['siswa', 'tenaga_pendidik', 'pengurus']
+                .contains(rememberedRole)
+            ? rememberedRole!
             : 'tenaga_pendidik';
         if (_rememberMe) {
           _emailController.text = (remembered['email'] as String?) ?? '';
@@ -771,9 +773,11 @@ class _LoginRoleToggle extends StatelessWidget {
             curve: Curves.easeInOutCubicEmphasized,
             alignment: selectedRole == 'siswa'
                 ? Alignment.centerLeft
-                : Alignment.centerRight,
+                : selectedRole == 'pengurus'
+                    ? Alignment.center
+                    : Alignment.centerRight,
             child: FractionallySizedBox(
-              widthFactor: 0.5,
+              widthFactor: 1 / 3,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -802,9 +806,18 @@ class _LoginRoleToggle extends StatelessWidget {
               ),
               Expanded(
                 child: _LoginRoleToggleOption(
-                  value: 'tenaga_pendidik',
-                  label: 'Tenaga Pendidik',
+                  value: 'pengurus',
+                  label: 'Pendidik',
                   selected: selectedRole == 'tenaga_pendidik',
+                  enabled: enabled,
+                  onChanged: onChanged,
+                ),
+              ),
+              Expanded(
+                child: _LoginRoleToggleOption(
+                  value: 'pengurus',
+                  label: 'Pengurus',
+                  selected: selectedRole == 'pengurus',
                   enabled: enabled,
                   onChanged: onChanged,
                 ),
