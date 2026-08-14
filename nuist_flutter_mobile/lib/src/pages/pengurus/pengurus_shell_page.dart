@@ -152,7 +152,7 @@ class _SchoolMonitorState extends State<_SchoolMonitor> {
       final keyword = _query.trim().toLowerCase();
       final items = keyword.isEmpty ? allItems : allItems.where((item) => '${item['name']} ${item['scod']} ${item['kabupaten']}'.toLowerCase().contains(keyword)).toList();
       final districts = <String, List<Map<String, dynamic>>>{};
-      for (final item in items) { final district = item['kabupaten']?.toString().trim(); if (district == null || district.isEmpty) continue; districts.putIfAbsent(district, () => []).add(item); }
+      for (final item in items) { final district = item['kabupaten']?.toString().trim(); districts.putIfAbsent(district?.isNotEmpty == true ? district! : 'Data kabupaten belum lengkap', () => []).add(item); }
       return RefreshIndicator(onRefresh: _refresh, child: ListView(padding: const EdgeInsets.only(bottom: 28), children: [
         Transform.translate(offset: const Offset(0, -8), child: Container(padding: const EdgeInsets.fromLTRB(14, 22, 14, 16), decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(18), topRight: Radius.circular(18))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           TextField(onChanged: (value) => setState(() => _query = value), textInputAction: TextInputAction.search, decoration: InputDecoration(hintText: 'Cari nama sekolah atau SCOD...', prefixIcon: const Icon(Icons.search_rounded, color: _pengurusPrimary), filled: true, fillColor: const Color(0xFFF7FAF9), contentPadding: const EdgeInsets.symmetric(vertical: 12), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFDCE7E3))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: _pengurusPrimary, width: 1.5)))),
@@ -552,4 +552,7 @@ class _LoadError extends StatelessWidget { const _LoadError({required this.onRet
 List<Map<String, dynamic>> _updateItems(dynamic value) => (value as List? ?? const []).whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList();
 String _currency(dynamic value) { final amount = value is num ? value.round() : num.tryParse(value?.toString() ?? '')?.round() ?? 0; final digits = amount.toString(); final buffer = StringBuffer(); for (var index = 0; index < digits.length; index++) { buffer.write(digits[index]); if (digits.length - index > 1 && (digits.length - index - 1) % 3 == 0) buffer.write('.'); } return 'Rp $buffer'; }
 String _dateLabel(dynamic value) { final date = DateTime.tryParse(value?.toString() ?? ''); if (date == null) return '-'; const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; return '${date.day} ${months[date.month - 1]}'; }
-String _districtTitle(String value) => value.trimLeft().toLowerCase().startsWith('kabupaten') ? value : 'Kabupaten $value';
+String _districtTitle(String value) {
+  if (value == 'Data kabupaten belum lengkap') return value;
+  return value.trimLeft().toLowerCase().startsWith('kabupaten') ? value : 'Kabupaten $value';
+}

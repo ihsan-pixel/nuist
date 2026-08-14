@@ -64,14 +64,13 @@ class PengurusAppController extends Controller
     public function schools(Request $request): JsonResponse
     {
         $this->authorizePengurus($request);
-        $items = Cache::remember('pengurus:schools', now()->addMinutes(5), function () {
+        $items = Cache::remember('pengurus:schools:v2', now()->addMinutes(5), function () {
             $studentCounts = Siswa::query()->where('is_active', true)->selectRaw('madrasah_id, COUNT(*) as total')->groupBy('madrasah_id')->pluck('total', 'madrasah_id');
             $teacherCounts = User::query()->where('role', 'tenaga_pendidik')->where('is_active', true)->selectRaw('madrasah_id, COUNT(*) as total')->groupBy('madrasah_id')->pluck('total', 'madrasah_id');
 
             return Madrasah::query()
-            ->whereNotNull('kabupaten')
-            ->where('kabupaten', '!=', '')
-            ->orderByRaw("COALESCE(kabupaten, '')")
+            ->orderByRaw("CASE WHEN kabupaten IS NULL OR TRIM(kabupaten) = '' THEN 1 ELSE 0 END")
+            ->orderBy('kabupaten')
             ->orderBy('scod')
             ->orderBy('name')
             ->get(['id', 'name', 'scod', 'kabupaten', 'logo'])
