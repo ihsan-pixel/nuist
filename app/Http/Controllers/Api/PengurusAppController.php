@@ -102,12 +102,11 @@ class PengurusAppController extends Controller
         $headmaster = User::query()
             ->where('madrasah_id', $madrasah->id)
             ->where('role', 'tenaga_pendidik')
-            ->where(function ($query) {
-                $query->where('ketugasan', 'like', '%kepala%')
-                    ->orWhere('jabatan', 'like', '%kepala%');
-            })
+            // Kolom ketugasan tersedia pada seluruh instalasi lama. Jangan
+            // bergantung pada kolom jabatan karena belum ada di sebagian DB.
+            ->where('ketugasan', 'like', '%kepala%')
             ->orderBy('name')
-            ->first(['name', 'gelar', 'ketugasan', 'jabatan']);
+            ->first(['name', 'gelar', 'ketugasan']);
 
         $teachers = User::query()
             ->where('madrasah_id', $madrasah->id)
@@ -133,7 +132,7 @@ class PengurusAppController extends Controller
             ],
             'headmaster' => $headmaster ? [
                 'name' => trim($headmaster->name . ' ' . ($headmaster->gelar ?? '')),
-                'position' => $headmaster->ketugasan ?: $headmaster->jabatan ?: 'Kepala Sekolah',
+                'position' => $headmaster->ketugasan ?: 'Kepala Sekolah',
             ] : null,
             'teacher_count' => $teachers->count(),
             'student_count' => Siswa::query()->where('madrasah_id', $madrasah->id)->where('is_active', true)->count(),
