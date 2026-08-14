@@ -5,10 +5,14 @@ class AppSectionCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(18),
+    this.backgroundColor = Colors.white,
+    this.borderColor = const Color(0xFFDCE7E3),
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final Color backgroundColor;
+  final Color borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +20,12 @@ class AppSectionCard extends StatelessWidget {
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: borderColor),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x141E293B),
+            color: Color(0x14172A24),
             blurRadius: 20,
             offset: Offset(0, 8),
           ),

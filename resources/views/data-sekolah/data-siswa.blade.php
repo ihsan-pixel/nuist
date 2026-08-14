@@ -627,6 +627,14 @@
                                     >
                                         <i class="bx bx-edit"></i>
                                     </button>
+                                    @if($siswa->nisn)
+                                        <form method="POST" action="{{ route('data-sekolah.data-siswa.reset-login-password', $siswa) }}" onsubmit="return confirm('Reset password login siswa ke password default hari ini? Password lama akan tidak berlaku.')">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-warning" title="Reset password login siswa">
+                                                <i class="bx bx-key"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                     <form method="POST" action="{{ route('data-sekolah.data-siswa.destroy', $siswa) }}" onsubmit="return confirm('Hapus data siswa ini?')">
                                         @csrf
                                         @method('DELETE')

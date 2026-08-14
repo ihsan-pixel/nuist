@@ -6,9 +6,9 @@ import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/app_stat_card.dart';
 import 'report_page.dart';
 
-const _staffPrimary = Color(0xFF04A512);
-const _staffText = Color(0xFF1C4A22);
-const _staffMuted = Color(0xFF6B7C69);
+const _staffPrimary = Color(0xFF00745A);
+const _staffText = Color(0xFF172A24);
+const _staffMuted = Color(0xFF64746E);
 
 class TeacherStaffAttendancePage extends StatefulWidget {
   const TeacherStaffAttendancePage({
@@ -86,7 +86,7 @@ class _TeacherStaffAttendancePageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FCFA),
+      backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
         title: const Text('Data Presensi'),
         backgroundColor: Colors.white,
@@ -193,7 +193,7 @@ class _StaffAttendanceContent extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFD3E3DB)),
+                    border: Border.all(color: const Color(0xFFDCE7E3)),
                   ),
                   child: Row(
                     children: [
@@ -225,7 +225,7 @@ class _StaffAttendanceContent extends StatelessWidget {
               child: AppStatCard(
                 label: 'Total Guru',
                 value: '${summary['total_teacher'] ?? 0}',
-                color: const Color(0xFF3C6FD1),
+                color: const Color(0xFF00745A),
               ),
             ),
             const SizedBox(width: 12),
@@ -233,7 +233,7 @@ class _StaffAttendanceContent extends StatelessWidget {
               child: AppStatCard(
                 label: 'Hadir',
                 value: '${summary['hadir'] ?? 0}',
-                color: const Color(0xFF2E8B57),
+                color: const Color(0xFF00745A),
               ),
             ),
             const SizedBox(width: 12),
@@ -242,7 +242,7 @@ class _StaffAttendanceContent extends StatelessWidget {
                 label: 'Izin/Belum',
                 value:
                     '${(summary['izin'] ?? 0) + (summary['belum_presensi'] ?? 0)}',
-                color: const Color(0xFFF4A12A),
+                color: const Color(0xFFF59E0B),
               ),
             ),
           ],
@@ -273,9 +273,9 @@ class _StaffAttendanceContent extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFCFEFC),
+                      color: const Color(0xFFFFFFFF),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFD8E7E0)),
+                      border: Border.all(color: const Color(0xFFDCE7E3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,7 +350,7 @@ class _StaffAttendanceContent extends StatelessWidget {
                             },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: _staffPrimary,
-                              side: const BorderSide(color: Color(0xFFBDD6CB)),
+                              side: const BorderSide(color: Color(0xFFDCE7E3)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -387,16 +387,16 @@ class _StaffStatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = switch (status) {
-      'hadir' => const Color(0xFF2E8B57),
-      'izin' => const Color(0xFFF4A12A),
+      'hadir' => const Color(0xFF00745A),
+      'izin' => const Color(0xFFF59E0B),
       'alpha' => const Color(0xFFB42318),
-      _ => const Color(0xFF7C8F8D),
+      _ => const Color(0xFF172A24),
     };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(

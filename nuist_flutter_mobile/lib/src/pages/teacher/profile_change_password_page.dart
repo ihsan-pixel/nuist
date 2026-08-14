@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../../services/teacher_mobile_repository.dart';
-import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
 class _PasswordPagePalette {
-  static const background = Color(0xFFF7F8FC);
+  static const background = Color(0xFFFFFFFF);
   static const surface = Color(0xFFFFFFFF);
-  static const primary = Color(0xFF0B8F6E);
-  static const textPrimary = Color(0xFF1E293B);
-  static const textSecondary = Color(0xFF64748B);
-  static const border = Color(0xFFE2E8F0);
+  static const primary = Color(0xFF00745A);
+  static const textPrimary = Color(0xFF172A24);
+  static const textSecondary = Color(0xFF64746E);
+  static const border = Color(0xFFDCE7E3);
   static const danger = Color(0xFFEF4444);
   static const warning = Color(0xFFF59E0B);
-  static const info = Color(0xFF2563EB);
-  static const success = Color(0xFF22C55E);
+  static const info = Color(0xFF00745A);
+  static const success = Color(0xFF00745A);
 
   const _PasswordPagePalette._();
 }
@@ -134,33 +133,43 @@ class _TeacherProfileChangePasswordPageState
       backgroundColor: _PasswordPagePalette.background,
       body: SafeArea(
         bottom: false,
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(14, 12, 14, bottomInset),
+        child: Column(
           children: [
-            TeacherPageHeader(
+            TeacherOverlayPageHeader(
               title: 'Ubah Password',
               onBack: () => Navigator.of(context).pop(),
             ),
-            const SizedBox(height: 12),
-            AppSectionCard(
-              padding: const EdgeInsets.all(14),
-              child: Column(
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  Transform.translate(
+                    offset: const Offset(0, -8),
+                    child: Container(
+                padding: EdgeInsets.fromLTRB(14, 22, 14, bottomInset),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(18),
+                    topRight: Radius.circular(18),
+                  ),
+                ),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const _PasswordSectionHeading(
-                    eyebrow: 'Keamanan',
                     title: 'Keamanan Akun',
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   const Text(
-                    'Masukkan password lama, lalu buat password baru minimal 8 karakter.',
+                    'Gunakan password baru yang kuat untuk menjaga keamanan akun.',
                     style: TextStyle(
                       color: _PasswordPagePalette.textSecondary,
                       fontSize: 11.5,
                       height: 1.45,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: _currentPasswordController,
                     obscureText: _obscureCurrent,
@@ -229,7 +238,7 @@ class _TeacherProfileChangePasswordPageState
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -264,10 +273,14 @@ class _TeacherProfileChangePasswordPageState
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
+    ),
+  ],
+),
+),
+);
   }
 }
 
@@ -447,37 +460,20 @@ class _PasswordStrength {
 
 class _PasswordSectionHeading extends StatelessWidget {
   const _PasswordSectionHeading({
-    required this.eyebrow,
     required this.title,
   });
 
-  final String eyebrow;
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          eyebrow.toUpperCase(),
-          style: const TextStyle(
-            color: _PasswordPagePalette.textSecondary,
-            fontSize: 10.5,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.4,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          title,
-          style: const TextStyle(
-            color: _PasswordPagePalette.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
+    return Text(
+      title,
+      style: const TextStyle(
+        color: _PasswordPagePalette.textPrimary,
+        fontSize: 16,
+        fontWeight: FontWeight.w800,
+      ),
     );
   }
 }

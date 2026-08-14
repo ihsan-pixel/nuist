@@ -8,11 +8,11 @@ import 'package:path_provider/path_provider.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
-import '../../widgets/app/app_stat_card.dart';
+import '../../widgets/app/teacher_page_header.dart';
 
-const _manageIzinPrimary = Color(0xFF04A512);
-const _manageIzinText = Color(0xFF1C4A22);
-const _manageIzinMuted = Color(0xFF6B7C69);
+const _manageIzinPrimary = Color(0xFF00745A);
+const _manageIzinText = Color(0xFF172A24);
+const _manageIzinMuted = Color(0xFF64746E);
 
 class TeacherIzinManagePage extends StatefulWidget {
   const TeacherIzinManagePage({
@@ -30,6 +30,7 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
   String _status = 'pending';
   late Future<Map<String, dynamic>> _future;
   int? _openingAttachmentId;
+  bool _approvingAll = false;
 
   @override
   void initState() {
@@ -99,7 +100,7 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    approve ? const Color(0xFF2E8B57) : const Color(0xFFB42318),
+                    approve ? const Color(0xFF00745A) : const Color(0xFFB42318),
                 foregroundColor: Colors.white,
               ),
               child: Text(approve ? 'Setujui' : 'Tolak'),
@@ -158,6 +159,102 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
     } finally {
       notesController.dispose();
     }
+  }
+
+  Future<void> _approveAllPending() async {
+    if (_approvingAll) {
+      return;
+    }
+
+    List<Map<String, dynamic>> pendingItems;
+    try {
+      final pendingData =
+          await widget.repository.getManagedIzin(status: 'pending');
+      pendingItems = ((pendingData['items'] as List?) ?? const [])
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .where((item) => item['can_approve'] == true && item['id'] is num)
+          .toList();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.toString().replaceFirst('Exception: ', '')),
+          ),
+        );
+      }
+      return;
+    }
+
+    if (pendingItems.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tidak ada izin menunggu yang dapat disetujui.')),
+        );
+      }
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Setujui Semua Izin'),
+        content: Text(
+          'Setujui ${pendingItems.length} pengajuan izin yang masih menunggu?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _manageIzinPrimary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Setujui Semua'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    setState(() => _approvingAll = true);
+    var approved = 0;
+    var failed = 0;
+    for (final item in pendingItems) {
+      try {
+        await widget.repository.approveManagedIzin(
+          izinId: (item['id'] as num).toInt(),
+        );
+        approved++;
+      } catch (_) {
+        failed++;
+      }
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() => _approvingAll = false);
+    await _refresh();
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          failed == 0
+              ? '$approved pengajuan izin berhasil disetujui.'
+              : '$approved disetujui, $failed pengajuan gagal diproses.',
+        ),
+      ),
+    );
   }
 
   Future<void> _openAttachment(Map<String, dynamic> item) async {
@@ -309,21 +406,38 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FCFA),
-      appBar: AppBar(
-        title: const Text('Kelola Izin'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-      ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _future,
-        builder: (context, snapshot) {
-          return RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _future,
+          builder: (context, snapshot) {
+            return Column(
               children: [
+                TeacherOverlayPageHeader(
+                  title: 'Kelola Izin',
+                  onBack: () => Navigator.of(context).maybePop(),
+                ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      children: [
+                  Transform.translate(
+                    offset: const Offset(0, -8),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(14, 22, 14, 24),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(18),
+                          topRight: Radius.circular(18),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
                 if (snapshot.connectionState == ConnectionState.waiting)
                   const Center(
                     child: Padding(
@@ -356,11 +470,21 @@ class _TeacherIzinManagePageState extends State<TeacherIzinManagePage> {
                       item: item,
                       approve: false,
                     ),
+                    isApprovingAll: _approvingAll,
+                    onApproveAll: _approveAllPending,
                   ),
+                        ],
+                      ),
+                    ),
+                  ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -375,6 +499,8 @@ class _ManageIzinContent extends StatelessWidget {
     required this.onOpenAttachment,
     required this.onApprove,
     required this.onReject,
+    required this.isApprovingAll,
+    required this.onApproveAll,
   });
 
   final Map<String, dynamic> data;
@@ -384,6 +510,8 @@ class _ManageIzinContent extends StatelessWidget {
   final Future<void> Function(Map<String, dynamic> item) onOpenAttachment;
   final Future<void> Function(Map<String, dynamic> item) onApprove;
   final Future<void> Function(Map<String, dynamic> item) onReject;
+  final bool isApprovingAll;
+  final Future<void> Function() onApproveAll;
 
   @override
   Widget build(BuildContext context) {
@@ -398,26 +526,35 @@ class _ManageIzinContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const _ManageSectionHeading(title: 'Ringkasan'),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFDCE7E3)),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
           children: [
             Expanded(
-              child: AppStatCard(
-                label: 'Pending',
+              child: _ManageIzinStat(
+                label: 'Menunggu',
                 value: '${summary['pending'] ?? 0}',
-                color: const Color(0xFFF4A12A),
+                color: const Color(0xFFF59E0B),
               ),
             ),
-            const SizedBox(width: 12),
+            const _ManageSummaryDivider(),
             Expanded(
-              child: AppStatCard(
+              child: _ManageIzinStat(
                 label: 'Disetujui',
                 value: '${summary['approved'] ?? 0}',
-                color: const Color(0xFF2E8B57),
+                color: const Color(0xFF00745A),
               ),
             ),
-            const SizedBox(width: 12),
+            const _ManageSummaryDivider(),
             Expanded(
-              child: AppStatCard(
+              child: _ManageIzinStat(
                 label: 'Ditolak',
                 value: '${summary['rejected'] ?? 0}',
                 color: const Color(0xFFB42318),
@@ -425,26 +562,19 @@ class _ManageIzinContent extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        AppSectionCard(
-          child: Column(
+        ),
+        const SizedBox(height: 20),
+        Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Pengajuan Izin',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: _manageIzinText,
-                ),
-              ),
+              const _ManageSectionHeading(title: 'Pengajuan Izin'),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
                   _FilterChipButton(
-                    label: 'Pending',
+                    label: 'Menunggu',
                     selected: selectedStatus == 'pending',
                     onTap: () => onStatusChange('pending'),
                   ),
@@ -465,6 +595,33 @@ class _ManageIzinContent extends StatelessWidget {
                   ),
                 ],
               ),
+              if ((summary['pending'] as num? ?? 0) > 0) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: isApprovingAll ? null : onApproveAll,
+                    icon: isApprovingAll
+                        ? const SizedBox(
+                            width: 15,
+                            height: 15,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.done_all_rounded, size: 18),
+                    label: Text(
+                      isApprovingAll ? 'Memproses...' : 'Setujui Semua Izin',
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: _manageIzinPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 7,
+                      ),
+                      textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               if (items.isEmpty)
                 const AppEmptyState(
@@ -475,12 +632,11 @@ class _ManageIzinContent extends StatelessWidget {
               else
                 ...items.map(
                   (item) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFCFEFC),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFD8E7E0)),
+                      border: const Border(
+                        bottom: BorderSide(color: Color(0xFFE5F5F0)),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,15 +654,15 @@ class _ManageIzinContent extends StatelessWidget {
 
                             return Container(
                               width: double.infinity,
-                              margin: const EdgeInsets.only(bottom: 12),
+                              margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
                                 color: hasAttachment
-                                    ? const Color(0xFFEAF4EF)
-                                    : const Color(0xFFF5F7F7),
+                                    ? const Color(0xFFE5F5F0)
+                                    : const Color(0xFFFFFFFF),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: Row(
@@ -630,7 +786,7 @@ class _ManageIzinContent extends StatelessWidget {
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE7F3EC),
+                              color: const Color(0xFFE5F5F0),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Text(
@@ -685,7 +841,7 @@ class _ManageIzinContent extends StatelessWidget {
                                 child: ElevatedButton(
                                   onPressed: () => onApprove(item),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF2E8B57),
+                                    backgroundColor: const Color(0xFF00745A),
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 13,
@@ -710,9 +866,76 @@ class _ManageIzinContent extends StatelessWidget {
                   ),
                 ),
             ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ManageSectionHeading extends StatelessWidget {
+  const _ManageSectionHeading({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: const TextStyle(
+        color: _manageIzinText,
+        fontSize: 16,
+        fontWeight: FontWeight.w800,
+      ),
+    );
+  }
+}
+
+class _ManageIzinStat extends StatelessWidget {
+  const _ManageIzinStat({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: 19,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label,
+          style: const TextStyle(
+            color: _manageIzinMuted,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ManageSummaryDivider extends StatelessWidget {
+  const _ManageSummaryDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 34,
+      color: const Color(0xFFDCE7E3),
     );
   }
 }
@@ -734,7 +957,7 @@ class _FilterChipButton extends StatelessWidget {
       label: Text(label),
       selected: selected,
       onSelected: (_) => onTap(),
-      selectedColor: _manageIzinPrimary.withOpacity(0.18),
+      selectedColor: _manageIzinPrimary.withValues(alpha: 0.18),
       labelStyle: TextStyle(
         color: selected ? _manageIzinPrimary : _manageIzinMuted,
         fontWeight: FontWeight.w700,
@@ -752,23 +975,30 @@ class _ManagedStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = status == 'approved'
-        ? const Color(0xFF2E8B57)
-        : status == 'rejected'
+    final normalizedStatus = status.toLowerCase();
+    final color = normalizedStatus == 'approved'
+        ? const Color(0xFF00745A)
+        : normalizedStatus == 'rejected'
             ? const Color(0xFFB42318)
-            : const Color(0xFFF4A12A);
+            : const Color(0xFFF59E0B);
+    final label = switch (normalizedStatus) {
+      'approved' => 'Disetujui',
+      'rejected' => 'Ditolak',
+      'pending' => 'Menunggu',
+      _ => status,
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        status,
+        label,
         style: TextStyle(
           color: color,
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w800,
         ),
       ),

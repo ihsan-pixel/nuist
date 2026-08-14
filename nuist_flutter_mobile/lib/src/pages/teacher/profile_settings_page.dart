@@ -8,13 +8,13 @@ import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
 class _SettingsPalette {
-  static const background = Color(0xFFF7F8FC);
+  static const background = Color(0xFFFFFFFF);
   static const surface = Color(0xFFFFFFFF);
-  static const primary = Color(0xFF0B8F6E);
-  static const textPrimary = Color(0xFF1E293B);
-  static const textSecondary = Color(0xFF64748B);
-  static const border = Color(0xFFE2E8F0);
-  static const iconSurface = Color(0xFFECFDF5);
+  static const primary = Color(0xFF00745A);
+  static const textPrimary = Color(0xFF172A24);
+  static const textSecondary = Color(0xFF64746E);
+  static const border = Color(0xFFDCE7E3);
+  static const iconSurface = Color(0xFFE5F5F0);
 
   const _SettingsPalette._();
 }
@@ -300,17 +300,31 @@ class _TeacherProfileSettingsPageState
       backgroundColor: _SettingsPalette.background,
       body: SafeArea(
         bottom: false,
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(14, 12, 14, bottomInset),
+        child: Column(
           children: [
-            TeacherPageHeader(
+            TeacherOverlayPageHeader(
               title: 'Pengaturan Profil',
               onBack: () => Navigator.of(context).pop(),
             ),
-            const SizedBox(height: 12),
-            AppSectionCard(
-              padding: const EdgeInsets.all(14),
-              child: Row(
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  Transform.translate(
+                    offset: const Offset(0, -8),
+                    child: Container(
+                padding: EdgeInsets.fromLTRB(14, 22, 14, bottomInset),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(18),
+                    topRight: Radius.circular(18),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+            Row(
                 children: [
                   Stack(
                     children: [
@@ -377,7 +391,6 @@ class _TeacherProfileSettingsPageState
                   ),
                 ],
               ),
-            ),
             const SizedBox(height: 12),
             AppSectionCard(
               padding: const EdgeInsets.all(14),
@@ -385,7 +398,6 @@ class _TeacherProfileSettingsPageState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const _SettingsSectionHeading(
-                    eyebrow: 'Profil',
                     title: 'Data Tenaga Pendidik',
                   ),
                   const SizedBox(height: 10),
@@ -469,7 +481,7 @@ class _TeacherProfileSettingsPageState
                   TextField(
                     controller: _nipController,
                     decoration: _inputDecoration(
-                      'NIP',
+                      "NIP Ma'arif",
                       hintText: _currentNip,
                     ),
                   ),
@@ -514,7 +526,6 @@ class _TeacherProfileSettingsPageState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const _SettingsSectionHeading(
-                    eyebrow: 'Keamanan',
                     title: 'Keamanan Akun',
                   ),
                   const SizedBox(height: 8),
@@ -555,7 +566,14 @@ class _TeacherProfileSettingsPageState
           ],
         ),
       ),
-    );
+    ),
+  ],
+),
+),
+],
+),
+),
+);
   }
 }
 
@@ -703,37 +721,20 @@ class _AvatarFallbackIcon extends StatelessWidget {
 
 class _SettingsSectionHeading extends StatelessWidget {
   const _SettingsSectionHeading({
-    required this.eyebrow,
     required this.title,
   });
 
-  final String eyebrow;
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          eyebrow.toUpperCase(),
-          style: const TextStyle(
-            color: _SettingsPalette.textSecondary,
-            fontSize: 10.5,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.4,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          title,
-          style: const TextStyle(
-            color: _SettingsPalette.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
+    return Text(
+      title,
+      style: const TextStyle(
+        color: _SettingsPalette.textPrimary,
+        fontSize: 16,
+        fontWeight: FontWeight.w800,
+      ),
     );
   }
 }

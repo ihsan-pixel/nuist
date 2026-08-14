@@ -7,25 +7,24 @@ import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
 
 class _DashboardPalette {
-  static const background = Color(0xFFF7F8FC);
+  static const background = Color(0xFFFFFFFF);
   static const surface = Color(0xFFFFFFFF);
-  static const primary = Color(0xFF0B8F6E);
-  static const primaryDark = Color(0xFF066C56);
-  static const secondaryGreen = Color(0xFF16A085);
-  static const accent = Color(0xFFF5B301);
-  static const textPrimary = Color(0xFF1E293B);
-  static const textSecondary = Color(0xFF64748B);
-  static const border = Color(0xFFE2E8F0);
-  static const success = Color(0xFF22C55E);
+  static const primary = Color(0xFF00745A);
+  static const primaryDark = Color(0xFF00553F);
+  static const secondaryGreen = Color(0xFF00745A);
+  static const accent = Color(0xFFF59E0B);
+  static const textPrimary = Color(0xFF172A24);
+  static const textSecondary = Color(0xFF172A24);
+  static const border = Color(0xFFDCE7E3);
+  static const success = Color(0xFF00745A);
   static const warning = Color(0xFFF59E0B);
   static const danger = Color(0xFFEF4444);
-  static const iconSurface = Color(0xFFECFDF5);
-  static const softGreen = Color(0xFFDCFCE7);
-  static const softGreenAlt = Color(0xFFD1FAE5);
+  static const iconSurface = Color(0xFFE5F5F0);
+  static const softGreen = Color(0xFFE5F5F0);
+  static const softGreenAlt = Color(0xFFE5F5F0);
   static const softYellow = Color(0xFFFEF3C7);
   static const softRed = Color(0xFFFEE2E2);
-  static const goldLine = Color(0x0DF5B301);
-  static const cardShadow = Color(0x141E293B);
+  static const cardShadow = Color(0x14172A24);
 
   const _DashboardPalette._();
 }
@@ -759,10 +758,14 @@ class _DashboardTopBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return SizedBox(
+      // The reserved space keeps cards anchored while the green panel ends
+      // higher on the page.
+      height: 288,
+      child: Stack(
       children: [
         Container(
-          height: 288,
+          height: 250,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -771,10 +774,6 @@ class _DashboardTopBackdrop extends StatelessWidget {
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.elliptical(360, 132),
-              bottomRight: Radius.elliptical(360, 132),
             ),
             boxShadow: [
               BoxShadow(
@@ -785,20 +784,8 @@ class _DashboardTopBackdrop extends StatelessWidget {
             ],
           ),
         ),
-        const Positioned(
-          top: -12,
-          left: -28,
-          child: _DashboardBackdropOrnament(),
-        ),
-        const Positioned(
-          right: -38,
-          bottom: 22,
-          child: RotatedBox(
-            quarterTurns: 2,
-            child: _DashboardBackdropOrnament(),
-          ),
-        ),
       ],
+      ),
     );
   }
 }
@@ -887,7 +874,7 @@ class _DashboardHeader extends StatelessWidget {
         isScrolled ? _DashboardPalette.textPrimary : Colors.white;
     final iconColor = isScrolled
         ? _DashboardPalette.primaryDark
-        : Colors.white.withOpacity(0.9);
+        : Colors.white.withValues(alpha: 0.9);
 
     return Row(
       children: [
@@ -1220,7 +1207,7 @@ class _PerformanceCard extends StatelessWidget {
               Text(
                 'Level Progres',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1244,7 +1231,7 @@ class _PerformanceCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
             level,
             style: const TextStyle(
@@ -1331,7 +1318,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                   decoration: BoxDecoration(
-                    color: _DashboardPalette.iconSurface,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: _DashboardPalette.border),
                   ),
@@ -1389,7 +1376,7 @@ class _AttendanceCalendarCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFFDFEFE),
+              color: const Color(0xFFFFFFFF),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: _DashboardPalette.border),
             ),
@@ -1552,7 +1539,7 @@ class _CalendarLegendChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -1619,7 +1606,7 @@ class _CalendarDayTile extends StatelessWidget {
     final backgroundColor = isHoliday
         ? const Color(0xFFFFFBF1)
         : (isMissedAttendance
-            ? const Color(0xFFFFFAFA)
+            ? const Color(0xFFFFFFFF)
             : _DashboardPalette.surface);
     final borderColor = isToday
         ? _DashboardPalette.primary
@@ -1816,19 +1803,19 @@ List<_DashboardServiceSection> _buildServiceSections({
   final primaryItems = <_DashboardServiceItem>[
     _DashboardServiceItem(
       label: 'Presensi',
-      colors: const [Color(0xFF0D8E89), Color(0xFF004B48)],
+      colors: const [Color(0xFF00745A), Color(0xFF172A24)],
       icon: Icons.fact_check_rounded,
       onTap: () => onSelectTab(2),
     ),
     _DashboardServiceItem(
       label: 'Mengajar',
-      colors: const [Color(0xFF4D8D74), Color(0xFF215344)],
+      colors: const [Color(0xFF64746E), Color(0xFF172A24)],
       icon: Icons.cast_for_education_rounded,
       onTap: () => onSelectTab(3),
     ),
     _DashboardServiceItem(
       label: 'Jadwal',
-      colors: const [Color(0xFF74B3FF), Color(0xFF3C6FD1)],
+      colors: const [Color(0xFF00745A), Color(0xFF00745A)],
       icon: Icons.calendar_month_rounded,
       onTap: () => onSelectTab(1),
     ),
@@ -1836,7 +1823,7 @@ List<_DashboardServiceSection> _buildServiceSections({
   final administrationItems = <_DashboardServiceItem>[
     _DashboardServiceItem(
       label: 'Daftar Izin',
-      colors: const [Color(0xFF3A9B78), Color(0xFF1F6B52)],
+      colors: const [Color(0xFF00745A), Color(0xFF00553F)],
       icon: Icons.assignment_turned_in_rounded,
       onTap: () {
         onOpenIzin();
@@ -1844,7 +1831,7 @@ List<_DashboardServiceSection> _buildServiceSections({
     ),
     _DashboardServiceItem(
       label: 'Laporan',
-      colors: const [Color(0xFF68A98A), Color(0xFF2C6C56)],
+      colors: const [Color(0xFF64746E), Color(0xFF172A24)],
       icon: Icons.summarize_rounded,
       onTap: () {
         onOpenReports();
@@ -1854,7 +1841,7 @@ List<_DashboardServiceSection> _buildServiceSections({
       label: permissions['can_manage_izin'] == true
           ? 'Data Presensi'
           : 'Jadwal Hari Ini',
-      colors: const [Color(0xFF57C1E8), Color(0xFF2D7DA8)],
+      colors: const [Color(0xFF00745A), Color(0xFF00745A)],
       icon: permissions['can_manage_izin'] == true
           ? Icons.groups_rounded
           : Icons.today_rounded,
@@ -1871,7 +1858,7 @@ List<_DashboardServiceSection> _buildServiceSections({
       1,
       _DashboardServiceItem(
         label: 'Kelola Izin',
-        colors: const [Color(0xFF2E7D61), Color(0xFF174C3D)],
+        colors: const [Color(0xFF00553F), Color(0xFF172A24)],
         icon: Icons.approval_rounded,
         badgeText: '${summary['pending_approval_izin_count'] ?? 0}',
         onTap: () {
@@ -1884,13 +1871,13 @@ List<_DashboardServiceSection> _buildServiceSections({
   final accountItems = <_DashboardServiceItem>[
     _DashboardServiceItem(
       label: 'Profil',
-      colors: const [Color(0xFF8E7DF2), Color(0xFF5B49B6)],
+      colors: const [Color(0xFFF59E0B), Color(0xFFD97706)],
       icon: Icons.person_rounded,
       onTap: () => onSelectTab(4),
     ),
     _DashboardServiceItem(
       label: 'Pengaturan',
-      colors: const [Color(0xFF7BC7B2), Color(0xFF2C8B76)],
+      colors: const [Color(0xFF64746E), Color(0xFF00745A)],
       icon: Icons.settings_rounded,
       onTap: onOpenSettings,
     ),
@@ -2026,7 +2013,7 @@ class _ServiceShortcutTile extends StatelessWidget {
                   width: 58,
                   height: 58,
                   decoration: const BoxDecoration(
-                    color: _DashboardPalette.iconSurface,
+                    color: Colors.white,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -2104,11 +2091,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
     final accentColor = isCompleted
         ? _DashboardPalette.success
         : (isExcused ? _DashboardPalette.warning : _DashboardPalette.primary);
-    final softColor = isCompleted
-        ? _DashboardPalette.softGreen
-        : (isExcused
-            ? _DashboardPalette.softYellow
-            : _DashboardPalette.iconSurface);
+    final softColor = Colors.white.withValues(alpha: 0.14);
     final statusLabel =
         isCompleted ? 'Selesai' : (isExcused ? 'Izin' : 'Belum Presensi');
 
@@ -2116,9 +2099,11 @@ class _ScheduleShowcaseCard extends StatelessWidget {
       width: 224,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _DashboardPalette.primaryDark,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _DashboardPalette.border),
+        border: Border.all(
+          color: _DashboardPalette.primary.withValues(alpha: 0.85),
+        ),
         boxShadow: const [
           BoxShadow(
             color: _DashboardPalette.cardShadow,
@@ -2138,7 +2123,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: _DashboardPalette.iconSurface,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -2167,7 +2152,7 @@ class _ScheduleShowcaseCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: _DashboardPalette.textPrimary,
+              color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.w800,
               height: 1.15,
@@ -2178,8 +2163,8 @@ class _ScheduleShowcaseCard extends StatelessWidget {
             item['class_name'] as String? ?? '-',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: _DashboardPalette.textPrimary,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.88),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -2190,8 +2175,8 @@ class _ScheduleShowcaseCard extends StatelessWidget {
               item['school_name'] as String,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: _DashboardPalette.textSecondary,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.72),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -2213,14 +2198,14 @@ class _ScheduleShowcaseCard extends StatelessWidget {
                 Icon(
                   Icons.task_alt_rounded,
                   size: 16,
-                  color: accentColor,
+                  color: Colors.white,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     statusLabel,
                     style: TextStyle(
-                      color: accentColor,
+                      color: Colors.white,
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                     ),
@@ -2316,68 +2301,6 @@ int _extractFirstInt(String value) {
     return 0;
   }
   return int.tryParse(match.group(0)!) ?? 0;
-}
-
-class _DashboardBackdropOrnament extends StatelessWidget {
-  const _DashboardBackdropOrnament();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 148,
-      height: 148,
-      child: CustomPaint(
-        painter: _DashboardOrganicLinePainter(),
-      ),
-    );
-  }
-}
-
-class _DashboardOrganicLinePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = _DashboardPalette.goldLine
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 6;
-
-    final firstPath = Path()
-      ..moveTo(size.width * 0.06, size.height * 0.5)
-      ..quadraticBezierTo(
-        size.width * 0.26,
-        size.height * 0.18,
-        size.width * 0.54,
-        size.height * 0.34,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.82,
-        size.height * 0.5,
-        size.width * 0.95,
-        size.height * 0.18,
-      );
-
-    final secondPath = Path()
-      ..moveTo(size.width * 0.1, size.height * 0.79)
-      ..quadraticBezierTo(
-        size.width * 0.36,
-        size.height * 0.56,
-        size.width * 0.57,
-        size.height * 0.76,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.84,
-        size.height * 0.98,
-        size.width * 0.98,
-        size.height * 0.69,
-      );
-
-    canvas.drawPath(firstPath, paint);
-    canvas.drawPath(secondPath, paint..strokeWidth = 4);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _AnimatedPressable extends StatefulWidget {

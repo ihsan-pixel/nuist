@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
-import '../../widgets/app/app_stat_card.dart';
+import '../../widgets/app/teacher_page_header.dart';
 
-const _izinPrimary = Color(0xFF04A512);
-const _izinPrimaryDark = Color(0xFF037A0D);
-const _izinText = Color(0xFF1C4A22);
-const _izinMuted = Color(0xFF6B7C69);
-const _izinSoft = Color(0xFFEBF7EC);
+const _izinPrimary = Color(0xFF00745A);
+const _izinPrimaryDark = Color(0xFF00553F);
+const _izinText = Color(0xFF172A24);
+const _izinMuted = Color(0xFF64746E);
+const _izinSoft = Color(0xFFE5F5F0);
 
 class TeacherIzinPage extends StatefulWidget {
   const TeacherIzinPage({
@@ -149,7 +149,6 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
       final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png'],
-        withData: false,
       );
       final file = result?.files.single;
       if (file == null) {
@@ -309,7 +308,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
               ),
               child: Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFCFEFC),
+                  color: Color(0xFFFFFFFF),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
                 ),
                 child: SafeArea(
@@ -324,7 +323,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                             width: 46,
                             height: 4,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFD2E2DA),
+                              color: const Color(0xFFDCE7E3),
                               borderRadius: BorderRadius.circular(999),
                             ),
                           ),
@@ -338,19 +337,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          isEditing
-                              ? 'Perbarui data pengajuan izin sebelum diproses kepala sekolah.'
-                              : (action['subtitle'] as String? ??
-                                  'Lengkapi form pengajuan izin sesuai kebutuhan.'),
-                          style: const TextStyle(
-                            color: _izinMuted,
-                            fontSize: 12,
-                            height: 1.45,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 14),
                         if (isExternalTeaching) ...[
                           _LabeledField(
                             label: 'Sekolah Lain',
@@ -546,7 +533,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                     }
                                   });
                                 },
-                                selectedColor: _izinPrimary.withOpacity(0.18),
+                                selectedColor: _izinPrimary.withValues(alpha: 0.18),
                                 checkmarkColor: _izinPrimaryDark,
                                 label: Text(day['label'] as String? ?? '-'),
                               );
@@ -582,7 +569,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                   });
                                 },
                                 selectedColor: const Color(0xFFFFE1D2),
-                                checkmarkColor: const Color(0xFF1C5C47),
+                                checkmarkColor: const Color(0xFF00553F),
                                 label: Text(day['label'] as String? ?? '-'),
                               );
                             }).toList(),
@@ -602,19 +589,22 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                         ],
                         const SizedBox(height: 12),
                         _LabeledField(
-                          label: 'Upload Lampiran',
+                          label: 'Lampiran',
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(16),
                             onTap: isSubmitting
                                 ? null
                                 : () => pickAttachment(sheetSetState),
                             child: Ink(
-                              padding: const EdgeInsets.all(14),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: const Color(0xFFD3E3DB),
+                                  color: const Color(0xFFDCE7E3),
                                 ),
                               ),
                               child: Row(
@@ -628,7 +618,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                                     child: Text(
                                       attachment?.name ??
                                           existingAttachmentName ??
-                                          'PDF/JPG/PNG maksimal 5MB',
+                                          'Pilih lampiran (PDF/JPG/PNG)',
                                       style: TextStyle(
                                         color: attachment == null &&
                                                 existingAttachmentName == null
@@ -653,7 +643,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _izinPrimary,
                               foregroundColor: Colors.white,
-                              disabledBackgroundColor: const Color(0xFFC4DCD2),
+                              disabledBackgroundColor: const Color(0xFFDCE7E3),
                               padding: const EdgeInsets.symmetric(vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18),
@@ -705,7 +695,7 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
     if (sheetResult != null) {
       await _refresh();
 
-      if (!mounted) {
+      if (!mounted || !pageContext.mounted) {
         dateController.dispose();
         endDateController.dispose();
         reasonController.dispose();
@@ -760,21 +750,39 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FCFA),
-      appBar: AppBar(
-        title: const Text('Izin'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-      ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _future,
-        builder: (context, snapshot) {
-          return RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _future,
+          builder: (context, snapshot) {
+            return Column(
               children: [
+                TeacherOverlayPageHeader(
+                  title: 'Izin',
+                  onBack: () => Navigator.of(context).maybePop(),
+                ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      children: [
+                  Transform.translate(
+                    offset: const Offset(0, -8),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(14, 22, 14, 24),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(18),
+                          topRight: Radius.circular(18),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
                 if (snapshot.connectionState == ConnectionState.waiting)
                   const Center(
                     child: Padding(
@@ -808,10 +816,18 @@ class _TeacherIzinPageState extends State<TeacherIzinPage> {
                     },
                     onOpenManageIzin: widget.onOpenManageIzin,
                   ),
+                        ],
+                      ),
+                    ),
+                  ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -855,52 +871,13 @@ class _IzinContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppSectionCard(
-          child: Column(
+        Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Ajukan Izin',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: _izinText,
-                ),
+              const _IzinSectionHeading(
+                title: 'Ajukan Izin',
               ),
-              const SizedBox(height: 6),
-              const Text(
-                'Pilih jenis izin yang ingin diajukan sesuai kebutuhan Anda.',
-                style: TextStyle(
-                  color: _izinMuted,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 14),
-              if (permissions['can_manage_izin'] == true &&
-                  onOpenManageIzin != null) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      await onOpenManageIzin!();
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _izinPrimaryDark,
-                      side: const BorderSide(color: Color(0xFFBDD6CB)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    icon: const Icon(Icons.approval_rounded),
-                    label: const Text(
-                      'Kelola Izin',
-                      style: TextStyle(fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-              ],
+              const SizedBox(height: 12),
               if (menu.isEmpty)
                 const AppEmptyState(
                   title: 'Menu izin belum tersedia',
@@ -913,115 +890,90 @@ class _IzinContent extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: menu.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.98,
+                    crossAxisCount: 4,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.82,
                   ),
                   itemBuilder: (context, index) {
                     final action = menu[index];
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(20),
+                    return _IzinActionTile(
+                      title: action['title'] as String? ?? '-',
+                      icon: _izinIcon(action['icon'] as String?),
                       onTap: () => onCreate(
                         action: action,
                         formMeta: formMeta,
                         existingItem: null,
                       ),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          color: _izinSoft,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFD6E5DE)),
-                        ),
-                        padding: const EdgeInsets.all(14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 42,
-                              height: 42,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Icon(
-                                _izinIcon(action['icon'] as String?),
-                                color: _izinPrimaryDark,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              action['title'] as String? ?? '-',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: _izinText,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Expanded(
-                              child: Text(
-                                action['subtitle'] as String? ?? '',
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: _izinMuted,
-                                  fontSize: 12,
-                                  height: 1.35,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     );
                   },
                 ),
+              if (permissions['can_manage_izin'] == true &&
+                  onOpenManageIzin != null) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () async => onOpenManageIzin!(),
+                    icon: const Icon(Icons.approval_outlined, size: 17),
+                    label: const Text('Kelola Pengajuan'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: _izinPrimaryDark,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 8,
+                      ),
+                      textStyle: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+        ),
+        const SizedBox(height: 14),
+        const _IzinSectionHeading(title: 'Ringkasan'),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFDCE7E3)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: _IzinMiniStat(
+                  label: 'Menunggu',
+                  value: '${summary['pending'] ?? 0}',
+                  color: const Color(0xFFF59E0B),
+                ),
+              ),
+              const _IzinSummaryDivider(),
+              Expanded(
+                child: _IzinMiniStat(
+                  label: 'Disetujui',
+                  value: '${summary['approved'] ?? 0}',
+                  color: const Color(0xFF00745A),
+                ),
+              ),
+              const _IzinSummaryDivider(),
+              Expanded(
+                child: _IzinMiniStat(
+                  label: 'Ditolak',
+                  value: '${summary['rejected'] ?? 0}',
+                  color: const Color(0xFFB42318),
+                ),
+              ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: AppStatCard(
-                label: 'Pending',
-                value: '${summary['pending'] ?? 0}',
-                color: const Color(0xFFF4A12A),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: AppStatCard(
-                label: 'Disetujui',
-                value: '${summary['approved'] ?? 0}',
-                color: const Color(0xFF2E8B57),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: AppStatCard(
-                label: 'Ditolak',
-                value: '${summary['rejected'] ?? 0}',
-                color: const Color(0xFFB42318),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        AppSectionCard(
-          child: Column(
+        const SizedBox(height: 20),
+        Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Riwayat Izin',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: _izinText,
-                ),
-              ),
+              const _IzinSectionHeading(title: 'Riwayat'),
               const SizedBox(height: 12),
               if (items.isEmpty)
                 const AppEmptyState(
@@ -1032,12 +984,11 @@ class _IzinContent extends StatelessWidget {
               else
                 ...items.map(
                   (item) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFCFEFC),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFD8E7E0)),
+                      border: const Border(
+                        bottom: BorderSide(color: _izinSoft),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1064,6 +1015,7 @@ class _IzinContent extends StatelessWidget {
                           style: const TextStyle(
                             color: _izinMuted,
                             fontWeight: FontWeight.w600,
+                            fontSize: 11,
                           ),
                         ),
                         if ((item['end_date_label'] as String?) != null) ...[
@@ -1078,15 +1030,18 @@ class _IzinContent extends StatelessWidget {
                         ],
                         if ((item['reason'] as String?)?.isNotEmpty ==
                             true) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 5),
                           Text(
                             item['reason'] as String,
-                            style: const TextStyle(color: _izinText),
+                            style: const TextStyle(
+                              color: _izinText,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                         if ((item['location'] as String?)?.isNotEmpty ==
                             true) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 5),
                           _MetaLine(
                             icon: Icons.location_on_outlined,
                             text: item['location'] as String,
@@ -1096,7 +1051,7 @@ class _IzinContent extends StatelessWidget {
                                 true ||
                             (item['end_time'] as String?)?.isNotEmpty ==
                                 true) ...[
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 5),
                           _MetaLine(
                             icon: Icons.schedule_rounded,
                             text:
@@ -1108,7 +1063,7 @@ class _IzinContent extends StatelessWidget {
                             ((item['day_no_presence_labels'] as List?) ??
                                     const [])
                                 .isNotEmpty) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 5),
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
@@ -1119,7 +1074,7 @@ class _IzinContent extends StatelessWidget {
                                   .map(
                                     (label) => _SmallChip(
                                       label: 'Presensi $label',
-                                      color: const Color(0xFFE1F0E8),
+                                      color: const Color(0xFFE5F5F0),
                                       textColor: _izinPrimaryDark,
                                     ),
                                   )),
@@ -1129,18 +1084,18 @@ class _IzinContent extends StatelessWidget {
                                   .map(
                                     (label) => _SmallChip(
                                       label: 'Tidak Presensi $label',
-                                      color: const Color(0xFFEAF7F2),
-                                      textColor: const Color(0xFF2E8B57),
+                                      color: const Color(0xFFE5F5F0),
+                                      textColor: const Color(0xFF00745A),
                                     ),
                                   )),
                             ],
                           ),
                         ],
                         if (item['can_edit'] == true) ...[
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
+                          const SizedBox(height: 2),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
                               onPressed: () => onCreate(
                                 action: {
                                   'type': item['type'],
@@ -1151,17 +1106,9 @@ class _IzinContent extends StatelessWidget {
                                 formMeta: formMeta,
                                 existingItem: item,
                               ),
-                              style: OutlinedButton.styleFrom(
+                              style: TextButton.styleFrom(
                                 foregroundColor: _izinPrimaryDark,
-                                side: const BorderSide(
-                                  color: Color(0xFFBDD6CB),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 6),
                               ),
                               icon: const Icon(Icons.edit_rounded, size: 18),
                               label: const Text(
@@ -1176,9 +1123,134 @@ class _IzinContent extends StatelessWidget {
                   ),
                 ),
             ],
+        ),
+      ],
+    );
+  }
+}
+
+class _IzinSectionHeading extends StatelessWidget {
+  const _IzinSectionHeading({
+    required this.title,
+  });
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: _izinText,
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _IzinActionTile extends StatelessWidget {
+  const _IzinActionTile({
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: _izinSoft,
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFDCE7E3)),
+              ),
+              child: Icon(icon, color: _izinPrimaryDark, size: 23),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: _izinText,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+                height: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IzinMiniStat extends StatelessWidget {
+  const _IzinMiniStat({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w800,
+            fontSize: 19,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label,
+          style: const TextStyle(
+            color: _izinMuted,
+            fontWeight: FontWeight.w700,
+            fontSize: 10.5,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IzinSummaryDivider extends StatelessWidget {
+  const _IzinSummaryDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 34,
+      color: const Color(0xFFDCE7E3),
     );
   }
 }
@@ -1192,23 +1264,30 @@ class _IzinStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = status == 'approved'
-        ? const Color(0xFF2E8B57)
-        : status == 'rejected'
+    final normalizedStatus = status.toLowerCase();
+    final color = normalizedStatus == 'approved'
+        ? const Color(0xFF00745A)
+        : normalizedStatus == 'rejected'
             ? const Color(0xFFB42318)
-            : const Color(0xFFF4A12A);
+            : const Color(0xFFF59E0B);
+    final label = switch (normalizedStatus) {
+      'approved' => 'Disetujui',
+      'rejected' => 'Ditolak',
+      'pending' => 'Menunggu',
+      _ => status,
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        status,
+        label,
         style: TextStyle(
           color: color,
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -1312,15 +1391,15 @@ InputDecoration _izinInputDecoration(String hint) {
     filled: true,
     fillColor: Colors.white,
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFD3E3DB)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: Color(0xFFDCE7E3)),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: const BorderSide(color: Color(0xFFD3E3DB)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: Color(0xFFDCE7E3)),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
       borderSide: const BorderSide(color: _izinPrimary, width: 1.4),
     ),
   );

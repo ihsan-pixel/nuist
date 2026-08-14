@@ -321,10 +321,10 @@ class _RegisterPageState extends State<RegisterPage>
       decoration: BoxDecoration(
         color: _RegisterPalette.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _RegisterPalette.border.withOpacity(0.9)),
+        border: Border.all(color: _RegisterPalette.border.withValues(alpha: 0.9)),
         boxShadow: [
           BoxShadow(
-            color: _RegisterPalette.primaryDark.withOpacity(0.06),
+            color: _RegisterPalette.primaryDark.withValues(alpha: 0.06),
             blurRadius: 22,
             offset: const Offset(0, 12),
           ),
@@ -456,7 +456,7 @@ class _RegisterPageState extends State<RegisterPage>
               const _RegisterInputLabel('Asal Sekolah'),
               const SizedBox(height: 5),
               DropdownButtonFormField<int>(
-                value: _selectedMadrasahId,
+                initialValue: _selectedMadrasahId,
                 items: _madrasahs
                     .map(
                       (madrasah) => DropdownMenuItem<int>(
@@ -708,34 +708,34 @@ class _RegisterPageState extends State<RegisterPage>
 
   ButtonStyle _primaryButtonStyle() {
     return ButtonStyle(
-      minimumSize: MaterialStateProperty.all(const Size.fromHeight(48)),
-      backgroundColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.disabled)) {
-          return const Color(0xFFBFD8D0);
+      minimumSize: WidgetStateProperty.all(const Size.fromHeight(48)),
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return const Color(0xFFDCE7E3);
         }
-        if (states.contains(MaterialState.pressed)) {
+        if (states.contains(WidgetState.pressed)) {
           return _RegisterPalette.primaryDark;
         }
-        if (states.contains(MaterialState.hovered)) {
-          return const Color(0xFF0A8466);
+        if (states.contains(WidgetState.hovered)) {
+          return const Color(0xFF00745A);
         }
         return _RegisterPalette.primary;
       }),
-      foregroundColor: MaterialStateProperty.all(Colors.white),
-      overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.08)),
-      elevation: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.disabled)) {
+      foregroundColor: WidgetStateProperty.all(Colors.white),
+      overlayColor: WidgetStateProperty.all(Colors.white.withValues(alpha: 0.08)),
+      elevation: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
           return 0.0;
         }
-        if (states.contains(MaterialState.pressed)) {
+        if (states.contains(WidgetState.pressed)) {
           return 1.0;
         }
         return 8.0;
       }),
-      shadowColor: MaterialStateProperty.all(
-        _RegisterPalette.primaryDark.withOpacity(0.24),
+      shadowColor: WidgetStateProperty.all(
+        _RegisterPalette.primaryDark.withValues(alpha: 0.24),
       ),
-      shape: MaterialStateProperty.all(
+      shape: WidgetStateProperty.all(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
@@ -775,7 +775,7 @@ class _RoleOption extends StatelessWidget {
     return Material(
       color: selected
           ? _RegisterPalette.primary
-          : _RegisterPalette.card.withOpacity(0.96),
+          : _RegisterPalette.card.withValues(alpha: 0.96),
       borderRadius: BorderRadius.circular(13),
       child: InkWell(
         onTap: onTap,
@@ -853,10 +853,10 @@ class _RegisterBrandCardState extends State<_RegisterBrandCard>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      _RegisterPalette.primary.withOpacity(
-                        0.14 + (pulse * 0.05),
+                      _RegisterPalette.primary.withValues(
+                        alpha: 0.14 + (pulse * 0.05),
                       ),
-                      _RegisterPalette.primary.withOpacity(0.04),
+                      _RegisterPalette.primary.withValues(alpha: 0.04),
                       Colors.transparent,
                     ],
                     stops: const [0, 0.56, 1],
@@ -874,7 +874,7 @@ class _RegisterBrandCardState extends State<_RegisterBrandCard>
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: _RegisterPalette.primaryDark.withOpacity(0.08),
+                  color: _RegisterPalette.primaryDark.withValues(alpha: 0.08),
                   blurRadius: 18,
                   offset: const Offset(0, 10),
                 ),
@@ -907,7 +907,7 @@ class _RegisterBackdrop extends StatelessWidget {
             height: 200,
             child: CustomPaint(
               painter: _RegisterOrganicLinePainter(
-                color: _RegisterPalette.accent.withOpacity(0.08),
+                color: _RegisterPalette.accent.withValues(alpha: 0.08),
               ),
             ),
           ),
@@ -922,7 +922,7 @@ class _RegisterBackdrop extends StatelessWidget {
               height: 216,
               child: CustomPaint(
                 painter: _RegisterOrganicLinePainter(
-                  color: _RegisterPalette.accent.withOpacity(0.08),
+                  color: _RegisterPalette.accent.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -1005,14 +1005,14 @@ class _RegisterInputLabel extends StatelessWidget {
 }
 
 class _RegisterPalette {
-  static const primary = Color(0xFF0B8F6E);
-  static const primaryDark = Color(0xFF066C56);
-  static const accent = Color(0xFFF5B301);
-  static const background = Color(0xFFF7F8FC);
+  static const primary = Color(0xFF00745A);
+  static const primaryDark = Color(0xFF00553F);
+  static const accent = Color(0xFFF59E0B);
+  static const background = Color(0xFFF7F9FC);
   static const card = Color(0xFFFFFFFF);
-  static const textPrimary = Color(0xFF1E293B);
-  static const textSecondary = Color(0xFF64748B);
-  static const border = Color(0xFFE2E8F0);
+  static const textPrimary = Color(0xFF172A24);
+  static const textSecondary = Color(0xFF172A24);
+  static const border = Color(0xFFDCE7E3);
   static const error = Color(0xFFEF4444);
 
   const _RegisterPalette._();

@@ -81,7 +81,7 @@ class _StudentShellPageState extends State<StudentShellPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      backgroundColor: const Color(0xFFF7F8FC),
+      backgroundColor: Colors.white,
       body: SafeArea(
         bottom: false,
         child: IndexedStack(
@@ -91,25 +91,30 @@ class _StudentShellPageState extends State<StudentShellPage> {
               repository: widget.repository,
               dataRevision: _dataRevision,
               onSelectTab: _selectTab,
+              onLogout: _logout,
             ),
             StudentBillsPage(
               repository: widget.repository,
               dataRevision: _dataRevision,
+              onBackToHome: () => _selectTab(0),
               onOpenPaymentTab: () => _selectTab(2),
             ),
             StudentPaymentPage(
               repository: widget.repository,
               dataRevision: _dataRevision,
               onDataChanged: _handleDataChanged,
+              onBackToHome: () => _selectTab(0),
               onOpenHistoryTab: () => _selectTab(3),
             ),
             StudentPaymentHistoryPage(
               repository: widget.repository,
               dataRevision: _dataRevision,
+              onBackToHome: () => _selectTab(0),
             ),
             StudentProfilePage(
               repository: widget.repository,
               dataRevision: _dataRevision,
+              onBackToHome: () => _selectTab(0),
               onLogout: _logout,
             ),
           ],

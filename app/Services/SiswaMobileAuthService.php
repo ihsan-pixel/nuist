@@ -30,9 +30,32 @@ class SiswaMobileAuthService
         return $this->syncUserFromSiswa($siswa);
     }
 
+    /** Login path used by the Flutter student form: NISN only. */
+    public function authenticateByNisn(string $nisn, string $password): ?User
+    {
+        $nisn = trim($nisn);
+
+        $siswa = Siswa::query()
+            ->where('nisn', $nisn)
+            ->where('is_active', true)
+            ->whereNotNull('password')
+            ->first();
+
+        if (!$siswa || blank($siswa->password) || !Hash::check($password, $siswa->password)) {
+            return null;
+        }
+
+        return $this->syncUserFromSiswa($siswa);
+    }
+
     public function syncUserFromSiswa(Siswa $siswa): User
     {
         $linkKey = $this->buildLinkKey($siswa);
+        // A student can use NISN login even when the source school data has no
+        // personal email. The linked user still needs a unique email value.
+        $accountEmail = filled($siswa->email)
+            ? strtolower(trim($siswa->email))
+            : "siswa-{$siswa->id}@nuist.local";
 
         $user = User::query()
             ->where('nuist_id', $linkKey)
@@ -40,13 +63,13 @@ class SiswaMobileAuthService
 
         if (!$user) {
             $user = User::query()
-                ->where('email', $siswa->email)
+                ->where('email', $accountEmail)
                 ->where('role', 'siswa')
                 ->first();
         }
 
         $conflictingUser = User::query()
-            ->where('email', $siswa->email)
+            ->where('email', $accountEmail)
             ->when($user?->exists, fn ($query) => $query->where('id', '!=', $user->id))
             ->where('role', '!=', 'siswa')
             ->first();
@@ -61,7 +84,7 @@ class SiswaMobileAuthService
 
         $user->fill([
             'name' => $siswa->nama_lengkap,
-            'email' => $siswa->email,
+            'email' => $accountEmail,
             'password' => $siswa->password,
             'role' => 'siswa',
             'nuist_id' => $linkKey,

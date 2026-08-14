@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/student_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
+import '../../widgets/app/teacher_page_header.dart';
 import 'student_ui.dart';
 
 class StudentProfilePage extends StatefulWidget {
@@ -9,11 +10,13 @@ class StudentProfilePage extends StatefulWidget {
     super.key,
     required this.repository,
     required this.dataRevision,
+    required this.onBackToHome,
     required this.onLogout,
   });
 
   final StudentMobileRepository repository;
   final int dataRevision;
+  final VoidCallback onBackToHome;
   final Future<void> Function() onLogout;
 
   @override
@@ -95,6 +98,18 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TeacherOverlayPageHeader(
+          title: 'Profil',
+          onBack: widget.onBackToHome,
+        ),
+        Expanded(child: _buildContent(context)),
+      ],
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -115,10 +130,6 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
     final school = Map<String, dynamic>.from(
       (_data['school'] as Map?) ?? const <String, dynamic>{},
     );
-    final summary = Map<String, dynamic>.from(
-      (_data['summary'] as Map?) ?? const <String, dynamic>{},
-    );
-
     final classBadge = [
       normalizeStudentText(student['kelas'], fallback: ''),
       normalizeStudentText(student['jurusan'], fallback: ''),
@@ -128,52 +139,20 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
       onRefresh: _load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 128),
+        padding: const EdgeInsets.only(bottom: 128),
         children: [
-          StudentPageBanner(
-            title: normalizeStudentText(student['name']),
-            subtitle: normalizeStudentText(user['email']),
-            icon: Icons.person_rounded,
-            badges: [
-              if (classBadge.isNotEmpty)
-                StudentBannerBadge(
-                  label: classBadge,
-                  icon: Icons.school_rounded,
-                ),
-              StudentBannerBadge(
-                label: normalizeStudentText(school['name']),
-                icon: Icons.apartment_rounded,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          AppSectionCard(
-            padding: const EdgeInsets.all(14),
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 10,
+          StudentPageContentSurface(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StudentMetricCard(
-                  label: 'Total tagihan',
-                  value: '${summary['total_bills'] ?? 0}',
-                  icon: Icons.receipt_long_rounded,
-                  tone: const Color(0xFF2563EB),
+                const Text('Profil siswa', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF172A24))),
+                const SizedBox(height: 16),
+                _ProfileIdentityCard(
+                  name: normalizeStudentText(student['name']),
+                  email: normalizeStudentText(user['email']),
+                  classBadge: classBadge,
+                  schoolName: normalizeStudentText(school['name']),
                 ),
-                StudentMetricCard(
-                  label: 'Sudah lunas',
-                  value: '${summary['paid_bills'] ?? 0}',
-                  icon: Icons.task_alt_rounded,
-                  tone: const Color(0xFF0B8F6E),
-                ),
-                StudentMetricCard(
-                  label: 'Terbayar',
-                  value: formatStudentCurrency(summary['total_paid']),
-                  icon: Icons.payments_rounded,
-                  tone: const Color(0xFFD97706),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 16),
           AppSectionCard(
             padding: const EdgeInsets.all(14),
@@ -334,6 +313,65 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                     )
                   : const Icon(Icons.logout_rounded, size: 18),
               label: const Text('Logout'),
+            ),
+          ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileIdentityCard extends StatelessWidget {
+  const _ProfileIdentityCard({
+    required this.name,
+    required this.email,
+    required this.classBadge,
+    required this.schoolName,
+  });
+
+  final String name;
+  final String email;
+  final String classBadge;
+  final String schoolName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE5F5F0),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: const BoxDecoration(color: Color(0xFF00745A), shape: BoxShape.circle),
+            child: const Icon(Icons.person_rounded, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF172A24))),
+                const SizedBox(height: 2),
+                Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: Color(0xFF64746E))),
+                if (classBadge.isNotEmpty || schoolName != '-') ...[
+                  const SizedBox(height: 5),
+                  Text(
+                    [classBadge, schoolName].where((item) => item.isNotEmpty && item != '-').join(' • '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF00745A)),
+                  ),
+                ],
+              ],
             ),
           ),
         ],

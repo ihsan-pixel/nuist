@@ -12,11 +12,13 @@ class StudentDashboardPage extends StatefulWidget {
     required this.repository,
     required this.dataRevision,
     required this.onSelectTab,
+    required this.onLogout,
   });
 
   final StudentMobileRepository repository;
   final int dataRevision;
   final ValueChanged<int> onSelectTab;
+  final Future<void> Function() onLogout;
 
   @override
   State<StudentDashboardPage> createState() => _StudentDashboardPageState();
@@ -175,7 +177,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                 boxShadow: _hasScrolled
                     ? const [
                         BoxShadow(
-                          color: Color(0x141E293B),
+                          color: Color(0x14172A24),
                           blurRadius: 20,
                           offset: Offset(0, 8),
                         ),
@@ -189,6 +191,7 @@ class _StudentDashboardPageState extends State<StudentDashboardPage> {
                 isScrolled: _hasScrolled,
                 onOpenPayments: () => widget.onSelectTab(2),
                 onOpenProfile: () => widget.onSelectTab(4),
+                onLogout: widget.onLogout,
               ),
             ),
           ),
@@ -254,11 +257,6 @@ class _StudentDashboardContent extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _StudentPerformanceCard(
-                studentName: studentName,
-                classLabel: [
-                  normalizeStudentText(student['kelas'], fallback: ''),
-                  normalizeStudentText(student['jurusan'], fallback: ''),
-                ].where((item) => item.isNotEmpty).join(' • '),
                 percent:
                     (summary['payment_completion_rate'] as num?)?.toInt() ?? 0,
               ),
@@ -269,7 +267,7 @@ class _StudentDashboardContent extends StatelessWidget {
                     child: Text(
                       'Aktivitas Pembayaran',
                       style: TextStyle(
-                        color: Color(0xFF1E293B),
+                        color: Color(0xFF172A24),
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                       ),
@@ -281,14 +279,14 @@ class _StudentDashboardContent extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEAF8F2),
+                      color: const Color(0xFFE5F5F0),
                       borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: const Color(0xFFDCE7E3)),
                     ),
                     child: Text(
                       monthLabel,
                       style: const TextStyle(
-                        color: Color(0xFF1E293B),
+                        color: Color(0xFF172A24),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
@@ -302,10 +300,10 @@ class _StudentDashboardContent extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _StudentStatTile(
-                        label: 'Lunass boss',
+                        label: 'Lunas',
                         value: '${summary['paid_bills'] ?? 0}',
-                        iconSurface: const Color(0xFFDDF8E6),
-                        iconColor: const Color(0xFF10B981),
+                        iconSurface: const Color(0xFFE5F5F0),
+                        iconColor: const Color(0xFF00745A),
                         icon: Icons.trending_up_rounded,
                       ),
                     ),
@@ -314,8 +312,8 @@ class _StudentDashboardContent extends StatelessWidget {
                       child: _StudentStatTile(
                         label: 'Tagihan',
                         value: '${summary['total_bills'] ?? 0}',
-                        iconSurface: const Color(0xFFE4F6EF),
-                        iconColor: const Color(0xFF0B8F6E),
+                        iconSurface: const Color(0xFFE5F5F0),
+                        iconColor: const Color(0xFF00745A),
                         icon: Icons.check_circle_rounded,
                       ),
                     ),
@@ -324,7 +322,7 @@ class _StudentDashboardContent extends StatelessWidget {
                       child: _StudentStatTile(
                         label: 'Pending',
                         value: '${summary['pending_payments'] ?? 0}',
-                        iconSurface: const Color(0xFFFFF1C9),
+                        iconSurface: const Color(0xFFFFF4D6),
                         iconColor: const Color(0xFFF59E0B),
                         icon: Icons.schedule_rounded,
                       ),
@@ -374,7 +372,7 @@ class _StudentDashboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         if (activeBill == null)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 4),
             child: _StudentCompactEmptyState(
               title: 'Tidak ada tagihan aktif',
@@ -406,12 +404,13 @@ class _StudentDashboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         if (recentPayments.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 4),
             child: _StudentCompactEmptyState(
               title: 'Belum ada riwayat pembayaran',
               message: 'Transaksi yang tercatat akan tampil di sini.',
               icon: Icons.history_rounded,
+              accentColor: const Color(0xFFF59E0B),
             ),
           )
         else
@@ -450,7 +449,7 @@ class _StudentSectionHeader extends StatelessWidget {
           child: Text(
             title,
             style: const TextStyle(
-              color: Color(0xFF1E293B),
+              color: Color(0xFF172A24),
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.4,
@@ -463,7 +462,7 @@ class _StudentSectionHeader extends StatelessWidget {
             child: const Text(
               'See All',
               style: TextStyle(
-                color: Color(0xFF0B8F6E),
+                color: Color(0xFF00745A),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -479,11 +478,13 @@ class _StudentCompactEmptyState extends StatelessWidget {
     required this.title,
     required this.message,
     required this.icon,
+    this.accentColor = const Color(0xFF00745A),
   });
 
   final String title;
   final String message;
   final IconData icon;
+  final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
@@ -491,7 +492,7 @@ class _StudentCompactEmptyState extends StatelessWidget {
       title: title,
       message: message,
       icon: icon,
-      accentColor: const Color(0xFF0B8F6E),
+      accentColor: accentColor,
       footerLabel: 'MENUNGGU DATA',
     );
   }
@@ -502,78 +503,38 @@ class _StudentDashboardTopBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return SizedBox(
+      // Keep the content anchor unchanged; only the painted green panel is
+      // shorter than the reserved header space.
+      height: 288,
+      child: Stack(
       children: [
         Container(
-          height: 288,
+          height: 250,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFF066C56),
-                Color(0xFF0B8F6E),
+                Color(0xFF00553F),
+                Color(0xFF00745A),
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.elliptical(360, 132),
-              bottomRight: Radius.elliptical(360, 132),
-            ),
             boxShadow: [
               BoxShadow(
-                color: Color(0x141E293B),
+                color: Color(0x14172A24),
                 blurRadius: 20,
                 offset: Offset(0, 10),
               ),
             ],
           ),
         ),
-        const Positioned(
-          top: -12,
-          left: -28,
-          child: _BackdropOrnament(),
-        ),
-        const Positioned(
-          right: -38,
-          bottom: 22,
-          child: RotatedBox(
-            quarterTurns: 2,
-            child: _BackdropOrnament(),
-          ),
-        ),
       ],
-    );
-  }
-}
-
-class _BackdropOrnament extends StatelessWidget {
-  const _BackdropOrnament();
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: 0.16,
-      child: Container(
-        width: 120,
-        height: 120,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2),
-        ),
-        child: Center(
-          child: Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
-            ),
-          ),
-        ),
       ),
     );
   }
 }
+
 
 class _StudentDashboardHeader extends StatelessWidget {
   const _StudentDashboardHeader({
@@ -582,6 +543,7 @@ class _StudentDashboardHeader extends StatelessWidget {
     required this.isScrolled,
     required this.onOpenPayments,
     required this.onOpenProfile,
+    required this.onLogout,
   });
 
   final String schoolName;
@@ -589,13 +551,14 @@ class _StudentDashboardHeader extends StatelessWidget {
   final bool isScrolled;
   final VoidCallback onOpenPayments;
   final VoidCallback onOpenProfile;
+  final Future<void> Function() onLogout;
 
   @override
   Widget build(BuildContext context) {
-    final foregroundColor = isScrolled ? const Color(0xFF1E293B) : Colors.white;
+    final foregroundColor = isScrolled ? const Color(0xFF172A24) : Colors.white;
     final secondaryColor =
-        isScrolled ? const Color(0xFFCBD5E1) : Colors.white70;
-    final iconColor = isScrolled ? const Color(0xFF066C56) : Colors.white;
+        isScrolled ? const Color(0xFFDCE7E3) : Colors.white70;
+    final iconColor = isScrolled ? const Color(0xFF00553F) : Colors.white;
 
     return Row(
       children: [
@@ -614,7 +577,7 @@ class _StudentDashboardHeader extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: isScrolled
-                            ? const Color(0xFF64748B)
+                            ? const Color(0xFF172A24)
                             : secondaryColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -660,13 +623,16 @@ class _StudentDashboardHeader extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          onSelected: (value) {
+          onSelected: (value) async {
             switch (value) {
               case 'profile':
                 onOpenProfile();
                 break;
               case 'payments':
                 onOpenPayments();
+                break;
+              case 'logout':
+                await onLogout();
                 break;
             }
           },
@@ -683,6 +649,14 @@ class _StudentDashboardHeader extends StatelessWidget {
               child: _StudentHeaderMenuItem(
                 icon: Icons.account_balance_wallet_outlined,
                 label: 'Pembayaran',
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'logout',
+              child: _StudentHeaderMenuItem(
+                icon: Icons.logout_rounded,
+                label: 'Keluar',
+                isDestructive: true,
               ),
             ),
           ],
@@ -725,7 +699,7 @@ class _StudentHeaderAvatar extends StatelessWidget {
         border: Border.all(color: Colors.white, width: 1.5),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x141E293B),
+            color: Color(0x14172A24),
             blurRadius: 14,
             offset: Offset(0, 6),
           ),
@@ -736,8 +710,8 @@ class _StudentHeaderAvatar extends StatelessWidget {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFF0B8F6E),
-                Color(0xFF066C56),
+                Color(0xFF00745A),
+                Color(0xFF00553F),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -763,21 +737,31 @@ class _StudentHeaderMenuItem extends StatelessWidget {
   const _StudentHeaderMenuItem({
     required this.icon,
     required this.label,
+    this.isDestructive = false,
   });
 
   final IconData icon;
   final String label;
+  final bool isDestructive;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF066C56)),
+        Icon(
+          icon,
+          size: 20,
+          color: isDestructive
+              ? const Color(0xFFDC2626)
+              : const Color(0xFF00553F),
+        ),
         const SizedBox(width: 10),
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF066C56),
+          style: TextStyle(
+            color: isDestructive
+                ? const Color(0xFFDC2626)
+                : const Color(0xFF00553F),
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -788,33 +772,21 @@ class _StudentHeaderMenuItem extends StatelessWidget {
 
 class _StudentPerformanceCard extends StatelessWidget {
   const _StudentPerformanceCard({
-    required this.studentName,
-    required this.classLabel,
     required this.percent,
   });
 
-  final String studentName;
-  final String classLabel;
   final int percent;
 
   @override
   Widget build(BuildContext context) {
     final progress = (percent.clamp(0, 100)) / 100;
-    final level = percent >= 100
-        ? 'Semua Tagihan Lunas'
-        : percent >= 70
-            ? 'Progress Pembayaran Bagus'
-            : percent >= 35
-                ? 'Progress Sedang Berjalan'
-                : 'Perlu Tindak Lanjut';
-
     return Container(
       padding: const EdgeInsets.fromLTRB(15, 15, 15, 14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF0B8F6E),
-            Color(0xFF066C56),
+            Color(0xFF00745A),
+            Color(0xFF00553F),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -822,7 +794,7 @@ class _StudentPerformanceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x141E293B),
+            color: Color(0x14172A24),
             blurRadius: 20,
             offset: Offset(0, 10),
           ),
@@ -834,32 +806,15 @@ class _StudentPerformanceCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Level Progres',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (classLabel.trim().isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        classLabel,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.82),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ],
+              Text(
+                'Level Progres',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
+              const Spacer(),
               TweenAnimationBuilder<int>(
                 tween: IntTween(begin: 0, end: percent),
                 duration: const Duration(milliseconds: 900),
@@ -878,25 +833,6 @@ class _StudentPerformanceCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            level,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 17,
-              fontWeight: FontWeight.w800,
-              height: 1.15,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            studentName,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.84),
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
           const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
@@ -910,7 +846,7 @@ class _StudentPerformanceCard extends StatelessWidget {
                   value: animatedValue,
                   backgroundColor: Colors.white24,
                   valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF26D0B5),
+                    Color(0xFF00745A),
                   ),
                 );
               },
@@ -946,10 +882,10 @@ class _StudentStatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: const Color(0xFFDCE7E3)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x141E293B),
+            color: Color(0x14172A24),
             blurRadius: 16,
             offset: Offset(0, 6),
           ),
@@ -977,7 +913,7 @@ class _StudentStatTile extends StatelessWidget {
                 '$animatedValue',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: Color(0xFF1E293B),
+                  color: Color(0xFF172A24),
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   height: 1,
@@ -992,7 +928,7 @@ class _StudentStatTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: Color(0xFF64748B),
+              color: Color(0xFF172A24),
               fontSize: 8.5,
               fontWeight: FontWeight.w700,
               height: 1.1,
@@ -1029,7 +965,7 @@ class _StudentServiceShortcutTile extends StatelessWidget {
       onTap: item.onTap,
       builder: (context, isPressed) {
         final accent =
-            isPressed ? const Color(0xFF066C56) : const Color(0xFF0B8F6E);
+            isPressed ? const Color(0xFF00553F) : const Color(0xFF00745A);
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -1039,11 +975,11 @@ class _StudentServiceShortcutTile extends StatelessWidget {
               width: 58,
               height: 58,
               decoration: const BoxDecoration(
-                color: Color(0xFFEAF8F2),
+                color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0x141E293B),
+                    color: Color(0x14172A24),
                     blurRadius: 12,
                     offset: Offset(0, 4),
                   ),
@@ -1062,7 +998,7 @@ class _StudentServiceShortcutTile extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
+                color: Color(0xFF172A24),
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -1110,13 +1046,13 @@ class _StudentBillShowcaseCard extends StatelessWidget {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEAF8F2),
+                    color: const Color(0xFFE5F5F0),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     formatStudentDate(item['jatuh_tempo'] as String?),
                     style: const TextStyle(
-                      color: Color(0xFF066C56),
+                      color: Color(0xFF00553F),
                       fontSize: 9.5,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1139,7 +1075,7 @@ class _StudentBillShowcaseCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: Color(0xFF1E293B),
+                color: Color(0xFF172A24),
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
                 height: 1.15,
@@ -1151,7 +1087,7 @@ class _StudentBillShowcaseCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: Color(0xFF1E293B),
+                color: Color(0xFF172A24),
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),
@@ -1162,7 +1098,7 @@ class _StudentBillShowcaseCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                color: Color(0xFF64748B),
+                color: Color(0xFF172A24),
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
               ),
@@ -1189,10 +1125,10 @@ class _StudentReminderCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: const Color(0xFFDCE7E3)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x141E293B),
+            color: Color(0x14172A24),
             blurRadius: 20,
             offset: Offset(0, 8),
           ),
@@ -1205,13 +1141,13 @@ class _StudentReminderCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFFFFEDD5),
+              color: const Color(0xFFFFF4D6),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.alarm_rounded,
               size: 18,
-              color: Color(0xFFB45309),
+              color: Color(0xFFD97706),
             ),
           ),
           const SizedBox(height: 12),
@@ -1220,7 +1156,7 @@ class _StudentReminderCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Color(0xFF1E293B),
+              color: Color(0xFF172A24),
               fontSize: 15,
               fontWeight: FontWeight.w800,
               height: 1.15,
@@ -1232,7 +1168,7 @@ class _StudentReminderCard extends StatelessWidget {
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Color(0xFF64748B),
+              color: Color(0xFF172A24),
               fontSize: 11.5,
               height: 1.35,
             ),
@@ -1301,7 +1237,9 @@ class _PaymentPreviewTile extends StatelessWidget {
     final color = paymentStatusColor(item['status_verifikasi'] as String?);
 
     return StudentTicketCard(
-      accentColor: color,
+      // Riwayat uses the NUIST gold accent for the ticket perforation/bar;
+      // the payment status itself keeps its semantic color below.
+      accentColor: const Color(0xFFF59E0B),
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
       footer: StudentTicketAmount(
         label: 'Nominal bayar',
@@ -1315,7 +1253,7 @@ class _PaymentPreviewTile extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(
@@ -1385,7 +1323,7 @@ Widget studentDashboardPreview() {
   return MaterialApp(
     debugShowCheckedModeBanner: false,
     home: Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF7F9FC),
       body: SafeArea(
         child: _StudentDashboardContent(
           student: const {

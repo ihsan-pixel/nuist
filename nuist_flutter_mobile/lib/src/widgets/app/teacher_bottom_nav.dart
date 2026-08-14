@@ -50,13 +50,13 @@ class TeacherBottomNav extends StatelessWidget {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: const [
                     BoxShadow(
-                      color: Color(0x141E293B),
+                      color: Color(0x14172A24),
                       blurRadius: 20,
                       offset: Offset(0, 8),
                     ),
                   ],
                   border: Border.all(
-                    color: const Color(0xFFE2E8F0),
+                    color: const Color(0xFFDCE7E3),
                   ),
                 ),
                 child: Row(
@@ -121,7 +121,7 @@ class _NavSideItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor =
-        selected ? const Color(0xFF0B8F6E) : const Color(0xFF94A3B8);
+        selected ? const Color(0xFF00745A) : const Color(0xFF94A3B8);
 
     return Material(
       color: Colors.transparent,
@@ -197,16 +197,16 @@ class _CenterNavItemState extends State<_CenterNavItem> {
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFECFDF5),
+                color: const Color(0xFFE5F5F0),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x141E293B),
+                    color: Color(0x14172A24),
                     blurRadius: 20,
                     offset: Offset(0, 8),
                   ),
                 ],
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: const Color(0xFFDCE7E3),
                 ),
               ),
               child: Container(
@@ -216,15 +216,15 @@ class _CenterNavItemState extends State<_CenterNavItem> {
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF0B8F6E),
-                      Color(0xFF066C56),
+                      Color(0xFF00745A),
+                      Color(0xFF00553F),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0x330B8F6E),
+                      color: Color(0x3300745A),
                       blurRadius: 20,
                       offset: Offset(0, 8),
                     ),
@@ -245,7 +245,7 @@ class _CenterNavItemState extends State<_CenterNavItem> {
               fontSize: 11,
               fontWeight: FontWeight.w800,
               color: widget.selected
-                  ? const Color(0xFF0B8F6E)
+                  ? const Color(0xFF00745A)
                   : const Color(0xFF94A3B8),
             ),
           ),

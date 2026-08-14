@@ -5,6 +5,7 @@ class TokenStorage {
   static const _rememberLoginKey = 'nuist_remember_login';
   static const _savedEmailKey = 'nuist_saved_email';
   static const _savedPasswordKey = 'nuist_saved_password';
+  static const _savedLoginRoleKey = 'nuist_saved_login_role';
   static const _pushTokenKey = 'nuist_push_token';
 
   Future<void> writeToken(String token) async {
@@ -25,6 +26,7 @@ class TokenStorage {
   Future<void> saveRememberedLogin({
     required String email,
     required String password,
+    required String loginAs,
     required bool remember,
   }) async {
     final preferences = await SharedPreferences.getInstance();
@@ -33,11 +35,13 @@ class TokenStorage {
     if (!remember) {
       await preferences.remove(_savedEmailKey);
       await preferences.remove(_savedPasswordKey);
+      await preferences.remove(_savedLoginRoleKey);
       return;
     }
 
     await preferences.setString(_savedEmailKey, email);
     await preferences.setString(_savedPasswordKey, password);
+    await preferences.setString(_savedLoginRoleKey, loginAs);
   }
 
   Future<Map<String, dynamic>> readRememberedLogin() async {
@@ -46,6 +50,7 @@ class TokenStorage {
       'remember': preferences.getBool(_rememberLoginKey) ?? false,
       'email': preferences.getString(_savedEmailKey) ?? '',
       'password': preferences.getString(_savedPasswordKey) ?? '',
+      'loginAs': preferences.getString(_savedLoginRoleKey) ?? 'tenaga_pendidik',
     };
   }
 
@@ -54,6 +59,7 @@ class TokenStorage {
     await preferences.remove(_rememberLoginKey);
     await preferences.remove(_savedEmailKey);
     await preferences.remove(_savedPasswordKey);
+    await preferences.remove(_savedLoginRoleKey);
   }
 
   Future<void> writePushToken(String token) async {

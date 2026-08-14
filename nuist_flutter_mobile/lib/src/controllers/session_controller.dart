@@ -37,7 +37,8 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> login({
-    required String email,
+    required String identifier,
+    required String loginAs,
     required String password,
     required bool rememberSession,
   }) async {
@@ -48,7 +49,8 @@ class SessionController extends ChangeNotifier {
 
     try {
       _session = await _authRepository.login(
-        email: email,
+        identifier: identifier,
+        loginAs: loginAs,
         password: password,
         rememberSession: rememberSession,
       );

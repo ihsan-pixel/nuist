@@ -2127,6 +2127,7 @@ Route::middleware(['auth', 'role:super_admin,admin,admin_spp,pengurus'])->prefix
     Route::post('/data-siswa', [App\Http\Controllers\DataSiswaController::class, 'store'])->name('data-siswa.store');
     Route::put('/data-siswa/bulk-update', [App\Http\Controllers\DataSiswaController::class, 'bulkUpdate'])->name('data-siswa.bulk-update');
     Route::put('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'update'])->name('data-siswa.update');
+    Route::post('/data-siswa/{siswa}/reset-login-password', [App\Http\Controllers\DataSiswaController::class, 'resetLoginPassword'])->name('data-siswa.reset-login-password');
     Route::delete('/data-siswa/{siswa}', [App\Http\Controllers\DataSiswaController::class, 'destroy'])->name('data-siswa.destroy');
     Route::post('/data-siswa/import', [App\Http\Controllers\DataSiswaController::class, 'import'])->name('data-siswa.import');
     Route::get('/data-siswa/template', [App\Http\Controllers\DataSiswaController::class, 'template'])->name('data-siswa.template');

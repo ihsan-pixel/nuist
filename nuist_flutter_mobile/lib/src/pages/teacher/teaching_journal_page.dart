@@ -11,19 +11,17 @@ import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
 const _journalSurface = Color(0xFFFFFFFF);
-const _journalPrimary = Color(0xFF0B8F6E);
-const _journalPrimaryDark = Color(0xFF066C56);
-const _journalText = Color(0xFF1E293B);
-const _journalMuted = Color(0xFF64748B);
-const _journalSoft = Color(0xFFECFDF5);
-const _journalSoftGreen = Color(0xFFDCFCE7);
-const _journalSoftBlue = Color(0xFFE0F2FE);
+const _journalPrimary = Color(0xFF00745A);
+const _journalPrimaryDark = Color(0xFF00553F);
+const _journalText = Color(0xFF172A24);
+const _journalMuted = Color(0xFF64746E);
+const _journalSoft = Color(0xFFE5F5F0);
+const _journalSoftGreen = Color(0xFFE5F5F0);
 const _journalSoftRed = Color(0xFFFEE2E2);
-const _journalBorder = Color(0xFFE2E8F0);
+const _journalBorder = Color(0xFFDCE7E3);
 const _journalWarning = Color(0xFFF59E0B);
 const _journalDanger = Color(0xFFEF4444);
-const _journalInfo = Color(0xFF0EA5E9);
-const _journalCardShadow = Color(0x141E293B);
+const _journalInfo = Color(0xFF00745A);
 
 class TeacherTeachingJournalPage extends StatefulWidget {
   const TeacherTeachingJournalPage({
@@ -185,7 +183,9 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
 
       for (var index = 0; index < 3; index++) {
         final sampled = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best,
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.best,
+          ),
         );
         latestPosition = sampled;
         readings.add({
@@ -678,33 +678,53 @@ class _TeacherTeachingJournalPageState extends State<TeacherTeachingJournalPage>
     return FutureBuilder<Map<String, dynamic>>(
       future: _future,
       builder: (context, snapshot) {
-        return RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView(
-            padding: EdgeInsets.fromLTRB(14, 14, 14, bottomNavInset),
-            children: [
-              TeacherPageHeader(
-                title: 'Jurnal Mengajar',
-                onBack: widget.onBackToHome,
-              ),
-              const SizedBox(height: 14),
-              if (snapshot.connectionState == ConnectionState.waiting)
-                const _PageLoading()
-              else if (snapshot.hasError)
-                _PageError(
-                  message: snapshot.error.toString(),
-                  onRetry: _refresh,
-                )
-              else
-                _JournalContent(
-                  data: snapshot.data ?? const <String, dynamic>{},
-                  now: _now,
-                  submissionFeedbackMessage: _submissionFeedbackMessage,
-                  submissionFeedbackSuccess: _submissionFeedbackSuccess,
-                  onOpenAttendanceSheet: _openAttendanceSheet,
+        return Column(
+          children: [
+            TeacherOverlayPageHeader(
+              title: 'Jurnal Mengajar',
+              onBack: widget.onBackToHome,
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refresh,
+                child: ListView(
+                  padding: EdgeInsets.only(bottom: bottomNavInset),
+                  children: [
+              Transform.translate(
+                offset: const Offset(0, -8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(14, 22, 14, 16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(18),
+                      topRight: Radius.circular(18),
+                    ),
+                  ),
+                  child: snapshot.connectionState == ConnectionState.waiting
+                      ? const _PageLoading()
+                      : snapshot.hasError
+                          ? _PageError(
+                              message: snapshot.error.toString(),
+                              onRetry: _refresh,
+                            )
+                          : _JournalContent(
+                              data: snapshot.data ?? const <String, dynamic>{},
+                              now: _now,
+                              submissionFeedbackMessage:
+                                  _submissionFeedbackMessage,
+                              submissionFeedbackSuccess:
+                                  _submissionFeedbackSuccess,
+                              onOpenAttendanceSheet: _openAttendanceSheet,
+                            ),
                 ),
-            ],
-          ),
+              ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -763,11 +783,9 @@ class _JournalContent extends StatelessWidget {
           ),
           const SizedBox(height: 10),
         ],
-        _JournalHeroCard(
+        _JournalDateTimeBar(
           todayLabel: data['today_label'] as String? ?? '-',
           currentTime: _timeLabel(now),
-          totalSchedules: '${todaySummary['total_schedules'] ?? 0}',
-          completedSchedules: '${todaySummary['completed_schedules'] ?? 0}',
         ),
         if (approvedIzin != null) ...[
           const SizedBox(height: 10),
@@ -813,7 +831,7 @@ class _JournalContent extends StatelessWidget {
         const SizedBox(height: 14),
         const _PageSectionHeading(
           eyebrow: 'Hari Ini',
-          title: 'Jadwal Mengajar',
+          title: 'Presensi Jurnal Mengajar',
         ),
         const SizedBox(height: 10),
         if (todaySchedules.isEmpty)
@@ -851,165 +869,91 @@ class _JournalContent extends StatelessWidget {
             ),
           )
         else
-          ...items.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _JournalEntryTile(item: item),
-            ),
-          ),
+          _JournalHistoryTable(items: items),
       ],
     );
   }
 }
 
-class _JournalHeroCard extends StatelessWidget {
-  const _JournalHeroCard({
+class _JournalDateTimeBar extends StatelessWidget {
+  const _JournalDateTimeBar({
     required this.todayLabel,
     required this.currentTime,
-    required this.totalSchedules,
-    required this.completedSchedules,
   });
 
   final String todayLabel;
   final String currentTime;
-  final String totalSchedules;
-  final String completedSchedules;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [_journalPrimaryDark, _journalPrimary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
-          BoxShadow(
-            color: _journalCardShadow,
-            blurRadius: 20,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return AppSectionCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  todayLabel,
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: _journalSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.calendar_today_rounded,
+              size: 18,
+              color: _journalPrimaryDark,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Hari ini',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.84),
-                    fontSize: 11,
+                    color: _journalMuted,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.16),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.12),
+                const SizedBox(height: 2),
+                Text(
+                  todayLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: _journalText,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                child: Text(
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: _journalPrimaryDark,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.access_time_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
+                const SizedBox(width: 5),
+                Text(
                   currentTime,
                   style: const TextStyle(
                     color: Colors.white,
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w800,
-                    fontSize: 11,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Jurnal Mengajar',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Pantau jadwal hari ini, lokasi presensi, dan kirim jurnal mengajar dari satu halaman.',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.84),
-              fontSize: 11,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _HeroMetric(
-                  label: 'Jadwal Hari Ini',
-                  value: totalSchedules,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _HeroMetric(
-                  label: 'Selesai / Izin',
-                  value: completedSchedules,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroMetric extends StatelessWidget {
-  const _HeroMetric({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.14),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.12),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.82),
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
+              ],
             ),
           ),
         ],
@@ -1041,7 +985,7 @@ class _JournalSummaryTile extends StatelessWidget {
             width: 30,
             height: 30,
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.12),
+              color: accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: _journalBorder),
             ),
@@ -1092,6 +1036,8 @@ class _TeachingScheduleTile extends StatelessWidget {
 
     return AppSectionCard(
       padding: const EdgeInsets.all(14),
+      backgroundColor: _journalPrimaryDark,
+      borderColor: _journalPrimary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1102,13 +1048,13 @@ class _TeachingScheduleTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: _journalSoft,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: _journalBorder),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
                 ),
                 child: const Icon(
                   Icons.cast_for_education_rounded,
-                  color: _journalPrimary,
+                  color: _journalPrimaryDark,
                   size: 20,
                 ),
               ),
@@ -1120,7 +1066,7 @@ class _TeachingScheduleTile extends StatelessWidget {
                     Text(
                       item['subject'] as String? ?? '-',
                       style: const TextStyle(
-                        color: _journalText,
+                        color: Colors.white,
                         fontWeight: FontWeight.w800,
                         fontSize: 14,
                       ),
@@ -1128,8 +1074,8 @@ class _TeachingScheduleTile extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       item['class_name'] as String? ?? '-',
-                      style: const TextStyle(
-                        color: _journalMuted,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.82),
                         fontWeight: FontWeight.w700,
                         fontSize: 11.5,
                       ),
@@ -1137,8 +1083,8 @@ class _TeachingScheduleTile extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       '${item['start_time'] ?? '-'} - ${item['end_time'] ?? '-'} • ${item['school_name'] ?? '-'}',
-                      style: const TextStyle(
-                        color: _journalMuted,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.70),
                         fontSize: 10.5,
                         height: 1.35,
                       ),
@@ -1149,9 +1095,9 @@ class _TeachingScheduleTile extends StatelessWidget {
               _StatusPill(
                 label: item['status_label'] as String? ?? 'Belum Presensi',
                 color: status == 'hadir'
-                    ? _journalPrimaryDark
+                    ? Colors.white
                     : status == 'izin'
-                        ? _journalInfo
+                        ? _journalSoft
                         : _journalWarning,
               ),
             ],
@@ -1162,10 +1108,10 @@ class _TeachingScheduleTile extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: status == 'izin' ? _journalSoftBlue : _journalSoftGreen,
+                color: Colors.white.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: status == 'izin' ? _journalBorder : _journalBorder,
+                  color: Colors.white.withValues(alpha: 0.18),
                 ),
               ),
               child: Column(
@@ -1176,16 +1122,15 @@ class _TeachingScheduleTile extends StatelessWidget {
                         ? 'Jadwal ini dibebaskan karena izin sudah disetujui.'
                         : 'Presensi berhasil pada ${attendance['time'] ?? '-'}',
                     style: TextStyle(
-                      color:
-                          status == 'izin' ? _journalInfo : _journalPrimaryDark,
+                      color: status == 'izin' ? _journalSoft : Colors.white,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     attendance['materi'] as String? ?? '-',
-                    style: const TextStyle(
-                      color: _journalText,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.90),
                       height: 1.45,
                     ),
                   ),
@@ -1199,13 +1144,13 @@ class _TeachingScheduleTile extends StatelessWidget {
                         _MiniBadge(
                           label:
                               'Hadir ${attendance['present_students']}/${attendance['class_total_students']}',
-                          color: _journalPrimary,
+                          color: Colors.white,
                         ),
                         if (attendance['student_attendance_percentage'] != null)
                           _MiniBadge(
                             label:
                                 '${attendance['student_attendance_percentage']}%',
-                            color: _journalPrimary,
+                            color: Colors.white,
                           ),
                       ],
                     ),
@@ -1214,8 +1159,8 @@ class _TeachingScheduleTile extends StatelessWidget {
               ),
             )
           else if (status == 'izin')
-            const _InfoBanner(
-              color: _journalInfo,
+            _InfoBanner(
+              color: _journalSoft,
               icon: Icons.info_outline_rounded,
               message:
                   'Jadwal mengajar hari ini dibebaskan karena izin sudah disetujui.',
@@ -1229,10 +1174,10 @@ class _TeachingScheduleTile extends StatelessWidget {
                       'Presensi belum dapat dilakukan.',
                   style: TextStyle(
                     color: timeState == 'within'
-                        ? _journalPrimary
+                        ? _journalSoft
                         : timeState == 'before'
                             ? _journalWarning
-                            : _journalMuted,
+                            : Colors.white.withValues(alpha: 0.72),
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
                     height: 1.45,
@@ -1244,10 +1189,10 @@ class _TeachingScheduleTile extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: canSubmit ? onTakeAttendance : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _journalPrimary,
-                      disabledBackgroundColor: _journalBorder,
-                      disabledForegroundColor: _journalMuted,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.white.withValues(alpha: 0.16),
+                      disabledForegroundColor: Colors.white.withValues(alpha: 0.54),
+                      foregroundColor: _journalPrimaryDark,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -1281,116 +1226,96 @@ class _TeachingScheduleTile extends StatelessWidget {
   }
 }
 
-class _JournalEntryTile extends StatelessWidget {
-  const _JournalEntryTile({
-    required this.item,
-  });
+class _JournalHistoryTable extends StatelessWidget {
+  const _JournalHistoryTable({required this.items});
 
-  final Map<String, dynamic> item;
+  final List<Map<String, dynamic>> items;
 
   @override
   Widget build(BuildContext context) {
-    final percentage = item['student_attendance_percentage'];
-
     return AppSectionCard(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.zero,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _journalSoft,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: _journalBorder),
-                ),
-                child: const Icon(
-                  Icons.menu_book_rounded,
-                  color: _journalPrimary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item['subject'] as String? ?? '-',
-                      style: const TextStyle(
-                        color: _journalText,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${item['class_name'] ?? '-'} • ${item['date_label'] ?? '-'}',
-                      style: const TextStyle(
-                        color: _journalMuted,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _StatusPill(
-                label: item['status_label'] as String? ?? 'Hadir',
-                color: (item['status'] as String?) == 'izin'
-                    ? _journalInfo
-                    : _journalPrimaryDark,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: _journalSurface,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: _journalBorder),
+              color: _journalSoft,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            child: Text(
-              item['materi'] as String? ?? '-',
-              style: const TextStyle(
-                color: _journalText,
-                fontSize: 11.5,
-                height: 1.4,
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+            child: const _JournalHistoryRow(
+              date: 'TANGGAL / JAM',
+              className: 'KELAS',
+              subject: 'MAPEL',
+              attendance: 'HADIR',
+              isHeader: true,
             ),
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if (item['present_students'] != null &&
-                  item['class_total_students'] != null)
-                _MiniBadge(
-                  label:
-                      'Hadir ${item['present_students']}/${item['class_total_students']}',
-                  color: _journalPrimary,
-                ),
-              if (percentage != null)
-                _MiniBadge(
-                  label: '$percentage%',
-                  color: _journalPrimary,
-                ),
-              if ((item['time'] as String?)?.trim().isNotEmpty == true)
-                _MiniBadge(
-                  label: item['time'] as String,
-                  color: _journalPrimary,
-                ),
-            ],
+          ...items.asMap().entries.map(
+            (entry) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              decoration: BoxDecoration(
+                border: entry.key == items.length - 1
+                    ? null
+                    : const Border(
+                        bottom: BorderSide(color: _journalBorder),
+                      ),
+              ),
+              child: _JournalHistoryRow.fromItem(entry.value),
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _JournalHistoryRow extends StatelessWidget {
+  const _JournalHistoryRow({
+    required this.date,
+    required this.className,
+    required this.subject,
+    required this.attendance,
+    this.isHeader = false,
+  });
+
+  factory _JournalHistoryRow.fromItem(Map<String, dynamic> item) {
+    final present = item['present_students'];
+    final total = item['class_total_students'];
+    return _JournalHistoryRow(
+      date: '${item['date_label'] ?? '-'}\n${item['time'] ?? '-'}',
+      className: item['class_name'] as String? ?? '-',
+      subject: item['subject'] as String? ?? '-',
+      attendance: present == null ? '-' : total == null ? '$present' : '$present/$total',
+    );
+  }
+
+  final String date;
+  final String className;
+  final String subject;
+  final String attendance;
+  final bool isHeader;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = TextStyle(
+      color: isHeader ? _journalPrimaryDark : _journalText,
+      fontSize: isHeader ? 8.5 : 9.5,
+      fontWeight: isHeader ? FontWeight.w800 : FontWeight.w700,
+      height: 1.28,
+    );
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(width: 76, child: Text(date, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
+        const SizedBox(width: 5),
+        SizedBox(width: 40, child: Text(className, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
+        const SizedBox(width: 5),
+        Expanded(child: Text(subject, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
+        const SizedBox(width: 5),
+        SizedBox(width: 34, child: Text(attendance, textAlign: TextAlign.right, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
+      ],
     );
   }
 }
@@ -1409,7 +1334,7 @@ class _MiniBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: _journalBorder),
       ),
@@ -1444,7 +1369,7 @@ class _InfoBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: _journalBorder),
       ),
@@ -1499,7 +1424,7 @@ class _StatusPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(

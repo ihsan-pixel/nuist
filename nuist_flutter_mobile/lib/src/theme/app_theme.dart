@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const authBgStart = Color(0xFFF6FBF4);
-  static const authBgEnd = Color(0xFFEAF6EA);
-  static const accentMain = Color(0xFF04A512);
-  static const accentSoft = Color(0xFFE1F6E4);
-  static const accentDeep = Color(0xFF037A0D);
-  static const accentWarm = Color(0xFFFF8A1F);
-  static const accentWarmSoft = Color(0xFFFFE7CF);
-  static const textMain = Color(0xFF132A16);
-  static const textBody = Color(0xFF223526);
-  static const textMuted = Color(0xFF617565);
-  static const inputBorder = Color(0xFFD3E6D4);
-  static const inputFill = Color(0xFFFCFEFC);
+  static const primary = Color(0xFF00745A);
+  static const primaryDark = Color(0xFF00553F);
+  static const orange = Color(0xFFF59E0B);
+  static const orangeDark = Color(0xFFD97706);
+  static const orangeLight = Color(0xFFFFF4D6);
+  static const primaryLight = Color(0xFFE5F5F0);
+  static const background = Color(0xFFFFFFFF);
+  static const surface = Color(0xFFFFFFFF);
+  static const textPrimary = Color(0xFF172A24);
+  static const textSecondary = Color(0xFF64746E);
+  static const border = Color(0xFFDCE7E3);
+
+  static const authBgStart = background;
+  static const authBgEnd = primaryLight;
+  static const accentMain = primary;
+  static const accentSoft = primaryLight;
+  static const accentDeep = primaryDark;
+  static const accentWarm = orange;
+  static const accentWarmSoft = orangeLight;
+  static const textMain = textPrimary;
+  static const textBody = textPrimary;
+  static const textMuted = textSecondary;
+  static const inputBorder = border;
+  static const inputFill = background;
   static const fieldError = Color(0xFFC44F4F);
-  static const surfaceLine = Color(0xFFE6EFE4);
-  static const shadowSoft = Color(0x14043A0B);
+  static const surfaceLine = border;
+  static const shadowSoft = Color(0x14172A24);
 
   const AppColors._();
 }
@@ -34,7 +46,7 @@ class AppTheme {
       onSecondary: Colors.white,
       tertiary: AppColors.accentDeep,
       onTertiary: Colors.white,
-      surface: Colors.white,
+      surface: AppColors.surface,
       onSurface: AppColors.textMain,
       outline: AppColors.inputBorder,
     );
@@ -61,7 +73,7 @@ class AppTheme {
         ),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textMain,
         elevation: 0,
         centerTitle: true,
@@ -70,8 +82,8 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.accentMain,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: const Color(0xFFCBE8CE),
-          disabledForegroundColor: const Color(0xFF7A9580),
+          disabledBackgroundColor: AppColors.primaryLight,
+          disabledForegroundColor: AppColors.textSecondary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -80,14 +92,14 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.accentDeep,
-          side: const BorderSide(color: AppColors.accentWarm, width: 1.2),
+          side: const BorderSide(color: AppColors.primary, width: 1.2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
       cardTheme: CardThemeData(
-        color: Colors.white,
+        color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),

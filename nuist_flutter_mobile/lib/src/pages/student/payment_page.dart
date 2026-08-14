@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../services/student_mobile_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app/app_section_card.dart';
+import '../../widgets/app/teacher_page_header.dart';
 import 'student_ui.dart';
 
 class StudentPaymentPage extends StatefulWidget {
@@ -12,12 +13,14 @@ class StudentPaymentPage extends StatefulWidget {
     required this.repository,
     required this.dataRevision,
     required this.onDataChanged,
+    required this.onBackToHome,
     required this.onOpenHistoryTab,
   });
 
   final StudentMobileRepository repository;
   final int dataRevision;
   final VoidCallback onDataChanged;
+  final VoidCallback onBackToHome;
   final VoidCallback onOpenHistoryTab;
 
   @override
@@ -132,6 +135,18 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TeacherOverlayPageHeader(
+          title: 'Pembayaran',
+          onBack: widget.onBackToHome,
+        ),
+        Expanded(child: _buildContent(context)),
+      ],
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -162,63 +177,37 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
       onRefresh: _load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 128),
+        padding: const EdgeInsets.only(bottom: 128),
         children: [
-          StudentPageBanner(
-            title: 'Pembayaran',
-            subtitle:
-                'Kelola tagihan aktif dan Virtual Account dengan layout yang lebih efisien.',
-            icon: Icons.account_balance_wallet_rounded,
-            badges: [
-              StudentBannerBadge(
-                label: '${summary['pending_payments'] ?? 0} pembayaran pending',
-                icon: Icons.schedule_rounded,
-              ),
-              StudentBannerBadge(
-                label: formatStudentCurrency(summary['outstanding']),
-                icon: Icons.payments_rounded,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          AppSectionCard(
-            padding: const EdgeInsets.all(14),
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 10,
+          StudentPageContentSurface(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StudentMetricCard(
-                  label: 'Sisa tagihan',
-                  value: formatStudentCurrency(summary['outstanding']),
-                  icon: Icons.account_balance_wallet_rounded,
-                  tone: const Color(0xFF2563EB),
+                const Text(
+                  'Bayar tagihan',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF172A24),
+                  ),
                 ),
-                StudentMetricCard(
-                  label: 'Pending',
-                  value: '${summary['pending_payments'] ?? 0}',
-                  icon: Icons.schedule_rounded,
-                  tone: const Color(0xFFD97706),
+                const SizedBox(height: 4),
+                const Text(
+                  'Gunakan Virtual Account untuk menyelesaikan tagihan aktif.',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF64746E)),
                 ),
-                StudentMetricCard(
-                  label: 'Terbayar',
-                  value: formatStudentCurrency(summary['total_paid']),
-                  icon: Icons.task_alt_rounded,
-                  tone: const Color(0xFF0B8F6E),
+                const SizedBox(height: 16),
+                _PaymentSummary(
+                  outstanding: formatStudentCurrency(summary['outstanding']),
+                  pending: '${summary['pending_payments'] ?? 0}',
                 ),
-              ],
-            ),
-          ),
           const SizedBox(height: 16),
           AppSectionCard(
             padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const StudentSectionHeading(
-                  title: 'Tagihan aktif',
-                  subtitle:
-                      'Buat atau gunakan nomor VA untuk menyelesaikan pembayaran.',
-                ),
+                const StudentSectionHeading(title: 'Tagihan aktif'),
                 const SizedBox(height: 12),
                 if (activeBill == null)
                   const StudentTicketEmptyState(
@@ -226,7 +215,7 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
                     message:
                         'Semua tagihan sudah lunas atau belum ada tagihan aktif.',
                     icon: Icons.task_alt_rounded,
-                    accentColor: Color(0xFF0B8F6E),
+                    accentColor: Color(0xFF00745A),
                     footerLabel: 'TIDAK ADA TIKET TAGIHAN',
                   )
                 else ...[
@@ -301,7 +290,7 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
                     message:
                         'Buat Virtual Account dari tagihan aktif untuk melanjutkan pembayaran.',
                     icon: Icons.account_balance_wallet_outlined,
-                    accentColor: Color(0xFF2563EB),
+                    accentColor: Color(0xFF00745A),
                     footerLabel: 'MENUNGGU VIRTUAL ACCOUNT',
                   )
                 else ...[
@@ -310,7 +299,7 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                        colors: [Color(0xFF172A24), Color(0xFF172A24)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -322,7 +311,7 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
                         Text(
                           'Nomor Virtual Account',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.78),
+                            color: Colors.white.withValues(alpha: 0.78),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -341,7 +330,7 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
                         Text(
                           'Berlaku sampai ${formatStudentDateTime(activePayment['va_expired_at'] as String?)}',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.78),
+                            color: Colors.white.withValues(alpha: 0.78),
                             fontSize: 11,
                           ),
                         ),
@@ -372,27 +361,14 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
+                  const SizedBox(height: 2),
                   const Text(
-                    'Langkah pembayaran',
+                    'Bayar melalui ATM BNI, mobile banking, atau teller. Status akan diperbarui setelah pembayaran masuk.',
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textMain,
+                      fontSize: 11,
+                      color: AppColors.textBody,
+                      height: 1.45,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const _StepText(
-                    number: '1',
-                    text: 'Salin nomor Virtual Account.',
-                  ),
-                  const _StepText(
-                    number: '2',
-                    text: 'Bayar lewat ATM BNI, mobile banking, atau teller.',
-                  ),
-                  const _StepText(
-                    number: '3',
-                    text:
-                        'Status akan berubah terverifikasi setelah pembayaran masuk.',
                   ),
                 ],
               ],
@@ -420,6 +396,45 @@ class _StudentPaymentPageState extends State<StudentPaymentPage> {
               ),
             ),
           ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentSummary extends StatelessWidget {
+  const _PaymentSummary({required this.outstanding, required this.pending});
+
+  final String outstanding;
+  final String pending;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE5F5F0),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.payments_rounded, color: Color(0xFF00745A)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Sisa tagihan', style: TextStyle(fontSize: 12, color: Color(0xFF64746E))),
+                const SizedBox(height: 3),
+                Text(outstanding, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF00553F))),
+              ],
+            ),
+          ),
+          Text('$pending pending', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF00745A))),
         ],
       ),
     );
@@ -478,56 +493,6 @@ class _RecentPaymentRow extends StatelessWidget {
           StudentStatusBadge(
             label: paymentStatusLabel(item['status_verifikasi'] as String?),
             color: color,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StepText extends StatelessWidget {
-  const _StepText({
-    required this.number,
-    required this.text,
-  });
-
-  final String number;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 22,
-            height: 22,
-            decoration: const BoxDecoration(
-              color: AppColors.accentSoft,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              number,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: AppColors.accentDeep,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 11.5,
-                color: AppColors.textBody,
-                height: 1.35,
-              ),
-            ),
           ),
         ],
       ),

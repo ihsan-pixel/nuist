@@ -78,7 +78,7 @@ String normalizeStudentText(dynamic value, {String fallback = '-'}) {
 Color billStatusColor(String? status) {
   switch (status) {
     case 'lunas':
-      return const Color(0xFF0B8F6E);
+      return const Color(0xFF00745A);
     case 'sebagian':
       return const Color(0xFFD97706);
     default:
@@ -89,11 +89,11 @@ Color billStatusColor(String? status) {
 Color paymentStatusColor(String? status) {
   switch (status) {
     case 'diverifikasi':
-      return const Color(0xFF0B8F6E);
+      return const Color(0xFF00745A);
     case 'ditolak':
       return const Color(0xFFB42318);
     default:
-      return const Color(0xFF2563EB);
+      return const Color(0xFF00745A);
   }
 }
 
@@ -128,14 +128,14 @@ class StudentPageBanner extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0B8F6E), Color(0xFF066C56)],
+          colors: [Color(0xFF00745A), Color(0xFF00553F)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(26),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x290B8F6E),
+            color: Color(0x2900745A),
             blurRadius: 24,
             offset: Offset(0, 10),
           ),
@@ -161,7 +161,7 @@ class StudentPageBanner extends StatelessWidget {
                   subtitle,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.88),
+                    color: Colors.white.withValues(alpha: 0.88),
                     height: 1.4,
                   ),
                 ),
@@ -181,10 +181,10 @@ class StudentPageBanner extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.14),
+              color: Colors.white.withValues(alpha: 0.14),
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
               ),
             ),
             child: Icon(
@@ -194,6 +194,36 @@ class StudentPageBanner extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Surface utama untuk halaman tab siswa. Bentuknya mengikuti panel konten
+/// pada halaman Jadwal dan Profil guru yang berada tepat di bawah header.
+class StudentPageContentSurface extends StatelessWidget {
+  const StudentPageContentSurface({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.translate(
+      offset: const Offset(0, -8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 22, 16, 16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(18),
+            topRight: Radius.circular(18),
+          ),
+        ),
+        child: child,
       ),
     );
   }
@@ -214,7 +244,7 @@ class StudentBannerBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
+        color: Colors.white.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -253,7 +283,7 @@ class StudentStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
@@ -340,9 +370,9 @@ class StudentMetricCard extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 104),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: tone.withOpacity(0.09),
+        color: tone.withValues(alpha: 0.09),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: tone.withOpacity(0.12)),
+        border: Border.all(color: tone.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,9 +495,9 @@ class StudentFactTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: const Color(0xFFF7F9FC),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: const Color(0xFFDCE7E3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -512,7 +542,7 @@ class StudentFactTile extends StatelessWidget {
   }
 }
 
-class StudentTicketCard extends StatelessWidget {
+class StudentTicketCard extends StatefulWidget {
   const StudentTicketCard({
     super.key,
     required this.child,
@@ -529,36 +559,61 @@ class StudentTicketCard extends StatelessWidget {
   final bool showTicketDivider;
 
   @override
-  Widget build(BuildContext context) {
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    final shouldShowDivider = showTicketDivider || footer != null;
+  State<StudentTicketCard> createState() => _StudentTicketCardState();
+}
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x141E293B),
-            blurRadius: 18,
-            offset: Offset(0, 8),
-          ),
-        ],
+class _StudentTicketCardState extends State<StudentTicketCard> {
+  final _cardKey = GlobalKey();
+  final _dividerKey = GlobalKey();
+  double? _notchCenterY;
+
+  void _measureNotch() {
+    final cardBox = _cardKey.currentContext?.findRenderObject() as RenderBox?;
+    final dividerBox =
+        _dividerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (cardBox == null || dividerBox == null) return;
+
+    final offset = dividerBox.localToGlobal(Offset.zero, ancestor: cardBox);
+    final centerY = offset.dy + (dividerBox.size.height / 2);
+    if (_notchCenterY == centerY) return;
+    setState(() => _notchCenterY = centerY);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final shouldShowDivider =
+        widget.showTicketDivider || widget.footer != null;
+
+    if (shouldShowDivider) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _measureNotch();
+      });
+    }
+
+    return CustomPaint(
+      foregroundPainter: _StudentTicketBorderPainter(
+        notchCenterY: _notchCenterY,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
+      child: PhysicalShape(
+        key: _cardKey,
+        clipper: _StudentTicketClipper(notchCenterY: _notchCenterY),
+        color: Colors.white,
+        shadowColor: const Color(0x14172A24),
+        elevation: 5,
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
             child: Container(
               height: 5,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    accentColor.withOpacity(.85),
-                    accentColor,
+                    widget.accentColor.withValues(alpha: .85),
+                    widget.accentColor,
                   ],
                 ),
                 borderRadius: BorderRadius.circular(99),
@@ -566,56 +621,182 @@ class StudentTicketCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: padding,
-            child: child,
+            padding: widget.padding,
+            child: widget.child,
           ),
           if (shouldShowDivider)
-            SizedBox(
-              height: 28,
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 28),
-                    child: _StudentDashedDivider(
-                      color: Color(0xFFD7E1EC),
-                    ),
-                  ),
-                  Positioned(
-                    left: -14,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: backgroundColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-
-                  Positioned(
-                    right: -14,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: backgroundColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ],
+            KeyedSubtree(
+              key: _dividerKey,
+              child: _StudentTicketDivider(
+                accentColor: widget.accentColor,
               ),
             ),
-          if (footer != null)
+          if (widget.footer != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-              child: footer,
+              child: widget.footer,
             ),
-        ],
+            ],
+          ),
+        ),
       ),
     );
+  }
+}
+
+class _StudentTicketDivider extends StatelessWidget {
+  const _StudentTicketDivider({required this.accentColor});
+
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 24,
+      width: double.infinity,
+      child: CustomPaint(
+        painter: _StudentTicketDashedLinePainter(
+          color: accentColor.withValues(alpha: 0.25),
+          sideInset: 22,
+        ),
+      ),
+    );
+  }
+}
+
+class _StudentTicketClipper extends CustomClipper<Path> {
+  const _StudentTicketClipper({required this.notchCenterY});
+
+  final double? notchCenterY;
+
+  @override
+  Path getClip(Size size) => _studentTicketPath(size, notchCenterY);
+
+  @override
+  bool shouldReclip(covariant _StudentTicketClipper oldClipper) =>
+      oldClipper.notchCenterY != notchCenterY;
+}
+
+class _StudentTicketBorderPainter extends CustomPainter {
+  const _StudentTicketBorderPainter({required this.notchCenterY});
+
+  final double? notchCenterY;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFDCE7E3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    canvas.drawPath(_studentTicketPath(size, notchCenterY), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _StudentTicketBorderPainter oldDelegate) =>
+      oldDelegate.notchCenterY != notchCenterY;
+}
+
+Path _studentTicketPath(Size size, double? notchCenterY) {
+  const corner = 22.0;
+  const notchRadius = 12.0;
+  final width = size.width;
+  final height = size.height;
+
+  final centerY = notchCenterY;
+  if (centerY == null ||
+      centerY <= corner + notchRadius ||
+      centerY >= height - corner - notchRadius) {
+    return Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Offset.zero & size,
+        const Radius.circular(corner),
+      ));
+  }
+
+  final top = centerY - notchRadius;
+  final bottom = centerY + notchRadius;
+  // 0.55228475 × radius: the standard Bézier constant for a quarter circle.
+  const arcControl = 6.63;
+
+  return Path()
+    ..moveTo(corner, 0)
+    ..lineTo(width - corner, 0)
+    ..quadraticBezierTo(width, 0, width, corner)
+    ..lineTo(width, top)
+    ..cubicTo(
+      width - arcControl,
+      top,
+      width - notchRadius,
+      centerY - arcControl,
+      width - notchRadius,
+      centerY,
+    )
+    ..cubicTo(
+      width - notchRadius,
+      centerY + arcControl,
+      width - arcControl,
+      bottom,
+      width,
+      bottom,
+    )
+    ..lineTo(width, height - corner)
+    ..quadraticBezierTo(width, height, width - corner, height)
+    ..lineTo(corner, height)
+    ..quadraticBezierTo(0, height, 0, height - corner)
+    ..lineTo(0, bottom)
+    ..cubicTo(
+      arcControl,
+      bottom,
+      notchRadius,
+      centerY + arcControl,
+      notchRadius,
+      centerY,
+    )
+    ..cubicTo(
+      notchRadius,
+      centerY - arcControl,
+      arcControl,
+      top,
+      0,
+      top,
+    )
+    ..lineTo(0, corner)
+    ..quadraticBezierTo(0, 0, corner, 0)
+    ..close();
+}
+
+class _StudentTicketDashedLinePainter extends CustomPainter {
+  const _StudentTicketDashedLinePainter({
+    required this.color,
+    required this.sideInset,
+  });
+
+  final Color color;
+  final double sideInset;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 2;
+    const dashWidth = 8.0;
+    const dashGap = 7.0;
+    final end = size.width - sideInset;
+
+    for (var start = sideInset; start < end; start += dashWidth + dashGap) {
+      canvas.drawLine(
+        Offset(start, size.height / 2),
+        Offset((start + dashWidth).clamp(sideInset, end), size.height / 2),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _StudentTicketDashedLinePainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.sideInset != sideInset;
   }
 }
 
@@ -658,7 +839,7 @@ class StudentTicketEmptyState extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.12),
+              color: accentColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -713,9 +894,9 @@ class StudentTicketMeta extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: const Color(0xFFF7F9FC),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: const Color(0xFFDCE7E3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -725,7 +906,7 @@ class StudentTicketMeta extends StatelessWidget {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, size: 13, color: color),
@@ -786,7 +967,7 @@ class StudentTicketAmount extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -810,7 +991,7 @@ class StudentTicketAmount extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: color.withOpacity(0.9),
+                    color: color.withValues(alpha: 0.9),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -829,38 +1010,6 @@ class StudentTicketAmount extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _StudentDashedDivider extends StatelessWidget {
-  const _StudentDashedDivider({
-    required this.color,
-  });
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final count = (constraints.maxWidth / 10).floor().clamp(6, 40);
-
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(
-            count,
-            (_) => Container(
-              width: 6,
-              height: 1.5,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
@@ -889,9 +1038,9 @@ class StudentActionTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: const Color(0xFFF7F9FC),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: const Color(0xFFDCE7E3)),
           ),
           child: Row(
             children: [

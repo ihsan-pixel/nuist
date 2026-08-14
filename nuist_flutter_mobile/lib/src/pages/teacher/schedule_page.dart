@@ -5,19 +5,18 @@ import 'package:flutter/material.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_empty_state.dart';
 import '../../widgets/app/app_section_card.dart';
-import '../../widgets/app/teacher_page_header.dart';
 
 class _SchedulePalette {
   static const surface = Color(0xFFFFFFFF);
-  static const primary = Color(0xFF0B8F6E);
-  static const primaryDark = Color(0xFF066C56);
-  static const textPrimary = Color(0xFF1E293B);
-  static const textSecondary = Color(0xFF64748B);
-  static const border = Color(0xFFE2E8F0);
+  static const primary = Color(0xFF00745A);
+  static const primaryDark = Color(0xFF00553F);
+  static const textPrimary = Color(0xFF172A24);
+  static const textSecondary = Color(0xFF172A24);
+  static const border = Color(0xFFDCE7E3);
   static const danger = Color(0xFFEF4444);
-  static const iconSurface = Color(0xFFECFDF5);
+  static const iconSurface = Color(0xFFE5F5F0);
   static const softRed = Color(0xFFFEE2E2);
-  static const cardShadow = Color(0x141E293B);
+  static const cardShadow = Color(0x14172A24);
 
   const _SchedulePalette._();
 }
@@ -242,11 +241,19 @@ class _TeacherSchedulePageState extends State<TeacherSchedulePage>
     return FutureBuilder<Map<String, dynamic>>(
       future: _future,
       builder: (context, snapshot) {
-        return RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, bottomNavInset),
-            children: [
+        final canManage = (snapshot.data?['can_manage'] as bool?) ?? false;
+        return Column(
+          children: [
+            _ScheduleTopHeader(
+              onBack: widget.onBackToHome,
+              onAdd: canManage ? () => _openScheduleForm() : null,
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refresh,
+                child: ListView(
+                  padding: EdgeInsets.only(bottom: bottomNavInset),
+                  children: [
               if (snapshot.connectionState == ConnectionState.waiting)
                 const _PageLoading()
               else if (snapshot.hasError)
@@ -262,8 +269,11 @@ class _TeacherSchedulePageState extends State<TeacherSchedulePage>
                   onEdit: (item) => _openScheduleForm(item: item),
                   onDelete: _deleteSchedule,
                 ),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -351,7 +361,7 @@ class _ScheduleContentState extends State<_ScheduleContent> {
       final day = item['day'] as String? ?? 'Lainnya';
       grouped.putIfAbsent(day, () => <Map<String, dynamic>>[]).add(item);
     }
-    final availableDays = grouped.keys.toList()
+    final availableDays = (grouped.keys.toList()
       ..sort((a, b) {
         final aIndex = _dayOrder.indexOf(a);
         final bIndex = _dayOrder.indexOf(b);
@@ -361,7 +371,9 @@ class _ScheduleContentState extends State<_ScheduleContent> {
           return normalizedA.compareTo(normalizedB);
         }
         return a.compareTo(b);
-      });
+      }))
+        .take(6)
+        .toList();
     final selectedDay = _resolveSelectedDay(availableDays);
     final selectedItems = selectedDay == null
         ? const <Map<String, dynamic>>[]
@@ -370,28 +382,22 @@ class _ScheduleContentState extends State<_ScheduleContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TeacherPageHeader(
-          title: 'Jadwal',
-          onBack: widget.onBackToHome,
-        ),
-        const SizedBox(height: 14),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Expanded(
-              child: _PageSectionHeading(
-                eyebrow: 'Jadwal',
-                title: 'Mengajar',
+        Transform.translate(
+          offset: const Offset(0, -8),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 22, 16, 16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(18),
+                topRight: Radius.circular(18),
               ),
             ),
-            const SizedBox(width: 12),
-            _ScheduleActionButton(
-              label: 'Tambah',
-              icon: Icons.add_rounded,
-              onTap: canManage ? widget.onCreate : null,
-            ),
-          ],
-        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+        const SizedBox(height: 4),
         // const SizedBox(height: 12),
         // _ScheduleHeroCard(
         //   totalSchedules: items.length,
@@ -458,6 +464,8 @@ class _ScheduleContentState extends State<_ScheduleContent> {
           ],
           AppSectionCard(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+            backgroundColor: _SchedulePalette.primaryDark,
+            borderColor: _SchedulePalette.primary,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -467,7 +475,7 @@ class _ScheduleContentState extends State<_ScheduleContent> {
                       width: 10,
                       height: 10,
                       decoration: const BoxDecoration(
-                        color: _SchedulePalette.primary,
+                        color: Colors.white,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -478,7 +486,7 @@ class _ScheduleContentState extends State<_ScheduleContent> {
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: _SchedulePalette.textPrimary,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -488,7 +496,7 @@ class _ScheduleContentState extends State<_ScheduleContent> {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: _SchedulePalette.iconSurface,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(color: _SchedulePalette.border),
                       ),
@@ -526,7 +534,79 @@ class _ScheduleContentState extends State<_ScheduleContent> {
             ),
           ),
         ],
+              ],
+            ),
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class _ScheduleTopHeader extends StatelessWidget {
+  const _ScheduleTopHeader({required this.onBack, required this.onAdd});
+
+  final VoidCallback onBack;
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 76,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: const BoxDecoration(
+        color: _SchedulePalette.primaryDark,
+      ),
+      child: Row(
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onBack,
+              borderRadius: BorderRadius.circular(20),
+              child: const SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+          const Expanded(
+            child: Text(
+              'Jadwal Mengajar',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onAdd,
+              borderRadius: BorderRadius.circular(20),
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  Icons.add_rounded,
+                  color: onAdd == null
+                      ? Colors.white.withValues(alpha: 0.45)
+                      : Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -544,22 +624,24 @@ class _ScheduleDayTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: days.asMap().entries.map((entry) {
+    final visibleDays = days.take(6).toList();
+
+    return Row(
+      children: visibleDays.asMap().entries.map((entry) {
           final day = entry.value;
-          return Padding(
-            padding:
-                EdgeInsets.only(right: entry.key == days.length - 1 ? 0 : 8),
-            child: _ScheduleDayTab(
-              label: day,
-              isSelected: day == selectedDay,
-              onTap: () => onSelect(day),
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(
+                right: entry.key == visibleDays.length - 1 ? 0 : 6,
+              ),
+              child: _ScheduleDayTab(
+                label: day,
+                isSelected: day == selectedDay,
+                onTap: () => onSelect(day),
+              ),
             ),
           );
         }).toList(),
-      ),
     );
   }
 }
@@ -603,15 +685,20 @@ class _ScheduleDayTab extends StatelessWidget {
                     ),
                   ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-            child: Text(
+          child: SizedBox(
+            height: 40,
+            child: Center(
+              child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: isSelected ? Colors.white : _SchedulePalette.textPrimary,
-                fontSize: 12,
+                fontSize: 10.5,
                 fontWeight: FontWeight.w700,
               ),
+            ),
             ),
           ),
         ),
@@ -639,8 +726,8 @@ class _ScheduleDayTab extends StatelessWidget {
 //         borderRadius: BorderRadius.circular(28),
 //         gradient: const LinearGradient(
 //           colors: [
-//             Color(0xFF1F6B52),
-//             Color(0xFF174C3D),
+//             Color(0xFF00553F),
+//             Color(0xFF172A24),
 //           ],
 //           begin: Alignment.topLeft,
 //           end: Alignment.bottomRight,
@@ -659,7 +746,7 @@ class _ScheduleDayTab extends StatelessWidget {
 //           Text(
 //             'Jadwal Mengajar',
 //             style: TextStyle(
-//               color: Colors.white.withOpacity(0.88),
+//               color: Colors.white.withValues(alpha: 0.88),
 //               fontSize: 13,
 //               fontWeight: FontWeight.w700,
 //             ),
@@ -923,71 +1010,6 @@ class _ItemActionIcon extends StatelessWidget {
               icon,
               color: color,
               size: 16,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ScheduleActionButton extends StatelessWidget {
-  const _ScheduleActionButton({
-    required this.label,
-    required this.icon,
-    this.onTap,
-  });
-
-  final String label;
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: onTap == null ? const Color(0xFFF1F5F9) : _SchedulePalette.primary,
-      borderRadius: BorderRadius.circular(14),
-      elevation: 0,
-      child: Ink(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: onTap == null
-              ? const []
-              : const [
-                  BoxShadow(
-                    color: _SchedulePalette.cardShadow,
-                    blurRadius: 16,
-                    offset: Offset(0, 8),
-                  ),
-                ],
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  size: 16,
-                  color: onTap == null
-                      ? _SchedulePalette.textSecondary
-                      : Colors.white,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: onTap == null
-                        ? _SchedulePalette.textSecondary
-                        : Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
             ),
           ),
         ),
@@ -1503,7 +1525,7 @@ class _FormDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       icon: const Icon(
         Icons.keyboard_arrow_down_rounded,
         color: _SchedulePalette.textSecondary,
@@ -1772,43 +1794,6 @@ class _PageError extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _PageSectionHeading extends StatelessWidget {
-  const _PageSectionHeading({
-    required this.eyebrow,
-    required this.title,
-  });
-
-  final String eyebrow;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          eyebrow,
-          style: const TextStyle(
-            color: _SchedulePalette.textSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.4,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          title,
-          style: const TextStyle(
-            color: _SchedulePalette.textPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
     );
   }
 }

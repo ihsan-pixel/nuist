@@ -118,7 +118,8 @@ class AuthRepository {
   }
 
   Future<Session> login({
-    required String email,
+    required String identifier,
+    required String loginAs,
     required String password,
     required bool rememberSession,
   }) async {
@@ -127,7 +128,8 @@ class AuthRepository {
         request: () => _apiClient.dio.post<Map<String, dynamic>>(
           '/mobile/login',
           data: {
-            'email': email,
+            'identifier': identifier,
+            'login_as': loginAs,
             'password': password,
           },
         ),
@@ -142,8 +144,9 @@ class AuthRepository {
       if (rememberSession) {
         await _tokenStorage.writeToken(session.token);
         await _tokenStorage.saveRememberedLogin(
-          email: email,
+          email: identifier,
           password: password,
+          loginAs: loginAs,
           remember: true,
         );
       } else {

@@ -85,7 +85,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final bottomInset = MediaQuery.paddingOf(context).bottom + 24;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FC),
+      backgroundColor: const Color(0xFFF7F9FC),
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -108,7 +108,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
+                        color: Color(0xFF172A24),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -117,7 +117,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       style: TextStyle(
                         fontSize: 11.5,
                         height: 1.45,
-                        color: Color(0xFF64748B),
+                        color: Color(0xFF172A24),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -188,7 +188,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF64748B),
+                color: Color(0xFF172A24),
               ),
             ),
           ],

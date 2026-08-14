@@ -10,19 +10,19 @@ import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
 class _ReportPalette {
-  static const background = Color(0xFFF7F8FC);
+  static const background = Color(0xFFF7F9FC);
   static const surface = Color(0xFFFFFFFF);
-  static const primary = Color(0xFF0B8F6E);
-  static const primaryDark = Color(0xFF066C56);
-  static const textPrimary = Color(0xFF1E293B);
-  static const textSecondary = Color(0xFF64748B);
-  static const border = Color(0xFFE2E8F0);
-  static const success = Color(0xFF22C55E);
+  static const primary = Color(0xFF00745A);
+  static const primaryDark = Color(0xFF00553F);
+  static const textPrimary = Color(0xFF172A24);
+  static const textSecondary = Color(0xFF172A24);
+  static const border = Color(0xFFDCE7E3);
+  static const success = Color(0xFF00745A);
   static const warning = Color(0xFFF59E0B);
   static const danger = Color(0xFFEF4444);
-  static const info = Color(0xFF2563EB);
-  static const iconSurface = Color(0xFFECFDF5);
-  static const softGreen = Color(0xFFDCFCE7);
+  static const info = Color(0xFF00745A);
+  static const iconSurface = Color(0xFFE5F5F0);
+  static const softGreen = Color(0xFFE5F5F0);
   static const softYellow = Color(0xFFFEF3C7);
 
   const _ReportPalette._();
@@ -368,7 +368,8 @@ class _ReportContent extends StatelessWidget {
               const SizedBox(height: 10),
               if (permissions['can_select_teacher'] == true) ...[
                 DropdownButtonFormField<int>(
-                  value: (filters['selected_teacher_id'] as num?)?.toInt(),
+                  initialValue:
+                      (filters['selected_teacher_id'] as num?)?.toInt(),
                   items: teacherOptions
                       .map(
                         (item) => DropdownMenuItem<int>(
@@ -435,7 +436,7 @@ class _ReportContent extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: scope == 'monthly'
                         ? _ReportPalette.surface
-                        : const Color(0xFFF8FAFC),
+                        : const Color(0xFFF7F9FC),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: _ReportPalette.border),
                   ),
@@ -501,7 +502,7 @@ class _ReportContent extends StatelessWidget {
                 label: 'Mengajar',
                 value: '${teachingSummary['total_entries'] ?? 0}',
                 color: _ReportPalette.info,
-                surface: const Color(0xFFEFF6FF),
+                surface: const Color(0xFFE5F5F0),
                 icon: Icons.menu_book_rounded,
               ),
             ),
@@ -843,7 +844,7 @@ class _HistoryBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: _ReportPalette.border),
       ),

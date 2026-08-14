@@ -36,6 +36,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   bool _rememberMe = false;
   bool _loadingRemembered = true;
   bool _hasSubmitted = false;
+  String _loginAs = 'tenaga_pendidik';
   String? _lastErrorMessage;
 
   late final AnimationController _entryController;
@@ -89,6 +90,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
       setState(() {
         _rememberMe = remembered['remember'] == true;
+        _loginAs = (remembered['loginAs'] as String?) == 'siswa'
+            ? 'siswa'
+            : 'tenaga_pendidik';
         if (_rememberMe) {
           _emailController.text = (remembered['email'] as String?) ?? '';
           _passwordController.text = (remembered['password'] as String?) ?? '';
@@ -154,6 +158,31 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     return null;
   }
 
+  String? _validateIdentifier(String? value) {
+    if (_loginAs == 'siswa') {
+      final nisn = value?.trim() ?? '';
+      if (nisn.isEmpty) {
+        return _hasSubmitted ? 'NISN wajib diisi.' : null;
+      }
+      if (!RegExp(r'^\\d{6,50}$').hasMatch(nisn)) {
+        return 'NISN harus berupa angka.';
+      }
+      return null;
+    }
+
+    return _validateEmail(value);
+  }
+
+  void _setLoginAs(String value) {
+    if (_loginAs == value) return;
+    setState(() {
+      _loginAs = value;
+      _emailController.clear();
+      _hasSubmitted = false;
+    });
+    _requestEmailFocus();
+  }
+
   String? _validatePassword(String? value) {
     if ((value ?? '').isEmpty) {
       return _hasSubmitted ? 'Password wajib diisi.' : null;
@@ -173,7 +202,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
     FocusScope.of(context).unfocus();
     await widget.controller.login(
-      email: _emailController.text.trim(),
+      identifier: _emailController.text.trim(),
+      loginAs: _loginAs,
       password: _passwordController.text,
       rememberSession: _rememberMe,
     );
@@ -379,6 +409,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           child: _LoginFormCard(
             formKey: _formKey,
             emailController: _emailController,
+            loginAs: _loginAs,
             passwordController: _passwordController,
             emailFocusNode: _emailFocusNode,
             passwordFocusNode: _passwordFocusNode,
@@ -398,7 +429,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             onForgotPassword:
                 controller.isLoggingIn ? null : _openForgotPasswordPage,
             onSubmit: _submit,
-            emailValidator: _validateEmail,
+            emailValidator: _validateIdentifier,
+            onLoginAsChanged: controller.isLoggingIn ? null : _setLoginAs,
             passwordValidator: _validatePassword,
             shouldAutovalidate:
                 _hasSubmitted || _emailController.text.isNotEmpty,
@@ -477,6 +509,7 @@ class _LoginFormCard extends StatelessWidget {
   const _LoginFormCard({
     required this.formKey,
     required this.emailController,
+    required this.loginAs,
     required this.passwordController,
     required this.emailFocusNode,
     required this.passwordFocusNode,
@@ -492,10 +525,12 @@ class _LoginFormCard extends StatelessWidget {
     required this.emailValidator,
     required this.passwordValidator,
     required this.shouldAutovalidate,
+    required this.onLoginAsChanged,
   });
 
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
+  final String loginAs;
   final TextEditingController passwordController;
   final FocusNode emailFocusNode;
   final FocusNode passwordFocusNode;
@@ -511,6 +546,7 @@ class _LoginFormCard extends StatelessWidget {
   final FormFieldValidator<String> emailValidator;
   final FormFieldValidator<String> passwordValidator;
   final bool shouldAutovalidate;
+  final ValueChanged<String>? onLoginAsChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -520,11 +556,11 @@ class _LoginFormCard extends StatelessWidget {
         color: _LoginPalette.card,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _LoginPalette.border.withOpacity(0.9),
+          color: _LoginPalette.border.withValues(alpha: 0.9),
         ),
         boxShadow: [
           BoxShadow(
-            color: _LoginPalette.primaryDark.withOpacity(0.06),
+            color: _LoginPalette.primaryDark.withValues(alpha: 0.06),
             blurRadius: 22,
             offset: const Offset(0, 12),
           ),
@@ -545,13 +581,39 @@ class _LoginFormCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
             ],
-            const _InputLabel('Email'),
+            const _InputLabel('Masuk sebagai'),
+            const SizedBox(height: 5),
+            SegmentedButton<String>(
+              segments: const [
+                ButtonSegment(value: 'siswa', label: Text('Siswa'), icon: Icon(Icons.school_outlined)),
+                ButtonSegment(value: 'tenaga_pendidik', label: Text('Tenaga Pendidik'), icon: Icon(Icons.badge_outlined)),
+              ],
+              selected: {loginAs},
+              onSelectionChanged: onLoginAsChanged == null
+                  ? null
+                  : (selection) => onLoginAsChanged!(selection.first),
+            ),
+            if (loginAs == 'siswa') ...[
+              const SizedBox(height: 8),
+              const Text(
+                'Gunakan NISN. Password awal atau hasil reset diberikan oleh admin sekolah.',
+                style: TextStyle(
+                  color: _LoginPalette.textSecondary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            _InputLabel(loginAs == 'siswa' ? 'NISN' : 'Email'),
             const SizedBox(height: 5),
             TextFormField(
               controller: emailController,
               focusNode: emailFocusNode,
               autofocus: true,
-              keyboardType: TextInputType.emailAddress,
+              keyboardType: loginAs == 'siswa'
+                  ? TextInputType.number
+                  : TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               enabled: !isSubmitting,
               style: const TextStyle(
@@ -560,8 +622,8 @@ class _LoginFormCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
               decoration: _buildInputDecoration(
-                hintText: 'Masukkan email Anda',
-                icon: Icons.mail_outline_rounded,
+                hintText: loginAs == 'siswa' ? 'Masukkan NISN Anda' : 'Masukkan email Anda',
+                icon: loginAs == 'siswa' ? Icons.numbers_rounded : Icons.mail_outline_rounded,
               ),
               validator: emailValidator,
               onFieldSubmitted: (_) => passwordFocusNode.requestFocus(),
@@ -630,13 +692,13 @@ class _LoginFormCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: onForgotPassword,
+                  onPressed: loginAs == 'siswa' ? null : onForgotPassword,
                   style: TextButton.styleFrom(
                     foregroundColor: _LoginPalette.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                   ),
-                  child: const Text(
-                    'Lupa Password?',
+                  child: Text(
+                    loginAs == 'siswa' ? 'Hubungi admin' : 'Lupa Password?',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -651,38 +713,38 @@ class _LoginFormCard extends StatelessWidget {
               child: FilledButton(
                 onPressed: canSubmit ? onSubmit : null,
                 style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.all(
+                  minimumSize: WidgetStateProperty.all(
                     const Size.fromHeight(48),
                   ),
-                  backgroundColor: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return const Color(0xFFBFD8D0);
+                  backgroundColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.disabled)) {
+                      return const Color(0xFFDCE7E3);
                     }
-                    if (states.contains(MaterialState.pressed)) {
+                    if (states.contains(WidgetState.pressed)) {
                       return _LoginPalette.primaryDark;
                     }
-                    if (states.contains(MaterialState.hovered)) {
-                      return const Color(0xFF0A8466);
+                    if (states.contains(WidgetState.hovered)) {
+                      return const Color(0xFF00745A);
                     }
                     return _LoginPalette.primary;
                   }),
-                  foregroundColor: MaterialStateProperty.all(Colors.white),
-                  overlayColor: MaterialStateProperty.all(
-                    Colors.white.withOpacity(0.08),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  overlayColor: WidgetStateProperty.all(
+                    Colors.white.withValues(alpha: 0.08),
                   ),
-                  elevation: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.disabled)) {
+                  elevation: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.disabled)) {
                       return 0.0;
                     }
-                    if (states.contains(MaterialState.pressed)) {
+                    if (states.contains(WidgetState.pressed)) {
                       return 1.0;
                     }
                     return 8.0;
                   }),
-                  shadowColor: MaterialStateProperty.all(
-                    _LoginPalette.primaryDark.withOpacity(0.24),
+                  shadowColor: WidgetStateProperty.all(
+                    _LoginPalette.primaryDark.withValues(alpha: 0.24),
                   ),
-                  shape: MaterialStateProperty.all(
+                  shape: WidgetStateProperty.all(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
                     ),
@@ -809,8 +871,10 @@ class _LoginBrandCardState extends State<_LoginBrandCard>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      _LoginPalette.primary.withOpacity(0.14 + (pulse * 0.05)),
-                      _LoginPalette.primary.withOpacity(0.04),
+                      _LoginPalette.primary.withValues(
+                        alpha: 0.14 + (pulse * 0.05),
+                      ),
+                      _LoginPalette.primary.withValues(alpha: 0.04),
                       Colors.transparent,
                     ],
                     stops: const [0, 0.56, 1],
@@ -828,7 +892,7 @@ class _LoginBrandCardState extends State<_LoginBrandCard>
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: _LoginPalette.primaryDark.withOpacity(0.08),
+                  color: _LoginPalette.primaryDark.withValues(alpha: 0.08),
                   blurRadius: 18,
                   offset: const Offset(0, 10),
                 ),
@@ -861,7 +925,7 @@ class _LoginBackdrop extends StatelessWidget {
             height: 200,
             child: CustomPaint(
               painter: _OrganicLinePainter(
-                color: _LoginPalette.accent.withOpacity(0.08),
+                color: _LoginPalette.accent.withValues(alpha: 0.08),
               ),
             ),
           ),
@@ -876,7 +940,7 @@ class _LoginBackdrop extends StatelessWidget {
               height: 216,
               child: CustomPaint(
                 painter: _OrganicLinePainter(
-                  color: _LoginPalette.accent.withOpacity(0.08),
+                  color: _LoginPalette.accent.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -964,7 +1028,7 @@ class _PostLoginLoadingOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Colors.white.withOpacity(0.72),
+      color: Colors.white.withValues(alpha: 0.72),
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -973,7 +1037,7 @@ class _PostLoginLoadingOverlay extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: _LoginPalette.primaryDark.withOpacity(0.08),
+                color: _LoginPalette.primaryDark.withValues(alpha: 0.08),
                 blurRadius: 16,
                 offset: const Offset(0, 10),
               ),
@@ -1008,14 +1072,14 @@ class _PostLoginLoadingOverlay extends StatelessWidget {
 }
 
 class _LoginPalette {
-  static const primary = Color(0xFF0B8F6E);
-  static const primaryDark = Color(0xFF066C56);
-  static const accent = Color(0xFFF5B301);
-  static const background = Color(0xFFF7F8FC);
+  static const primary = Color(0xFF00745A);
+  static const primaryDark = Color(0xFF00553F);
+  static const accent = Color(0xFFF59E0B);
+  static const background = Color(0xFFF7F9FC);
   static const card = Color(0xFFFFFFFF);
-  static const textPrimary = Color(0xFF1E293B);
-  static const textSecondary = Color(0xFF64748B);
-  static const border = Color(0xFFE2E8F0);
+  static const textPrimary = Color(0xFF172A24);
+  static const textSecondary = Color(0xFF172A24);
+  static const border = Color(0xFFDCE7E3);
   static const error = Color(0xFFEF4444);
 
   const _LoginPalette._();

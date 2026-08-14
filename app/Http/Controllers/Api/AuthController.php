@@ -92,31 +92,58 @@ class AuthController extends Controller
     }
 
     /**
-     * Mobile login: issue a personal access token for the user.
-     * Expected payload: { email, password }
+     * Mobile login: issue a personal access token for the selected role.
+     * Expected payload: { identifier, password, login_as }
      */
     public function login(Request $request, SiswaMobileAuthService $siswaMobileAuthService)
     {
         $data = $request->validate([
-            'email' => 'required|string',
+            'identifier' => 'required_without:email|string',
+            // Temporary fallback keeps released versions of the app working.
+            'email' => 'required_without:identifier|string',
             'password' => 'required|string',
+            'login_as' => 'nullable|in:siswa,tenaga_pendidik',
         ]);
 
-        if (!Auth::attempt($data)) {
-            try {
-                $user = $siswaMobileAuthService->authenticate($data['email'], $data['password']);
-            } catch (ValidationException $exception) {
-                return response()->json([
-                    'message' => $exception->errors()['email'][0] ?? 'Login gagal',
-                    'errors' => $exception->errors(),
-                ], 422);
-            }
+        $identifier = trim((string) ($data['identifier'] ?? $data['email']));
+        $loginAs = $data['login_as'] ?? null;
+
+        if ($loginAs === 'siswa') {
+            $user = $siswaMobileAuthService->authenticateByNisn($identifier, $data['password']);
 
             if (!$user) {
-                return response()->json(['message' => 'Invalid credentials'], 401);
+                return response()->json(['message' => 'NISN atau password siswa tidak sesuai.'], 401);
             }
 
             Auth::login($user);
+        } else {
+            // login_as tenaga_pendidik is intentionally email-only. The old
+            // request format remains compatible when login_as is omitted.
+            $credentials = [
+                'email' => $identifier,
+                'password' => $data['password'],
+            ];
+
+            if (!Auth::attempt($credentials)) {
+                if ($loginAs === 'tenaga_pendidik') {
+                    return response()->json(['message' => 'Email atau password tenaga pendidik tidak sesuai.'], 401);
+                }
+
+                try {
+                    $user = $siswaMobileAuthService->authenticate($identifier, $data['password']);
+                } catch (ValidationException $exception) {
+                    return response()->json([
+                        'message' => $exception->errors()['email'][0] ?? 'Login gagal',
+                        'errors' => $exception->errors(),
+                    ], 422);
+                }
+
+                if (!$user) {
+                    return response()->json(['message' => 'Invalid credentials'], 401);
+                }
+
+                Auth::login($user);
+            }
         }
 
         /** @var \App\Models\User $user */
@@ -135,6 +162,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Akun tidak memiliki akses mobile',
+            ], 403);
+        }
+
+        if ($loginAs && $user->role !== $loginAs) {
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Akun tidak sesuai dengan jenis login yang dipilih.',
             ], 403);
         }
 

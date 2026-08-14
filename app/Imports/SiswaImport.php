@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Madrasah;
 use App\Models\Siswa;
+use App\Services\StudentDefaultPasswordService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
@@ -88,14 +89,18 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             $existing = $this->findExistingStudent($madrasah->id, $nis, $nisn, $nik);
 
             if ($existing) {
+                // Do not invalidate a password already selected by a student.
+                $attributes['password'] = $existing->password;
                 $existing->fill($attributes);
                 $existing->save();
+                app(StudentDefaultPasswordService::class)->ensurePassword($existing);
                 $this->processedStudentIds[] = (int) $existing->id;
                 $this->updated++;
                 continue;
             }
 
             $created = Siswa::create($attributes);
+            app(StudentDefaultPasswordService::class)->ensurePassword($created);
             $this->processedStudentIds[] = (int) $created->id;
             $this->created++;
         }

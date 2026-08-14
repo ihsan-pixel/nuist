@@ -80,3 +80,58 @@ class TeacherPageHeader extends StatelessWidget {
     );
   }
 }
+
+class TeacherOverlayPageHeader extends StatelessWidget {
+  const TeacherOverlayPageHeader({
+    super.key,
+    required this.title,
+    required this.onBack,
+    this.trailing,
+  });
+
+  final String title;
+  final VoidCallback onBack;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 76,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      color: AppColors.primaryDark,
+      child: Row(
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onBack,
+              borderRadius: BorderRadius.circular(20),
+              child: const SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          SizedBox(width: 40, height: 40, child: Center(child: trailing)),
+        ],
+      ),
+    );
+  }
+}

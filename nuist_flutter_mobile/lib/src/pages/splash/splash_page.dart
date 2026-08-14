@@ -226,8 +226,10 @@ class _SplashHero extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      _SplashPalette.primary.withOpacity(0.18 + (pulse * 0.06)),
-                      _SplashPalette.primary.withOpacity(0.06),
+                      _SplashPalette.primary.withValues(
+                        alpha: 0.18 + (pulse * 0.06),
+                      ),
+                      _SplashPalette.primary.withValues(alpha: 0.06),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.55, 1.0],
@@ -245,12 +247,12 @@ class _SplashHero extends StatelessWidget {
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: _SplashPalette.primaryDark.withOpacity(0.08),
+                  color: _SplashPalette.primaryDark.withValues(alpha: 0.08),
                   blurRadius: 34,
                   offset: const Offset(0, 18),
                 ),
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   blurRadius: 18,
                   offset: const Offset(0, -4),
                 ),
@@ -291,7 +293,7 @@ class _AnimatedDotsIndicator extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 5),
               decoration: BoxDecoration(
                 color: Color.lerp(
-                  _SplashPalette.primary.withOpacity(0.36),
+                  _SplashPalette.primary.withValues(alpha: 0.36),
                   _SplashPalette.primary,
                   active,
                 ),
@@ -321,7 +323,7 @@ class _SplashBackdrop extends StatelessWidget {
             height: 190,
             child: CustomPaint(
               painter: _OrganicLinePainter(
-                color: _SplashPalette.accent.withOpacity(0.08),
+                color: _SplashPalette.accent.withValues(alpha: 0.08),
               ),
             ),
           ),
@@ -336,7 +338,7 @@ class _SplashBackdrop extends StatelessWidget {
               height: 210,
               child: CustomPaint(
                 painter: _OrganicLinePainter(
-                  color: _SplashPalette.accent.withOpacity(0.08),
+                  color: _SplashPalette.accent.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -401,12 +403,12 @@ class _OrganicLinePainter extends CustomPainter {
 }
 
 class _SplashPalette {
-  static const primary = Color(0xFF0B8F6E);
-  static const primaryDark = Color(0xFF066C56);
-  static const accent = Color(0xFFF5B301);
-  static const background = Color(0xFFF7F8FC);
-  static const textMain = Color(0xFF132B24);
-  static const textMuted = Color(0xFF6E7A86);
+  static const primary = Color(0xFF00745A);
+  static const primaryDark = Color(0xFF00553F);
+  static const accent = Color(0xFFF59E0B);
+  static const background = Color(0xFFF7F9FC);
+  static const textMain = Color(0xFF172A24);
+  static const textMuted = Color(0xFF172A24);
 
   const _SplashPalette._();
 }

@@ -142,7 +142,7 @@ class _MobileAuthHeader extends StatelessWidget {
             child: Container(
               height: 78,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.45),
+                color: Colors.white.withValues(alpha: 0.45),
                 borderRadius: BorderRadius.circular(160),
               ),
             ),
@@ -175,7 +175,7 @@ class _MobileBrandPill extends StatelessWidget {
       height: 72,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.92),
+        color: Colors.white.withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: AppColors.accentWarmSoft,

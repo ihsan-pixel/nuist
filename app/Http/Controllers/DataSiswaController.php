@@ -8,6 +8,7 @@ use App\Exports\SiswaTemplateExport;
 use App\Imports\SiswaImport;
 use App\Models\Madrasah;
 use App\Models\Siswa;
+use App\Services\StudentDefaultPasswordService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -139,9 +140,10 @@ class DataSiswaController extends Controller
         $validated = $this->validateSiswa($request, $user);
         $madrasah = $this->resolveMadrasah($validated['madrasah_id'], $user);
 
-        Siswa::create($this->buildSiswaPayload($validated, $madrasah, true));
+        $siswa = Siswa::create($this->buildSiswaPayload($validated, $madrasah, true));
+        app(StudentDefaultPasswordService::class)->ensurePassword($siswa);
 
-        return back()->with('success', 'Data siswa berhasil ditambahkan tanpa membuat akun login siswa.');
+        return back()->with('success', 'Data siswa berhasil ditambahkan. Siswa dengan NISN memperoleh akses login siswa.');
     }
 
     public function update(Request $request, Siswa $siswa): RedirectResponse
@@ -158,6 +160,7 @@ class DataSiswaController extends Controller
             (bool) $siswa->is_active,
             $siswa
         ));
+        app(StudentDefaultPasswordService::class)->ensurePassword($siswa->fresh());
 
         return back()->with('success', 'Data siswa berhasil diperbarui.');
     }
@@ -231,6 +234,21 @@ class DataSiswaController extends Controller
         $siswa->delete();
 
         return back()->with('success', 'Data siswa berhasil dihapus.');
+    }
+
+    public function resetLoginPassword(Siswa $siswa): RedirectResponse
+    {
+        $user = auth()->user();
+        $this->authorizeStudentDataMutation($user);
+        $this->authorizeSiswaAccess($siswa, $user);
+
+        if (blank($siswa->nisn)) {
+            return back()->withErrors(['password' => 'Password login tidak dapat direset karena siswa belum memiliki NISN.']);
+        }
+
+        app(StudentDefaultPasswordService::class)->resetToDefault($siswa);
+
+        return back()->with('success', 'Password siswa direset ke password default NUIST untuk hari ini.');
     }
 
     public function import(Request $request): RedirectResponse
@@ -411,7 +429,8 @@ class DataSiswaController extends Controller
             'pendidikan_wali' => null,
             'pekerjaan_wali' => null,
             'penghasilan_wali' => null,
-            'password' => null,
+            // Preserve a custom credential when the student record is edited.
+            'password' => $existing?->password,
             'email_verified_at' => null,
             'last_login_at' => null,
             'is_active' => $isActive,

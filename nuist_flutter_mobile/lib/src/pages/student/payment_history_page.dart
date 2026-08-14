@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/student_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
+import '../../widgets/app/teacher_page_header.dart';
 import 'student_ui.dart';
 
 class StudentPaymentHistoryPage extends StatefulWidget {
@@ -10,10 +11,12 @@ class StudentPaymentHistoryPage extends StatefulWidget {
     super.key,
     required this.repository,
     required this.dataRevision,
+    required this.onBackToHome,
   });
 
   final StudentMobileRepository repository;
   final int dataRevision;
+  final VoidCallback onBackToHome;
 
   @override
   State<StudentPaymentHistoryPage> createState() =>
@@ -74,6 +77,18 @@ class _StudentPaymentHistoryPageState extends State<StudentPaymentHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TeacherOverlayPageHeader(
+          title: 'Riwayat Pembayaran',
+          onBack: widget.onBackToHome,
+        ),
+        Expanded(child: _buildContent(context)),
+      ],
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -97,60 +112,31 @@ class _StudentPaymentHistoryPageState extends State<StudentPaymentHistoryPage> {
       onRefresh: _load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 128),
+        padding: const EdgeInsets.only(bottom: 128),
         children: [
-          StudentPageBanner(
-            title: 'Riwayat pembayaran',
-            subtitle:
-                'Semua transaksi siswa dengan tata letak yang lebih padat dan mudah discan.',
-            icon: Icons.history_rounded,
-            badges: [
-              StudentBannerBadge(
-                label: '${summary['verified_count'] ?? 0} terverifikasi',
-                icon: Icons.check_circle_rounded,
-              ),
-              StudentBannerBadge(
-                label: '${summary['pending_count'] ?? 0} menunggu',
-                icon: Icons.schedule_rounded,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          AppSectionCard(
-            padding: const EdgeInsets.all(14),
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 10,
+          StudentPageContentSurface(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StudentMetricCard(
-                  label: 'Terverifikasi',
-                  value: '${summary['verified_count'] ?? 0}',
-                  icon: Icons.task_alt_rounded,
-                  tone: const Color(0xFF0B8F6E),
+                const Text('Riwayat pembayaran', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF172A24))),
+                const SizedBox(height: 4),
+                const Text('Transaksi yang sudah dibuat dari akun Anda.', style: TextStyle(fontSize: 12, color: Color(0xFF64746E))),
+                const SizedBox(height: 16),
+                _HistorySummary(
+                  total: formatStudentCurrency(summary['total_paid']),
+                  verified: '${summary['verified_count'] ?? 0}',
+                  pending: '${summary['pending_count'] ?? 0}',
                 ),
-                StudentMetricCard(
-                  label: 'Menunggu',
-                  value: '${summary['pending_count'] ?? 0}',
-                  icon: Icons.schedule_rounded,
-                  tone: const Color(0xFF2563EB),
-                ),
-                StudentMetricCard(
-                  label: 'Total masuk',
-                  value: formatStudentCurrency(summary['total_paid']),
-                  icon: Icons.payments_rounded,
-                  tone: const Color(0xFFD97706),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+                const SizedBox(height: 20),
+                StudentSectionHeading(title: 'Transaksi', subtitle: '${items.length} transaksi tercatat'),
+                const SizedBox(height: 10),
           if (items.isEmpty)
             const StudentTicketEmptyState(
               title: 'Belum ada riwayat',
               message:
                   'Riwayat pembayaran akan tampil setelah transaksi mulai dibuat.',
               icon: Icons.history_rounded,
-              accentColor: Color(0xFF2563EB),
+              accentColor: Color(0xFF00745A),
               footerLabel: 'BELUM ADA TIKET PEMBAYARAN',
             )
           else
@@ -160,10 +146,37 @@ class _StudentPaymentHistoryPageState extends State<StudentPaymentHistoryPage> {
                 child: _HistoryCard(item: item),
               ),
             ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+class _HistorySummary extends StatelessWidget {
+  const _HistorySummary({required this.total, required this.verified, required this.pending});
+  final String total;
+  final String verified;
+  final String pending;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(color: const Color(0xFFE5F5F0), borderRadius: BorderRadius.circular(20)),
+    child: Row(children: [
+      const Icon(Icons.payments_rounded, color: Color(0xFF00745A)),
+      const SizedBox(width: 12),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text('Total pembayaran', style: TextStyle(fontSize: 12, color: Color(0xFF64746E))),
+        const SizedBox(height: 3),
+        Text(total, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF00553F))),
+      ])),
+      Text('$verified selesai\n$pending menunggu', textAlign: TextAlign.right, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF00745A), height: 1.5)),
+    ]),
+  );
 }
 
 class _HistoryCard extends StatelessWidget {
@@ -197,7 +210,7 @@ class _HistoryCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(11),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: const Color(0xFFF7F9FC),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(

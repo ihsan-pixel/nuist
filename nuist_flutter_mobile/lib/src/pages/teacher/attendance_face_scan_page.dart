@@ -5,12 +5,12 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../config/app_config.dart';
 
-const _scanPrimary = Color(0xFF04A512);
-const _scanPrimaryDark = Color(0xFF037A0D);
-const _scanPrimarySoft = Color(0xFFE7F8E9);
-const _scanPrimaryBorder = Color(0xFFBFEAC4);
-const _scanText = Color(0xFF0E4D16);
-const _scanMuted = Color(0xFF6A8870);
+const _scanPrimary = Color(0xFF00745A);
+const _scanPrimaryDark = Color(0xFF00553F);
+const _scanPrimarySoft = Color(0xFFE5F5F0);
+const _scanPrimaryBorder = Color(0xFFDCE7E3);
+const _scanText = Color(0xFF172A24);
+const _scanMuted = Color(0xFF64746E);
 
 class AttendanceFaceScanPage extends StatefulWidget {
   const AttendanceFaceScanPage({
@@ -220,7 +220,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FAF6),
+      backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         foregroundColor: _scanText,
@@ -291,7 +291,7 @@ class _AttendanceFaceScanPageState extends State<AttendanceFaceScanPage> {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 18,
                       offset: const Offset(0, 10),
                     ),
@@ -440,12 +440,12 @@ class _FaceScanStepChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDone
             ? _scanPrimarySoft
-            : (isActive ? const Color(0xFFEFF7FF) : const Color(0xFFF4F6F8)),
+            : (isActive ? const Color(0xFFE5F5F0) : const Color(0xFFF7F9FC)),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: isDone
               ? _scanPrimaryBorder
-              : (isActive ? const Color(0xFFC8DCF6) : const Color(0xFFE5E9EE)),
+              : (isActive ? const Color(0xFFDCE7E3) : const Color(0xFFDCE7E3)),
         ),
       ),
       child: Row(
@@ -460,7 +460,7 @@ class _FaceScanStepChip extends StatelessWidget {
             size: 14,
             color: isDone
                 ? _scanPrimaryDark
-                : (isActive ? const Color(0xFF285EA8) : _scanMuted),
+                : (isActive ? const Color(0xFF00745A) : _scanMuted),
           ),
           const SizedBox(width: 6),
           Text(
@@ -468,7 +468,7 @@ class _FaceScanStepChip extends StatelessWidget {
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: isDone
                       ? _scanText
-                      : (isActive ? const Color(0xFF285EA8) : _scanMuted),
+                      : (isActive ? const Color(0xFF00745A) : _scanMuted),
                   fontWeight: FontWeight.w800,
                 ),
           ),

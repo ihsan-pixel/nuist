@@ -12,17 +12,17 @@ import 'attendance_face_scan_page.dart';
 import '../../services/teacher_mobile_repository.dart';
 import '../../widgets/app/app_section_card.dart';
 
-const _attendanceBackground = Color(0xFFF7F8FC);
+const _attendanceBackground = Color(0xFFF7F9FC);
 const _attendanceSurface = Color(0xFFFFFFFF);
-const _attendancePrimary = Color(0xFF0B8F6E);
-const _attendancePrimaryDark = Color(0xFF066C56);
-const _attendancePrimarySoft = Color(0xFFECFDF5);
-const _attendancePrimaryBorder = Color(0xFFE2E8F0);
-const _attendanceText = Color(0xFF1E293B);
-const _attendanceMuted = Color(0xFF64748B);
+const _attendancePrimary = Color(0xFF00745A);
+const _attendancePrimaryDark = Color(0xFF00553F);
+const _attendancePrimarySoft = Color(0xFFE5F5F0);
+const _attendancePrimaryBorder = Color(0xFFDCE7E3);
+const _attendanceText = Color(0xFF172A24);
+const _attendanceMuted = Color(0xFF64746E);
 const _attendanceDanger = Color(0xFFEF4444);
 const _attendanceDangerSoft = Color(0xFFFEE2E2);
-const _attendanceCardShadow = Color(0x141E293B);
+const _attendanceCardShadow = Color(0x14172A24);
 const _attendanceMapDefaultZoom = 15.6;
 const _attendanceMapUserZoom = 18.4;
 
@@ -158,7 +158,9 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
 
       for (var index = 0; index < 3; index++) {
         final sampled = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best,
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.best,
+          ),
         );
         latestPosition = sampled;
         readings.add({
@@ -607,7 +609,7 @@ class _TeacherAttendancePageState extends State<TeacherAttendancePage>
                 return;
               }
               setModalState(() {});
-              if (success) {
+              if (success && sheetContext.mounted) {
                 Navigator.of(sheetContext).pop();
               }
             }
@@ -828,7 +830,7 @@ class _AttendanceContent extends StatelessWidget {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: _attendanceSurface.withOpacity(0.94),
+                          color: _attendanceSurface.withValues(alpha: 0.94),
                           borderRadius: BorderRadius.circular(999),
                           border: Border.all(color: _attendancePrimaryBorder),
                           boxShadow: const [
@@ -906,7 +908,7 @@ class _AttendanceContent extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: _attendanceSurface.withOpacity(0.97),
+                  color: _attendanceSurface.withValues(alpha: 0.97),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(color: _attendancePrimaryBorder),
                   boxShadow: const [
@@ -1837,7 +1839,7 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: _attendanceSurface.withOpacity(0.96),
+                  color: _attendanceSurface.withValues(alpha: 0.96),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(color: _attendancePrimaryBorder),
                   boxShadow: const [
@@ -1879,7 +1881,7 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _attendancePrimary.withOpacity(0.18),
+              color: _attendancePrimary.withValues(alpha: 0.18),
             ),
             padding: const EdgeInsets.all(6),
             child: Container(
@@ -1923,7 +1925,7 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
                   Polyline(
                     points: routePoints,
                     strokeWidth: 4,
-                    color: _attendancePrimary.withOpacity(0.7),
+                    color: _attendancePrimary.withValues(alpha: 0.7),
                   ),
                 ],
               ),
@@ -1939,8 +1941,8 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.015),
-                    Colors.black.withOpacity(0.12),
+                    Colors.black.withValues(alpha: 0.015),
+                    Colors.black.withValues(alpha: 0.12),
                   ],
                 ),
               ),
@@ -1954,7 +1956,7 @@ class _AttendanceMapLayerState extends State<_AttendanceMapLayer> {
             bottom: 260,
             child: Center(
               child: Card(
-                color: _attendanceSurface.withOpacity(0.96),
+                color: _attendanceSurface.withValues(alpha: 0.96),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
@@ -2002,7 +2004,7 @@ class _MapHeaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: _attendanceSurface.withOpacity(0.95),
+      color: _attendanceSurface.withValues(alpha: 0.95),
       borderRadius: BorderRadius.circular(999),
       shadowColor: Colors.transparent,
       child: InkWell(
