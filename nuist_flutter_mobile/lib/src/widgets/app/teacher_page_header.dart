@@ -40,7 +40,7 @@ class TeacherPageHeader extends StatelessWidget {
             child: InkWell(
               onTap: onBack,
               borderRadius: BorderRadius.circular(16),
-              child: const SizedBox(
+              child: SizedBox(
                 width: 40,
                 height: 40,
                 child: Icon(
@@ -55,7 +55,7 @@ class TeacherPageHeader extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.black,
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
@@ -87,11 +87,17 @@ class TeacherOverlayPageHeader extends StatelessWidget {
     required this.title,
     required this.onBack,
     this.trailing,
+    this.backgroundColor = AppColors.primaryDark,
+    this.foregroundColor = Colors.white,
+    this.borderRadius = BorderRadius.zero,
   });
 
   final String title;
   final VoidCallback onBack;
   final Widget? trailing;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final BorderRadius borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +105,8 @@ class TeacherOverlayPageHeader extends StatelessWidget {
       width: double.infinity,
       height: 76,
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      color: AppColors.primaryDark,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(color: backgroundColor, borderRadius: borderRadius),
       child: Row(
         children: [
           Material(
@@ -107,12 +114,12 @@ class TeacherOverlayPageHeader extends StatelessWidget {
             child: InkWell(
               onTap: onBack,
               borderRadius: BorderRadius.circular(20),
-              child: const SizedBox(
+              child: SizedBox(
                 width: 40,
                 height: 40,
                 child: Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
+                  color: foregroundColor,
                   size: 18,
                 ),
               ),
@@ -122,8 +129,8 @@ class TeacherOverlayPageHeader extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: foregroundColor,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
