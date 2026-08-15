@@ -7,6 +7,13 @@ import '../../widgets/app/app_section_card.dart';
 import '../../widgets/app/teacher_bottom_nav.dart';
 import '../../widgets/app/teacher_page_header.dart';
 
+part 'pengurus_dashboard_page.dart';
+part 'pengurus_school_page.dart';
+part 'pengurus_profile_page.dart';
+part 'pengurus_services_page.dart';
+part 'pengurus_notifications_page.dart';
+part 'pengurus_shared.dart';
+
 const _pengurusPrimary = Color(0xFF00745A);
 const _pengurusText = Color(0xFF172A24);
 
@@ -61,10 +68,3 @@ class _PengurusShellPageState extends State<PengurusShellPage> {
     );
   }
 }
-
-part 'pengurus_dashboard_page.dart';
-part 'pengurus_school_page.dart';
-part 'pengurus_profile_page.dart';
-part 'pengurus_services_page.dart';
-part 'pengurus_notifications_page.dart';
-part 'pengurus_shared.dart';
