@@ -105,15 +105,17 @@ class PengurusAppController extends Controller
             // Kolom ketugasan tersedia pada seluruh instalasi lama. Jangan
             // bergantung pada kolom jabatan karena belum ada di sebagian DB.
             ->where('ketugasan', 'like', '%kepala%')
+            ->with(['statusKepegawaian:id,name', 'skYayasanEmployeeData:id,user_id,penilaian_kinerja,keterangan'])
             ->orderBy('name')
-            ->first(['name', 'gelar', 'ketugasan']);
+            ->first();
 
         $teachers = User::query()
             ->where('madrasah_id', $madrasah->id)
             ->where('role', 'tenaga_pendidik')
             ->where('is_active', true)
+            ->with(['statusKepegawaian:id,name', 'skYayasanEmployeeData:id,user_id,penilaian_kinerja,keterangan'])
             ->orderBy('name')
-            ->get(['id', 'name', 'gelar', 'ketugasan']);
+            ->get();
         $students = Siswa::query()
             ->where('madrasah_id', $madrasah->id)
             ->where('is_active', true)
@@ -131,14 +133,22 @@ class PengurusAppController extends Controller
                 'logo_url' => filled($madrasah->logo) ? url('storage/' . ltrim($madrasah->logo, '/')) : null,
             ],
             'headmaster' => $headmaster ? [
+                'id' => $headmaster->id,
                 'name' => trim($headmaster->name . ' ' . ($headmaster->gelar ?? '')),
                 'position' => $headmaster->ketugasan ?: 'Kepala Sekolah',
+                'status_kepegawaian' => $headmaster->statusKepegawaian?->name,
+                'photo_url' => $headmaster->avatar ? asset('storage/' . ltrim($headmaster->avatar, '/')) : null,
+                'details' => $this->teacherDetailPayload($headmaster),
             ] : null,
             'teacher_count' => $teachers->count(),
             'student_count' => Siswa::query()->where('madrasah_id', $madrasah->id)->where('is_active', true)->count(),
             'teachers' => $teachers->map(fn (User $teacher) => [
+                'id' => $teacher->id,
                 'name' => trim($teacher->name . ' ' . ($teacher->gelar ?? '')),
                 'position' => $teacher->ketugasan ?: 'Tenaga Pendidik',
+                'status_kepegawaian' => $teacher->statusKepegawaian?->name,
+                'photo_url' => $teacher->avatar ? asset('storage/' . ltrim($teacher->avatar, '/')) : null,
+                'details' => $this->teacherDetailPayload($teacher),
             ])->all(),
             'students' => $students->map(fn (Siswa $student) => [
                 'name' => $student->nama_lengkap,
@@ -204,5 +214,38 @@ class PengurusAppController extends Controller
         $user = $request->user();
         abort_unless($user && $user->role === 'pengurus' && $user->is_active, 403);
         return $user;
+    }
+
+    private function teacherDetailPayload(User $teacher): array
+    {
+        return [
+            'name' => trim($teacher->name . ' ' . ($teacher->gelar ?? '')) ?: '-',
+            'status_kepegawaian' => $teacher->statusKepegawaian?->name ?: ($teacher->ketugasan ?: '-'),
+            'ketugasan' => $teacher->ketugasan ?: '-',
+            'nuist_id' => $teacher->nuist_id ?: '-',
+            'email' => $teacher->email ?: '-',
+            'phone' => $teacher->no_hp ?: '-',
+            'tempat_lahir' => $teacher->tempat_lahir ?: '-',
+            'tanggal_lahir' => optional($teacher->tanggal_lahir)->format('d-m-Y') ?: '-',
+            'nip' => $teacher->nip ?: '-',
+            'nuptk' => $teacher->nuptk ?: '-',
+            'npk' => $teacher->npk ?: '-',
+            'kartanu' => $teacher->kartanu ?: '-',
+            'pendidikan_terakhir' => $teacher->pendidikan_terakhir ?: '-',
+            'tahun_lulus' => $teacher->tahun_lulus ?: '-',
+            'program_studi' => $teacher->program_studi ?: '-',
+            'tmt' => optional($teacher->tmt)->format('d-m-Y') ?: '-',
+            'masa_kerja' => $teacher->masa_kerja ?: '-',
+            'alamat' => $teacher->alamat ?: '-',
+            'mengajar' => $teacher->mengajar ?: '-',
+            'pemenuhan_beban_kerja_lain' => $teacher->pemenuhan_beban_kerja_lain ?: '-',
+            'status_kepegawaian_label' => $teacher->statusKepegawaian?->name ?: '-',
+            'sk_yayasan' => $teacher->skYayasanEmployeeData ? [
+                'penilaian_kinerja' => $teacher->skYayasanEmployeeData->penilaian_kinerja !== null
+                    ? (string) $teacher->skYayasanEmployeeData->penilaian_kinerja
+                    : '-',
+                'keterangan' => $teacher->skYayasanEmployeeData->keterangan ?: '-',
+            ] : null,
+        ];
     }
 }
