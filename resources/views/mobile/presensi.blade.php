@@ -3831,11 +3831,10 @@ window.addEventListener('load', function() {
                     placeholder.style.display = 'none';
                 }
 
+                setFaceLoadingState(true, 'Menyiapkan model scan', 'Tunggu sebentar, model wajah sedang disiapkan.');
+                await faceScanner.loadModels();
                 setFaceLoadingState(false);
                 updateFaceInstruction('Kamera aktif. Tekan Mulai Scan untuk memulai pembacaan wajah.');
-                void faceScanner.loadModels().catch((error) => {
-                    console.error('Failed to preload face models:', error);
-                });
             } else {
                 captureBtn.disabled = true;
                 captureBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyiapkan Kamera...';
@@ -3913,7 +3912,7 @@ window.addEventListener('load', function() {
             }
             captureBtn.disabled = true;
             captureBtn.innerHTML = faceScanRequired
-                ? '<i class="bx bx-loader-alt bx-spin me-1"></i>Memindai...'
+                ? '<i class="bx bx-scan me-1"></i>Siap Scan'
                 : '<i class="bx bx-loader-alt bx-spin me-1"></i>Mengambil...';
         }
 
