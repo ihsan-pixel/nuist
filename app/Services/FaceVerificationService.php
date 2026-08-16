@@ -6,7 +6,7 @@ use App\Models\User;
 
 class FaceVerificationService
 {
-    private const FACE_DISTANCE_THRESHOLD = 0.55;
+    private const FACE_DISTANCE_THRESHOLD = 0.62;
     private const LIVENESS_THRESHOLD = 0.78;
     private const REQUIRED_ATTENDANCE_CHALLENGE = 'blink';
     private const REQUIRED_DYNAMIC_CHALLENGES = ['turn_left', 'turn_right', 'look_up', 'look_down', 'mouth_open'];
@@ -52,7 +52,6 @@ class FaceVerificationService
             ];
         }
 
-        $normalizedChallenges = $this->normalizeChallenges($challenges);
         $normalizedLivenessScore = is_numeric($livenessScore) ? (float) $livenessScore : null;
 
         if ($normalizedLivenessScore === null) {
@@ -61,51 +60,6 @@ class FaceVerificationService
                 'message' => 'Skor liveness tidak valid. Silakan ulangi scan wajah.',
                 'notes' => 'invalid_liveness_score',
             ];
-        }
-
-        if (!$this->hasPassedChallenge($normalizedChallenges, self::REQUIRED_ATTENDANCE_CHALLENGE)) {
-            return [
-                'success' => false,
-                'message' => 'Kedipan belum terverifikasi. Ulangi scan wajah lalu kedip satu kali.',
-                'liveness_score' => round($normalizedLivenessScore, 4),
-                'challenges' => $normalizedChallenges,
-                'notes' => 'blink_challenge_missing',
-            ];
-        }
-
-        if ($enforceAdvancedLiveness) {
-            $dynamicChallenge = $this->firstPassedChallenge($normalizedChallenges, self::REQUIRED_DYNAMIC_CHALLENGES);
-            if (!$dynamicChallenge) {
-                return [
-                    'success' => false,
-                    'message' => 'Challenge wajah tambahan belum terpenuhi. Ulangi scan dan ikuti arahan gerakan wajah.',
-                    'liveness_score' => round($normalizedLivenessScore, 4),
-                    'challenges' => $normalizedChallenges,
-                    'notes' => 'dynamic_challenge_missing',
-                ];
-            }
-
-            $lightingChallenge = $this->findChallenge($normalizedChallenges, 'lighting');
-            if ($lightingChallenge && !$lightingChallenge['passed']) {
-                return [
-                    'success' => false,
-                    'message' => 'Pencahayaan wajah belum cukup baik. Dekatkan wajah dan gunakan cahaya yang lebih jelas.',
-                    'liveness_score' => round($normalizedLivenessScore, 4),
-                    'challenges' => $normalizedChallenges,
-                    'notes' => 'lighting_insufficient',
-                ];
-            }
-
-            $screenReplayRisk = $this->findChallenge($normalizedChallenges, 'screen_replay_risk');
-            if (($screenReplayRisk['score'] ?? 0) > self::SCREEN_REPLAY_RISK_THRESHOLD) {
-                return [
-                    'success' => false,
-                    'message' => 'Scan wajah terdeteksi berisiko seperti layar atau replay video. Gunakan wajah asli di depan kamera.',
-                    'liveness_score' => round($normalizedLivenessScore, 4),
-                    'challenges' => $normalizedChallenges,
-                    'notes' => 'screen_replay_risk_high',
-                ];
-            }
         }
 
         $storedDescriptors = $this->storedDescriptors($user);
@@ -137,7 +91,6 @@ class FaceVerificationService
                 'face_distance' => is_finite($bestDistance) ? round($bestDistance, 4) : null,
                 'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
                 'liveness_score' => round($normalizedLivenessScore, 4),
-                'challenges' => $normalizedChallenges,
                 'notes' => 'liveness_below_threshold',
             ];
         }
@@ -150,7 +103,6 @@ class FaceVerificationService
                 'face_distance' => round($bestDistance, 4),
                 'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
                 'liveness_score' => round($normalizedLivenessScore, 4),
-                'challenges' => $normalizedChallenges,
                 'notes' => 'face_similarity_below_threshold',
             ];
         }
@@ -163,7 +115,6 @@ class FaceVerificationService
             'face_distance' => round($bestDistance, 4),
             'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
             'liveness_score' => round($normalizedLivenessScore, 4),
-            'challenges' => $normalizedChallenges,
             'notes' => 'face_verified',
         ];
     }
@@ -184,7 +135,6 @@ class FaceVerificationService
             ];
         }
 
-        $normalizedChallenges = $this->normalizeChallenges($challenges);
         $normalizedLivenessScore = is_numeric($livenessScore) ? (float) $livenessScore : null;
 
         if ($normalizedLivenessScore === null) {
@@ -195,57 +145,11 @@ class FaceVerificationService
             ];
         }
 
-        if (!$this->hasPassedChallenge($normalizedChallenges, self::REQUIRED_ATTENDANCE_CHALLENGE)) {
-            return [
-                'success' => false,
-                'message' => 'Kedipan belum terverifikasi. Ulangi scan wajah lalu kedip satu kali.',
-                'liveness_score' => round($normalizedLivenessScore, 4),
-                'challenges' => $normalizedChallenges,
-                'notes' => 'blink_challenge_missing',
-            ];
-        }
-
-        if ($enforceAdvancedLiveness) {
-            $dynamicChallenge = $this->firstPassedChallenge($normalizedChallenges, self::REQUIRED_DYNAMIC_CHALLENGES);
-            if (!$dynamicChallenge) {
-                return [
-                    'success' => false,
-                    'message' => 'Challenge wajah tambahan belum terpenuhi. Ulangi scan dan ikuti arahan gerakan wajah.',
-                    'liveness_score' => round($normalizedLivenessScore, 4),
-                    'challenges' => $normalizedChallenges,
-                    'notes' => 'dynamic_challenge_missing',
-                ];
-            }
-
-            $lightingChallenge = $this->findChallenge($normalizedChallenges, 'lighting');
-            if ($lightingChallenge && !$lightingChallenge['passed']) {
-                return [
-                    'success' => false,
-                    'message' => 'Pencahayaan wajah belum cukup baik. Dekatkan wajah dan gunakan cahaya yang lebih jelas.',
-                    'liveness_score' => round($normalizedLivenessScore, 4),
-                    'challenges' => $normalizedChallenges,
-                    'notes' => 'lighting_insufficient',
-                ];
-            }
-
-            $screenReplayRisk = $this->findChallenge($normalizedChallenges, 'screen_replay_risk');
-            if (($screenReplayRisk['score'] ?? 0) > self::SCREEN_REPLAY_RISK_THRESHOLD) {
-                return [
-                    'success' => false,
-                    'message' => 'Scan wajah terdeteksi berisiko seperti layar atau replay video. Gunakan wajah asli di depan kamera.',
-                    'liveness_score' => round($normalizedLivenessScore, 4),
-                    'challenges' => $normalizedChallenges,
-                    'notes' => 'screen_replay_risk_high',
-                ];
-            }
-        }
-
         if ($normalizedLivenessScore < self::LIVENESS_THRESHOLD) {
             return [
                 'success' => false,
                 'message' => 'Scan wajah gagal diverifikasi. Wajah belum terbaca dengan cukup stabil.',
                 'liveness_score' => round($normalizedLivenessScore, 4),
-                'challenges' => $normalizedChallenges,
                 'notes' => 'liveness_below_threshold',
             ];
         }
@@ -277,7 +181,6 @@ class FaceVerificationService
                 'success' => false,
                 'message' => 'Belum ada data wajah guru yang siap dicocokkan di kiosk ini.',
                 'liveness_score' => round($normalizedLivenessScore, 4),
-                'challenges' => $normalizedChallenges,
                 'notes' => 'no_enrolled_teachers',
             ];
         }
@@ -291,7 +194,6 @@ class FaceVerificationService
                 'face_distance' => round($bestDistance, 4),
                 'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
                 'liveness_score' => round($normalizedLivenessScore, 4),
-                'challenges' => $normalizedChallenges,
                 'notes' => 'face_similarity_below_threshold',
             ];
         }
@@ -305,7 +207,6 @@ class FaceVerificationService
             'face_distance' => round($bestDistance, 4),
             'face_distance_threshold' => self::FACE_DISTANCE_THRESHOLD,
             'liveness_score' => round($normalizedLivenessScore, 4),
-            'challenges' => $normalizedChallenges,
             'notes' => 'face_identified',
         ];
     }
