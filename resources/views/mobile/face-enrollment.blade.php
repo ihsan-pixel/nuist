@@ -97,19 +97,30 @@
 
         #face-video {
             position: absolute;
-            inset: 0;
+            left: 50%;
+            top: 50%;
+            width: 88%;
+            height: 88%;
             display: none;
             object-fit: cover;
-            transform: scaleX(-1);
+            transform: translate(-50%, -50%) scaleX(-1);
+            transform-origin: center;
+            border-radius: 24px;
             background: #111827;
             z-index: 0;
         }
 
         #face-preview {
             position: absolute;
-            inset: 0;
+            left: 50%;
+            top: 50%;
+            width: 88%;
+            height: 88%;
             display: none;
             object-fit: cover;
+            transform: translate(-50%, -50%);
+            transform-origin: center;
+            border-radius: 24px;
             background: #111827;
             z-index: 0;
         }
@@ -1048,20 +1059,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function resetEnrollmentState() {
         enrollmentResult = null;
+
         preview.src = '';
         preview.style.display = 'none';
+
         video.style.display = cameraReady ? 'block' : 'none';
+
         enrollButton.disabled = true;
         enrollButton.style.display = 'none';
+
         if (retryButton) {
+            // Ulangi selalu terlihat, tetapi belum bisa digunakan
             retryButton.disabled = true;
-            retryButton.style.display = 'none';
+            retryButton.style.display = 'block';
         }
+
         startCameraButton.style.display = 'block';
+
         resetProgress();
+
         if (faceStage) {
             faceStage.dataset.guideState = cameraReady ? 'steady' : 'searching';
         }
+
         updateGuideTone(cameraReady ? 'steady' : 'searching');
         updateProgressRing();
     }
