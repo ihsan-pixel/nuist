@@ -681,7 +681,7 @@
             border: 0;
             background: transparent;
             border-radius: 0;
-            color: #34d399;
+            color: #60a5fa;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -1094,9 +1094,27 @@
         .face-scan-mode #selfie-video,
         .face-scan-mode #selfie-preview {
             object-fit: cover;
-            object-position: center 34%;
-            transform: scaleX(-1) scale(1.12) translateY(1%);
+            object-position: center center;
+            transform: scaleX(-1);
             transform-origin: center center;
+        }
+
+        .face-scan-mode .selfie-guide-oval {
+            top: 18%;
+            width: min(78vw, 336px);
+            height: min(104vw, 448px);
+        }
+
+        .face-scan-mode .selfie-guide-pill {
+            top: calc(18% - 108px);
+        }
+
+        .face-scan-mode .selfie-progress-orb {
+            top: 78%;
+        }
+
+        .face-scan-mode .selfie-guide-detail {
+            top: calc(78% + 92px);
         }
 
         .selfie-guide {
@@ -1644,15 +1662,29 @@
                 top: 23%;
             }
 
+            .face-scan-mode .selfie-guide-oval {
+                top: 20%;
+                width: min(80vw, 286px);
+                height: min(106vw, 396px);
+            }
+
             .selfie-progress-orb {
                 top: 81%;
                 width: 68px;
                 height: 68px;
             }
 
+            .face-scan-mode .selfie-progress-orb {
+                top: 80%;
+            }
+
             .selfie-guide-pill {
                 top: calc(23% - 100px);
                 width: min(84vw, 286px);
+            }
+
+            .face-scan-mode .selfie-guide-pill {
+                top: calc(20% - 100px);
             }
 
             .selfie-guide-pill i {
@@ -1679,6 +1711,10 @@
                 top: calc(81% + 82px);
                 width: min(88vw, 292px);
                 font-size: 10px;
+            }
+
+            .face-scan-mode .selfie-guide-detail {
+                top: calc(80% + 82px);
             }
         }
     </style>
@@ -2162,9 +2198,11 @@
                 </div>
             </div>
             <div class="selfie-modal-actions">
-                <button type="button" id="btn-retry-selfie-modal" class="selfie-modal-retry" aria-label="Ulangi scan" {{ $verificationMode === 'face_scan' ? '' : 'hidden' }}>
-                    <i class="bx bx-refresh"></i>Ulangi
+                @if($verificationMode === 'face_scan')
+                <button type="button" id="btn-retry-selfie-modal" class="selfie-modal-retry" aria-label="Panduan scan wajah">
+                    <i class="bx bx-info-circle"></i>
                 </button>
+                @endif
             </div>
         </div>
 
@@ -3409,7 +3447,7 @@ window.addEventListener('load', function() {
         captureBtn.disabled = false;
         captureBtn.classList.add('retry-scan');
         captureBtn.style.display = 'inline-flex';
-        captureBtn.innerHTML = `<i class="bx bx-refresh me-1"></i>${label}`;
+        captureBtn.innerHTML = `<i class="bx bx-error-circle me-1"></i>${label}`;
     }
 
     function hideFaceScanRetryButton() {
@@ -3438,15 +3476,17 @@ window.addEventListener('load', function() {
             return;
         }
 
-        const retryStates = ['searching', 'too-far', 'too-close', 'tilted', 'off-center', 'warning'];
-        if (retryStates.includes(state)) {
+        if (state === 'success' || state === 'aligned' || state === 'steady' || state === 'processing') {
+            hideFaceScanRetryButton();
+            return;
+        }
+
+        if (state === 'warning' || state === 'error') {
             showFaceScanRetryButton('Ulangi');
             return;
         }
 
-        if (state === 'success' || state === 'aligned' || state === 'steady' || state === 'processing') {
-            hideFaceScanRetryButton();
-        }
+        hideFaceScanRetryButton();
     }
 
     function handleFaceScanVerificationRejection(message, notes = null) {
@@ -3784,10 +3824,10 @@ window.addEventListener('load', function() {
 
             stopSelfieStream();
 
-            if (faceScanRequired) {
-                setFaceLoadingState(true, 'Menyiapkan kamera', 'Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.');
-                await faceScanner.initializeCamera(video);
-                video.style.display = 'block';
+        if (faceScanRequired) {
+            setFaceLoadingState(true, 'Menyiapkan kamera', 'Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.');
+            await faceScanner.initializeCamera(video);
+            video.style.display = 'block';
 
                 const placeholder = container.querySelector('.selfie-placeholder');
                 if (placeholder) {
@@ -3835,6 +3875,7 @@ window.addEventListener('load', function() {
                     state: 'searching',
                     message: 'Tekan Mulai Scan saat wajah sudah siap.',
                 });
+                hideFaceScanRetryButton();
             } else {
                 captureBtn.style.display = 'block';
                 captureBtn.disabled = false;
@@ -4054,6 +4095,16 @@ window.addEventListener('load', function() {
                     captureBtn.disabled = false;
                     captureBtn.innerHTML = '<i class="bx bx-scan me-1"></i>Mulai Scan';
                 }, 860);
+            } else if (faceScanRequired) {
+                window.setTimeout(() => {
+                    if (!selfieModal?.classList.contains('show')) {
+                        return;
+                    }
+
+                    hideFaceScanRetryButton();
+                    updateFaceInstruction('Tekan Mulai Scan untuk memulai pembacaan wajah.');
+                    setSelfieStatus('Tekan Mulai Scan saat wajah sudah siap.', 'info');
+                }, 300);
             }
         } finally {
             faceScanInProgress = false;
