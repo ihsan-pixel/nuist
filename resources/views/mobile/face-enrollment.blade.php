@@ -28,8 +28,9 @@
         .face-stage {
             --scan-progress: 0%;
             position: relative;
-            height: 100vh;
-            height: 100dvh;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
             background: #000;
             overflow: hidden;
             display: flex;
