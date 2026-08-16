@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Presensi;
+use App\Models\TeachingAttendance;
 use App\Models\User;
 use App\Models\TeachingSchedule;
 use App\Services\AcademicCalendarEventService;
@@ -105,6 +106,45 @@ class MonitoringController extends \App\Http\Controllers\Controller
         });
 
         return view('mobile.monitor-jadwal-mengajar', compact('schedules', 'selectedDate'));
+    }
+
+    /**
+     * Monitoring jurnal mengajar for kepala madrasah
+     */
+    public function monitorJurnalMengajar(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
+            abort(403, 'Unauthorized. Only kepala madrasah can access this page.');
+        }
+
+        $selectedMonth = $request->input('month', Carbon::now('Asia/Jakarta')->format('Y-m'));
+        $selectedMonthCarbon = Carbon::createFromFormat('Y-m', $selectedMonth, 'Asia/Jakarta');
+        $startOfMonth = $selectedMonthCarbon->copy()->startOfMonth()->startOfDay();
+        $endOfMonth = $selectedMonthCarbon->copy()->endOfMonth()->endOfDay();
+        $today = Carbon::today('Asia/Jakarta')->endOfDay();
+        $effectiveEnd = $endOfMonth->copy()->min($today);
+
+        $query = TeachingAttendance::with(['teachingSchedule.teacher', 'teachingSchedule.school'])
+            ->whereHas('teachingSchedule', function ($q) use ($user) {
+                $q->where('school_id', $user->madrasah_id);
+            })
+            ->whereBetween('tanggal', [$startOfMonth->toDateString(), $effectiveEnd->toDateString()])
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('waktu', 'desc');
+
+        $records = $query->paginate(20, ['*'], 'jurnal_page')->withQueryString();
+
+        $summary = [
+            'total_jurnal' => (clone $query)->count(),
+            'total_guru' => User::where('role', 'tenaga_pendidik')
+                ->where('madrasah_id', $user->madrasah_id)
+                ->count(),
+            'bulan' => $selectedMonthCarbon->locale('id')->isoFormat('MMMM YYYY'),
+        ];
+
+        return view('mobile.monitor-jurnal-mengajar', compact('records', 'selectedMonth', 'summary'));
     }
 
     /**

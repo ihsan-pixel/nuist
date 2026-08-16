@@ -1789,6 +1789,7 @@ Route::middleware(['auth'])->prefix('mobile')->name('mobile.')->group(function (
     Route::get('/monitor-presensi', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorPresensi'])->name('monitor-presensi');
     Route::get('/monitor-map', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorMap'])->name('monitor-map');
     Route::get('/monitor-jadwal-mengajar', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorJadwalMengajar'])->name('monitor-jadwal-mengajar');
+    Route::get('/monitor-jurnal-mengajar', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorJurnalMengajar'])->name('monitor-jurnal-mengajar');
     Route::get('/academic-calendar-approvals', [AcademicCalendarEventController::class, 'principalIndex'])->name('academic-calendar-approvals');
     Route::post('/academic-calendar-approvals/approve-all', [AcademicCalendarEventController::class, 'principalApproveAll'])->name('academic-calendar-approvals.approve-all');
     Route::post('/academic-calendar-approvals/{academic_calendar_event}/approve', [AcademicCalendarEventController::class, 'principalApprove'])->name('academic-calendar-approvals.approve');
