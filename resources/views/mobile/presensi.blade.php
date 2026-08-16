@@ -2349,7 +2349,6 @@
             <input type="hidden" id="selfie-data" name="selfie_data">
             <input type="hidden" id="face-descriptor" name="face_descriptor">
             <input type="hidden" id="liveness-score" name="liveness_score">
-            <input type="hidden" id="liveness-challenges" name="liveness_challenges">
         </div>
 
         <div class="selfie-modal-footer">
@@ -3579,7 +3578,6 @@ window.addEventListener('load', function() {
         const selfieDataInput = document.getElementById('selfie-data');
         const faceDescriptorInput = document.getElementById('face-descriptor');
         const livenessScoreInput = document.getElementById('liveness-score');
-        const livenessChallengesInput = document.getElementById('liveness-challenges');
 
         if (selfieDataInput) {
             selfieDataInput.value = '';
@@ -3590,10 +3588,6 @@ window.addEventListener('load', function() {
         if (livenessScoreInput) {
             livenessScoreInput.value = '';
         }
-        if (livenessChallengesInput) {
-            livenessChallengesInput.value = '';
-        }
-
         updateSelfieGuideState({
             state: 'warning',
             message: rejectionMessage,
@@ -3692,7 +3686,6 @@ window.addEventListener('load', function() {
         const selfieDataInput = document.getElementById('selfie-data');
         const faceDescriptorInput = document.getElementById('face-descriptor');
         const livenessScoreInput = document.getElementById('liveness-score');
-        const livenessChallengesInput = document.getElementById('liveness-challenges');
         const placeholder = document.querySelector('#selfie-container .selfie-placeholder');
 
         if (video) {
@@ -3726,9 +3719,6 @@ window.addEventListener('load', function() {
         }
         if (livenessScoreInput) {
             livenessScoreInput.value = '';
-        }
-        if (livenessChallengesInput) {
-            livenessChallengesInput.value = '';
         }
         if (placeholder) {
             placeholder.style.display = 'flex';
@@ -3988,7 +3978,6 @@ window.addEventListener('load', function() {
         const selfieDataInput = document.getElementById('selfie-data');
         const faceDescriptorInput = document.getElementById('face-descriptor');
         const livenessScoreInput = document.getElementById('liveness-score');
-        const livenessChallengesInput = document.getElementById('liveness-challenges');
         const selfiePreview = document.getElementById('selfie-preview');
         const captureBtn = document.getElementById('btn-capture-selfie');
 
@@ -4079,9 +4068,6 @@ window.addEventListener('load', function() {
             }
             if (livenessScoreInput) {
                 livenessScoreInput.value = faceVerificationResult.liveness_score !== null ? String(faceVerificationResult.liveness_score) : '';
-            }
-            if (livenessChallengesInput) {
-                livenessChallengesInput.value = faceVerificationResult.liveness_challenges ? JSON.stringify(faceVerificationResult.liveness_challenges) : '';
             }
 
             if (selfiePreview) {
@@ -4315,8 +4301,6 @@ window.addEventListener('load', function() {
         const selfieDataValue = pendingSelfieData || document.getElementById('selfie-data').value;
         const faceDescriptorValue = document.getElementById('face-descriptor').value;
         const livenessScoreValue = document.getElementById('liveness-score').value;
-        const livenessChallengesValue = document.getElementById('liveness-challenges').value;
-
         const faceDataIncomplete = faceScanRequired && (!faceDescriptorValue || !livenessScoreValue);
         if (!selfieDataValue || selfieDataValue.length < 100 || faceDataIncomplete) {
             presensiSubmitInFlight = false;
@@ -4374,7 +4358,6 @@ window.addEventListener('load', function() {
                 if (faceScanRequired) {
                     postData.face_descriptor = JSON.parse(faceDescriptorValue);
                     postData.liveness_score = parseFloat(livenessScoreValue);
-                    postData.liveness_challenges = livenessChallengesValue ? JSON.parse(livenessChallengesValue) : [];
                 }
 
                 // Update UI with final location data

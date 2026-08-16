@@ -188,7 +188,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             'face_descriptor' => 'required|array|min:32',
             'face_descriptor.*' => 'numeric',
             'liveness_score' => 'required|numeric|min:0|max:1',
-            'liveness_challenges' => 'required|array|min:1',
+            'liveness_challenges' => 'nullable|array',
             'verification_nonce' => 'nullable|string|min:8',
             'verification_timestamp' => 'nullable|integer',
         ]);

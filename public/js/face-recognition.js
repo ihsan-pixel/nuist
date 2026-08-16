@@ -304,7 +304,6 @@ class FaceRecognition {
         return {
             face_descriptor: Array.from(descriptor),
             liveness_score: scanResult.liveness_score,
-            liveness_challenges: scanResult.challenges,
             captured_image: this.captureFrame(videoElement),
             initial_face_descriptor: Array.from(initialDescriptor),
         };
