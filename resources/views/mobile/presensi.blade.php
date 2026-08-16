@@ -3174,6 +3174,16 @@ window.addEventListener('load', function() {
             || normalizedMessage.includes('wajah tidak cocok');
     }
 
+    function closeSelfieAndReturnToPage(resetState = true) {
+        closeSelfieModal(resetState);
+        window.setTimeout(() => {
+            const presensiButton = document.getElementById('btn-presensi');
+            if (presensiButton) {
+                presensiButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 120);
+    }
+
     function resolveFaceInstructionMeta(message = '') {
         const normalized = String(message || '').toLowerCase();
 
@@ -3663,6 +3673,7 @@ window.addEventListener('load', function() {
             const error = new Error(message);
             error.notes = verification?.notes || 'face_similarity_below_threshold';
             error.similarity = verification?.similarity ?? null;
+            error.fatal = true;
             throw error;
         }
 
@@ -4155,6 +4166,17 @@ window.addEventListener('load', function() {
             }
 
             if (faceScanRequired) {
+                if (error?.fatal || verificationRejected) {
+                    setSelfieStatus(errorMessage, 'error');
+                    showFormalErrorAlert(
+                        'Wajah Tidak Cocok',
+                        showFormalRejectMessage(errorMessage, 'Presensi ditolak karena wajah tidak cocok dengan data yang terdaftar.')
+                    ).then(() => {
+                        closeSelfieAndReturnToPage();
+                    });
+                    return;
+                }
+
                 if (faceScanCompleted) {
                     return;
                 }
