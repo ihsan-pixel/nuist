@@ -1100,13 +1100,14 @@
         }
 
         .face-scan-mode .selfie-guide-oval {
-            top: 16%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             width: min(82vw, 352px);
             height: min(110vw, 472px);
         }
 
         .face-scan-mode .selfie-guide-pill {
-            top: calc(16% - 104px);
+            top: calc(50% - 282px);
         }
 
         .face-scan-mode .selfie-progress-orb {
@@ -1663,7 +1664,7 @@
             }
 
             .face-scan-mode .selfie-guide-oval {
-                top: 18%;
+                top: 50%;
                 width: min(82vw, 292px);
                 height: min(108vw, 404px);
             }
@@ -1684,7 +1685,7 @@
             }
 
             .face-scan-mode .selfie-guide-pill {
-                top: calc(18% - 98px);
+                top: calc(50% - 250px);
             }
 
             .selfie-guide-pill i {
@@ -3756,12 +3757,9 @@ window.addEventListener('load', function() {
             faceScanOnboarding.hidden = true;
         }
 
-        setFaceLoadingState(true);
-
         try {
             await initializeSelfieCamera();
         } catch (error) {
-            setFaceLoadingState(false);
             closeSelfieModal();
             showFormalErrorAlert(
                 'Akses Kamera Tidak Tersedia',
@@ -3825,7 +3823,6 @@ window.addEventListener('load', function() {
             stopSelfieStream();
 
         if (faceScanRequired) {
-            setFaceLoadingState(true, 'Menyiapkan kamera', 'Kamera dan model wajah sedang dimuat. Mohon tunggu sebentar.');
             await faceScanner.initializeCamera(video);
             video.style.display = 'block';
 
@@ -3834,7 +3831,8 @@ window.addEventListener('load', function() {
                     placeholder.style.display = 'none';
                 }
 
-                updateFaceInstruction('Memuat model scan wajah. Mohon tunggu sebentar.');
+                setFaceLoadingState(false);
+                updateFaceInstruction('Kamera aktif. Tekan Mulai Scan untuk memulai pembacaan wajah.');
                 void faceScanner.loadModels().catch((error) => {
                     console.error('Failed to preload face models:', error);
                 });
