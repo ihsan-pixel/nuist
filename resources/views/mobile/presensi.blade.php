@@ -1094,27 +1094,27 @@
         .face-scan-mode #selfie-video,
         .face-scan-mode #selfie-preview {
             object-fit: cover;
-            object-position: center center;
-            transform: scaleX(-1);
+            object-position: center 22%;
+            transform: scaleX(-1) scale(1.18);
             transform-origin: center center;
         }
 
         .face-scan-mode .selfie-guide-oval {
-            top: 18%;
-            width: min(78vw, 336px);
-            height: min(104vw, 448px);
+            top: 12%;
+            width: min(82vw, 352px);
+            height: min(110vw, 472px);
         }
 
         .face-scan-mode .selfie-guide-pill {
-            top: calc(18% - 108px);
+            top: calc(12% - 104px);
         }
 
         .face-scan-mode .selfie-progress-orb {
-            top: 78%;
+            top: 76%;
         }
 
         .face-scan-mode .selfie-guide-detail {
-            top: calc(78% + 92px);
+            top: calc(76% + 92px);
         }
 
         .selfie-guide {
@@ -1663,9 +1663,9 @@
             }
 
             .face-scan-mode .selfie-guide-oval {
-                top: 20%;
-                width: min(80vw, 286px);
-                height: min(106vw, 396px);
+                top: 14%;
+                width: min(82vw, 292px);
+                height: min(108vw, 404px);
             }
 
             .selfie-progress-orb {
@@ -1675,7 +1675,7 @@
             }
 
             .face-scan-mode .selfie-progress-orb {
-                top: 80%;
+                top: 78%;
             }
 
             .selfie-guide-pill {
@@ -1684,7 +1684,7 @@
             }
 
             .face-scan-mode .selfie-guide-pill {
-                top: calc(20% - 100px);
+                top: calc(14% - 98px);
             }
 
             .selfie-guide-pill i {
@@ -1714,7 +1714,7 @@
             }
 
             .face-scan-mode .selfie-guide-detail {
-                top: calc(80% + 82px);
+                top: calc(78% + 82px);
             }
         }
     </style>

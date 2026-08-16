@@ -670,6 +670,7 @@ class FaceRecognition {
         const calibrationDeadline = Date.now() + 1800;
         const baselineSamples = [];
         const recentEars = [];
+        const blinkHistory = [];
         let missedFrames = 0;
 
         this.emit(callbacks.onStatus, 'Posisi sudah sesuai. Kedip akan terbaca otomatis.');
@@ -704,10 +705,10 @@ class FaceRecognition {
         }
 
         const baselineEar = this.median(baselineSamples) || 0.24;
-        const closedThreshold = Math.max(0.156, baselineEar - 0.032);
-        const reopenThreshold = Math.max(0.17, baselineEar - 0.004);
-        const minDrop = Math.max(0.016, baselineEar * 0.075);
-        const suddenDropThreshold = Math.max(0.011, baselineEar * 0.048);
+        const closedThreshold = Math.max(0.162, baselineEar - 0.028);
+        const reopenThreshold = Math.max(0.175, baselineEar - 0.006);
+        const minDrop = Math.max(0.013, baselineEar * 0.055);
+        const suddenDropThreshold = Math.max(0.009, baselineEar * 0.035);
         let blinkClosedSeen = false;
         let blinkReopenedSeen = false;
         let reopenedFrames = 0;
@@ -743,7 +744,7 @@ class FaceRecognition {
             const ear = (leftEar + rightEar) / 2;
             const minEyeEar = Math.min(leftEar, rightEar);
             recentEars.push(ear);
-            if (recentEars.length > 3) {
+            if (recentEars.length > 5) {
                 recentEars.shift();
             }
 
@@ -754,17 +755,26 @@ class FaceRecognition {
             const suddenMinEyeDrop = previousMinEyeEar !== null ? (previousMinEyeEar - minEyeEar) : 0;
             bestDrop = Math.max(bestDrop, instantDrop, smoothedDrop, suddenDrop, suddenMinEyeDrop);
 
+            blinkHistory.push({ ear, minEyeEar, ts: Date.now() });
+            if (blinkHistory.length > 6) {
+                blinkHistory.shift();
+            }
+
             if (!blinkClosedSeen) {
                 const quickBlinkSignal =
                     (suddenDrop >= suddenDropThreshold || suddenMinEyeDrop >= suddenDropThreshold)
-                    && (instantDrop >= (minDrop * 0.72) || minEyeEar <= (closedThreshold + 0.012));
+                    && (instantDrop >= (minDrop * 0.6) || minEyeEar <= (closedThreshold + 0.02));
+                const oneFrameBlinkSignal =
+                    minEyeEar <= (closedThreshold + 0.004)
+                    && instantDrop >= (minDrop * 0.55);
                 const blinkClosing =
                     minEyeEar <= (closedThreshold - 0.005)
                     || ear <= closedThreshold
                     || smoothedEar <= (closedThreshold + 0.008)
                     || instantDrop >= minDrop
                     || smoothedDrop >= (minDrop * 0.85)
-                    || quickBlinkSignal;
+                    || quickBlinkSignal
+                    || oneFrameBlinkSignal;
 
                 if (blinkClosing) {
                     blinkClosedSeen = true;
@@ -781,18 +791,19 @@ class FaceRecognition {
             if (!blinkReopenedSeen) {
                 const reopenedNaturally =
                     ear >= reopenThreshold
-                    || smoothedEar >= (reopenThreshold - 0.004);
+                    || smoothedEar >= (reopenThreshold - 0.006);
                 const reopenedFromQuickBlink =
                     blinkCandidateAt !== null
-                    && (Date.now() - blinkCandidateAt) <= 650
+                    && (Date.now() - blinkCandidateAt) <= 850
                     && (
                         suddenDrop < 0
-                        || (instantDrop <= (minDrop * 0.45) && ear >= (baselineEar - (minDrop * 0.42)))
+                        || (instantDrop <= (minDrop * 0.55) && ear >= (baselineEar - (minDrop * 0.5)))
+                        || (minEyeEar >= (closedThreshold + 0.01) && smoothedEar >= (reopenThreshold - 0.01))
                     );
 
                 if (reopenedNaturally || reopenedFromQuickBlink) {
                     reopenedFrames += 1;
-                    if (reopenedFrames >= 1) {
+                    if (reopenedFrames >= 1 || blinkHistory.length >= 2) {
                         blinkReopenedSeen = true;
                         this.emit(callbacks.onGuideState, {
                             state: 'success',
@@ -805,7 +816,7 @@ class FaceRecognition {
                 } else {
                     reopenedFrames = 0;
 
-                    if (blinkCandidateAt !== null && (Date.now() - blinkCandidateAt) > 900) {
+                    if (blinkCandidateAt !== null && (Date.now() - blinkCandidateAt) > 1150) {
                         blinkClosedSeen = false;
                         blinkCandidateAt = null;
                         this.emit(callbacks.onStatus, 'Kedipan belum lengkap. Kedip satu kali lagi.');
