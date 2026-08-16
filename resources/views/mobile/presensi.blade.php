@@ -4119,25 +4119,20 @@ window.addEventListener('load', function() {
                     errorMessage || 'Selfie belum berhasil diambil. Silakan ulangi.'
                 );
             }
-            setSelfieStatus(
-                shouldAutoRetry
-                    ? 'Instruksi salah. Scan diulang dari awal.'
-                    : errorMessage,
-                'error'
-            );
-            if (faceScanRequired) {
+            if (!faceScanRequired) {
+                setSelfieStatus(errorMessage, 'error');
                 setSelfieProgressOrbState('error');
             }
             updateFaceInstruction(faceScanRequired
-                ? (shouldAutoRetry ? 'Instruksi salah. Mengulang scan dari awal.' : errorMessage)
+                ? 'Scan diulang otomatis. Arahkan wajah ke tengah frame.'
                 : 'Ulangi pengambilan selfie.');
 
             if (verificationRejected) {
                 updateSelfieGuideState({
-                    state: 'warning',
-                    message: errorMessage,
+                    state: 'searching',
+                    message: 'Scan diulang otomatis. Arahkan wajah ke tengah frame.',
                 });
-                setFaceFrameState('warning');
+                setFaceFrameState('searching');
             }
 
             if (faceScanRequired) {
@@ -4152,8 +4147,8 @@ window.addEventListener('load', function() {
                         message: 'Arahkan wajah ke dalam oval. Scan akan diulang otomatis.',
                     });
                     setFaceFrameState('searching');
-                    updateFaceInstruction('Scan diulang otomatis. Arahkan wajah ke dalam frame.');
-                    setSelfieStatus('Scan diulang otomatis.', 'info');
+                    updateFaceInstruction('Scan berjalan otomatis. Arahkan wajah ke dalam frame.');
+                    setSelfieStatus('Scan berjalan otomatis. Arahkan wajah ke dalam frame.', 'info');
                     captureSelfie();
                 }, verificationRejected ? 420 : 520);
             } else {
