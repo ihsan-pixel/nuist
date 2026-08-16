@@ -1106,7 +1106,7 @@
         }
 
         .face-scan-mode .selfie-guide-pill {
-            top: calc(16% - 108px);
+            top: (16%);
         }
 
         .face-scan-mode .selfie-progress-orb {
