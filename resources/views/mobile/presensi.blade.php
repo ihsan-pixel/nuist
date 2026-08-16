@@ -2066,7 +2066,7 @@
     </div>
 
     <!-- Time Information -->
-    @if($isPenjagaSekolah)
+    {{-- @if($isPenjagaSekolah)
     <div class="schedule-section">
         <div class="compact-section-head">
             <h6 class="section-title">Jadwal Presensi</h6>
@@ -2135,7 +2135,7 @@
         <i class="bx bx-info-circle me-1"></i>
         <strong>Pengaturan Presensi:</strong> Hari KBM belum diatur. Hubungi admin.
     </div>
-    @endif
+    @endif --}}
 
 
 
