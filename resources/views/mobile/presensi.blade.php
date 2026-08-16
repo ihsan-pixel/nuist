@@ -1094,19 +1094,19 @@
         .face-scan-mode #selfie-video,
         .face-scan-mode #selfie-preview {
             object-fit: cover;
-            object-position: center 40%;
-            transform: scaleX(-1) scale(1.5);
+            object-position: center 32%;
+            transform: scaleX(-1) scale(1.32);
             transform-origin: center center;
         }
 
         .face-scan-mode .selfie-guide-oval {
-            top: 12%;
+            top: 16%;
             width: min(82vw, 352px);
             height: min(110vw, 472px);
         }
 
         .face-scan-mode .selfie-guide-pill {
-            top: (20%);
+            top: calc(16% - 104px);
         }
 
         .face-scan-mode .selfie-progress-orb {
@@ -1663,7 +1663,7 @@
             }
 
             .face-scan-mode .selfie-guide-oval {
-                top: 14%;
+                top: 18%;
                 width: min(82vw, 292px);
                 height: min(108vw, 404px);
             }
@@ -1684,7 +1684,7 @@
             }
 
             .face-scan-mode .selfie-guide-pill {
-                top: calc(14% - 98px);
+                top: calc(18% - 98px);
             }
 
             .selfie-guide-pill i {
